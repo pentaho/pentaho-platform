@@ -18,11 +18,45 @@
 
 package org.pentaho.platform.repository2.unified;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
 import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -33,38 +67,50 @@ import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.api.repository2.unified.*;
+import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl.Builder;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
+import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.sample.SampleRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.engine.core.MicroPlatform;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.jcr.*;
+import org.pentaho.platform.repository2.unified.jcr.DefaultLockHelper;
+import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
+import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
-import org.pentaho.platform.security.policy.rolebased.actions.*;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
-import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -78,38 +124,24 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.security.AccessControlException;
-import javax.jcr.security.Privilege;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static org.junit.Assert.*;
-
 /**
- * Integration test. Tests {@link org.pentaho.platform.repository2.unified.DefaultUnifiedRepository} and {@link org.pentaho.platform.api.engine.IAuthorizationPolicy} fully configured
- * behind Spring Security's method security and Spring's transaction interceptor.
- *
+ * Integration test. Tests {@link org.pentaho.platform.repository2.unified.DefaultUnifiedRepository} and
+ * {@link org.pentaho.platform.api.engine.IAuthorizationPolicy} fully configured behind Spring Security's method
+ * security and Spring's transaction interceptor.
+ * 
  * <p>
  * Note the RunWith annotation that uses a special runner that knows how to setup a Spring application context. The
  * application context config files are listed in the ContextConfiguration annotation. By implementing
- * {@link org.springframework.context.ApplicationContextAware}, this unit test can access various beans defined in the application context,
- * including the bean under test.
+ * {@link org.springframework.context.ApplicationContextAware}, this unit test can access various beans defined in the
+ * application context, including the bean under test.
  * </p>
- *
+ * 
  * @author mlowery
  */
 @Ignore
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-    "classpath:/repository-test-override.spring.xml" } )
+  "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
 public class DefaultUnifiedRepositorySpecialCharacterTest implements ApplicationContextAware {
   // ~ Static fields/initializers
@@ -172,7 +204,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   private ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
 
   private ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver(
-      DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER );
+    DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER );
 
   private String superAdminRoleName;
   private String tenantAdminRoleName;
@@ -218,22 +250,23 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance( "tenantedUserNameUtils", userNameUtils );
     mp.defineInstance( "tenantedRoleNameUtils", roleNameUtils );
-    mp.defineInstance("ILockHelper", new DefaultLockHelper(userNameUtils));
+    mp.defineInstance( "ILockHelper", new DefaultLockHelper( userNameUtils ) );
 
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
-    mp.defineInstance("RepositoryFileProxyFactory", new RepositoryFileProxyFactory(this.jcrTemplate, this.repositoryFileDao));
-    mp.defineInstance("ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver());
+    mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate,
+      this.repositoryFileDao ) );
+    mp.defineInstance( "ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver() );
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
     setAclManagement();
 
     systemTenant =
-        tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName,
-            tenantAuthenticatedRoleName, "Anonymous" );
+      tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName,
+        tenantAuthenticatedRoleName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminRoleName } );
     logout();
   }
@@ -249,7 +282,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
           privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
         } catch ( AccessControlException ace ) {
           privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
-              new String[0] );
+            new String[0] );
         }
         session.save();
         return null;
@@ -273,7 +306,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     authorizationPolicy = null;
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenant =
-        tenantManager.getTenant( "/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/" + TENANT_ID_ACME );
+      tenantManager.getTenant( "/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/" + TENANT_ID_ACME );
     if ( tenant != null ) {
       cleanupUserAndRoles( tenant );
     }
@@ -325,15 +358,15 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetFileWithLoadedMaps() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAdminRoleName } );
     logout();
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     final String fileName = "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample";
     RepositoryFile newFile =
-        createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), fileName, "blah", false, 123 );
+      createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), fileName, "blah", false, 123 );
     assertEquals( fileName, newFile.getTitle() );
     RepositoryFile.Builder builder = new RepositoryFile.Builder( newFile );
     final String EN_US_VALUE = "Hello World Sample";
@@ -343,13 +376,13 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final SampleRepositoryFileData modContent = new SampleRepositoryFileData( "blah", false, 123 );
     repo.updateFile( builder.build(), modContent, null );
     RepositoryFile updatedFileWithMaps =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) + RepositoryFile.SEPARATOR
-            + "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample", true );
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) + RepositoryFile.SEPARATOR
+        + "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample", true );
 
     assertEquals( EN_US_VALUE, updatedFileWithMaps.getLocalePropertiesMap().get( Locale.getDefault().toString() )
-        .getProperty( RepositoryFile.FILE_TITLE ) );
+      .getProperty( RepositoryFile.FILE_TITLE ) );
     assertEquals( ROOT_LOCALE_VALUE, updatedFileWithMaps.getLocalePropertiesMap().get( RepositoryFile.DEFAULT_LOCALE )
-        .getProperty( RepositoryFile.FILE_TITLE ) );
+      .getProperty( RepositoryFile.FILE_TITLE ) );
     logout();
   }
 
@@ -357,8 +390,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testLocales() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAdminRoleName } );
     logout();
 
@@ -367,7 +400,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     // Create file
     final String fileName = "locale.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample";
     RepositoryFile file =
-        createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), fileName, "test", false, 123 );
+      createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), fileName, "test", false, 123 );
 
     // Test filename title matches created file name
     assertEquals( fileName, file.getTitle() );
@@ -425,8 +458,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testLocalePropertiesMap() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAdminRoleName } );
     logout();
 
@@ -435,7 +468,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     // Create file
     final String fileName = "locale.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample";
     RepositoryFile file =
-        createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), fileName, "test", false, 123 );
+      createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), fileName, "test", false, 123 );
 
     // Test filename title matches created file name
     assertEquals( fileName, file.getTitle() );
@@ -550,8 +583,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetAclOnlyVersion() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
     userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
 
@@ -561,8 +594,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     final String fileName = "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample";
     RepositoryFile newFile =
-        createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), fileName, "blah", false, 123,
-            true );
+      createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), fileName, "blah", false, 123,
+        true );
     assertEquals( 1, repo.getVersionSummaries( newFile.getId() ).size() );
     RepositoryFileAcl acl = repo.getAcl( newFile.getId() );
     // no change; just want to create a new version
@@ -576,8 +609,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testCreateFolder() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -586,7 +619,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile parentFolder = repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) );
-    RepositoryFile newFolder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~" ).folder( true ).hidden( true ).build();
+    RepositoryFile newFolder =
+      new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~" ).folder( true ).hidden( true ).build();
 
     Date beginTime = Calendar.getInstance().getTime();
 
@@ -602,16 +636,16 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     assertNotNull( newFolder.getId() );
     assertTrue( newFolder.isHidden() );
     assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
-        tenantAcme, USERNAME_SUZY )
-        + "/[~!@#$%^&*(){}|.,]-=_+|;'?<:>~" ) );
+      tenantAcme, USERNAME_SUZY )
+      + "/[~!@#$%^&*(){}|.,]-=_+|;'?<:>~" ) );
   }
 
   @Test( expected = UnifiedRepositoryException.class )
   public void testCreateFileAtRootIllegal() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -632,8 +666,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testCreateSimpleFile() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -649,10 +683,11 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final String expectedMimeType = "text/plain";
     final String expectedName = "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.xaction";
     final String expectedAbsolutePath =
-        ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) + "/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.xaction";
+      ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY )
+        + "/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.xaction";
 
     final SimpleRepositoryFileData content =
-        new SimpleRepositoryFileData( dataStream, expectedEncoding, expectedMimeType );
+      new SimpleRepositoryFileData( dataStream, expectedEncoding, expectedMimeType );
     Date beginTime = Calendar.getInstance().getTime();
     Thread.sleep( 1000 ); // when the test runs too fast, begin and lastModifiedDate are the same; manual pause
 
@@ -661,8 +696,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     cal.setTime( df.parse( "Wed, 4 Jul 2000 12:08:56 -0700" ) );
 
     RepositoryFile newFile =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( expectedName ).hidden( true ).versioned(
-            true ).createdDate( cal.getTime() ).build(), content, null );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( expectedName ).hidden( true ).versioned( true )
+        .createdDate( cal.getTime() ).build(), content, null );
 
     assertEquals( cal.getTime(), repo.getVersionSummaries( newFile.getId() ).get( 0 ).getDate() );
 
@@ -689,8 +724,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testCreateSampleFile() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -705,7 +740,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY );
     final String expectedAbsolutePath = parentFolderPath + RepositoryFile.SEPARATOR + expectedName;
     RepositoryFile newFile =
-        createSampleFile( parentFolderPath, expectedName, sampleString, sampleBoolean, sampleInteger );
+      createSampleFile( parentFolderPath, expectedName, sampleString, sampleBoolean, sampleInteger );
 
     assertNotNull( newFile.getId() );
     RepositoryFile foundFile = repo.getFile( expectedAbsolutePath );
@@ -726,8 +761,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetReferrers() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -762,8 +797,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testCreateNodeFile() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -776,10 +811,11 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String expectedPath = parentFolderPath + RepositoryFile.SEPARATOR + expectedName;
     final String serverPath =
-        ServerRepositoryPaths.getTenantRootFolderPath() + parentFolderPath + RepositoryFile.SEPARATOR
-            + "helloworld2.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample";
+      ServerRepositoryPaths.getTenantRootFolderPath() + parentFolderPath + RepositoryFile.SEPARATOR
+        + "helloworld2.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample";
 
-    RepositoryFile sampleFile = createSampleFile( parentFolderPath, "helloworld2.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample", "dfdd", true, 83 );
+    RepositoryFile sampleFile =
+      createSampleFile( parentFolderPath, "helloworld2.[~!@#$%^&*(){}|.,]-=_+|;'?<>~`.sample", "dfdd", true, 83 );
 
     final Date EXP_DATE = new Date();
 
@@ -797,7 +833,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     NodeRepositoryFileData data = new NodeRepositoryFileData( node );
     RepositoryFile newFile =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( expectedName ).build(), data, null );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( expectedName ).build(), data, null );
 
     assertNotNull( newFile.getId() );
     RepositoryFile foundFile = repo.getFile( expectedPath );
@@ -843,7 +879,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     assertNotNull( foundChild2.getId() );
     assertEquals( newChild2.getName(), foundChild2.getName() );
     assertEquals( newChild2.getProperty( RepositoryFilenameUtils.escape( "ttt:ss4", repo.getReservedChars() ) ),
-        foundChild2.getProperty( RepositoryFilenameUtils.escape( "ttt:ss4", repo.getReservedChars() ) ) );
+      foundChild2.getProperty( RepositoryFilenameUtils.escape( "ttt:ss4", repo.getReservedChars() ) ) );
     actualPropCount = 0;
     for ( DataProperty prop : foundChild2.getProperties() ) {
       actualPropCount++;
@@ -865,8 +901,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testUpdateFile() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -884,14 +920,14 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final int modSampleInteger = 99;
 
     final SampleRepositoryFileData modContent =
-        new SampleRepositoryFileData( modSampleString, modSampleBoolean, modSampleInteger );
+      new SampleRepositoryFileData( modSampleString, modSampleBoolean, modSampleInteger );
 
     repo.updateFile( newFile, modContent, null );
 
     SampleRepositoryFileData modData =
-        repo.getDataForRead( repo.getFile(
-            ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) + RepositoryFile.SEPARATOR + fileName )
-            .getId(), SampleRepositoryFileData.class );
+      repo.getDataForRead( repo.getFile(
+        ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) + RepositoryFile.SEPARATOR + fileName ).getId(),
+        SampleRepositoryFileData.class );
 
     assertEquals( modSampleString, modData.getSampleString() );
     assertEquals( modSampleBoolean, modData.getSampleBoolean() );
@@ -902,22 +938,23 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testWriteToPublic() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
 
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
-    assertNotNull( createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", "Hello World!", false, 500 ) );
+    assertNotNull( createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample",
+      "Hello World!", false, 500 ) );
   }
 
   @Test
   public void testLockFile() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -927,7 +964,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     final String parentFolderPath =
-        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
+      ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -938,8 +975,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData( dataStream, encoding, mimeType );
     RepositoryFile newFile =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).versioned( true ).build(),
-            content, null );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).versioned( true ).build(), content,
+        null );
     final String clientPath = parentFolderPath + RepositoryFile.SEPARATOR + fileName;
     final String serverPath = ServerRepositoryPaths.getTenantRootFolderPath() + clientPath;
     assertFalse( newFile.isLocked() );
@@ -983,8 +1020,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     // make sure lock token node has been removed
     assertNull( SimpleJcrTestUtils.getItem( testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath( tenantAcme,
-        USERNAME_SUZY )
-        + "/.lockTokens/" + newFile.getId() ) );
+      USERNAME_SUZY )
+      + "/.lockTokens/" + newFile.getId() ) );
 
     // lock it again by suzy
     repo.lockFile( newFile.getId(), lockMessage );
@@ -1018,8 +1055,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1028,8 +1065,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
-    String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(
-      PentahoSessionHolder.getSession().getName() );
+    String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String fileName = "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample";
     RepositoryFile newFile = createSampleFile( parentFolderPath, fileName, "dfdfd", true, 3, true );
@@ -1081,32 +1117,36 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
       repo.undeleteFile( newFile.getId(), null );
       fail();
     } catch ( UnifiedRepositoryException e ) {
-      //ignore
+      // ignore
     }
 
     // test preservation of original path even if that path no longer exists
     RepositoryFile publicFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
     RepositoryFile test1Folder =
-        repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "test1" ).folder( true ).build(), null );
+      repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "test1" ).folder( true ).build(), null );
     newFile = createSampleFile( test1Folder.getPath(), fileName, "dfdfd", true, 3 );
     repo.deleteFile( newFile.getId(), null );
     assertNull( repo.getFile( "/home/suzy/test1/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample" ) );
     // rename original parent folder
     repo.moveFile( test1Folder.getId(), ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession()
-        .getName() )
-        + RepositoryFile.SEPARATOR + "test2", null );
+      .getName() )
+      + RepositoryFile.SEPARATOR + "test2", null );
     assertNull( repo.getFile( test1Folder.getPath() ) );
     repo.undeleteFile( newFile.getId(), null );
     assertNotNull( repo.getFile( "/home/suzy/test1/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample" ) );
-    assertNull( repo.getFile( "/home/suzy/test2/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample" ) ); // repo should create any missing folders
-                                                                        // on undelete
-    assertEquals( "/home/suzy/test1/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", repo.getFileById( newFile.getId() ).getPath() );
+    assertNull( repo.getFile( "/home/suzy/test2/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample" ) ); // repo should
+                                                                                                       // create any
+                                                                                                       // missing
+                                                                                                       // folders
+    // on undelete
+    assertEquals( "/home/suzy/test1/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", repo.getFileById(
+      newFile.getId() ).getPath() );
 
     // test versioned parent folder
     RepositoryFile test5Folder =
-        repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "test5" ).folder( true ).versioned( true )
-            .build(), null );
+      repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "test5" ).folder( true ).versioned( true )
+        .build(), null );
     int versionCountBefore = repo.getVersionSummaries( test5Folder.getId() ).size();
     RepositoryFile newFile5 = createSampleFile( test5Folder.getPath(), fileName, "dfdfd", true, 3 );
     repo.deleteFile( newFile5.getId(), null );
@@ -1117,17 +1157,17 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     // test permanent delete without undelete
     RepositoryFile newFile6 =
-        createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ),
-            fileName, "dfdfd", true, 3 );
+      createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ),
+        fileName, "dfdfd", true, 3 );
     repo.deleteFile( newFile6.getId(), true, null );
 
     // test undelete where path to restored file already exists
     RepositoryFile newFile7 =
-        createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ),
-            fileName, "dfdfd", true, 3 );
+      createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ),
+        fileName, "dfdfd", true, 3 );
     repo.deleteFile( newFile7.getId(), null );
     createSampleFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ),
-        fileName, "dfdfd", true, 3 );
+      fileName, "dfdfd", true, 3 );
 
     try {
       repo.undeleteFile( newFile7.getId(), null );
@@ -1144,8 +1184,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testUndeleteFileLegacy() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1155,25 +1195,26 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     final String fileName = "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample";
     RepositoryFile publicFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
     RepositoryFile test3Folder =
-        repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "test3" ).folder( true ).build(), null );
+      repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "test3" ).folder( true ).build(), null );
 
     // simulate file(s) in legacy trash structure
     final String suzyHomePath = "/pentaho/acme/home/suzy";
     SimpleJcrTestUtils.addNode( testJcrTemplate, suzyHomePath, ".trash", "pho_nt:pentahoInternalFolder" );
     final String suzyTrashPath = suzyHomePath + "/.trash";
     SimpleJcrTestUtils.addNode( testJcrTemplate, suzyTrashPath, "pho:" + test3Folder.getId(),
-        "pho_nt:pentahoInternalFolder" );
+      "pho_nt:pentahoInternalFolder" );
     final String suzyTrashFolderIdPath = suzyTrashPath + "/pho:" + test3Folder.getId();
     assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, suzyTrashFolderIdPath ) );
     RepositoryFile newFile3 = createSampleFile( test3Folder.getPath(), fileName, "dfdfd", true, 3, true );
     SimpleJcrTestUtils.addNode( testJcrTemplate, suzyTrashFolderIdPath, "pho:" + newFile3.getId(),
-        "pho_nt:pentahoInternalFolder" );
+      "pho_nt:pentahoInternalFolder" );
     final String suzyTrashFileIdPath = suzyTrashFolderIdPath + "/pho:" + newFile3.getId();
     assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, suzyTrashFileIdPath ) );
     String absTrashPath = suzyTrashFileIdPath + "/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample";
-    SimpleJcrTestUtils.move( testJcrTemplate, "/pentaho/acme/home/suzy/test3/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", absTrashPath );
+    SimpleJcrTestUtils.move( testJcrTemplate,
+      "/pentaho/acme/home/suzy/test3/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", absTrashPath );
     assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, absTrashPath ) );
     Date expectedDate = new Date();
     SimpleJcrTestUtils.setDate( testJcrTemplate, suzyTrashFileIdPath + "/pho:deletedDate", expectedDate );
@@ -1205,7 +1246,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
       repo.getFileById( newFile3.getId() );
       fail();
     } catch ( UnifiedRepositoryException e ) {
-      //ignore
+      // ignore
     }
   }
 
@@ -1213,8 +1254,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testDeleteLockedFile() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1223,7 +1264,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     final String parentFolderPath =
-        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
+      ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -1234,7 +1275,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData( dataStream, encoding, mimeType );
     RepositoryFile newFile =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).build(), content, null );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).build(), content, null );
     final String filePath = parentFolderPath + RepositoryFile.SEPARATOR + fileName;
     assertFalse( repo.getFile( filePath ).isLocked() );
     final String lockMessage = "test by Mat";
@@ -1243,16 +1284,16 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     repo.deleteFile( newFile.getId(), null );
     // lock only removed when file is permanently deleted
     assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
-        tenantAcme, USERNAME_SUZY )
-        + "/.lockTokens/" + newFile.getId() ) );
+      tenantAcme, USERNAME_SUZY )
+      + "/.lockTokens/" + newFile.getId() ) );
     repo.undeleteFile( newFile.getId(), null );
     repo.deleteFile( newFile.getId(), null );
     repo.deleteFile( newFile.getId(), true, null );
 
     // make sure lock token node has been removed
     assertNull( SimpleJcrTestUtils.getItem( testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath( tenantAcme,
-        USERNAME_SUZY )
-        + "/.lockTokens/" + newFile.getId() ) );
+      USERNAME_SUZY )
+      + "/.lockTokens/" + newFile.getId() ) );
   }
 
   @Test
@@ -1260,8 +1301,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     // Startup and login to repository
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1281,13 +1322,14 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final String expectedMimeType = "text/plain";
     final String expectedName = "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction";
     final String expectedAbsolutePath =
-        ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) + "/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction";
+      ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY )
+        + "/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction";
 
     final SimpleRepositoryFileData content =
-        new SimpleRepositoryFileData( dataStream, expectedEncoding, expectedMimeType );
+      new SimpleRepositoryFileData( dataStream, expectedEncoding, expectedMimeType );
     RepositoryFile newFile =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( expectedName ).versioned( true ).build(),
-            content, null );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( expectedName ).versioned( true ).build(),
+        content, null );
 
     // Make sure the file was created
     RepositoryFile foundFile = repo.getFile( expectedAbsolutePath );
@@ -1295,7 +1337,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     // Modify file
     final SimpleRepositoryFileData modContent =
-        new SimpleRepositoryFileData( modDataStream, expectedEncoding, expectedMimeType );
+      new SimpleRepositoryFileData( modDataStream, expectedEncoding, expectedMimeType );
     repo.updateFile( foundFile, modContent, null );
 
     // Verify versions
@@ -1303,9 +1345,9 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     assertEquals( 2, origVerList.size() );
 
     SimpleRepositoryFileData result =
-        repo.getDataAtVersionForRead( foundFile.getId(), origVerList.get( 0 ).getId(), SimpleRepositoryFileData.class );
+      repo.getDataAtVersionForRead( foundFile.getId(), origVerList.get( 0 ).getId(), SimpleRepositoryFileData.class );
     SimpleRepositoryFileData modResult =
-        repo.getDataAtVersionForRead( foundFile.getId(), origVerList.get( 1 ).getId(), SimpleRepositoryFileData.class );
+      repo.getDataAtVersionForRead( foundFile.getId(), origVerList.get( 1 ).getId(), SimpleRepositoryFileData.class );
 
     assertEquals( expectedDataString, IOUtils.toString( result.getStream(), expectedEncoding ) );
     assertEquals( expectedModDataString, IOUtils.toString( modResult.getStream(), expectedEncoding ) );
@@ -1318,7 +1360,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     assertEquals( 1, newVerList.size() );
 
     SimpleRepositoryFileData newModResult =
-        repo.getDataAtVersionForRead( foundFile.getId(), newVerList.get( 0 ).getId(), SimpleRepositoryFileData.class );
+      repo.getDataAtVersionForRead( foundFile.getId(), newVerList.get( 0 ).getId(), SimpleRepositoryFileData.class );
 
     assertEquals( expectedModDataString, IOUtils.toString( newModResult.getStream(), expectedEncoding ) );
   }
@@ -1328,8 +1370,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     // Startup and login to repository
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1349,13 +1391,14 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final String expectedMimeType = "text/plain";
     final String expectedName = "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction";
     final String expectedAbsolutePath =
-        ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) + "/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction";
+      ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY )
+        + "/helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction";
 
     final SimpleRepositoryFileData content =
-        new SimpleRepositoryFileData( dataStream, expectedEncoding, expectedMimeType );
+      new SimpleRepositoryFileData( dataStream, expectedEncoding, expectedMimeType );
     RepositoryFile newFile =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( expectedName ).versioned( true ).build(),
-            content, null );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( expectedName ).versioned( true ).build(),
+        content, null );
 
     // Make sure the file was created
     RepositoryFile foundFile = repo.getFile( expectedAbsolutePath );
@@ -1363,7 +1406,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     // Modify file
     final SimpleRepositoryFileData modContent =
-        new SimpleRepositoryFileData( modDataStream, expectedEncoding, expectedMimeType );
+      new SimpleRepositoryFileData( modDataStream, expectedEncoding, expectedMimeType );
     repo.updateFile( foundFile, modContent, null );
 
     // Verify versions
@@ -1371,9 +1414,9 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     assertEquals( 2, origVerList.size() );
 
     SimpleRepositoryFileData result =
-        repo.getDataAtVersionForRead( foundFile.getId(), origVerList.get( 0 ).getId(), SimpleRepositoryFileData.class );
+      repo.getDataAtVersionForRead( foundFile.getId(), origVerList.get( 0 ).getId(), SimpleRepositoryFileData.class );
     SimpleRepositoryFileData modResult =
-        repo.getDataAtVersionForRead( foundFile.getId(), origVerList.get( 1 ).getId(), SimpleRepositoryFileData.class );
+      repo.getDataAtVersionForRead( foundFile.getId(), origVerList.get( 1 ).getId(), SimpleRepositoryFileData.class );
 
     assertEquals( expectedDataString, IOUtils.toString( result.getStream(), expectedEncoding ) );
     assertEquals( expectedModDataString, IOUtils.toString( modResult.getStream(), expectedEncoding ) );
@@ -1394,8 +1437,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetVersionSummaries() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1404,7 +1447,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     final String parentFolderPath =
-        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
+      ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -1414,8 +1457,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final String fileName = "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction";
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData( dataStream, encoding, mimeType );
     RepositoryFile newFile =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).versioned( true ).build(),
-            content, "created helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction" );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).versioned( true ).build(), content,
+        "created helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction" );
     repo.updateFile( newFile, content, "update 1" );
     newFile = repo.getFileById( newFile.getId() );
     repo.updateFile( newFile, content, "update 2" );
@@ -1434,8 +1477,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetVersionSummary() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1451,7 +1494,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final int origSampleInteger = 1024;
 
     RepositoryFile newFile =
-        createSampleFile( parentFolderPath, fileName, origSampleString, origSampleBoolean, origSampleInteger, true );
+      createSampleFile( parentFolderPath, fileName, origSampleString, origSampleBoolean, origSampleInteger, true );
     SampleRepositoryFileData newContent = repo.getDataForRead( newFile.getId(), SampleRepositoryFileData.class );
 
     VersionSummary v1 = repo.getVersionSummary( newFile.getId(), newFile.getVersionId() );
@@ -1478,8 +1521,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetFileByVersionSummary() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1495,7 +1538,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final int origSampleInteger = 1024;
 
     RepositoryFile newFile =
-        createSampleFile( parentFolderPath, fileName, origSampleString, origSampleBoolean, origSampleInteger, true );
+      createSampleFile( parentFolderPath, fileName, origSampleString, origSampleBoolean, origSampleInteger, true );
     final Serializable fileId = newFile.getId();
     final String absolutePath = newFile.getPath();
 
@@ -1504,7 +1547,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final int modSampleInteger = 2048;
 
     final SampleRepositoryFileData modData =
-        new SampleRepositoryFileData( modSampleString, modSampleBoolean, modSampleInteger );
+      new SampleRepositoryFileData( modSampleString, modSampleBoolean, modSampleInteger );
 
     RepositoryFile.Builder builder = new RepositoryFile.Builder( newFile );
     final String desc = "Hello World description";
@@ -1529,9 +1572,9 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     System.out.println( "v1: " + v1 );
     System.out.println( "v2: " + v2 );
     SampleRepositoryFileData c1 =
-        repo.getDataAtVersionForRead( v1.getId(), v1.getVersionId(), SampleRepositoryFileData.class );
+      repo.getDataAtVersionForRead( v1.getId(), v1.getVersionId(), SampleRepositoryFileData.class );
     SampleRepositoryFileData c2 =
-        repo.getDataAtVersionForRead( v2.getId(), v2.getVersionId(), SampleRepositoryFileData.class );
+      repo.getDataAtVersionForRead( v2.getId(), v2.getVersionId(), SampleRepositoryFileData.class );
     assertEquals( origSampleString, c1.getSampleString() );
     assertEquals( origSampleBoolean, c1.getSampleBoolean() );
     assertEquals( origSampleInteger, c1.getSampleInteger() );
@@ -1543,12 +1586,12 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   @Test
   @Ignore
   // Failing due to pho:aclManagement not present.
-  public
-  void testOwnership() throws Exception {
+    public
+    void testOwnership() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1558,19 +1601,19 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile parentFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
-    RepositoryFile newFolder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).versioned( true ).build();
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+    RepositoryFile newFolder =
+      new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).versioned( true ).build();
     final String testFolderPath =
-        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() )
-            + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test";
+      ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() )
+        + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test";
     newFolder = repo.createFolder( parentFolder.getId(), newFolder, null );
     assertEquals( new RepositoryFileSid( USERNAME_SUZY ), repo.getAcl( newFolder.getId() ).getOwner() );
 
     // set acl removing suzy's rights to this folder
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     RepositoryFileAcl testFolderAcl = repo.getAcl( newFolder.getId() );
-    RepositoryFileAcl newAcl =
-        new Builder( testFolderAcl ).entriesInheriting( false ).clearAces().build();
+    RepositoryFileAcl newAcl = new Builder( testFolderAcl ).entriesInheriting( false ).clearAces().build();
     repo.updateAcl( newAcl );
     // but suzy is still the owner--she should be able to "acl" herself back into the folder
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
@@ -1579,9 +1622,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     // as suzy, change owner to role to which she belongs
     testFolderAcl = repo.getAcl( newFolder.getId() );
     newAcl =
-        new Builder( testFolderAcl ).owner(
-            new RepositoryFileSid( roleNameUtils.getPrincipleId( tenantAcme, "Authenticated" ),
-                Type.ROLE ) ).build();
+      new Builder( testFolderAcl ).owner(
+        new RepositoryFileSid( roleNameUtils.getPrincipleId( tenantAcme, "Authenticated" ), Type.ROLE ) ).build();
     repo.updateAcl( newAcl );
     assertNotNull( repo.getFile( testFolderPath ) );
     login( USERNAME_TIFFANY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
@@ -1592,8 +1634,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetAcl() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1604,8 +1646,9 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile parentFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
-    RepositoryFile newFolder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).versioned( true ).build();
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+    RepositoryFile newFolder =
+      new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).versioned( true ).build();
     newFolder = repo.createFolder( parentFolder.getId(), newFolder, null );
 
     RepositoryFileAcl acl = repo.getAcl( newFolder.getId() );
@@ -1614,15 +1657,15 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     assertEquals( newFolder.getId(), acl.getId() );
     assertTrue( acl.getAces().isEmpty() );
     RepositoryFileAcl newAcl =
-        new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ),
-            Type.USER, RepositoryFilePermission.READ ).entriesInheriting( true ).build();
+      new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ), Type.USER,
+        RepositoryFilePermission.READ ).entriesInheriting( true ).build();
     RepositoryFileAcl fetchedAcl = repo.updateAcl( newAcl );
     // since isEntriesInheriting is true, ace addition should not have taken
     assertTrue( fetchedAcl.getAces().isEmpty() );
     newAcl =
-        new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ),
-            Type.USER, RepositoryFilePermission.READ ).build(); // calling ace sets
-                                                                                  // entriesInheriting to false
+      new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ), Type.USER,
+        RepositoryFilePermission.READ ).build(); // calling ace sets
+                                                 // entriesInheriting to false
     fetchedAcl = repo.updateAcl( newAcl );
     // since isEntriesInheriting is false, ace addition should have taken
     assertFalse( fetchedAcl.getAces().isEmpty() );
@@ -1632,8 +1675,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testCreateFolderWithAcl() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1642,10 +1685,10 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile parentFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
-    RepositoryFile newFolder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).versioned( true ).build();
-    RepositoryFileSid tiffanySid = new RepositoryFileSid(
-      userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ) );
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+    RepositoryFile newFolder =
+      new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).versioned( true ).build();
+    RepositoryFileSid tiffanySid = new RepositoryFileSid( userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ) );
     RepositoryFileSid suzySid = new RepositoryFileSid( userNameUtils.getPrincipleId( tenantAcme, USERNAME_SUZY ) );
     // tiffany owns it but suzy is creating it
     Builder aclBuilder = new Builder( tiffanySid );
@@ -1654,16 +1697,15 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     newFolder = repo.createFolder( parentFolder.getId(), newFolder, aclBuilder.build(), null );
     RepositoryFileAcl fetchedAcl = repo.getAcl( newFolder.getId() );
     assertEquals( new RepositoryFileSid( USERNAME_TIFFANY ), fetchedAcl.getOwner() );
-    assertLocalAceExists( newFolder, new RepositoryFileSid( USERNAME_SUZY ),
-      EnumSet.of( RepositoryFilePermission.READ ) );
+    assertLocalAceExists( newFolder, new RepositoryFileSid( USERNAME_SUZY ), EnumSet.of( RepositoryFilePermission.READ ) );
   }
 
   @Test
   public void testWriteOnFileToMove() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1672,18 +1714,19 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile parentFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
     RepositoryFile srcFolder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~src" ).folder( true ).build();
-    RepositoryFile destFolder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~dest" ).folder( true ).build();
+    RepositoryFile destFolder =
+      new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~dest" ).folder( true ).build();
     srcFolder = repo.createFolder( parentFolder.getId(), srcFolder, null );
     destFolder = repo.createFolder( parentFolder.getId(), destFolder, null );
 
-    RepositoryFile newFile = createSampleFile( srcFolder.getPath(), "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", "ddfdf", false, 83 );
+    RepositoryFile newFile =
+      createSampleFile( srcFolder.getPath(), "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", "ddfdf", false, 83 );
     RepositoryFileAcl acl =
-        new Builder( newFile.getId(), userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ),
-            Type.USER ).entriesInheriting( false ).ace(
-            userNameUtils.getPrincipleId( tenantAcme, USERNAME_SUZY ), Type.USER,
-            RepositoryFilePermission.READ ).build();
+      new Builder( newFile.getId(), userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ), Type.USER )
+        .entriesInheriting( false ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_SUZY ), Type.USER,
+          RepositoryFilePermission.READ ).build();
     repo.updateAcl( acl );
     // at this point, suzy has write access to src and dest folders but only read access to actual file that will
     // be
@@ -1692,7 +1735,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
       repo.moveFile( newFile.getId(), destFolder.getPath(), null );
       fail();
     } catch ( UnifiedRepositoryAccessDeniedException e ) {
-      //ignore
+      // ignore
     }
   }
 
@@ -1703,21 +1746,21 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testDeleteWhenNoDeletePermissionOnFile() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     defaultBackingRepositoryLifecycleManager.newTenant();
     RepositoryFile publicFolderFile =
-        createSampleFile( repo.getFile(
-            ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) ).getPath(),
-            "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", "ddfdf", false, 83 );
+      createSampleFile( repo.getFile(
+        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) ).getPath(),
+        "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", "ddfdf", false, 83 );
     RepositoryFileAcl publicFolderFileAcl =
-        new Builder( publicFolderFile.getId(), userNameUtils.getPrincipleId( tenantAcme,
-            USERNAME_ADMIN ), Type.USER ).entriesInheriting( false ).ace(
-            new RepositoryFileSid( roleNameUtils.getPrincipleId( tenantAcme, tenantAuthenticatedRoleName ),
-                Type.ROLE ), RepositoryFilePermission.READ, RepositoryFilePermission.WRITE ).build();
+      new Builder( publicFolderFile.getId(), userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ), Type.USER )
+        .entriesInheriting( false ).ace(
+          new RepositoryFileSid( roleNameUtils.getPrincipleId( tenantAcme, tenantAuthenticatedRoleName ), Type.ROLE ),
+          RepositoryFilePermission.READ, RepositoryFilePermission.WRITE ).build();
     repo.updateAcl( publicFolderFileAcl );
 
     userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAuthenticatedRoleName } );
@@ -1748,21 +1791,21 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testWriteWhenNoWritePermissionOnFile() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     defaultBackingRepositoryLifecycleManager.newTenant();
     RepositoryFile publicFolderFile =
-        createSampleFile( repo.getFile(
-            ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) ).getPath(),
-            "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", "ddfdf", false, 83 );
+      createSampleFile( repo.getFile(
+        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) ).getPath(),
+        "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", "ddfdf", false, 83 );
     RepositoryFileAcl publicFolderFileAcl =
-        new Builder( publicFolderFile.getId(), userNameUtils.getPrincipleId( tenantAcme,
-            USERNAME_ADMIN ), Type.USER ).entriesInheriting( false ).ace(
-            new RepositoryFileSid( roleNameUtils.getPrincipleId( tenantAcme, tenantAuthenticatedRoleName ),
-                Type.ROLE ), RepositoryFilePermission.READ ).build();
+      new Builder( publicFolderFile.getId(), userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ), Type.USER )
+        .entriesInheriting( false ).ace(
+          new RepositoryFileSid( roleNameUtils.getPrincipleId( tenantAcme, tenantAuthenticatedRoleName ), Type.ROLE ),
+          RepositoryFilePermission.READ ).build();
     repo.updateAcl( publicFolderFileAcl );
     userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAuthenticatedRoleName } );
 
@@ -1773,7 +1816,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final int modSampleInteger = 99;
 
     final SampleRepositoryFileData modContent =
-        new SampleRepositoryFileData( modSampleString, modSampleBoolean, modSampleInteger );
+      new SampleRepositoryFileData( modSampleString, modSampleBoolean, modSampleInteger );
 
     try {
 
@@ -1795,34 +1838,34 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
   /**
    * Tests Updating the ACL when no GRANT_PERMISSION is assigned
-   *
+   * 
    */
   @Test
   public void testUpdatingPermissionWhenNoGrantPermissionOnFile() throws Exception {
 
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, "password", ""
-      , new String[] { tenantAuthenticatedRoleName } );
+    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, "password", "", new String[] { tenantAuthenticatedRoleName } );
 
     defaultBackingRepositoryLifecycleManager.newTenant();
 
     RepositoryFile parentFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
-    RepositoryFile newFolder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).versioned( true ).build();
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+    RepositoryFile newFolder =
+      new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).versioned( true ).build();
     newFolder = repo.createFolder( parentFolder.getId(), newFolder, null );
 
     RepositoryFileAcl acls = repo.getAcl( newFolder.getId() );
 
     Builder newAclBuilder = new Builder( acls );
     newAclBuilder.entriesInheriting( false ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ),
-        Type.USER, RepositoryFilePermission.READ );
+      Type.USER, RepositoryFilePermission.READ );
     repo.updateAcl( newAclBuilder.build() );
 
     login( USERNAME_TIFFANY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
@@ -1830,8 +1873,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     Builder anotherNewAclBuilder = new Builder( newAcl );
     anotherNewAclBuilder.ace( new RepositoryFileSid( userNameUtils.getPrincipleId( tenantAcme,
-        tenantAuthenticatedRoleName ), Type.ROLE ), RepositoryFilePermission.READ,
-        RepositoryFilePermission.WRITE, RepositoryFilePermission.DELETE );
+      tenantAuthenticatedRoleName ), Type.ROLE ), RepositoryFilePermission.READ, RepositoryFilePermission.WRITE,
+      RepositoryFilePermission.DELETE );
 
     try {
       repo.updateAcl( anotherNewAclBuilder.build() );
@@ -1846,8 +1889,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testMoveFile() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1856,32 +1899,46 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile parentFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
-    RepositoryFile moveTest1Folder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest1" ).folder( true ).versioned( true ).build();
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+    RepositoryFile moveTest1Folder =
+      new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest1" ).folder( true ).versioned( true ).build();
     moveTest1Folder = repo.createFolder( parentFolder.getId(), moveTest1Folder, null );
-    RepositoryFile moveTest2Folder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest2" ).folder( true ).versioned( true ).build();
+    RepositoryFile moveTest2Folder =
+      new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest2" ).folder( true ).versioned( true ).build();
     moveTest2Folder = repo.createFolder( parentFolder.getId(), moveTest2Folder, null );
-    RepositoryFile testFolder = new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).build();
+    RepositoryFile testFolder =
+      new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ).folder( true ).build();
     testFolder = repo.createFolder( moveTest1Folder.getId(), testFolder, null );
     // move folder into new folder
     repo.moveFile( testFolder.getId(), moveTest2Folder.getPath(), null );
     assertNull( repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() )
-        + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest1" + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ) );
+      + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest1" + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ) );
     assertNotNull( repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession()
-        .getName() )
-        + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest2" + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ) );
+      .getName() )
+      + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest2"
+      + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ) );
     // rename within same folder
-    repo.moveFile( testFolder.getId(), moveTest2Folder.getPath() + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~newTest", null );
+    repo.moveFile( testFolder.getId(), moveTest2Folder.getPath() + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~newTest", null );
     assertNull( repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() )
-        + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest2" + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ) );
+      + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest2" + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~test" ) );
     assertNotNull( repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession()
-        .getName() )
-        + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest2" + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~newTest" ) );
+      .getName() )
+      + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~moveTest2"
+      + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~newTest" ) );
 
-    RepositoryFile newFile = createSampleFile( moveTest2Folder.getPath(), "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", "ddfdf", false, 83 );
+    RepositoryFile newFile =
+      createSampleFile( moveTest2Folder.getPath(), "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample", "ddfdf", false,
+        83 );
     try {
       repo.moveFile( testFolder.getId(), moveTest2Folder.getPath() + RepositoryFile.SEPARATOR + "doesnotexist"
-          + RepositoryFile.SEPARATOR + "newTest2", null );
+        + RepositoryFile.SEPARATOR + "newTest2", null );
       fail();
     } catch ( UnifiedRepositoryException e ) {
       // moving a folder to a path with a non-existent parent folder is illegal
@@ -1899,8 +1956,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testCopyRecursive() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1909,28 +1966,31 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile parentFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
     RepositoryFile testFolder1 =
-        repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfolder1" ).folder( true ).build(),
-            null );
+      repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfolder1" )
+        .folder( true ).build(), null );
     RepositoryFile testFile1 = createSimpleFile( testFolder1.getId(), "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfile1" );
     RepositoryFile testFolder2 =
-        repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfolder2" ).folder( true ).build(),
-            null );
+      repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfolder2" )
+        .folder( true ).build(), null );
     RepositoryFile testFile2 = createSimpleFile( testFolder2.getId(), "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfile2" );
     repo.copyFile( testFolder1.getId(), testFolder2.getPath(), null );
-    assertNotNull( repo.getFile( testFolder2.getPath() + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfile2" ) );
-    assertNotNull( repo.getFile( testFolder2.getPath() + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfolder1" ) );
-    assertNotNull( repo.getFile( testFolder2.getPath() + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfolder1"
-        + RepositoryFile.SEPARATOR + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfile1" ) );
+    assertNotNull( repo.getFile( testFolder2.getPath() + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfile2" ) );
+    assertNotNull( repo.getFile( testFolder2.getPath() + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfolder1" ) );
+    assertNotNull( repo.getFile( testFolder2.getPath() + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfolder1" + RepositoryFile.SEPARATOR
+      + "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testfile1" ) );
   }
 
   @Test
   public void testAdminCreate() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -1945,18 +2005,18 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final int sampleInteger = 99;
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY );
     RepositoryFile newFile =
-        createSampleFile( parentFolderPath, expectedName, sampleString, sampleBoolean, sampleInteger );
+      createSampleFile( parentFolderPath, expectedName, sampleString, sampleBoolean, sampleInteger );
     RepositoryFileAcl acls = repo.getAcl( newFile.getId() );
 
     Builder newAclBuilder = new Builder( acls );
-    newAclBuilder.entriesInheriting( false ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_SUZY ),
-        Type.USER, RepositoryFilePermission.ALL );
+    newAclBuilder.entriesInheriting( false ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_SUZY ), Type.USER,
+      RepositoryFilePermission.ALL );
     repo.updateAcl( newAclBuilder.build() );
 
     // newFile = repo.getFile(newFile.getPath());
     JcrRepositoryDumpToFile dumpToFile =
-        new JcrRepositoryDumpToFile( testJcrTemplate, jcrTransactionTemplate, repositoryAdminUsername,
-            "dumpTestAdminCreate", Mode.CUSTOM );
+      new JcrRepositoryDumpToFile( testJcrTemplate, jcrTransactionTemplate, repositoryAdminUsername,
+        "dumpTestAdminCreate", Mode.CUSTOM );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1971,8 +2031,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetTree() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2006,8 +2066,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
 
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2016,7 +2076,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile publicFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
     byte[] data = dataString.getBytes( encoding );
@@ -2024,12 +2084,12 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final String mimeType = "text/plain";
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData( dataStream, encoding, mimeType );
     RepositoryFile newFile1 =
-        repo.createFile( publicFolder.getId(), new RepositoryFile.Builder( "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction" ).versioned( true )
-            .hidden( false ).build(), content, null );
+      repo.createFile( publicFolder.getId(), new RepositoryFile.Builder(
+        "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction" ).versioned( true ).hidden( false ).build(), content, null );
 
     RepositoryFile newFile2 =
-        repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testFolder" ).versioned( false ).hidden(
-            false ).folder( true ).build(), null, null );
+      repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~testFolder" )
+        .versioned( false ).hidden( false ).folder( true ).build(), null, null );
 
     root = repo.getTree( publicFolder.getPath(), 1, "*|FILES", true );
     assertFalse( root.getChildren().isEmpty() );
@@ -2056,8 +2116,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     RepositoryFileTree root = null;
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2066,7 +2126,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile publicFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+      repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
     byte[] data = dataString.getBytes( encoding );
@@ -2074,8 +2134,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final String mimeType = "text/plain";
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData( dataStream, encoding, mimeType );
     RepositoryFile newFile1 =
-        repo.createFile( publicFolder.getId(), new RepositoryFile.Builder( "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction" ).versioned( true )
-            .hidden( true ).build(), content, null );
+      repo.createFile( publicFolder.getId(), new RepositoryFile.Builder(
+        "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction" ).versioned( true ).hidden( true ).build(), content, null );
     root = repo.getTree( publicFolder.getPath(), -1, null, true );
     assertFalse( root.getChildren().isEmpty() );
     root = repo.getTree( publicFolder.getPath(), -1, null, false );
@@ -2086,8 +2146,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetDataForReadInBatch_versioned() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2100,8 +2160,11 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     String sampleString1 = "sampleString1";
     String sampleString2 = "sampleString2";
 
-    RepositoryFile newFile1 = createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample1", sampleString1, true, 1, true );
-    RepositoryFile newFile2 = createSampleFile( parentFolderPath, "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~file2", sampleString2, false, 2 );
+    RepositoryFile newFile1 =
+      createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample1", sampleString1, true, 1,
+        true );
+    RepositoryFile newFile2 =
+      createSampleFile( parentFolderPath, "[~!@#$%^&*(){}|.,]-=_+|;'?<:>~file2", sampleString2, false, 2 );
 
     // Update newFile1 to create a new version
     SampleRepositoryFileData updatedContent = new SampleRepositoryFileData( sampleString1 + "mod", true, 1 );
@@ -2119,7 +2182,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     RepositoryFile lookup2 = new RepositoryFile.Builder( newFile2.getId(), null ).build();
 
     List<SampleRepositoryFileData> data =
-        repo.getDataForReadInBatch( Arrays.asList( lookup1, lookup2 ), SampleRepositoryFileData.class );
+      repo.getDataForReadInBatch( Arrays.asList( lookup1, lookup2 ), SampleRepositoryFileData.class );
     assertEquals( 2, data.size() );
     SampleRepositoryFileData d = data.get( 0 );
     assertEquals( updatedContent.getSampleString(), d.getSampleString() );
@@ -2156,8 +2219,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2169,7 +2232,9 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     String sampleString1 = "sampleString1";
 
-    RepositoryFile newFile1 = createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample1", sampleString1, true, 1, true );
+    RepositoryFile newFile1 =
+      createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample1", sampleString1, true, 1,
+        true );
 
     Map<String, Serializable> metadataMap = new HashMap<String, Serializable>();
     metadataMap.put( key1, value1 );
@@ -2207,8 +2272,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testFileCreator() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2221,8 +2286,12 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     String sampleString1 = "sampleString1";
     String sampleString2 = "sampleString2";
 
-    RepositoryFile newFile1 = createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample1", sampleString1, true, 1, true );
-    RepositoryFile newFile2 = createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample2", sampleString2, true, 1, true );
+    RepositoryFile newFile1 =
+      createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample1", sampleString1, true, 1,
+        true );
+    RepositoryFile newFile2 =
+      createSampleFile( parentFolderPath, "helloworld.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.sample2", sampleString2, true, 1,
+        true );
 
     RepositoryFile.Builder builder = new RepositoryFile.Builder( newFile1 );
     builder.creatorId( (String) newFile2.getId() );
@@ -2243,8 +2312,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testGetVersionSummaryInBatch() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2253,7 +2322,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     final String parentFolderPath =
-        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
+      ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -2264,12 +2333,12 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final String fileName2 = "helloworld2.[~!@#$%^&*(){}|.,]-=_+|;'?<:>~.xaction";
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData( dataStream, encoding, mimeType );
     RepositoryFile newFile1 =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName1 ).versioned( true ).build(),
-            content, "created helloworld.xaction" );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName1 ).versioned( true ).build(),
+        content, "created helloworld.xaction" );
     final String createMsg = "created helloworld2.xaction";
     RepositoryFile newFile2 =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName2 ).versioned( true ).build(),
-            content, createMsg );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName2 ).versioned( true ).build(),
+        content, createMsg );
     final String updateMsg1 = "updating 1";
     newFile1 = repo.updateFile( newFile1, content, updateMsg1 );
     // Update file2 but don't save the info. We'll look up the original revision
@@ -2279,7 +2348,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     RepositoryFile lookup1 = new RepositoryFile.Builder( newFile1.getId(), null ).build();
     // Create a new file with the original version id and file id for file #2
     RepositoryFile lookup2 =
-        new RepositoryFile.Builder( newFile2.getId(), null ).versionId( newFile2.getVersionId() ).build();
+      new RepositoryFile.Builder( newFile2.getId(), null ).versionId( newFile2.getVersionId() ).build();
     List<VersionSummary> versionSummaries = repo.getVersionSummaryInBatch( Arrays.asList( lookup1, lookup2 ) );
     assertNotNull( versionSummaries );
     assertEquals( 2, versionSummaries.size() );
@@ -2296,16 +2365,16 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   }
 
   private RepositoryFile createSampleFile( final String parentFolderPath, final String fileName,
-      final String sampleString, final boolean sampleBoolean, final int sampleInteger, boolean versioned )
+    final String sampleString, final boolean sampleBoolean, final int sampleInteger, boolean versioned )
     throws Exception {
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final SampleRepositoryFileData content = new SampleRepositoryFileData( sampleString, sampleBoolean, sampleInteger );
     return repo.createFile( parentFolder.getId(),
-        new RepositoryFile.Builder( fileName ).versioned( versioned ).build(), content, null );
+      new RepositoryFile.Builder( fileName ).versioned( versioned ).build(), content, null );
   }
 
   private RepositoryFile createSampleFile( final String parentFolderPath, final String fileName,
-      final String sampleString, final boolean sampleBoolean, final int sampleInteger ) throws Exception {
+    final String sampleString, final boolean sampleBoolean, final int sampleInteger ) throws Exception {
     return createSampleFile( parentFolderPath, fileName, sampleString, sampleBoolean, sampleInteger, false );
   }
 
@@ -2319,7 +2388,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   }
 
   private void assertLocalAceExists( final RepositoryFile file, final RepositoryFileSid sid,
-      final EnumSet<RepositoryFilePermission> permissions ) {
+    final EnumSet<RepositoryFilePermission> permissions ) {
     RepositoryFileAcl acl = repo.getAcl( file.getId() );
 
     List<RepositoryFileAce> aces = acl.getAces();
@@ -2344,7 +2413,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
 
-    jcrTemplate = (JcrTemplate) applicationContext.getBean("jcrTemplate");
+    jcrTemplate = (JcrTemplate) applicationContext.getBean( "jcrTemplate" );
 
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
     superAdminRoleName = (String) applicationContext.getBean( "superAdminAuthorityName" );
@@ -2354,25 +2423,24 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     tenantManager = (ITenantManager) applicationContext.getBean( "tenantMgrProxy" );
     pathConversionHelper = (IPathConversionHelper) applicationContext.getBean( "pathConversionHelper" );
     roleBindingDao =
-        (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
-            .getBean( "roleAuthorizationPolicyRoleBindingDaoTxn" );
+      (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean( "roleAuthorizationPolicyRoleBindingDaoTxn" );
     roleBindingDaoTarget =
-        (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
-            .getBean( "roleAuthorizationPolicyRoleBindingDaoTarget" );
+      (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
+        .getBean( "roleAuthorizationPolicyRoleBindingDaoTarget" );
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
     repo = (IUnifiedRepository) applicationContext.getBean( "unifiedRepository" );
     userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDao" );
     jcrTransactionTemplate = (TransactionTemplate) applicationContext.getBean( "jcrTransactionTemplate" );
     defaultBackingRepositoryLifecycleManager =
-        (IBackingRepositoryLifecycleManager) applicationContext.getBean( "defaultBackingRepositoryLifecycleManager" );
+      (IBackingRepositoryLifecycleManager) applicationContext.getBean( "defaultBackingRepositoryLifecycleManager" );
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean( "repositoryFileDao" );
     testUserRoleDao = userRoleDao;
     repositoryLifecyleManager =
-        (IBackingRepositoryLifecycleManager) applicationContext.getBean( "defaultBackingRepositoryLifecycleManager" );
+      (IBackingRepositoryLifecycleManager) applicationContext.getBean( "defaultBackingRepositoryLifecycleManager" );
     txnTemplate = (TransactionTemplate) applicationContext.getBean( "jcrTransactionTemplate" );
     TestPrincipalProvider.userRoleDao = testUserRoleDao;
     TestPrincipalProvider.adminCredentialsStrategy =
-        (CredentialsStrategy) applicationContext.getBean( "jcrAdminCredentialsStrategy" );
+      (CredentialsStrategy) applicationContext.getBean( "jcrAdminCredentialsStrategy" );
     TestPrincipalProvider.repository = (Repository) applicationContext.getBean( "jcrRepository" );
   }
 
@@ -2382,7 +2450,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
   /**
    * Logs in with given username.
-   *
+   * 
    * @param username
    *          username of user
    * @param tenantId
@@ -2421,12 +2489,12 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     StandaloneSession pentahoSession = new StandaloneSession( repositoryAdminUsername );
     pentahoSession.setAuthenticated( repositoryAdminUsername );
     final GrantedAuthority[] repositoryAdminAuthorities =
-        new GrantedAuthority[] { new GrantedAuthorityImpl( superAdminRoleName ) };
+      new GrantedAuthority[] { new GrantedAuthorityImpl( superAdminRoleName ) };
     final String password = "ignored";
     UserDetails repositoryAdminUserDetails =
-        new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
+      new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
     Authentication repositoryAdminAuthentication =
-        new UsernamePasswordAuthenticationToken( repositoryAdminUserDetails, password, repositoryAdminAuthorities );
+      new UsernamePasswordAuthenticationToken( repositoryAdminUserDetails, password, repositoryAdminAuthorities );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( repositoryAdminAuthentication );
@@ -2495,44 +2563,41 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
           RepositoryFile tenantRootFolder = null;
           // Get the Tenant Root folder. If the Tenant Root folder does not exist then exit.
           tenantRootFolder =
-              repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantRootFolderPath( theTenant ) );
+            repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantRootFolderPath( theTenant ) );
           if ( tenantRootFolder != null ) {
             // Try to see if Tenant Home folder exist
             tenantHomeFolder =
-                repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantHomeFolderPath( theTenant ) );
+              repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantHomeFolderPath( theTenant ) );
             if ( tenantHomeFolder == null ) {
               String ownerId = userNameUtils.getPrincipleId( theTenant, username );
               RepositoryFileSid ownerSid = new RepositoryFileSid( ownerId, Type.USER );
 
               String tenantAuthenticatedRoleId = roleNameUtils.getPrincipleId( theTenant, tenantAuthenticatedRoleName );
               RepositoryFileSid tenantAuthenticatedRoleSid =
-                  new RepositoryFileSid( tenantAuthenticatedRoleId, Type.ROLE );
+                new RepositoryFileSid( tenantAuthenticatedRoleId, Type.ROLE );
 
               aclsForTenantHomeFolder =
-                  new Builder( userSid ).ace( tenantAuthenticatedRoleSid, EnumSet
-                      .of( RepositoryFilePermission.READ ) );
+                new Builder( userSid ).ace( tenantAuthenticatedRoleSid, EnumSet.of( RepositoryFilePermission.READ ) );
 
-              aclsForUserHomeFolder =
-                  new Builder( userSid ).ace( ownerSid, EnumSet.of( RepositoryFilePermission.ALL ) );
+              aclsForUserHomeFolder = new Builder( userSid ).ace( ownerSid, EnumSet.of( RepositoryFilePermission.ALL ) );
               tenantHomeFolder =
-                  repositoryFileDao.createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder(
-                      ServerRepositoryPaths.getTenantHomeFolderName() ).folder( true ).build(), aclsForTenantHomeFolder
-                      .build(), "tenant home folder" );
+                repositoryFileDao.createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder(
+                  ServerRepositoryPaths.getTenantHomeFolderName() ).folder( true ).build(), aclsForTenantHomeFolder
+                  .build(), "tenant home folder" );
             } else {
               String ownerId = userNameUtils.getPrincipleId( theTenant, username );
               RepositoryFileSid ownerSid = new RepositoryFileSid( ownerId, Type.USER );
-              aclsForUserHomeFolder =
-                  new Builder( userSid ).ace( ownerSid, EnumSet.of( RepositoryFilePermission.ALL ) );
+              aclsForUserHomeFolder = new Builder( userSid ).ace( ownerSid, EnumSet.of( RepositoryFilePermission.ALL ) );
             }
 
             // now check if user's home folder exist
             userHomeFolder =
-                repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getUserHomeFolderPath( theTenant,
-                    username ) );
+              repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths
+                .getUserHomeFolderPath( theTenant, username ) );
             if ( userHomeFolder == null ) {
               userHomeFolder =
-                  repositoryFileDao.createFolder( tenantHomeFolder.getId(), new RepositoryFile.Builder( username )
-                      .folder( true ).build(), aclsForUserHomeFolder.build(), "user home folder" ); //$NON-NLS-1$
+                repositoryFileDao.createFolder( tenantHomeFolder.getId(), new RepositoryFile.Builder( username )
+                  .folder( true ).build(), aclsForUserHomeFolder.build(), "user home folder" ); //$NON-NLS-1$
             }
           }
         }
@@ -2548,8 +2613,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testDeleteUsersFolder() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2558,7 +2623,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     final String parentFolderPath =
-        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
+      ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -2569,7 +2634,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData( dataStream, encoding, mimeType );
     RepositoryFile newFile =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).build(), content, null );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).build(), content, null );
     final String filePath = parentFolderPath + RepositoryFile.SEPARATOR + fileName;
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2586,8 +2651,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testDeleteInheritingFolder() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2596,7 +2661,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     final String parentFolderPath =
-        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
+      ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -2608,17 +2673,17 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData( dataStream, encoding, mimeType );
 
     // Try an inheriting folder delete
-    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
+    // CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       RepositoryFile newFolder =
-          repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "testFolder" ).folder( true ).build(),
-              null, null );
+        repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "testFolder" ).folder( true ).build(),
+          null, null );
 
       RepositoryFileAcl acl = repo.getAcl( newFolder.getId() );
 
       RepositoryFileAcl newAcl =
-          new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ),
-              Type.USER, RepositoryFilePermission.ALL ).entriesInheriting( true ).build();
+        new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ), Type.USER,
+          RepositoryFilePermission.ALL ).entriesInheriting( true ).build();
       repo.updateAcl( newAcl );
 
       login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2631,18 +2696,17 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     }
 
     // Now try one not inheriting
-    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
+    // CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       RepositoryFile newFolder =
-          repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "testFolder2" ).folder( true ).build(),
-              null, null );
+        repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "testFolder2" ).folder( true ).build(),
+          null, null );
 
       RepositoryFileAcl acl = repo.getAcl( newFolder.getId() );
 
       RepositoryFileAcl newAcl =
-          new Builder( acl ).clearAces().ace(
-              userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ), Type.USER,
-              RepositoryFilePermission.ALL ).entriesInheriting( false ).build();
+        new Builder( acl ).clearAces().ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ), Type.USER,
+          RepositoryFilePermission.ALL ).entriesInheriting( false ).build();
       repo.updateAcl( newAcl );
 
       login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2659,8 +2723,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testDeleteInheritingFile2() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2669,7 +2733,7 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     final String parentFolderPath =
-        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
+      ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -2682,21 +2746,21 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     RepositoryFile newFolder = null;
     // Try an inheriting file delete
-    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
+    // CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       newFolder =
-          repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "testFolder" ).folder( true ).build(),
-              null, null );
+        repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( "testFolder" ).folder( true ).build(),
+          null, null );
 
       RepositoryFile newFile =
-          repo.createFile( newFolder.getId(), new RepositoryFile.Builder( "testFile" ).folder( false ).build(),
-              content, null );
+        repo.createFile( newFolder.getId(), new RepositoryFile.Builder( "testFile" ).folder( false ).build(), content,
+          null );
 
       RepositoryFileAcl acl = repo.getAcl( newFile.getId() );
 
       RepositoryFileAcl newAcl =
-          new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ),
-              Type.USER, RepositoryFilePermission.ALL ).entriesInheriting( true ).build();
+        new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ), Type.USER,
+          RepositoryFilePermission.ALL ).entriesInheriting( true ).build();
       repo.updateAcl( newAcl );
 
       login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2709,18 +2773,18 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
     }
 
     // Now try one not inheriting
-    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
+    // CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
 
       RepositoryFile newFile =
-          repo.createFile( newFolder.getId(), new RepositoryFile.Builder( "testFile" ).folder( false ).build(),
-              content, null );
+        repo.createFile( newFolder.getId(), new RepositoryFile.Builder( "testFile" ).folder( false ).build(), content,
+          null );
 
       RepositoryFileAcl acl = repo.getAcl( newFile.getId() );
 
       RepositoryFileAcl newAcl =
-          new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ),
-              Type.USER, RepositoryFilePermission.ALL ).entriesInheriting( false ).build();
+        new Builder( acl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_ADMIN ), Type.USER,
+          RepositoryFilePermission.ALL ).entriesInheriting( false ).build();
       repo.updateAcl( newAcl );
 
       login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2737,8 +2801,8 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
   public void testInheritingNodeRemoval() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
+      tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+        "Anonymous" );
     userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -2753,13 +2817,12 @@ public class DefaultUnifiedRepositorySpecialCharacterTest implements Application
 
     NodeRepositoryFileData data = new NodeRepositoryFileData( node );
     RepositoryFile repoFile =
-        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( "test" ).build(), data, null );
+      repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( "test" ).build(), data, null );
     RepositoryFileAcl acl = repo.getAcl( repoFile.getId() );
 
     RepositoryFileSid suzySid = new RepositoryFileSid( userNameUtils.getPrincipleId( tenantAcme, USERNAME_SUZY ) );
     Builder newAclBuilder =
-        new Builder( acl ).ace( suzySid, EnumSet.of( RepositoryFilePermission.READ,
-            RepositoryFilePermission.WRITE ) );
+      new Builder( acl ).ace( suzySid, EnumSet.of( RepositoryFilePermission.READ, RepositoryFilePermission.WRITE ) );
 
     repo.updateAcl( newAclBuilder.build() );
 

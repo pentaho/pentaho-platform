@@ -53,7 +53,7 @@ PentahoSystem which is initialized after Spring
         scope="singleton"/>
   <bean id="IChartBeansGenerator" class="org.pentaho.platform.plugin.action.chartbeans.DefaultChartBeansGenerator"
         scope="singleton"/>
-  <bean id="IUserRoleListService" class="org.pentaho.test.platform.security.MockUserRoleLisetService"
+  <bean id="IUserRoleListService" class="org.pentaho.platform.security.MockUserRoleLisetService"
         scope="singleton"/>
 
   <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory,

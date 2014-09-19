@@ -17,7 +17,17 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.util.List;
+import java.util.Properties;
+
+import javax.ws.rs.core.Response;
+
 import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -25,22 +35,14 @@ import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.config.SystemConfig;
+import org.pentaho.platform.engine.core.MicroPlatform;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
-import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
-
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.util.List;
-import java.util.Properties;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SystemResourceTest {
 
@@ -98,7 +100,7 @@ public class SystemResourceTest {
   /**
    * Test that we get a valid document structure back. Make sure the document contains the elements we expect. Since we
    * are not working with a real session, we don't need to check real values.
-   *
+   * 
    * @throws Exception
    */
   @Test
@@ -114,7 +116,7 @@ public class SystemResourceTest {
 
   /**
    * Test for expected default value JCR_BASED_AUTHENTICATION
-   *
+   * 
    * @throws Exception
    */
   @Test
@@ -129,15 +131,14 @@ public class SystemResourceTest {
 
   /**
    * Make spring configs available for test
-   *
+   * 
    * @return ApplicationContext
    */
   private ApplicationContext getSpringApplicationContext() {
 
     String[] fns =
-    {
-      "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml",
-      "systemListeners.xml", "pentahoSystemConfig.xml", "repository.spring.xml"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+      { "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml",
+        "systemListeners.xml", "pentahoSystemConfig.xml", "repository.spring.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
     GenericApplicationContext appCtx = new GenericApplicationContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader( appCtx );

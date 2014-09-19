@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.services;
 
-import org.pentaho.platform.engine.core.audit.AuditEntry;
-import org.pentaho.test.platform.engine.core.BaseTest;
-
 import java.math.BigDecimal;
+
+import org.pentaho.platform.engine.core.BaseTest;
+import org.pentaho.platform.engine.core.audit.AuditEntry;
 
 @SuppressWarnings( "nls" )
 public class AuditEntryTest extends BaseTest {
@@ -34,15 +34,14 @@ public class AuditEntryTest extends BaseTest {
   public void testAuditEntry() {
     startTest();
     AuditEntry
-        .auditAll(
-            "234234", "2342342342", "234234234", "String", "actor", "messageType", "messageName", "messageTxtValue", new BigDecimal( 2324323.23 ), 23 ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+      .auditAll(
+        "234234", "2342342342", "234234234", "String", "actor", "messageType", "messageName", "messageTxtValue", new BigDecimal( 2324323.23 ), 23 ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
     AuditEntry.auditJobDuration(
-        "2342342", "242423", "23423423", "objType", "actor", "messageType", "messageName", "messageTxtValue", 23 ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
-    AuditEntry
-        .auditJobNumValue(
-            "2342342", "242423", "23423423", "objType", "actor", "messageType", "messageName", new BigDecimal( 2324323.23 ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ 
+      "2342342", "242423", "23423423", "objType", "actor", "messageType", "messageName", "messageTxtValue", 23 ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+    AuditEntry.auditJobNumValue(
+      "2342342", "242423", "23423423", "objType", "actor", "messageType", "messageName", new BigDecimal( 2324323.23 ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ 
     AuditEntry.auditJobTxtValue(
-        "2342342", "242423", "23423423", "objType", "actor", "messageType", "messageName", "messageTxtValue" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+      "2342342", "242423", "23423423", "objType", "actor", "messageType", "messageName", "messageTxtValue" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 
     assertTrue( true );
     finishTest();

@@ -1,11 +1,12 @@
 package org.pentaho.platform.engine.security;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
+
 import org.junit.Test;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContext;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 
 public class PentahoSecurityContextHolderStrategyTest {
 
@@ -19,7 +20,8 @@ public class PentahoSecurityContextHolderStrategyTest {
 
     assertSame( authentication, strategy.getContext().getAuthentication() );
     Thread thread = new Thread( new Runnable() {
-      @Override public void run() {
+      @Override
+      public void run() {
         assertSame( authentication, strategy.getContext().getAuthentication() );
         Authentication authentication2 = mock( Authentication.class );
         strategy.getContext().setAuthentication( authentication2 );
@@ -28,7 +30,7 @@ public class PentahoSecurityContextHolderStrategyTest {
           notify();
         }
       }
-    });
+    } );
     thread.start();
     synchronized ( thread ) {
       thread.wait();

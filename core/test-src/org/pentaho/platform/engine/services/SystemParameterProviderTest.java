@@ -19,10 +19,10 @@
 package org.pentaho.platform.engine.services;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.BaseTest;
 import org.pentaho.platform.engine.core.solution.CustomSettingsParameterProvider;
 import org.pentaho.platform.engine.core.solution.SystemSettingsParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings( { "all" } )
 public class SystemParameterProviderTest extends BaseTest {
@@ -36,7 +36,7 @@ public class SystemParameterProviderTest extends BaseTest {
     startTest();
     SystemSettingsParameterProvider provider = new SystemSettingsParameterProvider();
     assertEquals( "Output is not correct", "server.log", provider.getStringParameter(
-        "pentaho.xml{pentaho-system/log-file}", null ) );
+      "pentaho.xml{pentaho-system/log-file}", null ) );
     finishTest();
   }
 
@@ -47,7 +47,7 @@ public class SystemParameterProviderTest extends BaseTest {
     provider.setSession( session );
 
     assertEquals( "Output is not correct", "value1", provider.getStringParameter(
-        "settings-{$user}.xml{personal-settings/setting1}", null ) );
+      "settings-{$user}.xml{personal-settings/setting1}", null ) );
     finishTest();
   }
 }

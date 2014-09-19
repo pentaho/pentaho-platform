@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin title="Plugin 1">
   <content-generator scope="global" id="test1" type="test-type-3">
-    <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1</classname>
+    <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator1</classname>
     <title>Test Generator 1</title>
   </content-generator>
   
@@ -30,6 +30,6 @@
     </overlay>
   </overlays>
   
-  <bean id="TestClassForClassloader" class="org.pentaho.test.platform.engine.services.TestClassForClassloader"/>
+  <bean id="TestClassForClassloader" class="org.pentaho.platform.engine.services.TestClassForClassloader"/>
   <bean id="PluginOnlyClass" class="org.pentaho.nowhere.PluginOnlyClass"/>
 </plugin>
