@@ -71,7 +71,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 
     userConsoleService = new UserConsoleService();
 
-    if( isInitialized ) {
+    if ( !isInitialized ) {
       systemConfig = PentahoSystem.get( ISystemConfig.class );
       String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
       config =
