@@ -323,6 +323,8 @@ public class FileResource extends AbstractJaxRSResource {
                                String params ) {
     try {
       fileService.doCopyFiles( pathId, mode, params );
+    } catch ( IllegalArgumentException e ) {
+      return buildStatusResponse( FORBIDDEN );
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       return buildSafeHtmlServerErrorResponse( e );
