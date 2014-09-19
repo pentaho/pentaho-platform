@@ -30,6 +30,9 @@ public class FileSystemRepositoryFileDaoTest {
   public void testIdToPath() throws Exception {
     assertEquals( "C:/Program Files/pentaho/design-tools/data-integration/Unsaved Report.xanalyzer",
         FileSystemRepositoryFileDao
+            .idToPath( "C\t:Program Files:pentaho:design-tools:data-integration/Unsaved Report.xanalyzer" ) );
+    assertEquals( "C:/Program Files/pentaho/design-tools/data-integration/Unsaved Report.xanalyzer",
+        FileSystemRepositoryFileDao
             .idToPath( "C::Program Files:pentaho:design-tools:data-integration/Unsaved Report.xanalyzer" ) );
     assertEquals( "C:/Program Files\\pentaho\\design-tools\\data-integration\\Unsaved Report.xanalyzer",
         FileSystemRepositoryFileDao
