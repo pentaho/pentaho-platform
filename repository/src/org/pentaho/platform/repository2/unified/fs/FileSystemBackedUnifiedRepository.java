@@ -161,7 +161,12 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   }
 
   public RepositoryFile getFile( String path ) {
-    return repositoryFileDao.getFile( path );
+    RepositoryFile result = repositoryFileDao.getFile( path );
+    if ( result == null && path.matches( "^/[A-z]:/.*" ) ) {
+      // Handle leading slash on windows style path with drive letter (eg. /c:/folder1/file1)
+      result = repositoryFileDao.getFile( path.substring( 1 ) );
+    }
+    return result;
   }
 
   public RepositoryFile getFile( String path, boolean loadLocaleMaps ) {
