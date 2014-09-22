@@ -47,10 +47,10 @@ import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.engine.core.MicroPlatform;
 import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class LocaleImportHandlerTest {
@@ -69,7 +69,7 @@ public class LocaleImportHandlerTest {
     microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
 
     IRepositoryContentConverterHandler converterHandler =
-      new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
+        new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
 
     List<MimeType> localeMimeList = new ArrayList<MimeType>();
     localeMimeList.add( new MimeType( "text/locale", "locale" ) );
@@ -123,7 +123,7 @@ public class LocaleImportHandlerTest {
   @Test
   public void testValidImportIndexLocaleFile() {
     String localeContent =
-      "<index><name>My name</name><description>My descript</description><icon>samples.png</icon><visible>true</visible><display-type>icons</display-type></index>";
+        "<index><name>My name</name><description>My descript</description><icon>samples.png</icon><visible>true</visible><display-type>icons</display-type></index>";
     RepositoryFileImportBundle importBundle = createBundle( localeContent, "index.xml" );
 
     IUnifiedRepository unifiedRepository = initLocaleHandler( importBundle );
@@ -134,7 +134,7 @@ public class LocaleImportHandlerTest {
       verify( unifiedRepository, times( 1 ) ).getFile( anyString() );
       verify( unifiedRepository, never() ).getChildren( anyInt() );
       verify( unifiedRepository, times( 1 ) ).setLocalePropertiesForFile( any( RepositoryFile.class ), anyString(),
-        any( Properties.class ) );
+          any( Properties.class ) );
     } catch ( PlatformImportException e ) {
       fail( e.getMessage() );
     }
@@ -144,7 +144,7 @@ public class LocaleImportHandlerTest {
   @Test
   public void testInValidImportIndexLocaleFile() {
     String localeContent =
-      "<index><name>%name</name><description>%description</description><icon>samples.png</icon><visible>true</visible><display-type>icons</display-type></index>";
+        "<index><name>%name</name><description>%description</description><icon>samples.png</icon><visible>true</visible><display-type>icons</display-type></index>";
     RepositoryFileImportBundle importBundle = createBundle( localeContent, "index.xml" );
 
     IUnifiedRepository unifiedRepository = initLocaleHandler( importBundle );
@@ -155,7 +155,7 @@ public class LocaleImportHandlerTest {
       verify( unifiedRepository, times( 1 ) ).getFile( anyString() );
       verify( unifiedRepository, times( 1 ) ).getChildren( anyInt() );
       verify( unifiedRepository, never() ).setLocalePropertiesForFile( any( RepositoryFile.class ), anyString(),
-        any( Properties.class ) );
+          any( Properties.class ) );
     } catch ( PlatformImportException e ) {
       fail( e.getMessage() );
     }
@@ -175,7 +175,7 @@ public class LocaleImportHandlerTest {
       verify( unifiedRepository, times( 1 ) ).getFile( anyString() );
       verify( unifiedRepository, times( 1 ) ).getChildren( anyInt() );
       verify( unifiedRepository, never() ).setLocalePropertiesForFile( any( RepositoryFile.class ), anyString(),
-        any( Properties.class ) );
+          any( Properties.class ) );
     } catch ( PlatformImportException e ) {
       fail( e.getMessage() );
     }
@@ -214,7 +214,7 @@ public class LocaleImportHandlerTest {
   private boolean processIsLocalFile( String fileName, StringBuffer localeContent ) throws Exception {
     RepositoryFile file = new RepositoryFile.Builder( fileName ).build();
     RepositoryFileBundle repoFileBundle =
-      new RepositoryFileBundle( file, null, StringUtils.EMPTY, null, DEFAULT_ENCODING, null );
+        new RepositoryFileBundle( file, null, StringUtils.EMPTY, null, DEFAULT_ENCODING, null );
     return localeFilesProcessor.isLocaleFile( repoFileBundle, "/", localeContent.toString().getBytes() );
   }
 }

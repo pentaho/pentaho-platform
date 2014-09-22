@@ -18,15 +18,14 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
-import org.pentaho.platform.engine.core.BaseTest;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.engine.services.audit.AuditConnection;
+import org.pentaho.test.platform.engine.core.BaseTest;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 @SuppressWarnings( "nls" )
 public class AuditConnectionTest extends BaseTest {
@@ -41,7 +40,7 @@ public class AuditConnectionTest extends BaseTest {
     AuditConnection auditConnection = new AuditConnection();
     auditConnection.setUseNewDatasourceService( true ); // make sure we get a datasource from the object factory
     auditConnection.initialize();
-    MockDataSourceService.setThrowExceptionOnGetConnection( false );
+    MockDataSourceService.setThrowExceptionOnGetConnection(false);
     try {
       Connection connection = auditConnection.getAuditConnection();
       System.out.println( "Audit Connection Is  " + connection ); //$NON-NLS-1$  
@@ -62,7 +61,7 @@ public class AuditConnectionTest extends BaseTest {
     AuditConnection auditConnection = new AuditConnection();
     auditConnection.setUseNewDatasourceService( true ); // make sure we get a datasource from the object factory
     auditConnection.initialize();
-    MockDataSourceService.setThrowExceptionOnGetConnection( false );
+    MockDataSourceService.setThrowExceptionOnGetConnection(false);
     try {
       Connection connection = auditConnection.getAuditConnection();
       System.out.println( "Audit Connection Is  " + connection ); //$NON-NLS-1$  
@@ -89,7 +88,7 @@ public class AuditConnectionTest extends BaseTest {
       AuditConnection auditConnection = new AuditConnection();
       auditConnection.setUseNewDatasourceService( true ); // make sure we get a datasource from the object factory
       auditConnection.initialize();
-      MockDataSourceService.setThrowExceptionOnGetConnection( true );
+      MockDataSourceService.setThrowExceptionOnGetConnection(true);
       auditConnection.getAuditConnection();
       fail( "Expected exception when no audit connection could be established" );
     } catch ( SQLException ex ) {

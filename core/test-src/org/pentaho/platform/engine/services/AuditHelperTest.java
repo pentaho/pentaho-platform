@@ -18,14 +18,14 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.OutputStream;
-
 import org.pentaho.platform.api.engine.IOutputHandler;
-import org.pentaho.platform.engine.core.BaseTest;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.messages.Messages;
+import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.io.OutputStream;
 
 @SuppressWarnings( "nls" )
 public class AuditHelperTest extends BaseTest {
@@ -42,7 +42,7 @@ public class AuditHelperTest extends BaseTest {
     SimpleOutputHandler outputHandler = new SimpleOutputHandler( outputStream, true );
     outputHandler.setOutputPreference( IOutputHandler.OUTPUT_TYPE_PARAMETERS );
     StandaloneSession session =
-      new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) ); //$NON-NLS-1$
+        new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) ); //$NON-NLS-1$
 
     AuditHelper.audit( null, session, "Type", "This is a message", "Values", 34, this ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertTrue( true );
@@ -52,7 +52,7 @@ public class AuditHelperTest extends BaseTest {
   public void testAuditFailures2() {
     startTest();
     AuditHelper
-      .audit( null, "admin", "ViewAction", "String", "334234", "Type", "This is a message", "Values", 34, this ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+        .audit( null, "admin", "ViewAction", "String", "334234", "Type", "This is a message", "Values", 34, this ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
     assertTrue( true );
     finishTest();
   }
@@ -67,7 +67,7 @@ public class AuditHelperTest extends BaseTest {
   public void testAuditFailures4() {
     startTest();
     AuditHelper
-      .audit( "342323", "admin", "ViewAction", "String", null, "Type", "This is a message", "Values", 34, this ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+        .audit( "342323", "admin", "ViewAction", "String", null, "Type", "This is a message", "Values", 34, this ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
     assertTrue( true );
     finishTest();
   }

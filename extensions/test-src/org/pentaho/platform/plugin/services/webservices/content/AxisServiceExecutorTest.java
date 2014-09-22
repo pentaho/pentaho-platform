@@ -39,12 +39,12 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceManager;
-import org.pentaho.platform.plugin.services.webservices.MimeTypeListener;
-import org.pentaho.platform.plugin.services.webservices.StubService;
-import org.pentaho.platform.plugin.services.webservices.StubServiceSetup;
-import org.pentaho.platform.plugin.services.webservices.StubTransportListener;
-import org.pentaho.platform.plugin.services.webservices.StubTransportSender;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+import org.pentaho.test.platform.plugin.services.webservices.MimeTypeListener;
+import org.pentaho.test.platform.plugin.services.webservices.StubService;
+import org.pentaho.test.platform.plugin.services.webservices.StubServiceSetup;
+import org.pentaho.test.platform.plugin.services.webservices.StubTransportListener;
+import org.pentaho.test.platform.plugin.services.webservices.StubTransportSender;
 
 import com.mockrunner.mock.web.MockHttpServletRequest;
 import com.mockrunner.mock.web.MockHttpServletResponse;
@@ -127,7 +127,7 @@ public class AxisServiceExecutorTest {
       assertTrue( StubService.getStringCalled );
       String content = StubTransportSender.transportOutStr;
       assertEquals( "result are wrong",
-        "<ns:getStringResponse xmlns:ns=\"http://webservices.services.plugin.platform.pentaho.org\"><return>test"
+        "<ns:getStringResponse xmlns:ns=\"http://webservices.services.plugin.platform.test.pentaho.org\"><return>test"
           + " result</return></ns:getStringResponse>", content );
     } catch ( Exception e ) {
       assertTrue( "Exception occurred", false );
@@ -302,7 +302,7 @@ public class AxisServiceExecutorTest {
       assertEquals( "result are wrong",
         "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://www.w3"
           + ".org/2003/05/soap-envelope\"><soapenv:Body><ns:getStringResponse xmlns:ns=\""
-          + "http://webservices.services" + ".plugin.platform.pentaho.org\"><return>test "
+          + "http://webservices.services" + ".plugin.platform.test.pentaho.org\"><return>test "
           + "result</return></ns:getStringResponse></soapenv:Body></soapenv:Envelope>", content );
     } catch ( Exception e ) {
       assertTrue( "Exception occurred", false );
@@ -344,7 +344,7 @@ public class AxisServiceExecutorTest {
       assertTrue( StubService.getStringCalled );
       String content = StubTransportSender.transportOutStr;
       assertEquals( "result are wrong",
-        "<ns:getStringResponse xmlns:ns=\"http://webservices.services.plugin.platform.pentaho.org\"><return>test"
+        "<ns:getStringResponse xmlns:ns=\"http://webservices.services.plugin.platform.test.pentaho.org\"><return>test"
           + " result</return></ns:getStringResponse>", content );
     } catch ( Exception e ) {
       assertTrue( "Exception occurred", false );

@@ -18,23 +18,23 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.engine.core.BaseTest;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings( { "all" } )
 public class PojoComponentTest extends BaseTest {
@@ -72,10 +72,10 @@ public class PojoComponentTest extends BaseTest {
       Map providers = new HashMap();
       providers.put( IParameterProvider.SCOPE_REQUEST, inputs );
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "test1a.xaction", "empty action sequence test", false, true, null, false, providers, null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "test1a.xaction", "empty action sequence test", false, true, null, false, providers, null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull( "RuntimeContext is null", runtimeContext );
       IActionParameter param = runtimeContext.getOutputParameter( "output1" );
       assertNotNull( "param is null", param );
@@ -93,7 +93,7 @@ public class PojoComponentTest extends BaseTest {
       assertTrue( "setSession() was not called", PojoComponentTest.setSessionCalled );
       assertTrue( "setLogger() was not called", PojoComponentTest.setLoggerCalled );
       assertEquals( "Action sequence execution failed", runtimeContext.getStatus(),
-        IRuntimeContext.RUNTIME_STATUS_SUCCESS );
+          IRuntimeContext.RUNTIME_STATUS_SUCCESS );
     } catch ( Exception e ) {
       // we should not get here
       e.printStackTrace();
@@ -123,10 +123,10 @@ public class PojoComponentTest extends BaseTest {
       Map providers = new HashMap();
       providers.put( IParameterProvider.SCOPE_REQUEST, inputs );
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "test1a.xaction", "empty action sequence test", false, true, null, false, providers, null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "test1a.xaction", "empty action sequence test", false, true, null, false, providers, null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull( "RuntimeContext is null", runtimeContext );
       IActionParameter param = runtimeContext.getOutputParameter( "output1" );
       assertNotNull( "param is null", param );
@@ -144,7 +144,7 @@ public class PojoComponentTest extends BaseTest {
       assertTrue( "setSession() was not called", PojoComponentTest.setSessionCalled );
       assertTrue( "setLogger() was not called", PojoComponentTest.setLoggerCalled );
       assertEquals( "Action sequence execution failed", runtimeContext.getStatus(),
-        IRuntimeContext.RUNTIME_STATUS_SUCCESS );
+          IRuntimeContext.RUNTIME_STATUS_SUCCESS );
     } catch ( Exception e ) {
       // we should not get here
       e.printStackTrace();
@@ -160,10 +160,10 @@ public class PojoComponentTest extends BaseTest {
       String xactionStr = ServiceTestHelper.getXAction( SOLUTION_PATH, "test/pojo/pojo1b.xaction" );
       PojoComponentTest.doneCalled = false;
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "pojo1b.xaction", "empty action sequence test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "pojo1b.xaction", "empty action sequence test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       IActionParameter param = runtimeContext.getOutputParameter( "output1" );
       assertNotNull( "RuntimeContext is null", runtimeContext );
       assertTrue( "done() was not called", PojoComponentTest.doneCalled );
@@ -179,7 +179,7 @@ public class PojoComponentTest extends BaseTest {
       assertEquals( "setDouble1 failed", "55.5", Double.toString( TestPojo1.double1 ) );
       assertEquals( "setDouble2 failed", "66.6", TestPojo1.double2.toString() );
       assertEquals( "Action sequence execution failed", runtimeContext.getStatus(),
-        IRuntimeContext.RUNTIME_STATUS_SUCCESS );
+          IRuntimeContext.RUNTIME_STATUS_SUCCESS );
     } catch ( Exception e ) {
       // we should not get here
       e.printStackTrace();
@@ -195,17 +195,17 @@ public class PojoComponentTest extends BaseTest {
       String xactionStr = ServiceTestHelper.getXAction( SOLUTION_PATH, "test/pojo/pojo4.xaction" );
       PojoComponentTest.doneCalled = false;
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "pojo4.xaction", "empty action sequence test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "pojo4.xaction", "empty action sequence test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       IActionParameter param = runtimeContext.getOutputParameter( "output1" );
       assertNotNull( "RuntimeContext is null", runtimeContext );
       assertNotNull( "param is null", param );
       assertEquals( "abcdeabcde", param.getValue().toString() );
       assertEquals( "done() was called", false, PojoComponentTest.doneCalled );
       assertEquals( "Action sequence execution failed", runtimeContext.getStatus(),
-        IRuntimeContext.RUNTIME_STATUS_SUCCESS );
+          IRuntimeContext.RUNTIME_STATUS_SUCCESS );
     } catch ( Exception e ) {
       // we should not get here
       e.printStackTrace();
@@ -220,13 +220,13 @@ public class PojoComponentTest extends BaseTest {
     try {
       String xactionStr = ServiceTestHelper.getXAction( SOLUTION_PATH, "test/pojo/pojo5.xaction" );
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "pojo5.xaction", "empty action sequence test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "pojo5.xaction", "empty action sequence test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull( "RuntimeContext is null", runtimeContext );
       assertEquals( "Action sequence execution failed", runtimeContext.getStatus(),
-        IRuntimeContext.RUNTIME_STATUS_SUCCESS );
+          IRuntimeContext.RUNTIME_STATUS_SUCCESS );
       IActionParameter param = runtimeContext.getOutputParameter( "output1" );
       assertNotNull( "param is null", param );
       assertEquals( "hello", param.getValue().toString() );
@@ -250,15 +250,15 @@ public class PojoComponentTest extends BaseTest {
       PojoComponentTest.executeCalled = false;
       PojoComponentTest.validateCalled = false;
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull( "RuntimeContext is null", runtimeContext );
       assertEquals( "execute was called", false, PojoComponentTest.executeCalled );
       assertEquals( "validate was called", false, PojoComponentTest.validateCalled );
       assertEquals( "Action sequence validation succeeded", runtimeContext.getStatus(),
-        IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL );
+          IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL );
     } catch ( Exception e ) {
       // we should not get here
       e.printStackTrace();
@@ -276,15 +276,15 @@ public class PojoComponentTest extends BaseTest {
       PojoComponentTest.executeCalled = false;
       PojoComponentTest.validateCalled = false;
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull( "RuntimeContext is null", runtimeContext );
       assertEquals( "execute was called", false, PojoComponentTest.executeCalled );
       assertEquals( "validate was called", false, PojoComponentTest.validateCalled );
       assertEquals( "Action sequence validation succeeded", runtimeContext.getStatus(),
-        IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL );
+          IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL );
     } catch ( Exception e ) {
       // we should not get here
       e.printStackTrace();
@@ -302,15 +302,15 @@ public class PojoComponentTest extends BaseTest {
       PojoComponentTest.executeCalled = false;
       PojoComponentTest.validateCalled = false;
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull( "RuntimeContext is null", runtimeContext );
       assertEquals( "execute was called", false, PojoComponentTest.executeCalled );
       assertEquals( "validate was not called", true, PojoComponentTest.validateCalled );
       assertEquals( "Action sequence execution succeeded", runtimeContext.getStatus(),
-        IRuntimeContext.RUNTIME_STATUS_FAILURE );
+          IRuntimeContext.RUNTIME_STATUS_FAILURE );
     } catch ( Exception e ) {
       // we should not get here
       e.printStackTrace();
@@ -320,8 +320,8 @@ public class PojoComponentTest extends BaseTest {
   }
 
   /**
-   * Test that unused parameters being passed in do not impact the running of the PojoComponent. A warning is written to
-   * the log for user feedback on execution.
+   * Test that unused parameters being passed in do not impact the running of the PojoComponent. A warning is
+   * written to the log for user feedback on execution.
    */
   public void testUnusedInput() {
     startTest();
@@ -332,10 +332,10 @@ public class PojoComponentTest extends BaseTest {
       PojoComponentTest.executeCalled = false;
       PojoComponentTest.validateCalled = false;
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull( "RuntimeContext is null", runtimeContext );
       assertEquals( "Action sequence succeeded", IRuntimeContext.RUNTIME_STATUS_SUCCESS, runtimeContext.getStatus() );
     } catch ( Exception e ) {
@@ -355,10 +355,10 @@ public class PojoComponentTest extends BaseTest {
       PojoComponentTest.executeCalled = false;
       PojoComponentTest.validateCalled = false;
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "test", "invalid class setting test", false, true, null, false, new HashMap(), null, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull( "RuntimeContext is null", runtimeContext );
       assertEquals( "Action sequence succeeded", runtimeContext.getStatus(), IRuntimeContext.RUNTIME_STATUS_FAILURE );
     } catch ( Exception e ) {
@@ -385,14 +385,14 @@ public class PojoComponentTest extends BaseTest {
       String xactionStr = ServiceTestHelper.getXAction( SOLUTION_PATH, "test/pojo/pojo2.xaction" );
       PojoComponentTest.setActionSequenceResourceCalled = false;
       IRuntimeContext runtimeContext =
-        solutionEngine
-          .execute(
-            xactionStr,
-            "test1.xaction", "empty action sequence test", false, true, null, false, new HashMap(), outputHandler, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
+          solutionEngine
+              .execute(
+                  xactionStr,
+                  "test1.xaction", "empty action sequence test", false, true, null, false, new HashMap(), outputHandler, null, new SimpleUrlFactory( "" ), new ArrayList() ); //$NON-NLS-1$ //$NON-NLS-2$
       IActionParameter param = runtimeContext.getOutputParameter( "outputstream" );
       assertNotNull( "RuntimeContext is null", runtimeContext );
       assertEquals( "Action sequence execution failed", runtimeContext.getStatus(),
-        IRuntimeContext.RUNTIME_STATUS_SUCCESS );
+          IRuntimeContext.RUNTIME_STATUS_SUCCESS );
       assertTrue( "setResource was not called", PojoComponentTest.setResourceInputStreamCalled );
       assertTrue( "setResource was not called", PojoComponentTest.setActionSequenceResourceCalled );
     } catch ( Exception e ) {

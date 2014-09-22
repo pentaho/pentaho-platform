@@ -18,13 +18,32 @@
 
 package org.pentaho.platform.engine.services.actions;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Before;
+import org.junit.Test;
+import org.pentaho.commons.connection.IPentahoStreamSource;
+import org.pentaho.platform.api.action.IAction;
+import org.pentaho.platform.api.engine.ActionSequenceException;
+import org.pentaho.platform.api.engine.ILogger;
+import org.pentaho.platform.api.engine.IOutputHandler;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IRuntimeContext;
+import org.pentaho.platform.api.engine.ISolutionEngine;
+import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.repository.ContentException;
+import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.platform.engine.services.ServiceTestHelper;
+import org.pentaho.platform.engine.services.outputhandler.BaseOutputHandler;
+import org.pentaho.platform.engine.services.solution.SolutionEngine;
+import org.pentaho.platform.util.web.SimpleUrlFactory;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.pentaho.test.platform.engine.core.PluginManagerAdapter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -38,49 +57,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.LogFactory;
-import org.junit.Before;
-import org.junit.Test;
-import org.pentaho.commons.connection.IPentahoStreamSource;
-import org.pentaho.platform.api.action.IAction;
-import org.pentaho.platform.api.action.IStreamingAction;
-import org.pentaho.platform.api.engine.ActionSequenceException;
-import org.pentaho.platform.api.engine.ILogger;
-import org.pentaho.platform.api.engine.IOutputHandler;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.IRuntimeContext;
-import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.api.engine.PluginBeanException;
-import org.pentaho.platform.api.repository.ContentException;
-import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.engine.core.MicroPlatform;
-import org.pentaho.platform.engine.core.PluginManagerAdapter;
-import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
-import org.pentaho.platform.engine.services.ServiceTestHelper;
-import org.pentaho.platform.engine.services.outputhandler.BaseOutputHandler;
-import org.pentaho.platform.engine.services.solution.ActionDelegate;
-import org.pentaho.platform.engine.services.solution.SolutionEngine;
-import org.pentaho.platform.util.web.SimpleUrlFactory;
+import static org.junit.Assert.*;
 
 /**
- * This JUnit test verifies the proper functioning of IActions as surrogate components. Let's not fool ourselves, these
- * are not really unit tests, rather they are integration tests created at as low altitude as possible to verify the
- * correct functioning of the ActionDelegate and proper execution of IAction. It would be too complex and probably
- * uselessly fragile to write real unit tests for the ActionDelegate.
+ * This JUnit test verifies the proper functioning of IActions as surrogate components. Let's not fool ourselves,
+ * these are not really unit tests, rather they are integration tests created at as low altitude as possible to
+ * verify the correct functioning of the ActionDelegate and proper execution of IAction. It would be too complex
+ * and probably uselessly fragile to write real unit tests for the ActionDelegate.
  * <p>
  * ActionDelegate is the class that bridges the heavy IComponent layer with the lightweight IAction. Essentially it
- * brokers and manages IActions, so it is the actual unit under test with respect to this set of JUnit tests. A test
- * IAction, TestAction, is used to verify that ActionDelegate is working properly.
+ * brokers and manages IActions, so it is the actual unit under test with respect to this set of JUnit tests. A
+ * test IAction, TestAction, is used to verify that ActionDelegate is working properly.
  * <p>
- * NOTE: the only way to get around having to define a repository here (which is out of scope of this project) and still
- * be able to test action sequence resources is to use only embedded resources in your test xactions. It is also very
- * important that ActionDelegate use the getInputStream API in actionsequence-dom to fetch resources, rather than
- * getDataSource (which does not support embedded resources).
+ * NOTE: the only way to get around having to define a repository here (which is out of scope of this project) and
+ * still be able to test action sequence resources is to use only embedded resources in your test xactions. It is
+ * also very important that ActionDelegate use the getInputStream API in actionsequence-dom to fetch resources,
+ * rather than getDataSource (which does not support embedded resources).
  * 
  * @see ActionDelegate
  * @see IAction
@@ -156,13 +148,13 @@ public class ActionDelegateTest {
 
     for ( int i = 0; i < 3; i++ ) {
       assertEquals( "action string type input \"messages_" + i + "\" is incorrect/not set", "indexed messages_" + i
-        + " text", action1.getMessages( i ) );
+          + " text", action1.getMessages( i ) );
       assertEquals( "action string type input \"otherMessages_" + i + "\" is incorrect/not set",
-        "other indexed messages_" + i + " text", action1.getOtherMessages().get( i ) );
+          "other indexed messages_" + i + " text", action1.getOtherMessages().get( i ) );
     }
 
     assertEquals( "action string type input \"scalarMessage\" is incorrect/not set", "scalar message text", action1
-      .getTextOfScalarMessage() );
+        .getTextOfScalarMessage() );
   }
 
   @Test
@@ -175,7 +167,7 @@ public class ActionDelegateTest {
 
     assertEquals( "action1 string type input \"message\" is incorrect/not set", "message text", action1.getMessage() );
     assertEquals( "action2 string type input \"message\" is incorrect/not set", "internalMessage text", action2
-      .getMessage() );
+        .getMessage() );
     assertEquals( "should see the message from action1 here", "Action 1 was here!", action2.getMessageBoard() );
   }
 
@@ -193,7 +185,7 @@ public class ActionDelegateTest {
     assertTrue( "varArg1 was not set", action.getVarArgs().containsKey( "varArg1" ) );
     assertEquals( "varArg1 has incorrect value", "varArg1 text", action.getVarArgs().get( "varArg1" ) );
     assertFalse( "varArg2 was set. We expect null values to be skipped.  See BeanUtil.setValue", action.getVarArgs()
-      .containsKey( "varArg2" ) );
+        .containsKey( "varArg2" ) );
   }
 
   @Test
@@ -207,19 +199,21 @@ public class ActionDelegateTest {
     }
 
     assertEquals( "string type input \"embeddedMessage\" is incorrect/not set", "embedded message text", action
-      .getEmbeddedMessage() );
+        .getEmbeddedMessage() );
     assertEquals( "numeric type input \"embeddedNumber\" is incorrect/not set", new Integer( 2001 ), action
-      .getEmbeddedNumber() );
+        .getEmbeddedNumber() );
     assertNull( "bad numeric \"badEmbeddedNumber\" should not have been set, is [" + action.getBadEmbeddedNumber()
-      + "]", action.getBadEmbeddedNumber() );
+        + "]", action.getBadEmbeddedNumber() );
 
     /*
-     * Elements with only a text node and no sub-elements are treated by ASD as normal inputs. However, if an element in
-     * the component-definition has sub-elements, ASD will not return it as an input, so this test will verify that
-     * current behavior -- that a bean property for a complex element will not be set.
+     * Elements with only a text node and no sub-elements are treated by ASD as normal inputs. However, if an
+     * element in the component-definition has sub-elements, ASD will not return it as an input, so this test will
+     * verify that current behavior -- that a bean property for a complex element will not be set.
      */
-    assertNull( "complex input (input with sub-elements) \"complexInputWithSubEelements\""
-      + " is not currently supported as an input to an Action", action.getComplexInputWithSubEelements() );
+    assertNull(
+        "complex input (input with sub-elements) \"complexInputWithSubEelements\""
+          + " is not currently supported as an input to an Action",
+        action.getComplexInputWithSubEelements() );
   }
 
   @Test
@@ -232,12 +226,12 @@ public class ActionDelegateTest {
     execute( "testCustomTypeIO.xaction", action1, action2 );
 
     assertSame( "custom type object should have been passed from action1 to action2", testCustomType, action2
-      .getCustom() );
+        .getCustom() );
   }
 
   /**
-   * Here we are testing that actions can handle the old convention of using dashes instead of camelCase, for action
-   * sequence inputs and outputs.
+   * Here we are testing that actions can handle the old convention of using dashes instead of camelCase, for
+   * action sequence inputs and outputs.
    * 
    * @throws ActionSequenceException
    */
@@ -310,8 +304,8 @@ public class ActionDelegateTest {
     assertNotNull( "output stream was not set on action1", action1.getMyContentOutputStream() );
 
     assertTrue(
-      "the fact that we are executing an IStreamingAction should have caused the responseExpected flag to be set",
-      outputHandler.isResponseExpected() );
+        "the fact that we are executing an IStreamingAction should have caused the responseExpected flag to be set",
+        outputHandler.isResponseExpected() );
 
     assertEquals( "string type input \"message\" is incorrect/not set", "message input text", action1.getMessage() );
 
@@ -319,12 +313,12 @@ public class ActionDelegateTest {
   }
 
   /**
-   * Tests destination-less content outputs to make sure an Outputstream is still created and provided to the action
-   * bean.
+   * Tests destination-less content outputs to make sure an Outputstream is still created and provided to the
+   * action bean.
    * <p>
-   * This test implies the following code snippets return non-null results for datasource and contentItem. What this
-   * means to an action bean is it will be handed an outputstream for any output of type content that it declares as an
-   * output, regardless of the fact that it may have a public counterpart with a destination. <code>
+   * This test implies the following code snippets return non-null results for datasource and contentItem. What
+   * this means to an action bean is it will be handed an outputstream for any output of type content that it
+   * declares as an output, regardless of the fact that it may have a public counterpart with a destination. <code>
    * IPentahoStreamSource datasource = runtimeContext.getDataSource(actionInput.getName());
    * </code> or <code>
    * IActionParameter actionParameter = paramManager.getCurrentInput(parameterName);
@@ -345,12 +339,12 @@ public class ActionDelegateTest {
     assertNotNull( "output stream was not set on action1", action1.getMyContentOutputStream() );
 
     assertTrue( "output stream should contain this text", action1.getMyContentOutputStream().toString().contains(
-      "message input text" ) );
+        "message input text" ) );
   }
 
   /*
-   * Here we specify an content type output with coming from the "request" destination, which is unsupported by current
-   * IOutputHandler implementations.
+   * Here we specify an content type output with coming from the "request" destination, which is unsupported by
+   * current IOutputHandler implementations.
    */
   @Test( expected = ActionSequenceException.class )
   public void testUnsupportedContentOutput() throws PlatformInitializationException, FileNotFoundException,
@@ -375,19 +369,19 @@ public class ActionDelegateTest {
     assertEquals( "string type input \"message\" is incorrect/not set", "Test 1..2..3", action.getMessage() );
 
     assertArrayEquals( "addresseess input is incorrect/not set", new String[] { "admin", "suzy", "fred", "sam" },
-      action.getAddressees().toArray() );
+        action.getAddressees().toArray() );
     assertEquals( "long type input \"count\" is incorrect/not set", new Long( 99 ), action.getCount() );
 
     assertNotNull( "property-map type input \"veggieData\" is not set", action.getVeggieData() );
     assertMapsEquivalent( "property-map type input \"veggieData\" is incorrect", veggieDataExpected, action
-      .getVeggieData() );
+        .getVeggieData() );
 
     assertNotNull( "property-map-list type input \"fruitData\" is not set", action.getFruitData() );
     assertEquals( "property-map-list type input \"fruitData\" wrong size", fruitDataExpected.size(), action
-      .getFruitData().size() );
+        .getFruitData().size() );
     for ( int i = 0; i < fruitDataExpected.size(); i++ ) {
       assertMapsEquivalent( "property-map-list type input \"fruitData\" list element [" + i + "] is incorrect",
-        fruitDataExpected.get( i ), action.getFruitData().get( i ) );
+          fruitDataExpected.get( i ), action.getFruitData().get( i ) );
     }
 
     //
@@ -408,12 +402,12 @@ public class ActionDelegateTest {
   }
 
   private static boolean
-    assertMapsEquivalent( String comment, Map<String, String> expected, Map<String, String> actual ) {
+  assertMapsEquivalent( String comment, Map<String, String> expected, Map<String, String> actual ) {
     for ( Map.Entry<String, String> entry : expected.entrySet() ) {
       String expectedKey = entry.getKey();
       String expectedVal = entry.getValue();
       assertNotNull( comment + ": entry for key [" + expectedKey + "] was expect and not found", actual
-        .get( expectedKey ) );
+          .get( expectedKey ) );
       assertEquals( comment, expectedVal, actual.get( expectedKey ) );
     }
     return true;
@@ -474,12 +468,12 @@ public class ActionDelegateTest {
      * execute the action sequence, providing the outputHandler created above
      */
     IRuntimeContext rc =
-      solutionEngine.execute( xactionStr, actionSequenceFile, "action sequence to test the TestAction", false, true,
-        null, false, new HashMap(), outputHandler, null, new SimpleUrlFactory( "" ), new ArrayList() );
+        solutionEngine.execute( xactionStr, actionSequenceFile, "action sequence to test the TestAction", false, true,
+            null, false, new HashMap(), outputHandler, null, new SimpleUrlFactory( "" ), new ArrayList() );
     int status = rc.getStatus();
     if ( status == IRuntimeContext.PARAMETERS_FAIL || status == IRuntimeContext.RUNTIME_CONTEXT_RESOLVE_FAIL
-      || status == IRuntimeContext.RUNTIME_STATUS_FAILURE || status == IRuntimeContext.RUNTIME_STATUS_INITIALIZE_FAIL
-      || status == IRuntimeContext.RUNTIME_STATUS_SETUP_FAIL ) {
+        || status == IRuntimeContext.RUNTIME_STATUS_FAILURE || status == IRuntimeContext.RUNTIME_STATUS_INITIALIZE_FAIL
+        || status == IRuntimeContext.RUNTIME_STATUS_SETUP_FAIL ) {
       throw new ActionSequenceException( "Action sequence failed!" );
     }
   }

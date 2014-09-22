@@ -16,28 +16,28 @@
     </content-type>
 
     <content-generator scope="global" id="test1" type="test-type-1">
-        <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator1</classname>
-        <fileinfo-classname>org.pentaho.platform.plugin.pluginmgr.FileInfoGenerator</fileinfo-classname>
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1</classname>
+        <fileinfo-classname>org.pentaho.test.platform.plugin.pluginmgr.FileInfoGenerator</fileinfo-classname>
         <title>Test Generator 1</title>
     </content-generator>
     
     <content-generator scope="session" id="test2" type="test-type-1">
-        <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator2</classname>
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator2</classname>
         <title>Test Generator 2</title>
     </content-generator>
     
     <content-generator scope="local" id="test3" type="test-type-2" url="/testurl">
-        <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator2</classname>
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator2</classname>
         <title>Test Generator 3</title>
     </content-generator>
     
     <content-generator scope="thread" id="test4" type="test-type-2">
-        <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator1</classname>
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1</classname>
         <title>Test Generator 4</title>
     </content-generator>
     
     <content-generator scope="bogus" id="test5" type="test-type-bad">
-        <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator1</classname>
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1</classname>
         <title>Test Generator 5</title>
     </content-generator>
     
@@ -51,24 +51,24 @@
     </content-generator>
     
     <content-generator scope="global" id="test8" type="test-type-bad">
-        <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator1</classname>
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1</classname>
     </content-generator>
 
     <content-generator scope="global" id="test9" type="test-type-bad">
         <!-- this is the wrong type -->
-        <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenTest</classname>
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenTest</classname>
         <title>Test Generator 9</title>
     </content-generator>
 
     <content-generator scope="global" id="test10" type="test-type-bad">
-        <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator1</classname>
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1</classname>
         <!-- this is the wrong type -->
-        <fileinfo-classname>org.pentaho.platform.plugin.pluginmgr.ContentGenTest</fileinfo-classname>
+        <fileinfo-classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenTest</fileinfo-classname>
         <title>Test Generator 10</title>
     </content-generator>
     
     <content-generator scope="global" id="test11" type="test-type-bad">
-        <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator1</classname>
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1</classname>
         <!-- this is the wrong type -->
         <fileinfo-classname>bogus</fileinfo-classname>
         <title>Test Generator 11</title>

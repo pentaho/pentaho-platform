@@ -19,10 +19,10 @@ package org.pentaho.platform.engine.services.solution;
 
 import java.util.Locale;
 
-import org.pentaho.platform.engine.core.BaseTest;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings( "nls" )
 public class SolutionPublisherTest extends BaseTest {

@@ -39,13 +39,13 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.engine.core.MicroPlatform;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.blockout.BlockoutManagerUtil.TIME;
-import org.pentaho.platform.scheduler2.quartz.StubUserDetailsService;
-import org.pentaho.platform.scheduler2.quartz.StubUserRoleListService;
-import org.pentaho.platform.scheduler2.ws.JaxWsSchedulerServiceTest.TestQuartzScheduler;
-import org.pentaho.platform.scheduler2.ws.JaxWsSchedulerServiceTest.TstPluginManager;
+import org.pentaho.platform.scheduler2.quartz.test.StubUserDetailsService;
+import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
+import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TestQuartzScheduler;
+import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TstPluginManager;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.security.userdetails.UserDetailsService;
 
 /**
@@ -133,7 +133,7 @@ public class PentahoBlockoutManagerTest {
   public void testWillFire() throws Exception {
     Calendar blockOutStartDate = new GregorianCalendar( 2013, Calendar.JANUARY, 7 );
     IJobTrigger blockOutJobTrigger =
-      new SimpleJobTrigger( blockOutStartDate.getTime(), null, -1, TIME.WEEK.time / 1000 );
+        new SimpleJobTrigger( blockOutStartDate.getTime(), null, -1, TIME.WEEK.time / 1000 );
     blockOutJobTrigger.setDuration( duration );
 
     /*
@@ -141,10 +141,10 @@ public class PentahoBlockoutManagerTest {
      */
     Calendar scheduleStartDate = new GregorianCalendar( 2013, Calendar.JANUARY, 7, 1, 0, 0 );
     IJobTrigger trueScheduleTrigger =
-      new SimpleJobTrigger( scheduleStartDate.getTime(), null, -1, TIME.DAY.time / 1000 );
+        new SimpleJobTrigger( scheduleStartDate.getTime(), null, -1, TIME.DAY.time / 1000 );
 
     IJobTrigger falseScheduleTrigger =
-      new SimpleJobTrigger( scheduleStartDate.getTime(), null, -1, TIME.WEEK.time / 1000 );
+        new SimpleJobTrigger( scheduleStartDate.getTime(), null, -1, TIME.WEEK.time / 1000 );
 
     Job blockOutJob = addBlockOutJob( blockOutJobTrigger );
     assertTrue( this.blockOutManager.willFire( trueScheduleTrigger ) );
@@ -190,7 +190,7 @@ public class PentahoBlockoutManagerTest {
   public void testIsPartiallyBlocked() throws Exception {
     Calendar blockOutStartDate = new GregorianCalendar( 2013, Calendar.JANUARY, 1, 0, 0, 0 );
     IJobTrigger blockOutTrigger =
-      new SimpleJobTrigger( blockOutStartDate.getTime(), null, -1, TIME.WEEK.time * 2 / 1000 );
+        new SimpleJobTrigger( blockOutStartDate.getTime(), null, -1, TIME.WEEK.time * 2 / 1000 );
     blockOutTrigger.setDuration( duration );
 
     /*
@@ -198,15 +198,15 @@ public class PentahoBlockoutManagerTest {
      */
     Calendar trueScheduleStartDate1 = new GregorianCalendar( 2013, Calendar.JANUARY, 15, 0, 0, 0 );
     IJobTrigger trueSchedule1 =
-      new SimpleJobTrigger( trueScheduleStartDate1.getTime(), null, -1, TIME.WEEK.time * 2 / 1000 );
+        new SimpleJobTrigger( trueScheduleStartDate1.getTime(), null, -1, TIME.WEEK.time * 2 / 1000 );
 
     Calendar trueScheduleStartDate2 = new GregorianCalendar( 2013, Calendar.JANUARY, 15, 0, 0, 0 );
     IJobTrigger trueSchedule2 =
-      new SimpleJobTrigger( trueScheduleStartDate2.getTime(), null, -1, TIME.WEEK.time / 1000 );
+        new SimpleJobTrigger( trueScheduleStartDate2.getTime(), null, -1, TIME.WEEK.time / 1000 );
 
     Calendar falseScheduleStartDate1 = new GregorianCalendar( 2013, Calendar.JANUARY, 1, 3, 0, 0 );
     IJobTrigger falseSchedule1 =
-      new SimpleJobTrigger( falseScheduleStartDate1.getTime(), null, -1, TIME.WEEK.time / 1000 );
+        new SimpleJobTrigger( falseScheduleStartDate1.getTime(), null, -1, TIME.WEEK.time / 1000 );
 
     Job blockOutJob = addBlockOutJob( blockOutTrigger );
 
@@ -269,19 +269,20 @@ public class PentahoBlockoutManagerTest {
 
   /**
    * Test method for
-   * {@link org.pentaho.platform.scheduler2.blockout.PentahoBlockoutManager#willBlockSchedules (org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)}
+   * {@link org.pentaho.platform.scheduler2.blockout.PentahoBlockoutManager#willBlockSchedules
+   * (org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)}
    * .
    */
   @Test
   public void testWillBlockSchedules() throws Exception {
     Calendar trueBlockOutStartDate = new GregorianCalendar( 2013, Calendar.JANUARY, 7 );
     IJobTrigger trueBlockOutTrigger =
-      new SimpleJobTrigger( trueBlockOutStartDate.getTime(), null, -1, TIME.WEEK.time / 1000 );
+        new SimpleJobTrigger( trueBlockOutStartDate.getTime(), null, -1, TIME.WEEK.time / 1000 );
     trueBlockOutTrigger.setDuration( duration );
 
     Calendar falseBlockOutStartDate = new GregorianCalendar( 2013, Calendar.JANUARY, 9 );
     IJobTrigger falseBlockOutTrigger =
-      new SimpleJobTrigger( falseBlockOutStartDate.getTime(), null, -1, TIME.WEEK.time / 1000 );
+        new SimpleJobTrigger( falseBlockOutStartDate.getTime(), null, -1, TIME.WEEK.time / 1000 );
     falseBlockOutTrigger.setDuration( duration );
 
     IJobTrigger trueComplexBlockOutTrigger = new ComplexJobTrigger();

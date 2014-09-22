@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin title="Plugin 1">
-  <lifecycle-listener class="org.pentaho.platform.plugin.pluginmgr.FooInitializer" />
+  <lifecycle-listener class="org.pentaho.test.platform.plugin.pluginmgr.FooInitializer" />
   <content-generator scope="global" id="test1" type="test-type-3">
-    <classname>org.pentaho.platform.plugin.pluginmgr.ContentGenerator1
+    <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1
     </classname>
-    <fileinfo-classname>org.pentaho.platform.plugin.pluginmgr.FileInfoGenerator
+    <fileinfo-classname>org.pentaho.test.platform.plugin.pluginmgr.FileInfoGenerator
     </fileinfo-classname>
     <title>Test Generator 1</title>
   </content-generator>
   
-  <bean id="FooComponent" class="org.pentaho.platform.plugin.pluginmgr.FooComponent" />
+  <bean id="FooComponent" class="org.pentaho.test.platform.plugin.pluginmgr.FooComponent" />
   <bean id="genericBean" class="java.lang.Object" />
   
   <webservice 
     type="xml,gwt"
     title="%TestWS1.TITLE%" 
     description="A test webservice"
-    class="org.pentaho.platform.engine.core.EchoServiceBean">
+    class="org.pentaho.test.platform.engine.core.EchoServiceBean">
     <extra class="java.lang.String"/>
   </webservice>
   <perspective id="perspective1" title="Test Perspective 1" layout-priority="500">
@@ -54,7 +54,7 @@
   <!-- webservice 
     title="%TestWS.TITLE%" 
     description="A test webservice"
-    class="org.pentaho.platform.engine.core.EchoServiceBean">
+    class="org.pentaho.test.platform.engine.core.EchoServiceBean">
     <extra class="org.pentaho.platform.webservice.services.datasource.WSDataSource"/>
   </webservice>
   <webservice 

@@ -19,7 +19,6 @@
 package org.pentaho.platform.repository.webservices;
 
 import junit.framework.TestCase;
-
 import org.junit.Test;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
@@ -32,7 +31,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.repository.JcrBackedDatasourceMgmtService;
-import org.pentaho.platform.repository2.unified.MockUnifiedRepository;
+import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;

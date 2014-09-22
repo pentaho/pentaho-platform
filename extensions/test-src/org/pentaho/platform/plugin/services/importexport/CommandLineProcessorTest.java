@@ -18,14 +18,11 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
+import com.sun.jersey.test.framework.AppDescriptor;
+import com.sun.jersey.test.framework.JerseyTest;
+import com.sun.jersey.test.framework.WebAppDescriptor;
+import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
+import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -36,7 +33,6 @@ import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.engine.core.MicroPlatform;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -45,12 +41,15 @@ import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 
-import com.sun.jersey.test.framework.AppDescriptor;
-import com.sun.jersey.test.framework.JerseyTest;
-import com.sun.jersey.test.framework.WebAppDescriptor;
-import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
-import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
 
 /**
  * Class Description
@@ -60,13 +59,13 @@ import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestCon
 public class CommandLineProcessorTest extends JerseyTest {
   private static String VALID_URL_OPTION = "--url=http://localhost:8080/pentaho";
   private static String VALID_IMPORT_COMMAND_LINE = "--import --username=admin "
-    + "--password=password --charset=UTF-8 --path=/public "
-    + "--file-path=/home/dkincade/pentaho/platform/trunk/biserver-ee/pentaho-solutions " + VALID_URL_OPTION;
+      + "--password=password --charset=UTF-8 --path=/public "
+      + "--file-path=/home/dkincade/pentaho/platform/trunk/biserver-ee/pentaho-solutions " + VALID_URL_OPTION;
 
   private String tmpZipFileName;
   private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
-    "org.pentaho.platform.web.http.api.resources" ).contextPath( "api" ).addFilter( PentahoRequestContextFilter.class,
-    "pentahoRequestContextFilter" ).build();
+      "org.pentaho.platform.web.http.api.resources" ).contextPath( "api" ).addFilter(
+      PentahoRequestContextFilter.class, "pentahoRequestContextFilter" ).build();
   private MicroPlatform mp = new MicroPlatform( "test-src/solution" );
 
   public CommandLineProcessorTest() throws IOException {
@@ -79,8 +78,8 @@ public class CommandLineProcessorTest extends JerseyTest {
 
     mp.setFullyQualifiedServerUrl( getBaseURI() + webAppDescriptor.getContextPath() + "/" );
     mp.define( ISolutionEngine.class, SolutionEngine.class );
-    mp.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class,
-      IPentahoDefinableObjectFactory.Scope.GLOBAL );
+    mp.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class
+        , IPentahoDefinableObjectFactory.Scope.GLOBAL );
     mp.define( IAuthorizationPolicy.class, TestAuthorizationPolicy.class );
     mp.define( IAuthorizationAction.class, AdministerSecurityAction.class );
     mp.define( DefaultExportHandler.class, DefaultExportHandler.class );
@@ -88,7 +87,7 @@ public class CommandLineProcessorTest extends JerseyTest {
     mp.defineInstance( NameBaseMimeResolver.class, mimeResolver );
 
     FileSystemBackedUnifiedRepository repo =
-      (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
+        (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
     repo.setRootDir( new File( "test-src/solution" ) );
 
     StandaloneSession session = new StandaloneSession();
@@ -165,17 +164,17 @@ public class CommandLineProcessorTest extends JerseyTest {
     final String baseOptions = "-e -a " + getBaseUrl() + " -u admin -p password -fp " + tmpZipFileName;
     String pathOption;
 
-    // correct path
+    //correct path
     pathOption = "-f \"/test\"";
     CommandLineProcessor.main( toStringArray( baseOptions, pathOption ) );
     assertNull( CommandLineProcessor.getException() );
 
-    // path with trailing slash
+    //path with trailing slash
     pathOption = "-f \"/test/\"";
     CommandLineProcessor.main( toStringArray( baseOptions, pathOption ) );
     assertNull( CommandLineProcessor.getException() );
 
-    // path that doesn't exist
+    //path that doesn't exist
     pathOption = "-f \"/path_that_not_exists\"";
     CommandLineProcessor.main( toStringArray( baseOptions, pathOption ) );
     assertEquals( ParseException.class, CommandLineProcessor.getException().getClass() );

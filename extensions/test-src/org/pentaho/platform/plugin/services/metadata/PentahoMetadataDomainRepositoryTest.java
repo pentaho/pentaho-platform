@@ -18,17 +18,7 @@
 
 package org.pentaho.platform.plugin.services.metadata;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.metadata.model.Domain;
@@ -38,13 +28,22 @@ import org.pentaho.metadata.util.LocalizationUtil;
 import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository2.unified.MockUnifiedRepository;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
+import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Class Description
- * 
+ *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class PentahoMetadataDomainRepositoryTest extends TestCase {
@@ -61,7 +60,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   }
 
   protected PentahoMetadataDomainRepository createDomainRepository( final IUnifiedRepository repository,
-    final RepositoryUtils repositoryUtils, final XmiParser xmiParser, final LocalizationUtil localizationUtil ) {
+                                                                    final RepositoryUtils repositoryUtils, final XmiParser xmiParser, final LocalizationUtil localizationUtil ) {
     return new PentahoMetadataDomainRepository( repository, repositoryUtils, xmiParser, localizationUtil );
   }
 
@@ -72,8 +71,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     // System.err.println("tempDir = " + tempDir.getAbsolutePath());
     // repository = new FileSystemBackedUnifiedRepository(tempDir);
     // new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null);
-    repository.deleteFile( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ).getId(),
-      true, null );
+    repository.deleteFile( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ).getId(), true, null );
     assertNotNull( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ) );
 
     final MockXmiParser xmiParser = new MockXmiParser();
@@ -93,21 +91,21 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       createDomainRepository( null );
       fail( "An exception should be thrown" );
     } catch ( Exception success ) {
-      // ignored
+      //ignored
     }
 
     try {
       createDomainRepository( null, null, null, null );
       fail( "An exception should be thrown" );
     } catch ( Exception success ) {
-      // ignored
+      //ignored
     }
 
     final RepositoryUtils repositoryUtils = new RepositoryUtils( repository );
     final XmiParser xmiParser = new XmiParser();
     final LocalizationUtil localizationUtil = new LocalizationUtil();
     final PentahoMetadataDomainRepository repo =
-      createDomainRepository( repository, repositoryUtils, xmiParser, localizationUtil );
+        createDomainRepository( repository, repositoryUtils, xmiParser, localizationUtil );
     assertEquals( repository, repo.getRepository() );
     assertEquals( repositoryUtils, repo.getRepositoryUtils() );
     assertEquals( xmiParser, repo.getXmiParser() );
@@ -171,14 +169,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       domainRepository.getDomain( null );
       fail( "Null domainID should throw exception" );
     } catch ( Exception success ) {
-      // ignored
+      //ignored
     }
 
     try {
       domainRepository.getDomain( "" );
       fail( "Empty domainID should throw exception" );
     } catch ( Exception success ) {
-      // ignored
+      //ignored
     }
 
     assertNull( domainRepository.getDomain( "doesn't exist" ) );
@@ -200,8 +198,10 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertNotNull( testDomain2 );
     final List<LogicalModel> logicalModels = testDomain2.getLogicalModels();
     assertEquals( 2, logicalModels.size() );
-    assertTrue( "MODEL 1".equals( logicalModels.get( 0 ).getId() ) || "MODEL 1".equals( logicalModels.get( 1 ).getId() ) );
-    assertTrue( "MODEL 2".equals( logicalModels.get( 0 ).getId() ) || "MODEL 2".equals( logicalModels.get( 1 ).getId() ) );
+    assertTrue( "MODEL 1".equals( logicalModels.get( 0 ).getId() )
+        || "MODEL 1".equals( logicalModels.get( 1 ).getId() ) );
+    assertTrue( "MODEL 2".equals( logicalModels.get( 0 ).getId() )
+        || "MODEL 2".equals( logicalModels.get( 1 ).getId() ) );
   }
 
   /*
@@ -327,14 +327,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       domainRepository.removeDomain( null );
       fail( "should throw exception" );
     } catch ( IllegalArgumentException success ) {
-      // ignore
+      //ignore
     }
 
     try {
       domainRepository.removeDomain( "" );
       fail( "should throw exception" );
     } catch ( IllegalArgumentException success ) {
-      // ignore
+      //ignore
     }
 
     // Create a domain that starts with "steel-wheels" to try to mess up any of the following tests
@@ -545,7 +545,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
   /**
    * Loads a "real" Pentaho Metadata Domain
-   * 
+   *
    * @param domainId
    * @param domainFile
    * @return
