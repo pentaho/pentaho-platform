@@ -1,10 +1,13 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
+import java.sql.Connection;
 import java.util.HashMap;
 
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import org.apache.commons.dbcp.PoolingDataSource;
 import org.pentaho.database.model.DatabaseAccessType;
@@ -13,7 +16,7 @@ import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
-import org.pentaho.platform.engine.core.MicroPlatform;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 public class PooledDatasourceHelperTest extends TestCase {
   MicroPlatform mp;

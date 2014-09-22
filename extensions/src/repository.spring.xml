@@ -775,7 +775,7 @@
   </bean>
 
   <!-- IUserRoleDao implementation -->
-  <bean id="userRoleDao" class="org.pentaho.mock.MockUserRoleDao">
+  <bean id="userRoleDao" class="org.pentaho.test.mock.MockUserRoleDao">
     <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>

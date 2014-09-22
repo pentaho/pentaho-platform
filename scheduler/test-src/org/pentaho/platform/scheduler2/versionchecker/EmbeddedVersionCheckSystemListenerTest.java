@@ -32,16 +32,16 @@ import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.engine.core.MicroPlatform;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
-import org.pentaho.platform.scheduler2.quartz.StubUserDetailsService;
-import org.pentaho.platform.scheduler2.quartz.StubUserRoleListService;
+import org.pentaho.platform.scheduler2.quartz.test.StubUserDetailsService;
+import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
 import org.pentaho.platform.scheduler2.ws.ParamValue;
-import org.pentaho.platform.scheduler2.ws.JaxWsSchedulerServiceTest.TstPluginManager;
+import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TstPluginManager;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.security.userdetails.UserDetailsService;
 
 @SuppressWarnings( "nls" )

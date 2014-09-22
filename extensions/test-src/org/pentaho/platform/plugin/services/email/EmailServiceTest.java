@@ -18,14 +18,7 @@
 
 package org.pentaho.platform.plugin.services.email;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import javax.ws.rs.core.Response;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.engine.IApplicationContext;
@@ -33,9 +26,14 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemEntryPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
-import org.pentaho.platform.engine.core.MicroPlatform;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.api.resources.EmailResource;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Unit tests the EmailResource REST services
@@ -47,7 +45,6 @@ public class EmailServiceTest extends TestCase {
   private File tempDir = null;
   private File defaultConfigFile = null;
   private MicroPlatform mp;
-
   @Override
   public void setUp() throws Exception {
     mp = new MicroPlatform();
@@ -268,17 +265,16 @@ public class EmailServiceTest extends TestCase {
 
     @Override
     public File createTempFile( final IPentahoSession session, final String prefix, final String extension,
-      final File parentDir, final boolean trackFile ) throws IOException {
+        final File parentDir, final boolean trackFile ) throws IOException {
       return null;
     }
 
     @Override
     public File createTempFile( final IPentahoSession session, final String prefix, final String extension,
-      final boolean trackFile ) throws IOException {
+        final boolean trackFile ) throws IOException {
       return null;
     }
   }
-
   class TestAuthorizationPolicy implements IAuthorizationPolicy {
 
     @Override

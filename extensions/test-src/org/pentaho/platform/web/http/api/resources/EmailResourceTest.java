@@ -18,22 +18,20 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import junit.framework.TestCase;
+import org.pentaho.platform.api.email.IEmailConfiguration;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.plugin.services.email.EmailConfiguration;
+import org.pentaho.platform.plugin.services.email.EmailService;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
-import junit.framework.TestCase;
-
-import org.pentaho.platform.api.email.IEmailConfiguration;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.engine.core.MicroPlatform;
-import org.pentaho.platform.plugin.services.email.EmailConfiguration;
-import org.pentaho.platform.plugin.services.email.EmailService;
-
 /**
  * Class Description
- * 
+ *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class EmailResourceTest extends TestCase {
@@ -60,14 +58,14 @@ public class EmailResourceTest extends TestCase {
       new EmailResource( null );
       fail( "Exception should be thrown when a null EmailService is provided" );
     } catch ( IllegalArgumentException success ) {
-      // ignore
+      //ignore
     }
 
     try {
       new EmailResource( new EmailService( new File( defaultConfigFile, "cannot.exist" ) ) );
       fail( "Exception should be thrown when an invalid EmailService is provided" );
     } catch ( IllegalArgumentException success ) {
-      // ignore
+      //ignore
     }
 
     IEmailConfiguration emptyConfig = emailResource.getEmailConfig();
@@ -79,8 +77,8 @@ public class EmailResourceTest extends TestCase {
     assertTrue( BLANK_CONFIG.equals( emptyConfig ) );
 
     final EmailConfiguration emailConfigOriginal =
-      new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", null, 36, "", true, "user", null,
-        false, true );
+        new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", null, 36,
+            "", true, "user", null, false, true );
     response = emailResource.setEmailConfig( emailConfigOriginal );
     assertEquals( OK_STATUS, response.getStatus() );
 

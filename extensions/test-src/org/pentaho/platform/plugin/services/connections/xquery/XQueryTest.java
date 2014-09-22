@@ -34,8 +34,10 @@ import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.memory.MemoryMetaData;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.platform.api.engine.ILogger;
-import org.pentaho.platform.engine.core.BaseTest;
 import org.pentaho.platform.plugin.services.connections.javascript.JavaScriptResultSet;
+import org.pentaho.platform.plugin.services.connections.xquery.XQConnection;
+import org.pentaho.platform.plugin.services.connections.xquery.XQResultSet;
+import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings( { "all" } )
 public class XQueryTest extends BaseTest {

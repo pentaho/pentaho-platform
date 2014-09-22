@@ -17,25 +17,6 @@
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.security.AccessControlException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
@@ -58,7 +39,6 @@ import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleM
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.MicroPlatform;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
@@ -71,6 +51,7 @@ import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -88,6 +69,22 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
 /**
  * Class Description
  * 
@@ -95,7 +92,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-  "classpath:/repository-test-override.spring.xml" } )
+    "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
 public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationContextAware {
   private UnifiedRepositoryToWebServiceAdapter adapter;
@@ -156,14 +153,13 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
-    mp.defineInstance( "RepositoryFileProxyFactory",
-      new RepositoryFileProxyFactory( testJcrTemplate, repositoryFileDao ) );
+    mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory(testJcrTemplate, repositoryFileDao) );
     // Start the micro-platform
     mp.start();
     setAclManagement();
     systemTenant =
-      tenantMgrTxn.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
-        tenantAuthenticatedAuthorityName, "Anonymous" );
+        tenantMgrTxn.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
+            tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
     logout();
 
@@ -180,7 +176,7 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
           privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
         } catch ( AccessControlException ace ) {
           privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
-            new String[0] );
+              new String[0] );
         }
         session.save();
         return null;
@@ -200,12 +196,12 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
   }
 
   /*
-   * private void deleteUserRoleAndTenant(ITenant parentTenant, List<ITenant> tenants) { try { if(tenants != null &&
-   * tenants.size() > 0) { for(ITenant tenant: tenants) { login("admin", tenant, true); for(IPentahoRole
+   * private void deleteUserRoleAndTenant(ITenant parentTenant, List<ITenant> tenants) { try { if(tenants != null
+   * && tenants.size() > 0) { for(ITenant tenant: tenants) { login("admin", tenant, true); for(IPentahoRole
    * role:userRoleDao.getRoles()) { userRoleDao.deleteRole(role); } for(IPentahoUser user:userRoleDao.getUsers()) {
-   * userRoleDao.deleteUser(user); } deleteUserRoleAndTenant(tenant, tenantManager.getChildTenants(tenant)); logout(); }
-   * } else { tenantManager.deleteTenant(parentTenant); } } catch (Throwable e) { // TODO Auto-generated catch block
-   * e.printStackTrace(); } //$NON-NLS-1$ //$NON-NLS-2$ }
+   * userRoleDao.deleteUser(user); } deleteUserRoleAndTenant(tenant, tenantManager.getChildTenants(tenant));
+   * logout(); } } else { tenantManager.deleteTenant(parentTenant); } } catch (Throwable e) { // TODO
+   * Auto-generated catch block e.printStackTrace(); } //$NON-NLS-1$ //$NON-NLS-2$ }
    */
   @After
   public void tearDown() throws Exception {
@@ -236,12 +232,12 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     StandaloneSession pentahoSession = new StandaloneSession( repositoryAdminUsername );
     pentahoSession.setAuthenticated( repositoryAdminUsername );
     final GrantedAuthority[] repositoryAdminAuthorities =
-      new GrantedAuthority[] { new GrantedAuthorityImpl( sysAdminAuthorityName ) };
+        new GrantedAuthority[] { new GrantedAuthorityImpl( sysAdminAuthorityName ) };
     final String password = "ignored";
     UserDetails repositoryAdminUserDetails =
-      new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
+        new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
     Authentication repositoryAdminAuthentication =
-      new UsernamePasswordAuthenticationToken( repositoryAdminUserDetails, password, repositoryAdminAuthorities );
+        new UsernamePasswordAuthenticationToken( repositoryAdminUserDetails, password, repositoryAdminAuthorities );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( repositoryAdminAuthentication );
@@ -295,18 +291,18 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     sysAdminUserName = (String) applicationContext.getBean( "superAdminUserName" );
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
     roleBindingDaoTarget =
-      (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
-        .getBean( "roleAuthorizationPolicyRoleBindingDaoTarget" );
+        (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
+            .getBean( "roleAuthorizationPolicyRoleBindingDaoTarget" );
     tenantManager = (ITenantManager) applicationContext.getBean( "tenantMgrProxy" );
     tenantMgrTxn = (ITenantManager) applicationContext.getBean( "tenantMgrTxn" );
 
     userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDao" );
     pathConversionHelper = (IPathConversionHelper) applicationContext.getBean( "pathConversionHelper" );
     roleBindingDao =
-      (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean( "roleAuthorizationPolicyRoleBindingDao" );
+        (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean( "roleAuthorizationPolicyRoleBindingDao" );
     roleBindingDaoTarget =
-      (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
-        .getBean( "roleAuthorizationPolicyRoleBindingDaoTarget" );
+        (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
+            .getBean( "roleAuthorizationPolicyRoleBindingDaoTarget" );
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
     repository = (IUnifiedRepository) applicationContext.getBean( "unifiedRepository" );
     tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean( "tenantedUserNameUtils" );
@@ -314,23 +310,25 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     jcrTransactionTemplate = (TransactionTemplate) applicationContext.getBean( "jcrTransactionTemplate" );
     TestPrincipalProvider.userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDao" );
     TestPrincipalProvider.adminCredentialsStrategy =
-      (CredentialsStrategy) applicationContext.getBean( "jcrAdminCredentialsStrategy" );
+        (CredentialsStrategy) applicationContext.getBean( "jcrAdminCredentialsStrategy" );
     TestPrincipalProvider.repository = (Repository) applicationContext.getBean( "jcrRepository" );
   }
 
   @Test
   public void testFileMetadata() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
+      tenantAuthenticatedAuthorityName } );
     ITenant mainTenant_1 =
-      tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
-        tenantAuthenticatedAuthorityName, "Anonymous" );
+        tenantManager.createTenant( systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName,
+            tenantAuthenticatedAuthorityName, "Anonymous" );
     userRoleDao.createUser( mainTenant_1, "admin", "password", "", new String[] { tenantAdminAuthorityName } );
     login( "admin", mainTenant_1, new String[] { tenantAuthenticatedAuthorityName } );
     RepositoryFile file = repository.getFile( ClientRepositoryPaths.getPublicFolderPath() );
     final RepositoryFile testfile =
-      repository.createFile( file.getId(), new RepositoryFile.Builder( "testfile" ).build(),
-        new SimpleRepositoryFileData( new ByteArrayInputStream( "test".getBytes() ), "UTF-8", "text/plain" ), null );
-    // CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
+        repository.createFile( file.getId(), new RepositoryFile.Builder( "testfile" ).build(),
+            new SimpleRepositoryFileData( new ByteArrayInputStream( "test".getBytes() ), "UTF-8",
+              "text/plain" ), null );
+    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure the repository is setup correctly
       assertNotNull( testfile );
@@ -345,7 +343,7 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     metadata.put( "complex key?", "\"an even more 'complex' value\"! {and them some}" );
 
     adapter.setFileMetadata( testfile.getId(), metadata );
-    // CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
+    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure the repository sees the metadata
       assertNotNull( testfile );
@@ -354,7 +352,7 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
       assertNotNull( fileMetadata );
       assertEquals( 2, fileMetadata.size() );
     }
-    // CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
+    //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure we can get the same metadata back via the web service
       final Map<String, Serializable> fileMetadata = adapter.getFileMetadata( testfile.getId() );
@@ -362,7 +360,7 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
       assertEquals( 2, fileMetadata.size() );
       assertTrue( StringUtils.equals( "sample value", (String) fileMetadata.get( "sample key" ) ) );
       assertTrue( StringUtils.equals( "\"an even more 'complex' value\"! {and them some}", (String) fileMetadata
-        .get( "complex key?" ) ) );
+          .get( "complex key?" ) ) );
     }
 
     cleanupUserAndRoles( sysAdminUserName, systemTenant, mainTenant_1 );
