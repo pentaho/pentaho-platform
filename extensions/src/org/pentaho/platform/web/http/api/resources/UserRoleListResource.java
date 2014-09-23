@@ -35,6 +35,7 @@ import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.DefaultRoleComparator;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleListService.UnauthorizedException;
 
@@ -74,6 +75,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     userRoleListService = new UserRoleListService();
     userRoleListService.setExtraRoles( extraRoles );
     userRoleListService.setSystemRoles( systemRoles );
+    userRoleListService.setRoleComparator( new DefaultRoleComparator() );
   }
 
   /**
