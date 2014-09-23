@@ -16,7 +16,7 @@
  * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
 
-package org.pentaho.platform.engine.core.audit;
+package org.pentaho.platform.engine.core;
 
 import org.pentaho.platform.api.engine.AuditException;
 import org.pentaho.platform.api.engine.IAuditEntry;

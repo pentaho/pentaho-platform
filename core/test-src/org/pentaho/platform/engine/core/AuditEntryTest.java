@@ -16,14 +16,13 @@
  * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
 
-package org.pentaho.platform.engine.core.audit;
+package org.pentaho.platform.engine.core;
 
 import java.math.BigDecimal;
 
 import junit.framework.TestCase;
 
 import org.pentaho.platform.api.engine.IAuditEntry;
-import org.pentaho.platform.engine.core.TestOutputHandler;
 import org.pentaho.platform.engine.core.audit.AuditEntry;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
