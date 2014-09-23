@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.osgi;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -44,7 +45,7 @@ import java.util.Map;
  * <p/>
  * User: nbaker Date: 10/31/13 Time: 11:43 AM
  */
-@SuppressWarnings( "unchecked" )
+@SuppressWarnings("unchecked")
 public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   private BundleContext context;
@@ -67,7 +68,10 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> T get( Class<T> interfaceClass, IPentahoSession session, Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
+    if ( isBundleContextValid() == false ) {
+      return null;
+    }
 
     String filter = createFilter( properties );
     try {
@@ -98,6 +102,11 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     if ( clazz == null ) {
       throw new IllegalStateException( "Class is null" );
     }
+
+    if ( isBundleContextValid() == false ) {
+      return false;
+    }
+
     ServiceReference ref = context.getServiceReference( clazz );
     return ref != null;
   }
@@ -107,6 +116,11 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     if ( clazz == null ) {
       throw new IllegalStateException( "Class is null" );
     }
+
+    if ( isBundleContextValid() == false ) {
+      return false;
+    }
+
     ServiceReference ref = context.getServiceReference( clazz );
     return ref != null;
   }
@@ -118,7 +132,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public void init( String configFile, Object context ) {
-
+    // No op
   }
 
   @Override
@@ -141,7 +155,11 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<T> getAll( Class<T> interfaceClass, IPentahoSession session, Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
+
+    if ( isBundleContextValid() == false ) {
+      return null;
+    }
 
     String filter = createFilter( properties );
 
@@ -170,14 +188,18 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     return getObjectReference( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession,
                                                             Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
+
+    if ( isBundleContextValid() == false ) {
+      return null;
+    }
 
     String filter = createFilter( properties );
     try {
@@ -197,7 +219,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
 
     return getObjectReferences( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
@@ -205,7 +227,11 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession,
                                                                    Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
+
+    if ( isBundleContextValid() == false ) {
+      return Collections.emptyList();
+    }
 
     String filter = createFilter( properties );
     try {
@@ -294,4 +320,25 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
     }
   }
+
+  /**
+   * Occasionally the Bundle Context will be invalidated before the OSGIObjectFactory wrapping it is de-registered. This
+   * method checks for this inconsistency and deregisters the OSGIObjectFactory. Callers should handle a false condition
+   * gracefully, returning null or false to the caller.
+   */
+  private boolean isBundleContextValid() {
+    try {
+      // This works in Equinox, but Felix throws an IllegalStateException trying to get the Bundle
+      int state = context.getBundle().getState();
+      switch( state ) {
+        case Bundle.ACTIVE:
+          return true;
+        default:
+          return false;
+      }
+    } catch ( IllegalStateException e ) {
+      return false;
+    }
+  }
+
 }

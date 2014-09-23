@@ -19,14 +19,6 @@ public class PentahoOSGIActivator {
   private static OSGIObjectFactory objectFactory;
 
   public void setBundleContext( BundleContext bundleContext ) throws Exception {
-    IApplicationContext applicationContext = PentahoSystem.getApplicationContext();
-    if ( applicationContext instanceof WebApplicationContext ) {
-
-      WebApplicationContext webApplicationContext = (WebApplicationContext) applicationContext;
-      ServletContext servletContext = (ServletContext) webApplicationContext.getContext();
-      servletContext.setAttribute( BundleContext.class.getName(), bundleContext );
-    }
-
     logger.debug( "Registering OSGIObjectFactory" );
 
     if ( objectFactory != null ) {
