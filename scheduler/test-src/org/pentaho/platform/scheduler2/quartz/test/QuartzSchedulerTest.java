@@ -38,7 +38,7 @@ import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
-import org.pentaho.platform.engine.core.audit.TestAuditEntry;
+import org.pentaho.platform.engine.core.TestAuditEntry;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;

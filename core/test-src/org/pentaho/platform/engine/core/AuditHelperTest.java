@@ -1,4 +1,4 @@
-package org.pentaho.platform.engine.core.audit;
+package org.pentaho.platform.engine.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.pentaho.platform.api.engine.IAuditEntry;
 import org.pentaho.platform.api.engine.IRuntimeContext;
+import org.pentaho.platform.engine.core.audit.AuditEntry;
+import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
