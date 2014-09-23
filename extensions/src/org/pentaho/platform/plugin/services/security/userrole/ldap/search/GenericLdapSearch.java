@@ -27,11 +27,7 @@ import org.springframework.util.Assert;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GenericLdapSearch implements LdapSearch, InitializingBean {
 
@@ -43,7 +39,7 @@ public class GenericLdapSearch implements LdapSearch, InitializingBean {
   /**
    * Generates disposable instances of search parameters. Factory should be thread-safe (i.e. no mutable instance
    * variables).
-   * 
+   *
    * @see LdapSearchParams
    */
   private LdapSearchParamsFactory paramsFactory;
