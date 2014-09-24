@@ -8,6 +8,7 @@ import org.pentaho.platform.web.http.messages.Messages;
 
 public class FileUtils {
   public static final String PATH_SEPARATOR = "/";
+  public static final String ENCODED_PATH_SEPARATOR = ":";
   private static final Log logger = LogFactory.getLog( FileUtils.class );
 
   public static String idToPath( String pathId ) {
@@ -17,7 +18,7 @@ public class FileUtils {
     if ( pathId.contains( PATH_SEPARATOR ) ) {
       logger.warn( Messages.getInstance().getString( "FileResource.ILLEGAL_PATHID", pathId ) );
     }
-    path = pathId.replaceAll( PATH_SEPARATOR, "" );
+    path = pathId.replaceAll( PATH_SEPARATOR, ENCODED_PATH_SEPARATOR );
     path = RepositoryPathEncoder.decodeRepositoryPath( path );
     if ( !path.startsWith( PATH_SEPARATOR ) ) {
       path = PATH_SEPARATOR + path;
