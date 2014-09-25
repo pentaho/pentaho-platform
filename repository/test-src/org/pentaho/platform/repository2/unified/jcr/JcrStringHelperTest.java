@@ -19,8 +19,16 @@ package org.pentaho.platform.repository2.unified.jcr;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenantManager;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 public class JcrStringHelperTest {
 
@@ -39,7 +47,12 @@ public class JcrStringHelperTest {
   }
 
   @Test
-  public void testFilePathpecEncode() {
+  public void testFilePath_1EncodeUsingMultiByteEncoding() throws PlatformInitializationException {
+    MicroPlatform mp = new MicroPlatform();
+    mp.defineInstance( "useMultiByteEncoding", new Boolean( true ) );
+    // Start the micro-platform
+    mp.start();
+    JcrStringHelper.setMultiByteEncodingEnabled( true );
     String path = "/asdf/3err";
     String encodedPath = JcrStringHelper.pathEncode( path );
     assertFalse( path.equals( encodedPath ) );
@@ -47,10 +60,43 @@ public class JcrStringHelperTest {
   }
 
   @Test
-  public void testFilePathSpecEncodeDecode() {
+  public void testFilePath_1Encode() throws PlatformInitializationException {
+    MicroPlatform mp = new MicroPlatform();
+    mp.defineInstance( "useMultiByteEncoding", new Boolean( false ) );
+    // Start the micro-platform
+    mp.start();
+    JcrStringHelper.setMultiByteEncodingEnabled( false );
+    String path = "/asdf/3err";
+    String encodedPath = JcrStringHelper.pathEncode( path );
+    assertEquals( path, encodedPath );
+  }
+
+  @Test
+  public void testFilePathSpecEncodeDecodeUsingMultiByteEncoding() throws PlatformInitializationException {
+    MicroPlatform mp = new MicroPlatform();
+    mp.defineInstance( "useMultiByteEncoding", new Boolean( true ) );
+    // Start the micro-platform
+    mp.start();
+    JcrStringHelper.setMultiByteEncodingEnabled( true );
+
     String path = "/asdf/3err";
     String encodedPath = JcrStringHelper.pathEncode( path );
     assertFalse( path.equals( encodedPath ) );
+    String decodedPath = JcrStringHelper.fileNameDecode( encodedPath );
+    assertEquals( path, decodedPath );
+  }
+
+  @Test
+  public void testFilePathSpecEncodeDecode() throws PlatformInitializationException {
+    MicroPlatform mp = new MicroPlatform();
+    mp.defineInstance( "useMultiByteEncoding", new Boolean( false ) );
+    // Start the micro-platform
+    mp.start();
+    JcrStringHelper.setMultiByteEncodingEnabled( false );
+
+    String path = "/asdf/3err";
+    String encodedPath = JcrStringHelper.pathEncode( path );
+    assertEquals( path, encodedPath );
     String decodedPath = JcrStringHelper.fileNameDecode( encodedPath );
     assertEquals( path, decodedPath );
   }

@@ -78,6 +78,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
 import javax.jcr.security.AccessControlException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -348,8 +349,9 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
     mp.defineInstance("ILockHelper", new DefaultLockHelper(userNameUtils));
-    mp.defineInstance("RepositoryFileProxyFactory", new RepositoryFileProxyFactory(this.jcrTemplate, this.repositoryFileDao));
-
+    mp.defineInstance("RepositoryFileProxyFactory"
+        , new RepositoryFileProxyFactory(this.jcrTemplate, this.repositoryFileDao));
+    mp.defineInstance("useMultiByteEncoding", new Boolean( false ) );
     // Start the micro-platform
     mp.start();
 
