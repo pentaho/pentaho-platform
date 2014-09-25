@@ -229,7 +229,7 @@ public class UserRoleDaoUserRoleListServiceTest implements ApplicationContextAwa
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleAuthorizationPolicyRoleBindingDao );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory(testJcrTemplate, repositoryFileDao) );
-    
+    mp.defineInstance("useMultiByteEncoding", new Boolean(false) );
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();

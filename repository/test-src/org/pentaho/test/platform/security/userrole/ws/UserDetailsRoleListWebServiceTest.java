@@ -40,6 +40,7 @@ public class UserDetailsRoleListWebServiceTest {
   public void init0() {
     microPlatform = new MicroPlatform();
     microPlatform.define( IUserRoleListService.class, MockUserRoleListService.class );
+    microPlatform.defineInstance("useMultiByteEncoding", new Boolean(false) );
   }
 
   public IUserRoleListWebService getUserRoleListWebService() {
