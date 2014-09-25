@@ -184,12 +184,18 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         DefaultPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper( session );
         Privilege[] privs = permissionConversionHelper.pentahoPermissionsToPrivileges( session, permissions );
+        String absPath = null;
         try {
-          String absPath = pathConversionHelper.relToAbs( relPath );
+          absPath = pathConversionHelper.relToAbs( relPath );
           return session.getAccessControlManager().hasPrivileges( JcrStringHelper.pathEncode( absPath ), privs );
         } catch ( PathNotFoundException e ) {
-          // never throw an exception if the path does not exist; just return false
-          return false;
+          try {
+            return session.getAccessControlManager().hasPrivileges(
+                JcrStringHelper.pathEncode( absPath, !JcrStringHelper.isMultiByteEncodingEnabled() ), privs );
+          } catch ( PathNotFoundException ex ) {
+            // never throw an exception if the path does not exist; just return false
+            return false;
+          }
         }
       }
     } );
@@ -252,8 +258,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     }
     logger.debug( String.format( "principal class [%s]", principal.getClass().getName() ) ); //$NON-NLS-1$
     Privilege[] privileges = acEntry.getPrivileges();
-    return new RepositoryFileAce( sid, permissionConversionHelper
-      .privilegesToPentahoPermissions( session, privileges ) );
+    return new RepositoryFileAce( sid, permissionConversionHelper.privilegesToPentahoPermissions( session, privileges ) );
   }
 
   /**

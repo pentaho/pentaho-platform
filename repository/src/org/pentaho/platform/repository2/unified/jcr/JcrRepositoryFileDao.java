@@ -448,7 +448,14 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       // items are nodes or properties; this must be a node
       Assert.isTrue( fileNode.isNode() );
     } catch ( PathNotFoundException e ) {
-      fileNode = null;
+      try {
+        fileNode =
+            session.getItem( JcrStringHelper.pathEncode( absPath, !JcrStringHelper.isMultiByteEncodingEnabled() ) );
+        // items are nodes or properties; this must be a node
+        Assert.isTrue( fileNode.isNode() );
+      } catch ( PathNotFoundException ex ) {
+        fileNode = null;
+      }
     }
     RepositoryFile file =
         fileNode != null ? JcrRepositoryFileUtils.nodeToFile( session, pentahoJcrConstants, pathConversionHelper,
@@ -791,8 +798,12 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         // original parent folder path may no longer exist!
         if ( session.itemExists( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) ) {
           origParentFolderId =
-              ( (Node) session.getItem( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) )
-                  .getIdentifier();
+              ( (Node) session.getItem( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) ).getIdentifier();
+        } else if ( session.itemExists( JcrStringHelper.pathEncode( absOrigParentFolderPath, !JcrStringHelper
+            .isMultiByteEncodingEnabled() ) ) ) {
+          origParentFolderId =
+              ( (Node) session.getItem( JcrStringHelper.pathEncode( absOrigParentFolderPath, !JcrStringHelper
+                  .isMultiByteEncodingEnabled() ) ) ).getIdentifier();
         } else {
           // go through each of the segments of the original parent folder path, creating as necessary
           String[] segments = pathConversionHelper.absToRel( absOrigParentFolderPath ).split( RepositoryFile.SEPARATOR );
@@ -858,7 +869,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         try {
           destFileNode = (Node) session.getItem( JcrStringHelper.pathEncode( cleanDestAbsPath ) );
         } catch ( PathNotFoundException e ) {
-          destExists = false;
+          try {
+            destFileNode =
+                (Node) session.getItem( JcrStringHelper.pathEncode( cleanDestAbsPath, !JcrStringHelper
+                    .isMultiByteEncodingEnabled() ) );
+          } catch ( PathNotFoundException ex ) {
+            destExists = false;
+          }
         }
         if ( destExists ) {
           // make sure it's a file or folder
@@ -888,8 +905,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           String absPathToDestParentFolder = cleanDestAbsPath.substring( 0, lastSlashIndex );
           JcrRepositoryFileUtils.checkName( cleanDestAbsPath.substring( lastSlashIndex + 1 ) );
           try {
-            destParentFolderNode =
-                (Node) session.getItem( JcrStringHelper.pathEncode( absPathToDestParentFolder ) );
+            destParentFolderNode = (Node) session.getItem( JcrStringHelper.pathEncode( absPathToDestParentFolder ) );
           } catch ( PathNotFoundException e1 ) {
             Assert.isTrue( false, Messages.getInstance()
                 .getString( "JcrRepositoryFileDao.ERROR_0004_PARENT_MUST_EXIST" ) ); //$NON-NLS-1$
@@ -904,8 +920,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
             destParentFolderNode );
         String finalEncodedSrcAbsPath = srcFileNode.getPath();
-        String finalDestAbsPath = appendFileName && !file.isFolder() ? cleanDestAbsPath
-                + RepositoryFile.SEPARATOR + srcFileNode.getName() : cleanDestAbsPath;
+        String finalDestAbsPath =
+            appendFileName && !file.isFolder() ? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
+                : cleanDestAbsPath;
         try {
           if ( copy ) {
             session.getWorkspace().copy( finalEncodedSrcAbsPath, JcrStringHelper.pathEncode( finalDestAbsPath ) );

@@ -74,6 +74,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
 import javax.jcr.security.AccessControlException;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -154,6 +155,7 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory(testJcrTemplate, repositoryFileDao) );
+    mp.defineInstance("useMultiByteEncoding", new Boolean(false) );
     // Start the micro-platform
     mp.start();
     setAclManagement();
