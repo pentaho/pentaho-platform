@@ -947,4 +947,9 @@
     <constructor-arg ref="repositoryFileDao"/>
   </bean>
   <!-- end authorization policy -->
+  
+  <bean class="java.lang.Boolean" id="useMultiByteEncoding">
+    <constructor-arg value="${repository.useMultiByteEncoding}"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
 </beans>

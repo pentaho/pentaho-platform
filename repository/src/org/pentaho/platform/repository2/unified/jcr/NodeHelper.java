@@ -27,6 +27,7 @@ public class NodeHelper {
 
   /**
    * Encapsulate hasNode calls here to ensure we are encoding the parameter
+   * 
    * @param parentNode
    * @param nodeName
    * @return
@@ -38,6 +39,7 @@ public class NodeHelper {
 
   /**
    * Encapsulate hasNode calls here to ensure we are encoding the parameter
+   * 
    * @param parentNode
    * @param nodeNamePrefix
    * @param nodeName
@@ -45,11 +47,18 @@ public class NodeHelper {
    * @throws RepositoryException
    */
   public static boolean hasNode( Node parentNode, String nodeNamePrefix, String nodeName ) throws RepositoryException {
-    return checkHasNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ));
+    boolean found = checkHasNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ) );
+    if ( !found ) {
+      found =
+          checkHasNode( parentNode, nodeNamePrefix
+              + JcrStringHelper.fileNameEncode( nodeName, !JcrStringHelper.isMultiByteEncodingEnabled() ) );
+    }
+    return found;
   }
 
   /**
    * Encapsulate addNode calls here to ensure we are encoding the parameter
+   * 
    * @param parentNode
    * @param nodeName
    * @return
@@ -61,6 +70,7 @@ public class NodeHelper {
 
   /**
    * Encapsulate addNode calls here to ensure we are encoding the parameter
+   * 
    * @param parentNode
    * @param nodeNamePrefix
    * @param nodeName
@@ -73,29 +83,34 @@ public class NodeHelper {
 
   /**
    * Encapsulate addNode calls here to ensure we are encoding the parameter
+   * 
    * @param parentNode
    * @param nodeNamePrefix
    * @param nodeName
    * @return
    * @throws RepositoryException
    */
-  public static Node addNode( Node parentNode, String nodeNamePrefix, String nodeName, String nodeParameter ) throws RepositoryException {
+  public static Node addNode( Node parentNode, String nodeNamePrefix, String nodeName, String nodeParameter )
+    throws RepositoryException {
     return checkAddNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ), nodeParameter );
   }
 
   /**
    * Encapsulate addNode calls here to ensure we are encoding the parameter
+   * 
    * @param parentNode
    * @param nodeName
    * @return
    * @throws RepositoryException
    */
-  protected static Node checkAddNode( Node parentNode, String nodeName, String nodeParameter ) throws RepositoryException {
+  protected static Node checkAddNode( Node parentNode, String nodeName, String nodeParameter )
+    throws RepositoryException {
     return parentNode.addNode( nodeName, nodeParameter );
   }
 
   /**
    * Encapsulate getNode calls here to ensure we are encoding the parameter
+   * 
    * @param parentNode
    * @param nodeName
    * @return
@@ -107,6 +122,7 @@ public class NodeHelper {
 
   /**
    * Encapsulate getNode calls here to ensure we are encoding the parameter
+   * 
    * @param parentNode
    * @param nodeNamePrefix
    * @param nodeName
@@ -114,15 +130,22 @@ public class NodeHelper {
    * @throws RepositoryException
    */
   public static Node getNode( Node parentNode, String nodeNamePrefix, String nodeName ) throws RepositoryException {
-    return checkGetNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ) );
+    Node node = checkGetNode( parentNode, nodeNamePrefix + JcrStringHelper.fileNameEncode( nodeName ) );
+    if ( node == null ) {
+      node =
+          checkGetNode( parentNode, nodeNamePrefix
+              + JcrStringHelper.fileNameEncode( nodeName, !JcrStringHelper.isMultiByteEncodingEnabled() ) );
+    }
+    return node;
   }
 
   /**
    * Safely create data node with jcr encoded name
+   * 
    * @param name
    * @return
    */
-  public static DataNode createDataNode( String name ){
-    return new DataNode( JcrStringHelper.fileNameEncode( name ));
+  public static DataNode createDataNode( String name ) {
+    return new DataNode( JcrStringHelper.fileNameEncode( name ) );
   }
 }

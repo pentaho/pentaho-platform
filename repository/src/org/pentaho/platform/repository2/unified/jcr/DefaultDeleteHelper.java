@@ -55,19 +55,18 @@ import java.util.Set;
  * Default implementation of {@link IDeleteHelper}.
  * <p/>
  * <p>
- * If user {@code suzy} in tenant {@code acme} deletes a file with id {@code testFileId} and named {@code testFile}
- * in folder with id {@code testFolderId} and named {@code testFolder} then this implementation upon a
- * non-permanent delete will move the file such that the new absolute path and properties of the "deleted" node
- * will be as follows.
+ * If user {@code suzy} in tenant {@code acme} deletes a file with id {@code testFileId} and named {@code testFile} in
+ * folder with id {@code testFolderId} and named {@code testFolder} then this implementation upon a non-permanent delete
+ * will move the file such that the new absolute path and properties of the "deleted" node will be as follows.
  * </p>
  * <p/>
  * <p>
  * Trash Structure 2
  * </p>
  * Uses JCR XPath queries for iteration and filtering. File ID nodes exist to prevent same-name sibling conflicts.
- * Original parent folder path stored in property. All delete-related properties stored in file ID node to avoid
- * the need to checkout versioned files when they are deleted. Note that use of JCR XPath queries may require
- * enabling features in the JCR implementation.
+ * Original parent folder path stored in property. All delete-related properties stored in file ID node to avoid the
+ * need to checkout versioned files when they are deleted. Note that use of JCR XPath queries may require enabling
+ * features in the JCR implementation.
  * 
  * <pre>
  * /pentaho/acme/home/suzy/.trash/pho:testFileId/testFile
@@ -98,8 +97,8 @@ import java.util.Set;
  * <p/>
  * <p>
  * By storing deleted files inside the user's home folder, the user's recycle bin is effectively private. This is
- * desirable because a deleted file with confidential information should not be seen by anyone else except the
- * deleting user.
+ * desirable because a deleted file with confidential information should not be seen by anyone else except the deleting
+ * user.
  * </p>
  * 
  * @author mlowery
@@ -147,8 +146,8 @@ public class DefaultDeleteHelper implements IDeleteHelper {
   }
 
   /**
-   * Creates and/or returns an internal folder to store a single deleted file. This folder is uniquely named and
-   * thus prevents same-name sibling conflicts.
+   * Creates and/or returns an internal folder to store a single deleted file. This folder is uniquely named and thus
+   * prevents same-name sibling conflicts.
    * 
    * @param fileId
    *          id of file to delete
@@ -166,8 +165,8 @@ public class DefaultDeleteHelper implements IDeleteHelper {
   }
 
   /**
-   * Returns an internal folder to store all files deleted from a given folder. Provides fast access when searching
-   * for files deleted from a given folder.
+   * Returns an internal folder to store all files deleted from a given folder. Provides fast access when searching for
+   * files deleted from a given folder.
    */
   private Node legacyGetTrashFolderIdNode( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final String origParentFolderPath ) throws RepositoryException {
@@ -194,13 +193,21 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    * Creates and/or returns an internal folder called {@code .trash} located just below the user's home folder.
    */
   private Node
-  getOrCreateTrashInternalFolderNode( final Session session, final PentahoJcrConstants pentahoJcrConstants )
-    throws RepositoryException {
+    getOrCreateTrashInternalFolderNode( final Session session, final PentahoJcrConstants pentahoJcrConstants )
+      throws RepositoryException {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     String tenantId = (String) pentahoSession.getAttribute( IPentahoSession.TENANT_ID_KEY );
-    Node userHomeFolderNode =
-        (Node) session.getItem( ServerRepositoryPaths.getUserHomeFolderPath( new Tenant( tenantId, true ),
-            JcrStringHelper.fileNameEncode( PentahoSessionHolder.getSession().getName() ) ) );
+    Node userHomeFolderNode = null;
+    try {
+      userHomeFolderNode =
+          (Node) session.getItem( ServerRepositoryPaths.getUserHomeFolderPath( new Tenant( tenantId, true ),
+              JcrStringHelper.fileNameEncode( PentahoSessionHolder.getSession().getName() ) ) );
+    } catch ( Throwable th ) {
+      userHomeFolderNode =
+          (Node) session.getItem( ServerRepositoryPaths.getUserHomeFolderPath( new Tenant( tenantId, true ),
+              JcrStringHelper.fileNameEncode( PentahoSessionHolder.getSession().getName(), !JcrStringHelper
+                  .isMultiByteEncodingEnabled() ) ) );
+    }
     if ( userHomeFolderNode.hasNode( FOLDER_NAME_TRASH ) ) {
       return userHomeFolderNode.getNode( FOLDER_NAME_TRASH );
     } else {
@@ -342,7 +349,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
         originalParentFolderPath ).build();
   }
 
-  //returns encoded path
+  // returns encoded path
   private String getOriginalParentFolderPath( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Node trashFileNode, final boolean relative ) throws RepositoryException {
     if ( trashFileNode.getParent().hasProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ) {
@@ -445,8 +452,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
       final Serializable fileId ) throws RepositoryException {
     Node fileToUndeleteNode = session.getNodeByIdentifier( fileId.toString() );
     String trashFileIdNodePath = fileToUndeleteNode.getParent().getPath();
-    String origParentFolderPath = getOriginalParentFolderPath( session, pentahoJcrConstants
-      , fileToUndeleteNode, false );
+    String origParentFolderPath = getOriginalParentFolderPath( session, pentahoJcrConstants, fileToUndeleteNode, false );
 
     String absDestPath = origParentFolderPath + RepositoryFile.SEPARATOR + fileToUndeleteNode.getName();
 
@@ -466,7 +472,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    */
   public String getOriginalParentFolderPath( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId ) throws RepositoryException {
-    return JcrStringHelper.pathDecode( getOriginalParentFolderPath( session, pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ),
-        false ) );
+    return JcrStringHelper.pathDecode( getOriginalParentFolderPath( session, pentahoJcrConstants, session
+        .getNodeByIdentifier( fileId.toString() ), false ) );
   }
 }
