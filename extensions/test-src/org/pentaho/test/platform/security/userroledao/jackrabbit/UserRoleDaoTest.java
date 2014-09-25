@@ -72,6 +72,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.jcr.*;
 import javax.jcr.security.AccessControlException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -251,7 +252,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate, this.repositoryFileDao ) );
-
+    mp.defineInstance("useMultiByteEncoding", new Boolean( false ) );
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();

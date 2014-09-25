@@ -803,4 +803,9 @@
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="repositoryFileDao"/>
   </bean>
+  <!-- Property to enable of disable multi-byte encoding -->
+  <bean class="java.lang.Boolean" id="useMultiByteEncoding">
+    <constructor-arg value="${repository.useMultiByteEncoding}"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>  
 </beans>

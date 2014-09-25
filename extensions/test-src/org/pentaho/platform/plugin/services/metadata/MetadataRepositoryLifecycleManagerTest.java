@@ -190,6 +190,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     mp.define( IConfiguration.class, SystemConfig.class );
     mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate, this.repositoryFileDao ) );
+    mp.defineInstance("useMultiByteEncoding", new Boolean( false ) );
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao( userRoleDao );
     List<String> systemRoles = new ArrayList<String>();
