@@ -19,6 +19,7 @@
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
 import com.sun.xml.ws.developer.JAXWSProperties;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
@@ -96,6 +97,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -245,7 +247,9 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
-    mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory(testJcrTemplate, repositoryFileDao) );
+    mp.defineInstance( "RepositoryFileProxyFactory",
+        new RepositoryFileProxyFactory(testJcrTemplate, repositoryFileDao) );
+    mp.defineInstance("useMultiByteEncoding", new Boolean( false ) );
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
