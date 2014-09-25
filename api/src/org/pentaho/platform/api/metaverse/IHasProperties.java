@@ -82,6 +82,23 @@ public interface IHasProperties {
    */
   void clearProperties();
 
-  boolean containsKey(String key);
+  /**
+   * Determine if a particular property is set on this node
+   * @param key key to look up
+   * @return true if it was found, false if not
+   */
+  boolean containsKey( String key );
+
+  /**
+   *
+   * @return true if the node has had modifications to its properties, false if not
+   */
+  boolean isDirty();
+
+  /**
+   * Set the dirty state of the node
+   * @param dirty true if it is dirty, false if it is not
+   */
+  void setDirty( boolean dirty );
 
 }
