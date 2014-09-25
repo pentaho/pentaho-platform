@@ -220,6 +220,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate,
       this.repositoryFileDao ) );
     mp.defineInstance( "ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver() );
+    mp.defineInstance("useMultiByteEncoding", new Boolean( false ) );
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
