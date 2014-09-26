@@ -276,6 +276,7 @@ public class CommandLineProcessor {
     String exportURL = contextURL + "/api/repo/files/";
     if ( path != null ) {
       String effPath = RepositoryPathEncoder.encodeRepositoryPath( path );
+      effPath = RepositoryPathEncoder.encodeURIComponent( effPath );
       exportURL += effPath;
     }
     String service =
