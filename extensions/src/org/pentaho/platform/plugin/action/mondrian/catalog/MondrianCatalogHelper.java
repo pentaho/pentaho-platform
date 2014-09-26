@@ -106,11 +106,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   private String dataSourcesConfig;
 
   /**
-   * true to use schema name from catalog definition (aka schema file) as catalog name.
-   */
-  private boolean useSchemaNameAsCatalogName = true;
-
-  /**
    * Holds the additional catalog information
    */
   private Map<String, MondrianCatalogComplementInfo> catalogComplementInfoMap;
@@ -745,8 +740,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
             MondrianSchema schema = makeSchema( docAtUrlToString( catalog.definition, pentahoSession ) );
 
             MondrianCatalog mondrianCatalog =
-              new MondrianCatalog( useSchemaNameAsCatalogName ? schema.getName() : catalog.name,
-                catalog.dataSourceInfo, catalog.definition, schema );
+              new MondrianCatalog( catalog.name, catalog.dataSourceInfo, catalog.definition, schema );
 
             catalogs.put( mondrianCatalog.getName(), mondrianCatalog );
             catalogs.put( mondrianCatalog.getDefinition(), mondrianCatalog );
@@ -761,43 +755,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         }
       }
     }
-  }
-
-  @Deprecated
-  protected List<MondrianCatalog> transformIntoCatalogList( final DataSourcesConfig.DataSources dataSources,
-                                                            final IPentahoSession pentahoSession ) {
-    List<MondrianCatalog> localCatalogs = new ArrayList<MondrianCatalog>();
-    for ( DataSourcesConfig.DataSource dataSource : dataSources.dataSources ) {
-      List<String> catalogNames = new ArrayList<String>();
-      for ( DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs ) {
-        catalogNames.add( catalog.name );
-      }
-
-      for ( DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs ) {
-        if ( catalog.definition.startsWith( "solution:" ) ) { //$NON-NLS-1$
-          // try catch here so the whole thing doesn't blow up if one datasource is configured incorrectly.
-          try {
-            MondrianSchema schema = makeSchema( docAtUrlToString( catalog.definition, pentahoSession ) );
-
-            MondrianCatalogComplementInfo catalogComplementInfo = getCatalogComplementInfoMap( catalog.definition );
-
-            MondrianCatalog mondrianCatalog =
-              new MondrianCatalog( useSchemaNameAsCatalogName ? schema.getName() : catalog.name,
-                catalog.dataSourceInfo, catalog.definition, schema, catalogComplementInfo );
-
-            localCatalogs.add( mondrianCatalog );
-          } catch ( Exception e ) {
-            MondrianCatalogHelper.logger.error( Messages.getInstance().getErrorString(
-              "MondrianCatalogHelper.ERROR_0013_FAILED_TO_LOAD_SCHEMA", catalog.definition ), e ); //$NON-NLS-1$
-
-          }
-        } else {
-          MondrianCatalogHelper.logger.warn( Messages.getInstance().getString(
-            "MondrianCatalogHelper.WARN_SKIPPING_DATASOURCE_DEF", catalog.definition ) ); //$NON-NLS-1$
-        }
-      }
-    }
-    return localCatalogs;
   }
 
   /**
@@ -955,14 +912,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         "MondrianCatalogHelper.ERROR_0012_FILESYSTEM_PROBLEM" ), e ); //$NON-NLS-1$
     }
 
-  }
-
-  public boolean isUseSchemaNameAsCatalogName() {
-    return useSchemaNameAsCatalogName;
-  }
-
-  public void setUseSchemaNameAsCatalogName( final boolean useSchemaNameAsCatalogName ) {
-    this.useSchemaNameAsCatalogName = useSchemaNameAsCatalogName;
   }
 
   public static int addToCatalog( String baseUrl, boolean enableXmla, String schemaSolutionPath,
