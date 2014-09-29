@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
-import java.io.File;
 import java.util.UUID;
 
 /**
@@ -52,6 +51,11 @@ public class KarafBoot implements IPentahoSystemListener {
       System.setProperty( "karaf.startLocalConsole", "false" );
       System.setProperty( "karaf.startRemoteShell", "true" );
       System.setProperty( "karaf.lock", "false" );
+
+      // Tell others like the pdi-osgi-bridge that there's already a karaf instance running so they don't start
+      // their own.
+      System.setProperty( "embedded.karaf.mode", "true" );
+
 
       // set the location of the log4j config file, since OSGI won't pick up the one in webapp
       System.setProperty( "log4j.configuration", "file:" + solutionRootPath + "/system/osgi/log4j.xml" );
