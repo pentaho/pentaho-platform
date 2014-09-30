@@ -709,6 +709,7 @@ public class CommandLineProcessor {
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_KEY" ),
             Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_NAME" ), false, true );
     String effPath = RepositoryPathEncoder.encodeRepositoryPath( path );
+    effPath = RepositoryPathEncoder.encodeURIComponent( effPath );
     if ( effPath.lastIndexOf( ":" ) == effPath.length() - 1 // remove trailing slash
         && effPath.length() > 1  ) { // allow user to enter "--path=/"
       effPath = effPath.substring( 0, effPath.length() - 1 );
