@@ -99,7 +99,7 @@ public class RepositoryImportResource {
       Level level = Level.toLevel( logLevel );
       ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
 
-      String fileName = fileInfo.getFileName();
+      String fileName = URLDecoder.decode( new String( fileInfo.getFileName().getBytes(), charSet ), charSet );
 
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileIS );
