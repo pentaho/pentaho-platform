@@ -161,8 +161,13 @@ public class JcrStringHelper {
 
   public static boolean isMultiByteEncodingEnabled() {
     if ( !multiByteValueInitialized && PentahoSystem.getInitializedOK() ) {
-      useMultiByteEncoding =
+      Boolean setting =
           PentahoSystem.get( Boolean.class, "useMultiByteEncoding", PentahoSessionHolder.getSession() );
+      if( setting == null ){
+        useMultiByteEncoding = false;
+      } else {
+        useMultiByteEncoding = setting;
+      }
       multiByteValueInitialized = true;
     }
     return useMultiByteEncoding;
