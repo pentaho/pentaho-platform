@@ -21,9 +21,13 @@ import mondrian.i18n.LocalizingDynamicSchemaProcessor;
 import mondrian.olap.MondrianDef;
 import mondrian.olap.Util;
 import mondrian.olap.Util.PropertyList;
+import mondrian.rolap.RolapConnectionProperties;
 import mondrian.rolap.agg.AggregationManager;
+import mondrian.spi.DynamicSchemaProcessor;
+import mondrian.util.ClassResolver;
 import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.DataSources;
+
 import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -71,6 +75,7 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -742,7 +747,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
           // try catch here so the whole thing doesn't blow up if one datasource is configured incorrectly.
           try {
-            MondrianSchema schema = makeSchema( docAtUrlToString( catalog.definition, pentahoSession ) );
+            MondrianSchema schema = makeSchema( getCatalogAsString( pentahoSession, catalog ) );
 
             MondrianCatalog mondrianCatalog =
               new MondrianCatalog( useSchemaNameAsCatalogName ? schema.getName() : catalog.name,
@@ -760,6 +765,31 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
             "MondrianCatalogHelper.WARN_SKIPPING_DATASOURCE_DEF", catalog.definition ) ); //$NON-NLS-1$
         }
       }
+    }
+  }
+
+  protected String applyDSP( IPentahoSession ps, String catalogDsInfo, String catalogDefinition ) throws Exception {
+
+    PropertyList pl = Util.parseConnectString( catalogDsInfo );
+    String dsp = pl.get( RolapConnectionProperties.DynamicSchemaProcessor.name() );
+    if ( dsp != null ) {
+      if ( MondrianCatalogHelper.logger.isDebugEnabled() ) {
+        MondrianCatalogHelper.logger.debug( "applyDSP: " + dsp ); //$NON-NLS-1$
+      }
+      DynamicSchemaProcessor dynProc = ClassResolver.INSTANCE.instantiateSafe( dsp );
+      return dynProc.processSchema( catalogDefinition, pl );
+    } else {
+      return docAtUrlToString( catalogDefinition, ps );
+    }
+  }
+
+  protected String getCatalogAsString( IPentahoSession ps, DataSourcesConfig.Catalog catalog ) throws Exception {
+    if ( catalog.dataSourceInfo != null ) {
+      return applyDSP( ps, catalog.dataSourceInfo, catalog.definition );
+    } else {
+      MondrianCatalogHelper.logger.warn( Messages.getInstance().getString(
+          "MondrianCatalogHelper.WARN_NO_CATALOG_DATASOURCE_INFO", catalog.name ) );
+      return docAtUrlToString( catalog.definition, ps );
     }
   }
 
