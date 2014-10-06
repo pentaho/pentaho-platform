@@ -22348,7 +22348,9 @@ return(filename);
 &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
 &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
 &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
-&lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;daysOfWeek&gt;6&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;7&lt;/daysOfWeek&gt;&#xd;
+&lt;startTime&gt;2014-08-19T23:59:59.000-04:00&lt;/startTime&gt;&#xd;
 &lt;endTime /&gt;&#xd;
 &lt;/complexJobTrigger&gt;&#xd;
 &lt;inputFile&gt;&lt;/inputFile&gt;&#xd;
@@ -22396,7 +22398,7 @@ return(filename);
               <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                 <collectionProp name="Asserion.test_strings">
-                  <stringProp name="97196323">false</stringProp>
+                  <stringProp name="3569038">true</stringProp>
                 </collectionProp>
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
