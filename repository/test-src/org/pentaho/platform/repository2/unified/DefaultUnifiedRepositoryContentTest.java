@@ -29,6 +29,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryMalformedNameException;
@@ -100,11 +101,11 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testGetFileWithLoadedMaps() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", new String[] { tenantAdminRoleName } );
     logout();
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -132,11 +133,11 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testLocales() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", new String[] { tenantAdminRoleName } );
     logout();
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -201,11 +202,11 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testLocalePropertiesMap() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", new String[] { tenantAdminRoleName } );
     logout();
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
@@ -323,14 +324,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testGetFileNotExist() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, PASSWORD, "", null );
 
     login( USERNAME_TIFFANY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -340,14 +341,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testCreateFolder() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -374,14 +375,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testCreateFolderWithAtSymbol() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -396,14 +397,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test( expected = UnifiedRepositoryException.class )
   public void testCreateFolderAtRootIllegal() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -413,14 +414,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test( expected = UnifiedRepositoryException.class )
   public void testCreateFileAtRootIllegal() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -435,14 +436,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testCreateSimpleFile() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -492,14 +493,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testCreateSampleFile() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -529,14 +530,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testGetReferrers() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -571,14 +572,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     // create a file that suzy does not have permission to
     // create a file that suzy has permission to but references the one she doesn't
     // load the file as suzy, make sure no exceptions occur and that the node is a missing reference
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     DataNode node = new DataNode( "kdjd" );
     RepositoryFile sampleFile =
@@ -628,14 +629,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testCreateNodeFile() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -731,14 +732,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testCheckName() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -819,14 +820,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test( expected = UnifiedRepositoryException.class )
   public void testCreateFileUnrecognizedContentType() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -843,19 +844,20 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testGetChildren() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
+    final String rootFolderID = String.valueOf( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId() );
     List<RepositoryFile> children =
-        repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId() );
+        repo.getChildren( new RepositoryRequest( rootFolderID , true, -1, null ) );
     assertEquals( 3, children.size() );
 
     ArrayList<String> checkFolders = new ArrayList<String>( Arrays.asList( new String[] { "public", "etc", "home" } ) );
@@ -869,13 +871,13 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     if ( checkFolders.size() != 0 ) {
       fail( "All root folders not present" );
     }
-    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), null );
+    children = repo.getChildren( new RepositoryRequest( rootFolderID, true, -1, null ) );
     assertEquals( 3, children.size() );
-    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), "*" );
+    children = repo.getChildren( new RepositoryRequest( rootFolderID, true, -1, "*" ) );
     assertEquals( 3, children.size() );
-    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), "*me" );
+    children = repo.getChildren( new RepositoryRequest( rootFolderID, true, -1, "*me" ) );
     assertEquals( 1, children.size() );
-    children = repo.getChildren( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId(), "*Z*" );
+    children = repo.getChildren( new RepositoryRequest( rootFolderID, true, -1, "*Z*" ) );
     assertEquals( 0, children.size() );
   }
 
@@ -884,33 +886,33 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
    */
   // @Test
   public void testListHomeFolders() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
-    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, PASSWORD, "", null );
 
     login( USERNAME_TIFFANY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     List<RepositoryFile> children =
-        repo.getChildren( repo.getFile( ClientRepositoryPaths.getHomeFolderPath() ).getId() );
+        repo.getChildren( new RepositoryRequest( String.valueOf( repo.getFile( ClientRepositoryPaths.getHomeFolderPath() ).getId() ), true, -1, null ) );
     assertEquals( 1, children.size() );
   }
 
   @Test
   public void testUpdateFile() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -940,14 +942,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testUpdateFolder() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -994,14 +996,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
    */
   @Test
   public void testTransactionRollback() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1032,14 +1034,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test( expected = UnifiedRepositoryException.class )
   public void testCreateDuplicateFolder() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1055,11 +1057,11 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testWriteToPublic() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
 
@@ -1069,15 +1071,15 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testLockFile() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
-    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1171,15 +1173,15 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
     Thread.sleep( 1000 );
 
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
-    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1297,14 +1299,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
    */
   @Test
   public void testWeird1() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1334,14 +1336,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testDeleteLockedFile() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1380,14 +1382,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testWriteOnFileToMove() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
     defaultBackingRepositoryLifecycleManager.newTenant();
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1418,14 +1420,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testMoveFile() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1474,14 +1476,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
    */
   @Test( expected = UnifiedRepositoryException.class )
   public void testCopyFileOverwrite() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1497,14 +1499,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
    */
   @Test( expected = UnifiedRepositoryException.class )
   public void testCopyFolderOverwrite() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1521,14 +1523,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testCopyRecursive() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1551,14 +1553,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testCopyFile() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1626,14 +1628,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testGetRoot() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1641,55 +1643,55 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     assertNotNull( rootFolder );
     assertEquals( "", rootFolder.getName() );
     assertNotNull( rootFolder.getId() );
-    assertNotNull( repo.getChildren( rootFolder.getId() ) );
+    assertNotNull( repo.getChildren( new RepositoryRequest( String.valueOf( rootFolder.getId() ), true, -1, null ) ) );
     RepositoryFileAcl rootFolderAcl = repo.getAcl( rootFolder.getId() );
   }
 
   @Test
   public void testGetTree() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
-    RepositoryFileTree root = repo.getTree( ClientRepositoryPaths.getRootFolderPath(), 0, null, true );
+    RepositoryFileTree root = repo.getTree( new RepositoryRequest( ClientRepositoryPaths.getRootFolderPath(), true, 0, null ) );
     assertNotNull( root.getFile() );
     assertNull( root.getChildren() );
 
-    root = repo.getTree( ClientRepositoryPaths.getRootFolderPath(), 1, null, true );
+    root = repo.getTree( new RepositoryRequest( ClientRepositoryPaths.getRootFolderPath(), true, 1, null ) );
     assertNotNull( root.getFile() );
     assertNotNull( root.getChildren() );
     assertFalse( root.getChildren().isEmpty() );
     assertNull( root.getChildren().get( 0 ).getChildren() );
 
-    root = repo.getTree( ClientRepositoryPaths.getHomeFolderPath(), -1, null, true );
+    root = repo.getTree( new RepositoryRequest( ClientRepositoryPaths.getHomeFolderPath(), true, -1, null ) );
     assertNotNull( root.getFile() );
     assertNotNull( root.getChildren() );
     assertFalse( root.getChildren().isEmpty() );
     assertTrue( root.getChildren().get( 0 ).getChildren().isEmpty() );
 
-    root = repo.getTree( ClientRepositoryPaths.getHomeFolderPath(), -1, "*uz*", true );
+    root = repo.getTree( new RepositoryRequest( ClientRepositoryPaths.getHomeFolderPath(), true, -1, "*uz*" ) );
     assertEquals( 1, root.getChildren().size() );
   }
 
   @Test
   public void testGetTreeWithFileTypeFilter() throws Exception {
     RepositoryFileTree root = null;
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
 
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1709,20 +1711,20 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
         repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "testFolder" ).versioned( false ).hidden(
             false ).folder( true ).build(), null, null );
 
-    root = repo.getTree( publicFolder.getPath(), 1, "*|FILES", true );
+    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1, "*|FILES" ) );
     assertFalse( root.getChildren().isEmpty() );
     assertEquals( 1, root.getChildren().size() );
     assertEquals( "helloworld.xaction", root.getChildren().get( 0 ).getFile().getName() );
 
-    root = repo.getTree( publicFolder.getPath(), 1, "*", true );
+    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1, "*" ) );
     assertFalse( root.getChildren().isEmpty() );
     assertEquals( 2, root.getChildren().size() );
 
-    root = repo.getTree( publicFolder.getPath(), 1, "*|FILES_FOLDERS", true );
+    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1, "*|FILES_FOLDERS" ) );
     assertFalse( root.getChildren().isEmpty() );
     assertEquals( 2, root.getChildren().size() );
 
-    root = repo.getTree( publicFolder.getPath(), 1, "*|FOLDERS", true );
+    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1, "*|FOLDERS" ) );
     assertFalse( root.getChildren().isEmpty() );
     assertEquals( 1, root.getChildren().size() );
     assertEquals( "testFolder", root.getChildren().get( 0 ).getFile().getName() );
@@ -1732,14 +1734,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
   @Test
   public void testGetTreeWithShowHidden() throws Exception {
     RepositoryFileTree root = null;
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1754,22 +1756,22 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     RepositoryFile newFile1 =
         repo.createFile( publicFolder.getId(), new RepositoryFile.Builder( "helloworld.xaction" ).versioned( true )
             .hidden( true ).build(), content, null );
-    root = repo.getTree( publicFolder.getPath(), -1, null, true );
+    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, -1, null ) );
     assertFalse( root.getChildren().isEmpty() );
-    root = repo.getTree( publicFolder.getPath(), -1, null, false );
+    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), false, -1, null ) );
     assertTrue( root.getChildren().isEmpty() );
   }
 
   @Test
   public void testGetDataForReadInBatch_unversioned() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1812,14 +1814,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     String key5 = "myMetadataLong";
     Long value5 = new Long( 12345768 );
 
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
@@ -1863,14 +1865,14 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   @Test
   public void testFileCreator() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
-            "Anonymous" );
-    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, "password", "", new String[] { tenantAdminRoleName } );
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, "password", "", null );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 

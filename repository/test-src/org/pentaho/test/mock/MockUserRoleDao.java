@@ -89,16 +89,15 @@ public class MockUserRoleDao implements IUserRoleDao {
       }
     }
 
-    if (role == null) {
-     role = new MockPentahoRole( tenant, roleName, description );
+    if ( role == null ) {
+      role = new MockPentahoRole( tenant, roleName, description );
     }
 
     if ( !tenantRoles.get( tenant ).contains( role ) ) {
       tenantRoles.get( tenant ).add( role );
       roleMembers.put( role, new HashSet<IPentahoUser>() );
-    }
-    else {
-      throw new AlreadyExistsException(roleName.toString());
+    } else {
+      throw new AlreadyExistsException( roleName.toString() );
     }
 
     setRoleMembers( tenant, roleName, memberUserNames );
@@ -301,7 +300,7 @@ public class MockUserRoleDao implements IUserRoleDao {
         if ( !userRoles.containsKey( user ) ) {
           userRoles.put( user, new HashSet<IPentahoRole>() );
         }
-        userRoles.get( user ).add( role );        
+        userRoles.get( user ).add( role );
         if ( user != null ) {
           users.add( user );
         }
@@ -335,10 +334,10 @@ public class MockUserRoleDao implements IUserRoleDao {
     roleSet.add( authenticatedRoleName );
 
     IPentahoRole authRole = getRole( tenant, authenticatedRoleName );
-    
+
     IPentahoUser user = getUser( tenant, userName );
-    roleMembers.get( authRole ).add( user );   
-    
+    roleMembers.get( authRole ).add( user );
+
     HashSet<IPentahoRole> roles = userRoles.get( user );
     roles.clear();
     for ( String roleName : roleSet ) {
@@ -346,7 +345,7 @@ public class MockUserRoleDao implements IUserRoleDao {
       if ( role != null ) {
         roles.add( role );
       }
-      roleMembers.get( role ).add( user );      
+      roleMembers.get( role ).add( user );
     }
   }
 

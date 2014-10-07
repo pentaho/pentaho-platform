@@ -18,7 +18,6 @@
 package org.pentaho.test.platform.security.userrole.ws;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.pentaho.platform.security.userrole.ws.DefaultUserRoleListWebService;
 import org.pentaho.platform.security.userrole.ws.IUserRoleListWebService;
 
@@ -31,20 +30,13 @@ import java.net.URL;
 /**
  * This test wraps the regular unit test with a webservices endpoint, verifying the client conversion.
  * 
- * This can't be used in a live environment until metro 2.0 jars are available to test with.
- * 
  * @author Will Gorman (wgorman@pentaho.com)
  * 
  */
 @SuppressWarnings( "nls" )
-@Ignore
 public class UserDetailsRoleListEndpointTest extends UserDetailsRoleListWebServiceTest {
 
   IUserRoleListWebService userRoleListWebService;
-
-  public UserDetailsRoleListEndpointTest() {
-    Endpoint.publish( "http://localhost:8891/userrolelisttest", new DefaultUserRoleListWebService() ); //$NON-NLS-1$ 
-  }
 
   public static void main( String[] args ) throws Exception {
 
@@ -68,13 +60,15 @@ public class UserDetailsRoleListEndpointTest extends UserDetailsRoleListWebServi
 
   @Before
   public void setUp() throws Exception {
+    Endpoint.publish( "http://localhost:8891/userrolelisttest", new DefaultUserRoleListWebService() ); //$NON-NLS-1$
+
     System.setProperty( "com.sun.xml.ws.monitoring.endpoint", "true" );
     System.setProperty( "com.sun.xml.ws.monitoring.client", "true" );
     System.setProperty( "com.sun.xml.ws.monitoring.registrationDebug", "FINE" );
     System.setProperty( "com.sun.xml.ws.monitoring.runtimeDebug", "true" );
     Service service =
         Service.create( new URL( "http://localhost:8891/userrolelisttest?wsdl" ), new QName(
-            "http://www.pentaho.org/ws/1.0", "DefaultUserDetailsRoleListWebServiceService" ) );
+            "http://www.pentaho.org/ws/1.0", "userRoleListService" ) );
     userRoleListWebService = service.getPort( IUserRoleListWebService.class );
   }
 

@@ -17,18 +17,12 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.junit.Test;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.mt.ITenantManager;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 
 public class JcrStringHelperTest {
 

@@ -113,7 +113,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-  "classpath:/repository-test-override.spring.xml" } )
+    "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
 public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
 
@@ -127,19 +127,25 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
 
   protected static final String NAMESPACE_DOESNOTEXIST = "doesnotexist";
 
-  protected final String USERNAME_SUZY = "suzy";
+  protected static final String USERNAME_SUZY = "suzy";
 
-  protected final String USERNAME_TIFFANY = "tiffany";
+  protected static final String USERNAME_TIFFANY = "tiffany";
 
-  protected final String USERNAME_PAT = "pat";
+  protected static final String USERNAME_PAT = "pat";
 
-  protected final String USERNAME_ADMIN = "admin";
+  protected static final String USERNAME_ADMIN = "admin";
 
-  protected final String USERNAME_GEORGE = "george";
+  protected static final String USERNAME_GEORGE = "george";
 
-  protected final String TENANT_ID_ACME = "acme";
+  protected static final String TENANT_ID_ACME = "acme";
 
-  protected final String TENANT_ID_DUFF = "duff";
+  protected static final String TENANT_ID_DUFF = "duff";
+
+  protected static final String ANONYMOUS_ROLE_NAME = "Anonymous";
+
+  protected static final String AUTHENTICATED_ROLE_NAME = "Authenticated";
+
+  protected static final String PASSWORD = "password";
 
   // ~ Instance fields
   // =================================================================================================
@@ -228,8 +234,8 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
 
     systemTenant =
       tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName,
-        tenantAuthenticatedRoleName, "Anonymous" );
-    userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminRoleName } );
+        tenantAuthenticatedRoleName, ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( systemTenant, sysAdminUserName, PASSWORD, "", new String[] { tenantAdminRoleName } );
     logout();
   }
 
@@ -237,13 +243,13 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   public void tearDown() throws Exception {
     // null out fields to get back memory
     authorizationPolicy = null;
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     ITenant tenant =
       tenantManager.getTenant( "/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/" + TENANT_ID_ACME );
     if ( tenant != null ) {
       cleanupUserAndRoles( tenant );
     }
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    loginAsSysTenantAdmin();
     tenant = tenantManager.getTenant( "/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/" + TENANT_ID_DUFF );
     if ( tenant != null ) {
       cleanupUserAndRoles( tenant );
@@ -286,7 +292,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   }
 
   protected void loginAsSysTenantAdmin() {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
   }
 
   /**
@@ -304,7 +310,6 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     pentahoSession.setAuthenticated( tenant.getId(), username );
     PentahoSessionHolder.setSession( pentahoSession );
     pentahoSession.setAttribute( IPentahoSession.TENANT_ID_KEY, tenant.getId() );
-    final String password = "password";
 
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
@@ -312,8 +317,8 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
       authList.add( new GrantedAuthorityImpl( roleName ) );
     }
     GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[0] );
-    UserDetails userDetails = new User( username, password, true, true, true, true, authorities );
-    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authorities );
+    UserDetails userDetails = new User( username, PASSWORD, true, true, true, true, authorities );
+    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, PASSWORD, authorities );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( auth );
@@ -487,7 +492,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     } );
   }
 
-  private void cleanupUserAndRoles( final ITenant tenant ) {
+  protected void cleanupUserAndRoles( final ITenant tenant ) {
     loginAsRepositoryAdmin();
     for ( IPentahoRole role : testUserRoleDao.getRoles( tenant ) ) {
       testUserRoleDao.deleteRole( role );

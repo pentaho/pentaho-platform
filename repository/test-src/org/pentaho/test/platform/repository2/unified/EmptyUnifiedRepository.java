@@ -141,7 +141,7 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
     return null;
   }
-  
+
   @Override
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
     return null;

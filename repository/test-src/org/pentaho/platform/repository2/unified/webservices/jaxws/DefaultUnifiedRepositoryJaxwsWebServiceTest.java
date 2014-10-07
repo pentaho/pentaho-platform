@@ -19,91 +19,39 @@
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
 import com.sun.xml.ws.developer.JAXWSProperties;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.jackrabbit.api.JackrabbitWorkspace;
-import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
-import org.junit.After;
-import org.junit.AfterClass;
+import org.apache.log4j.Logger;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
-import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.api.mt.ITenantManager;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
-import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
-import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
+import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
-import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
-import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
-import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
-import org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager;
-import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
-import org.pentaho.test.platform.engine.core.MicroPlatform;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.extensions.jcr.JcrCallback;
-import org.springframework.extensions.jcr.JcrTemplate;
-import org.springframework.extensions.jcr.SessionFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.security.AccessControlException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
-
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -119,92 +67,17 @@ import static org.junit.Assert.*;
  */
 
 @RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-    "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
-public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationContextAware {
+public class DefaultUnifiedRepositoryJaxwsWebServiceTest extends DefaultUnifiedRepositoryBase {
   // ~ Static fields/initializers
   // ======================================================================================
+
+  private final Logger logger = Logger.getLogger( DefaultUnifiedRepositoryJaxwsWebServiceTest.class );
 
   // ~ Instance fields
   // =================================================================================================
 
-  private static final String USERNAME_SUZY = "suzy";
 
-  /**
-   * Server-side IUnifiedRepository.
-   */
-  private IUnifiedRepository _repo;
-
-  /**
-   * Client-side IUnifiedRepository.
-   */
-  private IUnifiedRepository repo;
-
-  private IAuthorizationPolicy authorizationPolicy;
-
-  private MicroPlatform mp;
-
-  private String sysAdminAuthorityName;
-
-  private JcrTemplate testJcrTemplate;
-
-  private IBackingRepositoryLifecycleManager manager;
-
-  private String tenantAuthenticatedAuthorityName;
-
-  private String tenantAdminAuthorityName;
-
-  private String repositoryAdminUsername;
-
-  private ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
-
-  private static final String ENC = "UTF-8";
-
-  private static final String MIME_PLAIN = "text/plain";
-
-  private ITenantManager tenantManager;
-  private JcrTemplate adminTemplate;
-  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
-  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
-  private ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver(
-      DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER );
-  private String sysAdminRoleName;
-  private String tenantAdminRoleName;
-  private String tenantAuthenticatedRoleName;
-  private String sysAdminUserName;
-  private ITenant systemTenant;
-  private IPathConversionHelper pathConversionHelper;
-  IUserRoleDao userRoleDao;
-  private static TransactionTemplate jcrTransactionTemplate;
-  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
-  private boolean startupCalled;
-  private final String USERNAME_TIFFANY = "tiffany";
-
-  private final String USERNAME_PAT = "pat";
-
-  private final String USERNAME_ADMIN = "admin";
-
-  private final String USERNAME_GEORGE = "george";
-
-  private final String TENANT_ID_ACME = "acme";
-
-  private final String TENANT_ID_DUFF = "duff";
-  public static final String SYSTEM_PROPERTY = "spring.security.strategy";
-  DefaultBackingRepositoryLifecycleManager defaultBackingRepositoryLifecycleManager;
-  private IRepositoryFileDao repositoryFileDao;
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
-    // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
-    FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
-    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
-  }
-
-  @AfterClass
-  public static void tearDownClass() throws Exception {
-    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
-  }
 
   // ~ Constructors
   // ====================================================================================================
@@ -215,7 +88,9 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
 
   @Before
   public void setUp() throws Exception {
-    System.setProperty( SYSTEM_PROPERTY, "MODE_GLOBAL" );
+    super.setUp();
+
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
 
     String address = "http://localhost:9000/repo";
     Endpoint.publish( address, new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
@@ -226,9 +101,6 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
 
     IUnifiedRepositoryJaxwsWebService repoWebService = service.getPort( IUnifiedRepositoryJaxwsWebService.class );
 
-    // next two lines not needed since we manually populate filters
-    // ((BindingProvider) repoWebService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "suzy");
-    // ((BindingProvider) repoWebService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "password");
     // accept cookies to maintain session on server
     ( (BindingProvider) repoWebService ).getRequestContext().put( BindingProvider.SESSION_MAINTAIN_PROPERTY, true );
     // support streaming binary data
@@ -239,46 +111,6 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
 
     repo = new UnifiedRepositoryToWebServiceAdapter( repoWebService );
 
-    mp = new MicroPlatform();
-    // used by DefaultPentahoJackrabbitAccessControlHelper
-    mp.defineInstance( "tenantedUserNameUtils", userNameUtils );
-    mp.defineInstance( "tenantedRoleNameUtils", roleNameUtils );
-    mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
-    mp.defineInstance( ITenantManager.class, tenantManager );
-    mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
-    mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
-    mp.defineInstance( "RepositoryFileProxyFactory",
-        new RepositoryFileProxyFactory(testJcrTemplate, repositoryFileDao) );
-    mp.defineInstance("useMultiByteEncoding", new Boolean( false ) );
-    // Start the micro-platform
-    mp.start();
-    loginAsRepositoryAdmin();
-    setAclManagement();
-    systemTenant =
-        tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
-            tenantAuthenticatedAuthorityName, "Anonymous" );
-    userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[] { tenantAdminAuthorityName } );
-
-    logout();
-  }
-
-  private void setAclManagement() {
-    testJcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( Session session ) throws IOException, RepositoryException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        Workspace workspace = session.getWorkspace();
-        PrivilegeManager privilegeManager = ( (JackrabbitWorkspace) workspace ).getPrivilegeManager();
-        try {
-          privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
-        } catch ( AccessControlException ace ) {
-          privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
-              new String[0] );
-        }
-        session.save();
-        return null;
-      }
-    } );
   }
 
   @Test
@@ -286,18 +118,17 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
 
   }
 
-  @Ignore
+  @Test
   public void testEverything() throws Exception {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminAuthorityName,
-      tenantAuthenticatedAuthorityName } );
+    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName,
+      tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
-        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminAuthorityName,
-            tenantAuthenticatedAuthorityName, "Anonymous" );
-    userRoleDao.createUser( systemTenant, USERNAME_SUZY, "password", "", new String[] { tenantAdminAuthorityName } );
+        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName,
+            tenantAuthenticatedRoleName, ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", new String[]{tenantAdminRoleName} );
     logout();
-    login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedAuthorityName } );
-    defaultBackingRepositoryLifecycleManager.newUser( tenantAcme, USERNAME_SUZY );
-    System.out.println( "getFile" );
+    login( USERNAME_SUZY, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName} );
+    logger.info( "getFile" );
     JcrRepositoryDumpToFile dumpToFile =
         new JcrRepositoryDumpToFile( testJcrTemplate, jcrTransactionTemplate, repositoryAdminUsername,
             "c:/build/testrepo_9", Mode.CUSTOM );
@@ -306,13 +137,13 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     assertNotNull( f.getId() );
     assertEquals( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), f.getPath() );
     assertNotNull( f.getCreatedDate() );
-    assertEquals( "public", f.getName() );
+    assertEquals( USERNAME_SUZY, f.getName() );
     assertTrue( f.isFolder() );
 
-    System.out.println( "getFileById" );
+    logger.info( "getFileById" );
     assertNotNull( repo.getFileById( f.getId() ) );
 
-    System.out.println( "createFolder" );
+    logger.info( "createFolder" );
     RepositoryFile folder1 =
         repo.createFolder( f.getId(), new RepositoryFile.Builder( "folder1" ).folder( true ).build(), null );
     assertNotNull( folder1 );
@@ -320,14 +151,14 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     assertNotNull( folder1.getId() );
 
     NodeRepositoryFileData data = makeNodeRepositoryFileData1();
-    System.out.println( "createFile" );
+    logger.info( "createFile" );
     RepositoryFile file1 =
         repo.createFile( folder1.getId(), new RepositoryFile.Builder( "file1.whatever" ).versioned( true ).build(),
             data, null );
     assertNotNull( file1 );
     assertNotNull( file1.getId() );
 
-    System.out.println( "getDataForRead" );
+    logger.info( "getDataForRead" );
     NodeRepositoryFileData file1Data = repo.getDataForRead( file1.getId(), NodeRepositoryFileData.class );
     assertNotNull( file1Data );
     assertEquals( "testNode", file1Data.getNode().getName() );
@@ -336,7 +167,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     assertEquals( DataPropertyType.BOOLEAN, file1Data.getNode().getProperty( "prop2" ).getType() );
     assertEquals( 12L, file1Data.getNode().getProperty( "prop3" ).getLong() );
 
-    System.out.println( "createFile (binary)" );
+    logger.info( "createFile (binary)" );
     SimpleRepositoryFileData simpleData =
         new SimpleRepositoryFileData( new ByteArrayInputStream( "Hello World!".getBytes( "UTF-8" ) ), "UTF-8",
             "text/plain" );
@@ -346,108 +177,113 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
 
     Serializable simpleVersion = simpleFile.getVersionId();
 
-    System.out.println( "getDataForRead (binary)" );
+    logger.info( "getDataForRead (binary)" );
     SimpleRepositoryFileData simpleFileData = repo.getDataForRead( simpleFile.getId(), SimpleRepositoryFileData.class );
     assertNotNull( simpleFileData );
-    assertEquals( "Hello World!", IOUtils.toString( simpleFileData.getStream(), simpleFileData.getEncoding() ) );
+    assertEquals( "Hello World!", IOUtils.toString( simpleFileData.getInputStream(), simpleFileData.getEncoding() ) );
     assertEquals( "text/plain", simpleFileData.getMimeType() );
     assertEquals( "UTF-8", simpleFileData.getEncoding() );
 
-    System.out.println( "updateFile (binary)" );
+    logger.info( "updateFile (binary)" );
     simpleData =
         new SimpleRepositoryFileData( new ByteArrayInputStream( "Ciao World!".getBytes( "UTF-8" ) ), "UTF-8",
             "text/plain" );
     simpleFile = repo.updateFile( simpleFile, simpleData, null );
     assertNotNull( simpleFile.getLastModifiedDate() );
 
-    System.out.println( "getDataForRead (binary)" );
+    logger.info( "getDataForRead (binary)" );
     simpleFileData = repo.getDataForRead( simpleFile.getId(), SimpleRepositoryFileData.class );
     assertNotNull( simpleFileData );
-    assertEquals( "Ciao World!", IOUtils.toString( simpleFileData.getStream(), simpleFileData.getEncoding() ) );
+    assertEquals( "Ciao World!", IOUtils.toString( simpleFileData.getInputStream(), simpleFileData.getEncoding() ) );
 
-    System.out.println( "getDataForReadAtVersion (binary)" );
+    logger.info( "getDataForReadAtVersion (binary)" );
     simpleFileData = repo.getDataAtVersionForRead( simpleFile.getId(), simpleVersion, SimpleRepositoryFileData.class );
     assertNotNull( simpleFileData );
-    assertEquals( "Hello World!", IOUtils.toString( simpleFileData.getStream(), simpleFileData.getEncoding() ) );
+    assertEquals( "Hello World!", IOUtils.toString( simpleFileData.getInputStream(), simpleFileData.getEncoding() ) );
 
-    System.out.println( "getChildren" );
-    List<RepositoryFile> folder1Children = repo.getChildren( folder1.getId() );
+    logger.info( "getChildren" );
+    List<RepositoryFile> folder1Children = repo.getChildren( new RepositoryRequest( String.valueOf( folder1.getId() ), true, -1, null ) );
     assertNotNull( folder1Children );
     assertEquals( 2, folder1Children.size() );
-    System.out.println( "getChildren" );
-    List<RepositoryFile> folder1ChildrenFiltered = repo.getChildren( folder1.getId(), "*.sample");
+    logger.info( "getChildren" );
+    List<RepositoryFile> folder1ChildrenFiltered = repo.getChildren( new RepositoryRequest( String.valueOf( folder1.getId() ), true, -1, "*.sample" ) );
     assertNotNull( folder1ChildrenFiltered );
     assertEquals( 0, folder1ChildrenFiltered.size() );
-    System.out.println( "getDeletedFiles" );
+    logger.info( "getDeletedFiles" );
     assertEquals( 0, repo.getDeletedFiles().size() );
-    System.out.println( "deleteFile" );
+    logger.info( "deleteFile" );
     repo.deleteFile( file1.getId(), null );
-    System.out.println( "getDeletedFiles" );
+    logger.info( "getDeletedFiles" );
     assertEquals( 0, repo.getDeletedFiles( folder1.getPath(), "*.sample" ).size() );
 
-    System.out.println( "hasAccess" );
+    logger.info( "hasAccess" );
     assertFalse( repo.hasAccess( "/pentaho", EnumSet.of( RepositoryFilePermission.WRITE ) ) );
 
-    System.out.println( "getEffectiveAces" );
+    logger.info( "getEffectiveAces" );
     List<RepositoryFileAce> folder1EffectiveAces = repo.getEffectiveAces( folder1.getId() );
     assertEquals( 1, folder1EffectiveAces.size() );
 
-    System.out.println( "getAcl" );
+    logger.info( "getAcl" );
     RepositoryFileAcl folder1Acl = repo.getAcl( folder1.getId() );
-    assertEquals( "suzy", folder1Acl.getOwner().getName() );
+    assertEquals( USERNAME_SUZY, folder1Acl.getOwner().getName() );
 
-    System.out.println( "updateAcl" );
+    logger.info( "updateAcl" );
+    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, PASSWORD, "", null );
     RepositoryFileAcl updatedFolder1Acl =
         repo.updateAcl( new RepositoryFileAcl.Builder( folder1Acl ).entriesInheriting( false ).ace(
-            userNameUtils.getPrincipleId( new Tenant( "duff", true ), "suzy" ), RepositoryFileSid.Type.USER,
+            userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ), RepositoryFileSid.Type.USER,
             RepositoryFilePermission.ALL ).build() );
     assertNotNull( updatedFolder1Acl );
     assertEquals( 1, updatedFolder1Acl.getAces().size() );
 
-    System.out.println( "lockFile" );
+    logger.info( "lockFile" );
     assertFalse( file1.isLocked() );
     repo.lockFile( file1.getId(), "I locked this file" );
-    System.out.println( "canUnlockFile" );
+    logger.info( "canUnlockFile" );
     assertTrue( repo.canUnlockFile( file1.getId() ) );
-    System.out.println( "unlockFile" );
+    logger.info( "unlockFile" );
     repo.unlockFile( file1.getId() );
 
-    System.out.println( "moveFile" );
+    logger.info( "moveFile" );
     repo.moveFile( file1.getId(), ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) + "/folder1", null );
-    System.out.println( "copyFile" );
+    logger.info( "copyFile" );
     repo.copyFile( file1.getId(), ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY )
         + "/folder1/fileB.whatever", null );
+    RepositoryFile copiedFile = repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY )
+        + "/folder1/fileB.whatever" );
+    copiedFile = repo.updateFile( copiedFile, data, null );
 
-    System.out.println( "getVersionSummaries" );
+    logger.info( "getVersionSummaries" );
     List<VersionSummary> versionSummaries = repo.getVersionSummaries( file1.getId() );
     assertNotNull( versionSummaries );
-    assertTrue( versionSummaries.size() >= 2 );
-    assertEquals( "suzy", versionSummaries.get( 0 ).getAuthor() );
+    // copy doesn't increase version number
+    assertTrue( versionSummaries.size() >= 1 );
+    assertEquals( USERNAME_SUZY, versionSummaries.get( 0 ).getAuthor() );
 
-    System.out.println( "getVersionSummary" );
+    logger.info( "getVersionSummary" );
     VersionSummary versionSummary = repo.getVersionSummary( file1.getId(), null );
     assertNotNull( versionSummary );
     assertNotNull( versionSummary.getId() );
 
-    System.out.println( "getFileAtVersion" );
+    logger.info( "getFileAtVersion" );
     RepositoryFile file1AtVersion = repo.getFileAtVersion( file1.getId(), versionSummary.getId() );
     assertNotNull( file1AtVersion );
     assertEquals( versionSummary.getId(), file1AtVersion.getVersionId() );
 
-    System.out.println( "getTree" );
-    RepositoryFileTree tree = repo.getTree( ClientRepositoryPaths.getRootFolderPath(), -1, null, true );
+    logger.info( "getTree" );
+    RepositoryFileTree tree = repo.getTree( new RepositoryRequest( ClientRepositoryPaths.getRootFolderPath(), true, -1, null ) );
     assertNotNull( tree.getFile().getId() );
 
-    System.out.println( "getDataForReadInBatch" );
+    logger.info( "getDataForReadInBatch" );
     List<NodeRepositoryFileData> result =
-        repo.getDataForReadInBatch( Arrays.asList( file1, simpleFile ), NodeRepositoryFileData.class );
+        repo.getDataForReadInBatch( Arrays.asList( file1, copiedFile ), NodeRepositoryFileData.class );
     assertEquals( 2, result.size() );
 
-    System.out.println( "getVersionSummaryInBatch" );
+    logger.info( "getVersionSummaryInBatch" );
     List<VersionSummary> vResult = repo.getVersionSummaryInBatch( Arrays.asList( file1, simpleFile ) );
-    assertEquals( 2, result.size() );
+    assertEquals( 2, vResult.size() );
 
-    System.out.println( "getReservedChars" );
+    logger.info( "getReservedChars" );
     assertFalse( repo.getReservedChars().isEmpty() );
   }
 
@@ -458,133 +294,4 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     node.setProperty( "prop3", 12L );
     return new NodeRepositoryFileData( node );
   }
-
-  private void cleanupUserAndRoles( String userName, ITenant systemTenant, ITenant tenant ) {
-    login( userName, systemTenant, new String[] { tenantAdminAuthorityName, tenantAuthenticatedAuthorityName } );
-    for ( IPentahoRole role : userRoleDao.getRoles( tenant ) ) {
-      userRoleDao.deleteRole( role );
-    }
-    for ( IPentahoUser user : userRoleDao.getUsers( tenant ) ) {
-      userRoleDao.deleteUser( user );
-    }
-    logout();
-  }
-
-  /*
-   * private void deleteUserRoleAndTenant(ITenant parentTenant, List<ITenant> tenants) { try { if(tenants != null
-   * && tenants.size() > 0) { for(ITenant tenant: tenants) { login("admin", tenant, true); for(IPentahoRole
-   * role:userRoleDao.getRoles()) { userRoleDao.deleteRole(role); } for(IPentahoUser user:userRoleDao.getUsers()) {
-   * userRoleDao.deleteUser(user); } deleteUserRoleAndTenant(tenant, tenantManager.getChildTenants(tenant));
-   * logout(); } } else { tenantManager.deleteTenant(parentTenant); } } catch (Throwable e) { // TODO
-   * Auto-generated catch block e.printStackTrace(); } //$NON-NLS-1$ //$NON-NLS-2$ }
-   */
-  @After
-  public void tearDown() throws Exception {
-    // Deleting all user and roles and tenant
-    // null out fields to get back memory
-    authorizationPolicy = null;
-    loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
-    logout();
-    repositoryAdminUsername = null;
-    sysAdminAuthorityName = null;
-    sysAdminUserName = null;
-    tenantAdminAuthorityName = null;
-    tenantAuthenticatedAuthorityName = null;
-    authorizationPolicy = null;
-    testJcrTemplate = null;
-    if ( startupCalled ) {
-      manager.shutdown();
-    }
-
-    // null out fields to get back memory
-    repo = null;
-    tenantManager = null;
-
-  }
-
-  protected void loginAsRepositoryAdmin() {
-    StandaloneSession pentahoSession = new StandaloneSession( repositoryAdminUsername );
-    pentahoSession.setAuthenticated( repositoryAdminUsername );
-    final GrantedAuthority[] repositoryAdminAuthorities =
-        new GrantedAuthority[] { new GrantedAuthorityImpl( sysAdminAuthorityName ) };
-    final String password = "ignored";
-    UserDetails repositoryAdminUserDetails =
-        new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
-    Authentication repositoryAdminAuthentication =
-        new UsernamePasswordAuthenticationToken( repositoryAdminUserDetails, password, repositoryAdminAuthorities );
-    PentahoSessionHolder.setSession( pentahoSession );
-    // this line necessary for Spring Security's MethodSecurityInterceptor
-    SecurityContextHolder.getContext().setAuthentication( repositoryAdminAuthentication );
-  }
-
-  protected void logout() {
-    PentahoSessionHolder.removeSession();
-    SecurityContextHolder.getContext().setAuthentication( null );
-  }
-
-  /**
-   * Logs in with given username.
-   * 
-   * @param username
-   *          username of user
-   * @param tenantId
-   *          tenant to which this user belongs
-   * @tenantAdmin true to add the tenant admin authority to the user's roles
-   */
-  protected void login( final String username, final ITenant tenant, String[] roles ) {
-    StandaloneSession pentahoSession = new StandaloneSession( username );
-    pentahoSession.setAuthenticated( tenant.getId(), username );
-    PentahoSessionHolder.setSession( pentahoSession );
-    pentahoSession.setAttribute( IPentahoSession.TENANT_ID_KEY, tenant.getId() );
-    final String password = "password";
-
-    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-
-    for ( String roleName : roles ) {
-      authList.add( new GrantedAuthorityImpl( roleName ) );
-    }
-    GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[0] );
-    UserDetails userDetails = new User( username, password, true, true, true, true, authorities );
-    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authorities );
-    PentahoSessionHolder.setSession( pentahoSession );
-    // this line necessary for Spring Security's MethodSecurityInterceptor
-    SecurityContextHolder.getContext().setAuthentication( auth );
-  }
-
-  @Override
-  public void setApplicationContext( final ApplicationContext applicationContext ) throws BeansException {
-    manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean( "backingRepositoryLifecycleManager" );
-    SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean( "jcrSessionFactory" );
-    testJcrTemplate = new JcrTemplate( jcrSessionFactory );
-    testJcrTemplate.setAllowCreate( true );
-    testJcrTemplate.setExposeNativeSession( true );
-    repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
-    sysAdminAuthorityName = (String) applicationContext.getBean( "superAdminAuthorityName" );
-    tenantAuthenticatedAuthorityName = (String) applicationContext.getBean( "singleTenantAuthenticatedAuthorityName" );
-    tenantAdminAuthorityName = (String) applicationContext.getBean( "singleTenantAdminAuthorityName" );
-    sysAdminUserName = (String) applicationContext.getBean( "superAdminUserName" );
-    authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
-    tenantManager = (ITenantManager) applicationContext.getBean( "tenantMgrProxy" );
-    userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDao" );
-    repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean( "repositoryFileDao" );
-    pathConversionHelper = (IPathConversionHelper) applicationContext.getBean( "pathConversionHelper" );
-    roleBindingDaoTarget =
-        (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
-            .getBean( "roleAuthorizationPolicyRoleBindingDaoTarget" );
-    roleBindingDao =
-        (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
-            .getBean( "roleAuthorizationPolicyRoleBindingDaoTxn" );
-    authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
-    defaultBackingRepositoryLifecycleManager =
-        (DefaultBackingRepositoryLifecycleManager) applicationContext
-            .getBean( "defaultBackingRepositoryLifecycleManager" );
-    tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean( "tenantedUserNameUtils" );
-    jcrTransactionTemplate = (TransactionTemplate) applicationContext.getBean( "jcrTransactionTemplate" );
-    TestPrincipalProvider.userRoleDao = (IUserRoleDao) applicationContext.getBean( "userRoleDao" );
-    TestPrincipalProvider.adminCredentialsStrategy =
-        (CredentialsStrategy) applicationContext.getBean( "jcrAdminCredentialsStrategy" );
-    TestPrincipalProvider.repository = (Repository) applicationContext.getBean( "jcrRepository" );
-  }
-
 }
