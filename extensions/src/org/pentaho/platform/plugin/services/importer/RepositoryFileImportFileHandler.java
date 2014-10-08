@@ -155,13 +155,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   /**
    * Copies the file bundle into the repository
-   *
+   * 
    * @param bundle
    * @param repositoryPath
    * @param file
    */
   protected boolean copyFileToRepository( final RepositoryFileImportBundle bundle, final String repositoryPath,
-                                          final RepositoryFile file ) throws PlatformImportException {
+      final RepositoryFile file ) throws PlatformImportException {
     Log log = getLogger();
     // Compute the file extension
     final String name = bundle.getName();
@@ -201,7 +201,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         }
 
       } else {
-        repositoryFile = repository.updateFile( file, data, bundle.getComment() );
+        repositoryFile = updateFile( bundle, file, data );
         updateAclFromBundle( false, bundle, repositoryFile );
       }
 
@@ -219,10 +219,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   /**
    * Create a formal <code>RepositoryFileAcl</code> object for import.
-   *
-   * @param newFile        Whether the file is being newly created or was pre-existing
-   * @param bundle         The RepositoryImportBundle (which contains the effective manifest Acl)
-   * @param repositoryFile The <code>RepositoryFile</code> of the target file
+   * 
+   * @param newFile
+   *          Whether the file is being newly created or was pre-existing
+   * @param bundle
+   *          The RepositoryImportBundle (which contains the effective manifest Acl)
+   * @param repositoryFile
+   *          The <code>RepositoryFile</code> of the target file
    */
   private void updateAclFromBundle( boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile ) {
     updateAcl( newFile, repositoryFile, bundle.getAcl() );
@@ -230,10 +233,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   /**
    * Create a formal <code>RepositoryFileAcl</code> object for import.
-   *
-   * @param newFile           Whether the file is being newly created or was pre-existing
-   * @param repositoryFileAcl The effect Acl as defined in the manifest)
-   * @param repositoryFile    The <code>RepositoryFile</code> of the target file
+   * 
+   * @param newFile
+   *          Whether the file is being newly created or was pre-existing
+   * @param repositoryFileAcl
+   *          The effect Acl as defined in the manifest)
+   * @param repositoryFile
+   *          The <code>RepositoryFile</code> of the target file
    */
   private void updateAcl( boolean newFile, RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl ) {
     getLogger().debug( "File " + ( newFile ? "is new" : "already exists" ) );
@@ -291,12 +297,12 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   /**
    * Creates a new file in the repository
-   *
+   * 
    * @param bundle
    * @param data
    */
   protected RepositoryFile createFile( final RepositoryFileImportBundle bundle, final String repositoryPath,
-                                       final IRepositoryFileData data ) throws PlatformImportException {
+      final IRepositoryFileData data ) throws PlatformImportException {
     if ( solutionHelper.isInApprovedExtensionList( repositoryPath ) ) {
       final RepositoryFile file =
           new RepositoryFile.Builder( bundle.getName() ).hidden( isHiddenBundle( bundle ) ).title(
@@ -313,16 +319,24 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     } else {
       getLogger().trace(
           "The file [" + repositoryPath
-              + "] is not in the list of approved file extension that can be stored in the repository."
-      );
+              + "] is not in the list of approved file extension that can be stored in the repository." );
       return null;
     }
   }
 
   /**
+   * Updates a file in the repository
+   * 
+   */
+  protected RepositoryFile updateFile( final RepositoryFileImportBundle bundle, final RepositoryFile file,
+      final IRepositoryFileData data ) throws PlatformImportException {
+    return repository.updateFile( file, data, bundle.getComment() );
+  }
+
+  /**
    * Check path for existance. If path does not exist create folders as necessary to satisfy the path. When done return
    * the Id of the path received.
-   *
+   * 
    * @param repositoryPath
    * @return
    */
@@ -350,7 +364,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   /**
    * truncate the extension from the file name for the extension
-   *
+   * 
    * @param name
    * @return title
    */
@@ -364,7 +378,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   /**
    * Returns the Id of the parent folder of the file path provided
-   *
+   * 
    * @param repositoryPath
    * @return
    */
@@ -393,7 +407,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   public RepositoryFile createFolderJustInTime( String folderPath, String manifestKey ) throws PlatformImportException,
-      DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+    DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
     // The file doesn't exist and it is a folder. Create folder.
     getLogger().trace( "Creating implied folder [" + folderPath + "]" );
     final Serializable parentId = getParentId( folderPath );
