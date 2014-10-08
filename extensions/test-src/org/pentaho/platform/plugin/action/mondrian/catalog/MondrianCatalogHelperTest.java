@@ -15,7 +15,10 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.test.platform.plugin;
+package org.pentaho.platform.plugin.action.mondrian.catalog;
+
+import mondrian.olap.Util.PropertyList;
+import mondrian.spi.DynamicSchemaProcessor;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -39,10 +42,6 @@ import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.SystemSettings;
-import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.pentaho.platform.plugin.services.cache.CacheManager;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.util.Base64PasswordService;
@@ -53,9 +52,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doReturn;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
 
 @SuppressWarnings ( "nls" )
@@ -247,4 +252,49 @@ public class MondrianCatalogHelperTest {
 
     verify( repo ).deleteFile( eq( makeIdObject( steelWheelsFolderPath ) ), eq( true ), anyString() );
   }
+
+  @Test
+  public void testDspApplied_WhenDataSourceInfoContainsDynamicSchemaProcessorParameter() throws Exception {
+    final String replaceTemplate = "REPLACE_TEMPLATE";
+    final String DATA_SOURCE_INFO_WITH_DSP =
+        "DynamicSchemaProcessor=org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelperTest$DynamicDSPTest";
+    final String SCHEMA_MOCK = "Test Schema Mock " + replaceTemplate;
+
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
+    MondrianCatalogHelper helperSpy = spy( helper );
+    IPentahoSession session = new StandaloneSession( "admin" );
+    String schema = helperSpy.applyDSP( session, DATA_SOURCE_INFO_WITH_DSP, SCHEMA_MOCK );
+    assertNotNull( schema );
+    assertTrue( schema.contains( "REPLACE_TOKEN" ) );
+    verify( helperSpy, never() ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
+
+  }
+
+  @Test
+  public void testNoDspApplied_WhenNoDynamicSchemaProcessorParameterInDataSourceInfo() throws Exception {
+    final String replaceTemplate = "REPLACE_TEMPLATE";
+    final String DATA_SOURCE_INFO_WITHOUT_DSP = "DataSource=TestDataSource";
+    final String SCHEMA_MOCK = "Test Schema Mock " + replaceTemplate;
+
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
+    MondrianCatalogHelper helperSpy = spy( helper );
+    doReturn( SCHEMA_MOCK ).when( helperSpy ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
+
+    IPentahoSession session = new StandaloneSession( "admin" );
+    String schema = helperSpy.applyDSP( session, DATA_SOURCE_INFO_WITHOUT_DSP, SCHEMA_MOCK );
+    assertNotNull( schema );
+    verify( helperSpy ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
+    assertFalse( schema.contains( "REPLACE_TOKEN" ) );
+
+  }
+
+  public static class DynamicDSPTest implements DynamicSchemaProcessor {
+
+    @Override
+    public String processSchema( String s, PropertyList propertylist ) throws Exception {
+      return s.replaceAll( "REPLACE_TEMPLATE", "REPLACE_TOKEN" );
+    }
+
+  }
+
 }
