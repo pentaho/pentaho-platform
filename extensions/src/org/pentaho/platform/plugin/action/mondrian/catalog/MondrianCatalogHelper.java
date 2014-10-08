@@ -777,6 +777,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         MondrianCatalogHelper.logger.debug( "applyDSP: " + dsp ); //$NON-NLS-1$
       }
       DynamicSchemaProcessor dynProc = ClassResolver.INSTANCE.instantiateSafe( dsp );
+      pl.put( "Locale", getLocale().toString() );
       return dynProc.processSchema( catalogDefinition, pl );
     } else {
       return docAtUrlToString( catalogDefinition, ps );
