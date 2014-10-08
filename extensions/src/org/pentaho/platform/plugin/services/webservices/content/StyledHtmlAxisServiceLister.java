@@ -19,7 +19,16 @@ package org.pentaho.platform.plugin.services.webservices.content;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.ui.IThemeManager;
+import org.pentaho.platform.api.ui.Theme;
+import org.pentaho.platform.api.ui.ThemeResource;
+import org.pentaho.platform.api.usersettings.IUserSettingService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
+import javax.servlet.ServletContext;
 import java.io.OutputStream;
 
 public class StyledHtmlAxisServiceLister extends HtmlAxisServiceLister {
@@ -34,15 +43,28 @@ public class StyledHtmlAxisServiceLister extends HtmlAxisServiceLister {
 
     out.write( "<html>\n<head>".getBytes() ); //$NON-NLS-1$
 
-    out.write( "<STYLE TYPE=\"text/css\" MEDIA=\"screen\">\n<!--\n".getBytes() ); //$NON-NLS-1$
+    final IPentahoSession session = PentahoSessionHolder.getSession();
+    IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, session );
+    String activeThemeName;
+    if ( session == null || settingsService == null ) {
+      activeThemeName = PentahoSystem.getSystemSetting( "default-activeThemeName", "onyx" );
+    } else {
+      activeThemeName = StringUtils.defaultIfEmpty( (String) session.getAttribute( "pentaho-user-activeThemeName" ), settingsService
+        .getUserSetting( "pentaho-user-activeThemeName", PentahoSystem.getSystemSetting( "default-activeThemeName", "onyx" ) )
+          .getSettingValue() );
+    }
 
-    // IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
+    IThemeManager themeManager = PentahoSystem.get( IThemeManager.class, null );
+    Theme theme = themeManager.getSystemTheme( activeThemeName );
 
-    // FIXME: get style from system solution
-    //    byte bytes[] = resLoader.getResourceAsBytes(this.getClass(), "resources/style.css" ); //$NON-NLS-1$
-    // out.write( bytes );
-
-    out.write( "\n-->\n</STYLE>\n".getBytes() ); //$NON-NLS-1$
+    final ServletContext servletContext = (ServletContext) PentahoSystem.getApplicationContext().getContext();
+    if ( servletContext != null ) {
+      for ( ThemeResource res : theme.getResources() ) {
+        if ( res.getLocation().endsWith( ".css" ) ) {
+          out.write( ( "<link rel=\"stylesheet\" href=\"" + PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() + theme.getThemeRootDir() + res.getLocation() + "\">" ).getBytes() );
+        }
+      }
+    }
 
     out.write( "</head>\n<body>\n".getBytes() ); //$NON-NLS-1$
 
