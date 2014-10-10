@@ -37,11 +37,6 @@
               rs1.addRow( new Array( 'Eastern' ) );
               rs1.addRow( new Array( 'Western' ) );
               rs1.addRow( new Array( 'Southern' ) );
-              rs1.getColumnCount();
-              rs1.getRowCount();
-              rs1.getValueAt(1,1);
-              rs1.close();
-              rs1.closeConnection();
 		      ]]>
 		      </script>
         </component-definition>
