@@ -27,6 +27,8 @@ import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserRoleListService {
@@ -36,6 +38,8 @@ public class UserRoleListService {
   private ArrayList<String> extraRoles;
 
   private ArrayList<String> systemRoles;
+
+  private Comparator<String> roleComparator;
 
   public String doGetRolesForUser( String user ) throws Exception {
     if ( canAdminister() ) {
@@ -89,6 +93,9 @@ public class UserRoleListService {
         }
       }
     }
+    if ( null != roleComparator ) {
+      Collections.sort( allRoles, roleComparator );
+    }
     return new RoleListWrapper( allRoles );
   }
 
@@ -123,6 +130,10 @@ public class UserRoleListService {
 
   public void setSystemRoles( ArrayList<String> systemRoles ) {
     this.systemRoles = systemRoles;
+  }
+
+  public void setRoleComparator( Comparator<String> roleComparator ) {
+    this.roleComparator = roleComparator;
   }
 
   public ArrayList<String> getExtraRoles() {
