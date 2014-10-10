@@ -18,7 +18,6 @@
 
 package org.pentaho.platform.engine.core;
 
-import junit.framework.TestCase;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -34,6 +33,8 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings( { "all" } )
 public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
@@ -53,7 +54,7 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
       factory.get( BadObject.class, null );
       assertFalse( true );
     } catch ( ObjectFactoryException e ) {
-      //ignored
+      // ignored
     }
 
     GoodObject goodObject1 = factory.get( GoodObject.class, session );
@@ -164,6 +165,7 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
   }
 
   public void testReferenceList() throws Exception {
+    PentahoSystem.shutdown();
 
     StandaloneSession session = new StandaloneSession();
     PentahoSessionHolder.setSession( session );

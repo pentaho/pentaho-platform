@@ -22,7 +22,6 @@ import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 
 import java.io.File;
@@ -59,13 +58,6 @@ public class ServiceTestHelper {
       }
     }
     return xactionStr;
-  }
-
-  public static void init( String solutionRoot ) {
-    if ( !PentahoSystem.getInitializedOK() ) {
-      StandaloneApplicationContext applicationContext = new StandaloneApplicationContext( solutionRoot, "" ); //$NON-NLS-1$
-      PentahoSystem.init( applicationContext );
-    }
   }
 
   public static ISolutionEngine getSolutionEngine() {

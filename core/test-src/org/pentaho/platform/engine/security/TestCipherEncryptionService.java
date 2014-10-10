@@ -22,9 +22,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.util.UUIDUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class TestCipherEncryptionService {
 
@@ -102,11 +102,14 @@ public class TestCipherEncryptionService {
 
   @Test
   public void testThreadSafetyOfCipherService() throws Exception {
-    CipherEncryptionService service = new CipherEncryptionService();
+    int threadCount = 30;
+    final CipherEncryptionService service = new CipherEncryptionService();
     service.afterPropertiesSet();
-    List<TestRunnable> list = Collections.synchronizedList( new ArrayList<TestRunnable>() );
-    for ( int i = 0; i < 30; i++ ) {
-      TestRunnable runnable = new TestRunnable( service, list ) {
+    ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>( threadCount );
+    ThreadPoolExecutor executor = new ThreadPoolExecutor( 10, 50, 1, TimeUnit.SECONDS, queue );
+
+    for ( int i = 0; i < threadCount; i++ ) {
+      executor.execute( new Runnable() {
         @Override
         public void run() {
           try {
@@ -115,44 +118,22 @@ public class TestCipherEncryptionService {
             String dec = null;
             for ( int i = 0; i < 50; i++ ) {
               s = UUIDUtil.getUUIDAsString();
-              enc = svc.encrypt( s );
-              dec = svc.decrypt( enc );
+              enc = service.encrypt( s );
+              dec = service.decrypt( enc );
               Assert.assertEquals( s, dec );
             }
           } catch ( Exception ex ) {
             ex.printStackTrace();
             Assert.fail( ex.toString() );
-          } finally {
-            notifyList.remove( 0 );
           }
         }
-      };
-      list.add( runnable );
+      } );
     }
-    for ( int i = 0; i < list.size(); i++ ) {
-      Thread th = new Thread( list.get( i ) );
-      th.start();
-    }
-    int maxTimes = 100; // Try
-    int i = 0;
-    while ( list.size() > 0 ) {
-      Thread.sleep( 2000 ); // Sleep for 2 seconds
-      i++;
-      if ( i > maxTimes ) {
-        Assert.fail( "It took too long to run the threading test." );
-        break;
-      }
+    executor.shutdown();
+    boolean isTerminated = executor.awaitTermination( 200, TimeUnit.SECONDS );
+    if ( !isTerminated ) {
+      Assert.fail( "It took too long to run the threading test." );
     }
 
-  }
-
-  abstract class TestRunnable implements Runnable {
-    CipherEncryptionService svc;
-    List<TestRunnable> notifyList;
-
-    public TestRunnable( CipherEncryptionService value, List<TestRunnable> removeFrom ) {
-      this.svc = value;
-      this.notifyList = removeFrom;
-    }
   }
 }

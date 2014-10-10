@@ -17,12 +17,12 @@
 
 package org.pentaho.platform.engine.services.solution;
 
-import java.util.Locale;
-
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import java.util.Locale;
 
 @SuppressWarnings( "nls" )
 public class SolutionPublisherTest extends BaseTest {
@@ -39,7 +39,7 @@ public class SolutionPublisherTest extends BaseTest {
     SolutionPublisher publisher = new SolutionPublisher();
     publisher.setLoggingLevel( getLoggingLevel() );
     StandaloneSession session =
-      new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) ); //$NON-NLS-1$
+        new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) ); //$NON-NLS-1$
     String result = publisher.publish( session, getLoggingLevel() );
     assertEquals( Messages.getInstance().getString( "SolutionPublisher.USER_SOLUTION_REPOSITORY_UPDATED" ), result );
     finishTest();
@@ -65,24 +65,11 @@ public class SolutionPublisherTest extends BaseTest {
     SolutionPublisher publisher = new SolutionPublisher();
     publisher.setLoggingLevel( getLoggingLevel() );
     StandaloneSession session =
-      new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) );
+        new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) );
     String result = publisher.publish( session, getLoggingLevel() );
     assertEquals( Messages.getInstance().getString( "SolutionPublisher.USER_SOLUTION_REPOSITORY_UPDATED" ), result );
     // now set the locale back again
     LocaleHelper.setLocale( tmpLocale );
     finishTest();
   }
-
-  public static void main( String[] args ) {
-    SolutionPublisherTest test = new SolutionPublisherTest();
-    test.setUp();
-    try {
-      test.testSolutionPublish();
-      test.testSolutionPublishI18N();
-    } finally {
-      test.tearDown();
-      BaseTest.shutdown();
-    }
-  }
-
 }
