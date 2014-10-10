@@ -213,7 +213,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   public void setUp() throws Exception {
     loginAsRepositoryAdmin();
     SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
-    mp = new MicroPlatform();
+    mp = new MicroPlatform( getSolutionPath() );
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance( "tenantedUserNameUtils", userNameUtils );
     mp.defineInstance( "tenantedRoleNameUtils", roleNameUtils );
@@ -227,6 +227,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
       this.repositoryFileDao ) );
     mp.defineInstance( "ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver() );
     mp.defineInstance("useMultiByteEncoding", new Boolean( false ) );
+    mp.defineInstance( IUnifiedRepository.class, repo );
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
@@ -292,7 +293,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   }
 
   protected void loginAsSysTenantAdmin() {
-    login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    login( sysAdminUserName, systemTenant, new String[]{ tenantAdminRoleName, tenantAuthenticatedRoleName } );
   }
 
   /**
@@ -305,7 +306,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
    * @param roles
    *          user roles
    */
-  protected void login( final String username, final ITenant tenant, String[] roles ) {
+  public void login( final String username, final ITenant tenant, String[] roles ) {
     StandaloneSession pentahoSession = new StandaloneSession( username );
     pentahoSession.setAuthenticated( tenant.getId(), username );
     PentahoSessionHolder.setSession( pentahoSession );
@@ -327,7 +328,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     defaultBackingRepositoryLifecycleManager.newTenant();
   }
 
-  protected void loginAsRepositoryAdmin() {
+  public void loginAsRepositoryAdmin() {
     StandaloneSession pentahoSession = new StandaloneSession( repositoryAdminUsername );
     pentahoSession.setAuthenticated( repositoryAdminUsername );
     final GrantedAuthority[] repositoryAdminAuthorities =
@@ -459,6 +460,19 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     }
   }
 
+  public ITenant getSystemTenant() {
+    return systemTenant;
+  }
+
+  public ITenant createTenant( ITenant parentTenant, String tenantName ) {
+    return tenantManager.createTenant( parentTenant, tenantName, tenantAdminRoleName, tenantAuthenticatedRoleName,
+      ANONYMOUS_ROLE_NAME );
+  }
+
+  public IPentahoUser createUser( ITenant tenant, String username, String password, String[] roles ) {
+    return userRoleDao.createUser( tenant, username, password, "", roles );
+  }
+
   protected RepositoryFile createSampleFile( final String parentFolderPath, final String fileName,
     final String sampleString, final boolean sampleBoolean, final int sampleInteger, boolean versioned )
     throws Exception {
@@ -471,6 +485,10 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   protected RepositoryFile createSampleFile( final String parentFolderPath, final String fileName,
     final String sampleString, final boolean sampleBoolean, final int sampleInteger ) throws Exception {
     return createSampleFile( parentFolderPath, fileName, sampleString, sampleBoolean, sampleInteger, false );
+  }
+
+  public String getTenantAdminRoleName() {
+    return tenantAdminRoleName;
   }
 
   private void setAclManagement() {
@@ -492,7 +510,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     } );
   }
 
-  protected void cleanupUserAndRoles( final ITenant tenant ) {
+  public void cleanupUserAndRoles( final ITenant tenant ) {
     loginAsRepositoryAdmin();
     for ( IPentahoRole role : testUserRoleDao.getRoles( tenant ) ) {
       testUserRoleDao.deleteRole( role );
@@ -500,6 +518,11 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     for ( IPentahoUser user : testUserRoleDao.getUsers( tenant ) ) {
       testUserRoleDao.deleteUser( user );
     }
+  }
+
+  public MicroPlatform getMp() {
+
+    return mp;
   }
 
   @Override
@@ -536,5 +559,9 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     TestPrincipalProvider.adminCredentialsStrategy =
       (CredentialsStrategy) applicationContext.getBean( "jcrAdminCredentialsStrategy" );
     TestPrincipalProvider.repository = (Repository) applicationContext.getBean( "jcrRepository" );
+  }
+
+  protected String getSolutionPath() {
+    return null;
   }
 }

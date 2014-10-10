@@ -292,6 +292,10 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     return autoCreateDirStructure;
   }
 
+  public void setAutoCreateDirStructure( boolean autoCreateDirStructure ) {
+    this.autoCreateDirStructure = autoCreateDirStructure;
+  }
+
   public void addListener( IStreamListener listener ) {
     listeners.add( listener );
   }

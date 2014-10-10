@@ -204,6 +204,7 @@ public class FileService {
       String idToPath = idToPath( pathId );
       RepositoryFileOutputStream rfos = getRepositoryFileOutputStream( idToPath );
       rfos.setCharsetName( charsetName );
+      rfos.setAutoCreateDirStructure( true );
       copy( fileContents, rfos );
       rfos.close();
       fileContents.close();
