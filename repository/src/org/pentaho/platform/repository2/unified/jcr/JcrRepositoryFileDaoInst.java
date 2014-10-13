@@ -65,7 +65,7 @@ import javax.jcr.lock.Lock;
  * 
  * @author mlowery
  */
-public class JcrRepositoryFileDao {
+public class JcrRepositoryFileDaoInst {
 
   // ~ Static fields/initializers
   // ======================================================================================
@@ -91,7 +91,7 @@ public class JcrRepositoryFileDao {
   // ~ Constructors
   // ====================================================================================================
 
-  public JcrRepositoryFileDao( final List<ITransformer<IRepositoryFileData>> transformers,
+  public JcrRepositoryFileDaoInst( final List<ITransformer<IRepositoryFileData>> transformers,
       final ILockHelper lockHelper, final IDeleteHelper deleteHelper, final IPathConversionHelper pathConversionHelper,
       final IRepositoryFileAclDao aclDao, final IRepositoryDefaultAclHandler defaultAclHandler,
       String repositoryAdminUsername ) {
@@ -106,7 +106,7 @@ public class JcrRepositoryFileDao {
     this.repositoryAdminUsername = repositoryAdminUsername;
   }
 
-  public JcrRepositoryFileDao( final List<ITransformer<IRepositoryFileData>> transformers,
+  public JcrRepositoryFileDaoInst( final List<ITransformer<IRepositoryFileData>> transformers,
       final ILockHelper lockHelper, final IDeleteHelper deleteHelper, final IPathConversionHelper pathConversionHelper,
       final IRepositoryFileAclDao aclDao, final IRepositoryDefaultAclHandler defaultAclHandler,
       final IRepositoryAccessVoterManager accessVoterManager, String repositoryAdminUsername ) {

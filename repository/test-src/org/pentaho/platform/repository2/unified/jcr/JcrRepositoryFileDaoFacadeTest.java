@@ -28,7 +28,7 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
-import org.pentaho.platform.repository2.unified.RepositoryAccessVoterManager;
+import org.pentaho.platform.repository2.unified.RepositoryAccessVoterManagerInst;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 
@@ -354,7 +354,7 @@ public class JcrRepositoryFileDaoFacadeTest {
     };
   }
 
-  private JcrRepositoryFileDao createJcrRepositoryFileDao() {
+  private JcrRepositoryFileDaoInst createJcrRepositoryFileDao() {
     List<ITransformer<IRepositoryFileData>> transformers = Collections.emptyList();
     ILockHelper lockHelper = new MockUp<ILockHelper>() {
       @Mock
@@ -392,9 +392,9 @@ public class JcrRepositoryFileDaoFacadeTest {
         return ADMIN_USERNAME.equals( actionName );
       }
     }.getMockInstance();
-    RepositoryAccessVoterManager accessVoterManager =
-        new RepositoryAccessVoterManager( Collections.singletonList( accessVoter ), authorizationPolicy );
-    return new JcrRepositoryFileDao( transformers, lockHelper, deleteHelper, conversionHelper, aclDao, null,
+    RepositoryAccessVoterManagerInst accessVoterManager =
+        new RepositoryAccessVoterManagerInst( Collections.singletonList( accessVoter ), authorizationPolicy );
+    return new JcrRepositoryFileDaoInst( transformers, lockHelper, deleteHelper, conversionHelper, aclDao, null,
         accessVoterManager, null );
   }
 

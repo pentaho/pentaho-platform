@@ -31,17 +31,17 @@ import org.springframework.util.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RepositoryAccessVoterManager implements IRepositoryAccessVoterManager {
+public class RepositoryAccessVoterManagerInst implements IRepositoryAccessVoterManager {
 
   private IAuthorizationPolicy authorizationPolicy;
   private List<IRepositoryAccessVoter> voters;
 
-  public RepositoryAccessVoterManager( final IAuthorizationPolicy authorizationPolicy ) {
+  public RepositoryAccessVoterManagerInst( final IAuthorizationPolicy authorizationPolicy ) {
     super();
     this.authorizationPolicy = authorizationPolicy;
   }
 
-  public RepositoryAccessVoterManager( final List<IRepositoryAccessVoter> voters,
+  public RepositoryAccessVoterManagerInst( final List<IRepositoryAccessVoter> voters,
       final IAuthorizationPolicy authorizationPolicy ) {
     this( authorizationPolicy );
     Assert.notNull( voters );

@@ -28,9 +28,9 @@ import javax.jcr.Session;
 public class JcrRepositoryFileDaoFacade implements IRepositoryFileDao {
 
   private JcrTemplate jcrTemplate;
-  private JcrRepositoryFileDao jcrRepositoryFileDao;
+  private JcrRepositoryFileDaoInst jcrRepositoryFileDao;
 
-  public JcrRepositoryFileDaoFacade( JcrTemplate jcrTemplate, JcrRepositoryFileDao jcrRepositoryFileDao ) {
+  public JcrRepositoryFileDaoFacade( JcrTemplate jcrTemplate, JcrRepositoryFileDaoInst jcrRepositoryFileDao ) {
     this.jcrTemplate = jcrTemplate;
     this.jcrRepositoryFileDao = jcrRepositoryFileDao;
   }
