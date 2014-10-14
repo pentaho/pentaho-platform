@@ -17,9 +17,30 @@
 
 package org.pentaho.platform.api.metaverse;
 
-/**
- * The IMetaverseElement interface provides a contract for methods common to metaverse elements (node, links, e.g.)
- * 
- */
-public interface IMetaverseElement extends IHasProperties {
+import java.util.Set;
+
+public interface ILogicalIdGenerator {
+
+  /**
+   * Sets the property names that should be used in generating a logical id.
+   *
+   * @param propertyKeys property keys that indicate what makes this node logically unique
+   */
+  public void setLogicalIdPropertyKeys( String... propertyKeys );
+
+  /**
+   *
+   * @return the Set of property keys that define logical equality for like nodes
+   */
+  public Set<String> getLogicalIdPropertyKeys();
+
+  /**
+   * Generates an ID based on properties that make it unique. It also will set that ID as a property on the node passed
+   * in named 'logicalId'. It should reliably generate the same id for 2 nodes that are logically equal
+   *
+   * @param propertiesNode the object requiring a logical id
+   * @return the logicalId generated
+   */
+  public String generateId( IHasProperties propertiesNode );
+
 }

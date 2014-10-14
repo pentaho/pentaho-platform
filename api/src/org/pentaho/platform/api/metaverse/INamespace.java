@@ -19,14 +19,7 @@ public interface INamespace {
    */
   public INamespace getParentNamespace();
 
-  /**
-   * get the name space for the current level entity
-   *
-   * @param child the string representation of hte current entity's contribution to the namespace path
-   * @param type the type of the child
-   * @return the namespace object for the entity represented by child
-   */
-  public INamespace getChildNamespace( String child, String type );
+  public INamespace getSiblingNamespace( String name, String type );
 
 }
 

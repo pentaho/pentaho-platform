@@ -62,4 +62,17 @@ public interface IIdentifiable {
    */
   void setType( String type );
 
+
+  /**
+   * Gets a string representation of what makes this node logically unique
+   * @return
+   */
+  String getLogicalId();
+
+  /**
+   * Sets the {@link ILogicalIdGenerator} to use for this node
+   * @param idGenerator
+   */
+  void setLogicalIdGenerator( ILogicalIdGenerator idGenerator );
+
 }
