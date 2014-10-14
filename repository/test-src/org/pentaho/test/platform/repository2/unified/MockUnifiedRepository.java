@@ -169,7 +169,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
     return null;
   }
-  
+
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
     return getTree( repositoryRequest.getPath(), repositoryRequest.getDepth(), repositoryRequest.getChildNodeFilter(),
@@ -420,7 +420,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     parentFolder.addChild( fileRecord );
     return fileRecord.getFile();
   }
-  
+
   @Override
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
     return getChildren( repositoryRequest.getPath(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden() );
@@ -428,14 +428,14 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public List<RepositoryFile> getChildren( final Serializable folderId ) {
-    return getChildren( folderId, null);
+    return getChildren( folderId, null );
   }
 
   @Override
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
     return getChildren( folderId, filter, null );
   }
-  
+
   @Override
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
     FileRecord r = idManager.getFileById( folderId );

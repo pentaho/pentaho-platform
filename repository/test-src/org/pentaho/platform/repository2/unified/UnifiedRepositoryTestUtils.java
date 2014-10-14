@@ -187,8 +187,8 @@ public class UnifiedRepositoryTestUtils {
    * stubGetChildren( repo, &quot;/public&quot;, &quot;hello/&quot;, &quot;file1.txt&quot; );
    * </pre>
    */
- 
-  public static void stubGetChildren(final IUnifiedRepository repo, RepositoryRequest request, final String... childrenNames ) {
+
+  public static void stubGetChildren( final IUnifiedRepository repo, RepositoryRequest request, final String... childrenNames ) {
     List<RepositoryFile> children = new ArrayList<RepositoryFile>( childrenNames.length );
     for ( String childName : childrenNames ) {
       if ( childName.startsWith( RepositoryFile.SEPARATOR ) ) {
@@ -208,9 +208,9 @@ public class UnifiedRepositoryTestUtils {
       children.add( child );
     }
     doReturn( children ).when( repo ).getChildren( request );
-    
+
   }
-  
+
   /**
    * Stubs a {@code getChildren} call. {@code childrenNames} is zero or more file/folder names. A folder is
    * indicated by a trailing forward slash.

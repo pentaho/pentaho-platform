@@ -96,8 +96,8 @@ public class MockPentahoUser implements IPentahoUser {
       result = new EqualsBuilder().append( userName, rhs.userName ).append( tenant, rhs.tenant ).isEquals();
     }
     return result;
-  }  
-  
+  }
+
   public int hashCode() {
     if ( ( tenant != null ) && ( tenant.getId() != null ) ) {
       return tenant.getId().concat( userName ).hashCode();
