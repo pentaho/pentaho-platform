@@ -17,6 +17,17 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.codehaus.enunciate.Facet;
@@ -37,18 +48,6 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
@@ -64,7 +63,11 @@ public class RepositoryImportResource {
    *
    * @param uploadDir : JCR Directory to which the zip structure or single file will be uploaded to.
    * @param fileIS    : Input stream for the file.
-   * @param fileInfo  : Info about he file (
+   * @param fileInfo  : Info about he file
+   * @param fileNameOverride: If present and the content represents a single file, this parameter
+   * contains the filename to use when storing the file in the repository.  If not present, the
+   * fileInfo.getFileName will be used.  Note that the later cannot reliably handle foreign character
+   * sets.
    * @return http ok response of everything went well... some other error otherwise
    * <p/>
    * This REST method takes multi-part form data and imports it to a JCR repository. --import
@@ -81,7 +84,9 @@ public class RepositoryImportResource {
                                 @FormDataParam ( "overwriteAclPermissions" ) String overwriteAclPermissions,
                                 @FormDataParam ( "applyAclPermissions" ) String applyAclPermission,
                                 @FormDataParam ( "retainOwnership" ) String retainOwnership, @FormDataParam ( "charSet" ) String pCharSet,
-                                @FormDataParam ( "logLevel" ) String logLevel, @FormDataParam ( "fileUpload" ) FormDataContentDisposition fileInfo ) {
+                                @FormDataParam ( "logLevel" ) String logLevel, @FormDataParam ( "fileUpload" ) FormDataContentDisposition fileInfo,
+                                @FormDataParam ( "fileNameOverride" ) String fileNameOverride ) {
+    
     IRepositoryImportLogger importLogger = null;
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
@@ -99,7 +104,9 @@ public class RepositoryImportResource {
       Level level = Level.toLevel( logLevel );
       ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
 
-      String fileName = URLDecoder.decode( new String( fileInfo.getFileName().getBytes(), charSet ), charSet );
+      //The fileNameOverride was added because the formDataContentDispositionfile object cannot reliable
+      //contain non US-ASCII characters.  See RFC283 section 2.3 for details
+      String fileName = fileNameOverride != null ? fileNameOverride : fileInfo.getFileName();
 
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileIS );
@@ -172,4 +179,5 @@ public class RepositoryImportResource {
       throw new PentahoAccessControlException( "Access Denied" );
     }
   }
+  
 }
