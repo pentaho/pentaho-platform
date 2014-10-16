@@ -129,6 +129,9 @@ public class ImportDialog extends PromptDialogBox {
     final TextBox fileTextBox = new TextBox();
     fileTextBox.setHeight( "26px" );
     fileTextBox.setEnabled( false );
+    
+    //We use an fileNameOverride because FileUpload can only handle US character set reliably.
+    final Hidden fileNameOverride = new Hidden( "fileNameOverride" );
 
     final FileUpload upload = new FileUpload();
     upload.setName( "fileUpload" );
@@ -137,6 +140,11 @@ public class ImportDialog extends PromptDialogBox {
       public void onChange( ChangeEvent event ) {
         fileTextBox.setText( upload.getFilename() );
         if ( !"".equals( importDir.getValue() ) ) {
+          //Set the fileNameOverride because the fileUpload object can only reliably transmit US-ASCII
+          //character set.  See RFC283 section 2.3 for details
+          String fileNameValue = upload.getFilename().replaceAll( "\\\\", "/" );
+          fileNameValue = fileNameValue.substring( fileNameValue.lastIndexOf( "/" ) + 1 );
+          fileNameOverride.setValue( fileNameValue );
           okButton.setEnabled( true );
         } else {
           okButton.setEnabled( false );
@@ -185,12 +193,13 @@ public class ImportDialog extends PromptDialogBox {
 
     final Hidden retainOwnership = new Hidden( "retainOwnership" );
     retainOwnership.setValue( "true" );
-
+    
     rootPanel.add( applyAclPermissions );
     rootPanel.add( overwriteAclPermissions );
     rootPanel.add( overwriteFile );
     rootPanel.add( logLevel );
     rootPanel.add( retainOwnership );
+    rootPanel.add( fileNameOverride );
 
     spacer = new VerticalPanel();
     spacer.setHeight( "4px" );
