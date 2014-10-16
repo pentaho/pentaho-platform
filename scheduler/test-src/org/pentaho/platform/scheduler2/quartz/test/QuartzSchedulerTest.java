@@ -24,10 +24,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuditEntry;
@@ -295,11 +296,9 @@ public class QuartzSchedulerTest {
   @Test
   public void testPauseAndResumeScheduler() throws SchedulerException {
     Calendar calendar = Calendar.getInstance();
-    int startingMin = calendar.get( Calendar.MINUTE );
     int startingSec = calendar.get( Calendar.SECOND ) + 10;
     if ( startingSec > 59 ) {
       startingSec = startingSec % 60;
-      startingMin++;
     }
     ComplexJobTrigger complexJobTrigger = new ComplexJobTrigger();
     complexJobTrigger.setHourlyRecurrence( (ITimeRecurrence) null );
@@ -319,22 +318,21 @@ public class QuartzSchedulerTest {
     Assert.assertTrue( "Job did not execute after scheduler started back up!", counter != TestAction.counter );
   }
 
-  @Ignore
   @Test
   public void testStartAndEndDate() throws SchedulerException {
 
-    ComplexJobTrigger jobTrigger = new ComplexJobTrigger();
-    ComplexJobTrigger jobTrigger2 = new ComplexJobTrigger();
-    ComplexJobTrigger jobTrigger3 = new ComplexJobTrigger();
-    jobTrigger.setHourlyRecurrence( (ITimeRecurrence) null );
-    jobTrigger2.setHourlyRecurrence( (ITimeRecurrence) null );
-    jobTrigger3.setHourlyRecurrence( (ITimeRecurrence) null );
-    jobTrigger.setMinuteRecurrence( (ITimeRecurrence) null );
-    jobTrigger2.setMinuteRecurrence( (ITimeRecurrence) null );
-    jobTrigger3.setMinuteRecurrence( (ITimeRecurrence) null );
-    jobTrigger.setSecondRecurrence( new IncrementalRecurrence( 0, 5 ) );
-    jobTrigger2.setSecondRecurrence( new IncrementalRecurrence( 0, 5 ) );
-    jobTrigger3.setSecondRecurrence( new IncrementalRecurrence( 0, 5 ) );
+    ComplexJobTrigger startEndJobTrigger = new ComplexJobTrigger();
+    ComplexJobTrigger startJobTrigger = new ComplexJobTrigger();
+    ComplexJobTrigger endJobTrigger = new ComplexJobTrigger();
+    startEndJobTrigger.setHourlyRecurrence( (ITimeRecurrence) null );
+    startJobTrigger.setHourlyRecurrence( (ITimeRecurrence) null );
+    endJobTrigger.setHourlyRecurrence( (ITimeRecurrence) null );
+    startEndJobTrigger.setMinuteRecurrence( (ITimeRecurrence) null );
+    startJobTrigger.setMinuteRecurrence( (ITimeRecurrence) null );
+    endJobTrigger.setMinuteRecurrence( (ITimeRecurrence) null );
+    startEndJobTrigger.setSecondRecurrence( new IncrementalRecurrence( 0, 5 ) );
+    startJobTrigger.setSecondRecurrence( new IncrementalRecurrence( 0, 5 ) );
+    endJobTrigger.setSecondRecurrence( new IncrementalRecurrence( 0, 5 ) );
 
     Calendar calendar = Calendar.getInstance();
     int startingMin = calendar.get( Calendar.MINUTE );
@@ -346,42 +344,48 @@ public class QuartzSchedulerTest {
     calendar.set( Calendar.MINUTE, startingMin );
     calendar.set( Calendar.SECOND, startingSec );
 
-    jobTrigger.setStartTime( calendar.getTime() );
-    jobTrigger2.setStartTime( calendar.getTime() );
+    startEndJobTrigger.setStartTime( calendar.getTime() );
+    startJobTrigger.setStartTime( calendar.getTime() );
 
     calendar.add( Calendar.MINUTE, 1 );
-    jobTrigger.setEndTime( calendar.getTime() );
-    jobTrigger3.setEndTime( calendar.getTime() );
+    startEndJobTrigger.setEndTime( calendar.getTime() );
+    endJobTrigger.setEndTime( calendar.getTime() );
 
-    int counter = TestAction.counter;
-    int counter2 = TestAction2.counter;
-    int counter3 = TestAction3.counter;
+    int startEndCounter = TestAction.counter;
+    int startCounter = TestAction2.counter;
+    int endCounter = TestAction3.counter;
 
-    // Job job = scheduler.createJob("complexJob", TestAction.class, jobParams, jobTrigger);
-    Job job2 = scheduler.createJob( "complexJob2", TestAction2.class, jobParams, jobTrigger2 );
-    Job job3 = scheduler.createJob( "complexJob3", TestAction3.class, jobParams, jobTrigger3 );
+    Job job = scheduler.createJob("startEndJob", TestAction.class, jobParams, startEndJobTrigger);
+    Job job2 = scheduler.createJob( "startJob", TestAction2.class, jobParams, startJobTrigger );
+    Job job3 = scheduler.createJob( "endJob", TestAction3.class, jobParams, endJobTrigger );
+    try{
 
-    sleep( 10 );
-    // Assert.assertEquals(counter, TestAction.counter);
-    Assert.assertEquals( counter2, TestAction2.counter );
-    Assert.assertTrue( counter3 != TestAction3.counter );
-    counter3 = TestAction3.counter;
-    sleep( 20 );
-    // Assert.assertTrue(counter != TestAction.counter);
-    Assert.assertTrue( counter2 != TestAction2.counter );
-    Assert.assertTrue( counter3 != TestAction3.counter );
-    sleep( 60 );
-    counter = TestAction.counter;
-    counter2 = TestAction2.counter;
-    // counter3 = TestAction3.counter;
-    sleep( 30 );
-    // Assert.assertEquals(counter, TestAction.counter);
-    Assert.assertTrue( counter2 != TestAction2.counter );
-    Assert.assertEquals( counter3, TestAction3.counter );
-
-    // scheduler.removeJob(job.getJobId());
-    scheduler.removeJob( job2.getJobId() );
-    scheduler.removeJob( job3.getJobId() );
+      sleep( 10 );
+      Assert.assertEquals( startEndCounter, TestAction.counter );
+      Assert.assertEquals( startCounter, TestAction2.counter );
+      Assert.assertTrue( endCounter != TestAction3.counter );
+      endCounter = TestAction3.counter;
+      sleep( 20 );
+      Assert.assertTrue( startEndCounter != TestAction.counter );
+      Assert.assertTrue( startCounter != TestAction2.counter );
+      Assert.assertTrue( endCounter != TestAction3.counter );
+      sleep( 60 );
+      startEndCounter = TestAction.counter;
+      startCounter = TestAction2.counter;
+      endCounter = TestAction3.counter;
+      sleep( 30 );
+      Assert.assertEquals( startEndCounter, TestAction.counter );
+      Assert.assertTrue( startCounter != TestAction2.counter );
+      Assert.assertEquals( endCounter, TestAction3.counter );
+    }
+    catch( Throwable ex ){
+      TestCase.fail();
+    }
+    finally{
+      scheduler.removeJob( job.getJobId() );
+      scheduler.removeJob( job2.getJobId() );
+      scheduler.removeJob( job3.getJobId() );
+    }
     Assert.assertEquals( 0, scheduler.getJobs( null ).size() );
   }
 
@@ -453,7 +457,7 @@ public class QuartzSchedulerTest {
     public static String executedAsUser;
 
     public void execute() throws Exception {
-      System.out.println( "execute called!" + new Date() );
+      System.out.println( "TestAction2 execute called!" + new Date() );
       counter++;
       Principal p = SecurityHelper.getInstance().getAuthentication();
       executedAsUser = ( p == null ) ? null : p.getName();
@@ -471,7 +475,7 @@ public class QuartzSchedulerTest {
     public static String executedAsUser;
 
     public void execute() throws Exception {
-      System.out.println( "execute called!" + new Date() );
+      System.out.println( "TestAction3 execute called!" + new Date() );
       counter++;
       Principal p = SecurityHelper.getInstance().getAuthentication();
       executedAsUser = ( p == null ) ? null : p.getName();
@@ -511,7 +515,7 @@ public class QuartzSchedulerTest {
     }
 
     public void execute() throws Exception {
-      System.out.println( "execute called! " + new Date() );
+      System.out.println( "TestAction execute called! " + new Date() );
       counter++;
       Principal p = SecurityHelper.getInstance().getAuthentication();
       executedAsUser = ( p == null ) ? null : p.getName();
