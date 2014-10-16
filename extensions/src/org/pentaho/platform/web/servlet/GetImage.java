@@ -58,12 +58,13 @@ public class GetImage extends ServletBase {
       PentahoSystem.systemEntryPoint();
 
       final String image = request.getParameter( "image" ); //$NON-NLS-1$
-      if ( image != null ) {
+      if ( image != null && !"".equals( image ) ) {
         if ( ServletBase.debug ) {
           debug( Messages.getInstance().getString( "IMAGE.DEBUG_IMAGE_PARAMETER" ) + image ); //$NON-NLS-1$
         }
       } else {
         error( Messages.getInstance().getErrorString( "IMAGE.ERROR_0001_IMAGE_PARAMETER_EMPTY" ) ); //$NON-NLS-1$
+        response.setStatus( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
         return;
       }
 
@@ -105,14 +106,14 @@ public class GetImage extends ServletBase {
       // return;
       // }
 
-      // Open the file and output streams
-      InputStream in = new FileInputStream( tmpFile );
-
-      if ( in == null ) {
+      if ( !tmpFile.exists() ) {
         error( Messages.getInstance().getErrorString( "IMAGE.ERROR_0002_FILE_NOT_FOUND", image ) ); //$NON-NLS-1$
         response.setStatus( HttpServletResponse.SC_NOT_FOUND );
         return;
       }
+
+      // Open the file and output streams
+      InputStream in = new FileInputStream( tmpFile );
 
       String mimeType = getServletContext().getMimeType( image );
       if ( ( null == mimeType ) || ( mimeType.length() <= 0 ) ) {
