@@ -277,10 +277,15 @@ public class DefaultDeleteHelperTest {
       final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getDeletedFiles( session, pentahoJcrConstants, path1, someFilter );
       assertNotNull( deletedFiles );
       assertEquals( deletedFiles.size(), 2 );
-      assertEquals( deletedFiles.get( 0 ).getOriginalParentFolderPath(), path1 );
-      assertEquals( deletedFiles.get( 1 ).getOriginalParentFolderPath(), path2 );
-      assertEquals( deletedFiles.get( 0 ).getDeletedDate(), date1.getTime() );
-      assertEquals( deletedFiles.get( 1 ).getDeletedDate(), date2.getTime() );
+      for ( RepositoryFile file : deletedFiles ) {
+        if ( file.getOriginalParentFolderPath().equals( path1 ) ) {
+          assertEquals( file.getDeletedDate(), date1.getTime() );
+        } else if ( file.getOriginalParentFolderPath().equals( path2 ) ) {
+          assertEquals( file.getDeletedDate(), date2.getTime() );
+        } else {
+          fail( "Deleted file doesn't have correct path" );
+        }
+      }
 
       verify( valueFactory ).createValue( someFilter );
     } catch ( Exception e ) {
