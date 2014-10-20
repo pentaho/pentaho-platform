@@ -94,6 +94,8 @@
     <dependency org="javax.transaction" name="jta" rev="1.1" transitive="false"/>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="2.5.1" transitive="false"/>
     <dependency org="cglib" name="cglib-nodep" rev="2.2" transitive="false"/>
+    <dependency org="org.hibernate"     name="hibernate-validator"  rev="4.2.0.Final" transitive="false"/>
+    <dependency org="javax.validation"  name="validation-api"   rev="1.0.0.GA"  transitive="false"/>
 
     <dependency org="org.apache.axis2" name="axis2-adb" rev="1.4.1" transitive="false"/>
     <dependency org="org.apache.axis2" name="axis2-codegen" rev="1.4.1" transitive="false"/>
