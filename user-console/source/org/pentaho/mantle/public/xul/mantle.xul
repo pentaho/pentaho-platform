@@ -52,7 +52,7 @@
     </menubar>
 
     <menubar id="helpmenu" label="${help}" layout="vertical">
-      <menuitem id="documentationMenuItem" label="${documentation}" command="mantleXulHandler.documentationClicked()"/>
+      <menuitem id="documentationMenuItem" label="${documentationEllipsis}" command="mantleXulHandler.documentationClicked()"/>
       <menubarseparator id="documentationSeparator"/>
       <menuitem id="pentahoDotComMenuItem" label="${pentahoHomePageName}"
                 command="mantleXulHandler.executeMantleCommand('PentahoHomeCommand')"/>
