@@ -57,153 +57,153 @@ import java.util.Set;
 public class PluginManagerAdapter implements IPluginManager {
 
   public Object getBean( String beanId ) throws PluginBeanException {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public ClassLoader getClassLoader( IPlatformPlugin plugin ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public ClassLoader getClassLoader( String pluginId ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public IContentGenerator getContentGenerator( String id, IPentahoSession session ) throws ObjectFactoryException {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public IContentGenerator getContentGeneratorForType( String type, IPentahoSession session )
     throws ObjectFactoryException {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getContentGeneratorIdForType( String type, IPentahoSession session ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public IContentGeneratorInfo getContentGeneratorInfo( String id, IPentahoSession session ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public List<IContentGeneratorInfo> getContentGeneratorInfoForType( String type, IPentahoSession session ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getContentGeneratorTitleForType( String type, IPentahoSession session ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getContentGeneratorUrlForType( String type, IPentahoSession session ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public IContentInfo getContentInfoFromExtension( String extension, IPentahoSession session ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public Set<String> getContentTypes() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public IContentGeneratorInfo getDefaultContentGeneratorInfoForType( String type, IPentahoSession session ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public IFileInfo getFileInfo( String extension, IPentahoSession session, ISolutionFile file, InputStream in ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public Object getPluginSetting( IPlatformPlugin plugin, String key, String defaultValue ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public Object getPluginSetting( String pluginId, String key, String defaultValue ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getServicePlugin( String path ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public InputStream getStaticResource( String path ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public boolean isBeanRegistered( String beanId ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return false;
   }
 
   public IPlatformPlugin isResourceLoadable( String path ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public boolean isStaticResource( String path ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return false;
   }
 
   public Class<?> loadClass( String beanId ) throws PluginBeanException {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public boolean reload( IPentahoSession session ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return false;
   }
 
   public void unloadAllPlugins() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 
   public List<XulOverlay> getOverlays() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getPluginIdForClassLoader( ClassLoader classLoader ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getPluginIdForContentGeneratorInfo( IContentGeneratorInfo contentGeneratorInfo ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public Object getApplicationContext( String pluginId ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public ListableBeanFactory getBeanFactory( String pluginId ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public List<String> getRegisteredPlugins() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
@@ -213,43 +213,43 @@ public class PluginManagerAdapter implements IPluginManager {
 
   @Override
   public String getPluginIdForType( String contentType ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   @Override
   public boolean isPublic( String pluginId, String path ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return false;
   }
 
   @Override
   public IContentGenerator getContentGenerator( String type, String perspectiveName ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   @Override
   public boolean reload() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return false;
   }
 
   @Override
   public IContentInfo getContentTypeInfo( String type ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   @Override
   public List<String> getPluginRESTPerspectivesForId( String arg0 ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   @Override
   public List<String> getPluginRESTPerspectivesForType( String arg0 ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
