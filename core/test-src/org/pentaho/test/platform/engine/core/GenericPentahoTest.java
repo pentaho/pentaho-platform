@@ -211,4 +211,9 @@ public class GenericPentahoTest extends TestCase {
     return solutionPath;
   }
 
+  public void testNothing() {
+    // test will be failed without it
+    assertTrue( true );
+  }
+
 }
