@@ -43,33 +43,20 @@ public class ExporterTest extends TestCase {
   public void setUp() throws Exception {
     super.setUp();
 
-    // set up mock repository 
-    unifiedRepository = mock(IUnifiedRepository.class);
-    repositoryFile =    mock(RepositoryFile.class);
+    // set up mock repository
+    unifiedRepository = mock( IUnifiedRepository.class );
+    repositoryFile = mock( RepositoryFile.class );
 
     // handle method calls
-    when(unifiedRepository.getFile(REPO_PATH)).thenReturn(repositoryFile);
+    when( unifiedRepository.getFile( REPO_PATH ) ).thenReturn( repositoryFile );
 
     // instantiate exporter here to reuse for each test
-    exporter = new Exporter(unifiedRepository);
-    exporter.setRepoPath(REPO_PATH);
-    exporter.setFilePath(FILE_PATH);
+    exporter = new Exporter( unifiedRepository );
+    exporter.setRepoPath( REPO_PATH );
+    exporter.setFilePath( FILE_PATH );
   }
 
-  public void tearDown() throws Exception {
-
-  }
-
-  public void testDoExportAsFile() throws Exception {
-
-  }
-
-  public void testDoExportAsDirectory() throws Exception {
-
-  }
-
-  public void testDoExportAsZip() throws Exception {    
-
+  public void testDoExportAsZip() throws Exception {
     when( repositoryFile.isFolder() ).thenReturn( true );
 
     when( repositoryFile.getPath() ).thenReturn( REPO_PATH );
@@ -90,24 +77,25 @@ public class ExporterTest extends TestCase {
 
     when( repositoryFile2.getPath() ).thenReturn( REPO_PATH );
 
-    Serializable mockSerializable2 =    mock( Serializable.class );
+    Serializable mockSerializable2 = mock( Serializable.class );
     when( repositoryFile2.getId() ).thenReturn( mockSerializable2 );
 
     SimpleRepositoryFileData mockRepoFileData = mock( SimpleRepositoryFileData.class );
-    when( unifiedRepository.getDataForRead( mockSerializable2, SimpleRepositoryFileData.class )).thenReturn( mockRepoFileData );
+    when( unifiedRepository.getDataForRead( mockSerializable2, SimpleRepositoryFileData.class ) ).thenReturn(
+        mockRepoFileData );
 
     InputStream mockInputStream = new InputStream() {
       @Override
       public int read() throws IOException {
-        return -1;  //EOF
+        return -1; // EOF
       }
     };
     when( mockRepoFileData.getStream() ).thenReturn( mockInputStream );
 
     File zipFile = exporter.doExportAsZip();
-    Assert.assertEquals( "repoExport", zipFile.getName().substring( 0, 10 ) );
+    Assert.assertEquals( "repoExport", zipFile.getName().substring( 0, 10 ) );// repoExport.length() = 10
     Assert.assertNotNull( zipFile );
-    verify( unifiedRepository, times( 1 ) ).getFile(REPO_PATH);
+    verify( unifiedRepository, times( 1 ) ).getFile( REPO_PATH );
     verify( repositoryFile, times( 1 ) ).isFolder();
     verify( repositoryFile, times( 1 ) ).getId();
     verify( repositoryFile, times( 1 ) ).getPath();
@@ -124,7 +112,6 @@ public class ExporterTest extends TestCase {
   }
 
   public void testExportDirectory() throws Exception {
-
     when( repositoryFile.isFolder() ).thenReturn( true );
 
     String name = "name";
@@ -148,25 +135,27 @@ public class ExporterTest extends TestCase {
     when( repositoryFile2.getId() ).thenReturn( mockSerializable2 );
 
     SimpleRepositoryFileData mockRepoFileData = mock( SimpleRepositoryFileData.class );
-    when( unifiedRepository.getDataForRead( mockSerializable2, SimpleRepositoryFileData.class )).thenReturn( mockRepoFileData );
+    when( unifiedRepository.getDataForRead( mockSerializable2, SimpleRepositoryFileData.class ) ).thenReturn(
+        mockRepoFileData );
 
     InputStream mockInputStream = new InputStream() {
       @Override
       public int read() throws IOException {
-        return -1;  //EOF
+        return -1; // EOF
       }
-    };    
+    };
     when( mockRepoFileData.getStream() ).thenReturn( mockInputStream );
 
     String name2 = "name.txt";
     when( repositoryFile2.getName() ).thenReturn( name2 );
 
-    File file = new File( FILE_PATH );
-    //already exists
-    if( file.isDirectory() ) {
-      deleteDirectory(file);
+    File parentDir = new File( System.getProperty( "java.io.tmpdir" ) );
+    File file = new File( parentDir, name );
+    // already exists
+    if ( file.isDirectory() ) {
+      deleteDirectory( file );
     }
-    exporter.exportDirectory( repositoryFile, file );
+    exporter.exportDirectory( repositoryFile, parentDir );
 
     verify( repositoryFile, times( 1 ) ).isFolder();
     verify( repositoryFile, times( 1 ) ).getName();
@@ -180,73 +169,49 @@ public class ExporterTest extends TestCase {
     verify( mockRepoFileData, times( 1 ) ).getStream();
     verify( repositoryFile2, times( 1 ) ).getName();
   }
-  
-  public static void deleteDirectory(File file) {
-    if (file.isDirectory()) {
+
+  public static void deleteDirectory( File file ) {
+    if ( file.isDirectory() ) {
       String[] list = file.list();
-      for (int i=0; i<list.length; i++) {
-        deleteDirectory(new File(file, list[i]));
+      for ( int i = 0; i < list.length; i++ ) {
+        deleteDirectory( new File( file, list[i] ) );
       }
     }
     file.delete();
   }
 
-  public void testExportFile() throws Exception {        
-
+  public void testExportFile() throws Exception {
     Serializable mockSerializable = mock( Serializable.class );
     when( repositoryFile.getId() ).thenReturn( mockSerializable );
 
     SimpleRepositoryFileData mockRepoFileData = mock( SimpleRepositoryFileData.class );
-    when( unifiedRepository.getDataForRead( mockSerializable, SimpleRepositoryFileData.class )).thenReturn( mockRepoFileData );
+    when( unifiedRepository.getDataForRead( mockSerializable, SimpleRepositoryFileData.class ) ).thenReturn(
+        mockRepoFileData );
 
     InputStream mockInputStream = new InputStream() {
       @Override
       public int read() throws IOException {
-        return -1;  //EOF
+        return -1; // EOF
       }
-    };    
+    };
     when( mockRepoFileData.getStream() ).thenReturn( mockInputStream );
 
     String name = "name.txt";
     when( repositoryFile.getName() ).thenReturn( name );
 
-    exporter.exportFile( repositoryFile, new File( FILE_PATH ) );
+    File mockFile = mock( File.class );
+    when( mockFile.exists() ).thenReturn( true );
+    when( mockFile.isDirectory() ).thenReturn( true );
+    when( mockFile.getAbsolutePath() ).thenReturn( System.getProperty( "java.io.tmpdir" ) );
+
+    exporter.exportFile( repositoryFile, mockFile );
 
     verify( repositoryFile, times( 1 ) ).getId();
     verify( unifiedRepository, times( 1 ) ).getDataForRead( mockSerializable, SimpleRepositoryFileData.class );
     verify( mockRepoFileData, times( 1 ) ).getStream();
     verify( repositoryFile, times( 1 ) ).getName();
-  }
-
-  public void testGetUnifiedRepository() throws Exception {
-
-  }
-
-  public void testSetUnifiedRepository() throws Exception {
-
-  }
-
-  public void testGetRepoPath() throws Exception {
-
-  }
-
-  public void testSetRepoPath() throws Exception {
-
-  }
-
-  public void testGetFilePath() throws Exception {
-
-  }
-
-  public void testSetFilePath() throws Exception {
-
-  }
-
-  public void testGetRepoWs() throws Exception {
-
-  }
-
-  public void testSetRepoWs() throws Exception {
-
+    verify( mockFile, times( 1 ) ).exists();
+    verify( mockFile, times( 1 ) ).isDirectory();
+    verify( mockFile, times( 1 ) ).getAbsolutePath();
   }
 }
