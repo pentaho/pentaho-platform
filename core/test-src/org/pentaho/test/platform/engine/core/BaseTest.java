@@ -171,8 +171,12 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
 
   @Override
   public void tearDown() {
-    PentahoSystem.shutdown();
+    shutdown();
     initOk = false;
+  }
+
+  public static void shutdown() {
+    PentahoSystem.shutdown();
   }
 
   protected void startTest() {
@@ -347,6 +351,11 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
 
   public void fatal( String message, Throwable error ) {
     messages.add( Messages.getInstance().getString( "Message.USER_ERROR", message, getClass().getName() ) ); //$NON-NLS-1$
+  }
+
+  public void testNothing() {
+    // test will be failed without it
+    assertTrue( true );
   }
 
 }
