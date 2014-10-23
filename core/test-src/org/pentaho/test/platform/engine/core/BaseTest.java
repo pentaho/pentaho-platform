@@ -171,7 +171,7 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
 
   @Override
   public void tearDown() {
-    shutdown();
+    PentahoSystem.systemExitPoint();
     initOk = false;
   }
 
