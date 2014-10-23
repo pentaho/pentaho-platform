@@ -13,9 +13,13 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.Facet;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.web.http.api.resources.services.SessionService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -27,40 +31,72 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 /**
- * @author wseyler
- * 
+ * The SessionResource service lists the user's current workspace as well as the workspace folder path.
  */
-@Path( "/session/" )
+@Path ( "/session/" )
 public class SessionResource extends AbstractJaxRSResource {
 
+  private static SessionService sessionService;
+
+  public SessionResource() {
+    sessionService = new SessionService();
+  }
+
   /**
-   * Returns the current user's workspace folder path
-   * 
-   * @return workspace folder path
+   * Returns the current user's workspace folder path.
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/session/userWorkspaceDir
+   * </p>
+   *
+   * @return String object containing the workspace folder path.
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   *    /home/admin/workspace
+   *  </pre>
    */
   @GET
-  @Path( "/userWorkspaceDir" )
-  @Produces( TEXT_PLAIN )
+  @Path ( "/userWorkspaceDir" )
+  @Produces ( TEXT_PLAIN )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Returns the requested file path" )
+  } )
   public String doGetCurrentUserDir() {
-    return ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) + "/workspace";
+    return getUserHomeFolderPath( getSession().getName() ) + "/workspace";
   }
-  
+
   /**
    * Returns the workspace folder path for the selected user.
-   * 
-   * @param user (user name)
-   * @return workspace folder path
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/session/workspaceDirForUser/admin
+   * </p>
+   *
+   * @param user String of the user name.
+   *
+   * @return String object containing the workspace folder path.
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   *    workspace
+   *  </pre>
    */
   @GET
-  @Path( "/workspaceDirForUser" )
-  @Produces( TEXT_PLAIN )
-  public String doGetUserDir( @PathParam( "user" ) String user ) {
-    return ClientRepositoryPaths.getUserHomeFolderPath( user ) + "/workspace";
+  @Path ( "/workspaceDirForUser/{user}" )
+  @Produces ( TEXT_PLAIN )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Returns the workspace file path for the specified user." ),
+      @ResponseCode ( code = 500, condition = "File path failed to be retrieved. This could be caused by an invalid user request." )
+  } )
+  public String doGetUserDir( @PathParam ( "user" ) String user ) {
+    return getUserHomeFolderPath( user ) + "/workspace";
   }
 
   @GET
-  @Path( "/setredirect" )
-  @Produces( TEXT_PLAIN )
+  @Path ( "/setredirect" )
+  @Produces ( TEXT_PLAIN )
+  @Facet ( name = "Unsupported" )
   public Response setredirect() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     pentahoSession.setAttribute( "redirect", true );
@@ -68,4 +104,11 @@ public class SessionResource extends AbstractJaxRSResource {
     return Response.ok().type( MediaType.TEXT_PLAIN ).build();
   }
 
+  protected IPentahoSession getSession() {
+    return PentahoSessionHolder.getSession();
+  }
+
+  protected String getUserHomeFolderPath( String username ) {
+    return ClientRepositoryPaths.getUserHomeFolderPath( username );
+  }
 }

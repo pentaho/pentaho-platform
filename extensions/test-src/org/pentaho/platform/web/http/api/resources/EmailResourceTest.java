@@ -21,12 +21,8 @@ package org.pentaho.platform.web.http.api.resources;
 import junit.framework.TestCase;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.api.mt.ITenantManager;
-import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
-import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import javax.ws.rs.core.Response;
@@ -35,7 +31,7 @@ import java.util.List;
 
 /**
  * Class Description
- * 
+ *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class EmailResourceTest extends TestCase {
@@ -44,6 +40,7 @@ public class EmailResourceTest extends TestCase {
   private final int OK_STATUS = Response.ok().build().getStatus();
   private final EmailConfiguration BLANK_CONFIG = new EmailConfiguration();
   private MicroPlatform mp;
+
   @Override
   protected void setUp() throws Exception {
     // Setup the temp email config file
@@ -93,7 +90,7 @@ public class EmailResourceTest extends TestCase {
   public void testSendEmailTest() throws Exception {
 
   }
-  
+
   class TestAuthorizationPolicy implements IAuthorizationPolicy {
 
     @Override
@@ -107,6 +104,6 @@ public class EmailResourceTest extends TestCase {
       // TODO Auto-generated method stub
       return null;
     }
-    
+
   }
 }

@@ -1102,6 +1102,10 @@ a:active, a:hover {
   background: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.35)));
 }
 
+.schedulerPerspective-wrapper table {
+  width: 100%;
+}
+
 #admin-users-panel,
 #admin-roles-panel,
 #admin-system-roles-panel {

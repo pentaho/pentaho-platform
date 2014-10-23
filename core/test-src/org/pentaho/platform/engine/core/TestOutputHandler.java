@@ -27,12 +27,12 @@ public class TestOutputHandler implements IContentOutputHandler {
   public static IContentItem contentItem = null;
 
   public String getActionName() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getContentRef() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
@@ -41,77 +41,77 @@ public class TestOutputHandler implements IContentOutputHandler {
   }
 
   public String getHandlerId() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getInstanceId() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getMimeType() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public IPentahoSession getSession() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getSolutionName() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public String getSolutionPath() {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
     return null;
   }
 
   public void setActionName( String actionName ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 
   public void setContentRef( String contentRef ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 
   public void setHandlerId( String handlerId ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 
   public void setInstanceId( String instanceId ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 
   public void setMimeType( String mimeType ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 
   public void setSession( IPentahoSession session ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 
   public void setSolutionName( String solutionName ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 
   public void setSolutionPath( String solutionPath ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 
   public void setName( String name ) {
-    // TODO Auto-generated method stub
+    // Auto-generated method stub
 
   }
 

@@ -33,7 +33,7 @@ import java.io.OutputStream;
 //import org.pentaho.commons.connection.IPentahoResultSet;
 //import org.pentaho.platform.api.data.IPreparedComponent;
 
-@SuppressWarnings( "nls" )
+@SuppressWarnings ( "nls" )
 public class SubActionComponentTest extends BaseTest {
 
   private static final String CO_TEST_NAME = "MultipleComponentTest_ContentOutput_"; //$NON-NLS-1$
@@ -89,17 +89,17 @@ public class SubActionComponentTest extends BaseTest {
 
   public void testJcrPaths() {
     startTest();
-    
+
     SubActionComponent c = new SubActionComponent();
-    
+
     final String PATH = "/bi-developers/reporting/myaction.xaction";
-    
+
     String value = c.buildActionPath( "", "bi-developers/reporting/myaction.xaction", "" );
     assertEquals( PATH, value );
 
     value = c.buildActionPath( null, "bi-developers/reporting/myaction.xaction", "" );
     assertEquals( PATH, value );
-    
+
     value = c.buildActionPath( "", "bi-developers/reporting/myaction.xaction", null );
     assertEquals( PATH, value );
 
@@ -108,19 +108,19 @@ public class SubActionComponentTest extends BaseTest {
 
     value = c.buildActionPath( null, "/bi-developers/reporting/myaction.xaction", null );
     assertEquals( PATH, value );
-    
+
     value = c.buildActionPath( "bi-developers", "/reporting/myaction.xaction", null );
     assertEquals( PATH, value );
-    
+
     value = c.buildActionPath( "bi-developers", "reporting", "myaction.xaction" );
     assertEquals( PATH, value );
-    
+
     value = c.buildActionPath( "/bi-developers", "/reporting", "/myaction.xaction" );
     assertEquals( PATH, value );
 
     value = c.buildActionPath( "bi-developers", "/reporting", "/myaction.xaction" );
     assertEquals( PATH, value );
-    
+
     value = c.buildActionPath( "bi-developers", "reporting", "/myaction.xaction" );
     assertEquals( PATH, value );
 
@@ -129,14 +129,14 @@ public class SubActionComponentTest extends BaseTest {
 
     value = c.buildActionPath( "\\bi-developers", "reporting", "myaction.xaction" );
     assertEquals( PATH, value );
-    
+
     value = c.buildActionPath( "\\\\//bi-developers", "\\reporting", "\\myaction.xaction" );
-    System.out.println(value);
+    System.out.println( value );
     assertEquals( PATH, value );
-    
+
     finishTest();
-  }  
-  
+  }
+
   /**
    * parent action creates a connection, used by sub-action parent then re-uses connection
    */
@@ -158,7 +158,7 @@ public class SubActionComponentTest extends BaseTest {
 
   /**
    * sub-action creates connection, passes result set on to parent action
-   * 
+   *
    */
   /*
    * public void testChildResultSetSharing() {
@@ -212,7 +212,6 @@ public class SubActionComponentTest extends BaseTest {
    * 
    * finishTest(); }
    */
-
   protected OutputStream getOutputStream( String testName, String extension ) {
     if ( testName.indexOf( "BAD_OUTPUTSTREAM_" ) > 0 ) { //$NON-NLS-1$ 
       ByteArrayOutputStream exceptionStream = new ByteArrayOutputStream() {

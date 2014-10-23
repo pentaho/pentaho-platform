@@ -115,7 +115,6 @@ public class EmailResource extends AbstractJaxRSResource {
     }
   }
 
-  
   /**
    * Stores the email configuration in the platform
    * @param emailConfiguration <code> EmailConfiguration </code>

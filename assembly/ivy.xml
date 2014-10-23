@@ -11,6 +11,9 @@
     <conf name="sampledata-libs" />
     <conf name="solution" />
     <conf name="test" visibility="private" />
+    <conf name="bundle" visibility="private"/>
+    <conf name="core-bundle" visibility="private"/>
+    <conf name="fragment-bundle" visibility="private"/>
   </configurations>
   <dependencies defaultconf="default->default">
 
@@ -31,7 +34,6 @@
       <exclude org="pentaho" module="pentaho-platform-scheduler" />
       <exclude org="pentaho" module="pentaho-platform-repository" />
     </dependency>
-
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core" rev="${dependency.pentaho-reporting.revision}" changing="true">
        <exclude org="pentaho-reporting-engine" module="pentaho-reporting-engine-classic-core-test" />
     </dependency>
@@ -240,6 +242,21 @@
     <dependency org="pentaho" name="cgg" rev="${dependency.pentaho-cgg-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
       <artifact name="cgg" type="zip" /> <!-- download the zip file, not the jar -->
     </dependency>
+
+    <dependency org="pentaho" name="cda" rev="${dependency.pentaho-cda-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
+      <artifact name="cda" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
+    <dependency org="pentaho" name="pentaho-cdf-dd" rev="${dependency.pentaho-cde-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
+      <artifact name="pentaho-cdf-dd" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
+
+    <dependency org="pentaho" name="sparkl" rev="${dependency.pentaho-sparkl-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
+      <artifact name="sparkl" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+
+
      
     <dependency org="pentaho" name="pentaho-jpivot-plugin" rev="${dependency.pentaho-jpivot-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
       <artifact name="pentaho-jpivot-plugin" type="zip" /> <!-- download the zip file, not the jar -->
@@ -258,6 +275,12 @@
     <!-- Solutions bundles -->
     <dependency org="pentaho" name="pentaho-cdf-samples" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="solution->default">
       <artifact name="pentaho-cdf-samples" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+    <dependency org="pentaho" name="cda-samples" rev="${dependency.pentaho-cda-plugin.revision}" changing="true" transitive="false" conf="solution->default">
+      <artifact name="cda-samples" type="zip" /> <!-- download the zip file, not the jar -->
+    </dependency>
+    <dependency org="pentaho" name="pentaho-cdf-dd-solution" rev="${dependency.pentaho-cde-plugin.revision}" changing="true" transitive="false" conf="solution->default">
+      <artifact name="pentaho-cdf-dd-solution" type="zip" /> <!-- download the zip file, not the jar -->
     </dependency>
 
     <!--  Other archive resources -->

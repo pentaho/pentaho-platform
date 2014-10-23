@@ -25,6 +25,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.repository2.unified.jcr.ITransformer;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrStringHelper;
 import org.pentaho.platform.repository2.unified.jcr.NodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.springframework.util.Assert;
@@ -92,6 +93,8 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
 
     JcrRepositoryFileUtils.checkName( dataNode.getName() );
 
+    nodeName = JcrStringHelper.fileNameEncode( nodeName );
+
     if ( NodeHelper.hasNode( jcrParentNode, prefix, nodeName ) ) {
       jcrNode = NodeHelper.getNode( jcrParentNode, prefix, nodeName );
     } else {
@@ -100,9 +103,11 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
     // set any properties represented by dataNode
     for ( DataProperty dataProp : dataNode.getProperties() ) {
 
-      JcrRepositoryFileUtils.checkName( dataProp.getName() );
+      String propName = dataProp.getName();
 
-      String propName = prefix + dataProp.getName();
+      JcrRepositoryFileUtils.checkName( propName );
+
+      propName = prefix + JcrStringHelper.fileNameEncode( propName );
 
       switch ( dataProp.getType() ) {
         case STRING: {
@@ -156,7 +161,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
     final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":"; //$NON-NLS-1$
     final String pattern = prefix + "*"; //$NON-NLS-1$
 
-    String nodeName = jcrNode.getName().substring( prefix.length() );
+    String nodeName = JcrStringHelper.fileNameDecode( jcrNode.getName().substring( prefix.length() ) );
 
     DataNode dataNode = parentDataNode != null ? parentDataNode.addNode( nodeName ) : new DataNode( nodeName );
     dataNode.setId( jcrNode.getIdentifier() );
@@ -164,7 +169,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
     PropertyIterator props = jcrNode.getProperties( pattern );
     while ( props.hasNext() ) {
       Property prop = props.nextProperty();
-      String propName = prop.getName().substring( prefix.length() );
+      String propName = JcrStringHelper.fileNameDecode( prop.getName().substring( prefix.length() ) );
       switch ( prop.getType() ) {
         case PropertyType.STRING: {
           dataNode.setProperty( propName, prop.getString() );

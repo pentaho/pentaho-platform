@@ -41,6 +41,10 @@
   margin: 0 auto;
 }
 
+.schedulerPerspective-wrapper table {
+  width: 100%;
+}
+
 .admin-perspective {
   padding-top: 40px;
   padding-left: 40px;

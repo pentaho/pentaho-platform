@@ -43,7 +43,7 @@ import java.util.Set;
 
 /**
  * Class Description
- * 
+ *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class PentahoMetadataDomainRepositoryTest extends TestCase {
@@ -60,7 +60,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   }
 
   protected PentahoMetadataDomainRepository createDomainRepository( final IUnifiedRepository repository,
-      final RepositoryUtils repositoryUtils, final XmiParser xmiParser, final LocalizationUtil localizationUtil ) {
+                                                                    final RepositoryUtils repositoryUtils, final XmiParser xmiParser, final LocalizationUtil localizationUtil ) {
     return new PentahoMetadataDomainRepository( repository, repositoryUtils, xmiParser, localizationUtil );
   }
 
@@ -78,7 +78,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     domainRepository = createDomainRepository( repository, null, xmiParser, null );
     while ( domainRepository.getDomainIds().size() > 0 ) {
       domainRepository.removeDomain( domainRepository.getDomainIds().iterator().next() );
-    }    
+    }
   }
 
   public void tearDown() throws Exception {
@@ -199,9 +199,9 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     final List<LogicalModel> logicalModels = testDomain2.getLogicalModels();
     assertEquals( 2, logicalModels.size() );
     assertTrue( "MODEL 1".equals( logicalModels.get( 0 ).getId() )
-      || "MODEL 1".equals( logicalModels.get( 1 ).getId() ) );
+        || "MODEL 1".equals( logicalModels.get( 1 ).getId() ) );
     assertTrue( "MODEL 2".equals( logicalModels.get( 0 ).getId() )
-      || "MODEL 2".equals( logicalModels.get( 1 ).getId() ) );
+        || "MODEL 2".equals( logicalModels.get( 1 ).getId() ) );
   }
 
   /*
@@ -545,7 +545,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
   /**
    * Loads a "real" Pentaho Metadata Domain
-   * 
+   *
    * @param domainId
    * @param domainFile
    * @return

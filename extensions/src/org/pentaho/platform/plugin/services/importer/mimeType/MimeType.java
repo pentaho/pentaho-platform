@@ -27,9 +27,8 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Hold mime type name and extensions associated with it.
- * 
+ *
  * @author tkafalas
- * 
  */
 @XmlRootElement
 public class MimeType implements Comparable<MimeType> {
@@ -41,7 +40,7 @@ public class MimeType implements Comparable<MimeType> {
   @XmlTransient
   private Converter converter;
 
-  public MimeType(){
+  public MimeType() {
 
   }
 
@@ -52,7 +51,7 @@ public class MimeType implements Comparable<MimeType> {
 
   /**
    * Convenience method to allow comma delimited list of extensions
-   * 
+   *
    * @param name
    * @param extensions
    */
@@ -102,8 +101,8 @@ public class MimeType implements Comparable<MimeType> {
       this.extensions.add( extension );
     }
   }
-  
-  public String toString(){
+
+  public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append( "name:" ).append( name );
     sb.append( ",extensions:[" );
@@ -123,7 +122,7 @@ public class MimeType implements Comparable<MimeType> {
   public int compareTo( MimeType o ) {
     return name.compareTo( o.name );
   }
-  
+
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -141,7 +140,7 @@ public class MimeType implements Comparable<MimeType> {
     if ( getClass() != obj.getClass() ) {
       return false;
     }
-    MimeType other = ( MimeType ) obj;
+    MimeType other = (MimeType) obj;
     if ( name == null ) {
       if ( other.name != null ) {
         return false;
@@ -151,6 +150,6 @@ public class MimeType implements Comparable<MimeType> {
     }
     return true;
   }
-  
-  
+
+
 }

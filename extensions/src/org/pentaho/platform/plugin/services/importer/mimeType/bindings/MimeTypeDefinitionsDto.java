@@ -34,9 +34,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for MimeTypeDefinitionsDto complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="MimeTypeDefinitionsDto">
  *   &lt;complexContent>
@@ -48,45 +48,41 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "MimeTypeDefinitionsDto", propOrder = {
+@XmlAccessorType ( XmlAccessType.FIELD )
+@XmlType ( name = "MimeTypeDefinitionsDto", propOrder = {
     "mimeTypeDefinition"
-})
+    } )
 public class MimeTypeDefinitionsDto {
 
-    @XmlElement(name = "MimeTypeDefinition", required = true)
-    protected List<MimeTypeDefinitionDto> mimeTypeDefinition;
+  @XmlElement ( name = "MimeTypeDefinition", required = true )
+  protected List<MimeTypeDefinitionDto> mimeTypeDefinition;
 
-    /**
-     * Gets the value of the mimeTypeDefinition property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the mimeTypeDefinition property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getMimeTypeDefinition().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link MimeTypeDefinitionDto }
-     * 
-     * 
-     */
-    public List<MimeTypeDefinitionDto> getMimeTypeDefinition() {
-        if (mimeTypeDefinition == null) {
-            mimeTypeDefinition = new ArrayList<MimeTypeDefinitionDto>();
-        }
-        return this.mimeTypeDefinition;
+  /**
+   * Gets the value of the mimeTypeDefinition property.
+   * <p/>
+   * <p/>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the mimeTypeDefinition property.
+   * <p/>
+   * <p/>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getMimeTypeDefinition().add(newItem);
+   * </pre>
+   * <p/>
+   * <p/>
+   * <p/>
+   * Objects of the following type(s) are allowed in the list
+   * {@link MimeTypeDefinitionDto }
+   */
+  public List<MimeTypeDefinitionDto> getMimeTypeDefinition() {
+    if ( mimeTypeDefinition == null ) {
+      mimeTypeDefinition = new ArrayList<MimeTypeDefinitionDto>();
     }
+    return this.mimeTypeDefinition;
+  }
 
 }

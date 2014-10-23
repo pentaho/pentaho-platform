@@ -28,7 +28,6 @@ import org.pentaho.metadata.model.concept.security.RowLevelSecurity;
 import org.pentaho.metadata.util.RowLevelSecurityHelper;
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -40,14 +39,14 @@ import org.springframework.security.context.SecurityContextHolder;
 /**
  * This is the platform implementation which implements security. NOTE: this class will be moved after integration
  * testing
- * 
+ *
  * @author David Kincade
  */
 public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadataDomainRepository {
   private static final Log logger = LogFactory.getLog( SecurityAwarePentahoMetadataDomainRepository.class );
-  public static final int[] ACCESS_TYPE_MAP = new int[] { IAclHolder.ACCESS_TYPE_READ, IAclHolder.ACCESS_TYPE_WRITE,
+  public static final int[] ACCESS_TYPE_MAP = new int[]{IAclHolder.ACCESS_TYPE_READ, IAclHolder.ACCESS_TYPE_WRITE,
     IAclHolder.ACCESS_TYPE_UPDATE, IAclHolder.ACCESS_TYPE_DELETE, IAclHolder.ACCESS_TYPE_ADMIN,
-    IAclHolder.ACCESS_TYPE_ADMIN };
+    IAclHolder.ACCESS_TYPE_ADMIN};
 
   public SecurityAwarePentahoMetadataDomainRepository( final IUnifiedRepository repository ) {
     super( repository );
@@ -71,8 +70,8 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
     String username = auth.getName();
     HashSet<String> roles = null;
     roles = new HashSet<String>();
-    for (GrantedAuthority role : auth.getAuthorities()) {
-      roles.add(role.getAuthority());
+    for ( GrantedAuthority role : auth.getAuthorities() ) {
+      roles.add( role.getAuthority() );
     }
 
     RowLevelSecurityHelper helper = new SessionAwareRowLevelSecurityHelper();

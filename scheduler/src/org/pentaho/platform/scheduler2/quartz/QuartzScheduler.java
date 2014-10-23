@@ -256,6 +256,10 @@ public class QuartzScheduler implements IScheduler {
     QuartzJobKey jobId = new QuartzJobKey( jobName, curUser );
 
     Trigger quartzTrigger = createQuartzTrigger( trigger, jobId );
+    
+    if(trigger.getEndTime() !=null ){
+      quartzTrigger.setEndTime( trigger.getEndTime() );
+    }
 
     Calendar triggerCalendar =
         quartzTrigger instanceof CronTrigger ? createQuartzCalendar( (ComplexJobTrigger) trigger ) : null;

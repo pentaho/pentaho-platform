@@ -44,43 +44,6 @@
 		<ivy:retrieve conf="enunciate" pattern="${basedir}/enunciate/lib/[module]-[revision](-[classifier]).[ext]" />
 	</target>
 
-	  <!--=======================================================================
-	      enunciate
-	      
-	      Generates enunciate documentation for the resoruce 
-	      classes comprising the BIServer REST api
-	      ====================================================================-->
-	<target name="enunciate">
-		<path id="enunciate.classpath">
-			<fileset dir="${lib.dir}">
-				<include name="*.jar" />
-			</fileset>
-			<dirset dir="${classes.dir}" />
-			<fileset dir="${dist.dir}">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${enunciate.home}/lib">
-				<include name="*.jar" />
-			</fileset>
-		</path>
-
-		<taskdef name="enunciate" classname="org.codehaus.enunciate.main.EnunciateTask">
-			<classpath refid="enunciate.classpath" />
-		</taskdef>
-
-		<enunciate dir="${basedir}/src" 
-		           configFile="${basedir}/enunciate.xml" 
-		           generateDir="${enunciate.bin.dir}/generate" 
-		           compileDir="${enunciate.bin.dir}/compile" 
-		           buildDir="${enunciate.bin.dir}/build" 
-		           packageDir="${enunciate.bin.dir}/package" 
-		           verbose="true">
-			<include name="**/http/api/resources/*.java" />
-			<classpath refid="enunciate.classpath" />
-			<export artifactId="docs" destination="${dist.dir}/${enunciate.packagename}.zip" />
-		</enunciate>
-	</target>
-
   <property name="jmeter.dir" value="${bin.dir}/jmeter" />
   <target name="gen-jmeter-full" depends="resolve,dist,gen-jmeter"></target>
 

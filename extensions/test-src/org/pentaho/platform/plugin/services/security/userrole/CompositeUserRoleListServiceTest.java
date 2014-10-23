@@ -41,11 +41,11 @@ public class CompositeUserRoleListServiceTest {
   private ITenant mockTenant;
 
   @Before
-  public void setup(){
+  public void setup() {
 
     service1 = mock( IUserRoleListService.class );
     service2 = mock( IUserRoleListService.class );
-    mockTenant = mock(ITenant.class);
+    mockTenant = mock( ITenant.class );
     String joe = "joe";
     String ceo = "ceo";
     when( service1.getAllRoles() ).thenReturn( Arrays.asList( "ceo", "admin" ) );
@@ -53,7 +53,7 @@ public class CompositeUserRoleListServiceTest {
     when( service1.getAllUsers() ).thenReturn( Arrays.asList( "joe", "suzy" ) );
     when( service1.getAllUsers( mockTenant ) ).thenReturn( Arrays.asList( "joe", "suzy" ) );
     when( service1.getRolesForUser( mockTenant, joe ) ).thenReturn( Arrays.asList( "admin" ) );
-    when( service1.getSystemRoles() ).thenReturn( Arrays.asList( "authenticated","anonymous" ) );
+    when( service1.getSystemRoles() ).thenReturn( Arrays.asList( "authenticated", "anonymous" ) );
     when( service1.getUsersInRole( mockTenant, ceo ) ).thenReturn( Arrays.asList( "suzy" ) );
 
     when( service2.getAllRoles() ).thenReturn( Arrays.asList( "extraRole1", "admin" ) );
@@ -66,40 +66,41 @@ public class CompositeUserRoleListServiceTest {
 
     compositeService = new CompositeUserRoleListService( Arrays.asList( service1, service2 ) );
   }
+
   @Test
   public void testSetStrategy() throws Exception {
-    compositeService = new CompositeUserRoleListService( Collections.<IUserRoleListService>emptyList());
-    assertEquals( CompositeUserRoleListService.STRATEGY.FIRST_MATCH, compositeService.getActiveStrategy());
+    compositeService = new CompositeUserRoleListService( Collections.<IUserRoleListService>emptyList() );
+    assertEquals( CompositeUserRoleListService.STRATEGY.FIRST_MATCH, compositeService.getActiveStrategy() );
     compositeService.setStrategy( CompositeUserRoleListService.STRATEGY.ADDITIVE );
     assertEquals( CompositeUserRoleListService.STRATEGY.ADDITIVE, compositeService.getActiveStrategy() );
     compositeService.setStrategy( CompositeUserRoleListService.STRATEGY.FIRST_MATCH );
-    assertEquals( CompositeUserRoleListService.STRATEGY.FIRST_MATCH, compositeService.getActiveStrategy());
+    assertEquals( CompositeUserRoleListService.STRATEGY.FIRST_MATCH, compositeService.getActiveStrategy() );
   }
 
   @Test
   public void testSetStrategy1() throws Exception {
 
-    compositeService = new CompositeUserRoleListService( Collections.<IUserRoleListService>emptyList());
-    assertEquals( CompositeUserRoleListService.STRATEGY.FIRST_MATCH, compositeService.getActiveStrategy());
+    compositeService = new CompositeUserRoleListService( Collections.<IUserRoleListService>emptyList() );
+    assertEquals( CompositeUserRoleListService.STRATEGY.FIRST_MATCH, compositeService.getActiveStrategy() );
     compositeService.setStrategy( "ADDITIVE" );
     assertEquals( CompositeUserRoleListService.STRATEGY.ADDITIVE, compositeService.getActiveStrategy() );
     compositeService.setStrategy( "FIRST_MATCH" );
-    assertEquals( CompositeUserRoleListService.STRATEGY.FIRST_MATCH, compositeService.getActiveStrategy() ); 
+    assertEquals( CompositeUserRoleListService.STRATEGY.FIRST_MATCH, compositeService.getActiveStrategy() );
   }
 
   @Test
   public void testGetAllRoles() throws Exception {
 
     List<String> allRoles = compositeService.getAllRoles();
-    assertEquals(2, allRoles.size());
+    assertEquals( 2, allRoles.size() );
     compositeService.setStrategy( CompositeUserRoleListService.STRATEGY.ADDITIVE );
     allRoles = compositeService.getAllRoles();
-    assertEquals(3, allRoles.size());
-    assertTrue( unsortedEqualArrays( allRoles.toArray( new String[ allRoles.size() ] ),
-      new String[] { "ceo", "admin", "extraRole1"} ) );
+    assertEquals( 3, allRoles.size() );
+    assertTrue( unsortedEqualArrays( allRoles.toArray( new String[allRoles.size()] ),
+        new String[]{"ceo", "admin", "extraRole1"} ) );
   }
 
-  private static boolean unsortedEqualArrays( String[] arry1, String[] arry2 ){
+  private static boolean unsortedEqualArrays( String[] arry1, String[] arry2 ) {
     Arrays.sort( arry1 );
     Arrays.sort( arry2 );
     return Arrays.equals( arry1, arry2 );
@@ -109,24 +110,24 @@ public class CompositeUserRoleListServiceTest {
   public void testGetSystemRoles() throws Exception {
 
     List<String> allRoles = compositeService.getSystemRoles();
-    assertEquals(2, allRoles.size());
+    assertEquals( 2, allRoles.size() );
     compositeService.setStrategy( CompositeUserRoleListService.STRATEGY.ADDITIVE );
     allRoles = compositeService.getSystemRoles();
-    assertEquals(3, allRoles.size());
-    assertTrue( unsortedEqualArrays( allRoles.toArray( new String[ allRoles.size() ] ),
-      new String[] { "authenticated","anonymous", "serveradmin"} ) );
+    assertEquals( 3, allRoles.size() );
+    assertTrue( unsortedEqualArrays( allRoles.toArray( new String[allRoles.size()] ),
+        new String[]{"authenticated", "anonymous", "serveradmin"} ) );
   }
 
   @Test
   public void testGetAllRoles1() throws Exception {
 
-    List<String> allRoles = compositeService.getAllRoles(mockTenant);
-    assertEquals(2, allRoles.size());
+    List<String> allRoles = compositeService.getAllRoles( mockTenant );
+    assertEquals( 2, allRoles.size() );
     compositeService.setStrategy( CompositeUserRoleListService.STRATEGY.ADDITIVE );
-    allRoles = compositeService.getAllRoles(mockTenant);
-    assertEquals(3, allRoles.size());
-    assertTrue( unsortedEqualArrays( allRoles.toArray( new String[ allRoles.size() ] ),
-      new String[] { "ceo", "admin", "extraRole1"} ) );
+    allRoles = compositeService.getAllRoles( mockTenant );
+    assertEquals( 3, allRoles.size() );
+    assertTrue( unsortedEqualArrays( allRoles.toArray( new String[allRoles.size()] ),
+        new String[]{"ceo", "admin", "extraRole1"} ) );
   }
 
   @Test
@@ -137,20 +138,20 @@ public class CompositeUserRoleListServiceTest {
     compositeService.setStrategy( CompositeUserRoleListService.STRATEGY.ADDITIVE );
     allUsers = compositeService.getAllUsers();
     assertEquals( 3, allUsers.size() );
-    assertTrue( unsortedEqualArrays( allUsers.toArray( new String[ allUsers.size() ] ),
-      new String[] { "user1", "suzy", "joe" } ) );
+    assertTrue( unsortedEqualArrays( allUsers.toArray( new String[allUsers.size()] ),
+        new String[]{"user1", "suzy", "joe"} ) );
   }
 
   @Test
   public void testGetAllUsers1() throws Exception {
 
-    List<String> allUsers = compositeService.getAllUsers(mockTenant);
+    List<String> allUsers = compositeService.getAllUsers( mockTenant );
     assertEquals( 2, allUsers.size() );
     compositeService.setStrategy( CompositeUserRoleListService.STRATEGY.ADDITIVE );
-    allUsers = compositeService.getAllUsers(mockTenant);
+    allUsers = compositeService.getAllUsers( mockTenant );
     assertEquals( 3, allUsers.size() );
-    assertTrue( unsortedEqualArrays( allUsers.toArray( new String[ allUsers.size() ] ),
-      new String[] { "user1", "suzy", "joe" } ) );
+    assertTrue( unsortedEqualArrays( allUsers.toArray( new String[allUsers.size()] ),
+        new String[]{"user1", "suzy", "joe"} ) );
 
   }
 
@@ -162,19 +163,19 @@ public class CompositeUserRoleListServiceTest {
     compositeService.setStrategy( CompositeUserRoleListService.STRATEGY.ADDITIVE );
     allUsers = compositeService.getUsersInRole( mockTenant, "ceo" );
     assertEquals( 2, allUsers.size() );
-    assertTrue( unsortedEqualArrays( allUsers.toArray( new String[ allUsers.size() ] ),
-      new String[] { "ted", "suzy" } ) );
+    assertTrue( unsortedEqualArrays( allUsers.toArray( new String[allUsers.size()] ),
+        new String[]{"ted", "suzy"} ) );
   }
 
   @Test
   public void testGetRolesForUser() throws Exception {
 
-    List<String> allRoles = compositeService.getRolesForUser(mockTenant, "joe");
+    List<String> allRoles = compositeService.getRolesForUser( mockTenant, "joe" );
     assertEquals( 1, allRoles.size() );
     compositeService.setStrategy( CompositeUserRoleListService.STRATEGY.ADDITIVE );
-    allRoles = compositeService.getRolesForUser(mockTenant, "joe");
+    allRoles = compositeService.getRolesForUser( mockTenant, "joe" );
     assertEquals( 2, allRoles.size() );
-    assertTrue( unsortedEqualArrays( allRoles.toArray( new String[ allRoles.size() ] ),
-      new String[] { "admin", "rockstar" } ) );
+    assertTrue( unsortedEqualArrays( allRoles.toArray( new String[allRoles.size()] ),
+        new String[]{"admin", "rockstar"} ) );
   }
 }

@@ -119,44 +119,48 @@ public class ContentOutputComponentTest extends BaseTest {
     finishTest();
   }
 
-  /*
-   * public void testErrorPaths() { startTest();
-   * 
-   * // Tests with bad output stream String neverWritten = "This data cannot be written"; //$NON-NLS-1$ String testName
-   * = CO_TEST_NAME + "BAD_OUTPUTSTREAM_" + System.currentTimeMillis(); //$NON-NLS-1$ SimpleParameterProvider
-   * parameterProvider = new SimpleParameterProvider(); parameterProvider.setParameter("CONTENTOUTPUT", neverWritten);
-   * //$NON-NLS-1$ IRuntimeContext context = run( "test", "platform", "ContentOutputTest_Bytearray.xaction",
-   * parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ assertEquals(
-   * Messages.getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_FAILURE,
-   * context.getStatus()); //$NON-NLS-1$
-   * 
-   * // Another test with a bad output stream... ByteArrayOutputStream baos = new ByteArrayOutputStream(); try {
-   * baos.write(neverWritten.getBytes()); } catch (Exception ex) { fail(); }
-   * parameterProvider.setParameter("CONTENTOUTPUT", baos); //$NON-NLS-1$ context = run("test", "platform",
-   * "ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ String newText = FileHelper.getStringFromInputStream(null); System.out.println("Null Input Stream" +
-   * newText); //$NON-NLS-1$ assertEquals(IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus());
-   * 
-   * // Final test with a bad output stream... parameterProvider.setParameter("CONTENTOUTPUT", new
-   * ByteArrayInputStream(neverWritten.getBytes())); //$NON-NLS-1$ context = run("test", "platform",
-   * "ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ assertEquals(IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus());
-   * 
-   * // Tests with bad action sequences context = run("test", "platform", "ContentOutputTest_error1.xaction");
-   * //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ assertEquals(IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL,
-   * context.getStatus());
-   * 
-   * parameterProvider = new SimpleParameterProvider(); // Empty Parameter Provider context = run("test", "platform",
-   * "ContentOutputTest_error2.xaction", parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ assertEquals(IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus());
-   * 
-   * // Test with an invalid input parameter parameterProvider.setParameter("CONTENTOUTPUT",
-   * neverWritten.getBytes()); //$NON-NLS-1$ context = run("test", "platform", "ContentOutputTest_Bytearray.xaction",
-   * parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-   * assertEquals(IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus());
-   * 
-   * finishTest(); }
-   */
+  public void testErrorPaths() {
+    startTest();
+
+    // Tests with bad output stream 
+    String neverWritten = "This data cannot be written"; //$NON-NLS-1$ 
+    String testName = CO_TEST_NAME + "BAD_OUTPUTSTREAM_" + System.currentTimeMillis(); //$NON-NLS-1$ 
+    SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
+    parameterProvider.setParameter( "CONTENTOUTPUT", neverWritten );
+    //$NON-NLS-1$
+    IRuntimeContext context = run( "/test/platform/ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+    assertEquals( Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus() ); //$NON-NLS-1$
+
+    // Another test with a bad output stream... 
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+    try {
+      baos.write( neverWritten.getBytes() ); 
+    } 
+    catch (Exception ex) { fail(); }
+    parameterProvider.setParameter( "CONTENTOUTPUT", baos ); //$NON-NLS-1$ 
+    context = run( "/test/platform/ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    assertEquals( IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus() );
+
+    // Final test with a bad output stream... 
+    parameterProvider.setParameter( "CONTENTOUTPUT", new ByteArrayInputStream( neverWritten.getBytes() ) ); //$NON-NLS-1$ 
+    context = run( "/test/platform/ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    assertEquals( IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus() );
+
+    // Tests with bad action sequences 
+    context = run( "/test/platform/ContentOutputTest_error1.xaction" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+    assertEquals( IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus() );
+
+    parameterProvider = new SimpleParameterProvider(); // Empty Parameter Provider
+    context = run( "/test/platform/ContentOutputTest_error2.xaction", parameterProvider, testName, CO_TEST_EXTN ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+    assertEquals( IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus() );
+
+    // Test with an invalid input parameter 
+    parameterProvider.setParameter("CONTENTOUTPUT", neverWritten.getBytes()); //$NON-NLS-1$ 
+    context = run( "/test/platform/ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    assertEquals( IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus() );
+
+    finishTest();
+  }
 
   protected OutputStream getOutputStream( String testName, String extension ) {
     if ( testName.indexOf( "BAD_OUTPUTSTREAM_" ) > 0 ) { //$NON-NLS-1$ 

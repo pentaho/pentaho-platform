@@ -25,8 +25,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.servlet.ServletConfig;
@@ -74,15 +72,13 @@ public class PentahoWSSpringServlet extends HttpServlet {
   }
 
   protected ApplicationContext getAppContext() {
-    WebApplicationContext parent = WebApplicationContextUtils.getRequiredWebApplicationContext( getServletContext() );
-
     ConfigurableWebApplicationContext wac = new XmlWebApplicationContext() {
       @Override
       protected Resource getResourceByPath( String path ) {
         return new FileSystemResource( new File( path ) );
       }
     };
-    wac.setParent( parent );
+
     wac.setServletContext( getServletContext() );
     wac.setServletConfig( getServletConfig() );
     wac.setNamespace( getServletName() );

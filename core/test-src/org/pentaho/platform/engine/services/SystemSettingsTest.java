@@ -18,8 +18,14 @@
 
 package org.pentaho.platform.engine.services;
 
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -30,11 +36,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.util.messages.LocaleHelper;
-
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
 
 @SuppressWarnings( "nls" )
 public class SystemSettingsTest extends TestCase {
@@ -141,33 +142,12 @@ public class SystemSettingsTest extends TestCase {
   }
 
   public void testVersion() {
-
     Assert.assertTrue( "Initialization of the platform failed", init() );
     IVersionHelper versionHelper = PentahoSystem.get( IVersionHelper.class, null );
     String version = versionHelper.getVersionInformation( PentahoSystem.class );
-    // String build = VersionHelper.getBuild();
     Assert.assertNotNull( version );
     Assert.assertNotSame( version, "" ); //$NON-NLS-1$
     Assert.assertNotSame( version, "1.0.0" ); //$NON-NLS-1$
-    //
-    // No longer separating build from the version, and
-    // no longer gettin the build information from the
-    // messages.properties files.
-    //
-    // assertNotNull( build );
-    //assertNotSame( build, "" ); //$NON-NLS-1$
-
-    //String versionMsg = Messages.getString( "PentahoSystem.SYSTEM_PLATFORM_VERSION" ); //$NON-NLS-1$
-    //String buildMsg = Messages.getString( "PentahoSystem.SYSTEM_PLATFORM_BUILD_NUMBER" ); //$NON-NLS-1$
-
-    System.out.println( version );
-    // System.out.println( build );
-    // System.out.println( versionMsg );
-    // System.out.println( buildMsg );
-
-    // assertEquals( version, versionMsg );
-    // assertEquals( build, buildMsg );
-
   }
 
 }

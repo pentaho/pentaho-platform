@@ -53,6 +53,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   // end 8158
   private Map<String, Object> properties = new HashMap<String, Object>();
   private List<IPlatformImportBundle> children = new ArrayList<IPlatformImportBundle>();
+  private boolean preserveDsw;
 
   protected RepositoryFileImportBundle() {
   }
@@ -314,10 +315,28 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
       bundle.children.add( childBundle );
       return this;
     }
+
+    /**
+     * @param preserveDsw
+     * @see IPlatformImportBundle#setPreserveDsw(boolean)
+     */
+    public Builder preserveDsw( boolean preserveDsw ) {
+      bundle.setPreserveDsw( preserveDsw );
+      return this;
+    }
   }
 
   @Override
   public boolean overwriteInRepository() {
     return overwriteInRepository;
   }
+
+  public boolean isPreserveDsw() {
+    return preserveDsw;
+  }
+
+  public void setPreserveDsw( boolean preserveDsw ) {
+    this.preserveDsw = preserveDsw;
+  }
+
 }

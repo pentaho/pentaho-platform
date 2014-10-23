@@ -75,7 +75,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   }
 
   public void importFile( IPlatformImportBundle bundle ) throws PlatformImportException, DomainIdNullException,
-    DomainAlreadyExistsException, DomainStorageException, IOException {
+      DomainAlreadyExistsException, DomainStorageException, IOException {
 
     RepositoryFileImportBundle importBundle = (RepositoryFileImportBundle) bundle;
     ZipInputStream zipImportStream = new ZipInputStream( bundle.getInputStream() );
@@ -102,8 +102,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         String domainId = exportManifestMetadata.getDomainId();
         boolean overWriteInRepository = true;
         RepositoryFileImportBundle.Builder bundleBuilder =
-          new RepositoryFileImportBundle.Builder().charSet( "UTF-8" ).hidden( false ).overwriteFile(
-            overWriteInRepository ).mime( "text/xmi+xml" ).withParam( "domain-id", domainId );
+            new RepositoryFileImportBundle.Builder().charSet( "UTF-8" ).hidden( false ).overwriteFile(
+                overWriteInRepository ).mime( "text/xmi+xml" ).withParam( "domain-id", domainId );
 
         cachedImports.put( exportManifestMetadata.getFile(), bundleBuilder );
 
@@ -121,9 +121,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         }
 
         RepositoryFileImportBundle.Builder bundleBuilder =
-          new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( false ).name( catName ).overwriteFile(
-            true ).mime( "application/vnd.pentaho.mondrian+xml" )
-            .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
+            new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( false ).name( catName ).overwriteFile(
+                true ).mime( "application/vnd.pentaho.mondrian+xml" )
+                .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
         // definitely
         // named wrong
         // at the very
@@ -139,12 +139,12 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     for ( IRepositoryFileBundle file : importSource.getFiles() ) {
       String fileName = file.getFile().getName();
       String actualFilePath = file.getPath();
-      if ( manifestVersion != null) {
+      if ( manifestVersion != null ) {
         fileName = ExportFileNameEncoder.decodeZipFileName( fileName );
         actualFilePath = ExportFileNameEncoder.decodeZipFileName( actualFilePath );
       }
       String repositoryFilePath =
-        RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
+          RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
 
       if ( this.cachedImports.containsKey( repositoryFilePath ) ) {
 
@@ -158,14 +158,14 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 
       InputStream bundleInputStream = null;
-      
+
       String decodedFilePath = file.getPath();
       RepositoryFile decodedFile = file.getFile();
-      if ( manifestVersion != null ){
-        decodedFile = new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title(  fileName ).build();
+      if ( manifestVersion != null ) {
+        decodedFile = new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName ).build();
         decodedFilePath = ExportFileNameEncoder.decodeZipFileName( file.getPath() );
       }
-      
+
       if ( file.getFile().isFolder() ) {
         bundleBuilder.mime( "text/directory" );
         bundleBuilder.file( decodedFile );
@@ -200,13 +200,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           sourcePath = RepositoryFilenameUtils.concat( decodedFilePath, fileName );
         }
       }
-      
+
       //This clause was added for processing ivb files so that it would not try process acls on folders that the user
       //may not have rights to such as /home or /public
       if ( manifest != null && manifest.getExportManifestEntity( sourcePath ) == null && file.getFile().isFolder() ) {
         continue;
       }
-      
+
       getImportSession().setCurrentManifestKey( sourcePath );
 
       bundleBuilder.charSet( bundle.getCharset() );
@@ -239,7 +239,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             }
           } catch ( Exception e ) {
             throw new PlatformImportException( Messages.getInstance()
-              .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+                .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
           }
         }
       }
@@ -251,7 +251,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         for ( org.pentaho.database.model.DatabaseConnection databaseConnection : datasourceList ) {
           try {
             IDatabaseConnection existingDBConnection =
-              datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
+                datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
             if ( existingDBConnection != null && existingDBConnection.getName() != null ) {
               databaseConnection.setId( existingDBConnection.getId() );
               datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(), databaseConnection );
@@ -289,8 +289,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   }
 
   private boolean isSystemDir( final String[] split, final int index ) {
-    return ( split != null && index < split.length && ( StringUtils.equals( split[ index ], "system" ) || StringUtils
-      .equals( split[ index ], "admin" ) ) );
+    return ( split != null && index < split.length && ( StringUtils.equals( split[index], "system" ) || StringUtils
+        .equals( split[index], "admin" ) ) );
   }
 
   class SolutionRepositoryImportSource {
@@ -324,12 +324,12 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           }
           File file = new File( entryName );
           RepositoryFile repoFile =
-            new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
+              new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
           String parentDir =
-            new File( entryName ).getParent() == null ? RepositoryFile.SEPARATOR : new File( entryName ).getParent()
-              + RepositoryFile.SEPARATOR;
+              new File( entryName ).getParent() == null ? RepositoryFile.SEPARATOR : new File( entryName ).getParent()
+                  + RepositoryFile.SEPARATOR;
           IRepositoryFileBundle repoFileBundle =
-            new RepositoryFileBundle( repoFile, null, parentDir, tempFile, "UTF-8", null );
+              new RepositoryFileBundle( repoFile, null, parentDir, tempFile, "UTF-8", null );
 
           if ( file.getName().equals( "exportManifest.xml" ) ) {
             initializeAclManifest( repoFileBundle );
@@ -374,7 +374,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   // handlers that extend this class may override this method and perform operations
   // over the job prior to its creation at scheduler.createJob()
-  public Response createSchedulerJob( SchedulerResource scheduler, JobScheduleRequest jobRequest ) throws IOException{
+  public Response createSchedulerJob( SchedulerResource scheduler, JobScheduleRequest jobRequest ) throws IOException {
     return scheduler != null ? scheduler.createJob( jobRequest ) : null;
   }
 }

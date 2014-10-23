@@ -17,7 +17,6 @@
 
 package org.pentaho.test.platform.engine.core;
 
-import junit.framework.TestCase;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionEngine;
@@ -35,6 +34,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Properties;
+
+import junit.framework.TestCase;
 
 public class GenericPentahoTest extends TestCase {
   private static final String SOLUTION_PATH = "solution.path"; //$NON-NLS-1$
@@ -127,7 +128,7 @@ public class GenericPentahoTest extends TestCase {
       String path = PentahoSystem.getApplicationContext().getFileOutputPath( "test/tmp/" + testName + extension ); //$NON-NLS-1$
       outputStream = new FileOutputStream( path );
     } catch ( FileNotFoundException e ) {
-      //ignored
+      // ignored
     }
     return outputStream;
   }
@@ -211,6 +212,7 @@ public class GenericPentahoTest extends TestCase {
   }
 
   public void testNothing() {
+    // test will be failed without it
     assertTrue( true );
   }
 

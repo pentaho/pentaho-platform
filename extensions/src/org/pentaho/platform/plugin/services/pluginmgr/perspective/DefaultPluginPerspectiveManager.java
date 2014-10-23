@@ -17,15 +17,15 @@
 
 package org.pentaho.platform.plugin.services.pluginmgr.perspective;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DefaultPluginPerspectiveManager implements IPluginPerspectiveManager {
 
@@ -37,7 +37,7 @@ public class DefaultPluginPerspectiveManager implements IPluginPerspectiveManage
     // Compatibility check for old PerspectiveManager behavior. If the pluginPerspectives is empty,
     // we'll look in PentahoSystem
     List<IPluginPerspective> perspectives =
-      ( pluginPerspectives.isEmpty() ) ? PentahoSystem.getAll( IPluginPerspective.class, null ) : pluginPerspectives;
+        ( pluginPerspectives.isEmpty() ) ? PentahoSystem.getAll( IPluginPerspective.class, null ) : pluginPerspectives;
 
     // don't return the actual list, otherwise the user could remove items without going through our api
     ArrayList<IPluginPerspective> allowedPerspectives = new ArrayList<IPluginPerspective>();
@@ -46,12 +46,11 @@ public class DefaultPluginPerspectiveManager implements IPluginPerspectiveManage
       ArrayList<String> actions = perspective.getRequiredSecurityActions();
       IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
       boolean allowed = true;
-      if ( policy != null && actions != null && actions.size() > 0 ) {
+      if ( policy != null && actions != null && !actions.isEmpty() ) {
         // we're going to have to check the user
-        allowed = false;
         for ( String actionName : actions ) {
           allowed = policy.isAllowed( actionName );
-          if ( allowed ) {
+          if ( !allowed ) {
             // don't need to check anymore
             break;
           }

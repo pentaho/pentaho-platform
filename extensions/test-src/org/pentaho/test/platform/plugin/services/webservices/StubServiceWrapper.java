@@ -28,6 +28,10 @@ public class StubServiceWrapper extends ServiceConfig {
     return StubService.class;
   }
 
+  public String getId() {
+    return "StubService";
+  }
+
   public String getTitle() {
     return "test title"; //$NON-NLS-1$
   }

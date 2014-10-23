@@ -18,19 +18,20 @@
 
 package org.pentaho.platform.engine.services;
 
-import junit.framework.TestCase;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.pentaho.platform.api.engine.ILogger;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import java.io.File;
 import java.io.FileReader;
@@ -39,42 +40,39 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings( "nls" )
-public class ServiceLayerTest extends TestCase {
+public class ServiceLayerTest extends Assert {
 
-  final String SYSTEM_FOLDER = "/system";
+  private static final String SYSTEM_FOLDER = "/system";
 
   private static final String DEFAULT_SPRING_CONFIG_FILE_NAME = "pentahoObjects.spring.xml";
 
   private static final String SOLUTION_PATH = "test-res/solution";
 
-  public String getSolutionPath() {
-    return SOLUTION_PATH;
+  private static MicroPlatform mp;
+
+  @BeforeClass
+  public static void beforeClass() throws PlatformInitializationException {
+    mp = new MicroPlatform( SOLUTION_PATH );
+    mp.setSpringConfig( SOLUTION_PATH + SYSTEM_FOLDER + "/" + DEFAULT_SPRING_CONFIG_FILE_NAME );
+    mp.start();
   }
 
+  @Test
   public void testEmptyActionSequence() throws IOException {
-    StandaloneApplicationContext applicationContext = new StandaloneApplicationContext( getSolutionPath(), "" ); //$NON-NLS-1$
-    String objectFactoryCreatorCfgFile = getSolutionPath() + SYSTEM_FOLDER + "/" + DEFAULT_SPRING_CONFIG_FILE_NAME; //$NON-NLS-1$
-
-    PentahoSystem.setSystemSettingsService( new PathBasedSystemSettings() );
-    IPentahoObjectFactory pentahoObjectFactory = new StandaloneSpringPentahoObjectFactory();
-    pentahoObjectFactory.init( objectFactoryCreatorCfgFile, null );
-    PentahoSystem.registerObjectFactory( pentahoObjectFactory );
-
-    PentahoSystem.init( applicationContext );
-
-    List messages = new ArrayList();
+    List<Object> messages = new ArrayList<Object>();
     String instanceId = null;
     IPentahoSession session = new StandaloneSession( "system" );
     ISolutionEngine solutionEngine = PentahoSystem.get( ISolutionEngine.class, session );
     solutionEngine.setLoggingLevel( ILogger.ERROR );
     solutionEngine.init( session );
-    HashMap parameterProviderMap = new HashMap();
+    Map<Object, Object> parameterProviderMap = new HashMap<Object, Object>();
     IPentahoUrlFactory urlFactory = new SimpleUrlFactory( "" );
     Reader reader = null;
     try {
-      File file = new File( getSolutionPath() + "/services_layer/test1.xaction" );
+      File file = new File( SOLUTION_PATH + "/services_layer/test1.xaction" );
       StringBuilder str = new StringBuilder();
       reader = new FileReader( file );
       char[] buffer = new char[4096];
@@ -103,7 +101,11 @@ public class ServiceLayerTest extends TestCase {
         reader.close();
       }
     }
+  }
 
+  @AfterClass
+  public static void afterClass() {
+    mp.stop();
   }
 
 }

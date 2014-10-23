@@ -17,6 +17,18 @@
 
 package org.pentaho.mantle.client.admin;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
@@ -36,14 +48,6 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import org.pentaho.mantle.client.messages.Messages;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class PermissionsPanel extends VerticalPanel {
 
@@ -65,7 +69,8 @@ public class PermissionsPanel extends VerticalPanel {
       for ( int i = 0; i < logicalRoleMap.getLogicalRoles().length(); i++ ) {
 
         CheckBox permCB = new CheckBox( logicalRoleMap.getLogicalRoles().get( i ).getLocalizedName() );
-        permCB.addValueChangeHandler( new RolesValueChangeListener() );
+        permCB.addValueChangeHandler( new RolesValueChangeListener( logicalRoleMap.getLogicalRoles().get( i )
+            .getRoleName() ) );
         add( permCB );
         logicalRoles.put( logicalRoleMap.getLogicalRoles().get( i ).getLocalizedName(), new LogicalRoleInfo(
             logicalRoleMap.getLogicalRoles().get( i ).getRoleName(), permCB ) );
@@ -109,17 +114,39 @@ public class PermissionsPanel extends VerticalPanel {
   }
 
   class RolesValueChangeListener implements ValueChangeHandler<Boolean> {
+
+    private String permissionTitle;
+
+    public RolesValueChangeListener( String permissionTitle ) {
+      this.permissionTitle = permissionTitle;
+    }
+
     public void onValueChange( ValueChangeEvent<Boolean> event ) {
       if ( rolesListBox.getSelectedIndex() >= 0 ) {
-        ArrayList<String> selectedLogicalRoles = new ArrayList<String>();
+        final boolean isCheckedAdminAction =
+            permissionTitle.equals( AdministerSecurityAction.NAME ) && event.getValue();
+        final boolean isUncheckedReadAction = permissionTitle.equals( RepositoryReadAction.NAME ) && !event.getValue();
+        final boolean isUncheckedCreateAction =
+            permissionTitle.equals( RepositoryCreateAction.NAME ) && !event.getValue();
+
+        List<String> selectedLogicalRoles = new ArrayList<String>();
         for ( LogicalRoleInfo logicalRoleInfo : logicalRoles.values() ) {
           if ( logicalRoleInfo.checkBox.getValue() ) {
-            selectedLogicalRoles.add( logicalRoleInfo.roleName );
+            // BACKLOG-326 If the user selects "Administer Security" then select [READ & CREATE] permission for this
+            // role to perform correctly. If the user selects "Read Content" or "Create content" then deselect
+            // "Administer Security" permission for this role
+            if ( !( logicalRoleInfo.roleName.equals( AdministerSecurityAction.NAME ) && ( isUncheckedReadAction || isUncheckedCreateAction ) ) ) {
+              selectedLogicalRoles.add( logicalRoleInfo.roleName );
+              if ( isCheckedAdminAction ) {
+                selectedLogicalRoles.add( RepositoryReadAction.NAME );
+                selectedLogicalRoles.add( RepositoryCreateAction.NAME );
+              }
+            }
           }
         }
         String runtimeRole = rolesListBox.getItemText( rolesListBox.getSelectedIndex() );
         List<String> originalRoles = masterRoleMap.get( runtimeRole );
-        if ( ( ( originalRoles == null ) || ( originalRoles.size() == 0 ) ) && ( selectedLogicalRoles.size() == 0 ) ) {
+        if ( ( ( originalRoles == null ) || ( originalRoles.isEmpty() ) ) && ( selectedLogicalRoles.isEmpty() ) ) {
           newRoleAssignments.remove( runtimeRole );
         } else if ( ( originalRoles != null ) && ( originalRoles.containsAll( selectedLogicalRoles ) )
             && selectedLogicalRoles.containsAll( originalRoles ) ) {
@@ -127,6 +154,7 @@ public class PermissionsPanel extends VerticalPanel {
         } else {
           newRoleAssignments.put( runtimeRole, selectedLogicalRoles );
         }
+
         saveSecuritySettings();
       }
     }
@@ -166,7 +194,7 @@ public class PermissionsPanel extends VerticalPanel {
         }
       } );
     } catch ( RequestException e ) {
-      //ignored
+      // ignored
     }
   }
 

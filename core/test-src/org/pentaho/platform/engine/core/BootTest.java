@@ -18,7 +18,15 @@
 
 package org.pentaho.platform.engine.core;
 
-import org.junit.Ignore;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -27,11 +35,6 @@ import org.pentaho.platform.api.engine.ISessionStartupAction;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.system.SystemSettings;
 import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 @SuppressWarnings( { "all" } )
 public class BootTest {
@@ -47,7 +50,7 @@ public class BootTest {
     assertTrue( "object factory not definable", factory instanceof IPentahoDefinableObjectFactory );
 
     boot.define( ISolutionEngine.class.getSimpleName(), Object1.class.getName(),
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
     boot.define( "MyObject", Object1.class.getName(), IPentahoDefinableObjectFactory.Scope.GLOBAL );
     boot.define( "MyObject", Object2.class.getName(), IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
@@ -69,15 +72,14 @@ public class BootTest {
 
     boot.stop();
     assertFalse( boot.isInitialized() );
-
   }
 
-  @Ignore
+  @Test
   public void testBootListeners() throws Exception {
     PentahoSystemBoot boot = new PentahoSystemBoot();
     boot.setFilePath( "test-src/solution" );
     boot.define( ISolutionEngine.class.getSimpleName(), Object1.class.getName(),
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
     TestLifecycleListener lifecycleListener1 = new TestLifecycleListener();
     TestLifecycleListener lifecycleListener2 = new TestLifecycleListener();
@@ -119,7 +121,6 @@ public class BootTest {
 
     assertTrue( TestLifecycleListener.startupCalled );
     assertTrue( TestLifecycleListener.shutdownCalled );
-
   }
 
   @Test
@@ -127,7 +128,7 @@ public class BootTest {
     PentahoSystemBoot boot = new PentahoSystemBoot();
     boot.setFilePath( "test-src/solution" );
     boot.define( ISolutionEngine.class.getSimpleName(), Object1.class.getName(),
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
     TestStartupAction startupAction1 = new TestStartupAction();
     TestStartupAction startupAction2 = new TestStartupAction();
@@ -161,7 +162,6 @@ public class BootTest {
 
     boot.stop();
     assertFalse( boot.isInitialized() );
-
   }
 
   @Test
@@ -176,7 +176,6 @@ public class BootTest {
     boot.setSettingsProvider( settings );
 
     assertEquals( settings, boot.getSettingsProvider() );
-
   }
 
   @Test( expected = NoSuchMethodError.class )
@@ -188,8 +187,7 @@ public class BootTest {
     boot.setFactory( objectFactory );
 
     boot.define( ISolutionEngine.class.getSimpleName(), Object1.class.getName(),
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
-
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
   }
 
 }

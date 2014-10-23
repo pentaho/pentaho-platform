@@ -18,6 +18,7 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import org.apache.commons.pool.ObjectPool;
+import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
@@ -36,9 +37,11 @@ public class PooledDatasourceSystemListener extends NonPooledDatasourceSystemLis
 
     DataSource ds = null;
     try {
-
+      if (!connection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
       ds =  PooledDatasourceHelper.setupPooledDataSource( connection );
-
+      } else {
+        ds = PooledDatasourceHelper.getJndiDataSource( connection.getDatabaseName() );
+      }
     } catch ( DBDatasourceServiceException e ) {
 
       Logger.error( this, Messages.getInstance().getErrorString(

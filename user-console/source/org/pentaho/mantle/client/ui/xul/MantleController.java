@@ -199,10 +199,11 @@ public class MantleController extends AbstractXulEventHandler {
     Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
     if ( supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty() ) {
       MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
+      langMenu.insertSeparator( 0 );
       for ( String lang : supportedLanguages.keySet() ) {
         MenuItem langMenuItem = new MenuItem( supportedLanguages.get( lang ), new SwitchLocaleCommand( lang ) );
         langMenuItem.getElement().setId( supportedLanguages.get( lang ) + "_menu_item" ); //$NON-NLS-1$
-        langMenu.addItem( langMenuItem );
+        langMenu.insertItem( langMenuItem, 0 );
       }
     }
     buildFavoritesAndRecent( false );
@@ -407,8 +408,8 @@ public class MantleController extends AbstractXulEventHandler {
           warning.setHeight( 117 );
           warning.setMessage( clearMessage );
           warning.setTitle( menuClearMessage );
-		  warning.setAcceptLabel( Messages.getString( "clearRecentAcceptButtonLabel" ) );
-		  warning.setCancelLabel( Messages.getString( "clearRecentCancelButtonLabel" ) );
+          warning.setAcceptLabel( Messages.getString( "clearRecentAcceptButtonLabel" ) );
+          warning.setCancelLabel( Messages.getString( "clearRecentCancelButtonLabel" ) );
           warning.addDialogCallback( new XulDialogCallback<String>() {
             public void onClose( XulComponent sender, Status returnCode, String retVal ) {
               if ( returnCode == Status.ACCEPT ) {

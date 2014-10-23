@@ -20,7 +20,6 @@ package org.pentaho.mantle.client.dialogs.scheduling;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.CaptionPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
 import org.pentaho.gwt.widgets.client.controls.DatePickerEx;
@@ -35,7 +34,6 @@ import java.util.Date;
 
 /**
  * @author Steven Barkdull
- * 
  */
 
 public class RunOnceEditor extends VerticalPanel implements IChangeHandler {
@@ -85,14 +83,6 @@ public class RunOnceEditor extends VerticalPanel implements IChangeHandler {
     startTimePicker.setMinute( DEFAULT_START_MINUTE );
     startTimePicker.setTimeOfDay( DEFAULT_TIME_OF_DAY );
     startDatePicker.getDatePicker().setValue( d );
-  }
-
-  public void setStartDateError( String errorMsg ) {
-    if ( errorMsg != null && !errorBox.isShowing() ) {
-      errorBox.setContent( new Label( errorMsg ) );
-      errorBox.center();
-    }
-    // startDateLabel.setErrorMsg( errorMsg );
   }
 
   public void setOnChangeHandler( ICallback<IChangeHandler> handler ) {

@@ -83,7 +83,11 @@ public class Emailer {
   }
 
   public void setSubject( String subject ) {
-    props.put( "subject", subject );
+    props.put( "subject", cleanEmailField( subject ) );
+  }
+
+  public String getSubject() {
+    return props.getProperty( "subject" );
   }
 
   public void setFrom( String from ) {
@@ -185,6 +189,16 @@ public class Emailer {
       logger.error( "Email.ERROR_0013_CONFIG_FILE_INVALID", e ); //$NON-NLS-1$
     }
     return false;
+  }
+
+  private String cleanEmailField( String emailField ) {
+    if ( emailField != null ) {
+      // Remove CR symbols - email header injection
+      emailField = emailField.replaceAll( "\r", "" );
+      return emailField.replaceAll( "\n", "" );
+    } else {
+      return null;
+    }
   }
 
   public boolean send() {

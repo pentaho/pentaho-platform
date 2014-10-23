@@ -17,13 +17,11 @@
 
 package org.pentaho.platform.plugin.services.security.userrole;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class delgates calls to a configured list of IUserRoleListService delegates. The results are determined by the
@@ -118,17 +116,16 @@ public class CompositeUserRoleListService implements IUserRoleListService {
   private List<String> collectResultsForOperation( CompositeOperation operation ) {
     Set<String> returnVal = new HashSet<String>();
     for ( IUserRoleListService delegate : delegates ) {
-      List<String> allFromDelegate;
       try {
-        allFromDelegate = operation.perform( delegate );
-      } catch ( UnsupportedOperationException ignored ) {
-        continue;
-      }
-      if ( allFromDelegate != null && allFromDelegate.size() > 0 ) {
-        returnVal.addAll( allFromDelegate );
-        if ( activeStrategy == STRATEGY.FIRST_MATCH ) {
-          return new ArrayList<String>( returnVal );
+        List<String> allFromDelegate = operation.perform( delegate );
+        if ( !CollectionUtils.isEmpty( allFromDelegate ) ) {
+          returnVal.addAll( allFromDelegate );
+          if ( activeStrategy == STRATEGY.FIRST_MATCH ) {
+            break;
+          }
         }
+      } catch ( UnsupportedOperationException ignored ) {
+        // next delegate
       }
     }
     return new ArrayList<String>( returnVal );

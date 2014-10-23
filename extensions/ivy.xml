@@ -94,6 +94,8 @@
     <dependency org="javax.transaction" name="jta" rev="1.1" transitive="false"/>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="2.5.1" transitive="false"/>
     <dependency org="cglib" name="cglib-nodep" rev="2.2" transitive="false"/>
+    <dependency org="org.hibernate"     name="hibernate-validator"  rev="4.2.0.Final" transitive="false"/>
+    <dependency org="javax.validation"  name="validation-api"   rev="1.0.0.GA"  transitive="false"/>
 
     <dependency org="org.apache.axis2" name="axis2-adb" rev="1.4.1" transitive="false"/>
     <dependency org="org.apache.axis2" name="axis2-codegen" rev="1.4.1" transitive="false"/>
@@ -252,7 +254,7 @@
                 transitive="false"/>
     <dependency org="com.healthmarketscience.jackcess" name="jackcess" rev="1.2.4" conf="default->default"
                 transitive="false"/>
-    <dependency org="postgresql" name="postgresql" rev="9.1-902.jdbc4" conf="default->default" transitive="false"/>
+    <dependency org="org.postgresql" name="postgresql" rev="9.3-1102-jdbc4" conf="default->default" transitive="false"/>
     <dependency org="hsqldb" name="hsqldb" rev="1.8.0" conf="default->default" transitive="false"/>
     <dependency org="com.h2database" name="h2" rev="1.2.131" conf="default->default" />
 
@@ -308,8 +310,6 @@
     <dependency org="pentaho" name="pentaho-actionsequence-dom" rev="${dependency.pentaho-actionsequence-dom.revision}"
                 changing="true"/>
     <dependency org="pentaho" name="pentaho-metadata" rev="${dependency.pentaho-metadata.revision}" changing="true"/>
-
-    <!--<dependency org="pentaho" name="pentaho-jmeter" rev="${project.revision}" changing="true"/>-->
 
     <!--  import old jars for now until other projects are online -->
     <dependency org="${ivy.artifact.group}" name="pentaho-platform-api" rev="${project.revision}" changing="true"/>
@@ -388,9 +388,6 @@
     </dependency>
 
     <dependency org="com.google.guava" name="guava" rev="17.0" conf="test->default"/>
-
-    <!-- dependencies for generating doc -->
-    <dependency org="org.codehaus.enunciate" name="enunciate-top" rev="1.27" conf="enunciate->default"/>
 
     <exclude org="junit" conf="default,runtime,source"/>
     <exclude org="org.apache.ant" conf="default,runtime,source"/>

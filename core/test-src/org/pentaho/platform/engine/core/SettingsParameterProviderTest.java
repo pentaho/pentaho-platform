@@ -18,113 +18,82 @@
 
 package org.pentaho.platform.engine.core;
 
-import junit.framework.TestCase;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.pentaho.platform.engine.core.solution.CustomSettingsParameterProvider;
 import org.pentaho.platform.engine.core.solution.SystemSettingsParameterProvider;
-import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 
-import java.io.File;
+import junit.framework.Assert;
 
 @SuppressWarnings( { "all" } )
-public class SettingsParameterProviderTest extends TestCase {
+public class SettingsParameterProviderTest {
 
   public static final String SOLUTION_PATH = "test-res/solution";
-  private static final String ALT_SOLUTION_PATH = "test-res/solution";
-  private static final String PENTAHO_XML_PATH = "/system/pentaho.xml";
-  final String SYSTEM_FOLDER = "/system";
-  private static final String DEFAULT_SPRING_CONFIG_FILE_NAME = "pentahoObjects.spring.xml";
 
-  public String getSolutionPath() {
-    File file = new File( SOLUTION_PATH + PENTAHO_XML_PATH );
-    if ( file.exists() ) {
-      System.out.println( "File exist returning " + SOLUTION_PATH );
-      return SOLUTION_PATH;
-    } else {
-      System.out.println( "File does not exist returning " + ALT_SOLUTION_PATH );
-      return ALT_SOLUTION_PATH;
-    }
+  @BeforeClass
+  public static void beforeClass() throws PlatformInitializationException {
+    new MicroPlatform( SOLUTION_PATH ).start();
   }
 
-  private void init() {
-    if ( !PentahoSystem.getInitializedOK() ) {
-      PentahoSystem.setSystemSettingsService( new PathBasedSystemSettings() );
-      StandaloneApplicationContext applicationContext = new StandaloneApplicationContext( getSolutionPath(), "" ); //$NON-NLS-1$
-      String objectFactoryCreatorCfgFile = getSolutionPath() + SYSTEM_FOLDER + "/" + DEFAULT_SPRING_CONFIG_FILE_NAME; //$NON-NLS-1$
-      IPentahoObjectFactory pentahoObjectFactory = new StandaloneSpringPentahoObjectFactory();
-      pentahoObjectFactory.init( objectFactoryCreatorCfgFile, null );
-      PentahoSystem.registerObjectFactory( pentahoObjectFactory );
-      PentahoSystem.init( applicationContext );
-    }
-  }
-
-  public void testSystemSettingsParameterProvider1() {
-
-    init();
+  @Test
+  public void testSystemSettingsParameterProvider1() throws PlatformInitializationException {
     // pull a string from pentaho.xml
     String value = SystemSettingsParameterProvider.getSystemSetting( "pentaho.xml{pentaho-system/log-file}" );
 
-    assertEquals( "Could not get setting from pentaho.xml", "server.log", value );
+    Assert.assertEquals( "Could not get setting from pentaho.xml", "server.log", value );
   }
 
-  public void testSystemSettingsParameterProvider2() {
-
-    init();
+  @Test
+  public void testSystemSettingsParameterProvider2() throws PlatformInitializationException {
     // pull a string from pentaho.xml
     SystemSettingsParameterProvider provider = new SystemSettingsParameterProvider();
 
     String value = provider.getStringParameter( "pentaho.xml{pentaho-system/log-file}", null );
-
-    assertEquals( "Could not get setting from pentaho.xml", "server.log", value );
+    Assert.assertEquals( "Could not get setting from pentaho.xml", "server.log", value );
 
     value = (String) provider.getParameter( "pentaho.xml{pentaho-system/log-file}" );
-    assertEquals( "Could not get setting from pentaho.xml", "server.log", value );
+    Assert.assertEquals( "Could not get setting from pentaho.xml", "server.log", value );
 
-    assertFalse( provider.getParameterNames().hasNext() );
+    Assert.assertFalse( provider.getParameterNames().hasNext() );
   }
 
+  @Test
   public void testSystemSettingsParameterProvider3() {
-
-    init();
     // pull a string from pentaho.xml
     SystemSettingsParameterProvider provider = new SystemSettingsParameterProvider();
 
     String value = provider.getStringParameter( "bogus.xml{pentaho-system/log-file}", null );
 
-    assertEquals( "Expected null result", null, value );
+    Assert.assertEquals( "Expected null result", null, value );
   }
 
+  @Test
   public void testSystemSettingsParameterProvider4() {
-
-    init();
     // pull a string from pentaho.xml
     SystemSettingsParameterProvider provider = new SystemSettingsParameterProvider();
 
     String value = provider.getStringParameter( "pentaho.xml{bogus}", null );
 
-    assertEquals( "Expected null result", null, value );
+    Assert.assertEquals( "Expected null result", null, value );
   }
 
+  @Test
   public void testCustomSettingsParameterProvider() {
-
-    init();
-    // pull a string from pentaho.xml
     CustomSettingsParameterProvider provider = new CustomSettingsParameterProvider();
 
     String value = provider.getStringParameter( "settings.xml{settings/setting1}", null );
 
-    assertEquals( "Could not get setting from pentaho.xml", "value1", value );
+    Assert.assertEquals( "Could not get setting from pentaho.xml", "value1", value );
 
     StandaloneSession session = new StandaloneSession( "user1" );
     provider.setSession( session );
     value = (String) provider.getParameter( "settings.xml{settings/{$user}/setting2}" );
-    assertEquals( "Wrong setting value", "value2", value );
+    Assert.assertEquals( "Wrong setting value", "value2", value );
 
-    assertFalse( provider.getParameterNames().hasNext() );
+    Assert.assertFalse( provider.getParameterNames().hasNext() );
 
   }
 

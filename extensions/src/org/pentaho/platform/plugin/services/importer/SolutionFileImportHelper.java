@@ -31,7 +31,7 @@ public class SolutionFileImportHelper {
   public String getMime( String fileName ) {
     return mimeResolver.resolveMimeForFileName( fileName );
   }
-  
+
   public MimeType getMimeType( String fileName ) {
     return mimeResolver.resolveMimeTypeForFileName( fileName );
   }

@@ -45,16 +45,12 @@ import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
-import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.mt.RepositoryTenantManager;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy;
@@ -68,14 +64,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 
-@SuppressWarnings( "nls" )
+@SuppressWarnings ( "nls" )
 public class FilePerspectiveResourceTest extends JerseyTest {
 
   private static MicroPlatform mp = new MicroPlatform( "test-res/FileOutputResourceTest/" );
@@ -131,11 +121,11 @@ public class FilePerspectiveResourceTest extends JerseyTest {
   }
 
   @Test
-  public void testDummy()  {
-	  
+  public void testDummy() {
+
   }
 
-  
+
   //This is testing Rest calls and not the underlying functionality of the classes
   /*@Test
   public void testRenderThroughContentGenerator() throws PlatformInitializationException {
@@ -188,7 +178,7 @@ public class FilePerspectiveResourceTest extends JerseyTest {
     }
   }
 
-  @SuppressWarnings( "serial" )
+  @SuppressWarnings ( "serial" )
   public static class JUnitContentGenerator extends BaseContentGenerator {
     @Override
     public void createContent() throws Exception {
