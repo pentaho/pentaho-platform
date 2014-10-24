@@ -43,12 +43,12 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   // ~ Static fields/initializers
   // =============================================
-  public static final String DEF_ALL_AUTHORITIES_QUERY = "SELECT distinct(authority) as authority FROM authorities"; //$NON-NLS-1$
+  public static final String DEF_ALL_AUTHORITIES_QUERY = "SELECT distinct(authority) as authority FROM authorities ORDER BY authority"; //$NON-NLS-1$
 
-  public static final String DEF_ALL_USERNAMES_QUERY = "SELECT distinct(username) as username FROM users"; //$NON-NLS-1$
+  public static final String DEF_ALL_USERNAMES_QUERY = "SELECT distinct(username) as username FROM users ORDER BY username"; //$NON-NLS-1$
 
   public static final String DEF_ALL_USERNAMES_IN_ROLE_QUERY =
-      "SELECT distinct(username) as username FROM authorities where authority = ?"; //$NON-NLS-1$
+      "SELECT distinct(username) as username FROM authorities WHERE authority = ?"; //$NON-NLS-1$
 
   // ~ Instance fields
   // ========================================================
@@ -105,7 +105,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   /**
    * Allows the default query string used to retrieve all user names in a role to be overriden, if default table or
-   * column names need to be changed. The default query is {@link #DEF_ALL_USERS_QUERY}; when modifying this query,
+   * column names need to be changed. The default query is {@link #DEF_ALL_USERNAMES_QUERY}; when modifying this query,
    * ensure that all returned columns are mapped back to the same column names as in the default query.
    * 
    * @param queryString
@@ -121,7 +121,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   /**
    * Allows the default query string used to retrieve all user names to be overriden, if default table or column names
-   * need to be changed. The default query is {@link #DEF_ALL_USERS_IN_ROLE_QUERY}; when modifying this query, ensure
+   * need to be changed. The default query is {@link #DEF_ALL_USERNAMES_IN_ROLE_QUERY}; when modifying this query, ensure
    * that all returned columns are mapped back to the same column names as in the default query.
    * 
    * @param queryString
