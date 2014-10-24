@@ -19,16 +19,17 @@ public class PentahoPathDecodingFilterTest {
   public void testDoFilter() throws Exception {
     PentahoPathDecodingFilter decodingFilter = new PentahoPathDecodingFilter();
     final MockHttpServletRequest request =
-      new MockHttpServletRequest( "GET", "http://localhost:8080/pentaho/encoded%255Cpath" );
+        new MockHttpServletRequest( "GET", "http://localhost:8080/pentaho/encoded%255Cpath" );
     request.setPathInfo( "/pentaho/encoded%5Cpath" );
-    decodingFilter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain(){
-      @Override public void doFilter( ServletRequest request, ServletResponse response ) {
+    decodingFilter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() {
+      @Override
+      public void doFilter( ServletRequest request, ServletResponse response ) {
         //pathInfo is to be fully decoded
-        assertEquals("/pentaho/encoded\\path", ((HttpServletRequest) request).getPathInfo());
+        assertEquals( "/pentaho/encoded\\path", ( (HttpServletRequest) request ).getPathInfo() );
         //requestURI is not decoded
-        assertEquals("http://localhost:8080/pentaho/encoded%5Cpath", ((HttpServletRequest) request).getRequestURI());
+        assertEquals( "http://localhost:8080/pentaho/encoded%5Cpath", ( (HttpServletRequest) request ).getRequestURI() );
       }
-    });
+    } );
 
 
   }

@@ -18,7 +18,11 @@
 
 package org.pentaho.platform.engine.core;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+
 import junit.framework.TestCase;
+
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.output.BufferedContentItem;
@@ -27,9 +31,6 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 
 @SuppressWarnings( { "all" } )
 public class SimpleOutputHandlerTest extends TestCase {
@@ -94,27 +95,36 @@ public class SimpleOutputHandlerTest extends TestCase {
 
   }
 
-  /*
-   * public void test2() throws Exception {
-   * 
-   * StandaloneSession session = new StandaloneSession();
-   * 
-   * OutputStream out = new MockExceptionOutputStream(); IContentItem content = new SimpleContentItem(out);
-   * 
-   * SimpleOutputHandler handler = new SimpleOutputHandler( content, true );
-   * 
-   * assertTrue( handler.allowFeedback() );
-   * 
-   * assertFalse( handler.contentDone() ); assertNotNull( handler.getFeedbackContentItem() ); assertTrue(
-   * handler.contentDone() ); IContentItem content2 = handler.getFeedbackContentItem();
-   * 
-   * assertEquals( content.getOutputStream(null), content2.getOutputStream(null) );
-   * 
-   * IContentItem content3 = new BufferedContentItem( null ); content3.getOutputStream(null).write(
-   * "test data".getBytes() ); content3.closeOutputStream(); handler.setOutput( IOutputHandler.CONTENT, content3);
-   * 
-   * }
-   */
+  public void test2() throws Exception {
+    StandaloneSession session = new StandaloneSession();
+
+    OutputStream out = new MockExceptionOutputStream();
+    IContentItem content = new SimpleContentItem( out );
+
+    SimpleOutputHandler handler = new SimpleOutputHandler( content, true );
+
+    assertTrue( handler.allowFeedback() );
+    assertFalse( handler.contentDone() );
+    assertNotNull( handler.getFeedbackContentItem() );
+    assertTrue( handler.contentDone() );
+
+    IContentItem content2 = handler.getFeedbackContentItem();
+
+    assertEquals( content.getOutputStream( null ), content2.getOutputStream( null ) );
+
+    IContentItem content3 = new BufferedContentItem( null );
+    content3.getOutputStream( null ).write( "test data".getBytes() );
+    content3.closeOutputStream();
+
+    try {
+      handler.setOutput( IOutputHandler.CONTENT, content3 );
+      fail( "Exception not detected." );
+    } catch ( Exception ex ) {
+      // Test passed.
+    }
+
+  }
+
   public void test3() throws Exception {
 
     StandaloneSession session = new StandaloneSession();
@@ -165,15 +175,21 @@ public class SimpleOutputHandlerTest extends TestCase {
 
   }
 
-  /*public void testGetOutputContentItem_object_name_important() {
+  public void testGetOutputContentItemObjectNameImportant() throws Exception {
     OutputStream out = new ByteArrayOutputStream();
+    TestOutputHandler.contentItem = new SimpleContentItem( out );
     SimpleOutputHandler handler = new SimpleOutputHandler( out, false );
 
     StandaloneObjectFactory factory = new StandaloneObjectFactory();
     factory.defineObject( "contentrepo", TestOutputHandler.class.getName(), StandaloneObjectFactory.Scope.GLOBAL );
     PentahoSystem.registerObjectFactory( factory );
-    // Verify we can look up content items when the objectName is required
-    IContentItem contentItem = handler.getOutputContentItem( "contentrepo", "myreport", null, null );
+
+    IContentItem contentItem = handler.getOutputContentItem( "contentrepo", "myreport:contentrepo", null, null );
     assertNotNull( contentItem );
-  }*/
+    assertEquals( out, contentItem.getOutputStream( null ) );
+
+    contentItem = handler.getOutputContentItem( "", "myreport:contentrepo", null, null );
+    assertNull( contentItem );
+  }
+
 }

@@ -62,7 +62,7 @@ public class MockPentahoRole implements IPentahoRole {
   public void setTenant( ITenant tenant ) {
     this.tenant = tenant;
   }
-  
+
   public boolean equals( Object obj ) {
     if ( obj instanceof MockPentahoRole == false ) {
       return false;
@@ -79,7 +79,7 @@ public class MockPentahoRole implements IPentahoRole {
     }
     return result;
   }
-  
+
   public int hashCode() {
     if ( ( tenant != null ) && ( tenant.getId() != null ) ) {
       return tenant.getId().concat( name ).hashCode();

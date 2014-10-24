@@ -112,7 +112,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
       }
 
       public void okPressed() {
-        if (SolutionBrowserPanel.getInstance().isAdministrator()) {
+        if ( SolutionBrowserPanel.getInstance().isAdministrator() ) {
           applyPanel();
         }
         if ( callback != null ) {

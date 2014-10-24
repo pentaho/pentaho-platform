@@ -102,11 +102,9 @@ public class FilterDefinitionTest extends BaseTest {
     success = fd.populate( parameterProviders, new String[] { "huh" } ); //$NON-NLS-1$
     assertTrue( "Populate on filter static-lov failed", success ); //$NON-NLS-1$
 
-    // TODO sbarkdull, figure out why we die in the HibernateUtil code, and re-enable this
-    /*
-     * fd = (FilterDefinition)filters.get( 3 ); success = fd.populate(parameterProviders, new String[]{"huh"} );
-     * assertTrue( "Populate on filter action sequence failed", success );
-     */
+    fd = (FilterDefinition) filters.get( 3 );
+    success = fd.populate( parameterProviders, new String[] { "huh" } ); //$NON-NLS-1$
+    assertTrue( "Populate on filter action sequence failed", success ); //$NON-NLS-1$
   }
 
   private IPentahoResultSet getFakeResultSet() {

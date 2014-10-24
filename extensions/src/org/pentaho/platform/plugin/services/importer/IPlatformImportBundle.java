@@ -60,7 +60,6 @@ public interface IPlatformImportBundle {
    * @return path
    */
   String getPath();
-  
   /**
    * Optional InputStream for content with a binary component.
    * 
@@ -136,4 +135,14 @@ public interface IPlatformImportBundle {
    */
   void setApplyAclSettings( boolean applyAclSettings );
 
+  /**
+   * Preserve DSW OLAP model data
+   * @return
+   */
+  boolean isPreserveDsw();
+  /**
+   * Preserve DSW OLAP model data
+   * @param preserveDsw
+   */
+  void setPreserveDsw( boolean preserveDsw );
 }

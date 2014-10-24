@@ -66,7 +66,7 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   public RepositoryFile getFile( final String path ) {
     return repository.getFile( path );
   }
-   
+
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
     return getTree(repositoryRequest.getPath(), repositoryRequest.getDepth(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden() );
@@ -372,7 +372,7 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
     return getChildren( repositoryRequest.getPath(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden() );
   }
-  
+
   /**
    * Returns the children of this folder that match the specified filter.
    * 
@@ -387,7 +387,7 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
     return repository.getChildren( folderId, filter );
   }
-  
+
   /**
    * Returns the children of this folder that match the specified filter.
    * 

@@ -35,40 +35,40 @@ import static org.mockito.Mockito.when;
 public class PentahoXmlaServletTest extends TestCase {
 
   private static final String DATASOURCE_XML =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-    + "<DataSources>\n"
-    + "<DataSource>\n"
-    + "<DataSourceName>Pentaho</DataSourceName>\n"
-    + "<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n"
-    + "<URL>http://localhost:8080/pentaho/Xmla</URL>\n"
-    + "<DataSourceInfo>Provider=mondrian</DataSourceInfo>\n"
-    + "<ProviderName>PentahoXMLA</ProviderName>\n"
-    + "<ProviderType>MDP</ProviderType>\n"
-    + "<AuthenticationMode>Unauthenticated</AuthenticationMode>\n"
-    + "<Catalogs>\n"
-    + "<Catalog name=\"SampleData\">\n"
-    + "<DataSourceInfo>DataSource=SampleData;Provider=mondrian;EnableXmla=False</DataSourceInfo>\n"
-    + "<Definition>mondrian:/SampleData</Definition>\n"
-    + "</Catalog>\n"
-    + "<Catalog name=\"SteelWheels\">\n"
-    + "<DataSourceInfo>DataSource=SampleData;Provider=mondrian;EnableXmla=\"false\"</DataSourceInfo>\n"
-    + "<Definition>mondrian:/SteelWheels</Definition>\n"
-    + "</Catalog>\n"
-    + "<Catalog name=\"SteelWheels\">\n"
-    + "<DataSourceInfo>DataSource=SampleData;Provider=mondrian;EnableXmla='false'</DataSourceInfo>\n"
-    + "<Definition>mondrian:/SteelWheels</Definition>\n"
-    + "</Catalog>\n"
-    + "<Catalog name=\"FoodMart\">\n"
-    + "<DataSourceInfo>DataSource=foodmart;EnableXmla=true;Provider=mondrian;Datasource=\"foodmart\";overwrite=\"false\"</DataSourceInfo>\n"
-    + "<Definition>mondrian:/FoodMart</Definition>\n"
-    + "</Catalog>\n"
-    + "<Catalog name=\"EnabledCatalog\">\n"
-    + "<DataSourceInfo>DataSource=SampleData;Provider=mondrian;EnableXmla=True</DataSourceInfo>\n"
-    + "<Definition>mondrian:/SampleData</Definition>\n"
-    + "</Catalog>\n"
-    + "</Catalogs>\n"
-    + "</DataSource>\n"
-    + "</DataSources>\n";
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<DataSources>\n"
+          + "<DataSource>\n"
+          + "<DataSourceName>Pentaho</DataSourceName>\n"
+          + "<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n"
+          + "<URL>http://localhost:8080/pentaho/Xmla</URL>\n"
+          + "<DataSourceInfo>Provider=mondrian</DataSourceInfo>\n"
+          + "<ProviderName>PentahoXMLA</ProviderName>\n"
+          + "<ProviderType>MDP</ProviderType>\n"
+          + "<AuthenticationMode>Unauthenticated</AuthenticationMode>\n"
+          + "<Catalogs>\n"
+          + "<Catalog name=\"SampleData\">\n"
+          + "<DataSourceInfo>DataSource=SampleData;Provider=mondrian;EnableXmla=False</DataSourceInfo>\n"
+          + "<Definition>mondrian:/SampleData</Definition>\n"
+          + "</Catalog>\n"
+          + "<Catalog name=\"SteelWheels\">\n"
+          + "<DataSourceInfo>DataSource=SampleData;Provider=mondrian;EnableXmla=\"false\"</DataSourceInfo>\n"
+          + "<Definition>mondrian:/SteelWheels</Definition>\n"
+          + "</Catalog>\n"
+          + "<Catalog name=\"SteelWheels\">\n"
+          + "<DataSourceInfo>DataSource=SampleData;Provider=mondrian;EnableXmla='false'</DataSourceInfo>\n"
+          + "<Definition>mondrian:/SteelWheels</Definition>\n"
+          + "</Catalog>\n"
+          + "<Catalog name=\"FoodMart\">\n"
+          + "<DataSourceInfo>DataSource=foodmart;EnableXmla=true;Provider=mondrian;Datasource=\"foodmart\";overwrite=\"false\"</DataSourceInfo>\n"
+          + "<Definition>mondrian:/FoodMart</Definition>\n"
+          + "</Catalog>\n"
+          + "<Catalog name=\"EnabledCatalog\">\n"
+          + "<DataSourceInfo>DataSource=SampleData;Provider=mondrian;EnableXmla=True</DataSourceInfo>\n"
+          + "<Definition>mondrian:/SampleData</Definition>\n"
+          + "</Catalog>\n"
+          + "</Catalogs>\n"
+          + "</DataSource>\n"
+          + "</DataSources>\n";
 
 
   @Override
@@ -80,43 +80,43 @@ public class PentahoXmlaServletTest extends TestCase {
   public void testMakeContentFinderHandlesXmlaEnablement() throws Exception {
     ISecurityHelper securityHelper = mock( ISecurityHelper.class );
     SecurityHelper.setMockInstance( securityHelper );
-    when( securityHelper.runAsSystem( any( (Callable.class) ) ) ).thenReturn( DATASOURCE_XML );
+    when( securityHelper.runAsSystem( any( ( Callable.class ) ) ) ).thenReturn( DATASOURCE_XML );
 
     Document content =
-      XmlDom4JHelper.getDocFromString(
-        new PentahoXmlaServlet().makeContentFinder( "fakeurl" ).getContent(),
-        new PentahoEntityResolver() );
+        XmlDom4JHelper.getDocFromString(
+            new PentahoXmlaServlet().makeContentFinder( "fakeurl" ).getContent(),
+            new PentahoEntityResolver() );
 
     assertEquals( 2,
-      content.selectNodes( "/DataSources/DataSource/Catalogs/Catalog" ).size() );
+        content.selectNodes( "/DataSources/DataSource/Catalogs/Catalog" ).size() );
     assertNotNull( content.selectNodes(
-      "/DataSources/DataSource/Catalogs/Catalog[@name='EnabledCatalog']" ) );
+        "/DataSources/DataSource/Catalogs/Catalog[@name='EnabledCatalog']" ) );
     assertNotNull( content.selectNodes(
-      "/DataSources/DataSource/Catalogs/Catalog[@name='FoodMart']" ) );
+        "/DataSources/DataSource/Catalogs/Catalog[@name='FoodMart']" ) );
   }
 
   public void testInvalidDataSourceInfo() throws Exception {
     ISecurityHelper securityHelper = mock( ISecurityHelper.class );
     SecurityHelper.setMockInstance( securityHelper );
-    when( securityHelper.runAsSystem( any( (Callable.class) ) ) ).thenReturn(
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        + "<DataSources>\n"
-        + "<DataSource>\n"
-        + "<DataSourceName>Pentaho</DataSourceName>\n"
-        + "<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n"
-        + "<URL>http://localhost:8080/pentaho/Xmla</URL>\n"
-        + "<DataSourceInfo>Provider=mondrian</DataSourceInfo>\n"
-        + "<ProviderName>PentahoXMLA</ProviderName>\n"
-        + "<ProviderType>MDP</ProviderType>\n"
-        + "<AuthenticationMode>Unauthenticated</AuthenticationMode>\n"
-        + "<Catalogs>\n"
-        + "<Catalog name=\"SampleData\">\n"
-        + "<DataSourceInfo></DataSourceInfo>\n"
-        + "<Definition>mondrian:/SampleData</Definition>\n"
-        + "</Catalog>\n"
-        + "</Catalogs>\n"
-        + "</DataSource>\n"
-        + "</DataSources>\n"
+    when( securityHelper.runAsSystem( any( ( Callable.class ) ) ) ).thenReturn(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<DataSources>\n"
+            + "<DataSource>\n"
+            + "<DataSourceName>Pentaho</DataSourceName>\n"
+            + "<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n"
+            + "<URL>http://localhost:8080/pentaho/Xmla</URL>\n"
+            + "<DataSourceInfo>Provider=mondrian</DataSourceInfo>\n"
+            + "<ProviderName>PentahoXMLA</ProviderName>\n"
+            + "<ProviderType>MDP</ProviderType>\n"
+            + "<AuthenticationMode>Unauthenticated</AuthenticationMode>\n"
+            + "<Catalogs>\n"
+            + "<Catalog name=\"SampleData\">\n"
+            + "<DataSourceInfo></DataSourceInfo>\n"
+            + "<Definition>mondrian:/SampleData</Definition>\n"
+            + "</Catalog>\n"
+            + "</Catalogs>\n"
+            + "</DataSource>\n"
+            + "</DataSources>\n"
     );
 
     try {
@@ -124,7 +124,7 @@ public class PentahoXmlaServletTest extends TestCase {
       new PentahoXmlaServlet().makeContentFinder( "fakeurl" ).getContent();
     } catch ( MondrianException e ) {
       assertTrue( e.getCause().getCause().getMessage().contains(
-        "DataSourceInfo not defined for SampleData" ) );
+          "DataSourceInfo not defined for SampleData" ) );
       return;
     }
     fail( "Did not throw expected exception." );

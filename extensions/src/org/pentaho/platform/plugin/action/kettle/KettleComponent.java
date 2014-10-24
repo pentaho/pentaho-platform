@@ -65,7 +65,7 @@ import java.util.Map;
 
 /**
  * KettleComponent shows a list of available transformations in the root of the choosen repository.
- * 
+ *
  * @author Matt
  */
 
@@ -140,10 +140,14 @@ public class KettleComponent extends ComponentBase implements RowListener {
    */
   private String repositoriesXMLFile;
 
-  /** The name of the repository to use */
+  /**
+   * The name of the repository to use
+   */
   private String repositoryName;
 
-  /** The username to login with */
+  /**
+   * The username to login with
+   */
   private String username;
 
   private MemoryResultSet results;
@@ -154,10 +158,14 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
   private String executionLog;
 
-  /** The password to login with */
+  /**
+   * The password to login with
+   */
   private String password;
 
-  /** The log channel ID of the executing transformation or job */
+  /**
+   * The log channel ID of the executing transformation or job
+   */
   private String logChannelId;
 
   @Override
@@ -213,19 +221,19 @@ public class KettleComponent extends ComponentBase implements RowListener {
     // Make sure the mapping field is available as an input
     if ( !isDefinedInput( mapping.getText() ) ) {
       error( Messages.getInstance().getErrorString(
-        "Kettle.ERROR_0033_MAPPING_NOT_FOUND_IN_ACTION_INPUTS", mapping.getText() ) ); //$NON-NLS-1$
+          "Kettle.ERROR_0033_MAPPING_NOT_FOUND_IN_ACTION_INPUTS", mapping.getText() ) ); //$NON-NLS-1$
       return false;
     }
     return true;
   }
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings ( "unchecked" )
   @Override
   public boolean validateAction() {
 
     // If there are any mappings, validate their xml and values
     if ( getComponentDefinition().selectNodes(
-      PARAMETER_MAP_CMD_ARG + " | " + PARAMETER_MAP_VARIABLE + " | " + PARAMETER_MAP_PARAMETER ).size() > 0 ) { //$NON-NLS-1$ //$NON-NLS-2$
+        PARAMETER_MAP_CMD_ARG + " | " + PARAMETER_MAP_VARIABLE + " | " + PARAMETER_MAP_PARAMETER ).size() > 0 ) { //$NON-NLS-1$ //$NON-NLS-2$
       Map<String, String> argumentMap = null;
 
       Node name = null, mapping = null;
@@ -309,7 +317,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
   /**
    * Execute the specified transformation in the chosen repository.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings ( "unchecked" )
   @Override
   public boolean executeAction() {
 
@@ -329,22 +337,22 @@ public class KettleComponent extends ComponentBase implements RowListener {
     for ( Node n : (List<Node>) getComponentDefinition().selectNodes( PARAMETER_MAP_CMD_ARG ) ) {
       argumentMap
           .put(
-            n.selectSingleNode( "name" ).getText(),
-            applyInputsToFormat( getInputStringValue( n.selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+              n.selectSingleNode( "name" ).getText(),
+              applyInputsToFormat( getInputStringValue( n.selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     for ( Node n : (List<Node>) getComponentDefinition().selectNodes( PARAMETER_MAP_VARIABLE ) ) {
       variableMap
           .put(
-            n.selectSingleNode( "name" ).getText(),
-            applyInputsToFormat( getInputStringValue( n.selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+              n.selectSingleNode( "name" ).getText(),
+              applyInputsToFormat( getInputStringValue( n.selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     for ( Node n : (List<Node>) getComponentDefinition().selectNodes( PARAMETER_MAP_PARAMETER ) ) {
       parameterMap
           .put(
-            n.selectSingleNode( "name" ).getText(),
-            applyInputsToFormat( getInputStringValue( n.selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+              n.selectSingleNode( "name" ).getText(),
+              applyInputsToFormat( getInputStringValue( n.selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     String[] arguments = null;
@@ -469,14 +477,11 @@ public class KettleComponent extends ComponentBase implements RowListener {
             // filesystem and file
             transMeta = new TransMeta( fileAddress, repository, true );
             transMeta.setFilename( fileAddress );
-          
           } else if ( repository != null && repository.isConnected() ) {
-            
+
             fileAddress = transformResource.getAddress();
-            
             // load transformation resource from kettle/settings.xml configured repository
-            transMeta = loadTransformFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ) , FilenameUtils.getBaseName( fileAddress ), repository );
-            
+            transMeta = loadTransformFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ), FilenameUtils.getBaseName( fileAddress ), repository );
           } else {
             String jobXmlStr = getResourceAsString( getResource( KettleComponent.TRANSFORMFILE ) );
             jobXmlStr = jobXmlStr.replaceAll( "\\$\\{pentaho.solutionpath\\}", solutionPath ); //$NON-NLS-1$
@@ -487,7 +492,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
           }
         } catch ( Exception e ) {
           error( Messages.getInstance().getErrorString(
-            "Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.TRANSFORMFILE, fileAddress ), e ); //$NON-NLS-1$
+              "Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.TRANSFORMFILE, fileAddress ), e ); //$NON-NLS-1$
           return false;
         }
 
@@ -520,54 +525,54 @@ public class KettleComponent extends ComponentBase implements RowListener {
         String fileAddress = ""; //$NON-NLS-1$
         try {
           fileAddress = getResource( KettleComponent.JOBFILE ).getAddress();
-          
-          if ( repository != null && repository.isConnected() ) {
-            
-            solutionPath = StringUtils.EMPTY;
-            
-            // load job resource from kettle/settings.xml configured repository
-            jobMeta = loadJobFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ) , FilenameUtils.getBaseName( fileAddress ), repository );
-            
-          } else {
-          
-          String jobXmlStr = getResourceAsString( getResource( KettleComponent.JOBFILE ) );
-          // String jobXmlStr =
-          // XmlW3CHelper.getContentFromSolutionResource(fileAddress);
-          jobXmlStr = jobXmlStr.replaceAll( "\\$\\{pentaho.solutionpath\\}", solutionPath ); //$NON-NLS-1$
-          jobXmlStr = jobXmlStr.replaceAll( "\\%\\%pentaho.solutionpath\\%\\%", solutionPath ); //$NON-NLS-1$
-          org.w3c.dom.Document doc = XmlW3CHelper.getDomFromString( jobXmlStr );
-          if ( doc == null ) {
-            error( Messages.getInstance().getErrorString(
-              "Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.JOBFILE, fileAddress ) ); //$NON-NLS-1$
-            debug( getKettleLog( true ) );
-            return false;
-          }
-          // create a job from the document
-          try {
-            repository = connectToRepository();
-            // if we get a valid repository its great, if not try it
-            // without
 
-            jobMeta = new JobMeta( solutionPath + fileAddress, repository );
-          } catch ( Exception e ) {
-            error( Messages.getInstance().getString( "Kettle.ERROR_0023_NO_META" ), e ); //$NON-NLS-1$
-          } finally {
-            if ( repository != null ) {
-              if ( ComponentBase.debug ) {
-                debug( Messages.getInstance().getString( "Kettle.DEBUG_DISCONNECTING" ) ); //$NON-NLS-1$
-              }
-              repository.disconnect();
+          if ( repository != null && repository.isConnected() ) {
+
+            solutionPath = StringUtils.EMPTY;
+
+            // load job resource from kettle/settings.xml configured repository
+            jobMeta = loadJobFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ), FilenameUtils.getBaseName( fileAddress ), repository );
+
+          } else {
+
+            String jobXmlStr = getResourceAsString( getResource( KettleComponent.JOBFILE ) );
+            // String jobXmlStr =
+            // XmlW3CHelper.getContentFromSolutionResource(fileAddress);
+            jobXmlStr = jobXmlStr.replaceAll( "\\$\\{pentaho.solutionpath\\}", solutionPath ); //$NON-NLS-1$
+            jobXmlStr = jobXmlStr.replaceAll( "\\%\\%pentaho.solutionpath\\%\\%", solutionPath ); //$NON-NLS-1$
+            org.w3c.dom.Document doc = XmlW3CHelper.getDomFromString( jobXmlStr );
+            if ( doc == null ) {
+              error( Messages.getInstance().getErrorString(
+                  "Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.JOBFILE, fileAddress ) ); //$NON-NLS-1$
+              debug( getKettleLog( true ) );
+              return false;
             }
-          }
+            // create a job from the document
+            try {
+              repository = connectToRepository();
+              // if we get a valid repository its great, if not try it
+              // without
+
+              jobMeta = new JobMeta( solutionPath + fileAddress, repository );
+            } catch ( Exception e ) {
+              error( Messages.getInstance().getString( "Kettle.ERROR_0023_NO_META" ), e ); //$NON-NLS-1$
+            } finally {
+              if ( repository != null ) {
+                if ( ComponentBase.debug ) {
+                  debug( Messages.getInstance().getString( "Kettle.DEBUG_DISCONNECTING" ) ); //$NON-NLS-1$
+                }
+                repository.disconnect();
+              }
+            }
           }
         } catch ( Exception e ) {
           error( Messages.getInstance().getErrorString(
-            "Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.JOBFILE, fileAddress ), e ); //$NON-NLS-1$
+              "Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.JOBFILE, fileAddress ), e ); //$NON-NLS-1$
           return false;
         }
         if ( jobMeta == null ) {
           error( Messages.getInstance().getErrorString(
-            "Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.JOBFILE, fileAddress ) ); //$NON-NLS-1$
+              "Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.JOBFILE, fileAddress ) ); //$NON-NLS-1$
           debug( getKettleLog( true ) );
           return false;
         } else {
@@ -896,7 +901,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
     }
   }
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings ( "unchecked" )
   private String getTransformSuccessOutputName() {
     String result = null;
 
@@ -1041,7 +1046,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
   }
 
   private TransMeta loadTransformFromRepository( final String directoryName, final String transformationName,
-      final Repository repository ) {
+                                                 final Repository repository ) {
     if ( ComponentBase.debug ) {
       debug( Messages.getInstance().getString( "Kettle.DEBUG_DIRECTORY", directoryName ) ); //$NON-NLS-1$
     }
@@ -1110,7 +1115,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
         jobMeta = repository.loadJob( jobName, repositoryDirectory, null, null );
       } catch ( Exception e ) {
         error( Messages.getInstance().getErrorString(
-          "Kettle.ERROR_0020_JOB_METADATA_NOT_FOUND", directoryName + "/" + jobName ), e ); //$NON-NLS-1$ //$NON-NLS-2$
+            "Kettle.ERROR_0020_JOB_METADATA_NOT_FOUND", directoryName + "/" + jobName ), e ); //$NON-NLS-1$ //$NON-NLS-2$
         return null;
       }
       if ( jobMeta == null ) {
@@ -1199,7 +1204,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
         repository =
             PluginRegistry.getInstance().loadClass( RepositoryPluginType.class, repositoryMeta.getId(),
-              Repository.class );
+                Repository.class );
         repository.init( repositoryMeta );
 
       } catch ( Exception e ) {

@@ -318,7 +318,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
       name = envelope.createName( "Axis", "", XMLABaseComponent.MDD_URI ); //$NON-NLS-1$ //$NON-NLS-2$
       Iterator itAxis = eAxes.getChildElements( name );
 
-      AxisLoop:
+    AxisLoop:
       for ( int iOrdinal = 0; itAxis.hasNext(); ) {
         SOAPElement eAxis = (SOAPElement) itAxis.next();
         name = envelope.createName( "name" ); //$NON-NLS-1$
@@ -361,7 +361,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
             // loop over children nodes
             String caption = null;
             Iterator it = eMem.getChildElements();
-            InnerLoop:
+          InnerLoop:
             while ( it.hasNext() ) {
               Node n = (Node) it.next();
               if ( !( n instanceof SOAPElement ) ) {
@@ -812,7 +812,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
         Messages.getInstance().getString( "XMLABaseComponent.ERROR_0023_NO_DATASOURCE_GIVEN" ) ); //$NON-NLS-1$
     }
 
-    String upperDSString = dataSourceString.toUpperCase(Locale.US);
+    String upperDSString = dataSourceString.toUpperCase( Locale.US );
     if ( !upperDSString.startsWith( "PROVIDER=" ) ) { //$NON-NLS-1$
       throw new XMLAException(
         Messages.getInstance().getString( "XMLABaseComponent.ERROR_0024_MALFORMED_DATASOURCE" ) ); //$NON-NLS-1$

@@ -661,6 +661,7 @@ public class CommandLineProcessor {
             MediaType.MULTIPART_FORM_DATA_TYPE ).field( "fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE );
 
         // If the import service needs the file name do the following.
+        part.field( "fileNameOverride", fileIS.getName(), MediaType.MULTIPART_FORM_DATA_TYPE );
         part.getField( "fileUpload" ).setContentDisposition(
             FormDataContentDisposition.name( "fileUpload" ).fileName( fileIS.getName() ).build() );
 
@@ -707,7 +708,7 @@ public class CommandLineProcessor {
     String withManifest =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_KEY" ),
             Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_NAME" ), false, true );
-    String effPath = RepositoryPathEncoder.encodeRepositoryPath( path );
+    String effPath = RepositoryPathEncoder.encodeURIComponent( RepositoryPathEncoder.encodeRepositoryPath( path ) );
     if ( effPath.lastIndexOf( ":" ) == effPath.length() - 1 // remove trailing slash
         && effPath.length() > 1  ) { // allow user to enter "--path=/"
       effPath = effPath.substring( 0, effPath.length() - 1 );

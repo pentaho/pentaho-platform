@@ -31,7 +31,6 @@ import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.MimeHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;

@@ -22,6 +22,7 @@ define(["common-ui/jquery-pentaho-i18n"], function (context) {
     overlayId: "launch",
     serviceUrlOverlays: "api/plugin-manager/overlays",
     buttonTemplate: "<button></button>",
+    hrTemplate: "<hr style='color: #a7a7a7' />",
     bootstrapButtonClasses: "btn btn-large btn-block nobreak",
     marketplaceOnClick: "parent.mantle_setPerspective('marketplace.perspective');$('#btnCreateNew').popover('hide')",
     marketplaceButtonText: "Add options via Marketplace",
@@ -90,6 +91,7 @@ define(["common-ui/jquery-pentaho-i18n"], function (context) {
             if (buttonId === 'createNewdatasourceButton') {
               // check permission for createNewdatasourceButton only
               if (hasDataAccess) {
+                // $content.push($(myself.hrTemplate)); don't add separator yet
                 $content.push($button);
               }
             } else {
@@ -98,13 +100,12 @@ define(["common-ui/jquery-pentaho-i18n"], function (context) {
           }
         }
 
-        //check logic of only jpivot is installed and add the marketplace link to it
-        if ($content.length > 0 && config.hasMarketplacePlugin && config.canAdminister) {
-          var id = $($content[0]).attr("id").toLowerCase();
-          if (id.search("jpivot") < 0 && $content.length > 1) {
-        	  id = $($content[1]).attr("id").toLowerCase();
-          }
-          if (id.search("jpivot") > 0) {
+        //check logic of only jpivot and create new datasource buttons and add the marketplace button
+        if ($content.length == 2 && config.hasMarketplacePlugin && config.canAdminister) {
+          var firstId = $($content[0]).attr("id").toLowerCase(),
+              secondId = $($content[1]).attr("id").toLowerCase();
+          if ( (firstId.search("jpivot") > 0 && secondId.search("datasource") > 0) ||
+            (secondId.search("jpivot") > 0 && firstId.search("datasource") > 0)) {
             if (config.i18nMap['marketplace'] != undefined) {
               myself.marketplaceButtonText = config.i18nMap['marketplace'];
             }

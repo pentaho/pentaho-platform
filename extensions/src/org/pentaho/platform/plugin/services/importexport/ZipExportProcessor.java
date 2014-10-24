@@ -116,14 +116,13 @@ public class ZipExportProcessor extends BaseExportProcessor {
     exportManifest.getManifestInformation().setExportBy( session.getName() );
     exportManifest.getManifestInformation().setExportDate(
         dateFormat.format( todaysDate ) + " " + timeFormat.format( todaysDate ) );
-    exportManifest.getManifestInformation().setManifestVersion( "2");
+    exportManifest.getManifestInformation().setManifestVersion( "2" );
   }
 
   /**
    * Performs the export process, returns a zip File object
-   * 
-   * @throws ExportException
-   *           indicates an error in import processing
+   *
+   * @throws ExportException indicates an error in import processing
    */
   public File performExport( RepositoryFile exportRepositoryFile ) throws ExportException, IOException {
     File exportFile = null;
@@ -151,7 +150,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
       // don't zip root folder without name
       if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
-        zos.putNextEntry( new ZipEntry( ExportFileNameEncoder.encodeZipPathName (getZipEntryName( exportRepositoryFile, filePath ) ) ) );
+        zos.putNextEntry( new ZipEntry( ExportFileNameEncoder.encodeZipPathName( getZipEntryName( exportRepositoryFile, filePath ) ) ) );
       }
       exportDirectory( exportRepositoryFile, zos, filePath );
 
@@ -186,7 +185,6 @@ public class ZipExportProcessor extends BaseExportProcessor {
   }
 
   /**
-   * 
    * @param repositoryFile
    * @param outputStream
    * @throws ExportManifestFormatException
@@ -218,7 +216,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   /**
    * create an entry in the export manifest for this file or folder
-   * 
+   *
    * @param repositoryFile
    * @throws ExportException
    */
@@ -235,7 +233,6 @@ public class ZipExportProcessor extends BaseExportProcessor {
   }
 
   /**
-   * 
    * @param repositoryDir
    * @param outputStream
    */
@@ -266,7 +263,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   /**
    * Take repository file path and local file path and return computed zip entry path
-   * 
+   *
    * @param repositoryFile
    * @param filePath
    * @return
@@ -295,14 +292,14 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   /**
    * for each locale stored in in Jcr create a .locale file with the stored node properties
-   * 
+   *
    * @param zos
    * @param repositoryFile
    * @param filePath
    * @throws IOException
    */
   private void createLocales( RepositoryFile repositoryFile, String filePath, boolean isFolder,
-      OutputStream outputStrean ) throws IOException {
+                              OutputStream outputStrean ) throws IOException {
     ZipEntry entry;
     String zipName;
     String name;
@@ -340,7 +337,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   /**
    * there are certain extensions that get imported with locale maps (incorrectly?) like .png only export locale maps
    * for the list from importexport.xml
-   * 
+   *
    * @param repositoryFile
    * @return true if supported
    */
@@ -363,7 +360,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   /**
    * lookup the list of available locale values
-   * 
+   *
    * @param fileId
    * @return
    */
@@ -380,7 +377,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   /**
    * need to create the locale file
-   * 
+   *
    * @param name
    * @param properties
    * @param locale
@@ -390,7 +387,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   private InputStream createLocaleFile( String name, Properties properties, String locale ) throws IOException {
     InputStream is = null;
     if ( properties != null ) {
-      File localeFile = File.createTempFile( ExportFileNameEncoder.encodeZipFileName(name), LOCALE_EXT );
+      File localeFile = File.createTempFile( ExportFileNameEncoder.encodeZipFileName( name ), LOCALE_EXT );
       localeFile.deleteOnExit();
       FileOutputStream fileOut = new FileOutputStream( localeFile );
       properties.store( fileOut, "Locale = " + locale );
@@ -403,7 +400,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   /**
    * get the list of files we are interested in supporting locale from Spring
-   * 
+   *
    * @return
    */
   public List<String> getLocaleExportList() {

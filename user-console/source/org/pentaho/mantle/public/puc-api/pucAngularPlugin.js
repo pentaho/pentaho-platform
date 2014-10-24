@@ -19,15 +19,15 @@ define(deps, function(AnimatedAngularPlugin, PUCAngularApi, ring) {
 		},
 
 		onRegister : function(plugin) {
-			this.config.pluginHandler._onRegister.call(plugin, plugin);
+			this.config.pluginHandler._onRegister(plugin);
 
-			this.$super.call(plugin, plugin);
+			this.$super(plugin);
 		},
 
 		onUnregister : function(plugin) {
-			this.config.pluginHandler._onUnregister.call(plugin, plugin);
+			this.config.pluginHandler._onUnregister(plugin);
 
-			this.$super.call(plugin, plugin);
+			this.$super(plugin);
 		},
 
 		// Have to call because toString exists already in Object

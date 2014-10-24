@@ -68,22 +68,22 @@ public class ExportManifestEntity {
     rawExportManifestProperty.setEntityAcl( entityAcl );
   }
 
-  protected ExportManifestEntity(File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) {
+  protected ExportManifestEntity( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) {
     this();
     ExportManifestProperty rawExportManifestProperty = new ExportManifestProperty();
-    createEntityMetaData(file, userId, projectId, isFolder, isHidden);
-    createEntityAcl(userId);
+    createEntityMetaData( file, userId, projectId, isFolder, isHidden );
+    createEntityAcl( userId );
     rawExportManifestProperty.setEntityMetaData( entityMetaData );
     rawExportManifestProperty.setEntityAcl( entityAcl );
   }
-  
+
   private void createEntityAcl( String userId ) {
     entityAcl = new EntityAcl();
     entityAcl.setEntriesInheriting( true );
   }
 
-  private void createEntityMetaData( File file, String userId , String projectId, Boolean isFolder, Boolean isHidden ) {
-    if (LocaleHelper.getLocale() == null) {
+  private void createEntityMetaData( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) {
+    if ( LocaleHelper.getLocale() == null ) {
       LocaleHelper.setLocale( Locale.getDefault() );
     }
     entityMetaData = new EntityMetaData();
@@ -92,7 +92,7 @@ public class ExportManifestEntity {
     entityMetaData.setDescription( "Project folder for AgileBi Project named: " + projectId );
     entityMetaData.setIsHidden( isHidden );
     entityMetaData.setIsFolder( isFolder );
-    entityMetaData.setLocale(  LocaleHelper.getLocale().toString()  );
+    entityMetaData.setLocale( LocaleHelper.getLocale().toString() );
     entityMetaData.setName( file.getName() );
     entityMetaData.setPath( StringUtils.replaceChars( file.getPath(), "/\\", "//" ) );
     entityMetaData.setTitle( file.getName() );
@@ -107,7 +107,7 @@ public class ExportManifestEntity {
     entityMetaData = new EntityMetaData();
     entityMetaData.setCreatedBy( repositoryFile.getCreatorId() );
     entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar( repositoryFile
-      .getCreatedDate() ) );
+        .getCreatedDate() ) );
     entityMetaData.setDescription( repositoryFile.getDescription() );
     entityMetaData.setIsHidden( repositoryFile.isHidden() );
     entityMetaData.setIsFolder( repositoryFile.isFolder() );
@@ -171,8 +171,9 @@ public class ExportManifestEntity {
       return null;
     }
     return new RepositoryFile( null, emd.getName(), emd.isIsFolder(), emd.isIsHidden(), false, null, emd.getPath(),
-      XmlGregorianCalendarConverter.asDate( emd.getCreatedDate() ), null, false, null, null, null, "en-US", emd
-      .getTitle(), emd.getDescription(), null, null, 0, emd.getOwner(), null );
+        XmlGregorianCalendarConverter.asDate( emd.getCreatedDate() ), null, false, null, null, null, "en-US", emd
+        .getTitle(), emd.getDescription(), null, null, 0, emd.getOwner(), null
+    );
   }
 
   /**
@@ -201,8 +202,8 @@ public class ExportManifestEntity {
     }
 
     repositoryFileAcl =
-      new RepositoryFileAcl( "", getSid( entityAcl.getOwner(), entityAcl.getOwnerType() ), entityAcl
-        .isEntriesInheriting(), repositoryFileAces );
+        new RepositoryFileAcl( "", getSid( entityAcl.getOwner(), entityAcl.getOwnerType() ), entityAcl
+            .isEntriesInheriting(), repositoryFileAces );
 
     return repositoryFileAcl;
   }
@@ -222,7 +223,7 @@ public class ExportManifestEntity {
       typevalue = RepositoryFileSid.Type.valueOf( type );
     } catch ( IllegalArgumentException e ) {
       throw new ExportManifestFormatException( Messages.getInstance().getString(
-        "ExportManifestFormatException.invalidRepositoryFileSidType", type ), e );
+          "ExportManifestFormatException.invalidRepositoryFileSidType", type ), e );
     }
     return new RepositoryFileSid( name, typevalue );
   }
@@ -240,7 +241,7 @@ public class ExportManifestEntity {
       value = RepositoryFilePermission.valueOf( stringValue );
     } catch ( IllegalArgumentException e ) {
       throw new ExportManifestFormatException( Messages.getInstance().getString(
-        "ExportManifestFormatException.invalidPermissionType", stringValue ), e );
+          "ExportManifestFormatException.invalidPermissionType", stringValue ), e );
     }
     return value;
   }
@@ -287,7 +288,7 @@ public class ExportManifestEntity {
       } else if ( exportManifestProperty.getEntityAcl() != null ) {
         entityAcl = exportManifestProperty.getEntityAcl();
       } else if ( exportManifestProperty.getCustomProperty() != null
-        && exportManifestProperty.getCustomProperty().size() > 0 ) {
+          && exportManifestProperty.getCustomProperty().size() > 0 ) {
         customProperties = exportManifestProperty.getCustomProperty();
       }
     }

@@ -285,7 +285,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
 
       if ( file != null ) {
         file =
-            new RepositoryFile.Builder( file ).versionId( file.getVersionId() ).id( databaseConnection.getId() ).title(
+            new RepositoryFile.Builder( file ).versionId( file.getVersionId() ).id( file.getId() ).title(
                 RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName() ).build();
         file =
             repository.updateFile( file, new NodeRepositoryFileData( databaseHelper

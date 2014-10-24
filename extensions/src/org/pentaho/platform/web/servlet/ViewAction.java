@@ -29,7 +29,6 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
-import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.IUITemplater;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -338,8 +337,7 @@ public class ViewAction extends ServletBase {
     // Proposed fix for bug BISERVER-238 by Ezequiel Cuellar
     // Code refactoring. DefaultParameterForm.xsl was always getting set so I just refactored the code
     // by adding a default value of DefaultParameterForm.xsl when getting the value of default-parameter-xsl
-    ISystemSettings systemSettings = PentahoSystem.getSystemSettings();
-    String defaultParameterXsl = systemSettings.getSystemSetting( "default-parameter-xsl", "DefaultParameterForm.xsl" ); //$NON-NLS-1$ //$NON-NLS-2$
+    String defaultParameterXsl = PentahoSystem.getSystemSetting( "default-parameter-xsl", "DefaultParameterForm.xsl" ); //$NON-NLS-1$ //$NON-NLS-2$
     requestHandler.setParameterXsl( defaultParameterXsl );
     if ( doSubscribe( requestParameters ) ) {
       requestHandler.setForcePrompt( true );

@@ -74,8 +74,8 @@
 		<!-- type of control to use, valid values are
 			select-one, text, hidden, radio, checkbox, select-multiple -->
 		<type>list</type>
-		<data-solution>samples</data-solution>
-		<data-path>simpleDashboard</data-path>
+		<data-solution>test</data-solution>
+		<data-path>filterPanel</data-path>
 		<data-action>getCustomerNames.xaction</data-action>
 		<!-- name of session scoped variable containing the LOV -->
 		<data-output>customerNamesList</data-output>

@@ -19,6 +19,7 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.VersionHelper;
 import org.pentaho.platform.util.VersionInfo;
@@ -39,6 +40,7 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
  *
  */
 @Path( "/version" )
+@Facet( name = "Unsupported" )
 public class VersionResource extends AbstractJaxRSResource {
 
   protected static final Log logger = LogFactory.getLog( VersionResource.class );
@@ -51,6 +53,7 @@ public class VersionResource extends AbstractJaxRSResource {
   @GET
   @Path( "/show" )
   @Produces( TEXT_PLAIN )
+  @Facet ( name = "Unsupported" )
   public Response getVersion() {
     VersionInfo versionInfo = VersionHelper.getVersionInfo( PentahoSystem.class );
     return Response.ok( versionInfo.getVersionNumber() ).type( MediaType.TEXT_PLAIN ).build();
@@ -63,6 +66,7 @@ public class VersionResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/softwareUpdates" )
+  @Facet ( name = "Unsupported" )
   @Produces( TEXT_PLAIN )
   public String getSoftwareUpdatesDocument() {
     if ( PentahoVersionCheckReflectHelper.isVersionCheckerAvailable() ) {

@@ -29,7 +29,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 
 /**
  * Converts {@code RepositoryFileTree} into JAXB-safe object and vice-versa.
- * 
+ *
  * @author mlowery
  */
 public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto, RepositoryFileTree> {

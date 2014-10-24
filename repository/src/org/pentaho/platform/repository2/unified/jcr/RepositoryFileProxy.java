@@ -535,7 +535,8 @@ public class RepositoryFileProxy extends RepositoryFile {
         }
       } );
     }
-    return hidden;
+    // exclude NPE
+    return hidden == null ? false : hidden;
   }
 
   @Override

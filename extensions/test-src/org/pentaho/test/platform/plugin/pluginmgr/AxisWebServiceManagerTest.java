@@ -17,8 +17,8 @@
 
 package org.pentaho.test.platform.plugin.pluginmgr;
 
+import com.mockrunner.mock.web.MockServletContext;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
@@ -31,6 +31,7 @@ import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.ServiceInitializationException;
+import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -42,10 +43,13 @@ import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceM
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.IServiceTypeManager;
 import org.pentaho.platform.plugin.services.webservices.content.StyledHtmlAxisServiceLister;
+import org.pentaho.platform.web.html.themes.DefaultThemeManager;
 import org.pentaho.test.platform.engine.core.EchoServiceBean;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.engine.services.ContentGeneratorUtil;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -64,13 +68,14 @@ public class AxisWebServiceManagerTest {
   @Before
   public void init0() throws ServiceInitializationException {
     // set solution path to a place that hosts an axis config file
-    microPlatform = new MicroPlatform( "test-res/AxisWebServiceManagerTest/" );
+    microPlatform = new MicroPlatform( "test-res/AxisWebServiceManagerTest/", "http://test/" );
     assertNotNull( PentahoSystem.getObjectFactory() );
     microPlatform.define( ISolutionEngine.class, SolutionEngine.class );
     assertNotNull( PentahoSystem.getObjectFactory() );
     microPlatform.define( IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL );
     microPlatform.define( IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL );
     microPlatform.define( IPluginProvider.class, TstPluginProvider.class );
+    microPlatform.define( IThemeManager.class, DefaultThemeManager.class );
 
     IServiceTypeManager axisManager = new AxisWebServiceManager();
     DefaultServiceManager sm = (DefaultServiceManager) PentahoSystem.get( IServiceManager.class );
@@ -112,15 +117,25 @@ public class AxisWebServiceManagerTest {
   }
 
   @Test
-  @Ignore
   public void testListingPageStyled() throws Exception {
+    MockServletContext context = new MockServletContext();
+    context.addResourcePaths( "/", Arrays.asList( "test-module/" ) );
+    context.addResourcePaths( "/test-module/", Arrays.asList( "themes.xml" ) );
+    context.addResourcePaths( "/test-module/themes/onyx/", Arrays.asList( "styles.css" ) );
+    File themesDotXML = new File( microPlatform.getFilePath() + "system/axis/themes.xml" );
+    context.setResource( "/test-module/themes.xml", themesDotXML.toURI().toURL() );
+    context.setResourceAsStream( "/test-module/themes.xml", new FileInputStream( themesDotXML ) );
+    File styleDotSCC = new File( microPlatform.getFilePath() + "system/axis/themes/onyx/styles.css" );
+    context.setResource( "/test-module/themes/onyx/styles.css", styleDotSCC.toURI().toURL() );
+    context.setResourceAsStream( "/test-module/themes/onyx/styles.css", new FileInputStream( styleDotSCC ) );
+    PentahoSystem.getApplicationContext().setContext( context );
+
     IContentGenerator serviceLister = new StyledHtmlAxisServiceLister();
 
     String html = ContentGeneratorUtil.getContentAsString( serviceLister );
     System.out.println( html );
 
-    assertTrue( "style is missing", html.contains( ".h1" ) );
-    assertTrue( "style is missing", html.contains( "text/css" ) );
+    assertTrue( "style is missing", html.contains( "styles.css" ) );
   }
 
   @Test

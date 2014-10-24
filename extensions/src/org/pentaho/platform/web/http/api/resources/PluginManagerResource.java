@@ -18,6 +18,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
@@ -60,6 +61,7 @@ public class PluginManagerResource {
   @GET
   @Path( "/overlays" )
   @Produces( { APPLICATION_JSON } )
+  @Facet( name = "Unsupported" )
   public List<Overlay> getOverlays( @QueryParam( "id" ) @DefaultValue( "" ) String id ) {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
     List<XulOverlay> overlays = pluginManager.getOverlays();
@@ -84,6 +86,7 @@ public class PluginManagerResource {
   @GET
   @Path( "/perspectives" )
   @Produces( { APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public ArrayList<PluginPerspective> getPluginPerpectives() {
     IPluginPerspectiveManager manager =
         PentahoSystem.get( IPluginPerspectiveManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
@@ -122,6 +125,7 @@ public class PluginManagerResource {
   @GET
   @Path( "/ids" )
   @Produces( { APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public Response getPluginIds() {
     if ( canAdminister() ) {
       IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
@@ -142,6 +146,7 @@ public class PluginManagerResource {
   @GET
   @Path( "/{pluginId}/setting/{settingName}" )
   @Produces( { APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public String getPluginSetting( @PathParam( "pluginId" ) String pluginId,
       @PathParam( "settingName" ) String settingName ) {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
@@ -157,6 +162,7 @@ public class PluginManagerResource {
   @GET
   @Path( "/settings/{settingName}" )
   @Produces( { APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
   public Response getPluginSettings( @PathParam( "settingName" ) String settingName ) {
     // A non-admin still require this setting. All other settings should be admin only
     if ( !NEW_TOOLBAR_BUTTON_SETTING.equals( settingName ) ) {

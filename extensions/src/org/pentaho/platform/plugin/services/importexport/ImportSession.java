@@ -65,7 +65,7 @@ public class ImportSession {
   /**
    * Clear out any collections, most likely before starting a new import
    */
-  public void initialize(){
+  public void initialize() {
     importedRepositoryFiles.clear();
     importedScheduleJobIds.clear();
     skippedFiles.clear();
