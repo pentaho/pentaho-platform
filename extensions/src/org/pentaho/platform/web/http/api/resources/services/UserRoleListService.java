@@ -41,6 +41,8 @@ public class UserRoleListService {
 
   private Comparator<String> roleComparator;
 
+  private Comparator<String> userComparator;
+
   public String doGetRolesForUser( String user ) throws Exception {
     if ( canAdminister() ) {
       return getRolesForUser( user );
@@ -59,7 +61,11 @@ public class UserRoleListService {
 
   public UserListWrapper getUsers() {
     IUserRoleListService service = getUserRoleListService();
-    return new UserListWrapper( service.getAllUsers() );
+    List<String> allUsers = service.getAllUsers();
+    if ( null != userComparator ) {
+      Collections.sort( allUsers, userComparator );
+    }
+    return new UserListWrapper( allUsers );
   }
 
   public RoleListWrapper getRoles() {
@@ -134,6 +140,10 @@ public class UserRoleListService {
 
   public void setRoleComparator( Comparator<String> roleComparator ) {
     this.roleComparator = roleComparator;
+  }
+
+  public void setUserComparator( Comparator<String> userComparator ) {
+    this.userComparator = userComparator;
   }
 
   public ArrayList<String> getExtraRoles() {

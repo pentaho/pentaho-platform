@@ -114,17 +114,21 @@ public class CompositeUserRoleListService implements IUserRoleListService {
   }
 
   private List<String> collectResultsForOperation( CompositeOperation operation ) {
+    Set<String> returnVal = new HashSet<String>();
     for ( IUserRoleListService delegate : delegates ) {
       try {
-          List<String> allFromDelegate = operation.perform( delegate );
-          if (!CollectionUtils.isEmpty(allFromDelegate)) {
-              return allFromDelegate;
+        List<String> allFromDelegate = operation.perform( delegate );
+        if ( !CollectionUtils.isEmpty( allFromDelegate ) ) {
+          returnVal.addAll( allFromDelegate );
+          if ( activeStrategy == STRATEGY.FIRST_MATCH ) {
+            break;
           }
+        }
       } catch ( UnsupportedOperationException ignored ) {
-        continue;
+        // next delegate
       }
     }
-    return Collections.emptyList();
+    return new ArrayList<String>( returnVal );
   }
 
   private interface CompositeOperation {
