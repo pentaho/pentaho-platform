@@ -17,34 +17,8 @@
 
 package org.pentaho.mantle.client.solutionbrowser;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
-import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.TreeListener;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
@@ -78,10 +52,36 @@ import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.TreeListener;
+import com.google.gwt.user.client.ui.Widget;
 
-@SuppressWarnings ( "deprecation" )
+@SuppressWarnings( "deprecation" )
 public class SolutionBrowserPanel extends HorizontalPanel {
 
   private final int defaultSplitPosition = 220; //$NON-NLS-1$
@@ -140,7 +140,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
         builder.sendRequest( "" + solutionTree.isShowHiddenFiles(), EmptyRequestCallback.getInstance() );
         RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree( true, null, null,
-            solutionTree.isShowHiddenFiles() );
+          solutionTree.isShowHiddenFiles() );
       } catch ( RequestException e ) {
         // showError(e);
       }
@@ -272,7 +272,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private void adjustHeight() {
     Element pucHeader = DOM.getElementById( "pucHeader" );
     if ( pucHeader != null ) {
-      final boolean isIE = RootPanel.getBodyElement().getClassName().contains( "IE8" )
+      final boolean isIE =
+        RootPanel.getBodyElement().getClassName().contains( "IE8" )
           || RootPanel.getBodyElement().getClassName().contains( "IE9" )
           || RootPanel.getBodyElement().getClassName().contains( "IE10" );
       final int offset = pucHeader.getOffsetHeight();
@@ -357,7 +358,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     navigatorAndContentSplit.onBrowserEvent( e );
   }
 
-  @SuppressWarnings ( "nls" )
+  @SuppressWarnings( "nls" )
   public static String pathToId( String path ) {
     String id = NameUtils.encodeRepositoryPath( path );
     return NameUtils.URLEncode( id );
@@ -465,8 +466,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       } else {
         ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin( fileNameWithPath );
         url =
-            getPath()
-                + "api/repos/" + pathToId( fileNameWithPath ) + "/" + ( plugin != null && ( plugin.getCommandPerspective( mode ) != null ) ? plugin.getCommandPerspective( mode ) : "generatedContent" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          getPath()
+            + "api/repos/" + pathToId( fileNameWithPath ) + "/" + ( plugin != null && ( plugin.getCommandPerspective( mode ) != null ) ? plugin.getCommandPerspective( mode ) : "generatedContent" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
       // force to open pdf files in another window due to issues with pdf readers in IE browsers
       // via class added on themeResources for IE browsers
@@ -518,7 +519,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin( fileNameWithPath );
     if ( plugin != null && plugin.hasCommand( COMMAND.RUN ) ) {
       String url =
-          getPath() + "api/repos/" + pathToId( fileNameWithPath ) + "/" + plugin.getCommandPerspective( COMMAND.RUN ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        getPath() + "api/repos/" + pathToId( fileNameWithPath ) + "/" + plugin.getCommandPerspective( COMMAND.RUN ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       contentTabPanel.getCurrentFrame().setDeepLinkUrl( url );
     }
   }
@@ -564,8 +565,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       if ( plugin != null && plugin.hasCommand( COMMAND.EDIT ) ) {
         // load the editor for this plugin
         String editUrl =
-            getPath()
-                + "api/repos/" + pathToId( file.getPath() ) + "/" + ( plugin != null && ( plugin.getCommandPerspective( COMMAND.EDIT ) != null ) ? plugin.getCommandPerspective( COMMAND.EDIT ) : "editor" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          getPath()
+            + "api/repos/" + pathToId( file.getPath() ) + "/" + ( plugin != null && ( plugin.getCommandPerspective( COMMAND.EDIT ) != null ) ? plugin.getCommandPerspective( COMMAND.EDIT ) : "editor" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         // See if it's already loaded
         for ( int i = 0; i < contentTabPanel.getTabCount(); i++ ) {
           Widget w = contentTabPanel.getTab( i ).getContent();
@@ -576,15 +577,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
           }
         }
 
-        contentTabPanel
-            .showNewURLTab(
-                Messages.getString( "editingColon" ) + file.getTitle(),
-                Messages.getString( "editingColon" ) + file.getTitle(), editUrl, true ); //$NON-NLS-1$ //$NON-NLS-2$
+        contentTabPanel.showNewURLTab( Messages.getString( "editingColon" ) + file.getTitle(), Messages
+          .getString( "editingColon" ) + file.getTitle(), editUrl, true ); //$NON-NLS-1$ //$NON-NLS-2$
 
       } else {
         MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ), //$NON-NLS-1$
-            Messages.getString( "cannotEditFileType" ), //$NON-NLS-1$
-            true, false, true );
+          Messages.getString( "cannotEditFileType" ), //$NON-NLS-1$
+          true, false, true );
         dialogBox.center();
       }
     }
@@ -604,8 +603,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       if ( plugin != null && plugin.hasCommand( COMMAND.EDIT ) ) {
         // load the editor for this plugin
         String editUrl =
-            getPath()
-                + "api/repos/" + pathToId( file.getPath() ) + "/" + ( plugin != null && ( plugin.getCommandPerspective( COMMAND.EDIT ) != null ) ? plugin.getCommandPerspective( COMMAND.EDIT ) : "editor" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$       
+          getPath()
+            + "api/repos/" + pathToId( file.getPath() ) + "/" + ( plugin != null && ( plugin.getCommandPerspective( COMMAND.EDIT ) != null ) ? plugin.getCommandPerspective( COMMAND.EDIT ) : "editor" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$       
         // See if it's already loaded
         for ( int i = 0; i < contentTabPanel.getTabCount(); i++ ) {
           Widget w = contentTabPanel.getTab( i ).getContent();
@@ -617,13 +616,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         }
 
         contentTabPanel
-            .showNewURLTab(
-                Messages.getString( "editingColon" ) + file.getTitle(), Messages.getString( "editingColon" ) + file.getTitle(), editUrl, true ); //$NON-NLS-1$ //$NON-NLS-2$
+          .showNewURLTab(
+            Messages.getString( "editingColon" ) + file.getTitle(), Messages.getString( "editingColon" ) + file.getTitle(), editUrl, true ); //$NON-NLS-1$ //$NON-NLS-2$
 
       } else {
         MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ), //$NON-NLS-1$
-            Messages.getString( "cannotEditFileType" ), //$NON-NLS-1$
-            true, false, true );
+          Messages.getString( "cannotEditFileType" ), //$NON-NLS-1$
+          true, false, true );
         dialogBox.center();
       }
     }
@@ -644,13 +643,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         final FileItem selectedFileItem = filesListPanel.getSelectedFileItems().get( 0 );
         String url = null;
         url =
-            "api/repo/files/" + SolutionBrowserPanel.pathToId( filesListPanel.getSelectedFileItems().get( 0 ).getRepositoryFile().getPath() ) + "/generatedContent"; //$NON-NLS-1$ //$NON-NLS-2$
+          "api/repo/files/" + SolutionBrowserPanel.pathToId( filesListPanel.getSelectedFileItems().get( 0 ).getRepositoryFile().getPath() ) + "/generatedContent"; //$NON-NLS-1$ //$NON-NLS-2$
         url = getPath() + url;
 
         if ( mode == FileCommand.COMMAND.BACKGROUND ) {
           MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "info" ), //$NON-NLS-1$
-              Messages.getString( "backgroundExecutionWarning" ), //$NON-NLS-1$
-              true, false, true );
+            Messages.getString( "backgroundExecutionWarning" ), //$NON-NLS-1$
+            true, false, true );
           dialogBox.center();
 
           url += "&background=true"; //$NON-NLS-1$
@@ -662,8 +661,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
               public void onError( Request request, Throwable exception ) {
                 MessageDialogBox dialogBox =
-                    new MessageDialogBox(
-                        Messages.getString( "error" ), Messages.getString( "couldNotBackgroundExecute" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+                  new MessageDialogBox(
+                    Messages.getString( "error" ), Messages.getString( "couldNotBackgroundExecute" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
                 dialogBox.center();
               }
 
@@ -672,7 +671,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
             } );
           } catch ( RequestException e ) {
-            //ignored
+            // ignored
           }
         } else if ( mode == FileCommand.COMMAND.NEWWINDOW ) {
           // popup blockers might attack this
@@ -680,10 +679,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         } else if ( mode == FileCommand.COMMAND.SUBSCRIBE ) {
           final String myurl = url + "&subscribepage=yes"; //$NON-NLS-1$
           contentTabPanel.showNewURLTab( selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(),
-              myurl, true );
+            myurl, true );
         } else {
           contentTabPanel.showNewURLTab( selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(), url,
-              true );
+            true );
         }
       }
 
