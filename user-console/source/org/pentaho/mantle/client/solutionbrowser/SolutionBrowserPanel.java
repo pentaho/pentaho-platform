@@ -84,6 +84,8 @@ import com.google.gwt.user.client.ui.Widget;
 @SuppressWarnings( "deprecation" )
 public class SolutionBrowserPanel extends HorizontalPanel {
 
+  private static final String FILE_EXTENSION_DELIMETER = ".";
+
   private final int defaultSplitPosition = 220; //$NON-NLS-1$
 
   private SplitLayoutPanel navigatorAndContentSplit = new SplitLayoutPanel() {
@@ -458,8 +460,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     } else {
       String url = null;
       String extension = ""; //$NON-NLS-1$
-      if ( fileNameWithPath.lastIndexOf( "." ) > 0 ) { //$NON-NLS-1$
-        extension = fileNameWithPath.substring( fileNameWithPath.lastIndexOf( "." ) + 1 ); //$NON-NLS-1$
+      if ( fileNameWithPath.lastIndexOf( FILE_EXTENSION_DELIMETER ) > 0 ) { //$NON-NLS-1$
+        extension = fileNameWithPath.substring( fileNameWithPath.lastIndexOf( FILE_EXTENSION_DELIMETER ) + 1 ); //$NON-NLS-1$
       }
       if ( !executableFileExtensions.contains( extension ) ) {
         url = getPath() + "api/repos/" + pathToId( fileNameWithPath ) + "/content"; //$NON-NLS-1$ //$NON-NLS-2$ 
@@ -483,9 +485,17 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
     // Store representation of file in the frame for reference later when
     // save is called
+    String fileName = repositoryFile.getName();
+    if ( fileName.contains( FILE_EXTENSION_DELIMETER ) ) {
+      fileName = fileName.substring( 0, fileName.lastIndexOf( FILE_EXTENSION_DELIMETER ) );
+    }
+    String filePath = repositoryFile.getPath();
+    if ( filePath.endsWith( repositoryFile.getName() ) ) {
+      filePath = filePath.substring( 0, filePath.lastIndexOf( repositoryFile.getName() ) - 1 );
+    }
     SolutionFileInfo fileInfo = new SolutionFileInfo();
-    fileInfo.setName( repositoryFile.getName() );
-    fileInfo.setPath( repositoryFile.getPath() );
+    fileInfo.setName( fileName );
+    fileInfo.setPath( filePath );
     fileInfo.setType( SolutionFileInfo.Type.XACTION );
     if ( contentTabPanel != null && contentTabPanel.getCurrentFrame() != null ) {
       contentTabPanel.getCurrentFrame().setFileInfo( fileInfo );
