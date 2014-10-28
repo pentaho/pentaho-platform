@@ -105,7 +105,7 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
 
   @Override
   public List<String> getAllRoles() {
-    List<GrantedAuthority> results = allAuthoritiesSearch.search( new Object[ 0 ] );
+    List<GrantedAuthority> results = allAuthoritiesSearch.search( new Object[0] );
     List<String> roles = new ArrayList<String>( results.size() );
     for ( GrantedAuthority role : results ) {
       String roleString =
@@ -155,6 +155,7 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     for ( GrantedAuthority role : results ) {
       roles.add( role.getAuthority() );
     }
+    // TODO don't set the comparator from spring xml for build 6.0. UserRoleListService sorting roles after that.
     if ( null != roleComparator ) {
       Collections.sort( roles, roleComparator );
     }
@@ -178,7 +179,6 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
   }
 
   public void setRoleComparator( final Comparator<String> roleComparator ) {
-    Assert.notNull( roleComparator );
     this.roleComparator = roleComparator;
   }
 
