@@ -170,20 +170,20 @@ public class NewDropdownCommand extends AbstractCommand {
               button.getElement().addClassName( "newToolbarDropdownButton" );
               button.addClickHandler( new ClickHandler() {
                 public void onClick( ClickEvent event ) {
-                    if (sorted.get( finali ).getActionUrl().startsWith("javascript:")) {
-                      doEvalJS(sorted.get( finali ).getActionUrl().substring("javascript:".length()));
-                    } else {
-                      SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(
+                  if ( sorted.get( finali ).getActionUrl().startsWith( "javascript:" ) ) {
+                    doEvalJS( sorted.get( finali ).getActionUrl().substring( "javascript:".length() ) );
+                  } else {
+                    SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(
                         Messages.getString( sorted.get( finali ).getTabName() ),
                         Messages.getString( sorted.get( finali ).getTabName() ), sorted.get( finali ).getActionUrl(),
                         false );
-                    }
+                  }
                   popup.hide();
                 }
               } );
               String name = sorted.get( i ).getName();
-              if ("data-access".equals(name)) {
-                  buttonPanel.add(new HTML("<hr style='color: #a7a7a7' />"));
+              if ( "data-access".equals( name ) ) {
+                buttonPanel.add( new HTML( "<hr style='color: #a7a7a7' />" ) );
               }
               buttonPanel.add( button );
             }
@@ -207,10 +207,10 @@ public class NewDropdownCommand extends AbstractCommand {
 
   }
 
-  public static native void doEvalJS(String js) /*-{
-    eval(js);
-}-*/;
-  
+  public static native void doEvalJS( String js ) /*-{
+                                                  eval(js);
+                                                  }-*/;
+
   private native JsArray<JsCreateNewConfig> parseJson( String json )
   /*-{
     var obj = eval('(' + json + ')');

@@ -37,8 +37,8 @@ public class PooledDatasourceSystemListener extends NonPooledDatasourceSystemLis
 
     DataSource ds = null;
     try {
-      if (!connection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
-      ds =  PooledDatasourceHelper.setupPooledDataSource( connection );
+      if ( !connection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
+        ds =  PooledDatasourceHelper.setupPooledDataSource( connection );
       } else {
         ds = PooledDatasourceHelper.getJndiDataSource( connection.getDatabaseName() );
       }

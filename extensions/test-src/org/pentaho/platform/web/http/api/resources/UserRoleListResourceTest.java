@@ -69,10 +69,9 @@ public class UserRoleListResourceTest {
     Response mockResponse = mock( Response.class );
     doReturn( mockResponse ).when( userRoleListResource ).buildStatusResponse( Response.Status.UNAUTHORIZED );
 
-
     // Test 1
-    UserRoleListService.UnauthorizedException mockUnauthorizedException = mock(
-        UserRoleListService.UnauthorizedException.class );
+    UserRoleListService.UnauthorizedException mockUnauthorizedException =
+        mock( UserRoleListService.UnauthorizedException.class );
     doThrow( mockUnauthorizedException ).when( userRoleListResource.userRoleListService ).doGetRolesForUser( user );
 
     Response testResponse = userRoleListResource.getRolesForUser( user );
@@ -140,8 +139,8 @@ public class UserRoleListResourceTest {
     doReturn( mockResponse ).when( userRoleListResource ).buildStatusResponse( UNAUTHORIZED );
 
     // Test 1
-    UserRoleListService.UnauthorizedException mockUnauthorizedException = mock(
-        UserRoleListService.UnauthorizedException.class );
+    UserRoleListService.UnauthorizedException mockUnauthorizedException =
+        mock( UserRoleListService.UnauthorizedException.class );
     doThrow( mockUnauthorizedException ).when( userRoleListResource.userRoleListService ).doGetUsersInRole( role );
 
     Response testResponse = userRoleListResource.getUsersInRole( role );

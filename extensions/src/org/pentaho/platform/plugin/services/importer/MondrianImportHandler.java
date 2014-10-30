@@ -19,10 +19,10 @@ package org.pentaho.platform.plugin.services.importer;
 
 /**
  * Used by REST Services to handle mulit part form upload from Schema WorkBench 
- *
+ * 
  * @author tband
  * @date 6/27/12
- *
+ * 
  */
 
 import mondrian.util.Pair;
@@ -71,7 +71,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   /**
    * **************************************** Main entry point from the Spring Interface
-   *
+   * 
    * @param IPlatformImportBundle
    * @throws IOException
    * @throws DomainStorageException
@@ -83,7 +83,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
    */
 
   public void importFile( IPlatformImportBundle bundle ) throws PlatformImportException, DomainIdNullException,
-      DomainAlreadyExistsException, DomainStorageException, IOException {
+    DomainAlreadyExistsException, DomainStorageException, IOException {
     boolean overwriteInRepossitory = bundle.overwriteInRepository();
     boolean xmla = "false".equalsIgnoreCase( findParameterPropertyValue( bundle, ENABLE_XMLA ) ) ? false : true;
     final String domainId = (String) bundle.getProperty( DOMAIN_ID );
@@ -105,7 +105,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   /**
    * helper method to find the value in the bundle from either the property or parameter list
-   *
+   * 
    * @param bundle
    * @param key
    * @return
@@ -132,7 +132,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   /**
    * convert the catalog service exception to a platform exception and get the proper status code
-   *
+   * 
    * @param mse
    * @return
    */

@@ -342,12 +342,12 @@ public class JaxWsSchedulerServiceTest {
 
   @Test( timeout = 1000 * 5 * 60 )
   public void testUpdateComplexJob() throws SchedulerException {
-	long start  = System.currentTimeMillis() + 1000;
-	long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
+    long start = System.currentTimeMillis() + 1000;
+    long end = System.currentTimeMillis() + 1000 + 5 * 60 * 60 * 100;
     int startingMinute = ( Calendar.getInstance().get( Calendar.MINUTE ) + 10 ) % 60;
     ComplexJobTrigger jobTrigger = new ComplexJobTrigger();
-    jobTrigger.setStartTime( new Date(start) );
-    jobTrigger.setEndTime( new Date(end) );
+    jobTrigger.setStartTime( new Date( start ) );
+    jobTrigger.setEndTime( new Date( end ) );
     jobTrigger.setMinuteRecurrence( new IncrementalRecurrence( startingMinute, 1 ) );
     jobTrigger.setHourlyRecurrence( (ITimeRecurrence) null );
     System.out.println( jobTrigger.toString() );
@@ -358,11 +358,11 @@ public class JaxWsSchedulerServiceTest {
 
     jobTrigger = new ComplexJobTrigger();
 
-	start  = System.currentTimeMillis() + 2*1000;
-	end = System.currentTimeMillis() + 1000 + 7*60*60*100;
+    start = System.currentTimeMillis() + 2 * 1000;
+    end = System.currentTimeMillis() + 1000 + 7 * 60 * 60 * 100;
 
-    jobTrigger.setStartTime( new Date(start) );
-    jobTrigger.setEndTime( new Date(end) );
+    jobTrigger.setStartTime( new Date( start ) );
+    jobTrigger.setEndTime( new Date( end ) );
 
     startingMinute = ( Calendar.getInstance().get( Calendar.MINUTE ) + 20 ) % 60;
     jobTrigger.setMinuteRecurrence( new IncrementalRecurrence( startingMinute, 5 ) );
@@ -382,18 +382,18 @@ public class JaxWsSchedulerServiceTest {
         .getIncrement() );
     Assert.assertTrue( job.getJobParams().containsKey( "newKey" ) );
 
-    Assert.assertEquals( new Date(start), jobTrigger.getStartTime() );
+    Assert.assertEquals( new Date( start ), jobTrigger.getStartTime() );
 
-    Assert.assertEquals( new Date(end), jobTrigger.getEndTime() );
+    Assert.assertEquals( new Date( end ), jobTrigger.getEndTime() );
   }
 
   @Test
   public void testUpdateSimpleJob() throws SchedulerException {
-	long start  = System.currentTimeMillis() + 1000;
-	long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
+    long start = System.currentTimeMillis() + 1000;
+    long end = System.currentTimeMillis() + 1000 + 5 * 60 * 60 * 100;
     SimpleJobTrigger jobTrigger = new SimpleJobTrigger();
-    jobTrigger.setStartTime( new Date(start) );
-    jobTrigger.setEndTime( new Date(end) );
+    jobTrigger.setStartTime( new Date( start ) );
+    jobTrigger.setEndTime( new Date( end ) );
     jobTrigger.setRepeatInterval( 10 );
     jobTrigger.setRepeatCount( 20 );
     System.out.println( jobTrigger.toString() );
@@ -404,11 +404,11 @@ public class JaxWsSchedulerServiceTest {
 
     jobTrigger = new SimpleJobTrigger();
 
-	start  = System.currentTimeMillis() + 1000;
-	end = System.currentTimeMillis() + 1000 + 5*60*60*100;
+    start = System.currentTimeMillis() + 1000;
+    end = System.currentTimeMillis() + 1000 + 5 * 60 * 60 * 100;
 
-    jobTrigger.setStartTime( new Date(start));
-    jobTrigger.setEndTime( new Date(end) );
+    jobTrigger.setStartTime( new Date( start ) );
+    jobTrigger.setEndTime( new Date( end ) );
 
     jobTrigger.setRepeatInterval( 40 );
     jobTrigger.setRepeatCount( 50 );
@@ -425,9 +425,9 @@ public class JaxWsSchedulerServiceTest {
     Assert.assertEquals( 50, jobTrigger.getRepeatCount() );
     Assert.assertTrue( job.getJobParams().containsKey( "newKey" ) );
 
-    jobTrigger.getStartTime() ;
-    Assert.assertEquals( new Date(start), jobTrigger.getStartTime());
+    jobTrigger.getStartTime();
+    Assert.assertEquals( new Date( start ), jobTrigger.getStartTime() );
 
-    Assert.assertEquals( new Date(end), jobTrigger.getEndTime() );
+    Assert.assertEquals( new Date( end ), jobTrigger.getEndTime() );
   }
 }

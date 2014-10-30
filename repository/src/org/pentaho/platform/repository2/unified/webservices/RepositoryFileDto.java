@@ -87,7 +87,7 @@ public class RepositoryFileDto implements Serializable {
   Date deletedDate;
 
   List<LocaleMapDto> localePropertiesMapEntries;
-  
+
   RepositoryFileAclDto repositoryFileAclDto;
 
   public RepositoryFileDto() {
@@ -282,7 +282,7 @@ public class RepositoryFileDto implements Serializable {
   public void setDeletedDate( Date deletedDate ) {
     this.deletedDate = deletedDate;
   }
-  
+
   public RepositoryFileAclDto getRepositoryFileAclDto() {
     return repositoryFileAclDto;
   }
@@ -308,7 +308,7 @@ public class RepositoryFileDto implements Serializable {
         + ", locale=" + locale + ", lockDate=" + lockDate + ", lockMessage=" + lockMessage + ", lockOwner=" + lockOwner
         + ", locked=" + locked + ", originalParentFolderPath=" + originalParentFolderPath + ", owner=" + owner
         + ", ownerType=" + ownerType + ", title=" + title + ", localePropertiesMapEntries="
-        + localePropertiesMapEntries + ", versionId=" + versionId + ", versioned=" + versioned + ", hasAcl=" + (repositoryFileAclDto != null) + "]";
+        + localePropertiesMapEntries + ", versionId=" + versionId + ", versioned=" + versioned + ", hasAcl=" + ( repositoryFileAclDto != null ) + "]";
   }
 
 }

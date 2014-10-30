@@ -84,7 +84,7 @@ public class DatabaseHelper {
   private static final String PROP_IS_DECIMAL_SEPERATOR = "isUsingDecimalSeperator"; //$NON-NLS-1$
 
   private static final String ATTRIBUTE_PORT_NUMBER = "PORT_NUMBER";
-  
+
   private DatabaseTypeHelper databaseTypeHelper;
 
   public DatabaseHelper( IDatabaseDialectService databaseDialectService ) {
@@ -105,7 +105,7 @@ public class DatabaseHelper {
     rootNode.setProperty( PROP_DATABASE_NAME, setNull( databaseConnection.getDatabaseName() ) );
     rootNode.setProperty( PROP_PORT, new Long( port ) );
     rootNode.setProperty( PROP_USERNAME, setNull( databaseConnection.getUsername() ) );
-    rootNode.setProperty( PROP_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(databaseConnection.getPassword()));
+    rootNode.setProperty( PROP_PASSWORD, Encr.encryptPasswordIfNotUsingVariables( databaseConnection.getPassword() ) );
     rootNode.setProperty( PROP_SERVERNAME, setNull( databaseConnection.getInformixServername() ) );
     rootNode.setProperty( PROP_DATA_TBS, setNull( databaseConnection.getDataTablespace() ) );
     rootNode.setProperty( PROP_INDEX_TBS, setNull( databaseConnection.getIndexTablespace() ) );
@@ -126,8 +126,8 @@ public class DatabaseHelper {
       String value = attributes.get( key );
       attrNode.setProperty( key, value );
     }
-    
-    attrNode.setProperty(ATTRIBUTE_PORT_NUMBER, new Long(port).longValue());
+
+    attrNode.setProperty(ATTRIBUTE_PORT_NUMBER, new Long( port ).longValue() );
 
     // Now store the pooling parameters
     attrNode = rootNode.addNode( NODE_POOLING_PROPS );
@@ -148,11 +148,11 @@ public class DatabaseHelper {
     return rootNode;
   }
 
-  public IDatabaseConnection databaseMetaToDatabaseConnection( final DatabaseMeta databaseMeta) {
-    
+  public IDatabaseConnection databaseMetaToDatabaseConnection( final DatabaseMeta databaseMeta ) {
+
     IDatabaseConnection databaseConnection = new DatabaseConnection();
     databaseConnection.setDatabaseType( databaseTypeHelper
-        .getDatabaseTypeByShortName( databaseMeta.getDatabaseTypeDesc() ));
+        .getDatabaseTypeByShortName( databaseMeta.getDatabaseTypeDesc() ) );
     databaseConnection.setName( databaseMeta.getName() );
     if ( databaseMeta.getObjectId() != null ) {
       databaseConnection.setId( databaseMeta.getObjectId().getId() );
@@ -160,12 +160,12 @@ public class DatabaseHelper {
     String accessType = databaseMeta.getAccessTypeDesc();
 
     // This is a special case with some PDI connections
-    if(accessType != null && accessType.contains( "Native")) {
+    if ( accessType != null && accessType.contains( "Native" ) ) {
       accessType = DatabaseAccessType.NATIVE.getName();
-    } else if(accessType != null && accessType.equals(", ")) {
+    } else if ( accessType != null && accessType.equals(", " ) ) {
       accessType = DatabaseAccessType.JNDI.getName();
     }
-    
+
     databaseConnection.setAccessType( accessType != null
       ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
     databaseConnection.setHostname(databaseMeta.getHostname() );
@@ -184,26 +184,26 @@ public class DatabaseHelper {
     databaseConnection.setForcingIdentifiersToUpperCase( databaseMeta.isForcingIdentifiersToUpperCase() );
     databaseConnection.setQuoteAllFields( databaseMeta.isQuoteAllFields() );
     databaseConnection.setUsingDoubleDecimalAsSchemaTableSeparator( databaseMeta.isUsingDoubleDecimalAsSchemaTableSeparator() );
-    
-    Map<String,String> attributeMap = new HashMap<String, String>();
-    
-    for(Entry<Object, Object> entry:databaseMeta.getAttributes().entrySet()) {
-      attributeMap.put( (String)entry.getKey(), (String)entry.getValue() );
+
+    Map<String, String> attributeMap = new HashMap<String, String>();
+
+    for ( Entry<Object, Object> entry:databaseMeta.getAttributes().entrySet() ) {
+      attributeMap.put( (String) entry.getKey(), (String) entry.getValue() );
     }
-    databaseConnection.setAttributes(attributeMap);
-    
-    Map<String,String> connectionPoolingMap = new HashMap<String, String>();
-    for(Entry<Object, Object> entry:databaseMeta.getConnectionPoolingProperties().entrySet()) {
-      connectionPoolingMap.put( (String)entry.getKey(), (String)entry.getValue() );
+    databaseConnection.setAttributes( attributeMap );
+
+    Map<String, String> connectionPoolingMap = new HashMap<String, String>();
+    for ( Entry<Object, Object> entry : databaseMeta.getConnectionPoolingProperties().entrySet() ) {
+      connectionPoolingMap.put( (String) entry.getKey(), (String) entry.getValue() );
     }
-    databaseConnection.setConnectionPoolingProperties(connectionPoolingMap);
-    
-    databaseConnection.setExtraOptions(databaseMeta.getExtraOptions());
+    databaseConnection.setConnectionPoolingProperties( connectionPoolingMap );
+
+    databaseConnection.setExtraOptions( databaseMeta.getExtraOptions() );
 
     return databaseConnection;
 
   }
-  
+
   public IDatabaseConnection dataNodeToDatabaseConnection( final Serializable id, final String name,
       final DataNode rootNode ) {
     IDatabaseConnection databaseConnection = new DatabaseConnection();
@@ -217,19 +217,19 @@ public class DatabaseHelper {
     String accessType = getString( rootNode, PROP_CONTYPE );
 
     // This is a special case with some PDI connections
-    if(accessType != null && accessType.contains( "Native")) {
+    if ( accessType != null && accessType.contains( "Native" ) ) {
       accessType = DatabaseAccessType.NATIVE.getName();
-    } else if(accessType != null && accessType.equals(", ")) {
+    } else if ( accessType != null && accessType.equals(", " ) ) {
       accessType = DatabaseAccessType.JNDI.getName();
     }
-    
+
     databaseConnection.setAccessType( accessType != null
       ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
     databaseConnection.setHostname( getString( rootNode, PROP_HOST_NAME ) );
     databaseConnection.setDatabaseName( getString( rootNode, PROP_DATABASE_NAME ) );
     databaseConnection.setDatabasePort( getString( rootNode, PROP_PORT ) );
     databaseConnection.setUsername( getString( rootNode, PROP_USERNAME ) );
-    databaseConnection.setPassword( Encr.decryptPasswordOptionallyEncrypted(getString(rootNode, PROP_PASSWORD)));
+    databaseConnection.setPassword( Encr.decryptPasswordOptionallyEncrypted(getString( rootNode, PROP_PASSWORD ) ) );
     databaseConnection.setInformixServername( getString( rootNode, PROP_SERVERNAME ) );
     databaseConnection.setDataTablespace( getString( rootNode, PROP_DATA_TBS ) );
     databaseConnection.setIndexTablespace( getString( rootNode, PROP_INDEX_TBS ) );

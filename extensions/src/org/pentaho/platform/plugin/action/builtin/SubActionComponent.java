@@ -119,22 +119,21 @@ public class SubActionComponent extends ComponentBase {
     }
 
     // when using JCR (5.0 and up) we need to make sure the path starts with / (PATH_SEPARATOR)
-    if ( StringUtils.isEmpty( actionPath ) == false
-        && actionPath.startsWith( PATH_SEPARATOR ) == false ) {
+    if ( StringUtils.isEmpty( actionPath ) == false && actionPath.startsWith( PATH_SEPARATOR ) == false ) {
       actionPath = PATH_SEPARATOR + actionPath;
     }
     return actionPath;
   }
 
-  @SuppressWarnings ( "deprecation" )
+  @SuppressWarnings( "deprecation" )
   @Override
   protected boolean executeAction() throws Throwable {
     SubActionAction subAction = (SubActionAction) getActionDefinition();
     List<Object> ignoreParameters = new ArrayList<Object>();
 
-    String actionPath = buildActionPath( subAction.getSolution().getStringValue(),
-        subAction.getPath().getStringValue(),
-        subAction.getAction().getStringValue() );
+    String actionPath =
+        buildActionPath( subAction.getSolution().getStringValue(), subAction.getPath().getStringValue(), subAction
+            .getAction().getStringValue() );
 
     // see if we are supposed to proxy the session
     IPentahoSession session = getSession();

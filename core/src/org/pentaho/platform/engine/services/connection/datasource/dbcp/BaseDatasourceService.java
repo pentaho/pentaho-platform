@@ -90,7 +90,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
    * @throws DBDatasourceServiceException
    */
   protected DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
-      throws DBDatasourceServiceException {
+    throws DBDatasourceServiceException {
     return null;
   }
 

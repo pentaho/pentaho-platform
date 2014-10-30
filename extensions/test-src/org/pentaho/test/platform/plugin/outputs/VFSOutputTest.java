@@ -27,7 +27,7 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 
 import java.io.File;
 
-@SuppressWarnings ( "nls" )
+@SuppressWarnings( "nls" )
 public class VFSOutputTest extends BaseTest {
 
   private static final String SOLUTION_PATH = "test-src/solution";

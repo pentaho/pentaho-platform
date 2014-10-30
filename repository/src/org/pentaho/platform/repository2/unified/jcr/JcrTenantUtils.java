@@ -121,7 +121,7 @@ public class JcrTenantUtils {
     if ( nameUtils != null ) {
       tenant = nameUtils.getTenant( principalId );
     }
-    if ( tenant == null || tenant.getId() == null || !tenant.getId().startsWith("/") ) {
+    if ( tenant == null || tenant.getId() == null || !tenant.getId().startsWith( "/" ) ) {
       tenant = getCurrentTenant();
     }
     if ( tenant == null || tenant.getId() == null ) {
@@ -151,8 +151,9 @@ public class JcrTenantUtils {
     if ( PentahoSessionHolder.getSession() != null ) {
       String tenantId = (String) PentahoSessionHolder.getSession().getAttribute( IPentahoSession.TENANT_ID_KEY );
       return tenantId != null ? new Tenant( tenantId, true ) : null;
-    } else
+    } else {
       return null;
+    }
   }
 
   public static String getDefaultTenantPath() {

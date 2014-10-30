@@ -27,8 +27,9 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Hold mime type name and extensions associated with it.
- *
+ * 
  * @author tkafalas
+ * 
  */
 @XmlRootElement
 public class MimeType implements Comparable<MimeType> {
@@ -51,7 +52,7 @@ public class MimeType implements Comparable<MimeType> {
 
   /**
    * Convenience method to allow comma delimited list of extensions
-   *
+   * 
    * @param name
    * @param extensions
    */
@@ -150,6 +151,5 @@ public class MimeType implements Comparable<MimeType> {
     }
     return true;
   }
-
 
 }

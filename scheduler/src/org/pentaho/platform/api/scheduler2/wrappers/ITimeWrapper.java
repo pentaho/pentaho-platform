@@ -19,7 +19,6 @@ package org.pentaho.platform.api.scheduler2.wrappers;
 
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 

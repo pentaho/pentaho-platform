@@ -129,7 +129,7 @@ public class QuartzScheduler implements IScheduler {
    */
   public void setQuartzSchedulerFactory( SchedulerFactory quartzSchedulerFactory ) throws SchedulerException {
     this.quartzSchedulerFactory = quartzSchedulerFactory;
-    if( quartzScheduler != null ){
+    if ( quartzScheduler != null ) {
       this.shutdown();
       quartzScheduler = null;
     }
@@ -745,8 +745,7 @@ public class QuartzScheduler implements IScheduler {
             }
             if ( sequencePattern.matcher( token ).matches() ) {
               String[] days = token.split( "-" ); //$NON-NLS-1$
-              timeRecurrence.add( new SequentialRecurrence( Integer.parseInt( days[0] ),
-                      Integer.parseInt( days[1] ) ) );
+              timeRecurrence.add( new SequentialRecurrence( Integer.parseInt( days[0] ), Integer.parseInt( days[1] ) ) );
             } else if ( intervalPattern.matcher( token ).matches() ) {
               String[] days = token.split( "/" ); //$NON-NLS-1$
               timeRecurrence

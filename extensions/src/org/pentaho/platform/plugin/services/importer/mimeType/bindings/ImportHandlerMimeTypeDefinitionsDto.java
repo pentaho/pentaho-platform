@@ -22,7 +22,6 @@
 // Generated on: 2014.02.13 at 12:51:52 PM EST 
 //
 
-
 package org.pentaho.platform.plugin.services.importer.mimeType.bindings;
 
 import java.util.ArrayList;
@@ -32,12 +31,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for ImportHandlerMimeTypeDefinitionsDto complex type.
- * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * <p>
+ * Java class for ImportHandlerMimeTypeDefinitionsDto complex type.
+ * 
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ * 
  * <pre>
  * &lt;complexType name="ImportHandlerMimeTypeDefinitionsDto">
  *   &lt;complexContent>
@@ -49,35 +49,36 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
-@XmlAccessorType ( XmlAccessType.FIELD )
-@XmlType ( name = "ImportHandlerMimeTypeDefinitionsDto", propOrder = {
-    "importHandler"
-    } )
+@XmlAccessorType( XmlAccessType.FIELD )
+@XmlType( name = "ImportHandlerMimeTypeDefinitionsDto", propOrder = { "importHandler" } )
 public class ImportHandlerMimeTypeDefinitionsDto {
 
-  @XmlElement ( name = "ImportHandler", required = true )
+  @XmlElement( name = "ImportHandler", required = true )
   protected List<ImportHandlerDto> importHandler;
 
   /**
    * Gets the value of the importHandler property.
-   * <p/>
-   * <p/>
-   * This accessor method returns a reference to the live list,
-   * not a snapshot. Therefore any modification you make to the
-   * returned list will be present inside the JAXB object.
-   * This is why there is not a <CODE>set</CODE> method for the importHandler property.
-   * <p/>
-   * <p/>
+   * 
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+   * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+   * the importHandler property.
+   * 
+   * <p>
    * For example, to add a new item, do as follows:
+   * 
    * <pre>
-   *    getImportHandler().add(newItem);
+   * getImportHandler().add( newItem );
    * </pre>
-   * <p/>
-   * <p/>
-   * <p/>
-   * Objects of the following type(s) are allowed in the list
-   * {@link ImportHandlerDto }
+   * 
+   * 
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link ImportHandlerDto }
+   * 
+   * 
    */
   public List<ImportHandlerDto> getImportHandler() {
     if ( importHandler == null ) {

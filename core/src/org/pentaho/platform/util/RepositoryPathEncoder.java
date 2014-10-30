@@ -30,8 +30,7 @@ public class RepositoryPathEncoder {
       encoded =
           URLEncoder.encode( value, "UTF-8" ).replaceAll( "\\+", "%20" ).replaceAll( "\\%21", "!" ).replaceAll(
               "\\%27", "'" ).replaceAll( "\\%28", "(" ).replaceAll( "\\%29", ")" ).replaceAll( "\\%7E", "~" );
-    }
-    catch ( UnsupportedEncodingException e ) {
+    } catch ( UnsupportedEncodingException e ) {
       //Should not happen
       encoded = value;
     }

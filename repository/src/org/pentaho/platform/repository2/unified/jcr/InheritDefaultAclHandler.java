@@ -15,8 +15,8 @@
  *
  * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
-
-package org.pentaho.platform.repository2.unified.jcr;/*
+package org.pentaho.platform.repository2.unified.jcr;
+/*
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -36,7 +36,6 @@ package org.pentaho.platform.repository2.unified.jcr;/*
  * Date: 2/12/13
  * Time: 4:10 PM
  */
-
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;

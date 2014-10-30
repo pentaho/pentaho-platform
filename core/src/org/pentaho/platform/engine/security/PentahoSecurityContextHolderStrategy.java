@@ -4,7 +4,6 @@ import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolderStrategy;
 import org.springframework.security.context.SecurityContextImpl;
-import org.springframework.util.Assert;
 
 /**
  * Used by Spring Security's {@link org.springframework.security.context.SecurityContextHolder} to govern the creation

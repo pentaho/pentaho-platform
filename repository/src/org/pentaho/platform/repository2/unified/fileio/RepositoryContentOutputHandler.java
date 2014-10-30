@@ -29,19 +29,18 @@ public class RepositoryContentOutputHandler extends BaseOutputHandler {
 
   public IContentItem getFileOutputContentItem() {
     String filePath = getSolutionPath();
-    if ( StringUtils.isEmpty( filePath )) {
+    if ( StringUtils.isEmpty( filePath ) ) {
       filePath = getContentRef();
     }
     if ( filePath.startsWith( "~/" ) || filePath.startsWith( "~\\" ) || filePath.equals( "~" ) ) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       filePath = ClientRepositoryPaths.getUserHomeFolderPath( getSession().getName() ) + "/"; //$NON-NLS-1$
       filePath =
           filePath
-              + ( getSolutionPath().length() > 1 ? getSolutionPath().substring( 2 )
-            : getSolutionPath().substring( 1 ) );
+              + ( getSolutionPath().length() > 1 ? getSolutionPath().substring( 2 ) : getSolutionPath().substring( 1 ) );
     }
-    
+
     filePath = replaceIllegalChars( filePath );
-    
+
     IContentItem contentItem = null;
     String requestedFileExtension = MimeHelper.getExtension( getMimeType() );
     if ( requestedFileExtension == null ) {
@@ -59,5 +58,5 @@ public class RepositoryContentOutputHandler extends BaseOutputHandler {
     String outStr = inStr.replaceAll( "'", "" );
     return outStr;
   }
-  
+
 }

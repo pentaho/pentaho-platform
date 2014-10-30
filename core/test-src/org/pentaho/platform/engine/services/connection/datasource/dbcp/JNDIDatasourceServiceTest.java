@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 /**
  * Created by gmoran on 5/2/14.
  */
-@RunWith(Parameterized.class)
+@RunWith( Parameterized.class )
 public class JNDIDatasourceServiceTest {
 
   private BaseDatasourceService service;
@@ -32,23 +32,23 @@ public class JNDIDatasourceServiceTest {
   @Parameterized.Parameters
   public static Collection services() {
     return Arrays.asList( new Object[][] {
-        { new JndiDatasourceService(), "test0" },
-        { new NonPooledOrJndiDatasourceService(), "test1" },
-        { new PooledOrJndiDatasourceService(), "test2" }
+      { new JndiDatasourceService(), "test0" },
+      { new NonPooledOrJndiDatasourceService(), "test1" },
+      { new PooledOrJndiDatasourceService(), "test2" }
     } );
   }
 
   @Before
-  public void setUp(){
+  public void setUp() {
 
-    IDatabaseConnection mockConnection = mock(IDatabaseConnection.class);
+    IDatabaseConnection mockConnection = mock( IDatabaseConnection.class );
 
     // Set it up - this is a JNDI connection
-    when( mockConnection.getAccessType()).thenReturn( DatabaseAccessType.JNDI );
-    when( mockConnection.getDatabaseName()).thenReturn( dsName );
+    when( mockConnection.getAccessType() ).thenReturn( DatabaseAccessType.JNDI );
+    when( mockConnection.getDatabaseName() ).thenReturn( dsName );
 
-    DataSource mockDs = mock(DataSource.class);
-    IDatasourceMgmtService mockMgmtService = mock(IDatasourceMgmtService.class);
+    DataSource mockDs = mock( DataSource.class );
+    IDatasourceMgmtService mockMgmtService = mock(IDatasourceMgmtService.class );
 
     spyService = spy(service );
 
@@ -59,7 +59,7 @@ public class JNDIDatasourceServiceTest {
     }
 
     try {
-      doReturn(mockDs).when( spyService ).getJndiDataSource( dsName );
+      doReturn( mockDs ).when( spyService ).getJndiDataSource( dsName );
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
     }
@@ -70,22 +70,18 @@ public class JNDIDatasourceServiceTest {
 
   }
 
-  public JNDIDatasourceServiceTest( BaseDatasourceService service, String name ){
+  public JNDIDatasourceServiceTest( BaseDatasourceService service, String name ) {
     this.service = service;
     this.dsName = name;
   }
 
   @Test
-  public void testJndiServices( ){
-
-
+  public void testJndiServices() {
     try {
-
       // Now make sure that the JNDI service method gets called; if not,
       // fail the test
       spyService.getDataSource( dsName );
-      verify(spyService).getJndiDataSource( dsName );
-
+      verify( spyService ).getJndiDataSource( dsName );
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
     }
@@ -93,20 +89,16 @@ public class JNDIDatasourceServiceTest {
   }
 
   @Test
-  public void testCachedJndiServices( ){
-
+  public void testCachedJndiServices( ) {
     try {
-
       // Now make sure that the JNDI service method gets called the first time,
       // but the second time it should retrieve from cache.
       spyService.getDataSource( dsName );
       spyService.getDataSource( dsName );
-      verify(spyService, Mockito.times( 1 )).getJndiDataSource( dsName );
+      verify(spyService, Mockito.times( 1 ) ).getJndiDataSource( dsName );
 
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
     }
-
   }
-
 }

@@ -33,7 +33,7 @@ import java.io.OutputStream;
 //import org.pentaho.commons.connection.IPentahoResultSet;
 //import org.pentaho.platform.api.data.IPreparedComponent;
 
-@SuppressWarnings ( "nls" )
+@SuppressWarnings( "nls" )
 public class SubActionComponentTest extends BaseTest {
 
   private static final String CO_TEST_NAME = "MultipleComponentTest_ContentOutput_"; //$NON-NLS-1$
@@ -158,7 +158,7 @@ public class SubActionComponentTest extends BaseTest {
 
   /**
    * sub-action creates connection, passes result set on to parent action
-   *
+   * 
    */
   /*
    * public void testChildResultSetSharing() {
@@ -212,6 +212,7 @@ public class SubActionComponentTest extends BaseTest {
    * 
    * finishTest(); }
    */
+
   protected OutputStream getOutputStream( String testName, String extension ) {
     if ( testName.indexOf( "BAD_OUTPUTSTREAM_" ) > 0 ) { //$NON-NLS-1$ 
       ByteArrayOutputStream exceptionStream = new ByteArrayOutputStream() {

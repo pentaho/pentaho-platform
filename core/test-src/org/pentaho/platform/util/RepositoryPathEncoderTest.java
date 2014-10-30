@@ -19,7 +19,7 @@ public class RepositoryPathEncoderTest {
     Assert.assertEquals( ":public:Steel Wheels:File\tWithColon", RepositoryPathEncoder
         .encodeRepositoryPath( "/public/Steel Wheels/File:WithColon" ) );
   }
-  
+
   @Test
   public void testDecodeRepositoryPath() {
     Assert.assertEquals( "/public/Steel Wheels/File:WithColon", RepositoryPathEncoder

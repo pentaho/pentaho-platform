@@ -84,7 +84,6 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
     return "http://localhost:8080/pentaho/"; //$NON-NLS-1$
   }
 
-  @Override
   public void setUp() {
 
     // used by test repository impl such as FileSystemRepositoryFileDao
@@ -123,7 +122,7 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
       // initting spring's app context
       springApplicationContext.getBean( "pentahoSystemProxy" ); //$NON-NLS-1$
 
-      // Initialize SecurityHelper with a mock for testing
+      //Initialize SecurityHelper with a mock for testing
       SecurityHelper.setMockInstance( new MockSecurityHelper() );
 
       initOk = PentahoSystem.init( applicationContext );
@@ -135,10 +134,10 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
   }
 
   private ApplicationContext getSpringApplicationContext() {
-    // todo
+    //todo
     String[] fns =
-        {
-          "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml", "systemListeners.xml", "pentahoSystemConfig.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+    {
+      "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml", "systemListeners.xml", "pentahoSystemConfig.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
     GenericApplicationContext appCtx = new GenericApplicationContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader( appCtx );
@@ -169,10 +168,8 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
 
   }
 
-  @Override
   public void tearDown() {
     PentahoSystem.systemExitPoint();
-    initOk = false;
   }
 
   public static void shutdown() {
@@ -181,11 +178,11 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
 
   protected void startTest() {
     /*
-     * Made this green-code because it wasn't currently being used for anything. But, it could come in handy at some
-     * point. MB
+     * Made this green-code because it wasn't currently being used for anything. But, it could come in handy at
+     * some point. MB
      * 
-     * Throwable th = new Throwable("Test"); //$NON-NLS-1$ StackTraceElement[] st = th.getStackTrace(); String name =
-     * st[1].getClassName() + "." + st[1].getMethodName(); //$NON-NLS-1$ String description =
+     * Throwable th = new Throwable("Test"); //$NON-NLS-1$ StackTraceElement[] st = th.getStackTrace(); String name
+     * = st[1].getClassName() + "." + st[1].getMethodName(); //$NON-NLS-1$ String description =
      * Messages.getInstance().getString(name + ".USER_DESCRIPTION"); //$NON-NLS-1$
      */
   }
@@ -354,7 +351,6 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
   }
 
   public void testNothing() {
-    // test will be failed without it
     assertTrue( true );
   }
 

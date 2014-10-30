@@ -41,6 +41,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  * Configures and manage the Email configuration in the platform
+ * 
  * @author rmansoor
  *
  */
@@ -96,7 +97,9 @@ public class EmailResource extends AbstractJaxRSResource {
 
   /**
    * Delete the stored email configuration from the platform.
-   * @param emailConfiguration <code> EmailConfiguration </code> 
+   * 
+   * @param emailConfiguration
+   *          <code> EmailConfiguration </code>
    * @return
    */
   @GET
@@ -117,7 +120,9 @@ public class EmailResource extends AbstractJaxRSResource {
 
   /**
    * Stores the email configuration in the platform
-   * @param emailConfiguration <code> EmailConfiguration </code>
+   * 
+   * @param emailConfiguration
+   *          <code> EmailConfiguration </code>
    * @return
    */
   @PUT
@@ -140,6 +145,7 @@ public class EmailResource extends AbstractJaxRSResource {
 
   /**
    * Retrieves the email configuration
+   * 
    * @return emailConfiguration <code> EmailConfiguration </code>
    */
   @GET
@@ -159,7 +165,9 @@ public class EmailResource extends AbstractJaxRSResource {
 
   /**
    * Process the current email configuration
-   * @param emailConfiguration <code> EmailConfiguration </code>
+   * 
+   * @param emailConfiguration
+   *          <code> EmailConfiguration </code>
    * @return
    * @throws Exception
    */
@@ -174,8 +182,10 @@ public class EmailResource extends AbstractJaxRSResource {
       return Response.status( UNAUTHORIZED ).build();
     }
   }
+
   /**
    * Checks whether the current email configuration is valid
+   * 
    * @return ("true" or "false")
    */
   @GET
@@ -187,7 +197,7 @@ public class EmailResource extends AbstractJaxRSResource {
         return Response.ok( "true" ).build();
       }
     } catch ( Exception e ) {
-      //ignore
+      // ignore
     }
     return Response.ok( "false" ).build();
   }

@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 /**
  * Created by gmoran on 5/2/14.
  */
-@RunWith(Parameterized.class)
+@RunWith( Parameterized.class )
 public class DynamicConnectionDatasourceServiceTest {
 
   private BaseDatasourceService spyService;
@@ -33,22 +33,22 @@ public class DynamicConnectionDatasourceServiceTest {
   @Parameterized.Parameters
   public static Collection services() {
     return Arrays.asList( new Object[][] {
-        { new PooledDatasourceService(), new NonPooledDatasourceService(), "test1" },
-        { new PooledOrJndiDatasourceService(), new NonPooledOrJndiDatasourceService(), "test3" }
+      { new PooledDatasourceService(), new NonPooledDatasourceService(), "test1" },
+      { new PooledOrJndiDatasourceService(), new NonPooledOrJndiDatasourceService(), "test3" }
     } );
   }
 
   @Before
-  public void setUp(){
+  public void setUp() {
 
-    mockConnection = mock(IDatabaseConnection.class);
+    mockConnection = mock( IDatabaseConnection.class );
 
     // Set it up - this is a NATIVE connection
-    when( mockConnection.getAccessType()).thenReturn( DatabaseAccessType.NATIVE );
-    when( mockConnection.getDatabaseName()).thenReturn( dsName );
+    when( mockConnection.getAccessType() ).thenReturn( DatabaseAccessType.NATIVE );
+    when( mockConnection.getDatabaseName() ).thenReturn( dsName );
 
-    DataSource mockDs = mock(DataSource.class);
-    IDatasourceMgmtService mockMgmtService = mock(IDatasourceMgmtService.class);
+    DataSource mockDs = mock( DataSource.class );
+    IDatasourceMgmtService mockMgmtService = mock( IDatasourceMgmtService.class );
 
     DynamicallyPooledOrJndiDatasourceService dynamic = new DynamicallyPooledOrJndiDatasourceService();
     dynamic.setNonPooledDatasourceService( nonPooledSpyService );
@@ -62,8 +62,8 @@ public class DynamicConnectionDatasourceServiceTest {
     }
 
     try {
-      doReturn(mockDs).when( nonPooledSpyService ).resolveDatabaseConnection( mockConnection );
-      doReturn(mockDs).when( pooledSpyService ).resolveDatabaseConnection( mockConnection );
+      doReturn( mockDs ).when( nonPooledSpyService ).resolveDatabaseConnection( mockConnection );
+      doReturn( mockDs ).when( pooledSpyService ).resolveDatabaseConnection( mockConnection );
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
     }
@@ -76,23 +76,23 @@ public class DynamicConnectionDatasourceServiceTest {
 
   }
 
-  public DynamicConnectionDatasourceServiceTest( BaseDatasourceService pooled, BaseDatasourceService nonpooled, String name ){
-    this.pooledSpyService = spy(pooled);
-    this.nonPooledSpyService = spy(nonpooled);
+  public DynamicConnectionDatasourceServiceTest( BaseDatasourceService pooled, BaseDatasourceService nonpooled, String name ) {
+    this.pooledSpyService = spy( pooled );
+    this.nonPooledSpyService = spy( nonpooled );
     this.dsName = name;
   }
 
   @Test
-  public void testUsePoolingConnectionServices( ){
+  public void testUsePoolingConnectionServices() {
 
 
     try {
 
-      when( mockConnection.isUsingConnectionPool()).thenReturn( true );
+      when( mockConnection.isUsingConnectionPool() ).thenReturn( true );
 
       spyService.getDataSource( dsName );
       verify( pooledSpyService ).resolveDatabaseConnection( mockConnection );
-      verify( nonPooledSpyService, Mockito.never()).resolveDatabaseConnection( mockConnection );
+      verify( nonPooledSpyService, Mockito.never() ).resolveDatabaseConnection( mockConnection );
 
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
@@ -101,16 +101,16 @@ public class DynamicConnectionDatasourceServiceTest {
   }
 
   @Test
-  public void testUseNonPoolingConnectionServices( ){
+  public void testUseNonPoolingConnectionServices() {
 
 
     try {
 
-      when( mockConnection.isUsingConnectionPool()).thenReturn( false );
+      when( mockConnection.isUsingConnectionPool() ).thenReturn( false );
 
       spyService.getDataSource( dsName );
       verify( nonPooledSpyService ).resolveDatabaseConnection( mockConnection );
-      verify( pooledSpyService, Mockito.never()).resolveDatabaseConnection( mockConnection );
+      verify( pooledSpyService, Mockito.never() ).resolveDatabaseConnection( mockConnection );
 
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
@@ -119,12 +119,12 @@ public class DynamicConnectionDatasourceServiceTest {
   }
 
   @Test
-  public void testCacheClearinginDynamicConnectionServices( ){
+  public void testCacheClearinginDynamicConnectionServices() {
 
 
     try {
 
-      when( mockConnection.isUsingConnectionPool()).thenReturn( true );
+      when( mockConnection.isUsingConnectionPool() ).thenReturn( true );
 
       spyService.getDataSource( dsName );
       spyService.clearCache();
@@ -135,8 +135,5 @@ public class DynamicConnectionDatasourceServiceTest {
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
     }
-
   }
-
-
 }

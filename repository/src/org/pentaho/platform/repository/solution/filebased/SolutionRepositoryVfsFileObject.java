@@ -55,7 +55,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   private boolean fileInitialized;
 
   private RepositoryFile repositoryFile = null;
-  
+
   private IRepositoryContentConverterHandler converterHandler;
 
   public SolutionRepositoryVfsFileObject( final String fileRef ) {
@@ -68,8 +68,8 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   }
 
   public IRepositoryContentConverterHandler getConverterHandler() {
-    if(converterHandler == null) {
-      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+    if ( converterHandler == null ) {
+      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
     }
     return converterHandler;
   }
@@ -104,10 +104,9 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
       // decode URL before 'get'
       String fileUrl = fileRef;
 
-      try{
+      try {
         fileUrl = URLDecoder.decode( fileUrl, Charset.defaultCharset().name() );
-      }
-      catch ( UnsupportedEncodingException e ){
+      } catch ( UnsupportedEncodingException e ) {
         fileUrl = fileRef;
       }
 
@@ -257,13 +256,13 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
       String extension = FilenameUtils.getExtension( repositoryFile.getPath() );
       // Try to get the converter for the extension. If there is not converter available then we will
       //assume simple type and will get the data that way
-      if(getConverterHandler() != null) {
+      if ( getConverterHandler() != null ) {
         Converter converter = getConverterHandler().getConverter( extension );
-        if(converter != null) {
+        if ( converter != null ) {
           inputStream = converter.convert( repositoryFile.getId() );
         }
       }
-      if(inputStream == null) {
+      if ( inputStream == null ) {
         inputStream = REPOSITORY.getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
       }
     }

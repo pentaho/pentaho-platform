@@ -73,7 +73,7 @@ public class RepositoryFileAclAceDto implements Serializable {
   public void setPermissions( List<Integer> permissions ) {
     this.permissions = permissions;
   }
-  
+
   public boolean isModifiable() {
     return modifiable;
   }

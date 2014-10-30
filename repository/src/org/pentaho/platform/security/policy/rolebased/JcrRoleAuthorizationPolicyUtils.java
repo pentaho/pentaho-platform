@@ -18,7 +18,6 @@
 
 package org.pentaho.platform.security.policy.rolebased;
 
-import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.NodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.springframework.util.StringUtils;

@@ -80,7 +80,7 @@ public class ActionSequenceAction implements IStreamProcessingAction, IStreaming
       }
       rt =
           solutionEngine.execute( xactionPath, this.getClass().getName(), false, true, null, true, parameterProviders,
-            outputHandler, null, null, messages );
+              outputHandler, null, null, messages );
 
       if ( !outputHandler.contentDone() ) {
         if ( ( rt != null ) && ( rt.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS ) ) {
@@ -97,8 +97,7 @@ public class ActionSequenceAction implements IStreamProcessingAction, IStreaming
               // unknown type, treat it not as an extension but part of the name
               extension = "";
             }
-            if ( extension.isEmpty()
-                && xactionResultsOutputStream.toString().isEmpty() ) {
+            if ( extension.isEmpty() && xactionResultsOutputStream.toString().isEmpty() ) {
               repositoryFileOutputStream.setFilePath( repositoryFileOutputStream.getFilePath() + ".html" );
             }
           } else {

@@ -46,8 +46,7 @@ public class SchedulerResourceUtil {
 
   private static final Log logger = LogFactory.getLog( SchedulerResourceUtil.class );
 
-  public static IJobTrigger
-  convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest, IScheduler scheduler )
+  public static IJobTrigger convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest, IScheduler scheduler )
     throws SchedulerException, UnifiedRepositoryException {
 
     // Used to determine if created by a RunInBackgroundCommand
@@ -57,7 +56,8 @@ public class SchedulerResourceUtil {
 
     // add 10 seconds to the RIB to ensure execution (see PPP-3264)
     IJobTrigger jobTrigger =
-        runInBackground ? new SimpleJobTrigger( new Date( System.currentTimeMillis() + 10000 ), null, 0, 0 ) : scheduleRequest.getSimpleJobTrigger();
+        runInBackground ? new SimpleJobTrigger( new Date( System.currentTimeMillis() + 10000 ), null, 0, 0 )
+            : scheduleRequest.getSimpleJobTrigger();
 
     if ( scheduleRequest.getSimpleJobTrigger() != null ) {
       SimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();
@@ -184,9 +184,8 @@ public class SchedulerResourceUtil {
     }
   }
 
-
   public static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
-                                                                   HashMap<String, Serializable> parameterMap ) {
+      HashMap<String, Serializable> parameterMap ) {
 
     if ( file != null && isPdiFile( file ) ) {
 

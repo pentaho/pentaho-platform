@@ -22,7 +22,6 @@
 // Generated on: 2014.02.13 at 12:51:52 PM EST 
 //
 
-
 package org.pentaho.platform.plugin.services.importer.mimeType.bindings;
 
 import java.util.ArrayList;
@@ -33,12 +32,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for MimeTypeDefinitionDto complex type.
- * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * <p>
+ * Java class for MimeTypeDefinitionDto complex type.
+ * 
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ * 
  * <pre>
  * &lt;complexType name="MimeTypeDefinitionDto">
  *   &lt;complexContent>
@@ -54,43 +54,44 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
-@XmlAccessorType ( XmlAccessType.FIELD )
-@XmlType ( name = "MimeTypeDefinitionDto", propOrder = {
-    "extension"
-    } )
+@XmlAccessorType( XmlAccessType.FIELD )
+@XmlType( name = "MimeTypeDefinitionDto", propOrder = { "extension" } )
 public class MimeTypeDefinitionDto {
 
-  @XmlElement ( required = true )
+  @XmlElement( required = true )
   protected List<String> extension;
-  @XmlAttribute ( name = "mimeType", required = true )
+  @XmlAttribute( name = "mimeType", required = true )
   protected String mimeType;
-  @XmlAttribute ( name = "hidden" )
+  @XmlAttribute( name = "hidden" )
   protected Boolean hidden;
-  @XmlAttribute ( name = "locale" )
+  @XmlAttribute( name = "locale" )
   protected Boolean locale;
-  @XmlAttribute ( name = "converter" )
+  @XmlAttribute( name = "converter" )
   protected String converter;
 
   /**
    * Gets the value of the extension property.
-   * <p/>
-   * <p/>
-   * This accessor method returns a reference to the live list,
-   * not a snapshot. Therefore any modification you make to the
-   * returned list will be present inside the JAXB object.
-   * This is why there is not a <CODE>set</CODE> method for the extension property.
-   * <p/>
-   * <p/>
+   * 
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+   * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+   * the extension property.
+   * 
+   * <p>
    * For example, to add a new item, do as follows:
+   * 
    * <pre>
-   *    getExtension().add(newItem);
+   * getExtension().add( newItem );
    * </pre>
-   * <p/>
-   * <p/>
-   * <p/>
-   * Objects of the following type(s) are allowed in the list
-   * {@link String }
+   * 
+   * 
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link String }
+   * 
+   * 
    */
   public List<String> getExtension() {
     if ( extension == null ) {
@@ -101,9 +102,9 @@ public class MimeTypeDefinitionDto {
 
   /**
    * Gets the value of the mimeType property.
-   *
-   * @return possible object is
-   * {@link String }
+   * 
+   * @return possible object is {@link String }
+   * 
    */
   public String getMimeType() {
     return mimeType;
@@ -111,9 +112,10 @@ public class MimeTypeDefinitionDto {
 
   /**
    * Sets the value of the mimeType property.
-   *
-   * @param value allowed object is
-   *              {@link String }
+   * 
+   * @param value
+   *          allowed object is {@link String }
+   * 
    */
   public void setMimeType( String value ) {
     this.mimeType = value;
@@ -121,9 +123,9 @@ public class MimeTypeDefinitionDto {
 
   /**
    * Gets the value of the hidden property.
-   *
-   * @return possible object is
-   * {@link Boolean }
+   * 
+   * @return possible object is {@link Boolean }
+   * 
    */
   public boolean isHidden() {
     if ( hidden == null ) {
@@ -135,9 +137,10 @@ public class MimeTypeDefinitionDto {
 
   /**
    * Sets the value of the hidden property.
-   *
-   * @param value allowed object is
-   *              {@link Boolean }
+   * 
+   * @param value
+   *          allowed object is {@link Boolean }
+   * 
    */
   public void setHidden( Boolean value ) {
     this.hidden = value;
@@ -145,9 +148,9 @@ public class MimeTypeDefinitionDto {
 
   /**
    * Gets the value of the locale property.
-   *
-   * @return possible object is
-   * {@link Boolean }
+   * 
+   * @return possible object is {@link Boolean }
+   * 
    */
   public boolean isLocale() {
     if ( locale == null ) {
@@ -159,9 +162,10 @@ public class MimeTypeDefinitionDto {
 
   /**
    * Sets the value of the locale property.
-   *
-   * @param value allowed object is
-   *              {@link Boolean }
+   * 
+   * @param value
+   *          allowed object is {@link Boolean }
+   * 
    */
   public void setLocale( Boolean value ) {
     this.locale = value;
@@ -169,9 +173,9 @@ public class MimeTypeDefinitionDto {
 
   /**
    * Gets the value of the converter property.
-   *
-   * @return possible object is
-   * {@link String }
+   * 
+   * @return possible object is {@link String }
+   * 
    */
   public String getConverter() {
     if ( converter == null ) {
@@ -183,9 +187,10 @@ public class MimeTypeDefinitionDto {
 
   /**
    * Sets the value of the converter property.
-   *
-   * @param value allowed object is
-   *              {@link String }
+   * 
+   * @param value
+   *          allowed object is {@link String }
+   * 
    */
   public void setConverter( String value ) {
     this.converter = value;

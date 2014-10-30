@@ -123,31 +123,31 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     try {
       if ( !isDefinedInput( XMLABaseComponent.URI ) ) {
         error( Messages.getInstance().getErrorString(
-          "XMLABaseComponent.ERROR_0001_CONNECTION_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
+            "XMLABaseComponent.ERROR_0001_CONNECTION_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
         return false;
       }
 
       if ( !isDefinedInput( XMLABaseComponent.USER ) ) {
         error( Messages.getInstance().getErrorString(
-          "XMLABaseComponent.ERROR_0002_USER_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
+            "XMLABaseComponent.ERROR_0002_USER_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
         return false;
       }
 
       if ( !isDefinedInput( XMLABaseComponent.PASSWORD ) ) {
         error( Messages.getInstance().getErrorString(
-          "XMLABaseComponent.ERROR_0003_PASSWORD_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
+            "XMLABaseComponent.ERROR_0003_PASSWORD_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
         return false;
       }
 
       if ( !isDefinedInput( XMLABaseComponent.CATALOG ) ) {
         error( Messages.getInstance().getErrorString(
-          "XMLABaseComponent.ERROR_0004_CATALOG_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
+            "XMLABaseComponent.ERROR_0004_CATALOG_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
         return false;
       }
 
       if ( !isDefinedInput( XMLABaseComponent.QUERY ) ) {
         error( Messages.getInstance().getErrorString(
-          "XMLABaseComponent.ERROR_0005_QUERY_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
+            "XMLABaseComponent.ERROR_0005_QUERY_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
         return false;
       }
 
@@ -155,15 +155,14 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
       if ( outputName != null ) {
         if ( !getOutputNames().contains( outputName ) ) {
           error( Messages.getInstance().getErrorString(
-            "XMLABaseComponent.ERROR_0006_OUTPUT_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
+              "XMLABaseComponent.ERROR_0006_OUTPUT_NOT_SPECIFIED", getActionName() ) ); //$NON-NLS-1$
           return false;
         }
       }
       return true;
     } catch ( Exception e ) {
       error(
-        Messages.getInstance().getErrorString( "XMLABaseComponent.ERROR_0007_VALIDATION_FAILED", getActionName() ),
-        e ); //$NON-NLS-1$
+          Messages.getInstance().getErrorString( "XMLABaseComponent.ERROR_0007_VALIDATION_FAILED", getActionName() ), e ); //$NON-NLS-1$
     }
 
     return false;
@@ -215,7 +214,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
         newUri += ":" + password; //$NON-NLS-1$
       }
       newUri += "@" + this.url.getHost() + ":" + this.url.getPort() //$NON-NLS-1$ //$NON-NLS-2$
-        + this.url.getPath();
+          + this.url.getPath();
 
       try {
         this.url = new URL( newUri );
@@ -228,9 +227,11 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
   /**
    * Execute query
    *
-   * @param query   - MDX to be executed
+   * @param query
+   *          - MDX to be executed
    * @param catalog
-   * @param handler Callback handler
+   * @param handler
+   *          Callback handler
    * @throws XMLAException
    */
   public boolean executeQuery( final String query, final String catalog ) throws XMLAException {
@@ -347,10 +348,10 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
 
           if ( ( axisOrdinal == XMLABaseComponent.AXIS_COLUMNS ) && ( columnHeaders == null ) ) {
             columnCount = getChildCount( envelope, eTuples, "Tuple" ); //$NON-NLS-1$
-            columnHeaders = new Object[ getChildCount( envelope, eTuple, "Member" ) ][ columnCount ]; //$NON-NLS-1$
+            columnHeaders = new Object[getChildCount( envelope, eTuple, "Member" )][columnCount]; //$NON-NLS-1$
           } else if ( ( axisOrdinal == XMLABaseComponent.AXIS_ROWS ) && ( rowHeaders == null ) ) {
             rowCount = getChildCount( envelope, eTuples, "Tuple" ); //$NON-NLS-1$
-            rowHeaders = new Object[ rowCount ][ getChildCount( envelope, eTuple, "Member" ) ]; //$NON-NLS-1$
+            rowHeaders = new Object[rowCount][getChildCount( envelope, eTuple, "Member" )]; //$NON-NLS-1$
           }
 
           int index = 0;
@@ -374,9 +375,9 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
               }
             }
             if ( axisOrdinal == XMLABaseComponent.AXIS_COLUMNS ) {
-              columnHeaders[ index ][ positionOrdinal ] = caption;
+              columnHeaders[index][positionOrdinal] = caption;
             } else if ( axisOrdinal == XMLABaseComponent.AXIS_ROWS ) {
-              rowHeaders[ positionOrdinal ][ index ] = caption;
+              rowHeaders[positionOrdinal][index] = caption;
             }
             ++index;
           } // MemberLoop
@@ -385,7 +386,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
         } // TupleLoop
       } // AxisLoop
 
-      data = new Object[ rowCount ][ columnCount ];
+      data = new Object[rowCount][columnCount];
       // loop over cells in result set
       name = envelope.createName( "CellData", "", XMLABaseComponent.MDD_URI ); //$NON-NLS-1$//$NON-NLS-2$
       SOAPElement eCellData = selectSingleNode( eRoot, name );
@@ -402,7 +403,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
         int rowLoc = ordinal / columnCount;
         int columnLoc = ordinal % columnCount;
 
-        data[ rowLoc ][ columnLoc ] = value;
+        data[rowLoc][columnLoc] = value;
       } // CellLoop
 
       MemoryResultSet resultSet = new MemoryResultSet();
@@ -451,25 +452,23 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
   private void setProviderAndDataSource( final Map resMap ) throws XMLAException {
     if ( ( resMap == null ) || ( resMap.size() == 0 ) ) {
       error( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0008_NO_RESOURCE_MAP" ) ); //$NON-NLS-1$
-      throw new XMLAException(
-        Messages.getInstance().getString( "XMLABaseComponent.ERROR_0008_NO_RESOURCE_MAP" ) ); //$NON-NLS-1$
+      throw new XMLAException( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0008_NO_RESOURCE_MAP" ) ); //$NON-NLS-1$
     }
 
     String pstr = (String) resMap.get( "ProviderName" ); //$NON-NLS-1$
 
     if ( pstr == null ) {
-      throw new XMLAException(
-        Messages.getInstance().getString( "XMLABaseComponent.ERROR_0009_NO_PROVIDER_NAME" ) ); //$NON-NLS-1$
+      throw new XMLAException( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0009_NO_PROVIDER_NAME" ) ); //$NON-NLS-1$
     }
 
     provider = determineProvider( "Provider=" + pstr ); //$NON-NLS-1$
 
     debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0001_PROVIDER_ID" ) + provider ); //$NON-NLS-1$
 
-    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0002_DATASOURCE_NAME" ) + String.valueOf(
-      resMap.get( "DataSourceName" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
-    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0003_DATASOURCE_INFO" ) + String.valueOf(
-      resMap.get( "DataSourceInfo" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0002_DATASOURCE_NAME" )
+        + String.valueOf( resMap.get( "DataSourceName" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0003_DATASOURCE_INFO" )
+        + String.valueOf( resMap.get( "DataSourceInfo" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
 
     dataSource = (String) resMap.get( "DataSourceInfo" ); //$NON-NLS-1$
 
@@ -478,12 +477,10 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     }
 
     if ( dataSource == null ) {
-      throw new XMLAException(
-        Messages.getInstance().getString( "XMLABaseComponent.ERROR_0010_NO_DATASOURCE_NAME" ) ); //$NON-NLS-1$
+      throw new XMLAException( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0010_NO_DATASOURCE_NAME" ) ); //$NON-NLS-1$
     }
 
-    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0004_DISCOVER_DATASOURCE_SET" )
-      + dataSource ); //$NON-NLS-1$
+    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0004_DISCOVER_DATASOURCE_SET" ) + dataSource ); //$NON-NLS-1$
 
   }
 
@@ -525,8 +522,8 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     };
 
     discover( "DISCOVER_DATASOURCES", url, rHash, pHash, rh ); //$NON-NLS-1$
-    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0005_DISCOVER_DATASOURCE_FOUND" ) + resultMap
-      .size() ); //$NON-NLS-1$
+    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0005_DISCOVER_DATASOURCE_FOUND" )
+        + resultMap.size() ); //$NON-NLS-1$
     return resultMap;
 
   }
@@ -542,7 +539,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
    * @throws XMLAException
    */
   private void discover( final String request, final URL discoverUrl, final Map restrictions, final Map properties,
-                         final Rowhandler rh ) throws XMLAException {
+      final Rowhandler rh ) throws XMLAException {
 
     try {
       SOAPConnection connection = scf.createConnection();
@@ -568,22 +565,19 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
 
       // add the parameters
       if ( restrictions != null ) {
-        addParameterList( envelope, eDiscover, "Restrictions", "RestrictionList",
-          restrictions ); //$NON-NLS-1$ //$NON-NLS-2$
+        addParameterList( envelope, eDiscover, "Restrictions", "RestrictionList", restrictions ); //$NON-NLS-1$ //$NON-NLS-2$
       }
       addParameterList( envelope, eDiscover, "Properties", "PropertyList", properties ); //$NON-NLS-1$//$NON-NLS-2$
 
       msg.saveChanges();
 
-      debug(
-        Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0006_DISCOVER_REQUEST" ) + request ); //$NON-NLS-1$
+      debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0006_DISCOVER_REQUEST" ) + request ); //$NON-NLS-1$
       logSoapMsg( msg );
 
       // run the call
       SOAPMessage reply = connection.call( msg, discoverUrl );
 
-      debug(
-        Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0007_DISCOVER_RESPONSE" ) + request ); //$NON-NLS-1$
+      debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0007_DISCOVER_RESPONSE" ) + request ); //$NON-NLS-1$
       logSoapMsg( reply );
 
       errorCheck( reply );
@@ -612,7 +606,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
    * add a list of Restrictions/Properties ...
    */
   private void addParameterList( final SOAPEnvelope envelope, final SOAPElement eParent, final String typeName,
-                                 final String listName, final Map params ) throws SOAPException {
+      final String listName, final Map params ) throws SOAPException {
     Name nPara = envelope.createName( typeName, "", XMLABaseComponent.XMLA_URI ); //$NON-NLS-1$
     SOAPElement eType = eParent.addChildElement( nPara );
     nPara = envelope.createName( listName, "", XMLABaseComponent.XMLA_URI ); //$NON-NLS-1$
@@ -643,7 +637,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     SOAPElement eResponse = selectSingleNode( body, name );
     if ( eResponse == null ) {
       throw new XMLAException( Messages.getInstance().getString(
-        "XMLABaseComponent.ERROR_0011_NO_EXECUTE_RESPONSE_ELEMENT" ) ); //$NON-NLS-1$
+          "XMLABaseComponent.ERROR_0011_NO_EXECUTE_RESPONSE_ELEMENT" ) ); //$NON-NLS-1$
     }
 
     name = envelope.createName( "return", "m", XMLABaseComponent.XMLA_URI ); //$NON-NLS-1$//$NON-NLS-2$
@@ -653,7 +647,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     SOAPElement eRoot = selectSingleNode( eReturn, name );
     if ( eRoot == null ) {
       throw new XMLAException( Messages.getInstance().getString(
-        "XMLABaseComponent.ERROR_0012_NO_RESPONSE_ROOT_ELEMENT" ) );
+          "XMLABaseComponent.ERROR_0012_NO_RESPONSE_ROOT_ELEMENT" ) );
     } //$NON-NLS-1$
     return eRoot;
   }
@@ -684,44 +678,38 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
         }
       }
       if ( eResponse == null ) {
-        throw new XMLAException(
-          Messages.getInstance().getString( "XMLABaseComponent.ERROR_0013_NO_DISCOVER_RESPONSE" ) ); //$NON-NLS-1$
+        throw new XMLAException( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0013_NO_DISCOVER_RESPONSE" ) ); //$NON-NLS-1$
       }
 
     } else {
-      if ( ( provider == XMLABaseComponent.PROVIDER_MICROSOFT ) || ( provider
-        == XMLABaseComponent.PROVIDER_ESSBASE ) ) { // Microsoft
+      if ( ( provider == XMLABaseComponent.PROVIDER_MICROSOFT ) || ( provider == XMLABaseComponent.PROVIDER_ESSBASE ) ) { // Microsoft
         // or
         // Essbase
-        childName =
-          envelope.createName( "DiscoverResponse", "m", XMLABaseComponent.XMLA_URI ); //$NON-NLS-1$ //$NON-NLS-2$
-      } else if ( ( provider == XMLABaseComponent.PROVIDER_SAP ) || ( provider
-        == XMLABaseComponent.PROVIDER_MONDRIAN ) ) { // SAP
+        childName = envelope.createName( "DiscoverResponse", "m", XMLABaseComponent.XMLA_URI ); //$NON-NLS-1$ //$NON-NLS-2$
+      } else if ( ( provider == XMLABaseComponent.PROVIDER_SAP ) || ( provider == XMLABaseComponent.PROVIDER_MONDRIAN ) ) { // SAP
         // or
         // Mondrian
-        childName =
-          envelope.createName( "DiscoverResponse", "", XMLABaseComponent.XMLA_URI ); //$NON-NLS-1$ //$NON-NLS-2$
+        childName = envelope.createName( "DiscoverResponse", "", XMLABaseComponent.XMLA_URI ); //$NON-NLS-1$ //$NON-NLS-2$
       } else {
         throw new IllegalArgumentException( Messages.getInstance().getString(
-          "XMLABaseComponent.ERROR_0014_NO_PROVIDER_SPEC" ) ); //$NON-NLS-1$
+            "XMLABaseComponent.ERROR_0014_NO_PROVIDER_SPEC" ) ); //$NON-NLS-1$
       }
       eResponse = selectSingleNode( body, childName );
       if ( eResponse == null ) {
         throw new XMLAException( Messages.getInstance().getString(
-          "XMLABaseComponent.ERROR_0015_NO_DISCOVER_RESPONSE_ELEMENT" ) ); //$NON-NLS-1$
+            "XMLABaseComponent.ERROR_0015_NO_DISCOVER_RESPONSE_ELEMENT" ) ); //$NON-NLS-1$
       }
     }
 
     SOAPElement eReturn = getDiscoverReturn( envelope, eResponse );
     if ( eReturn == null ) {
       throw new XMLAException( Messages.getInstance().getString(
-        "XMLABaseComponent.ERROR_0016_NO_RESULT_RETURN_ELEMENT" ) ); //$NON-NLS-1$
+          "XMLABaseComponent.ERROR_0016_NO_RESULT_RETURN_ELEMENT" ) ); //$NON-NLS-1$
     }
 
     SOAPElement eRoot = getDiscoverRoot( envelope, eReturn );
     if ( eRoot == null ) {
-      throw new XMLAException(
-        Messages.getInstance().getString( "XMLABaseComponent.ERROR_0017_NO_RESULT_ROOT_ELEMENT" ) ); //$NON-NLS-1$
+      throw new XMLAException( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0017_NO_RESULT_ROOT_ELEMENT" ) ); //$NON-NLS-1$
     }
     return eRoot;
   }
@@ -739,7 +727,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     Name name = e.getElementName();
     if ( !name.getLocalName().equals( "DiscoverResponse" ) ) { //$NON-NLS-1$
       throw new XMLAException( Messages.getInstance()
-        .getString( "XMLABaseComponent.ERROR_0018_NOT_A_DISCOVER_RESPONSE" ) + name.getLocalName() ); //$NON-NLS-1$
+          .getString( "XMLABaseComponent.ERROR_0018_NOT_A_DISCOVER_RESPONSE" ) + name.getLocalName() ); //$NON-NLS-1$
     }
 
     // Look for return/root/row/ProviderName
@@ -748,21 +736,21 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
 
     if ( walker == null ) {
       throw new XMLAException( Messages.getInstance().getString(
-        "XMLABaseComponent.ERROR_0019_NO_RESULT_DISCOVER_RESPONSE" ) ); //$NON-NLS-1$
+          "XMLABaseComponent.ERROR_0019_NO_RESULT_DISCOVER_RESPONSE" ) ); //$NON-NLS-1$
     }
 
     walker = getDiscoverRoot( envelope, walker );
 
     if ( walker == null ) {
       throw new XMLAException( Messages.getInstance().getString(
-        "XMLABaseComponent.ERROR_0020_NO_RESULT_DISCOVER_RETURN_ROOT" ) ); //$NON-NLS-1$
+          "XMLABaseComponent.ERROR_0020_NO_RESULT_DISCOVER_RETURN_ROOT" ) ); //$NON-NLS-1$
     }
 
     walker = getDiscoverRow( envelope, walker );
 
     if ( walker == null ) {
       throw new XMLAException( Messages.getInstance().getString(
-        "XMLABaseComponent.ERROR_0021_NO_DISCOVER_RESPONSE_ROW" ) ); //$NON-NLS-1$
+          "XMLABaseComponent.ERROR_0021_NO_DISCOVER_RESPONSE_ROW" ) ); //$NON-NLS-1$
     }
 
     /*
@@ -783,15 +771,14 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
       String nameString = e2.getElementName().getLocalName();
       if ( nameString.equals( "ProviderName" ) ) { //$NON-NLS-1$
         value = e2.getValue();
-        debug(
-          Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0008_FOUND_PROVIDER" ) + value ); //$NON-NLS-1$
+        debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0008_FOUND_PROVIDER" ) + value ); //$NON-NLS-1$
         break;
       }
     }
 
     if ( ( value == null ) || ( value.trim().length() == 0 ) ) {
       throw new XMLAException( Messages.getInstance().getString(
-        "XMLABaseComponent.ERROR_0022_NO_PROVIDER_NAME_ELEMENT" ) ); //$NON-NLS-1$
+          "XMLABaseComponent.ERROR_0022_NO_PROVIDER_NAME_ELEMENT" ) ); //$NON-NLS-1$
     }
 
     return determineProvider( "Provider=" + value ); //$NON-NLS-1$
@@ -805,17 +792,14 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
    * @throws XMLAException
    */
   private int determineProvider( final String dataSourceString ) throws XMLAException {
-    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0009_DETERMINE_PROVIDER" )
-      + dataSourceString ); //$NON-NLS-1$
+    debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0009_DETERMINE_PROVIDER" ) + dataSourceString ); //$NON-NLS-1$
     if ( dataSourceString == null ) {
-      throw new XMLAException(
-        Messages.getInstance().getString( "XMLABaseComponent.ERROR_0023_NO_DATASOURCE_GIVEN" ) ); //$NON-NLS-1$
+      throw new XMLAException( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0023_NO_DATASOURCE_GIVEN" ) ); //$NON-NLS-1$
     }
 
     String upperDSString = dataSourceString.toUpperCase( Locale.US );
     if ( !upperDSString.startsWith( "PROVIDER=" ) ) { //$NON-NLS-1$
-      throw new XMLAException(
-        Messages.getInstance().getString( "XMLABaseComponent.ERROR_0024_MALFORMED_DATASOURCE" ) ); //$NON-NLS-1$
+      throw new XMLAException( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0024_MALFORMED_DATASOURCE" ) ); //$NON-NLS-1$
     }
 
     if ( upperDSString.startsWith( "PROVIDER=SAP" ) ) { //$NON-NLS-1$
@@ -827,19 +811,16 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     } else if ( upperDSString.startsWith( "PROVIDER=MS" ) ) { //$NON-NLS-1$ //not sure if this is needed?
       debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0011_MICROSOFT_PROVIDER" ) ); //$NON-NLS-1$
       return XMLABaseComponent.PROVIDER_MICROSOFT;
-    } else if ( upperDSString
-      .startsWith( "PROVIDER=MICROSOFT" ) ) { //$NON-NLS-1$ // return value from MSAS: "Microsoft XML for Analysis"
+    } else if ( upperDSString.startsWith( "PROVIDER=MICROSOFT" ) ) { //$NON-NLS-1$ // return value from MSAS: "Microsoft XML for Analysis"
       debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0011_MICROSOFT_PROVIDER" ) ); //$NON-NLS-1$
       return XMLABaseComponent.PROVIDER_MICROSOFT; //
-    } else if ( upperDSString
-      .startsWith( "PROVIDER=ESSBASE" ) ) { //$NON-NLS-1$ // return value from MSAS: "Microsoft XML for Analysis"
+    } else if ( upperDSString.startsWith( "PROVIDER=ESSBASE" ) ) { //$NON-NLS-1$ // return value from MSAS: "Microsoft XML for Analysis"
       debug( Messages.getInstance().getString( "XMLABaseComponent.DEBUG_0012_ESSBASE_PROVIDER" ) ); //$NON-NLS-1$
       return XMLABaseComponent.PROVIDER_ESSBASE; //
     } else {
       error( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0023_CANNOT_DETERMINE_PROVIDER" )
-        + dataSourceString ); //$NON-NLS-1$
-      throw new XMLAException(
-        Messages.getInstance().getString( "XMLABaseComponent.ERROR_0024_UNSUPPORTED_PROVIDER" ) ); //$NON-NLS-1$
+          + dataSourceString ); //$NON-NLS-1$
+      throw new XMLAException( Messages.getInstance().getString( "XMLABaseComponent.ERROR_0024_UNSUPPORTED_PROVIDER" ) ); //$NON-NLS-1$
     }
 
   }
@@ -860,7 +841,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
       eReturn = selectSingleNode( e, nReturn );
       if ( eReturn == null ) {
         throw new XMLAException( Messages.getInstance().getString(
-          "XMLABaseComponent.ERROR_0025_NO_RETURN_DISCOVER_ELEMENT" ) ); //$NON-NLS-1$
+            "XMLABaseComponent.ERROR_0025_NO_RETURN_DISCOVER_ELEMENT" ) ); //$NON-NLS-1$
       }
     }
     return eReturn;
@@ -873,7 +854,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     SOAPElement eRoot = selectSingleNode( e, nRoot );
     if ( eRoot == null ) {
       throw new XMLAException( Messages.getInstance().getString(
-        "XMLABaseComponent.ERROR_0026_NO_ROOT_DISCOVER_ELEMENT" ) );
+          "XMLABaseComponent.ERROR_0026_NO_ROOT_DISCOVER_ELEMENT" ) );
     } //$NON-NLS-1$
     return eRoot;
 
@@ -886,7 +867,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     SOAPElement eRow = selectSingleNode( e, nRow );
     if ( eRow == null ) {
       throw new XMLAException( Messages.getInstance()
-        .getString( "XMLABaseComponent.ERROR_0027_NO_DISCOVER_ROW_ELEMENT" ) );
+          .getString( "XMLABaseComponent.ERROR_0027_NO_DISCOVER_ROW_ELEMENT" ) );
     } //$NON-NLS-1$
     return eRow;
 
@@ -894,13 +875,12 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
 
   // error check
   private void errorCheck( final SOAPMessage reply ) throws SOAPException, XMLAException {
-    String[] strings = new String[ 4 ];
+    String[] strings = new String[4];
     if ( soapFault( reply, strings ) ) {
       String faultString =
-        "Soap Fault code=" + strings[ 0 ] + " fault string=" + strings[ 1 ] + " fault actor="
-          + strings[ 2 ]; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      if ( strings[ 3 ] != null ) {
-        faultString += "\ndetail:" + strings[ 3 ]; //$NON-NLS-1$
+          "Soap Fault code=" + strings[0] + " fault string=" + strings[1] + " fault actor=" + strings[2]; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      if ( strings[3] != null ) {
+        faultString += "\ndetail:" + strings[3]; //$NON-NLS-1$
       }
       throw new XMLAException( faultString );
     }
@@ -909,8 +889,10 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
   /**
    * check SOAP reply for Error, return fault Code
    *
-   * @param reply   the message to check
-   * @param aReturn ArrayList containing faultcode,faultstring,faultactor
+   * @param reply
+   *          the message to check
+   * @param aReturn
+   *          ArrayList containing faultcode,faultstring,faultactor
    */
   private boolean soapFault( final SOAPMessage reply, final String[] faults ) throws SOAPException {
     SOAPPart sp = reply.getSOAPPart();
@@ -921,9 +903,9 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     }
     SOAPFault fault = body.getFault();
 
-    faults[ 0 ] = fault.getFaultCode();
-    faults[ 1 ] = fault.getFaultString();
-    faults[ 2 ] = fault.getFaultActor();
+    faults[0] = fault.getFaultCode();
+    faults[1] = fault.getFaultString();
+    faults[2] = fault.getFaultActor();
 
     // probably not neccessary with Microsoft;
     Detail detail = fault.getDetail();
@@ -945,7 +927,7 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
         detailMsg += det.getAttributeValue( name );
       }
     }
-    faults[ 3 ] = detailMsg;
+    faults[3] = detailMsg;
 
     return true;
   }

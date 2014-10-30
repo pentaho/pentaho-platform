@@ -37,8 +37,8 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.springframework.util.Assert;
 
 /**
- * A wrapper around a repository that will throw an exception if a call is made to any method which would modify
- * the content or structure of the repository.
+ * A wrapper around a repository that will throw an exception if a call is made to any method which would modify the
+ * content or structure of the repository.
  * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
@@ -69,7 +69,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
 
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
-    return getTree(repositoryRequest.getPath(), repositoryRequest.getDepth(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden() );
+    return getTree( repositoryRequest.getPath(), repositoryRequest.getDepth(), repositoryRequest.getChildNodeFilter(),
+        repositoryRequest.isShowHidden() );
   }
 
   /**
@@ -78,19 +79,17 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @param path
    *          path to file
    * @param depth
-   *          0 fetches just file at path; positive integer n fetches node at path plus n levels of children;
-   *          negative integer fetches all children
+   *          0 fetches just file at path; positive integer n fetches node at path plus n levels of children; negative
+   *          integer fetches all children
    * @param filter
-   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
-   *          disjunction (using the "|" character to represent logical OR) of these; filter does not apply to root
-   *          node
+   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a disjunction
+   *          (using the "|" character to represent logical OR) of these; filter does not apply to root node
    * @param showHidden
    *          is a boolean which identify whether to include the hidden files/folders in the list or not
    * @return file or {@code null} if the file does not exist or access is denied
    */
   @Override
-  public RepositoryFileTree getTree( final String path, final int depth, final String filter,
-                                     final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
     return repository.getTree( path, depth, filter, showHidden );
   }
 
@@ -121,9 +120,9 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   }
 
   /**
-   * Same as {@link #getFile(String)} except that if {@code loadMaps} is {@code true}, the maps for localized
-   * strings will be loaded as well. (Normally these are not loaded.) Use {@code true} in editing tools that can
-   * show the maps for editing purposes.
+   * Same as {@link #getFile(String)} except that if {@code loadMaps} is {@code true}, the maps for localized strings
+   * will be loaded as well. (Normally these are not loaded.) Use {@code true} in editing tools that can show the maps
+   * for editing purposes.
    * 
    * @param path
    *          path to file
@@ -137,9 +136,9 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   }
 
   /**
-   * Same as {@link #getFile(String)} except that if {@code loadMaps} is {@code true}, the maps for localized
-   * strings will be loaded as well. (Normally these are not loaded.) Use {@code true} in editing tools that can
-   * show the maps for editing purposes.
+   * Same as {@link #getFile(String)} except that if {@code loadMaps} is {@code true}, the maps for localized strings
+   * will be loaded as well. (Normally these are not loaded.) Use {@code true} in editing tools that can show the maps
+   * for editing purposes.
    * 
    * @param fileId
    *          file id
@@ -236,8 +235,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
 
   /**
    * Gets the data for multiple {@link org.pentaho.platform.api.repository2.unified.RepositoryFile}s for read. Each
-   * {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} may or may not contain a version number.
-   * If a version number is omitted it is assumed the latest data for the
+   * {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} may or may not contain a version number. If a
+   * version number is omitted it is assumed the latest data for the
    * {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} is being requested.
    * 
    * @param <T>
@@ -245,8 +244,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @param files
    *          Repository files to fetch data for. Only
    *          {@link org.pentaho.platform.api.repository2.unified.RepositoryFile#getId()} and
-   *          {@link org.pentaho.platform.api.repository2.unified.RepositoryFile#getVersionId()} are used to
-   *          identify {@link org.pentaho.platform.api.repository2.unified.IRepositoryFileData} objects to return.
+   *          {@link org.pentaho.platform.api.repository2.unified.RepositoryFile#getVersionId()} are used to identify
+   *          {@link org.pentaho.platform.api.repository2.unified.IRepositoryFileData} objects to return.
    * @param dataClass
    *          class that implements {@link org.pentaho.platform.api.repository2.unified.IRepositoryFileData}
    * @return data
@@ -258,9 +257,9 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   }
 
   /**
-   * Gets the data for multiple {@link org.pentaho.platform.api.repository2.unified.RepositoryFile}s for execute.
-   * Each {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} may or may not contain a version
-   * number. If a version number is omitted it is assumed the latest data for the
+   * Gets the data for multiple {@link org.pentaho.platform.api.repository2.unified.RepositoryFile}s for execute. Each
+   * {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} may or may not contain a version number. If a
+   * version number is omitted it is assumed the latest data for the
    * {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} is being requested.
    * 
    * @param <T>
@@ -268,8 +267,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @param files
    *          Repository files to fetch data for. Only
    *          {@link org.pentaho.platform.api.repository2.unified.RepositoryFile#getId()} and
-   *          {@link org.pentaho.platform.api.repository2.unified.RepositoryFile#getVersionId()} are used to
-   *          identify {@link org.pentaho.platform.api.repository2.unified.IRepositoryFileData} objects to return.
+   *          {@link org.pentaho.platform.api.repository2.unified.RepositoryFile#getVersionId()} are used to identify
+   *          {@link org.pentaho.platform.api.repository2.unified.IRepositoryFileData} objects to return.
    * @param dataClass
    *          class that implements {@link org.pentaho.platform.api.repository2.unified.IRepositoryFileData}
    * @return data
@@ -370,7 +369,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
 
   @Override
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
-    return getChildren( repositoryRequest.getPath(), repositoryRequest.getChildNodeFilter(), repositoryRequest.isShowHidden() );
+    return getChildren( repositoryRequest.getPath(), repositoryRequest.getChildNodeFilter(), repositoryRequest
+        .isShowHidden() );
   }
 
   /**
@@ -379,8 +379,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @param folderId
    *          id of folder whose children to fetch
    * @param filter
-   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
-   *          disjunction (using the "|" character to represent logical OR) of these
+   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a disjunction
+   *          (using the "|" character to represent logical OR) of these
    * @return list of children (never {@code null})
    */
   @Override
@@ -394,8 +394,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @param folderId
    *          id of folder whose children to fetch
    * @param filter
-   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
-   *          disjunction (using the "|" character to represent logical OR) of these
+   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a disjunction
+   *          (using the "|" character to represent logical OR) of these
    * @return list of children (never {@code null})
    */
   @Override
@@ -469,8 +469,7 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @param fileId
    *          id of file or folder to copy
    * @param destAbsPath
-   *          path to destination; if only copying (without name change) then destAbsPath will be an existing
-   *          folder
+   *          path to destination; if only copying (without name change) then destAbsPath will be an existing folder
    * @param versionMessage
    *          optional version comment to be applied to destination parent folder
    */
@@ -510,8 +509,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @param origParentFolderPath
    *          path to original parent folder
    * @param filter
-   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a
-   *          disjunction (using the "|" character to represent logical OR) of these
+   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a disjunction
+   *          (using the "|" character to represent logical OR) of these
    * @return list of deleted files
    */
   @Override
@@ -590,8 +589,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   }
 
   /**
-   * Returns {@code true} if user has all permissions given. Note that {@code false} is returned when the path does
-   * not exist.
+   * Returns {@code true} if user has all permissions given. Note that {@code false} is returned when the path does not
+   * exist.
    * 
    * @param path
    *          path to file or folder
@@ -605,8 +604,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   }
 
   /**
-   * Returns the list of access control entries (ACEs) that will be used to make an access control decision. This
-   * method is equivalent to {@code getEffectiveAces(fileId, false)}.
+   * Returns the list of access control entries (ACEs) that will be used to make an access control decision. This method
+   * is equivalent to {@code getEffectiveAces(fileId, false)}.
    * 
    * @param fileId
    *          file id
@@ -618,15 +617,15 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   }
 
   /**
-   * Returns the list of access control entries (ACEs) that will be used to make an access control decision. This
-   * method is equivalent to {@code getEffectiveAces(get_parent_id(fileId))}. Note that {@code get_parent_id} is
-   * not a real method.
+   * Returns the list of access control entries (ACEs) that will be used to make an access control decision. This method
+   * is equivalent to {@code getEffectiveAces(get_parent_id(fileId))}. Note that {@code get_parent_id} is not a real
+   * method.
    * 
    * @param fileId
    *          file id
    * @param forceEntriesInheriting
-   *          {@code true} to treat ACL as if {@code isEntriesInheriting} was true; this avoids having the caller
-   *          fetch the parent of ACL belonging to file with {@code fileId}; no change is persisted to the ACL
+   *          {@code true} to treat ACL as if {@code isEntriesInheriting} was true; this avoids having the caller fetch
+   *          the parent of ACL belonging to file with {@code fileId}; no change is persisted to the ACL
    * @return list of ACEs
    */
   @Override
@@ -649,16 +648,16 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   }
 
   /**
-   * Returns a version summary for every {@link org.pentaho.platform.api.repository2.unified.RepositoryFile}
-   * provided. Each {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} may or may not contain a
-   * version number. If a version number is omitted it is assumed the latest version for the
+   * Returns a version summary for every {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} provided.
+   * Each {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} may or may not contain a version number.
+   * If a version number is omitted it is assumed the latest version for the
    * {@link org.pentaho.platform.api.repository2.unified.RepositoryFile} is being requested.
    * 
    * @param files
    *          Repository files to fetch version summaries for. Only
    *          {@link org.pentaho.platform.api.repository2.unified.RepositoryFile#getId()} and
-   *          {@link org.pentaho.platform.api.repository2.unified.RepositoryFile#getVersionId()} are used to
-   *          identify {@link org.pentaho.platform.api.repository2.unified.VersionSummary} objects to return.
+   *          {@link org.pentaho.platform.api.repository2.unified.RepositoryFile#getVersionId()} are used to identify
+   *          {@link org.pentaho.platform.api.repository2.unified.VersionSummary} objects to return.
    * @return version summary for every file provided
    */
   @Override
@@ -667,8 +666,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   }
 
   /**
-   * Returns a list of version summary instances. The first version in the list is the root version. The last
-   * version in the list is the base version. Branching and merging are not supported so this is a simple list.
+   * Returns a list of version summary instances. The first version in the list is the root version. The last version in
+   * the list is the base version. Branching and merging are not supported so this is a simple list.
    * 
    * @param fileId
    *          file id
@@ -696,8 +695,7 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   /**
    * Makes a file, as it was at the given version, the latest version. Result should be the same as if the user had
    * called
-   * {@link #updateFile(org.pentaho.platform.api.repository2.unified.RepositoryFile, org.pentaho.
-   * platform.api.repository2.unified.IRepositoryFileData, String)}
+   * {@link #updateFile(org.pentaho.platform.api.repository2.unified.RepositoryFile, org.pentaho. platform.api.repository2.unified.IRepositoryFileData, String)}
    * with a file and data that matched the state of the file and data at the given version.
    * 
    * @param fileId
@@ -708,8 +706,7 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    *          optional version comment
    */
   @Override
-  public void
-  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  public void restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     throw new UnmodifiableRepositoryException();
   }
 

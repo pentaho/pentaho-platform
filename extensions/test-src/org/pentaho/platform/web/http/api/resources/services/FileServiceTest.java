@@ -107,14 +107,14 @@ public class FileServiceTest {
   @Test
   public void testDoDeleteFilesException() {
     String params = "file1,file2";
-    doThrow( new IllegalArgumentException() ).when(
-      fileService.defaultUnifiedRepositoryWebService ).deleteFile( anyString(), anyString() );
+    doThrow( new IllegalArgumentException() ).when( fileService.defaultUnifiedRepositoryWebService ).deleteFile(
+        anyString(), anyString() );
 
     try {
       fileService.doDeleteFiles( params );
-      fail(); //This line should never be reached
+      fail(); // This line should never be reached
     } catch ( IllegalArgumentException e ) {
-      //Expected exception
+      // Expected exception
     } catch ( Exception e ) {
       fail();
     }
@@ -135,8 +135,10 @@ public class FileServiceTest {
     when( fileService.policy.isAllowed( anyString() ) ).thenReturn( true );
 
     RepositoryFile repositoryFile = mock( RepositoryFile.class );
-    when( fileService.repository.createFile( any( Serializable.class ), any( RepositoryFile.class ), any(
-      IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() ) ).thenReturn( repositoryFile );
+    when(
+        fileService.repository.createFile( any( Serializable.class ), any( RepositoryFile.class ),
+            any( IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() ) ).thenReturn(
+        repositoryFile );
 
     RepositoryFile destDir = mock( RepositoryFile.class );
     when( destDir.isFolder() ).thenReturn( true );
@@ -155,9 +157,8 @@ public class FileServiceTest {
 
     fileService.doCopyFiles( destinationPathColon, 1, fileId1 + "," + fileId2 );
 
-    verify( fileService.repository, times( 2 ) )
-      .createFile( any( Serializable.class ), any( RepositoryFile.class ), any(
-        IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() );
+    verify( fileService.repository, times( 2 ) ).createFile( any( Serializable.class ), any( RepositoryFile.class ),
+        any( IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() );
     verify( fileService.repository ).getFile( destinationPath );
     verify( fileService.repository ).getFileById( fileId1 );
     verify( fileService.repository ).getFileById( fileId2 );
@@ -181,7 +182,7 @@ public class FileServiceTest {
       fileService.doCopyFiles( destinationPathColon, 1, fileId1 + "," + fileId2 );
       fail();
     } catch ( IllegalArgumentException e ) {
-      //Should catch the exception
+      // Should catch the exception
     }
   }
 
@@ -216,9 +217,9 @@ public class FileServiceTest {
     String pathId = "/usr/folder/file.txt";
     try {
       fileService.doGetFileOrDir( pathId );
-      fail(); //This line should never be reached
+      fail(); // This line should never be reached
     } catch ( FileNotFoundException fileNotFound ) {
-      //Expected exception
+      // Expected exception
     }
   }
 
@@ -245,7 +246,7 @@ public class FileServiceTest {
       fileService.setFileAcls( pathId, acl );
       fail();
     } catch ( FileNotFoundException e ) {
-      //expected exception
+      // expected exception
     }
   }
 
@@ -253,8 +254,7 @@ public class FileServiceTest {
   public void testDoGetRootProperties() {
     fileService.doGetRootProperties();
 
-    verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).
-      getFile( FileUtils.PATH_SEPARATOR );
+    verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).getFile( FileUtils.PATH_SEPARATOR );
   }
 
   @Test
@@ -275,7 +275,7 @@ public class FileServiceTest {
       fileService.doGetProperties( pathId );
       fail();
     } catch ( FileNotFoundException fileNotFound ) {
-      //expected exception
+      // expected exception
     }
   }
 
@@ -333,8 +333,9 @@ public class FileServiceTest {
 
   @Test
   public void testDoGetCanAccessList() {
-    String permissions = RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
-      + RepositoryFilePermission.DELETE.ordinal();
+    String permissions =
+        RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
+            + RepositoryFilePermission.DELETE.ordinal();
     doReturn( true ).when( fileService.repository ).hasAccess( anyString(), any( EnumSet.class ) );
     List<Setting> settings = fileService.doGetCanAccessList( "pathId", permissions );
     assertTrue( settings.size() > 0 );
@@ -359,15 +360,14 @@ public class FileServiceTest {
   @Test
   public void testDoDeleteFilesPermanentException() {
     String params = "file1,file2";
-    doThrow( new IllegalArgumentException() ).when(
-      fileService.defaultUnifiedRepositoryWebService ).deleteFileWithPermanentFlag( anyString(), eq( true ),
-      anyString() );
+    doThrow( new IllegalArgumentException() ).when( fileService.defaultUnifiedRepositoryWebService )
+        .deleteFileWithPermanentFlag( anyString(), eq( true ), anyString() );
 
     try {
       fileService.doDeleteFilesPermanent( params );
-      fail(); //This line should never be reached
+      fail(); // This line should never be reached
     } catch ( Exception e ) {
-      //Expected exception
+      // Expected exception
     }
   }
 
@@ -383,8 +383,8 @@ public class FileServiceTest {
 
     fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
 
-    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
-    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 1 ], destPathId, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[0], destPathId, null );
+    verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[1], destPathId, null );
   }
 
   @Test
@@ -398,8 +398,8 @@ public class FileServiceTest {
       fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
       Assert.assertTrue( false );
     } catch ( FileNotFoundException e ) {
-      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 0 ], destPathId, null );
-      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
+      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[0], destPathId, null );
+      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[1], destPathId, null );
     }
   }
 
@@ -412,15 +412,15 @@ public class FileServiceTest {
     doReturn( destPathId ).when( repositoryFileDto ).getPath();
 
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( destPathId );
-    doThrow( new InternalError() ).when( fileService.defaultUnifiedRepositoryWebService ).moveFile(
-      params[ 0 ], destPathId, null );
+    doThrow( new InternalError() ).when( fileService.defaultUnifiedRepositoryWebService ).moveFile( params[0],
+        destPathId, null );
 
     try {
       fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
-      fail(); //This line should never be reached
+      fail(); // This line should never be reached
     } catch ( Throwable e ) {
-      verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
-      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
+      verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[0], destPathId, null );
+      verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[1], destPathId, null );
     }
   }
 
@@ -430,23 +430,23 @@ public class FileServiceTest {
 
     fileService.doRestoreFiles( StringUtils.join( params, "," ) );
 
-    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 0 ], null );
-    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 1 ], null );
+    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[0], null );
+    verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[1], null );
   }
 
   @Test
   public void testDoRestoreFilesException() throws Exception {
     String[] params = { "file1", "file2" };
 
-    doThrow( new InternalError() ).when( fileService.defaultUnifiedRepositoryWebService ).undeleteFile(
-      params[ 0 ], null );
+    doThrow( new InternalError() ).when( fileService.defaultUnifiedRepositoryWebService )
+        .undeleteFile( params[0], null );
 
     try {
       fileService.doRestoreFiles( StringUtils.join( params, "," ) );
-      fail(); //This line should never be reached
+      fail(); // This line should never be reached
     } catch ( InternalError e ) {
-      verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 0 ], null );
-      verify( fileService.getRepoWs(), times( 0 ) ).undeleteFile( params[ 1 ], null );
+      verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[0], null );
+      verify( fileService.getRepoWs(), times( 0 ) ).undeleteFile( params[1], null );
     }
   }
 
@@ -558,8 +558,8 @@ public class FileServiceTest {
      * TEST 4
      */
     doReturn( true ).when( mockWhiteList ).accept( anyString() );
-    doThrow( new InternalError() ).when( fileService.repository )
-      .getDataForRead( any( Serializable.class ), any( Class.class ) );
+    doThrow( new InternalError() ).when( fileService.repository ).getDataForRead( any( Serializable.class ),
+        any( Class.class ) );
 
     try {
       fileService.doGetFileAsInline( "test" );
@@ -594,11 +594,8 @@ public class FileServiceTest {
     doReturn( false ).when( properties ).isEmpty();
     doReturn( propertiesList ).when( properties ).stringPropertyNames();
 
-    PropertiesWrapper propertiesWrapper = mock( PropertiesWrapper.class );
-    when( propertiesWrapper.getProperties() ).thenReturn( properties );
-
-    doReturn( propertiesWrapper ).when( fileService.defaultUnifiedRepositoryWebService )
-      .getLocalePropertiesForFileById( anyString(), anyString() );
+    doReturn( properties ).when( fileService.defaultUnifiedRepositoryWebService ).getLocalePropertiesForFileById(
+        anyString(), anyString() );
 
     List<StringKeyStringValueDto> keyValueList = fileService.doGetLocaleProperties( pathId, locale );
 
@@ -639,8 +636,8 @@ public class FileServiceTest {
     fileService.doSetLocaleProperties( pathId, locale, properties );
 
     verify( fileService.defaultUnifiedRepositoryWebService ).getFile( "/path/to/file/file1.ext" );
-    verify( fileService.defaultUnifiedRepositoryWebService )
-      .setLocalePropertiesForFileByFileId( anyString(), anyString(), any( Properties.class ) );
+    verify( fileService.defaultUnifiedRepositoryWebService ).setLocalePropertiesForFileByFileId( anyString(),
+        anyString(), any( Properties.class ) );
   }
 
   @Test
@@ -674,8 +671,7 @@ public class FileServiceTest {
     String idToPathResult = "/file1";
     doReturn( param ).when( repositoryFileDto ).getId();
     when( fileService.idToPath( param ) ).thenReturn( idToPathResult );
-    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService )
-      .getFile( eq( idToPathResult ) );
+    doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( eq( idToPathResult ) );
     when( fileService.getRepository().getFileMetadata( repositoryFileDto.getId() ) ).thenReturn( fileMetadata );
 
     try {
@@ -716,7 +712,7 @@ public class FileServiceTest {
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/file1" );
     when( fileService.getRepository().getFileMetadata( repositoryFileDto.getId() ) ).thenThrow( new InternalError() );
 
-    //failing in get
+    // failing in get
     try {
       fileService.doSetContentCreator( param, repositoryFileDto );
     } catch ( FileNotFoundException e ) {
@@ -738,7 +734,7 @@ public class FileServiceTest {
     doReturn( param ).when( repositoryFileDto ).getId();
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/" + param );
     when( fileService.defaultUnifiedRepositoryWebService.getAvailableLocalesForFileById( repositoryFileDto.getId() ) )
-      .thenReturn( locales );
+        .thenReturn( locales );
 
     try {
       fileService.doGetFileLocales( param );
@@ -774,7 +770,7 @@ public class FileServiceTest {
     doReturn( param ).when( repositoryFileDto ).getId();
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/" + param );
     when( fileService.defaultUnifiedRepositoryWebService.getAvailableLocalesForFileById( repositoryFileDto.getId() ) )
-      .thenThrow( new InternalError() );
+        .thenThrow( new InternalError() );
 
     try {
       fileService.doGetFileLocales( param );
@@ -852,15 +848,14 @@ public class FileServiceTest {
     doReturn( mockRepoFile ).when( fileService.repository ).getFile( anyString() );
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
     doReturn( mockExportProcessor ).when( fileService ).getDownloadExportProcessor( anyString(), anyBoolean(),
-      anyBoolean() );
+        anyBoolean() );
     doReturn( mockExportHandler ).when( fileService ).getDownloadExportHandler();
     doReturn( mockStream ).when( fileService ).getDownloadStream( mockRepoFile, mockExportProcessor );
 
     FileService.DownloadFileWrapper wrapper =
-      fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, "true" );
+        fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, "true" );
 
     verify( fileService.repository, times( 1 ) ).getFile( anyString() );
-
 
     assertEquals( mockStream, wrapper.getOutputStream() );
     assertEquals( fileName + ".zip", wrapper.getEncodedFileName() );
@@ -875,8 +870,7 @@ public class FileServiceTest {
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
 
     try {
-      FileService.DownloadFileWrapper wrapper =
-        fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
+      FileService.DownloadFileWrapper wrapper = fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
       fail();
     } catch ( GeneralSecurityException e ) {
       // Expected
@@ -971,7 +965,7 @@ public class FileServiceTest {
 
     try {
       assertFalse( fileService.doCanAdminister() );
-    } catch ( InternalError e ) { //the first comparison fail and the result should be false and no exception returned
+    } catch ( InternalError e ) { // the first comparison fail and the result should be false and no exception returned
       fail();
     }
 
@@ -981,7 +975,7 @@ public class FileServiceTest {
 
     try {
       assertFalse( fileService.doCanAdminister() );
-    } catch ( InternalError e ) { //the second comparison fail and the result should be false and no exception returned
+    } catch ( InternalError e ) { // the second comparison fail and the result should be false and no exception returned
       fail();
     }
   }
@@ -1018,7 +1012,6 @@ public class FileServiceTest {
     RepositoryFileDto repositoryFileDto1 = mock( RepositoryFileDto.class );
 
     doReturn( repositoryFileDto1 ).when( fileService.defaultUnifiedRepositoryWebService ).getFileById( creatorId );
-
 
     // Test 1
     RepositoryFileDto repositoryFileDto2 = null;
@@ -1082,15 +1075,13 @@ public class FileServiceTest {
       fileService.doGetContentCreator( pathId );
       fail();
     } catch ( FileNotFoundException e ) {
-      //Should catch the exception
+      // Should catch the exception
     }
   }
 
   @Test
   public void testDoGetGeneratedContent() {
-    String pathId = "test.prpt",
-      user = "admin",
-      userFolder = "public/admin";
+    String pathId = "test.prpt", user = "admin", userFolder = "public/admin";
 
     RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
     RepositoryFile workspaceFolder = mock( RepositoryFile.class );
@@ -1129,8 +1120,7 @@ public class FileServiceTest {
 
   @Test
   public void testDoGetGeneratedContentFileNotFound() {
-    String pathId = "test.prpt",
-      userFolder = "public/admin";
+    String pathId = "test.prpt", userFolder = "public/admin";
 
     SessionResource sessionResource = mock( SessionResource.class );
 
@@ -1147,9 +1137,7 @@ public class FileServiceTest {
 
   @Test
   public void testDoGetGeneratedContentForUser() {
-    String pathId = "test.prpt",
-      user = "admin",
-      userFolder = "public/admin";
+    String pathId = "test.prpt", user = "admin", userFolder = "public/admin";
 
     RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
     RepositoryFile workspaceFolder = mock( RepositoryFile.class );
@@ -1188,9 +1176,7 @@ public class FileServiceTest {
 
   @Test
   public void testDoGetGeneratedContentForUserFileNotFound() {
-    String pathId = "test.prpt",
-      user = "admin",
-      userFolder = "public/admin";
+    String pathId = "test.prpt", user = "admin", userFolder = "public/admin";
 
     SessionResource sessionResource = mock( SessionResource.class );
 
@@ -1207,9 +1193,7 @@ public class FileServiceTest {
 
   @Test
   public void testSearchGeneratedContent() {
-    String lineageId = "test.prpt",
-      pathId = "test.prpt",
-      userFolder = "public/admin";
+    String lineageId = "test.prpt", pathId = "test.prpt", userFolder = "public/admin";
 
     RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
     RepositoryFile workspaceFolder = mock( RepositoryFile.class );
@@ -1236,7 +1220,8 @@ public class FileServiceTest {
 
     try {
       doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
-      List<RepositoryFileDto> list = fileService.searchGeneratedContent(userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+      List<RepositoryFileDto> list =
+          fileService.searchGeneratedContent( userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
       assertEquals( list.size(), 1 );
     } catch ( FileNotFoundException e ) {
       e.printStackTrace();
@@ -1248,9 +1233,7 @@ public class FileServiceTest {
 
   @Test
   public void testSearchGeneratedContentFileNotFound() {
-    String lineageId = "test.prpt",
-      pathId = "test.prpt",
-      userFolder = "public/admin";
+    String lineageId = "test.prpt", pathId = "test.prpt", userFolder = "public/admin";
 
     SessionResource sessionResource = mock( SessionResource.class );
 
@@ -1259,7 +1242,7 @@ public class FileServiceTest {
 
     try {
       doReturn( null ).when( fileService ).doGetProperties( pathId );
-      fileService.searchGeneratedContent(userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+      fileService.searchGeneratedContent( userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
       fail();
     } catch ( FileNotFoundException e ) {
     }
@@ -1274,13 +1257,13 @@ public class FileServiceTest {
     fileDtos.add( repositoryFileDto );
     fileDtos.add( repositoryFileDto1 );
 
-    //Test 1
+    // Test 1
     doReturn( fileDtos ).when( fileService.defaultUnifiedRepositoryWebService ).getDeletedFiles();
 
     List<RepositoryFileDto> repositoryFiles = fileService.doGetDeletedFiles();
     assertEquals( 2, repositoryFiles.size() );
 
-    //Test 2
+    // Test 2
     doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getDeletedFiles();
 
     repositoryFiles = fileService.doGetDeletedFiles();
@@ -1311,8 +1294,8 @@ public class FileServiceTest {
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
     doReturn( true ).when( repositoryFileDto ).isHidden();
 
-    doReturn( stringKeyStringValueDtos ).when( fileService.defaultUnifiedRepositoryWebService )
-      .getFileMetadata( anyString() );
+    doReturn( stringKeyStringValueDtos ).when( fileService.defaultUnifiedRepositoryWebService ).getFileMetadata(
+        anyString() );
 
     // Test 1
     try {
@@ -1344,8 +1327,8 @@ public class FileServiceTest {
 
     stringKeyStringValueDtos.add( stringKeyStringValueDto3 );
 
-    doReturn( stringKeyStringValueDtos ).when( fileService.defaultUnifiedRepositoryWebService )
-      .getFileMetadata( anyString() );
+    doReturn( stringKeyStringValueDtos ).when( fileService.defaultUnifiedRepositoryWebService ).getFileMetadata(
+        anyString() );
 
     // Test 2
     try {
@@ -1409,10 +1392,10 @@ public class FileServiceTest {
     doReturn( true ).when( fileService ).isPathValid( anyString() );
     doReturn( mockRepositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
     doReturn( mockCollator ).when( fileService ).getCollator( anyInt() );
-    doReturn( mockRepositoryRequest ).when( fileService )
-      .getRepositoryRequest( (RepositoryFileDto) anyObject(), anyBoolean(), anyString(), anyBoolean() );
-    doReturn( mockRepositoryFileDtos ).when( fileService.defaultUnifiedRepositoryWebService )
-      .getChildrenFromRequest( mockRepositoryRequest );
+    doReturn( mockRepositoryRequest ).when( fileService ).getRepositoryRequest( (RepositoryFileDto) anyObject(),
+        anyBoolean(), anyString(), anyBoolean() );
+    doReturn( mockRepositoryFileDtos ).when( fileService.defaultUnifiedRepositoryWebService ).getChildrenFromRequest(
+        mockRepositoryRequest );
     doReturn( true ).when( fileService ).isShowingTitle( mockRepositoryRequest );
 
     List<RepositoryFileDto> repositoryFileDtos = fileService.doGetChildren( "mock:path:fileName", null, true, true );
@@ -1420,10 +1403,9 @@ public class FileServiceTest {
     verify( fileService, times( 1 ) ).isPathValid( anyString() );
     verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).getFile( anyString() );
     verify( fileService, times( 1 ) ).getCollator( anyInt() );
-    verify( fileService, times( 1 ) )
-      .getRepositoryRequest( (RepositoryFileDto) anyObject(), anyBoolean(), anyString(), anyBoolean() );
-    verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) )
-      .getChildrenFromRequest( mockRepositoryRequest );
+    verify( fileService, times( 1 ) ).getRepositoryRequest( (RepositoryFileDto) anyObject(), anyBoolean(), anyString(),
+        anyBoolean() );
+    verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).getChildrenFromRequest( mockRepositoryRequest );
     verify( fileService, times( 1 ) ).isShowingTitle( mockRepositoryRequest );
 
     assertEquals( mockRepositoryFileDtos, repositoryFileDtos );
@@ -1480,8 +1462,8 @@ public class FileServiceTest {
 
     repositoryFileAclAceDtos.add( repositoryFileAclAceDto );
 
-    doReturn( repositoryFileAclAceDtos ).when( fileService.defaultUnifiedRepositoryWebService )
-      .getEffectiveAces( anyString() );
+    doReturn( repositoryFileAclAceDtos ).when( fileService.defaultUnifiedRepositoryWebService ).getEffectiveAces(
+        anyString() );
 
     Map<String, Serializable> metadata = new HashMap<String, Serializable>();
     doReturn( metadata ).when( fileService.repository ).getFileMetadata( anyString() );
@@ -1615,9 +1597,8 @@ public class FileServiceTest {
     verify( destFileDto, times( 8 ) ).setHidden( anyBoolean() );
     verify( fileService.repository, times( 8 ) ).getAcl( anyString() );
     verify( fileService, times( 7 ) ).getData( any( RepositoryFile.class ) );
-    verify( fileService.repository, times( 7 ) )
-      .updateFile( any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-        anyString() );
+    verify( fileService.repository, times( 7 ) ).updateFile( any( RepositoryFile.class ),
+        any( IRepositoryFileData.class ), anyString() );
     verify( fileService.repository, times( 7 ) ).updateAcl( any( RepositoryFileAcl.class ) );
     verify( fileService.repository ).updateFolder( any( RepositoryFile.class ), anyString() );
   }
@@ -1652,7 +1633,7 @@ public class FileServiceTest {
       fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
       fail();
     } catch ( GeneralSecurityException e ) {
-      //Should catch the exception
+      // Should catch the exception
     }
 
     verify( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
@@ -1690,8 +1671,7 @@ public class FileServiceTest {
     doReturn( "test" ).when( fileService ).idToPath( anyString() );
 
     RepositoryRequest mockRequest = mock( RepositoryRequest.class );
-    doReturn( mockRequest ).when( fileService )
-      .getRepositoryRequest( anyString(), anyBoolean(), anyInt(), anyString() );
+    doReturn( mockRequest ).when( fileService ).getRepositoryRequest( anyString(), anyBoolean(), anyInt(), anyString() );
 
     RepositoryFileDto mockChildFile = mock( RepositoryFileDto.class );
     doReturn( "test" ).when( mockChildFile ).getId();
@@ -1729,15 +1709,15 @@ public class FileServiceTest {
     pathId = null;
     fileService.doGetTree( pathId, depth, filter, showHidden, includeAcls );
 
-    verify( fileService, times( 1 ) )
-      .getRepositoryRequest( eq( FileUtils.PATH_SEPARATOR ), anyBoolean(), anyInt(), anyString() );
+    verify( fileService, times( 1 ) ).getRepositoryRequest( eq( FileUtils.PATH_SEPARATOR ), anyBoolean(), anyInt(),
+        anyString() );
 
     // Test 3 - path id is set to the file utils path separator
     pathId = FileUtils.PATH_SEPARATOR;
     fileService.doGetTree( pathId, depth, filter, showHidden, includeAcls );
 
-    verify( fileService, times( 2 ) )
-      .getRepositoryRequest( eq( FileUtils.PATH_SEPARATOR ), anyBoolean(), anyInt(), anyString() );
+    verify( fileService, times( 2 ) ).getRepositoryRequest( eq( FileUtils.PATH_SEPARATOR ), anyBoolean(), anyInt(),
+        anyString() );
   }
 
   @Test
@@ -1798,22 +1778,21 @@ public class FileServiceTest {
     doReturn( "/path/to/file/file1" ).when( fileFileExt ).getPath();
     doReturn( "/path/to/file/file1" ).when( fileFileExt ).getId();
 
-    when( fileService.getRepoWs().createFolder( eq( "/" ), any( RepositoryFileDto.class ), eq( "/path" ) ) ).thenReturn(
-      filePath );
+    when( fileService.getRepoWs().createFolder( eq( "/" ), any( RepositoryFileDto.class ), eq( "/path" ) ) )
+        .thenReturn( filePath );
     when( fileService.getRepoWs().createFolder( eq( "/path" ), any( RepositoryFileDto.class ), eq( "/path/to" ) ) )
-      .thenReturn( fileTo );
+        .thenReturn( fileTo );
     when(
-      fileService.getRepoWs().createFolder( eq( "/path/to" ), any( RepositoryFileDto.class ), eq( "/path/to/file" ) ) )
-      .thenReturn( fileFile );
+        fileService.getRepoWs().createFolder( eq( "/path/to" ), any( RepositoryFileDto.class ), eq( "/path/to/file" ) ) )
+        .thenReturn( fileFile );
     when(
-      fileService.getRepoWs()
-        .createFolder( eq( "/path/to/file" ), any( RepositoryFileDto.class ), eq( "/path/to/file/file1.ext" ) ) )
-      .thenReturn( fileFileExt );
+        fileService.getRepoWs().createFolder( eq( "/path/to/file" ), any( RepositoryFileDto.class ),
+            eq( "/path/to/file/file1.ext" ) ) ).thenReturn( fileFileExt );
 
     assertTrue( fileService.doCreateDir( pathId ) );
 
-    verify( fileService.getRepoWs(), times( 4 ) )
-      .createFolder( anyString(), any( RepositoryFileDto.class ), anyString() );
+    verify( fileService.getRepoWs(), times( 4 ) ).createFolder( anyString(), any( RepositoryFileDto.class ),
+        anyString() );
   }
 
   @Test
@@ -1847,13 +1826,12 @@ public class FileServiceTest {
 
     assertFalse( fileService.doCreateDir( pathId ) );
 
-    verify( fileService.getRepoWs(), times( 0 ) )
-      .createFolder( anyString(), any( RepositoryFileDto.class ), anyString() );
-
+    verify( fileService.getRepoWs(), times( 0 ) ).createFolder( anyString(), any( RepositoryFileDto.class ),
+        anyString() );
 
     when( fileService.getRepoWs().getFile( "/path" ) ).thenReturn( null );
-    when( fileService.getRepoWs().createFolder( eq( "/" ), any( RepositoryFileDto.class ), eq( "/path" ) ) ).
-      thenThrow( new InternalError( "negativetest" ) );
+    when( fileService.getRepoWs().createFolder( eq( "/" ), any( RepositoryFileDto.class ), eq( "/path" ) ) ).thenThrow(
+        new InternalError( "negativetest" ) );
 
     try {
       fileService.doCreateDir( pathId );

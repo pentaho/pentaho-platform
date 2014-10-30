@@ -425,10 +425,10 @@ public class MantleController extends AbstractXulEventHandler {
       } );
     } else {
       menuBar.addItem( Messages.getString( "empty" ), new Command() { //$NON-NLS-1$
-          public void execute() {
-            // Do nothing
-          }
-        } );
+        public void execute() {
+              // Do nothing
+        }
+      } );
     }
   }
 
@@ -453,7 +453,7 @@ public class MantleController extends AbstractXulEventHandler {
                 favoritePickList = FavoritePickList.getInstance();
               }
             } catch ( Throwable t ) {
-              //ignore
+              // ignore
             }
           } else if ( "recent".equalsIgnoreCase( setting.getName() ) ) { //$NON-NLS-1$
             try {
@@ -467,7 +467,7 @@ public class MantleController extends AbstractXulEventHandler {
               }
               recentPickList.setMaxSize( 10 );
             } catch ( Throwable t ) {
-              //ignore
+              // ignore
             }
           }
         }
@@ -542,7 +542,7 @@ public class MantleController extends AbstractXulEventHandler {
       builder.sendRequest( null, internalCallback );
       // TO DO Reset the menuItem click for browser and workspace here?
     } catch ( RequestException e ) {
-      //ignore
+      // ignore
     }
   }
 

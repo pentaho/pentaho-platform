@@ -19,7 +19,6 @@ package org.pentaho.platform.util;
 
 import org.pentaho.platform.api.util.IVersionHelper;
 
-import java.net.URL;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.jar.Attributes;
@@ -34,12 +33,12 @@ public class VersionHelper implements IVersionHelper {
   public String getVersionInformation( final Class clazz ) {
     ResourceBundle assemblyBundle = null;
     try {
-      assemblyBundle = ResourceBundle.getBundle("server-assembly");
-    } catch (MissingResourceException ignored) {
-      
+      assemblyBundle = ResourceBundle.getBundle( "server-assembly" );
+    //CHECKSTYLE:EmptyBlock:OFF
+    } catch ( MissingResourceException ignored ) {
     }
-    if (assemblyBundle != null) {
-      return getVersionInformationFromProperties(assemblyBundle);
+    if ( assemblyBundle != null ) {
+      return getVersionInformationFromProperties( assemblyBundle );
     }
     // The following two lines read from the MANIFEST.MF
     String implTitle = clazz.getPackage().getImplementationTitle();
@@ -63,8 +62,8 @@ public class VersionHelper implements IVersionHelper {
       }
     }
   }
-  
-  public String getVersionInformationFromProperties(ResourceBundle assemblyBundle) {
+
+  public String getVersionInformationFromProperties( ResourceBundle assemblyBundle ) {
     StringBuffer buff = new StringBuffer();
     buff.append( assemblyBundle.getString( "assembly.title" ) ).append( ' ' ).append( assemblyBundle.getString( "assembly.version" ) );
     return buff.toString();
@@ -78,12 +77,12 @@ public class VersionHelper implements IVersionHelper {
     // Check if server-assembly.properties exists
     ResourceBundle assemblyBundle = null;
     try {
-      assemblyBundle = ResourceBundle.getBundle("server-assembly");
-    } catch (MissingResourceException ignored) {
-      
+      assemblyBundle = ResourceBundle.getBundle( "server-assembly" );
+    //CHECKSTYLE:EmptyBlock:OFF
+    } catch ( MissingResourceException ignored ) {
     }
-    if (assemblyBundle != null) {
-      return VersionHelper.getVersionInfoFromProperties(assemblyBundle);
+    if ( assemblyBundle != null ) {
+      return VersionHelper.getVersionInfoFromProperties( assemblyBundle );
     }
     // Try to get the manifest for the class
     final Manifest manifest = ManifestUtil.getManifest( clazz );
@@ -149,19 +148,17 @@ public class VersionHelper implements IVersionHelper {
     return versionInfo;
   }
 
-  protected static VersionInfo getVersionInfoFromProperties(ResourceBundle assemblyBundle) {
+  protected static VersionInfo getVersionInfoFromProperties( ResourceBundle assemblyBundle ) {
     final VersionInfo versionInfo = new VersionInfo();
     try {
       versionInfo.setFromManifest( false );
       versionInfo.setTitle( assemblyBundle.getString( "assembly.title" ) );
       versionInfo.setProductID( assemblyBundle.getString( "assembly.productid" ) );
-      versionInfo.setVersion( assemblyBundle.getString("assembly.version") );
-    } catch (Exception ignored) {
+      versionInfo.setVersion( assemblyBundle.getString( "assembly.version" ) );
+    } catch ( Exception ignored ) {
       // ex.printStackTrace();
       versionInfo.setVersionRelease( "-error-" );
     }
     return versionInfo;
   }
-  
-  
 }

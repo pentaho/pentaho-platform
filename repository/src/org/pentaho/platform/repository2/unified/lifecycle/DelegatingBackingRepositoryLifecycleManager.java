@@ -106,6 +106,6 @@ public class DelegatingBackingRepositoryLifecycleManager implements IBackingRepo
 
   public void removeLifeCycleManager( IBackingRepositoryLifecycleManager manager ) {
     managers.remove( manager );
-  }  
-  
+  }
+
 }

@@ -305,7 +305,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
    * Returns stored entriesInheriting flag for given node
    */
   private boolean isEntriesInheriting( final NodeImpl node ) throws RepositoryException {
-   return JcrRepositoryFileAclUtils.getAclMetadata( session, node.getPath(), new ACLTemplate( node.getNode(
+    return JcrRepositoryFileAclUtils.getAclMetadata( session, node.getPath(), new ACLTemplate( node.getNode(
         AccessControlConstants.N_POLICY ) ) ).isEntriesInheriting();
   }
 

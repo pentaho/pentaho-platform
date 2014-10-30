@@ -62,7 +62,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   public void registerObjectFactory( IPentahoObjectFactory fact, boolean primary ) {
     writeLock.lock();
-    try{
+    try {
       factories.add( fact );
     } finally {
       writeLock.unlock();
@@ -93,7 +93,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   }
 
   public Set<IPentahoObjectFactory> getFactories() {
-    return new HashSet( factories );
+    return new HashSet<IPentahoObjectFactory>( factories );
   }
 
   public IPentahoObjectFactory getPrimaryFactory() {
@@ -156,7 +156,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   @Override
   public boolean objectDefined( String key ) {
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( key ) ) {
           logger.debug( MessageFormat.format( "Object defined for key: {0} in factory: {1}", key, fact.getName() ) );
@@ -178,7 +178,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   @Override
   public Class<?> getImplementingClass( String key ) {
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( key ) ) {
           logger.debug( MessageFormat.format( "Found implementing class for key: {0} in factory: {1}", key, fact
@@ -209,7 +209,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     List<IPentahoObjectReference<T>> referenceList = new ArrayList<IPentahoObjectReference<T>>();
 
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( interfaceClass ) ) {
           List<IPentahoObjectReference<T>> refs = fact.getObjectReferences( interfaceClass, curSession, properties );
@@ -240,7 +240,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     Set<IPentahoObjectReference<T>> references = new HashSet<IPentahoObjectReference<T>>();
 
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( clazz ) ) {
           IPentahoObjectReference<T> found = fact.getObjectReference( clazz, curSession );
@@ -276,7 +276,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
       return highestRef.getObject();
     }
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( clazz.getSimpleName() ) ) {
           T object = fact.get( clazz, clazz.getSimpleName(), session );
@@ -296,7 +296,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   @Override
   public boolean objectDefined( Class<?> clazz ) {
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( clazz ) ) {
 
@@ -318,7 +318,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
     Set<IPentahoObjectReference<T>> references = new HashSet<IPentahoObjectReference<T>>();
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( interfaceClass ) ) {
           IPentahoObjectReference<T> found = fact.getObjectReference( interfaceClass, curSession, properties );
@@ -401,7 +401,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     Set<IPentahoObjectReference<T>> referenceSet = new HashSet<IPentahoObjectReference<T>>();
 
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( interfaceClass ) ) {
           List<IPentahoObjectReference<T>> found = fact.getObjectReferences( interfaceClass, curSession, properties );

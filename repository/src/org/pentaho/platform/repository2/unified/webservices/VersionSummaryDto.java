@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@XmlRootElement(name="versionSummaryDto")
+@XmlRootElement( name = "versionSummaryDto" )
 public class VersionSummaryDto implements Serializable {
   private static final long serialVersionUID = -8333387280720917305L;
 

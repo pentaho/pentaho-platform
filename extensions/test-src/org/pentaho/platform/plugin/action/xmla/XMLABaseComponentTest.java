@@ -11,7 +11,7 @@ import org.junit.Test;
 public class XMLABaseComponentTest {
 
   private boolean runMethodDetermineProvider( String param ) {
-    XMLABaseComponent mock = mock( XMLABaseComponent.class );
+    XMLABaseComponent mock = mock(XMLABaseComponent.class );
 
     try {
       Method method = XMLABaseComponent.class.getDeclaredMethod( "determineProvider", String.class );
@@ -39,5 +39,4 @@ public class XMLABaseComponentTest {
     Locale.setDefault( new Locale( "tr" ) );
     Assert.assertTrue( "error during method invocation", runMethodDetermineProvider( "provider=mondrian" ) );
   }
-
 }

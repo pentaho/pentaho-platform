@@ -142,8 +142,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
     RepositoryFile rootFolder = repositoryFileDao.getFileByAbsolutePath( tenant.getRootFolderAbsolutePath() );
     if ( rootFolder != null ) {
       Map<String, Serializable> metadata = repositoryFileDao.getFileMetadata( rootFolder.getId() );
-      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT ) || !(Boolean)
-        metadata.get( ITenantManager.TENANT_ROOT ) ) {
+      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT ) || !(Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
         rootFolder = null;
       }
     }
@@ -156,8 +155,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
             pathConversionHelper, null, false, null );
     if ( rootFolder != null ) {
       Map<String, Serializable> metadata = JcrRepositoryFileUtils.getFileMetadata( session, rootFolder.getId() );
-      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT )
-        || !(Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
+      if ( !metadata.containsKey( ITenantManager.TENANT_ROOT ) || !(Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
         rootFolder = null;
       }
     }
@@ -180,11 +178,11 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
             getTenantRootFolder( session, parentTenant ).getId(), null );
     for ( RepositoryFile repoFile : allChildren ) {
       Map<String, Serializable> metadata = JcrRepositoryFileUtils.getFileMetadata( session, repoFile.getId() );
-      if ( metadata.containsKey( ITenantManager.TENANT_ROOT )
-        && (Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
+      if ( metadata.containsKey( ITenantManager.TENANT_ROOT ) && (Boolean) metadata.get( ITenantManager.TENANT_ROOT ) ) {
         Tenant tenant = new Tenant( repoFile.getPath(), isTenantEnabled( session, repoFile.getId() ) );
         if ( includeDisabledTenants || tenant.isEnabled() ) {
-          children.add( new Tenant( pathConversionHelper.relToAbs(repoFile.getPath()), isTenantEnabled(session, repoFile.getId()) ) );
+          children.add( new Tenant( pathConversionHelper.relToAbs( repoFile.getPath() ), isTenantEnabled( session,
+              repoFile.getId() ) ) );
         }
 
       }
@@ -341,7 +339,6 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
 
   @Override
   public RepositoryFile getUserHomeFolder( ITenant theTenant, String username ) {
-    return repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths
-      .getUserHomeFolderPath( theTenant, username ) );
+    return repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getUserHomeFolderPath( theTenant, username ) );
   }
 }

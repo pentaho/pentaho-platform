@@ -65,7 +65,7 @@ import java.util.Map;
 
 /**
  * KettleComponent shows a list of available transformations in the root of the choosen repository.
- *
+ * 
  * @author Matt
  */
 
@@ -140,14 +140,10 @@ public class KettleComponent extends ComponentBase implements RowListener {
    */
   private String repositoriesXMLFile;
 
-  /**
-   * The name of the repository to use
-   */
+  /** The name of the repository to use */
   private String repositoryName;
 
-  /**
-   * The username to login with
-   */
+  /** The username to login with */
   private String username;
 
   private MemoryResultSet results;
@@ -158,14 +154,10 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
   private String executionLog;
 
-  /**
-   * The password to login with
-   */
+  /** The password to login with */
   private String password;
 
-  /**
-   * The log channel ID of the executing transformation or job
-   */
+  /** The log channel ID of the executing transformation or job */
   private String logChannelId;
 
   @Override
@@ -227,7 +219,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
     return true;
   }
 
-  @SuppressWarnings ( "unchecked" )
+  @SuppressWarnings( "unchecked" )
   @Override
   public boolean validateAction() {
 
@@ -317,7 +309,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
   /**
    * Execute the specified transformation in the chosen repository.
    */
-  @SuppressWarnings ( "unchecked" )
+  @SuppressWarnings( "unchecked" )
   @Override
   public boolean executeAction() {
 
@@ -335,24 +327,18 @@ public class KettleComponent extends ComponentBase implements RowListener {
     Map<String, String> parameterMap = new HashMap<String, String>();
 
     for ( Node n : (List<Node>) getComponentDefinition().selectNodes( PARAMETER_MAP_CMD_ARG ) ) {
-      argumentMap
-          .put(
-              n.selectSingleNode( "name" ).getText(),
-              applyInputsToFormat( getInputStringValue( n.selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+      argumentMap.put( n.selectSingleNode( "name" ).getText(), applyInputsToFormat( getInputStringValue( n
+          .selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     for ( Node n : (List<Node>) getComponentDefinition().selectNodes( PARAMETER_MAP_VARIABLE ) ) {
-      variableMap
-          .put(
-              n.selectSingleNode( "name" ).getText(),
-              applyInputsToFormat( getInputStringValue( n.selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+      variableMap.put( n.selectSingleNode( "name" ).getText(), applyInputsToFormat( getInputStringValue( n
+          .selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     for ( Node n : (List<Node>) getComponentDefinition().selectNodes( PARAMETER_MAP_PARAMETER ) ) {
-      parameterMap
-          .put(
-              n.selectSingleNode( "name" ).getText(),
-              applyInputsToFormat( getInputStringValue( n.selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+      parameterMap.put( n.selectSingleNode( "name" ).getText(), applyInputsToFormat( getInputStringValue( n
+          .selectSingleNode( "mapping" ).getText() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     String[] arguments = null;
@@ -477,11 +463,16 @@ public class KettleComponent extends ComponentBase implements RowListener {
             // filesystem and file
             transMeta = new TransMeta( fileAddress, repository, true );
             transMeta.setFilename( fileAddress );
+
           } else if ( repository != null && repository.isConnected() ) {
 
             fileAddress = transformResource.getAddress();
+
             // load transformation resource from kettle/settings.xml configured repository
-            transMeta = loadTransformFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ), FilenameUtils.getBaseName( fileAddress ), repository );
+            transMeta =
+                loadTransformFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ), FilenameUtils
+                    .getBaseName( fileAddress ), repository );
+
           } else {
             String jobXmlStr = getResourceAsString( getResource( KettleComponent.TRANSFORMFILE ) );
             jobXmlStr = jobXmlStr.replaceAll( "\\$\\{pentaho.solutionpath\\}", solutionPath ); //$NON-NLS-1$
@@ -531,7 +522,9 @@ public class KettleComponent extends ComponentBase implements RowListener {
             solutionPath = StringUtils.EMPTY;
 
             // load job resource from kettle/settings.xml configured repository
-            jobMeta = loadJobFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ), FilenameUtils.getBaseName( fileAddress ), repository );
+            jobMeta =
+                loadJobFromRepository( FilenameUtils.getPathNoEndSeparator( fileAddress ), FilenameUtils
+                    .getBaseName( fileAddress ), repository );
 
           } else {
 
@@ -612,7 +605,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
         try {
           repository.disconnect();
         } catch ( Exception ignored ) {
-          //ignore
+          // ignore
         }
       }
 
@@ -621,7 +614,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
           cleanLogChannel( transMeta );
           transMeta.clear();
         } catch ( Exception ignored ) {
-          //ignore
+          // ignore
         }
         transMeta = null;
       }
@@ -630,7 +623,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
           cleanLogChannel( jobMeta );
           jobMeta.clear();
         } catch ( Exception ignored ) {
-          //ignored
+          // ignored
         }
         // Can't do anything about an exception here.
         jobMeta = null;
@@ -655,7 +648,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
       cleanLogChannelFromMap( loi );
       KettleLogStore.getAppender().removeChannelFromBuffer( loi.getLogChannelId() );
     } catch ( Exception ignored ) {
-      //ignored
+      // ignored
     }
     // Nothing I can do here...
   }
@@ -901,7 +894,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
     }
   }
 
-  @SuppressWarnings ( "unchecked" )
+  @SuppressWarnings( "unchecked" )
   private String getTransformSuccessOutputName() {
     String result = null;
 
@@ -1046,7 +1039,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
   }
 
   private TransMeta loadTransformFromRepository( final String directoryName, final String transformationName,
-                                                 final Repository repository ) {
+      final Repository repository ) {
     if ( ComponentBase.debug ) {
       debug( Messages.getInstance().getString( "Kettle.DEBUG_DIRECTORY", directoryName ) ); //$NON-NLS-1$
     }
@@ -1089,8 +1082,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
     return null;
   }
 
-  private JobMeta loadJobFromRepository( final String directoryName, final String jobName,
-                                         final Repository repository ) {
+  private JobMeta loadJobFromRepository( final String directoryName, final String jobName, final Repository repository ) {
     if ( ComponentBase.debug ) {
       debug( Messages.getInstance().getString( "Kettle.DEBUG_DIRECTORY", directoryName ) ); //$NON-NLS-1$
     }

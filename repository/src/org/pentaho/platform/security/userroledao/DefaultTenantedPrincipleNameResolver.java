@@ -114,7 +114,7 @@ public class DefaultTenantedPrincipleNameResolver implements ITenantedPrincipleN
       if ( pentahoRootFolderNameIndex == -1 ) {
         return false;
       }
-      String delim = principleId.substring( pentahoRootFolderNameIndex-2, pentahoRootFolderNameIndex-1 );
+      String delim = principleId.substring( pentahoRootFolderNameIndex - 2, pentahoRootFolderNameIndex - 1 );
       if ( delim.equals( getDelimeter() ) ) {
         return true;
       }

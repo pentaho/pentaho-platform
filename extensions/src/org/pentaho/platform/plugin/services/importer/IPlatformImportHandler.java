@@ -47,4 +47,5 @@ public interface IPlatformImportHandler {
     DomainAlreadyExistsException, DomainStorageException, IOException;
 
   List<MimeType> getMimeTypes();
+
 }

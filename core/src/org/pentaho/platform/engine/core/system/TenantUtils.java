@@ -70,6 +70,7 @@ public class TenantUtils {
       return currentTenant.getId() == null
           || tenant.getRootFolderAbsolutePath().startsWith(
               currentTenant.getRootFolderAbsolutePath() + RepositoryFile.SEPARATOR ) || tenant.equals( currentTenant );
+    //CHECKSTYLE:EmptyBlock:OFF
     } catch ( NullPointerException ex ) {
     }
     return false;

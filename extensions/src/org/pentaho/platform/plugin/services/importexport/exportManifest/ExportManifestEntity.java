@@ -57,8 +57,7 @@ public class ExportManifestEntity {
     rawExportManifestEntity = new ExportManifestEntityDto();
   }
 
-  protected ExportManifestEntity( String rootFolder, RepositoryFile repositoryFile,
-                                  RepositoryFileAcl repositoryFileAcl )
+  protected ExportManifestEntity( String rootFolder, RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl )
     throws ExportManifestFormatException {
     this();
     ExportManifestProperty rawExportManifestProperty = new ExportManifestProperty();
@@ -172,8 +171,7 @@ public class ExportManifestEntity {
     }
     return new RepositoryFile( null, emd.getName(), emd.isIsFolder(), emd.isIsHidden(), false, null, emd.getPath(),
         XmlGregorianCalendarConverter.asDate( emd.getCreatedDate() ), null, false, null, null, null, "en-US", emd
-        .getTitle(), emd.getDescription(), null, null, 0, emd.getOwner(), null
-    );
+            .getTitle(), emd.getDescription(), null, null, 0, emd.getOwner(), null );
   }
 
   /**
@@ -310,7 +308,8 @@ public class ExportManifestEntity {
   }
 
   /**
-   * @param entityMetaData the entityMetaData to set
+   * @param entityMetaData
+   *          the entityMetaData to set
    */
   public void setEntityMetaData( EntityMetaData entityMetaData ) {
     this.entityMetaData = entityMetaData;
@@ -324,7 +323,8 @@ public class ExportManifestEntity {
   }
 
   /**
-   * @param entityAcl the entityAcl to set
+   * @param entityAcl
+   *          the entityAcl to set
    */
   public void setEntityAcl( EntityAcl entityAcl ) {
     this.entityAcl = entityAcl;
@@ -338,7 +338,8 @@ public class ExportManifestEntity {
   }
 
   /**
-   * @param customProperties the customProperty to set
+   * @param customProperties
+   *          the customProperty to set
    */
   public void setCustomProperties( List<CustomProperty> customProperties ) {
     this.customProperties = customProperties;
@@ -352,7 +353,8 @@ public class ExportManifestEntity {
   }
 
   /**
-   * @param path the path to set
+   * @param path
+   *          the path to set
    */
   public void setPath( String path ) {
     rawExportManifestEntity.setPath( path );

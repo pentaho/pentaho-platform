@@ -16,6 +16,7 @@
  */
 
 package org.pentaho.platform.plugin.services.importexport;
+
 /*
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
@@ -77,7 +78,8 @@ public class DefaultExportHandler implements ExportHandler {
 
     // Find the converter - defined in spring xml by import handlers
     if ( converters == null ) {
-      IRepositoryContentConverterHandler converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
+      IRepositoryContentConverterHandler converterHandler =
+          PentahoSystem.get( IRepositoryContentConverterHandler.class );
       converters = converterHandler.getConverters();
     }
     final Converter converter = converters.get( ext );

@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.api.repository2.unified;
 
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-
 import java.io.InputStream;
 import java.io.Serializable;
 

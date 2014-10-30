@@ -21,7 +21,6 @@ package org.pentaho.platform.repository2.unified.fs;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -99,7 +98,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   public RepositoryFileAcl getAcl( Serializable fileId ) {
     throw new UnsupportedOperationException();
   }
-  
+
   @Override
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
     return repositoryFileDao.getChildren( repositoryRequest );
@@ -111,10 +110,10 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   }
 
   @Deprecated
-  public List<RepositoryFile> getChildren( Serializable folderId, String filter) {
-    return repositoryFileDao.getChildren( folderId, filter, false);
+  public List<RepositoryFile> getChildren( Serializable folderId, String filter ) {
+    return repositoryFileDao.getChildren( folderId, filter, false );
   }
-  
+
   @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
     return repositoryFileDao.getChildren( new RepositoryRequest( folderId.toString(), showHiddenFiles, -1, filter ) );
@@ -204,10 +203,10 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   public RepositoryFile getFileById( Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale ) {
     return this.repositoryFileDao.getFileById( fileId, loadLocaleMaps, locale );
   }
-  
+
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
-    return repositoryFileDao.getTree( repositoryRequest);
+    return repositoryFileDao.getTree( repositoryRequest );
   }
 
   public RepositoryFileTree getTree( String path, int depth, String filter, boolean showHidden ) {
@@ -267,8 +266,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     throw new UnsupportedOperationException();
   }
 
-  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch( List<RepositoryFile> files,
-                                                                        Class<T> dataClass ) {
+  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch( List<RepositoryFile> files, Class<T> dataClass ) {
     Assert.notNull( files );
     List<T> data = new ArrayList<T>( files.size() );
     for ( RepositoryFile f : files ) {
@@ -279,14 +277,14 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   }
 
   public List<VersionSummary> getVersionSummaryInBatch( List<RepositoryFile> files ) {
-    
+
     Assert.notNull( files );
     List<VersionSummary> versionSummaryList = new ArrayList<VersionSummary>( files.size() );
-    
-    for(RepositoryFile file : files){
+
+    for ( RepositoryFile file : files ) {
       versionSummaryList.add( getVersionSummary( file.getId(), file.getVersionId() ) );
     }
-    
+
     return versionSummaryList;
   }
 

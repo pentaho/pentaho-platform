@@ -36,9 +36,9 @@ public class Custom1 extends KettleComponent {
     return true;
   }
 
-  @SuppressWarnings ( "unused" )
+  @SuppressWarnings( "unused" )
   private void execSQL( TransMeta transMeta, String targetDatabaseName ) throws KettleStepException,
-      KettleDatabaseException {
+    KettleDatabaseException {
 
     // OK, What's the SQL we need to execute to generate the target table?
     String sql = transMeta.getSQLStatementsString();

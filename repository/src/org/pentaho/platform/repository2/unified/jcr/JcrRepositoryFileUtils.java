@@ -110,15 +110,15 @@ public class JcrRepositoryFileUtils {
       reservedChars = newOverrideReservedChars;
     }
 
-    Boolean systemVersioningEnabled = PentahoSystem.get( Boolean.class,
-      "versioningEnabled", PentahoSessionHolder.getSession() );
+    Boolean systemVersioningEnabled = PentahoSystem.get(Boolean.class,
+              "versioningEnabled", PentahoSessionHolder.getSession() );
 
     if ( systemVersioningEnabled != null ) {
       versioningEnabled = systemVersioningEnabled;
     }
 
-    Boolean systemVersionCommentsEnabled = PentahoSystem.get( Boolean.class,
-      "versionCommentsEnabled", PentahoSessionHolder.getSession() );
+    Boolean systemVersionCommentsEnabled = PentahoSystem.get(Boolean.class,
+          "versionCommentsEnabled", PentahoSessionHolder.getSession() );
 
     if ( systemVersionCommentsEnabled != null ) {
       versionCommentsEnabled = systemVersionCommentsEnabled;
@@ -640,9 +640,8 @@ public class JcrRepositoryFileUtils {
     }
   }
 
-  public static Node
-  updateFileNode( final Session session, final PentahoJcrConstants pentahoJcrConstants, final RepositoryFile file,
-                  final IRepositoryFileData content, final ITransformer<IRepositoryFileData> transformer )
+  public static Node updateFileNode( final Session session, final PentahoJcrConstants pentahoJcrConstants, final RepositoryFile file,
+        final IRepositoryFileData content, final ITransformer<IRepositoryFileData> transformer )
     throws RepositoryException {
 
     Node fileNode = session.getNodeByIdentifier( file.getId().toString() );
@@ -967,32 +966,19 @@ public class JcrRepositoryFileUtils {
         }
       }
       session.save(); // required before checkin since we set some properties above
-
-      Calendar cal = Calendar.getInstance();
-      if ( versionDate != null ) {
-        cal.setTime( versionDate );
-      } else {
-        cal.setTime( new Date() );
-      }
-      ( (VersionManagerImpl) session.getWorkspace().getVersionManager() ).checkin( versionableNode.getPath(), cal );
-
-      // if we're not versioning, delete only the previous version to
-      // prevent the number of versions from increasing. We still need a versioned node
-      if ( Boolean.FALSE.equals( versioningEnabled ) ) {
-
-        List<VersionSummary> versionSummaries = (List<VersionSummary>)
-          getVersionSummaries( session, pentahoJcrConstants, versionableNode.getIdentifier(), Boolean.TRUE );
-
-        if ( ( versionSummaries != null ) && ( versionSummaries.size() > 1 ) ) {
-          VersionSummary versionSummary = (VersionSummary) versionSummaries.toArray()[ versionSummaries.size() - 2 ];
-
-          if ( versionSummary != null ) {
-            String versionId = (String) versionSummary.getId();
-            session.getWorkspace().getVersionManager().getVersionHistory( versionableNode.getPath() ).removeVersion(
-              versionId );
-            session.save();
-          }
+      // only call checkin() if versioning is enabled
+      if ( Boolean.TRUE.equals( versioningEnabled ) ) {
+        Calendar cal = Calendar.getInstance();
+        if ( versionDate != null ) {
+          cal.setTime( versionDate );
+        } else {
+          cal.setTime( new Date() );
         }
+        ( (VersionManagerImpl) session.getWorkspace().getVersionManager() ).checkin( versionableNode.getPath(), cal );
+      // Version newVersion = versionableNode.checkin();
+      // if (versionMessageAndLabel.length > 1 && StringUtils.hasText(versionMessageAndLabel[1])) {
+      // newVersion.getContainingHistory().addVersionLabel(newVersion.getName(), versionMessageAndLabel[1], true);
+      // }
       }
     }
   }
@@ -1078,7 +1064,7 @@ public class JcrRepositoryFileUtils {
     Node nodeAtVersion = getNodeAtVersion( pentahoJcrConstants, version );
     String author = "BASE_VERSION";
     if ( nodeAtVersion.hasProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR() ) ) {
-      author = nodeAtVersion.getProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR() ).getString();
+      author = nodeAtVersion.getProperty(pentahoJcrConstants.getPHO_VERSIONAUTHOR() ).getString();
     }
     String message = null;
     if ( nodeAtVersion.hasProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE() ) ) {

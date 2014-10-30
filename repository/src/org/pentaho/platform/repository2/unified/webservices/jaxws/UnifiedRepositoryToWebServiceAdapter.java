@@ -41,7 +41,6 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.NodeRepositoryFileDataAdapter;
 import org.pentaho.platform.repository2.unified.webservices.NodeRepositoryFileDataDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceAdapter;
@@ -127,7 +126,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   public RepositoryFileAcl getAcl( Serializable fileId ) {
     return repositoryFileAclAdapter.unmarshal( repoWebService.getAcl( fileId != null ? fileId.toString() : null ) );
   }
-  
+
 
   @Override
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
@@ -142,11 +141,11 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
 
   @Override
   @Deprecated
-  public List<RepositoryFile> getChildren( Serializable folderId, String filter) {
+  public List<RepositoryFile> getChildren( Serializable folderId, String filter ) {
     return unmarshalFiles( repoWebService.getChildrenWithFilter( folderId.toString() != null ? folderId.toString() : null, filter ) );
   }
-  
-    private List<RepositoryFile> unmarshalFiles( List<RepositoryFileDto> dtos ) {
+
+  private List<RepositoryFile> unmarshalFiles( List<RepositoryFileDto> dtos ) {
     List<RepositoryFile> files = new ArrayList<RepositoryFile>();
     for ( RepositoryFileDto dto : dtos ) {
       files.add( repositoryFileAdapter.unmarshal( dto ) );
@@ -408,7 +407,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   public boolean canUnlockFile( final Serializable fileId ) {
     return repoWebService.canUnlockFile( fileId.toString() );
   }
-  
+
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
     return repositoryFileTreeAdapter.unmarshal( repoWebService.getTreeFromRequest( repositoryRequest ) );

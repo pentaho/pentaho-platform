@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 /**
  * Created by gmoran on 5/2/14.
  */
-@RunWith(Parameterized.class)
+@RunWith( Parameterized.class )
 public class PentahoConnectionDatasourceServiceTest {
 
   private BaseDatasourceService service;
@@ -32,24 +32,24 @@ public class PentahoConnectionDatasourceServiceTest {
   @Parameterized.Parameters
   public static Collection services() {
     return Arrays.asList( new Object[][] {
-        { new NonPooledDatasourceService(), "test1" },
-        { new PooledDatasourceService(), "test2" },
-        { new PooledOrJndiDatasourceService(), "test3" },
-        { new NonPooledOrJndiDatasourceService(), "test4" }
+      { new NonPooledDatasourceService(), "test1" },
+      { new PooledDatasourceService(), "test2" },
+      { new PooledOrJndiDatasourceService(), "test3" },
+      { new NonPooledOrJndiDatasourceService(), "test4" }
     } );
   }
 
   @Before
-  public void setUp(){
+  public void setUp() {
 
-    mockConnection = mock(IDatabaseConnection.class);
+    mockConnection = mock( IDatabaseConnection.class );
 
     // Set it up - this is a NATIVE connection
-    when( mockConnection.getAccessType()).thenReturn( DatabaseAccessType.NATIVE );
-    when( mockConnection.getDatabaseName()).thenReturn( dsName );
+    when( mockConnection.getAccessType() ).thenReturn( DatabaseAccessType.NATIVE );
+    when( mockConnection.getDatabaseName() ).thenReturn( dsName );
 
-    DataSource mockDs = mock(DataSource.class);
-    IDatasourceMgmtService mockMgmtService = mock(IDatasourceMgmtService.class);
+    DataSource mockDs = mock( DataSource.class );
+    IDatasourceMgmtService mockMgmtService = mock( IDatasourceMgmtService.class );
 
     spyService = spy(service );
 
@@ -60,7 +60,7 @@ public class PentahoConnectionDatasourceServiceTest {
     }
 
     try {
-      doReturn(mockDs).when( spyService ).resolveDatabaseConnection( mockConnection );
+      doReturn( mockDs ).when( spyService ).resolveDatabaseConnection( mockConnection );
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
     }
@@ -71,22 +71,19 @@ public class PentahoConnectionDatasourceServiceTest {
 
   }
 
-  public PentahoConnectionDatasourceServiceTest( BaseDatasourceService service, String name ){
+  public PentahoConnectionDatasourceServiceTest( BaseDatasourceService service, String name ) {
     this.service = service;
     this.dsName = name;
   }
 
   @Test
-  public void testPentahoConnectionServices( ){
-
-
+  public void testPentahoConnectionServices() {
     try {
-
       // Now make sure that the resolve.. service method gets called; if not,
       // fail the test
       spyService.getDataSource( dsName );
-      verify(spyService).resolveDatabaseConnection( mockConnection );
-      verify(spyService, Mockito.never()).getJndiDataSource( dsName );
+      verify( spyService ).resolveDatabaseConnection( mockConnection );
+      verify( spyService, Mockito.never() ).getJndiDataSource( dsName );
 
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
@@ -95,20 +92,16 @@ public class PentahoConnectionDatasourceServiceTest {
   }
 
   @Test
-  public void testCachedPentahoConnectionServices( ){
-
+  public void testCachedPentahoConnectionServices() {
     try {
-
       // Now make sure that the JNDI service method gets called the first time,
       // but the second time it should retrieve from cache.
       spyService.getDataSource( dsName );
       spyService.getDataSource( dsName );
-      verify(spyService, Mockito.times( 1 )).resolveDatabaseConnection( mockConnection );
-
+      verify(spyService, Mockito.times( 1 ) ).resolveDatabaseConnection( mockConnection );
     } catch ( DBDatasourceServiceException e ) {
       e.printStackTrace();
     }
-
   }
 
 }

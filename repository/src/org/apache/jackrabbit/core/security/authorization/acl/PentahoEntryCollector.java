@@ -40,8 +40,6 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.util.Assert;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.observation.Event;
-import javax.jcr.observation.ObservationManager;
 import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionHistory;

@@ -47,8 +47,6 @@ public class FilterDefinitionFactory {
       fd = new ActionFilterDefinition( node, session, logger );
     } else if ( null != XmlDom4JHelper.getNodeText( "static-lov", node ) ) { //$NON-NLS-1$
       fd = new StaticFilterDefinition( node, session, logger );
-    } else {
-      //
     }
     if ( fd != null ) {
       fd.fromXml( node );

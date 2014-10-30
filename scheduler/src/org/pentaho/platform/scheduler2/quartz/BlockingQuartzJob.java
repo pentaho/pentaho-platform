@@ -61,7 +61,7 @@ public class BlockingQuartzJob implements Job {
   Log getLogger() {
     return LogFactory.getLog( BlockingQuartzJob.class );
   }
-  
+
   protected boolean isBlockoutAction( JobExecutionContext ctx ) {
     try {
       String actionClass = ctx.getJobDetail().getJobDataMap().getString( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS );
@@ -70,6 +70,6 @@ public class BlockingQuartzJob implements Job {
       getLogger().warn( t.getMessage(), t );
       return false;
     }
-  }    
-  
+  }
+
 }

@@ -55,7 +55,6 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   private String type = "";
   private String mode = "";
 
-
   public String getFileList() {
     return fileList;
   }
@@ -87,12 +86,11 @@ public class DeletePermanentFileCommand extends AbstractCommand {
     setFileList( fileList );
   }
 
-
   /*
- * (non-Javadoc)
- *
- * @see com.google.gwt.user.client.Command#execute()
- */
+   * (non-Javadoc)
+   * 
+   * @see com.google.gwt.user.client.Command#execute()
+   */
   protected void performOperation( boolean feedback ) {
     final SolutionFileActionEvent event = new SolutionFileActionEvent();
 
