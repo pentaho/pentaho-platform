@@ -33,10 +33,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -750,15 +752,16 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     char[] jcrEncodedSymbols = { '%', '/', ':', '[', ']', '*', '|', '\t', '\r', '\n' };
-
-    for ( char symbol : JcrRepositoryFileUtils.getReservedChars() ) {
-      testSymbol( symbol, false );
+    Set<Character> generalSetSymbols = new LinkedHashSet<Character>();
+    for ( char c : jcrEncodedSymbols ) {
+      generalSetSymbols.add( c );
+    }
+    for ( char c : JcrRepositoryFileUtils.getReservedChars() ) {
+      generalSetSymbols.add( c );
     }
 
-    for ( char symbol : jcrEncodedSymbols ) {
-      if ( !JcrRepositoryFileUtils.getReservedChars().contains( symbol ) ) {
-        testSymbol( symbol, true );
-      }
+    for ( Character character : generalSetSymbols ) {
+      testSymbol( character, true );
     }
   }
 

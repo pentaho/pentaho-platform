@@ -35,7 +35,6 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.repository2.unified.jcr.ITransformer;
-import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrStringHelper;
 import org.pentaho.platform.repository2.unified.jcr.NodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
@@ -91,8 +90,8 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
     // get or create the node represented by dataNode
     Node jcrNode = null;
     String nodeName = dataNode.getName();
-
-    JcrRepositoryFileUtils.checkName( dataNode.getName() );
+    // Not need to check the name if we encoded it
+    // JcrRepositoryFileUtils.checkName( dataNode.getName() );
 
     nodeName = JcrStringHelper.fileNameEncode( nodeName );
 
@@ -105,8 +104,8 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
     for ( DataProperty dataProp : dataNode.getProperties() ) {
 
       String propName = dataProp.getName();
-
-      JcrRepositoryFileUtils.checkName( propName );
+      // Not need to check the name if we encoded it
+      // JcrRepositoryFileUtils.checkName( propName );
 
       propName = prefix + JcrStringHelper.fileNameEncode( propName );
 

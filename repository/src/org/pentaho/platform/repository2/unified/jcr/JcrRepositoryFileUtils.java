@@ -537,7 +537,8 @@ public class JcrRepositoryFileUtils {
 
   public static Node createFolderNode( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable parentFolderId, final RepositoryFile folder ) throws RepositoryException {
-    checkName( folder.getName() );
+    // Not need to check the name if we encoded it
+    // checkName( folder.getName() );
     Node parentFolderNode;
     if ( parentFolderId != null ) {
       parentFolderNode = session.getNodeByIdentifier( parentFolderId.toString() );
@@ -575,8 +576,8 @@ public class JcrRepositoryFileUtils {
   public static Node createFileNode( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable parentFolderId, final RepositoryFile file, final IRepositoryFileData content,
       final ITransformer<IRepositoryFileData> transformer ) throws RepositoryException {
-
-    checkName( file.getName() );
+    // Not need to check the name if we encoded it
+    // checkName( file.getName() );
     String encodedFileName = JcrStringHelper.fileNameEncode( file.getName() );
     Node parentFolderNode;
     if ( parentFolderId != null ) {
