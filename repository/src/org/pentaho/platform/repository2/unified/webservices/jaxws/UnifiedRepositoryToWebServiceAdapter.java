@@ -127,7 +127,6 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   public RepositoryFileAcl getAcl( Serializable fileId ) {
     return repositoryFileAclAdapter.unmarshal( repoWebService.getAcl( fileId != null ? fileId.toString() : null ) );
   }
-  
 
   @Override
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
@@ -142,11 +141,12 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
 
   @Override
   @Deprecated
-  public List<RepositoryFile> getChildren( Serializable folderId, String filter) {
-    return unmarshalFiles( repoWebService.getChildrenWithFilter( folderId.toString() != null ? folderId.toString() : null, filter ) );
+  public List<RepositoryFile> getChildren( Serializable folderId, String filter ) {
+    return unmarshalFiles( repoWebService.getChildrenWithFilter( folderId.toString() != null ? folderId.toString()
+        : null, filter ) );
   }
-  
-    private List<RepositoryFile> unmarshalFiles( List<RepositoryFileDto> dtos ) {
+
+  private List<RepositoryFile> unmarshalFiles( List<RepositoryFileDto> dtos ) {
     List<RepositoryFile> files = new ArrayList<RepositoryFile>();
     for ( RepositoryFileDto dto : dtos ) {
       files.add( repositoryFileAdapter.unmarshal( dto ) );
@@ -156,8 +156,8 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
 
   @Override
   public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
-    return unmarshalFiles( repoWebService.getChildrenWithFilterAndHidden( folderId.toString() != null ? folderId.toString()
-        : null, filter, showHiddenFiles ) );
+    return unmarshalFiles( repoWebService.getChildrenWithFilterAndHidden( folderId.toString() != null ? folderId
+        .toString() : null, filter, showHiddenFiles ) );
   }
 
   @Override
@@ -272,7 +272,8 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
 
   @Override
   public RepositoryFile getFile( String path ) {
-    path = path.replaceAll( ";", "/" ); //$NON-NLS-1$ //$NON-NLS-2$
+    // Why is it here?
+    // path = path.replaceAll( ";", "/" );
     return repositoryFileAdapter.unmarshal( repoWebService.getFile( path, false, null ) );
   }
 
@@ -408,7 +409,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   public boolean canUnlockFile( final Serializable fileId ) {
     return repoWebService.canUnlockFile( fileId.toString() );
   }
-  
+
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
     return repositoryFileTreeAdapter.unmarshal( repoWebService.getTreeFromRequest( repositoryRequest ) );
@@ -416,8 +417,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
 
   @Override
   @Deprecated
-  public RepositoryFileTree getTree( final String path, final int depth, final String filter,
-                                     final boolean showHidden ) {
+  public RepositoryFileTree getTree( final String path, final int depth, final String filter, final boolean showHidden ) {
     return repositoryFileTreeAdapter.unmarshal( repoWebService.getTree( path, depth, filter, showHidden ) );
   }
 
