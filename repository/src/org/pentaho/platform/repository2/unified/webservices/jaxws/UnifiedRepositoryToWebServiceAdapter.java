@@ -272,7 +272,8 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
 
   @Override
   public RepositoryFile getFile( String path ) {
-    path = path.replaceAll( ";", "/" ); //$NON-NLS-1$ //$NON-NLS-2$
+    // Why is it here?
+    // path = path.replaceAll( ";", "/" );
     return repositoryFileAdapter.unmarshal( repoWebService.getFile( path, false, null ) );
   }
 

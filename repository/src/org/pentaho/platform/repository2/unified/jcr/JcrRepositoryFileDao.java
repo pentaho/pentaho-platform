@@ -885,7 +885,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           Assert.isTrue( lastSlashIndex > 1, Messages.getInstance().getString(
               "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) ); //$NON-NLS-1$
           String absPathToDestParentFolder = cleanDestAbsPath.substring( 0, lastSlashIndex );
-          JcrRepositoryFileUtils.checkName( cleanDestAbsPath.substring( lastSlashIndex + 1 ) );
+          // Not need to check the name if we encoded it
+          // JcrRepositoryFileUtils.checkName( cleanDestAbsPath.substring( lastSlashIndex + 1 ) );
           try {
             destParentFolderNode = (Node) session.getItem( JcrStringHelper.pathEncode( absPathToDestParentFolder ) );
           } catch ( PathNotFoundException e1 ) {
