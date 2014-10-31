@@ -18,6 +18,29 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.Item;
+import javax.jcr.ItemExistsException;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.lock.Lock;
+
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
@@ -41,29 +64,6 @@ import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.jcr.AccessDeniedException;
-import javax.jcr.Item;
-import javax.jcr.ItemExistsException;
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.lock.Lock;
 
 /**
  * CRUD operations against JCR. Note that there is no access control in this class (implicit or explicit).
@@ -791,8 +791,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         // original parent folder path may no longer exist!
         if ( session.itemExists( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) ) {
           origParentFolderId =
-              ( (Node) session.getItem( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) )
-                  .getIdentifier();
+              ( (Node) session.getItem( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) ).getIdentifier();
         } else {
           // go through each of the segments of the original parent folder path, creating as necessary
           String[] segments = pathConversionHelper.absToRel( absOrigParentFolderPath ).split( RepositoryFile.SEPARATOR );
@@ -886,10 +885,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           Assert.isTrue( lastSlashIndex > 1, Messages.getInstance().getString(
               "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) ); //$NON-NLS-1$
           String absPathToDestParentFolder = cleanDestAbsPath.substring( 0, lastSlashIndex );
-          JcrRepositoryFileUtils.checkName( cleanDestAbsPath.substring( lastSlashIndex + 1 ) );
+          // Not need to check the name if we encoded it
+          // JcrRepositoryFileUtils.checkName( cleanDestAbsPath.substring( lastSlashIndex + 1 ) );
           try {
-            destParentFolderNode =
-                (Node) session.getItem( JcrStringHelper.pathEncode( absPathToDestParentFolder ) );
+            destParentFolderNode = (Node) session.getItem( JcrStringHelper.pathEncode( absPathToDestParentFolder ) );
           } catch ( PathNotFoundException e1 ) {
             Assert.isTrue( false, Messages.getInstance()
                 .getString( "JcrRepositoryFileDao.ERROR_0004_PARENT_MUST_EXIST" ) ); //$NON-NLS-1$
@@ -904,8 +903,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
             destParentFolderNode );
         String finalEncodedSrcAbsPath = srcFileNode.getPath();
-        String finalDestAbsPath = appendFileName && !file.isFolder() ? cleanDestAbsPath
-                + RepositoryFile.SEPARATOR + srcFileNode.getName() : cleanDestAbsPath;
+        String finalDestAbsPath =
+            appendFileName && !file.isFolder() ? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
+                : cleanDestAbsPath;
         try {
           if ( copy ) {
             session.getWorkspace().copy( finalEncodedSrcAbsPath, JcrStringHelper.pathEncode( finalDestAbsPath ) );

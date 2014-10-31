@@ -18,6 +18,28 @@
 
 package org.pentaho.platform.repository2.unified;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,32 +74,18 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.io.ByteArrayInputStream;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.junit.Assert.*;
-
 /**
- * Integration test. Tests {@link DefaultUnifiedRepository} and {@link org.pentaho.platform.api.engine.IAuthorizationPolicy IAuthorizationPolicy} fully configured
- * behind Spring Security's method security and Spring's transaction interceptor.
+ * Integration test. Tests {@link DefaultUnifiedRepository} and
+ * {@link org.pentaho.platform.api.engine.IAuthorizationPolicy IAuthorizationPolicy} fully configured behind Spring
+ * Security's method security and Spring's transaction interceptor.
  * 
  * <p>
  * Note the RunWith annotation that uses a special runner that knows how to setup a Spring application context. The
  * application context config files are listed in the ContextConfiguration annotation. By implementing
- * {@link org.springframework.context.ApplicationContextAware ApplicationContextAware}, this unit test can access various beans defined in the application context,
- * including the bean under test.
+ * {@link org.springframework.context.ApplicationContextAware ApplicationContextAware}, this unit test can access
+ * various beans defined in the application context, including the bean under test.
  * </p>
- *
+ * 
  * This is part of tests for create/modify/delete repository content and some utilities
  * 
  * @author mlowery
@@ -711,8 +719,8 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     DataNode foundChild2 = foundNode.getNode( JcrStringHelper.fileNameEncode( "pppq/qqs2" ) );
     assertNotNull( foundChild2.getId() );
     assertEquals( newChild2.getName(), foundChild2.getName() );
-    assertEquals( newChild2.getProperty( JcrStringHelper.fileNameEncode( "ttt:ss4" ) ),
-        foundChild2.getProperty( JcrStringHelper.fileNameEncode( "ttt:ss4" ) ) );
+    assertEquals( newChild2.getProperty( JcrStringHelper.fileNameEncode( "ttt:ss4" ) ), foundChild2
+        .getProperty( JcrStringHelper.fileNameEncode( "ttt:ss4" ) ) );
     actualPropCount = 0;
     for ( DataProperty prop : foundChild2.getProperties() ) {
       actualPropCount++;
@@ -743,16 +751,17 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
-    char[] jcrEncodedSymbols = {'%', '/', ':', '[', ']', '*', '|', '\t', '\r', '\n'};
-
-    for ( char symbol : JcrRepositoryFileUtils.getReservedChars() ) {
-      testSymbol( symbol, false );
+    char[] jcrEncodedSymbols = { '%', '/', ':', '[', ']', '*', '|', '\t', '\r', '\n' };
+    Set<Character> generalSetSymbols = new LinkedHashSet<Character>();
+    for ( char c : jcrEncodedSymbols ) {
+      generalSetSymbols.add( c );
+    }
+    for ( char c : JcrRepositoryFileUtils.getReservedChars() ) {
+      generalSetSymbols.add( c );
     }
 
-    for ( char symbol : jcrEncodedSymbols ) {
-      if ( !JcrRepositoryFileUtils.getReservedChars().contains( symbol ) ) {
-        testSymbol( symbol, true );
-      }
+    for ( Character character : generalSetSymbols ) {
+      testSymbol( character, true );
     }
   }
 
@@ -774,7 +783,8 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     try {
       final String name = "folder" + symbol;
-      final RepositoryFile folder = repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( name ).folder( true ).build(), null );
+      final RepositoryFile folder =
+          repo.createFolder( parentFolder.getId(), new RepositoryFile.Builder( name ).folder( true ).build(), null );
       failIfTrue( !isGood, symbol );
       assertEquals( name, folder.getName() );
     } catch ( UnifiedRepositoryMalformedNameException e ) {
@@ -782,7 +792,8 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     }
     try {
       final String name = "file" + symbol;
-      final RepositoryFile file = repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( name ).build(), goodNodeData, null );
+      final RepositoryFile file =
+          repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( name ).build(), goodNodeData, null );
       failIfTrue( !isGood, symbol );
       assertEquals( name, file.getName() );
     } catch ( UnifiedRepositoryMalformedNameException e ) {
@@ -793,9 +804,11 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
       if ( file != null ) {
         repo.deleteFile( file.getId(), null );
       }
-      final RepositoryFile file1 = repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( "file" ).build(), badNodeData, null );
+      final RepositoryFile file1 =
+          repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( "file" ).build(), badNodeData, null );
       failIfTrue( !isGood, symbol );
-      assertEquals( badNodeData.getNode().getName(), repo.getDataForRead( file1.getId(), NodeRepositoryFileData.class ).getNode().getName() );
+      assertEquals( badNodeData.getNode().getName(), repo.getDataForRead( file1.getId(), NodeRepositoryFileData.class )
+          .getNode().getName() );
     } catch ( UnifiedRepositoryMalformedNameException e ) {
       failIfTrue( isGood, symbol );
     }
@@ -804,9 +817,12 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
       if ( file != null ) {
         repo.deleteFile( file.getId(), null );
       }
-      final RepositoryFile file1 = repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( "file" ).build(), goodNodeBadPropData, null );
+      final RepositoryFile file1 =
+          repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( "file" ).build(), goodNodeBadPropData,
+              null );
       failIfTrue( !isGood, symbol );
-      assertEquals( goodNodeBadPropData.getNode().getProperties().iterator().next().getName(), repo.getDataForRead( file1.getId(), NodeRepositoryFileData.class ).getNode().getProperties().iterator().next().getName() );
+      assertEquals( goodNodeBadPropData.getNode().getProperties().iterator().next().getName(), repo.getDataForRead(
+          file1.getId(), NodeRepositoryFileData.class ).getNode().getProperties().iterator().next().getName() );
     } catch ( UnifiedRepositoryMalformedNameException e ) {
       failIfTrue( isGood, symbol );
     }
@@ -856,8 +872,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     final String rootFolderID = String.valueOf( repo.getFile( ClientRepositoryPaths.getRootFolderPath() ).getId() );
-    List<RepositoryFile> children =
-        repo.getChildren( new RepositoryRequest( rootFolderID , true, -1, null ) );
+    List<RepositoryFile> children = repo.getChildren( new RepositoryRequest( rootFolderID, true, -1, null ) );
     assertEquals( 3, children.size() );
 
     ArrayList<String> checkFolders = new ArrayList<String>( Arrays.asList( new String[] { "public", "etc", "home" } ) );
@@ -899,7 +914,8 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     login( USERNAME_TIFFANY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     List<RepositoryFile> children =
-        repo.getChildren( new RepositoryRequest( String.valueOf( repo.getFile( ClientRepositoryPaths.getHomeFolderPath() ).getId() ), true, -1, null ) );
+        repo.getChildren( new RepositoryRequest( String.valueOf( repo.getFile(
+            ClientRepositoryPaths.getHomeFolderPath() ).getId() ), true, -1, null ) );
     assertEquals( 1, children.size() );
   }
 
@@ -1027,7 +1043,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
       }, null );
       fail( "expected UnifiedRepositoryException" );
     } catch ( UnifiedRepositoryException e ) {
-      //ignore
+      // ignore
     }
     assertFalse( SimpleJcrTestUtils.isCheckedOut( testJcrTemplate, expectedAbsolutePath ) );
   }
@@ -1185,8 +1201,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
-    String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(
-      PentahoSessionHolder.getSession().getName() );
+    String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final String fileName = "helloworld.sample";
     RepositoryFile newFile = createSampleFile( parentFolderPath, fileName, "dfdfd", true, 3, true );
@@ -1238,7 +1253,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
       repo.undeleteFile( newFile.getId(), null );
       fail();
     } catch ( UnifiedRepositoryException e ) {
-      //ignore
+      // ignore
     }
 
     // test preservation of original path even if that path no longer exists
@@ -1414,7 +1429,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
       repo.moveFile( newFile.getId(), destFolder.getPath(), null );
       fail();
     } catch ( UnifiedRepositoryAccessDeniedException e ) {
-      //ignore
+      // ignore
     }
   }
 
@@ -1440,7 +1455,8 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     RepositoryFile testFolder = new RepositoryFile.Builder( "test" ).folder( true ).build();
     testFolder = repo.createFolder( moveTest1Folder.getId(), testFolder, null );
     // move folder into new folder
-    repo.moveFile( testFolder.getId(), moveTest2Folder.getPath() + RepositoryFile.SEPARATOR + testFolder.getName(), null );
+    repo.moveFile( testFolder.getId(), moveTest2Folder.getPath() + RepositoryFile.SEPARATOR + testFolder.getName(),
+        null );
     assertNull( repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() )
         + RepositoryFile.SEPARATOR + "moveTest1" + RepositoryFile.SEPARATOR + "test" ) );
     assertNotNull( repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession()
@@ -1580,7 +1596,8 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
         repo.createFolder( copyTest1Folder.getId(), testFolder, new RepositoryFileAcl.Builder( fileOwnerSid ).build(),
             null );
     // copy folder into new folder
-    repo.copyFile( testFolder.getId(), copyTest2Folder.getPath() + RepositoryFile.SEPARATOR + testFolder.getName(), null );
+    repo.copyFile( testFolder.getId(), copyTest2Folder.getPath() + RepositoryFile.SEPARATOR + testFolder.getName(),
+        null );
     assertNotNull( repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession()
         .getName() )
         + RepositoryFile.SEPARATOR + "copyTest1" + RepositoryFile.SEPARATOR + "test" ) );
@@ -1660,7 +1677,8 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
-    RepositoryFileTree root = repo.getTree( new RepositoryRequest( ClientRepositoryPaths.getRootFolderPath(), true, 0, null ) );
+    RepositoryFileTree root =
+        repo.getTree( new RepositoryRequest( ClientRepositoryPaths.getRootFolderPath(), true, 0, null ) );
     assertNotNull( root.getFile() );
     assertNull( root.getChildren() );
 
