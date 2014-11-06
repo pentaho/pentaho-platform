@@ -120,6 +120,15 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    */
   private Map<String, MondrianCatalogComplementInfo> catalogComplementInfoMap;
 
+  /**
+   * Tells the MCH to generate datasources.xml with a DB name
+   * equals to that of the 4.X servers. This is necessary until
+   * the next release of olap4j-xmla. Using the legacy DB name
+   * allows requests of MDSCHEMA_MEMBERS to be batched.
+   * See MONDRIAN-2229.
+   */
+  private final boolean useLegacyDbName;
+
   public static final String MONDRIAN_DATASOURCE_FOLDER = "mondrian"; //$NON-NLS-1$
 
   // ~ Constructors ====================================================================================================
@@ -208,7 +217,12 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   }
 
   public MondrianCatalogHelper() {
+    this( false );
+  }
+
+  public MondrianCatalogHelper( boolean useLegacyDbName ) {
     super();
+    this.useLegacyDbName = useLegacyDbName;
 
     try {
       DefaultFileSystemManager dfsm = (DefaultFileSystemManager) VFS.getManager();
@@ -291,7 +305,11 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     datasourcesXML.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<DataSources>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<DataSource>\n" ); //$NON-NLS-1$
-    datasourcesXML.append( "<DataSourceName>Pentaho</DataSourceName>\n" ); //$NON-NLS-1$
+    if ( useLegacyDbName ) {
+      datasourcesXML.append( "<DataSourceName>Provider=Mondrian</DataSourceName>\n" ); //$NON-NLS-1$
+    } else {
+      datasourcesXML.append( "<DataSourceName>Pentaho</DataSourceName>\n" ); //$NON-NLS-1$
+    }
     datasourcesXML
       .append( "<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n" ); //$NON-NLS-1$
     datasourcesXML.append(
