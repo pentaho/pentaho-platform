@@ -32,9 +32,11 @@ import java.lang.annotation.Target;
 public @interface SnmpVariable {
   enum TYPE { INTEGER, STRING }
 
-  String oid();
-
+  String oid() default ""; //So can coexist with old
+  
   TYPE type();
+  
+  int ordinal() default -1;
 
   Class<? extends IVariableSerializer> serializer() default IVariableSerializer.BasicSerializer.class;
 }
