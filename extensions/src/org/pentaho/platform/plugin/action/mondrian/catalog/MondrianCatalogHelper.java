@@ -308,13 +308,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     if ( useLegacyDbName ) {
       datasourcesXML.append( "<DataSourceName>Provider=Mondrian</DataSourceName>\n" ); //$NON-NLS-1$
     } else {
-      datasourcesXML.append( "<DataSourceName>Pentaho</DataSourceName>\n" ); //$NON-NLS-1$
+      datasourcesXML.append( "<DataSourceName>Pentaho Mondrian</DataSourceName>\n" ); //$NON-NLS-1$
     }
     datasourcesXML
       .append( "<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n" ); //$NON-NLS-1$
     datasourcesXML.append(
       "<URL>" + PentahoRequestContextHolder.getRequestContext().getContextPath() + "Xmla</URL>\n" ); //$NON-NLS-1$
-    datasourcesXML.append( "<DataSourceInfo>Provider=mondrian</DataSourceInfo>\n" ); //$NON-NLS-1$
+    datasourcesXML.append( "<DataSourceInfo>Provider=Mondrian</DataSourceInfo>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<ProviderName>PentahoXMLA</ProviderName>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<ProviderType>MDP</ProviderType>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<AuthenticationMode>Unauthenticated</AuthenticationMode>\n" ); //$NON-NLS-1$
