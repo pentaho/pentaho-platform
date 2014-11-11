@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
+import com.google.common.annotations.VisibleForTesting;
 import mondrian.i18n.LocalizingDynamicSchemaProcessor;
 import mondrian.olap.MondrianDef;
 import mondrian.olap.Util;
@@ -300,7 +301,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   }
 
   public String generateInMemoryDatasourcesXml( IUnifiedRepository unifiedRepository ) {
+    String etcMondrian =
+            ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + MONDRIAN_DATASOURCE_FOLDER;
+    RepositoryFile etcMondrianFolder = unifiedRepository.getFile( etcMondrian );
 
+    if ( etcMondrianFolder == null ) {
+      return null;
+    }
     StringBuffer datasourcesXML = new StringBuffer();
     datasourcesXML.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<DataSources>\n" ); //$NON-NLS-1$
@@ -313,33 +320,39 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     datasourcesXML
       .append( "<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>\n" ); //$NON-NLS-1$
     datasourcesXML.append(
-      "<URL>" + PentahoRequestContextHolder.getRequestContext().getContextPath() + "Xmla</URL>\n" ); //$NON-NLS-1$
+      "<URL>" + contextPathFromRequestContextHolder() + "Xmla</URL>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<DataSourceInfo>Provider=Mondrian</DataSourceInfo>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<ProviderName>PentahoXMLA</ProviderName>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<ProviderType>MDP</ProviderType>\n" ); //$NON-NLS-1$
     datasourcesXML.append( "<AuthenticationMode>Unauthenticated</AuthenticationMode>\n" ); //$NON-NLS-1$
-    datasourcesXML.append( "<Catalogs>\n" ); //$NON-NLS-1$
 
-    Encoder encoder = ESAPI.encoder();
+    appendCatalogsSection(unifiedRepository, etcMondrian, etcMondrianFolder, datasourcesXML);
+    datasourcesXML.append( "</DataSource>\n" ); //$NON-NLS-1$
+    datasourcesXML.append( "</DataSources>\n" ); //$NON-NLS-1$
 
-    // Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
-    /*
-     * IPentahoSession pentahoSession = PentahoSessionHolder.getSession(); String tenantEtcFolder = null;
-     * if(pentahoSession != null) { String tenantId = (String)
-     * pentahoSession.getAttribute(IPentahoSession.TENANT_ID_KEY); tenantEtcFolder =
-     * ServerRepositoryPaths.getTenantEtcFolderPath(tenantId); } else { tenantEtcFolder =
-     * ServerRepositoryPaths.getTenantEtcFolderPath(); }
-     */
+    return datasourcesXML.toString();
+  }
 
-    String etcMondrian =
-      ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + MONDRIAN_DATASOURCE_FOLDER;
+    @VisibleForTesting
+    protected String contextPathFromRequestContextHolder() {
+      return PentahoRequestContextHolder.getRequestContext().getContextPath();
+    }
 
-    RepositoryFile etcMondrianFolder = unifiedRepository.getFile( etcMondrian );
-    if ( etcMondrianFolder != null ) {
+    @VisibleForTesting
+    protected void appendCatalogsSection(IUnifiedRepository unifiedRepository, String etcMondrian, RepositoryFile etcMondrianFolder, StringBuffer datasourcesXML) {
+      datasourcesXML.append( "<Catalogs>\n" ); //$NON-NLS-1$
+      Encoder encoder = ESAPI.encoder();
+        // Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
+       /*
+       * IPentahoSession pentahoSession = PentahoSessionHolder.getSession(); String tenantEtcFolder = null;
+       * if(pentahoSession != null) { String tenantId = (String)
+       * pentahoSession.getAttribute(IPentahoSession.TENANT_ID_KEY); tenantEtcFolder =
+       * ServerRepositoryPaths.getTenantEtcFolderPath(tenantId); } else { tenantEtcFolder =
+       * ServerRepositoryPaths.getTenantEtcFolderPath(); }
+       */
       List<RepositoryFile> mondrianCatalogs = unifiedRepository.getChildren( etcMondrianFolder.getId() );
 
       for ( RepositoryFile catalog : mondrianCatalogs ) {
-
         String catalogName = catalog.getName();
         RepositoryFile metadata =
           unifiedRepository.getFile( etcMondrian + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR
@@ -353,25 +366,19 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
           datasourcesXML.append( "<Catalog name=\"" + encoder.encodeForXML( catalogName ) + "\">\n" ); //$NON-NLS-1$ //$NON-NLS-2$
           datasourcesXML
-            .append( "<DataSourceInfo>" + encoder.encodeForXML( datasourceInfo ) + "</DataSourceInfo>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
+            .append("<DataSourceInfo>" + encoder.encodeForXML(datasourceInfo) + "</DataSourceInfo>\n"); //$NON-NLS-1$ //$NON-NLS-2$
           datasourcesXML.append( "<Definition>" + encoder.encodeForXML( definition ) + "</Definition>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
           datasourcesXML.append( "</Catalog>\n" ); //$NON-NLS-1$
         } else {
           logger
-            .warn( Messages.getInstance().getString( "MondrianCatalogHelper.WARN_META_DATA_IS_NULL" ) ); //$NON-NLS-1$
+            .warn(Messages.getInstance().getString("MondrianCatalogHelper.WARN_META_DATA_IS_NULL")); //$NON-NLS-1$
         }
       }
 
       datasourcesXML.append( "</Catalogs>\n" ); //$NON-NLS-1$
-      datasourcesXML.append( "</DataSource>\n" ); //$NON-NLS-1$
-      datasourcesXML.append( "</DataSources>\n" ); //$NON-NLS-1$
-      return datasourcesXML.toString();
-    } else {
-      return null;
     }
-  }
 
-  protected DataSourcesConfig.DataSources parseDataSourcesUrl( final URL dataSourcesConfigUrl ) {
+    protected DataSourcesConfig.DataSources parseDataSourcesUrl( final URL dataSourcesConfigUrl ) {
 
     try {
       String dataSourcesConfigString = readDataSourcesContent( dataSourcesConfigUrl );
