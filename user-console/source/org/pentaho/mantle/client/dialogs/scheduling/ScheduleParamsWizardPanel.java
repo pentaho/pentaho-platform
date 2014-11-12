@@ -20,9 +20,7 @@ package org.pentaho.mantle.client.dialogs.scheduling;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -41,6 +39,9 @@ public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
   Label scheduleDescription = new Label();
   Frame parametersFrame;
   String scheduledFilePath;
+
+  Label overwriteLabel = new Label();
+  CheckBox overwriteCheckBox = new CheckBox();
 
   public ScheduleParamsWizardPanel( String scheduledFile ) {
     super();
@@ -201,6 +202,14 @@ public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
     this.add( scheduleParameterPanel, CENTER );
     this.setCellHeight( scheduleParameterPanel, "100%" );
     scheduleParameterPanel.setHeight( "100%" );
+
+    HorizontalPanel overwriteHP = new HorizontalPanel();
+    overwriteHP.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+    overwriteLabel.setText(Messages.getString("scheduleOverwriteContentColon"));
+    overwriteHP.add(overwriteLabel);
+    overwriteHP.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+    overwriteHP.add(overwriteCheckBox);
+    this.add(overwriteHP, SOUTH);
   }
 
   /*
@@ -234,5 +243,13 @@ public class ScheduleParamsWizardPanel extends AbstractWizardPanel {
       }
       setRadioParameterValue( parametersFrame.getUrl() );
     }
+  }
+
+  public boolean isOverwriteOutput() {
+    return overwriteCheckBox.getValue();
+  }
+
+  public void setOverwriteOutput(boolean v) {
+    overwriteCheckBox.setValue(v);
   }
 }

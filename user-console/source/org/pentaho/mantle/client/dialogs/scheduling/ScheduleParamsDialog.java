@@ -108,7 +108,12 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   }
 
   public void initDialog() {
-    scheduleParamsWizardPanel = new ScheduleParamsWizardPanel( filePath );
+    scheduleParamsWizardPanel = new ScheduleParamsWizardPanel(filePath);
+    if (editJob != null) {
+      final String acufValue = editJob.getJobParamValue("autoCreateUniqueFilename");
+      scheduleParamsWizardPanel.setOverwriteOutput("false".equals(acufValue));
+    }
+
     IWizardPanel[] wizardPanels = { scheduleParamsWizardPanel };
     setWizardPanels( wizardPanels );
     setWidth( "800px" );
@@ -165,6 +170,15 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     for ( int i = 0; i < schedulingParams.length(); i++ ) {
       params.set( i, new JSONObject( schedulingParams.get( i ) ) );
     }
+
+    final JsSchedulingParameter acufParam = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
+    acufParam.setName("autoCreateUniqueFilename");
+    acufParam.setType("boolean");
+    final JsArrayString acufValue = (JsArrayString) JavaScriptObject.createArray().cast();
+    acufValue.push(scheduleParamsWizardPanel.isOverwriteOutput() ? "false" : "true");
+    acufParam.setStringValue(acufValue);
+    params.set(params.size(), new JSONObject(acufParam));
+
     return params;
   }
 
