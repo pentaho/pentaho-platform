@@ -17,20 +17,33 @@
 
 package org.pentaho.test.platform.web;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpServletResponse;
-import com.mockrunner.mock.web.MockHttpSession;
-import com.mockrunner.mock.web.MockServletConfig;
-import com.mockrunner.mock.web.MockServletContext;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
+import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.web.servlet.GetResource;
-import org.pentaho.test.platform.engine.core.BaseTestCase;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.InputStream;
+import java.io.Serializable;
+
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for <code>org.pentaho.platform.web.servlet.GetResource</code>.
@@ -38,38 +51,130 @@ import java.util.Map;
  * @author mlowery
  */
 @SuppressWarnings( "nls" )
-public class GetResourceTest extends BaseTestCase {
-  private static final String SOLUTION_PATH = "test-src/web-servlet-solution";
+public class GetResourceTest {
+  private static final String TEST_MIME_TYPE = "test-mime-type";
+  private static final String RESOURCE_PARAM = "resource";
+  private static final String CONTENT_DISPOSITION_HEADER = "content-disposition";
 
-  public String getSolutionPath() {
-    return SOLUTION_PATH;
+  private MicroPlatform mp = new MicroPlatform( "test-src/web-servlet-solution" );
+  private HttpServletRequest request;
+  private HttpServletResponse response;
+  private GetResource servlet;
+
+  @Before
+  public void setUp() throws PlatformInitializationException, ServletException {
+    request = mock( HttpServletRequest.class );
+    when( request.getMethod() ).thenReturn( "GET" );
+
+    response = mock( HttpServletResponse.class );
+
+    servlet = spy( new GetResource() );
+    final ServletConfig servletConfig = mock( ServletConfig.class );
+    final ServletContext servletContext = mock( ServletContext.class );
+    when( servletContext.getMimeType( anyString() ) ).thenReturn( TEST_MIME_TYPE );
+    when( servletConfig.getServletContext() ).thenReturn( servletContext );
+    servlet.init( servletConfig );
+
+    mp.start();
   }
 
-  public void setUp() {
-    StandaloneApplicationContext applicationContext = new StandaloneApplicationContext( getSolutionPath(), "" ); //$NON-NLS-1$
-    PentahoSystem.init( applicationContext, getRequiredListeners() );
+  @After
+  public void tearDown() throws Exception {
+    mp.stop();
+
+    request = null;
+    response = null;
+    servlet = null;
+    mp = null;
   }
 
-  protected Map getRequiredListeners() {
-    HashMap listeners = new HashMap();
-    listeners.put( "globalObjects", "globalObjects" ); //$NON-NLS-1$ //$NON-NLS-2$
-    return listeners;
+  @Test
+  public void testGetResource() throws ServletException, IOException {
+    String resource = "adhoc/picklist.xsl";
+
+    when( request.getParameter( RESOURCE_PARAM ) ).thenReturn( resource );
+
+    final ServletOutputStream outputStream = mock( ServletOutputStream.class );
+    final MutableInt fileLength = new MutableInt( 0 );
+    doAnswer( new Answer<Void>() {
+      @Override
+      public Void answer( InvocationOnMock invocation ) throws Throwable {
+        fileLength.add( (Integer) invocation.getArguments()[2] );
+        return null;
+      }
+    } ).when( outputStream ).write( any( byte[].class ), anyInt(), anyInt() );
+    when( response.getOutputStream() ).thenReturn( outputStream );
+
+    servlet.service( request, response );
+
+    verify( response ).setContentType( eq( TEST_MIME_TYPE ) );
+    verify( response ).setHeader( eq( CONTENT_DISPOSITION_HEADER ),
+      endsWith( resource.substring( resource.lastIndexOf( "/" ) + 1 ) ) );
+
+    final int expected = new Long( new File( PentahoSystem.getApplicationContext()
+      .getSolutionPath( "system/custom/xsl/" + resource ) ).length() ).intValue();
+    assertEquals( expected, fileLength.intValue() );
+    verify( response ).setContentLength( eq( expected ) );
   }
 
-  public void testGetResouce() throws ServletException, IOException {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    MockHttpSession session = new MockHttpSession();
-    request.setSession( session );
-    request.setupAddParameter( "resource", "adhoc/picklist.xsl" ); //$NON-NLS-1$ //$NON-NLS-2$
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    MockServletContext context = new MockServletContext();
-    context.setServletContextName( "pentaho" );
-    MockServletConfig config = new MockServletConfig();
-    config.setServletContext( context );
-    config.setServletName( "getResource" );
-    request.setContextPath( "pentaho" );
-    GetResource servlet = new GetResource();
-    servlet.init( config );
-    // servlet.service(request, response);
+  @Test
+  public void testNotSupportedExt() throws ServletException, IOException {
+    when( request.getParameter( RESOURCE_PARAM ) ).thenReturn( "not_supported.nsp" );
+
+    servlet.service( request, response );
+
+    verify( response ).setStatus( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
+    verify( servlet ).error( matches( ".*ERROR_0002.*" ) );
+  }
+
+  @Test
+  public void testParentPath() throws ServletException, IOException {
+    when( request.getParameter( RESOURCE_PARAM ) ).thenReturn( "../some_file.jar" );
+
+    servlet.service( request, response );
+
+    verify( response ).setStatus( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
+    verify( servlet ).error( matches( ".*ERROR_0001.*" ) );
+  }
+
+  @Test
+  public void testFileNotExist() throws ServletException, IOException {
+    when( request.getParameter( RESOURCE_PARAM ) ).thenReturn( "not_exist.xsl" );
+
+    servlet.service( request, response );
+
+    verify( response ).setStatus( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
+    verify( servlet ).error( matches( ".*ERROR_0003.*" ) );
+  }
+
+  @Test
+  public void testRepositoryFile() throws ServletException, IOException {
+    final String repoFileName = "repo_file.properties";
+    final int repoFileLength = 100;
+
+    final RepositoryFile repositoryFile = mock( RepositoryFile.class );
+
+    final InputStream inputStream = mock( InputStream.class );
+    when( inputStream.read( any( byte[].class ) ) ).thenReturn( repoFileLength, -1 );
+
+    final SimpleRepositoryFileData repositoryFileData = mock( SimpleRepositoryFileData.class );
+    when( repositoryFileData.getStream() ).thenReturn( inputStream );
+
+    final IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    when( repo.getFile( eq( repoFileName ) ) ).thenReturn( repositoryFile );
+    when( repo.getDataForRead( any( Serializable.class ), eq( SimpleRepositoryFileData.class ) ) )
+      .thenReturn( repositoryFileData );
+    mp.defineInstance( IUnifiedRepository.class, repo );
+
+    when( request.getParameter( RESOURCE_PARAM ) ).thenReturn( repoFileName );
+
+    final ServletOutputStream outputStream = mock( ServletOutputStream.class );
+    when( response.getOutputStream() ).thenReturn( outputStream );
+
+    servlet.service( request, response );
+
+    verify( response ).setContentType( eq( TEST_MIME_TYPE ) );
+    verify( response ).setHeader( eq( CONTENT_DISPOSITION_HEADER ), endsWith( repoFileName ) );
+    verify( response ).setContentLength( repoFileLength );
   }
 }
