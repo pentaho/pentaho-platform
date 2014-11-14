@@ -554,7 +554,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, U
         childTreeItem.setFileName( fileName );
         if ( parentTreeItem == null && isDirectory ) {
           addItem( childTreeItem );
-        } else {
+        } else if ( parentTreeItem != null ) {
           parentTreeItem.addItem( childTreeItem );
         }
         FileTreeItem tmpParent = childTreeItem;
