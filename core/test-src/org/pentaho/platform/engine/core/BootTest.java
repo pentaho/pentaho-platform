@@ -23,18 +23,24 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.ISessionStartupAction;
 import org.pentaho.platform.api.engine.ISolutionEngine;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.SystemSettings;
 import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
+import org.pentaho.platform.util.logging.Logger;
 
 @SuppressWarnings( { "all" } )
 public class BootTest {
@@ -190,4 +196,55 @@ public class BootTest {
       IPentahoDefinableObjectFactory.Scope.GLOBAL );
   }
 
+  @Test
+  public void testObjectFactoryAvailableThruShutdown(){
+
+    final AtomicBoolean objectFactoryWasValid = new AtomicBoolean( false );
+    IPentahoSystemListener listener = new IPentahoSystemListener() {
+      @Override public boolean startup( IPentahoSession session ) {
+        return true;
+      }
+
+      @Override public void shutdown() {
+        // Verify that the ObjectFactory is still valid at this point
+        String s = PentahoSystem.get( String.class );
+
+        // Not possible to assert within here as PentahoSystem catches all Exceptions, setting marker boolean instead.
+        objectFactoryWasValid.set( "Testing".equals( s ) );
+
+      }
+    };
+    PentahoSystem.setSystemListeners( Collections.singletonList( listener ));
+    PentahoSystem.init();
+
+    // Add an object to PentahoSystem, then verify that it can be retrieved
+    PentahoSystem.registerObject( "Testing" );
+    String s = PentahoSystem.get( String.class );
+    assertEquals( "Testing", s);
+
+    PentahoSystem.shutdown();
+    // At this point the shutdown() method on the listener has been called, check the boolean flag.
+    assertTrue( "ShutdownListener wasn't able to get object from PentahoSystem", objectFactoryWasValid.get() );
+
+  }
+
+  @Test
+  /**
+   * Tests that multiple calls to PentahoSystem.init() without an intervening shutdown() results in an error being
+   * logged.
+   */
+  public void testMultipleInitWithoutShutdownLogsError(){
+    // capture current length of exceptions
+
+    int currentExceptionNo = ( Logger.getExceptions() == null ) ? 0 : Logger.getExceptions().size();
+    PentahoSystem.init();
+    PentahoSystem.init();
+    List<Throwable> exceptions = Logger.getExceptions();
+    assertTrue( "Exception was not thrown as expected", exceptions.size() > currentExceptionNo );
+    StackTraceElement stackTraceElement = exceptions.get( currentExceptionNo ).getStackTrace()[ 0 ];
+    assertEquals( PentahoSystem.class.getName(), stackTraceElement.getClassName() );
+    assertEquals( "init", stackTraceElement.getMethodName());
+    assertEquals("'Init' method was run twice without 'shutdown'", exceptions.get(0).getMessage());
+
+  }
 }
