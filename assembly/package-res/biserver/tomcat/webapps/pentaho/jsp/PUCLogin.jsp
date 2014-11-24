@@ -107,8 +107,8 @@
             String name = (String) request.getAttribute("name");
             String startupUrl = (String) request.getAttribute("startup-url");
             if (startupUrl != null && name != null){
-              //Sanitize the value assigned to startupUrl
-              mobileRedirect += "?name=" + name + "&startup-url=" + startupUrl;
+              //Sanitize the values assigned
+              mobileRedirect += "?name=" + ESAPI.encoder().encodeForJavaScript(name) + "&startup-url=" + ESAPI.encoder().encodeForJavaScript(startupUrl);
             }
   %>
   <script type="text/javascript">
@@ -117,7 +117,7 @@
     } else {
       var tag = document.createElement('META');
       tag.setAttribute('HTTP-EQUIV', 'refresh');
-      tag.setAttribute('CONTENT', '0;URL=<%=ESAPI.encoder().encodeForJS(mobileRedirect)%>');
+      tag.setAttribute('CONTENT', '0;URL=<%=mobileRedirect%>');
       document.getElementsByTagName('HEAD')[0].appendChild(tag);
     }
   </script>
