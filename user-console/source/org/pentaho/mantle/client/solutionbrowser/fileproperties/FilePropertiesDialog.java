@@ -17,15 +17,7 @@
 
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
@@ -40,11 +32,20 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 
-import java.util.ArrayList;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
- * File properties parent panel displayed when right clicking a file in PUC repo browser. Subpanels include:
- * General, Share, History
+ * File properties parent panel displayed when right clicking a file in PUC repo browser. Subpanels include: General,
+ * Share, History
  */
 public class FilePropertiesDialog extends PromptDialogBox {
   public enum Tabs {
@@ -71,7 +72,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
    * @param defaultTab
    */
   public FilePropertiesDialog( RepositoryFile fileSummary, final PentahoTabPanel propertyTabs,
-                               final IDialogCallback callback, Tabs defaultTab, final boolean canManageAcls ) {
+      final IDialogCallback callback, Tabs defaultTab, final boolean canManageAcls ) {
     super(
         fileSummary.getTitle() + " " + Messages.getString( "properties" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     boolean isInTrash = fileSummary.getPath().contains( "/.trash/pho:" );
@@ -102,7 +103,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
       fileName = fileSummary.getName();
     }
 
-
     super.setCallback( new IDialogCallback() {
 
       public void cancelPressed() {
@@ -112,9 +112,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
       }
 
       public void okPressed() {
-        if ( SolutionBrowserPanel.getInstance().isAdministrator() ) {
-          applyPanel();
-        }
+        applyPanel();
         if ( callback != null ) {
           callback.okPressed();
         }
@@ -147,7 +145,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
     }
 
     RequestCallback requestCallback;
-
     // chain requests from subpanels using callbacks to try and avoid any StaleItemStateExceptions
     for ( int i = 0; i <= requestBuilders.size() - 1; i++ ) {
       RequestBuilder requestBuilder = requestBuilders.get( i );
@@ -204,10 +201,12 @@ public class FilePropertiesDialog extends PromptDialogBox {
 
     // start the chain
     try {
-      WaitPopup.getInstance().setVisible( true );
-      requestBuilders.get( 0 ).send();
+      if ( !requestBuilders.isEmpty() ) {
+        WaitPopup.getInstance().setVisible( true );
+        requestBuilders.get( 0 ).send();
+      }
     } catch ( RequestException e ) {
-      //ignored
+      // ignored
     }
   }
 
@@ -294,8 +293,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
 
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == Response.SC_OK ) {
-            if ( response.getText() != null && !"".equals( response.getText() )
-                && !response.getText().equals( "null" ) ) {
+            if ( response.getText() != null && !"".equals( response.getText() ) && !response.getText().equals( "null" ) ) {
               generalTab.setMetadataResponse( response );
             }
           } else {
@@ -341,7 +339,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
         try {
           nextRequest.send();
         } catch ( RequestException e ) {
-          //ignored
+          // ignored
         }
         dirty = false;
       } else {
