@@ -88,7 +88,7 @@ public class DirectoryResource extends AbstractJaxRSResource {
         return Response.status( Response.Status.CONFLICT ).entity( "couldNotCreateFolderDuplicate" ).build();
       }
     } catch ( Throwable t ) {
-      return Response.serverError().entity( t.getMessage() ).build();
+      return Response.serverError().entity( "" ).build();
     }
   }
 }
