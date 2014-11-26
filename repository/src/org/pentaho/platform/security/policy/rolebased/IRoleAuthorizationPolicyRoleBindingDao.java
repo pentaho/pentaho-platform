@@ -13,13 +13,15 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2014 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.security.policy.rolebased;
 
 import org.pentaho.platform.api.mt.ITenant;
 
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import java.util.List;
 
 /**
@@ -91,4 +93,31 @@ public interface IRoleAuthorizationPolicyRoleBindingDao {
    * @return list of logical role names, never {@code null}
    */
   List<String> getBoundLogicalRoleNames( final ITenant tenant, final List<String> runtimeRoleNames );
+
+  /**
+   * This was added to decouple {@link org.apache.jackrabbit.core.security.authorization.acl.PentahoEntryCollector}
+   *
+   * Gets the logical roles bound to the given runtime roles. Note that the size of the incoming list might not
+   * match the size of the returned list. This is a convenience method. The same result could be obtained from
+   * {@link #getRoleBindingStruct()}.
+   *
+   * @param runtimeRoleNames
+   *          list of runtime role names
+   * @return list of logical role names, never {@code null}
+   */
+  List<String> getBoundLogicalRoleNames( final Session session, final List<String> runtimeRoleNames ) throws RepositoryException;
+
+  /**
+   * This was added to decouple {@link org.apache.jackrabbit.core.security.authorization.acl.PentahoEntryCollector}
+   *
+   * Gets the logical roles bound to the given runtime roles in a particular tenant. Note that the size of the
+   * incoming list might not match the size of the returned list. This is a convenience method. The same result
+   * could be obtained from {@link #getRoleBindingStruct()}.
+   *
+   * @param tenant
+   * @param runtimeRoleNames
+   *          list of runtime role names
+   * @return list of logical role names, never {@code null}
+   */
+  List<String> getBoundLogicalRoleNames( final Session session, final ITenant tenant, final List<String> runtimeRoleNames ) throws RepositoryException;
 }
