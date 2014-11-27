@@ -65,7 +65,7 @@ public class MockDataSourceService extends BaseDatasourceService {
    *          If {@code true} the {@link MockDataSource} will throw a SQL exception when
    *          {@code MockDataSource#getConnection()} is called
    */
-  public static void setThrowExceptionOnGetConnection ( boolean exceptionOnGetConnection ) {
+  public static void setThrowExceptionOnGetConnection( boolean exceptionOnGetConnection ) {
     throwExceptionOnGetConnection = exceptionOnGetConnection;
   }
 
