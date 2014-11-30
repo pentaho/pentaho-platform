@@ -19,6 +19,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import junit.framework.TestCase;
+
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -29,6 +30,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 /**
  * Class Description
@@ -81,6 +85,18 @@ public class UserRoleResourceTest extends TestCase {
 
     @Override
     public List<String> getBoundLogicalRoleNames( ITenant tenant, List<String> runtimeRoleNames ) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public List<String> getBoundLogicalRoleNames( Session session, List<String> runtimeRoleNames ) throws RepositoryException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public List<String> getBoundLogicalRoleNames( Session session, ITenant tenant, List<String> runtimeRoleNames ) throws RepositoryException {
       // TODO Auto-generated method stub
       return null;
     }
