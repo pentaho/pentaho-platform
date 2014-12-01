@@ -525,7 +525,7 @@ public class JcrRepositoryFileDaoFacade implements IRepositoryFileDao {
     return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        return jcrRepositoryFileDao.internalGetFile( session, relPath, loadLocaleMaps, locale );
+        return jcrRepositoryFileDao.getFileByRelPath( session, relPath, loadLocaleMaps, locale );
       }
     } );
   }
