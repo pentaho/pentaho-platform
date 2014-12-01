@@ -103,22 +103,22 @@
           String mobileRedirect = (String)pluginManager.getPluginSetting(id, "mobile-redirect", null);
           if (mobileRedirect != null) {
             // we have a mobile redirect
+            //Check for deep linking by fetching the name and startup-url values from URL query parameters
+            String name = (String) request.getAttribute("name");
+            String startupUrl = (String) request.getAttribute("startup-url");
+            if (startupUrl != null && name != null){
+              //Sanitize the values assigned
+              mobileRedirect += "?name=" + ESAPI.encoder().encodeForJavaScript(name) + "&startup-url=" + ESAPI.encoder().encodeForJavaScript(startupUrl);
+            }
   %>
   <script type="text/javascript">
-    //Get URL parameters
-    var requestedURL = '<%=requestedURL%>';
-    var getParams = requestedURL.split("?");
-    var params = '';
-
-    //If there are no GET parameters on the URL leave the params object empty so that the check for
-    //a startup report setting is conducted
-    if (getParams.length > 1) {
-      params = '?' + getParams[1];
-    }
     if(typeof window.top.PentahoMobile != "undefined"){
       window.top.location.reload();
     } else {
-      document.write('<META HTTP-EQUIV="refresh" CONTENT="0;URL=<%=mobileRedirect%>' + params + '">');
+      var tag = document.createElement('META');
+      tag.setAttribute('HTTP-EQUIV', 'refresh');
+      tag.setAttribute('CONTENT', '0;URL=<%=mobileRedirect%>');
+      document.getElementsByTagName('HEAD')[0].appendChild(tag);
     }
   </script>
 </head>

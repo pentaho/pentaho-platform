@@ -132,7 +132,7 @@ public class PentahoSystem {
 
   private static AggregateObjectFactory aggObjectFactory = new AggregateObjectFactory();
 
-  private static RuntimeObjectFactory runtimeObjectFactory = new RuntimeObjectFactory();
+  private static RuntimeObjectFactory runtimeObjectFactory;
 
   private static final Map initializationFailureDetailsMap = Collections.synchronizedMap( new HashMap() );
 
@@ -213,10 +213,21 @@ public class PentahoSystem {
   }
 
   public static boolean init( final IApplicationContext pApplicationContext, final Map listenerMap ) {
-    // TODO need to enable RuntimeException and check all tests which not clearing the factories
-    // if ( PentahoSystem.initializedStatus == PentahoSystem.SYSTEM_INITIALIZED_OK ) {
-    // throw new RuntimeException( "'Init' method was run twices without 'shutdown'" );
-    // }
+    if ( debug ) {
+      Logger.debug( PentahoSystem.class, "PentahoSystem init called" ); //$NON-NLS-1$
+    }
+
+    if ( PentahoSystem.initializedStatus == PentahoSystem.SYSTEM_INITIALIZED_OK ) {
+      // TODO: Removing the catching of this IllegalStateException. It's being trapped here now as too many existing
+      // tests call init more than once without an intervening shutdown().
+      try {
+        throw new IllegalStateException( "'Init' method was run twice without 'shutdown'" );
+      } catch( IllegalStateException e ) {
+        Logger.error( PentahoSystem.class,
+            "PentahoSystem was already initialized when init() called again without a preceding shutdown(). "
+                + "This is likely in error", e );
+      }
+    }
 
     PentahoSystem.initializedStatus = PentahoSystem.SYSTEM_INITIALIZED_OK;
 
@@ -993,9 +1004,6 @@ public class PentahoSystem {
   }
 
   public static void shutdown() {
-    clearObjectFactory();
-    systemExitPoint();
-    setApplicationContext( null );
     if ( LocaleHelper.getLocale() == null ) {
       LocaleHelper.setLocale( Locale.getDefault() );
     }
@@ -1022,6 +1030,9 @@ public class PentahoSystem {
     if ( debug ) {
       Logger.debug( PentahoSystem.class, "Listeners Shut Down" ); //$NON-NLS-1$
     }
+    clearObjectFactory();
+    systemExitPoint();
+    setApplicationContext( null );
     PentahoSystem.initializedStatus = PentahoSystem.SYSTEM_NOT_INITIALIZED;
   }
 

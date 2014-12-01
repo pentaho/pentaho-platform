@@ -1,5 +1,5 @@
 /*!
- * Copyright 2010 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2010 - 2014 Pentaho Corporation.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.jcr.IAclMetadataStrategy.AclMetadata;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
-import org.pentaho.platform.security.policy.rolebased.AbstractJcrBackedRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +39,6 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.util.Assert;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.observation.Event;
-import javax.jcr.observation.ObservationManager;
 import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionHistory;
@@ -201,16 +198,16 @@ public class PentahoEntryCollector extends EntryCollector {
     // permissions. This needs to transform to become addChild removeChild
     if ( !currentNode.isSame( node ) ) {
       Privilege removeNodePrivilege =
-        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_NODE );
+          systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_NODE );
 
       Privilege removeChildNodesPrivilege =
-        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
+          systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
 
       for ( AccessControlEntry entry : acl.getEntries() ) {
 
         Privilege[] expandedPrivileges = JcrRepositoryFileAclUtils.expandPrivileges( entry.getPrivileges(), false );
         if ( ArrayUtils.contains( expandedPrivileges, removeChildNodesPrivilege )
-          && !ArrayUtils.contains( expandedPrivileges, removeNodePrivilege ) ) {
+            && !ArrayUtils.contains( expandedPrivileges, removeNodePrivilege ) ) {
           if ( !acl.addAccessControlEntry( entry.getPrincipal(), new Privilege[] { removeNodePrivilege } ) ) {
             // we can never fail to add this entry because it means we may be giving more permission than the above
             // two
@@ -278,7 +275,7 @@ public class PentahoEntryCollector extends EntryCollector {
                                                                 final ACLTemplate ancestorAcl, final ACLTemplate acl )
     throws RepositoryException {
     if ( PentahoSessionHolder.getSession() == null || PentahoSessionHolder.getSession().getId() == null
-      || PentahoSessionHolder.getSession().getId().trim().equals( "" ) ) { //$NON-NLS-1$
+        || PentahoSessionHolder.getSession().getId().trim().equals( "" ) ) { //$NON-NLS-1$
       if ( log.isDebugEnabled() ) {
         log.debug( "no PentahoSession so no magic ACEs" ); //$NON-NLS-1$
       }
@@ -326,7 +323,7 @@ public class PentahoEntryCollector extends EntryCollector {
       }
       if ( match ) {
         Principal principal =
-          new MagicPrincipal( JcrTenantUtils.getTenantedUser( PentahoSessionHolder.getSession().getName() ) );
+            new MagicPrincipal( JcrTenantUtils.getTenantedUser( PentahoSessionHolder.getSession().getName() ) );
         // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully
         // later;
         // changed never persisted
@@ -356,9 +353,9 @@ public class PentahoEntryCollector extends EntryCollector {
     Entries fullEntriesIncludingMagicACEs = this.getEntries( ancestorNode );
 
     Privilege addChildNodesPrivilege =
-      systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_ADD_CHILD_NODES );
+        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_ADD_CHILD_NODES );
     Privilege removeChildNodesPrivilege =
-      systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
+        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
 
     for ( AccessControlEntry entry : fullEntriesIncludingMagicACEs.getACEs() ) {
       List<Privilege> privs = new ArrayList<Privilege>( 2 );
@@ -387,8 +384,8 @@ public class PentahoEntryCollector extends EntryCollector {
           }
         }
         if ( !ancestorAcl.addAccessControlEntry( entry.getPrincipal() instanceof Group ? new MagicGroup( entry
-          .getPrincipal().getName() ) : new MagicPrincipal( entry.getPrincipal().getName() ), privs
-          .toArray( new Privilege[ privs.size() ] ) ) ) {
+            .getPrincipal().getName() ) : new MagicPrincipal( entry.getPrincipal().getName() ), privs
+            .toArray( new Privilege[ privs.size() ] ) ) ) {
           // we can never fail to add this entry because it means we may be giving more permission than the above
           // two
           throw new RuntimeException();
@@ -416,7 +413,7 @@ public class PentahoEntryCollector extends EntryCollector {
       // later;
       // changed never persisted
       acl.addAccessControlEntry( magicPrincipal, new Privilege[] { systemSession.getAccessControlManager()
-        .privilegeFromName( "jcr:all" ) } ); //$NON-NLS-1$
+          .privilegeFromName( "jcr:all" ) } ); //$NON-NLS-1$
     } else {
       // if the Principal doesn't exist anymore, then there's no reason to add an ACE for it
       if ( log.isDebugEnabled() ) {
@@ -487,12 +484,7 @@ public class PentahoEntryCollector extends EntryCollector {
 
   protected boolean isAllowed( IRoleAuthorizationPolicyRoleBindingDao roleBindingDao, String logicalRoleName )
     throws RepositoryException {
-    if ( roleBindingDao instanceof AbstractJcrBackedRoleBindingDao ) {
-      AbstractJcrBackedRoleBindingDao jcrBackedRoleBindingDao = (AbstractJcrBackedRoleBindingDao) roleBindingDao;
-      return jcrBackedRoleBindingDao.getBoundLogicalRoleNames( systemSession, getRuntimeRoleNames() ).contains(
+    return roleBindingDao.getBoundLogicalRoleNames( systemSession, getRuntimeRoleNames() ).contains(
         logicalRoleName );
-    } else {
-      return roleBindingDao.getBoundLogicalRoleNames( getRuntimeRoleNames() ).contains( logicalRoleName );
-    }
   }
 }

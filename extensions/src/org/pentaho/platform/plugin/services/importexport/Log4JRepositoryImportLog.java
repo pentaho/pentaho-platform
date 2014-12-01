@@ -95,7 +95,7 @@ public class Log4JRepositoryImportLog {
       System.out.println( e );
       // Don't try logging a log error.
     }
-    logger.removeAppender( logName );
+    logger.removeAppender( writeAppender );
   }
 
   private String getThreadName() {
