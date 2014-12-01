@@ -28,6 +28,16 @@
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSystem" %>
 <%@page import="org.pentaho.platform.api.engine.IPluginManager" %>
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder" %>
+<%@page import="org.springframework.security.ui.savedrequest.SavedRequest" %>
+<%@page import="java.util.Map" %>
+<%@page import="java.util.Set" %>
+<%@page import="java.util.Iterator" %>
+<%@page import="org.springframework.security.ui.AbstractProcessingFilter" %>
+<%@page import="org.springframework.security.ui.webapp.AuthenticationProcessingFilter" %>
+<%@page import="org.pentaho.platform.api.engine.IPentahoSession" %>
+<%@page import="org.pentaho.platform.util.ServerTypeUtil" %>
+<%@page import="org.springframework.security.AuthenticationException" %>
+
 
 <%
   boolean hasDataAccessPlugin = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins().contains( "data-access" );
@@ -62,24 +72,46 @@
         List<String> pluginIds = pluginManager.getRegisteredPlugins();
         for (String id : pluginIds) {
           String mobileRedirect = (String)pluginManager.getPluginSetting(id, "mobile-redirect", null);
+		  
           if (mobileRedirect != null) {
             // we have a mobile redirect
-            haveMobileRedirect = true;
+            haveMobileRedirect = true;			
+			Object reqObj = request.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY);
+			String name = null;
+			String startupUrl = null;
+			String keyStr;
+			String[] value;
+				if (reqObj != null)	{
+				Map map = ((SavedRequest) reqObj).getParameterMap();
+				for (Object key: map.keySet())
+				{
+					keyStr = (String)key;
+					value = (String[])map.get(keyStr);
+					if (keyStr.equals("name"))	{
+						name = (String)value[0];
+					}
+					if (keyStr.equals("startup-url"))	{
+						startupUrl = (String)value[0];
+					}
+				}
+				}	else	{
+					name = (String) request.getParameter("name");
+	 				startupUrl = (String) request.getParameter("startup-url");
+				}
+			
+			if (startupUrl != null && name != null){
+              //Sanitize the value assigned to startupUrl
+              mobileRedirect += "?name=" + ESAPI.encoder().encodeForURL(name) + "&startup-url=" + ESAPI.encoder().encodeForURL(startupUrl);
+            }
   %>
   <script type="text/javascript">
-    //Get URL parameters
-    var getParams = document.URL.split("?");
-    var params = '';
-
-    //If there are no GET parameters on the URL leave the params object empty so that the check for
-    //a startup report setting is conducted
-    if (getParams.length > 1) {
-      params = '?' + getParams[1];
-    }
     if(typeof window.top.PentahoMobile != "undefined"){
       window.top.location.reload();
     } else {
-      document.write('<META HTTP-EQUIV="refresh" CONTENT="0;URL=<%=mobileRedirect%>' + params + '">');
+      var tag = document.createElement('META');
+      tag.setAttribute('HTTP-EQUIV', 'refresh');
+      tag.setAttribute('CONTENT', '0;URL=<%=ESAPI.encoder().encodeForJavaScript(mobileRedirect)%>');
+      document.getElementsByTagName('HEAD')[0].appendChild(tag);
     }
   </script>
   <%
