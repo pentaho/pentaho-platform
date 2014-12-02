@@ -19,14 +19,8 @@ package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import mondrian.olap.Util.PropertyList;
 import mondrian.spi.DynamicSchemaProcessor;
-
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
@@ -52,18 +46,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.doReturn;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
 
-@SuppressWarnings ( "nls" )
+@SuppressWarnings( "nls" )
 public class MondrianCatalogHelperTest {
 
   // ~ Instance fields
@@ -256,7 +249,8 @@ public class MondrianCatalogHelperTest {
   @Test
   public void testDspApplied_WhenDataSourceInfoContainsDynamicSchemaProcessorParameter() throws Exception {
     final String replaceTemplate = "REPLACE_TEMPLATE";
-    final String DATA_SOURCE_INFO_WITH_DSP =
+    final String
+        DATA_SOURCE_INFO_WITH_DSP =
         "DynamicSchemaProcessor=org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelperTest$DynamicDSPTest";
     final String SCHEMA_MOCK = "Test Schema Mock " + replaceTemplate;
 
@@ -297,4 +291,55 @@ public class MondrianCatalogHelperTest {
 
   }
 
+  @Test
+  public void testGenerateInMemoryDatasourcesXml_NullEtcMondrianFolder() throws Exception {
+    MondrianCatalogHelper helperMock = mock( MondrianCatalogHelper.class );
+    IUnifiedRepository unifiedRepositoryMock = mock( IUnifiedRepository.class );
+
+    doReturn( null ).when( unifiedRepositoryMock ).getFile( any( String.class ) );
+    doCallRealMethod().when( helperMock ).generateInMemoryDatasourcesXml( any( IUnifiedRepository.class ) );
+
+    String result = helperMock.generateInMemoryDatasourcesXml( unifiedRepositoryMock );
+    assertNull( result, null );
+  }
+
+  // The next block of 3 tests is for MONDRIAN-2229 issue
+  @Test
+  public void testGenerateInMemoryDatasourcesXml_DataSourceNameProviderUsingLegacyDbName() throws Exception {
+    String result = prepareResultForMondrian2229Tests( true );
+    assertThat( result, containsString( "<DataSourceName>Provider=Mondrian</DataSourceName>" ) );
+  }
+
+  @Test
+  public void testGenerateInMemoryDatasourcesXml_DataSourceNameProviderNotUsingLegacyDbName() throws Exception {
+    String result = prepareResultForMondrian2229Tests( false );
+    assertThat( result, containsString( "<DataSourceName>Pentaho Mondrian</DataSourceName>" ) );
+  }
+
+  @Test
+  public void testGenerateInMemoryDatasourcesXml_DataSourceInfoProvider() throws Exception {
+    String result = prepareResultForMondrian2229Tests( true );
+    assertThat( result, containsString( "<DataSourceInfo>Provider=Mondrian</DataSourceInfo>" ) );
+  }
+
+  private String prepareResultForMondrian2229Tests( boolean isUseLegacyDbName ) {
+    MondrianCatalogHelper helper = new MondrianCatalogHelper( isUseLegacyDbName );
+    MondrianCatalogHelper helperSpy = spy( helper );
+
+    IUnifiedRepository unifiedRepositoryMock = mock( IUnifiedRepository.class );
+    RepositoryFile repositoryFileMock = mock( RepositoryFile.class );
+
+    when( unifiedRepositoryMock.getFile( any( String.class ) ) ).thenReturn( repositoryFileMock );
+
+    String contextPathStub = "Stub";
+    doReturn( contextPathStub ).when( helperSpy ).contextPathFromRequestContextHolder();
+
+    doNothing().when( helperSpy )
+        .appendCatalogsSection( any( IUnifiedRepository.class ), anyString(), any( RepositoryFile.class ),
+            any( StringBuffer.class ) );
+
+    String result = helperSpy.generateInMemoryDatasourcesXml( unifiedRepositoryMock );
+
+    return result;
+  }
 }
