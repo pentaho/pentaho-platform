@@ -20,6 +20,7 @@ package org.pentaho.platform.engine.security.event;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAuthenticatedPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
@@ -28,14 +29,13 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.event.authentication.AbstractAuthenticationEvent;
 import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
 import org.springframework.util.Assert;
 
 /**
- * Synchronizes the Pentaho session's principal with the Spring Security {@code Authentication}. This listener
- * fires either on interactive or non-interactive logins.
+ * Synchronizes the Pentaho session's principal with the Spring Security {@code Authentication}. This listener fires
+ * either on interactive or non-interactive logins.
  * 
  * <p>
  * Replaces functionality from SecurityStartupFilter.
@@ -74,6 +74,9 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
         IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
         Assert.notNull( pentahoSession, "PentahoSessionHolder doesn't have a session" );
         pentahoSession.setAuthenticated( authentication.getName() );
+        if ( pentahoSession instanceof IAuthenticatedPentahoSession ) {
+          ( (IAuthenticatedPentahoSession) pentahoSession ).setAuthentication( authentication );
+        }
         // audit session creation
         AuditHelper.audit( pentahoSession.getId(), pentahoSession.getName(), pentahoSession.getActionName(),
             pentahoSession.getObjectName(), "", MessageTypes.SESSION_START, "", "", 0, null ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

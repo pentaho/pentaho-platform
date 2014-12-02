@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.olap4j.OlapConnection;
 import org.olap4j.OlapException;
+import org.pentaho.platform.api.engine.IAuthenticatedPentahoSession;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
@@ -57,9 +58,11 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
 
   /**
    * Subclasses simply need to implement this one method to do the specific mapping desired.
-   *
-   * @param mondrianRoles Sorted list of roles defined in the catalog
-   * @param platformRoles Sorted list of the roles defined in the catalog
+   * 
+   * @param mondrianRoles
+   *          Sorted list of roles defined in the catalog
+   * @param platformRoles
+   *          Sorted list of the roles defined in the catalog
    * @return
    */
   protected abstract String[] mapRoles( String[] mondrianRoles, String[] platformRoles )
@@ -68,9 +71,11 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
   /**
    * This method returns the role names as found in the Mondrian schema. The returned names must be ordered (sorted) or
    * code down-stream will not work.
-   *
-   * @param userSession Users' session
-   * @param catalogName The name of the catalog
+   * 
+   * @param userSession
+   *          Users' session
+   * @param catalogName
+   *          The name of the catalog
    * @return Array of role names from the schema file
    */
   protected String[] getMondrianRolesFromCatalog( IPentahoSession userSession, String context ) {
@@ -117,9 +122,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
           Arrays.sort( roleArray );
           return roleArray;
         } catch ( OlapException e ) {
-          log.error(
-              "Failed to get a list of roles from olap connection " + context,
-              e );
+          log.error( "Failed to get a list of roles from olap connection " + context, e );
           throw new RuntimeException( e );
         } finally {
           if ( conn != null ) {
@@ -127,9 +130,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
               conn.close();
             } catch ( SQLException e ) {
               // OK to squash this one.
-              log.error(
-                  "Failed to get a list of roles from olap connection " + context,
-                  e );
+              log.error( "Failed to get a list of roles from olap connection " + context, e );
             }
           }
         }
@@ -143,12 +144,18 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
   /**
    * This method returns the users' roles as specified in the Spring Security authentication object. The role names
    * returned must be sorted for other code downstream to work properly.
-   *
-   * @param session The users' session
+   * 
+   * @param session
+   *          The users' session
    * @return Users' roles as defined in the authentication object
    */
   protected String[] getPlatformRolesFromSession( IPentahoSession session ) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    // This is a fix for ESR-4197. Trying to get authentication object from session because thread local implementation
+    // can return authentication object from other user.
+    if ( session instanceof IAuthenticatedPentahoSession ) {
+      authentication = ( (IAuthenticatedPentahoSession) session ).getAuthentication();
+    }
     Assert.state( authentication != null );
 
     String[] rtn = null;
@@ -168,7 +175,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see org.pentaho.platform.api.engine.IConnectionUserRoleMapper#mapConnectionRoles(org.pentaho.platform.api.engine.
    * IPentahoSession, java.lang.String)
    */
@@ -187,7 +194,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see org.pentaho.platform.api.engine.IConnectionUserRoleMapper#mapConnectionUser(org.pentaho.platform.api.engine.
    * IPentahoSession, java.lang.String)
    */
