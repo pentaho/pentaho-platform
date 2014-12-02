@@ -32,6 +32,9 @@ public class JcrStringHelper {
   private static boolean useMultiByteEncoding = false;
   private static boolean multiByteValueInitialized = false;
 
+  private static boolean aclNodeFolderInitialized = false;
+  private static String aclNodeFolder = "/public";
+
   private JcrStringHelper() {
   }
 
@@ -173,6 +176,18 @@ public class JcrStringHelper {
     return useMultiByteEncoding;
   }
 
+  public static String getAclNodeFolder() {
+    if ( !aclNodeFolderInitialized && PentahoSystem.getInitializedOK() ) {
+      String setting = PentahoSystem.get( String.class, "aclNodeFolder", PentahoSessionHolder.getSession() );
+      if( setting == null ){
+        aclNodeFolder = "/public";
+      } else {
+        aclNodeFolder = setting;
+      }
+      aclNodeFolderInitialized = true;
+    }
+    return aclNodeFolder;
+  }
   /**
    *
    * @param versioningEnabled
