@@ -175,6 +175,8 @@ public class PentahoSystem {
 
   private static final List logoutListeners = Collections.synchronizedList( new ArrayList() );
 
+  public static String aclNodeRoot = "public";
+
   // TODO even if logging is not configured messages need to make it out to
   // the console
 
@@ -302,6 +304,10 @@ public class PentahoSystem {
     } catch ( PentahoSystemException e1 ) {
       throw new RuntimeException( e1 ); // this is fatal
     }
+
+    // get alternative name for root node of the datasources ACL's
+    aclNodeRoot = getSystemSetting( "aclNodeRoot", "public" );
+
 
     // store a list of the system listeners
     try {
