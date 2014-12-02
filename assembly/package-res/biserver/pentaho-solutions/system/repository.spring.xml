@@ -953,4 +953,9 @@
     <constructor-arg value="${repository.useMultiByteEncoding}"/>
     <pen:publish as-type="INTERFACES"/>
   </bean>
+
+  <!-- acl node path for datasources -->
+  <bean class="java.lang.String">
+    <property name="aclNodeFolder" value="${repository.acl-node-folder}"/>
+  </bean>
 </beans>

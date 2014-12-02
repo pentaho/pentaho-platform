@@ -175,6 +175,7 @@ public class PentahoSystem {
 
   private static final List logoutListeners = Collections.synchronizedList( new ArrayList() );
 
+
   // TODO even if logging is not configured messages need to make it out to
   // the console
 
