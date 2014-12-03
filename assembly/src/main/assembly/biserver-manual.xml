@@ -7,6 +7,18 @@
         <format>zip</format>
     </formats>
     <baseDirectory>biserver-manual-${project.version}</baseDirectory>
+    <dependencySets>
+      <dependencySet>
+        <scope>provided</scope>
+        <outputDirectory>/</outputDirectory>
+        <unpack>true</unpack>
+        <unpackOptions>
+          <includes>
+            <include>**/PentahoBIPlatform_OSS_Licenses.html</include>
+          </includes>
+        </unpackOptions>
+      </dependencySet>
+    </dependencySets>
     <fileSets>
     	<fileSet>
     		<directory>dist</directory>
