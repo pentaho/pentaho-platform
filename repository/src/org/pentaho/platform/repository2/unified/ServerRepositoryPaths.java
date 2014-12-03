@@ -129,6 +129,10 @@ public class ServerRepositoryPaths {
     return strategy.getTenantEtcFolderName();
   }
 
+  public static String getAclNodeFolderPath() {
+    return strategy.getAclNodeFolderPath();
+  }
+
   private static void initialize() {
     if ( ( strategyName == null ) || "".equals( strategyName ) ) { //$NON-NLS-1$
       strategyName = DEFAULT;
@@ -180,6 +184,8 @@ public class ServerRepositoryPaths {
     String getTenantEtcFolderName();
 
     String getTenantId( final String absPath );
+
+    String getAclNodeFolderPath();
   }
 
 }

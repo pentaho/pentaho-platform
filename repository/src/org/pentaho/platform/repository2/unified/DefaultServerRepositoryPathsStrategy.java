@@ -109,4 +109,7 @@ public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPa
     return absPath;
   }
 
+  public String getAclNodeFolderPath() {
+    return ClientRepositoryPaths.getPublicFolderPath();
+  }
 }

@@ -187,7 +187,7 @@ public class JcrRepositoryFileUtils {
     String lockMessage = null;
     String title = null;
     String description = null;
-    Boolean shadow = false;
+    Boolean aclNode = false;
     Map<String, Properties> localePropertiesMap = null;
 
     id = getNodeId( session, pentahoJcrConstants, node );
@@ -222,7 +222,7 @@ public class JcrRepositoryFileUtils {
       fileSize = node.getProperty( pentahoJcrConstants.getPHO_FILESIZE() ).getLong();
     }
     if ( node.hasProperty( pentahoJcrConstants.getPHO_ACLNODE() ) ) {
-      shadow = node.getProperty( pentahoJcrConstants.getPHO_ACLNODE() ).getBoolean();
+      aclNode = node.getProperty( pentahoJcrConstants.getPHO_ACLNODE() ).getBoolean();
     }
     if ( isPentahoFile( pentahoJcrConstants, node ) ) {
       // pho:lastModified nodes have OnParentVersion values of IGNORE; i.e. they don't exist in frozen nodes
@@ -304,7 +304,7 @@ public class JcrRepositoryFileUtils {
             lastModified ).folder( folder ).versioned( versioned ).path( path ).versionId( versionId ).fileSize(
             fileSize ).locked( locked ).lockDate( lockDate ).hidden( hidden ).lockMessage( lockMessage ).lockOwner(
             lockOwner ).title( title ).description( description ).locale( pentahoLocale.toString() )
-            .localePropertiesMap( localePropertiesMap ).aclNode( shadow ).build();
+            .localePropertiesMap( localePropertiesMap ).aclNode( aclNode ).build();
 
     return file;
   }
@@ -1215,7 +1215,7 @@ public class JcrRepositoryFileUtils {
 
     RepositoryFile rootFile =
         nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode, false, null );
-    if ( ( !showHidden && rootFile.isHidden() )
+    if ( ( !showHidden && rootFile.isHidden() ) || rootFile.isAclNode()
         || ( !accessVoterManager.hasAccess( rootFile, RepositoryFilePermission.READ, JcrRepositoryFileAclUtils.getAcl(
             session, pentahoJcrConstants, rootFile.getId() ), PentahoSessionHolder.getSession() ) ) ) {
       return null;
