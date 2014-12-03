@@ -17,9 +17,15 @@
 
 package org.pentaho.platform.web.http.session;
 
+import java.util.Iterator;
+import java.util.Locale;
+
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.collections.iterators.EnumerationIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAuthenticatedPentahoSession;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
@@ -27,18 +33,17 @@ import org.pentaho.platform.engine.core.audit.MessageTypes;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.system.BaseSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.springframework.security.Authentication;
 
-import javax.servlet.http.HttpSession;
-import java.util.Iterator;
-import java.util.Locale;
-
-public class PentahoHttpSession extends BaseSession {
+public class PentahoHttpSession extends BaseSession implements IAuthenticatedPentahoSession {
 
   private static final long serialVersionUID = 1500696455420691764L;
 
   private HttpSession session;
 
   private long authenticationTime = 0L;
+
+  private Authentication authentication;
 
   private static final Log logger = LogFactory.getLog( PentahoHttpSession.class );
 
@@ -91,6 +96,16 @@ public class PentahoHttpSession extends BaseSession {
           "", MessageTypes.SESSION_END, "", "", ( ( System.currentTimeMillis() - authenticationTime ) / 1000F ), null ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
     super.destroy();
+  }
+
+  @Override
+  public Authentication getAuthentication() {
+    return authentication;
+  }
+
+  @Override
+  public void setAuthentication( Authentication authentication ) {
+    this.authentication = authentication;
   }
 
 }
