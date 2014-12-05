@@ -280,7 +280,6 @@
     <dependency org="org.apache.poi" name="poi" rev="3.8" conf="default->default" transitive="false"/>
     <dependency org="org.apache.poi" name="poi-ooxml" rev="3.8" conf="default->default" transitive="false"/>
     <dependency org="org.apache.poi" name="poi-ooxml-schemas" rev="3.8" conf="default->default" transitive="false"/>
-    <dependency org="org.apache.xbean" name="xbean" rev="2.5" conf="default->default" transitive="false"/>
     <dependency org="org.yaml" name="snakeyaml" rev="1.7" conf="default->default" transitive="false"/>
     <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1" conf="default->default"
                 transitive="false"/>
