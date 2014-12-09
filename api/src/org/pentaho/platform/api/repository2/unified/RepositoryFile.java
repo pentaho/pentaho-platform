@@ -141,6 +141,15 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
    */
   private final Map<String, Properties> localePropertiesMap;
 
+  /**
+   * A boolean describing if a repository file is acl node or not. The purpose of a acl node is to be a placeholder
+   * for ACLs on another node which cannot have such ACLs on it's own. An example of such a scenario is one where the
+   * node being shadowed is in an area of the repository which prevents any access (/etc/*). Subsystems can create a
+   * acl node in this case to store and check access rules (ACLs), while still preserving the original acled node
+   * in the restricted area.
+   */
+  private final boolean aclNode;
+
   // ~ Constructors
   // ===================================================================================================
 
@@ -151,7 +160,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
       String lockMessage, Date lockDate, String locale, String title, String description,
       String originalParentFolderPath, Date deletedDate, long fileSize, String creatorId,
-      Map<String, Properties> localePropertiesMap ) {
+      Map<String, Properties> localePropertiesMap, boolean aclNode ) {
     super();
     this.id = id;
     this.name = name;
@@ -177,6 +186,20 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     this.creatorId = creatorId;
     this.localePropertiesMap =
         localePropertiesMap != null ? new HashMap<String, Properties>( localePropertiesMap ) : null;
+    this.aclNode = aclNode;
+  }
+
+  /*
+   * This assumes all Serializables are immutable (because they are not defensively copied).
+   */
+  public RepositoryFile( Serializable id, String name, boolean folder, boolean hidden, boolean versioned,
+      Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
+      String lockMessage, Date lockDate, String locale, String title, String description,
+      String originalParentFolderPath, Date deletedDate, long fileSize, String creatorId,
+      Map<String, Properties> localePropertiesMap ) {
+    this( id, name, folder, hidden, versioned, versionId, path, createdDate, lastModifiedDate, locked, lockOwner,
+        lockMessage, lockDate, locale, title, description, originalParentFolderPath, deletedDate, fileSize, creatorId,
+        localePropertiesMap, false );
   }
 
   // ~ Methods
@@ -281,6 +304,10 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     return deletedDate != null ? new Date( deletedDate.getTime() ) : null;
   }
 
+  public boolean isAclNode() {
+    return aclNode;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString( this );
@@ -330,6 +357,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     private Date deletedDate;
 
+    private boolean aclNode;
+
     public Builder( final String name ) {
       this.name = name;
     }
@@ -349,14 +378,14 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
           other.getLockOwner() ).lockMessage( other.getLockMessage() ).title( other.getTitle() ).description(
           other.getDescription() ).locale( other.getLocale() ).originalParentFolderPath(
           other.getOriginalParentFolderPath() ).deletedDate( other.getDeletedDate() ).localePropertiesMap(
-          other.getLocalePropertiesMap() );
+          other.getLocalePropertiesMap() ).aclNode( other.isAclNode() );
     }
 
     public RepositoryFile build() {
       return new RepositoryFile( id, name, this.folder, this.hidden, this.versioned, this.versionId, this.path,
           this.createdDate, this.lastModifiedDate, this.locked, this.lockOwner, this.lockMessage, this.lockDate,
           this.locale, this.title, this.description, this.originalParentFolderPath, this.deletedDate, this.fileSize,
-          this.creatorId, this.localePropertiesMap );
+          this.creatorId, this.localePropertiesMap, this.aclNode );
     }
 
     public Builder createdDate( final Date createdDate1 ) {
@@ -519,6 +548,11 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     public Builder locale( final String locale1 ) {
       this.locale = locale1;
+      return this;
+    }
+
+    public Builder aclNode( final boolean aclNode1 ) {
+      this.aclNode = aclNode1;
       return this;
     }
 
