@@ -42,6 +42,9 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.util.Assert;
+import org.pentaho.platform.api.engine.IConfiguration;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 /**
  * Processes Request Parameter authorization, putting the result into the <code>SecurityContextHolder</code>.
@@ -88,6 +91,11 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
 
   private String passwordParameter = RequestParameterAuthenticationFilter.DefaultPasswordParameter;
 
+  private ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+  
+  private boolean isRequestParameterAuthenticationEnabled;
+  private boolean isRequestAuthenticationParameterLoaded = false;
+ 
   // ~ Methods ================================================================
 
   public void afterPropertiesSet() throws Exception {
@@ -107,71 +115,83 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
 
   public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain chain )
     throws IOException, ServletException {
-    if ( !( request instanceof HttpServletRequest ) ) {
-      throw new ServletException( Messages.getInstance().getErrorString(
-          "RequestParameterAuthenticationFilter.ERROR_0005_HTTP_SERVLET_REQUEST_REQUIRED" ) ); //$NON-NLS-1$
+    IConfiguration config = this.systemConfig.getConfiguration( "security" );
+    
+    if ( !isRequestAuthenticationParameterLoaded ) {
+      String strParameter = config.getProperties().getProperty( "requestParameterAuthenticationEnabled" );
+      isRequestParameterAuthenticationEnabled = Boolean.valueOf( strParameter );
+      isRequestAuthenticationParameterLoaded = true;
     }
 
-    if ( !( response instanceof HttpServletResponse ) ) {
-      throw new ServletException( Messages.getInstance().getErrorString(
-          "RequestParameterAuthenticationFilter.ERROR_0006_HTTP_SERVLET_RESPONSE_REQUIRED" ) ); //$NON-NLS-1$
-    }
+    if ( isRequestParameterAuthenticationEnabled ) {
+      if ( !( request instanceof HttpServletRequest ) ) {
+        throw new ServletException( Messages.getInstance().getErrorString(
+            "RequestParameterAuthenticationFilter.ERROR_0005_HTTP_SERVLET_REQUEST_REQUIRED" ) ); //$NON-NLS-1$
+      }
 
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
+      if ( !( response instanceof HttpServletResponse ) ) {
+        throw new ServletException( Messages.getInstance().getErrorString(
+            "RequestParameterAuthenticationFilter.ERROR_0006_HTTP_SERVLET_RESPONSE_REQUIRED" ) ); //$NON-NLS-1$
+      }
 
-    MultiReadHttpServletRequest wrapper = new MultiReadHttpServletRequest( httpRequest );
+      HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-    String username = wrapper.getParameter( this.userNameParameter );
-    String password = wrapper.getParameter( this.passwordParameter );
+      MultiReadHttpServletRequest wrapper = new MultiReadHttpServletRequest( httpRequest );
 
-    if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
-      RequestParameterAuthenticationFilter.logger.debug( Messages.getInstance().getString(
-          "RequestParameterAuthenticationFilter.DEBUG_AUTH_USERID", username ) ); //$NON-NLS-1$
-    }
+      String username = wrapper.getParameter( this.userNameParameter );
+      String password = wrapper.getParameter( this.passwordParameter );
 
-    if ( ( username != null ) && ( password != null ) ) {
-      // Only reauthenticate if username doesn't match SecurityContextHolder and user isn't authenticated (see SEC-53)
-      Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+      if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
+        RequestParameterAuthenticationFilter.logger.debug( Messages.getInstance().getString(
+            "RequestParameterAuthenticationFilter.DEBUG_AUTH_USERID", username ) ); //$NON-NLS-1$
+      }
 
-      password = Encr.decryptPasswordOptionallyEncrypted( password );
+      if ( ( username != null ) && ( password != null ) ) {
+        // Only reauthenticate if username doesn't match SecurityContextHolder and user isn't authenticated (see SEC-53)
+        Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
 
-      if ( ( existingAuth == null ) || !existingAuth.getName().equals( username ) || !existingAuth.isAuthenticated() ) {
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken( username, password );
-        authRequest.setDetails( new WebAuthenticationDetails( httpRequest ) );
+        password = Encr.decryptPasswordOptionallyEncrypted( password );
 
-        Authentication authResult;
+        if ( ( existingAuth == null ) || !existingAuth.getName().equals( username ) || !existingAuth.isAuthenticated() ) {
+          UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken( username, password );
+          authRequest.setDetails( new WebAuthenticationDetails( httpRequest ) );
 
-        try {
-          authResult = authenticationManager.authenticate( authRequest );
-        } catch ( AuthenticationException failed ) {
-          // Authentication failed
+          Authentication authResult;
+
+          try {
+            authResult = authenticationManager.authenticate( authRequest );
+          } catch ( AuthenticationException failed ) {
+            // Authentication failed
+            if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
+              RequestParameterAuthenticationFilter.logger.debug( Messages.getInstance().getString(
+                  "RequestParameterAuthenticationFilter.DEBUG_AUTHENTICATION_REQUEST", username, failed.toString() ) ); //$NON-NLS-1$
+            }
+
+            SecurityContextHolder.getContext().setAuthentication( null );
+
+            if ( ignoreFailure ) {
+              chain.doFilter( wrapper, response );
+            } else {
+              authenticationEntryPoint.commence( wrapper, response, failed );
+            }
+
+            return;
+          }
+
+          // Authentication success
           if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
             RequestParameterAuthenticationFilter.logger.debug( Messages.getInstance().getString(
-                "RequestParameterAuthenticationFilter.DEBUG_AUTHENTICATION_REQUEST", username, failed.toString() ) ); //$NON-NLS-1$
+                "RequestParameterAuthenticationFilter.DEBUG_AUTH_SUCCESS", authResult.toString() ) ); //$NON-NLS-1$
           }
 
-          SecurityContextHolder.getContext().setAuthentication( null );
-
-          if ( ignoreFailure ) {
-            chain.doFilter( wrapper, response );
-          } else {
-            authenticationEntryPoint.commence( wrapper, response, failed );
-          }
-
-          return;
+          SecurityContextHolder.getContext().setAuthentication( authResult );
         }
-
-        // Authentication success
-        if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
-          RequestParameterAuthenticationFilter.logger.debug( Messages.getInstance().getString(
-              "RequestParameterAuthenticationFilter.DEBUG_AUTH_SUCCESS", authResult.toString() ) ); //$NON-NLS-1$
-        }
-
-        SecurityContextHolder.getContext().setAuthentication( authResult );
       }
+      chain.doFilter( wrapper, response );
+    } else {
+      chain.doFilter( request, response );
     }
-
-    chain.doFilter( wrapper, response );
+    
   }
 
   public AuthenticationEntryPoint getAuthenticationEntryPoint() {
