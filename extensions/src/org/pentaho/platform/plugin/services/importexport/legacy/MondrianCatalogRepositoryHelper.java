@@ -123,7 +123,7 @@ public class MondrianCatalogRepositoryHelper {
 
     if ( catalogNode != null ) {
       repository.deleteFile(
-          catalogNode, true,
+          catalogNode.getId(), true,
           "Deleting hosted catalog: "
               + catalogName
       );
