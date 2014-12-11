@@ -30,13 +30,18 @@ import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.util.LocalizationUtil;
 import org.pentaho.metadata.util.XmiParser;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
+import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -62,7 +67,7 @@ import java.util.UUID;
  * domains and may contain any character (including repository folder separator character(s) like '/', a {@link UUID}
  * will be created to store each file. The metadata for the file will be used to store the information (such as the
  * Domain ID). </p>
- * 
+ *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class PentahoMetadataDomainRepository implements IMetadataDomainRepository,
@@ -112,9 +117,11 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   // The localization utility class (used to load side-car properties files into a Domain object)
   private LocalizationUtil localizationUtil;
 
+  private IAclNodeHelper aclHelper;
+
   /**
    * Creates an instance of this class providing the {@link IUnifiedRepository} repository backend.
-   * 
+   *
    * @param repository
    *          the {@link IUnifiedRepository} in which data will be stored / retrieved
    */
@@ -124,7 +131,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   /**
    * Helper constructor used for setting other objects in this class
-   * 
+   *
    * @param repository
    *          the {@link IUnifiedRepository} in which data will be stored / retrieved
    * @param repositoryUtils
@@ -151,7 +158,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   /**
    * Store a domain to the repository. The domain should persist between JVM restarts.
-   * 
+   *
    * @param domain
    *          domain object to store
    * @param overwrite
@@ -179,7 +186,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       xmi = xmiParser.generateXmi( domain );
       //final InputStream inputStream = new ByteArrayInputStream( xmi.getBytes( DEFAULT_ENCODING ) );
       final InputStream inputStream = new ByteArrayInputStream( xmi.getBytes( "UTF8" ) );
-      storeDomain( inputStream, domain.getId(), overwrite );
+      storeDomain( inputStream, domain.getId(), overwrite, null );
     } catch ( DomainStorageException dse ) {
       throw dse;
     } catch ( DomainAlreadyExistsException dae ) {
@@ -195,13 +202,13 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   /**
    * Stores a domain to the repository directly as an Input Stream
-   * 
+   *
    * @param inputStream
    * @param domainId
    * @param overwrite
    */
   @Override
-  public void storeDomain( final InputStream inputStream, final String domainId, final boolean overwrite )
+  public void storeDomain( InputStream inputStream, String domainId, boolean overwrite, RepositoryFileAcl acl )
     throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
     logger.debug( "storeDomain(inputStream, " + domainId + ", " + overwrite + ")" );
     if ( null == inputStream ) {
@@ -259,7 +266,20 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     // This invalidates any caching
     flushDomains();
 
+    if ( acl != null ) {
+      getAclHelper().setAclFor( domainId, IAclNodeHelper.DatasourceType.METADATA, acl );
+    }
   }
+
+  private synchronized IAclNodeHelper getAclHelper() {
+    if ( aclHelper == null ) {
+      String aclFolder = PentahoSystem.get( ISystemConfig.class ).getProperty( "repository.aclNodeFolder" );
+      aclFolder = StringUtils.defaultIfEmpty( aclFolder, "/public" );
+      aclHelper = new JcrAclNodeHelper( PentahoSystem.get( IUnifiedRepository.class ), aclFolder );
+    }
+    return aclHelper;
+  }
+
 
   /*
    * retrieves the data streams for the metadata referenced by domainId. This could be a single .xmi file or an .xmi
@@ -288,7 +308,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   /**
    * retrieve a domain from the repo. This does lazy loading of the repo, so it calls reloadDomains() if not already
    * loaded.
-   * 
+   *
    * @param domainId
    *          domain to get from the repository
    * @return domain object
@@ -333,7 +353,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   /**
    * return a list of all the domain ids in the repository. triggers a call to reloadDomains if necessary.
-   * 
+   *
    * @return the domain Ids.
    */
   @Override
@@ -349,7 +369,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   /**
    * remove a domain from disk and memory.
-   * 
+   *
    * @param domainId
    */
   @Override
@@ -379,11 +399,12 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       flushDomains();
     }
 
+    getAclHelper().removeAclNodeFor( domainId, IAclNodeHelper.DatasourceType.METADATA );
   }
 
   /**
    * remove a model from a domain which is stored either on a disk or memory.
-   * 
+   *
    * @param domainId
    * @param modelId
    */
@@ -496,7 +517,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   /**
    * Adds a set of properties as a locale properties file for the specified Domain ID
-   * 
+   *
    * @param domainId
    *          the domain ID for which this properties file will be added
    * @param locale
@@ -589,7 +610,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   /**
    * Creates a new repository file (with the supplied data) and applies the proper metadata to this file.
-   * 
+   *
    * @param domainId
    *          the Domain id associated with this file
    * @param locale
@@ -682,7 +703,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   /**
    * Returns the MatadataInformationMap for the specified IUnifiedRepository
-   * 
+   *
    * @param repository
    *          the repository for which a map is specified
    * @return the MatadataInformationMap for the repository

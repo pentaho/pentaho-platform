@@ -94,7 +94,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     try {
       MondrianCatalog catalog = this.createCatalogObject( domainId, xmla, bundle );
       mondrianRepositoryImporter.addCatalog( bundle.getInputStream(), catalog, overwriteInRepossitory,
-          PentahoSessionHolder.getSession() );
+        bundle.isApplyAclSettings() ? bundle.getAcl() : null, PentahoSessionHolder.getSession() );
     } catch ( MondrianCatalogServiceException mse ) {
       int statusCode = convertExceptionToStatus( mse );
       throw new PlatformImportException( mse.getMessage(), statusCode );
@@ -194,7 +194,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     }
 
     MondrianCatalog catalog =
-        new MondrianCatalog( catName, sb.toString(), provider + ":" + RepositoryFile.SEPARATOR + catName, null, null );
+      new MondrianCatalog( catName, sb.toString(), provider + ":" + RepositoryFile.SEPARATOR + catName, null, null );
 
     return catalog;
   }

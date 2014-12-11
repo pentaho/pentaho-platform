@@ -99,7 +99,8 @@ public class MetadataImportHandler implements IPlatformImportHandler {
         inputStream = StripDswFromStream( bundle.getInputStream() );
       }
 
-      metadataRepositoryImporter.storeDomain( inputStream, domainId, bundle.overwriteInRepository() );
+      metadataRepositoryImporter.storeDomain( inputStream, domainId, bundle.overwriteInRepository(),
+        bundle.isApplyAclSettings() ? bundle.getAcl() : null );
       return domainId;
     } catch ( DomainIdNullException dine ) {
       throw new PlatformImportException( dine.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, dine );
