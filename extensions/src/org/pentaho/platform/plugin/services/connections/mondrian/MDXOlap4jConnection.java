@@ -34,8 +34,8 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 
 /**
  * MDXOlap4jConnection implements IPentahoConenction to support olap4j connections to any olap4j provider. Developers
- * may subclass MDXOlap4jConnection to unwrap the olap4j connection to directly manipulate the underlying connection
- * such as setting a DelegatingRole in the case of Mondrian.
+ * may subclass MDXOlap4jConnection to unwrap the olap4j connection to directly manipulate the underlying connection.  An example of this is 
+ * setting a DelegatingRole in the case of Mondrian.
  * 
  * @author Benny Chow
  * @version $Id: $
@@ -46,8 +46,14 @@ public class MDXOlap4jConnection implements IPentahoConnection {
 
   static final Log log = LogFactory.getLog( MDXOlap4jConnection.class );
 
+  /**
+   * Underlying connection to OLAP system.
+   */
   protected OlapConnection connection = null;
 
+  /**
+   * Closes the connection.
+   */
   public void close() {
     try {
       if ( connection != null ) {
@@ -58,6 +64,13 @@ public class MDXOlap4jConnection implements IPentahoConnection {
     }
   }
 
+  /**
+   * Sets the properties to be used when the connection is made. The standard keys for the properties are defined in
+   * this interface.
+   * 
+   * @param props Properties to be used for creating connection.
+   *    This particular method relies on the following properties: url, driver, user, password.
+   */
   public boolean connect( Properties props ) {
 
     String url = props.getProperty( "url" );
@@ -73,7 +86,7 @@ public class MDXOlap4jConnection implements IPentahoConnection {
         connection.close();
       }
 
-      // For Mondrian olap4j driver, we will also do role mapping
+      // For Mondrian olap4j driver, we will also do role mapping.
       if ( url.startsWith( "jdbc:mondrian" ) ) {
         Util.PropertyList connectProperties = Util.parseConnectString( url );
         MDXConnection.mapPlatformRolesToMondrianRolesHelper( connectProperties );
@@ -86,7 +99,7 @@ public class MDXOlap4jConnection implements IPentahoConnection {
       // Create the connection through JDBC.
       java.sql.Connection sqlConnection = DriverManager.getConnection( url, user, password );
 
-      // Unwrap into OlapConnection
+      // Unwrap into OlapConnection.
       connection = sqlConnection.unwrap( org.olap4j.OlapConnection.class );
 
     } catch ( Exception e ) {
@@ -102,18 +115,33 @@ public class MDXOlap4jConnection implements IPentahoConnection {
     return true;
   }
 
+  /**
+   * Executes the specified query against the connection.
+   * @param query
+   *          SQL-like query string. May be data source specific.
+   * @return Returns result set of the query.
+   */
   public IPentahoResultSet executeQuery( String arg0 ) {
     throw new UnsupportedOperationException();
   }
 
+  /**Returns resultset of the last executed query.
+   * @return Returns the resultset from the last query executed.
+   */
   public IPentahoResultSet getResultSet() {
     throw new UnsupportedOperationException();
   }
 
+  /**Checks if the connection is initialized or not.
+   * @return Returns true if the connection has been properly initialized.
+   */
   public boolean initialized() {
     return connection != null;
   }
 
+  /**Checks if the connection is closed or not.
+   * @return Returns true if this connection has been closed.
+   */
   public boolean isClosed() {
     if ( connection == null ) {
       throw new IllegalStateException();
@@ -126,6 +154,11 @@ public class MDXOlap4jConnection implements IPentahoConnection {
     }
   }
 
+  /**Checks if the connection is read only or not.
+   * @return Returns true if this connection is read only.
+   * 
+   *         NOTE: Current implementation for all connections is read only.
+   */
   public boolean isReadOnly() {
     if ( connection == null ) {
       throw new IllegalStateException();
@@ -138,38 +171,81 @@ public class MDXOlap4jConnection implements IPentahoConnection {
     }
   }
 
+  /**Builds the query based on the pattern and parameters list and executes it against the connection.
+   * @param arg0
+   *          SQL-like query string. May be data source specific.
+   * @param arg1
+   *          List of objects to bind into prepared query.
+   * @return Returns result set of the query.
+   */
   public IPentahoResultSet prepareAndExecuteQuery( String arg0, List arg1 ) throws Exception {
     throw new UnsupportedOperationException();
   }
 
+  /**Checks if the given connection supports prepared queries. 
+   * 
+   * @return Returns true if the connection supports prepared queries.
+   */
   public boolean preparedQueriesSupported() {
     return false;
   }
 
+  /**
+   * Sets size of the fetch buffer used when retrieving rows from the underlying database.
+   * 
+   * @param fetchSize The buffer size.
+   */
   public void setFetchSize( int arg0 ) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Sets maximum rows that will be returned by the next query.
+   * 
+   * @param maxRows Maximum rows that are returned by the next query.
+   */
   public void setMaxRows( int arg0 ) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Sets the properties to be used when the connection is made.  It connects to the OLAP system described by the properties.
+   * The standard keys for the properties are defined in
+   * IPentahoConnection interface.
+   * 
+   * @param props Properties to be used when the connection is made.
+   */
   public void setProperties( Properties props ) {
     this.connect( props );
   }
 
+  /**
+   * Clears any warnings cached by the connection.
+   */
   public void clearWarnings() {
 
   }
 
+  /**
+   * Returns the type of connection.
+   * 
+   * @return Returns the type of the connection.
+   */
   public String getDatasourceType() {
     return IPentahoConnection.MDX_OLAP4J_DATASOURCE;
   }
 
+  /**Retrieves the string representation of the last executed query.
+   * @return Returns the last query string executed.
+   */
   public String getLastQuery() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Returns the underlying connection to OLAP system.
+   * @return Returns the underlying connection.
+   */
   public OlapConnection getConnection() {
     return connection;
   }
