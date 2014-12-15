@@ -18,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.EnumSet;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.pentaho.di.core.util.Assert.assertTrue;
@@ -26,7 +27,7 @@ import static org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper.Dataso
 
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-  "classpath:/repository-test-override.spring.xml" } )
+    "classpath:/repository-test-override.spring.xml" } )
 public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
 
   private static final String DS_NAME = "test.txt";
@@ -65,13 +66,21 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
   public void tearDown() throws Exception {
     loginAsSysTenantAdmin();
 
-    ITenant defaultTenant = tenantManager
-      .getTenant( "/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/" + TenantUtils.getDefaultTenant() );
+    ITenant defaultTenant = tenantManager.getTenant( "/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/"
+        + TenantUtils.getDefaultTenant() );
     if ( defaultTenant != null ) {
       cleanupUserAndRoles( defaultTenant );
     }
 
     super.tearDown();
+  }
+
+  @Test
+  public void jcrAclNodeHelperDefaultLocation() {
+    loginAsSysTenantAdmin();
+
+    helper = new JcrAclNodeHelper( repo, null );
+    assertEquals( helper.getAclNodeFolder(), ServerRepositoryPaths.getAclNodeFolderPath() );
   }
 
 
@@ -128,11 +137,8 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
   private void makeDsPrivate() {
     loginAsRepositoryAdmin();
     RepositoryFileSid userSid = new RepositoryFileSid( USERNAME_SUZY, RepositoryFileSid.Type.USER );
-    RepositoryFileAcl acl =
-      new RepositoryFileAcl.Builder( USERNAME_SUZY )
-        .ace( userSid, EnumSet.of( RepositoryFilePermission.ALL ) )
-        .entriesInheriting( false )
-        .build();
+    RepositoryFileAcl acl = new RepositoryFileAcl.Builder( USERNAME_SUZY ).ace( userSid,
+        EnumSet.of( RepositoryFilePermission.ALL ) ).entriesInheriting( false ).build();
 
     helper.setAclFor( DS_NAME, MONDRIAN, acl );
   }
@@ -143,9 +149,8 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     try {
       RepositoryFile folder = repo.getFile( folderName );
       if ( folder == null ) {
-        folder = repo
-          .createFolder( repo.getFile( "/" ).getId(), new RepositoryFile.Builder( folderName ).folder( true ).build(),
-            "" );
+        folder = repo.createFolder( repo.getFile( "/" ).getId(), new RepositoryFile.Builder( folderName ).
+                folder( true ).build(), "" );
       }
       return folder;
     } finally {
