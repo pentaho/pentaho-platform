@@ -30,13 +30,18 @@ import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.util.LocalizationUtil;
 import org.pentaho.metadata.util.XmiParser;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
+import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -66,7 +71,7 @@ import java.util.UUID;
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class PentahoMetadataDomainRepository implements IMetadataDomainRepository,
-    IPentahoMetadataDomainRepositoryImporter, IPentahoMetadataDomainRepositoryExporter {
+  IAclAwarePentahoMetadataDomainRepositoryImporter, IPentahoMetadataDomainRepositoryExporter {
   // The logger for this class
   private static final Log logger = LogFactory.getLog( PentahoMetadataDomainRepository.class );
 
@@ -111,6 +116,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   // The localization utility class (used to load side-car properties files into a Domain object)
   private LocalizationUtil localizationUtil;
+
+  private IAclNodeHelper aclHelper;
 
   /**
    * Creates an instance of this class providing the {@link IUnifiedRepository} repository backend.
@@ -203,7 +210,15 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   @Override
   public void storeDomain( final InputStream inputStream, final String domainId, final boolean overwrite )
     throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
-    logger.debug( "storeDomain(inputStream, " + domainId + ", " + overwrite + ")" );
+    storeDomain( inputStream, domainId, overwrite, null );
+  }
+
+  @Override
+  public void storeDomain( InputStream inputStream, String domainId, boolean overwrite, RepositoryFileAcl acl )
+    throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
+    if (logger.isDebugEnabled() ) {
+      logger.debug( String.format( "storeDomain(inputStream, %s, %s, %s)", domainId, overwrite, acl ) );
+    }
     if ( null == inputStream ) {
       throw new IllegalArgumentException();
     }
@@ -259,7 +274,19 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     // This invalidates any caching
     flushDomains();
 
+    if ( acl != null ) {
+      getAclHelper().setAclFor( domainId, IAclNodeHelper.DatasourceType.METADATA, acl );
+    }
   }
+
+  private synchronized IAclNodeHelper getAclHelper() {
+    if ( aclHelper == null ) {
+      String aclFolder = PentahoSystem.get( ISystemConfig.class ).getProperty( "repository.aclNodeFolder" );
+      aclHelper = new JcrAclNodeHelper( PentahoSystem.get( IUnifiedRepository.class ), aclFolder );
+    }
+    return aclHelper;
+  }
+
 
   /*
    * retrieves the data streams for the metadata referenced by domainId. This could be a single .xmi file or an .xmi
@@ -379,6 +406,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       flushDomains();
     }
 
+    // it no node exists, nothing would happen
+    getAclHelper().removeAclNodeFor( domainId, IAclNodeHelper.DatasourceType.METADATA );
   }
 
   /**
