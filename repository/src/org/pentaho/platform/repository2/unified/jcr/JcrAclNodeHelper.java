@@ -6,25 +6,21 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.api.repository2.unified.data.sample.SampleRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 
 import java.io.ByteArrayInputStream;
-import java.util.EnumSet;
-
-import static org.pentaho.platform.repository.RepositoryFilenameUtils.normalize;
+import java.util.concurrent.Callable;
 
 /**
  * @author Andrey Khayrutdinov
  */
 public class JcrAclNodeHelper implements IAclNodeHelper {
   private static final Log logger = LogFactory.getLog( JcrAclNodeHelper.class );
-
-  private static final String AUTHENTICATED_ROLE = "Authenticated";
-  private static final String ACL_STORE = "acl.store";
 
   private final IUnifiedRepository unifiedRepository;
   private final String aclNodeFolder;
@@ -35,113 +31,38 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
     this.aclNodeFolder = StringUtils.defaultIfEmpty( aclNodeFolder, ServerRepositoryPaths.getAclNodeFolderPath() );
   }
 
-  private String getAclNodePath( String filename ) {
-    return normalize( getAclNodeFolder() + RepositoryFile.SEPARATOR + filename );
-  }
-
-  private String getAclStorePath( String filename ) {
-    return normalize( getAclNodePath( filename ) + RepositoryFile.SEPARATOR + ACL_STORE );
-  }
-
-  private RepositoryFile getAclNode( String filename ) {
-    return unifiedRepository.getFile( getAclNodePath( filename ) );
-  }
-
-  private RepositoryFile createAclNodeInternal( RepositoryFile folder, String filename ) {
-    return unifiedRepository.createFolder(
-      folder.getId(),
-      new RepositoryFile.Builder( filename ).folder( true ).aclNode( true ).build(),
-      ""
-    );
-  }
-
-  private RepositoryFile getAclNodeRepositoryFolder() {
-    RepositoryFile folder;
-    try {
-      folder = unifiedRepository.getFile( getAclNodeFolder() );
-    } catch ( Exception t ) {
-      logger.error( Messages.getInstance().getString( "AclNodeHelper.ERROR_0001_ROOT_FOLDER_NOT_AVAILABLE",
-        aclNodeFolder, ServerRepositoryPaths.getAclNodeFolderPath() ) );
-      folder = unifiedRepository.getFile( ServerRepositoryPaths.getAclNodeFolderPath() );
-    }
-    return folder;
-  }
-
-  private RepositoryFile createAclNode( String filename ) {
-    RepositoryFile folder = getAclNodeRepositoryFolder();
-
-    RepositoryFile aclNode = createAclNodeInternal( folder, filename );
-    RepositoryFileAcl aclNodeAcl = new RepositoryFileAcl.Builder( unifiedRepository.getAcl( aclNode.getId() ) )
-      .ace( AUTHENTICATED_ROLE, RepositoryFileSid.Type.ROLE, EnumSet.of( RepositoryFilePermission.ALL ) )
-      .build();
-    unifiedRepository.updateAcl( aclNodeAcl );
-    return aclNode;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   @Override public boolean hasAccess( String dataSourceName, DatasourceType type ) {
-    String resolveName = type.resolveName( dataSourceName );
+    try {
+      FindAclNodeCommand command =
+        new FindAclNodeCommand( unifiedRepository, getAclNodeFolder(), type.resolveName( dataSourceName ) );
+      boolean nodeExists = SecurityHelper.getInstance().runAsSystem( command );
 
-    String aclNodePath = getAclNodePath( resolveName );
-    boolean nodeExists = unifiedRepository.hasAccess( aclNodePath, EnumSet.of( RepositoryFilePermission.READ ) );
-
-    return !nodeExists ||
-      unifiedRepository.hasAccess( getAclStorePath( resolveName ), EnumSet.of( RepositoryFilePermission.READ ) );
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override public RepositoryFileAcl getAclFor( String dataSourceName, DatasourceType type ) {
-    String resolvedDsName = type.resolveName( dataSourceName );
-    RepositoryFile aclNode = getAclNode( resolvedDsName );
-    if ( aclNode == null ) {
-      return null;
+      return !nodeExists || command.call();
+    } catch ( Exception e ) {
+      logger.error( e );
+      throw new RuntimeException( e );
     }
-
-    RepositoryFile aclStore = unifiedRepository.getFile( getAclStorePath( resolvedDsName ) );
-    return ( aclStore == null ) ? null : unifiedRepository.getAcl( aclStore.getId() );
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override public RepositoryFileAcl getAclFor( String dataSourceName, DatasourceType type ) {
+    try {
+      GetAclCommand command =
+        new GetAclCommand( unifiedRepository, getAclNodeFolder(), type.resolveName( dataSourceName ) );
+      return SecurityHelper.getInstance().runAsSystem( command );
+    } catch ( Exception e ) {
+      logger.error( e );
+      throw new RuntimeException( e );
+    }
+  }
+
   @Override public void setAclFor( String dataSourceName, DatasourceType type, RepositoryFileAcl acl ) {
-    String resolvedName = type.resolveName( dataSourceName );
-
-    RepositoryFile aclNode = getAclNode( resolvedName );
-
-    if ( acl == null ) {
-      if ( aclNode != null ) {
-        RepositoryFile aclStore = unifiedRepository.getFile( getAclStorePath( resolvedName ) );
-        if ( aclStore != null ) {
-          unifiedRepository.deleteFile( aclStore.getId(), true,
-            Messages.getInstance().getString( "AclNodeHelper.WARN_0002_REMOVE_ACL_STORE", aclStore.getPath() ) );
-        }
-
-        unifiedRepository.deleteFile( aclNode.getId(), true,
-          Messages.getInstance().getString( "AclNodeHelper.WARN_0001_REMOVE_ACL_NODE", aclNode.getPath() ) );
-      }
-    } else {
-      if ( aclNode == null ) {
-        aclNode = createAclNode( resolvedName );
-      }
-
-      String aclStoreName = getAclStorePath( resolvedName );
-      RepositoryFile aclStore = getAclNode( aclStoreName );
-      if ( aclStore == null ) {
-        aclStore = unifiedRepository.createFile(
-          aclNode.getId(),
-          new RepositoryFile.Builder( ACL_STORE ).aclNode( true ).build(),
-          new SimpleRepositoryFileData( new ByteArrayInputStream( new byte[ 0 ] ), "", "" ),
-          ""
-        );
-      }
-      RepositoryFileAcl existing = unifiedRepository.getAcl( aclStore.getId() );
-      RepositoryFileAcl updated = new RepositoryFileAcl.Builder( existing ).aces( acl.getAces() ).build();
-      unifiedRepository.updateAcl( updated );
+    try {
+      SetAclCommand command =
+        new SetAclCommand( unifiedRepository, getAclNodeFolder(), type.resolveName( dataSourceName ), acl );
+      SecurityHelper.getInstance().runAsSystem( command );
+    } catch ( Exception e ) {
+      logger.error( e );
+      throw new RuntimeException( e );
     }
   }
 
@@ -155,5 +76,94 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
 
   @Override public String getAclNodeFolder() {
     return aclNodeFolder;
+  }
+}
+
+abstract class AbstractCommand<T> implements Callable<T> {
+  private static final Log logger = LogFactory.getLog( AbstractCommand.class );
+
+  final IUnifiedRepository repository;
+  String aclNodeFolder;
+  final String resolvedDsName;
+
+  public AbstractCommand( IUnifiedRepository repository, String aclNodeFolder, String resolvedDsName ) {
+    this.repository = repository;
+    this.aclNodeFolder = aclNodeFolder;
+    this.resolvedDsName = resolvedDsName;
+  }
+
+  RepositoryFile getAclNode() {
+    return repository.getFile( RepositoryFilenameUtils.normalize( aclNodeFolder + RepositoryFile.SEPARATOR
+        + resolvedDsName ) );
+  }
+
+  RepositoryFile createAclNode() {
+    RepositoryFile folder;
+
+    try {
+      folder = repository.getFile( aclNodeFolder );
+    } catch ( Throwable t ) {
+      logger.error( Messages.getInstance().getString( "AclNodeHelper.ERROR_0001_ROOT_FOLDER_NOT_AVAILABLE",
+          aclNodeFolder, ServerRepositoryPaths.getAclNodeFolderPath() ) );
+      aclNodeFolder = ServerRepositoryPaths.getAclNodeFolderPath();
+      folder = repository.getFile( aclNodeFolder );
+    }
+
+    return repository.createFile( folder.getId(), new RepositoryFile.Builder( resolvedDsName ).aclNode( true ).build(),
+      new SimpleRepositoryFileData( null, "", "" ), "" );
+  }
+}
+
+class FindAclNodeCommand extends AbstractCommand<Boolean> {
+  public FindAclNodeCommand( IUnifiedRepository repository, String aclNodeFolder, String resolvedDsName ) {
+    super( repository, aclNodeFolder, resolvedDsName );
+  }
+
+  @Override public Boolean call() throws Exception {
+    return getAclNode() != null;
+  }
+}
+
+class GetAclCommand extends AbstractCommand<RepositoryFileAcl> {
+  public GetAclCommand( IUnifiedRepository repository, String aclNodeFolder, String resolvedDsName ) {
+    super( repository, aclNodeFolder, resolvedDsName );
+  }
+
+  @Override public RepositoryFileAcl call() throws Exception {
+    RepositoryFile aclNode = getAclNode();
+    if ( aclNode == null ) {
+      return null;
+    }
+    return repository.getAcl( aclNode.getId() );
+  }
+}
+
+class SetAclCommand extends AbstractCommand<RepositoryFileAcl> {
+  final RepositoryFileAcl acl;
+
+  public SetAclCommand( IUnifiedRepository repository, String aclNodeFolder, String resolvedDsName,
+                        RepositoryFileAcl acl ) {
+    super( repository, aclNodeFolder, resolvedDsName );
+    this.acl = acl;
+  }
+
+  @Override public RepositoryFileAcl call() throws Exception {
+    RepositoryFile aclNode = getAclNode();
+
+    if ( acl == null ) {
+      if ( aclNode != null ) {
+        repository.deleteFile( aclNode.getId(), true,
+            Messages.getInstance().getString( "AclNodeHelper.WARN_0001_REMOVE_ACL_NODE", aclNode.getPath() ) );
+      }
+    } else {
+      if ( aclNode == null ) {
+        aclNode = createAclNode();
+      }
+      RepositoryFileAcl existing = repository.getAcl( aclNode.getId() );
+      RepositoryFileAcl updated = new RepositoryFileAcl.Builder( existing ).aces( acl.getAces() ).build();
+      return repository.updateAcl( updated );
+    }
+
+    return null;
   }
 }

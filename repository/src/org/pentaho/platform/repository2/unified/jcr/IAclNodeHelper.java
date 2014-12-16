@@ -19,8 +19,7 @@ public interface IAclNodeHelper {
   boolean hasAccess( String dataSourceName, DatasourceType type );
 
   /**
-   * Returns an ACL rules for <tt>dataSourceName</tt>. If none exists, <tt>null</tt> is returned. <b>Note:</b> this
-   * method should be invoked with 'repository admin' privileges.
+   * Returns an ACL rules for <tt>dataSourceName</tt>. If none exists, <tt>null</tt> is returned.
    *
    * @param dataSourceName data source
    * @param type           data source's type
@@ -30,8 +29,7 @@ public interface IAclNodeHelper {
 
   /**
    * Sets <tt>acl</tt> for <tt>dataSourceName</tt>. If a ACL node does not exist, it is created. If <tt>acl</tt> is
-   * <tt>null</tt>, the ACL node is removed. <b>Note:</b> this method should be invoked with 'repository admin'
-   * privileges.
+   * <tt>null</tt>, the ACL node is removed.
    *
    * @param dataSourceName data source
    * @param type           data source's type
@@ -40,8 +38,7 @@ public interface IAclNodeHelper {
   void setAclFor( String dataSourceName, DatasourceType type, RepositoryFileAcl acl );
 
   /**
-   * Makes the <tt>dataSourceName</tt> public by removing corresponding ACL node. <b>Note:</b> this method should be
-   * invoked with 'repository admin' privileges.
+   * Makes the <tt>dataSourceName</tt> public by removing corresponding ACL node.
    *
    * @param dataSourceName data source
    * @param type           data source's type
@@ -50,7 +47,7 @@ public interface IAclNodeHelper {
 
   /**
    * Removes, if it exists, a ACL node related to the <tt>dataSourceName</tt>. Internally it simply calls
-   * <code>setAcl(null)</code>. <b>Note:</b> this method should be invoked with 'repository admin' privileges.
+   * <code>setAcl(null)</code>.
    *
    * @param dataSourceName data source
    * @param type           data source's type
