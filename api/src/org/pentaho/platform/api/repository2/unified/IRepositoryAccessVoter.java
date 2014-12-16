@@ -20,7 +20,10 @@ package org.pentaho.platform.api.repository2.unified;
 import org.pentaho.platform.api.engine.IPentahoSession;
 
 /**
- * Repository voter to add custom security to the repository
+ * Repository voter to add custom security to the repository.
+ * You should implement this interface if you need to create your custom security model.
+ * The voter is used as a part of the chain in which each voter checks if a file from repository can be accessed
+ * in scope of current request, taking into account user's details, the file itself and desired type of access.
  * 
  * @author rmansoor
  */
@@ -31,14 +34,14 @@ public interface IRepositoryAccessVoter {
    * based on the list of effective authorities from the holder.
    * 
    * @param file
-   *          - parent folder or file
+   *         Parent folder or file.
    * @param operation
-   *          - operation user is trying to perform
+   *         Operation the user is trying to perform.
    * @param acl
-   *          - acl of the folder/file where this operation is about to be performed
+   *         ACL of the folder/file where this operation is about to be performed.
    * @param session
-   *          - Pentaho Session of the user
-   * @return true if the user has the requested access.
+   *         Pentaho session of the user.
+   * @return Returns true if the user has the requested access.
    */
 
   public boolean hasAccess( final RepositoryFile file, final RepositoryFilePermission operation,
