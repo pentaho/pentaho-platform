@@ -27,7 +27,7 @@ import static org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper.Dataso
 
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
-    "classpath:/repository-test-override.spring.xml" } )
+  "classpath:/repository-test-override.spring.xml" } )
 public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
 
   private static final String DS_NAME = "test.txt";
@@ -67,7 +67,7 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     loginAsSysTenantAdmin();
 
     ITenant defaultTenant = tenantManager.getTenant( "/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/"
-        + TenantUtils.getDefaultTenant() );
+      + TenantUtils.getDefaultTenant() );
     if ( defaultTenant != null ) {
       cleanupUserAndRoles( defaultTenant );
     }
@@ -121,16 +121,23 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
   @Test
   public void aclNodeIsCreated() {
     makeDsPrivate();
+
     loginAsSuzy();
     assertNotNull( repo.getFile( helper.getAclNodeFolder() + "/" + MONDRIAN.resolveName( DS_NAME ) ) );
+
+    loginAsRepositoryAdmin();
+    assertNotNull(
+      repo.getFile( helper.getAclNodeFolder() + "/" + MONDRIAN.resolveName( DS_NAME ) + "/" + "acl.store" ) );
   }
 
   @Test
   public void aclNodeIsRemoved() {
     makeDsPrivate();
-    loginAsSuzy();
+
+    loginAsRepositoryAdmin();
     helper.setAclFor( DS_NAME, MONDRIAN, null );
     assertNull( repo.getFile( helper.getAclNodeFolder() + "/" + MONDRIAN.resolveName( DS_NAME ) ) );
+    assertNull( repo.getFile( helper.getAclNodeFolder() + "/" + MONDRIAN.resolveName( DS_NAME ) + "/" + "acl.store" ) );
   }
 
 
@@ -138,7 +145,7 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     loginAsRepositoryAdmin();
     RepositoryFileSid userSid = new RepositoryFileSid( USERNAME_SUZY, RepositoryFileSid.Type.USER );
     RepositoryFileAcl acl = new RepositoryFileAcl.Builder( USERNAME_SUZY ).ace( userSid,
-        EnumSet.of( RepositoryFilePermission.ALL ) ).entriesInheriting( false ).build();
+      EnumSet.of( RepositoryFilePermission.ALL ) ).entriesInheriting( false ).build();
 
     helper.setAclFor( DS_NAME, MONDRIAN, acl );
   }
@@ -150,7 +157,7 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
       RepositoryFile folder = repo.getFile( folderName );
       if ( folder == null ) {
         folder = repo.createFolder( repo.getFile( "/" ).getId(), new RepositoryFile.Builder( folderName ).
-                folder( true ).build(), "" );
+          folder( true ).build(), "" );
       }
       return folder;
     } finally {
