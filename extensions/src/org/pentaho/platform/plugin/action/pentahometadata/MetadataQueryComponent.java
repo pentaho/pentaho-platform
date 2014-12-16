@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.metadata.model.IMetadataQueryExec;
+import org.pentaho.metadata.model.concept.Property;
 import org.pentaho.metadata.query.model.Parameter;
 import org.pentaho.metadata.query.model.Query;
 import org.pentaho.metadata.query.model.util.QueryXmlHelper;
@@ -64,14 +65,14 @@ public class MetadataQueryComponent {
   String xmlHelperClass = "org.pentaho.metadata.query.model.util.QueryXmlHelper"; //$NON-NLS-1$
   String sqlGeneratorClass = null;
 
-  Map<String, Object> inputs = null;
+  Map<String, Property> inputs = null;
 
   /*
    * The list of inputs to this component, used when resolving parameter values.
    * 
    * @param inputs map of inputs
    */
-  public void setInputs( Map<String, Object> inputs ) {
+  public void setInputs( Map<String, Property> inputs ) {
     this.inputs = inputs;
   }
 
@@ -156,8 +157,8 @@ public class MetadataQueryComponent {
       if ( inputs != null ) {
         Properties properties = new Properties();
         for ( String name : inputs.keySet() ) {
-          if ( !( inputs.get( name ) == null ) ) {
-            properties.put( name, inputs.get( name ).toString() );
+          if ( !( inputs.get( name ) == null && inputs.get( name ).getValue() == null) ) {
+            properties.put( name, inputs.get( name ).getValue().toString() );
           }
         }
         templatedQuery = TemplateUtil.applyTemplate( query, properties, null );
@@ -181,7 +182,11 @@ public class MetadataQueryComponent {
     // Read metadata for new timeout/max_rows and set in superclass
     // Can still be overridden in the action sequence
     if ( timeout == null ) {
-      Object timeoutProperty = queryObject.getLogicalModel().getProperty( "timeout" ); //$NON-NLS-1$
+      Object timeoutProperty = null;
+      Property timeoutProp = queryObject.getLogicalModel().getProperty( "timeout" ); //$NON-NLS-1$
+      if ( timeoutProp != null ) {
+        timeoutProperty = timeoutProp.getValue();
+      }
       if ( timeoutProperty != null && timeoutProperty instanceof Number ) {
         int timeoutVal = ( (Number) timeoutProperty ).intValue();
         this.setTimeout( timeoutVal );
@@ -189,7 +194,11 @@ public class MetadataQueryComponent {
     }
 
     if ( maxRows == null ) {
-      Object maxRowsProperty = queryObject.getLogicalModel().getProperty( "max_rows" ); //$NON-NLS-1$
+      Object maxRowsProperty = null;
+      Property maxRowsProp = queryObject.getLogicalModel().getProperty( "max_rows" ); //$NON-NLS-1$
+      if ( maxRowsProp != null ) {
+        maxRowsProperty = maxRowsProp.getValue();
+      }
       if ( maxRowsProperty != null && maxRowsProperty instanceof Number ) {
         int maxRowsVal = ( (Number) maxRowsProperty ).intValue();
         this.setMaxRows( maxRowsVal );
@@ -230,14 +239,11 @@ public class MetadataQueryComponent {
     // determine parameter values
     if ( queryObject.getParameters() != null ) {
       for ( Parameter param : queryObject.getParameters() ) {
-
-        Object value = null;
+        Property value = null;
         if ( inputs != null ) {
           value = inputs.get( param.getName() );
         }
-
         executor.setParameter( param, value );
-
       }
     }
 
