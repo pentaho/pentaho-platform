@@ -28,6 +28,7 @@ import org.pentaho.metadata.model.Category;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalColumn;
 import org.pentaho.metadata.model.LogicalModel;
+import org.pentaho.metadata.model.concept.Property;
 import org.pentaho.metadata.model.concept.types.DataType;
 import org.pentaho.metadata.model.concept.types.LocalizedString;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
@@ -139,7 +140,11 @@ public class PMDUIComponent extends XmlComponent {
 
     Element modelNode;
     for ( LogicalModel model : domainObject.getLogicalModels() ) {
-      String vis = (String) model.getProperty( "visible" );
+      Property visProperty = model.getProperty( "visible" );
+      String vis = null;
+      if ( visProperty != null ) {
+        vis = (String) visProperty.getValue();
+      }
       if ( vis != null ) {
         String[] visibleContexts = vis.split( "," );
         boolean visibleToContext = false;
@@ -232,7 +237,11 @@ public class PMDUIComponent extends XmlComponent {
         tableNode.addElement( "view_description" ).setText( category.getDescription( locale ) ); //$NON-NLS-1$
       }
       for ( LogicalColumn column : category.getLogicalColumns() ) {
-        Boolean hidden = (Boolean) column.getProperty( "hidden" ); //$NON-NLS-1$
+        Boolean hidden = null;
+        Property hiddenProperty = column.getProperty( "hidden" ); //$NON-NLS-1$
+        if ( hiddenProperty != null ) {
+          hidden = (Boolean) hiddenProperty.getValue();
+        }
         if ( hidden != null && hidden ) {
           continue;
         }
@@ -334,8 +343,11 @@ public class PMDUIComponent extends XmlComponent {
           "<orders><order><direction>asc</direction><view_id>" + view.getId() + "</view_id><column_id>" + column.getId() + "</column_id></order></orders>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     } else {
-
-      String lookup = (String) column.getProperty( "lookup" ); //$NON-NLS-1$
+      String lookup = "";
+      Property lookupProperty = column.getProperty( "lookup" ); //$NON-NLS-1$
+      if ( lookupProperty != null ) {
+        lookup = (String) lookupProperty.getValue();
+      }
       // assume model and view are the same...
       StringTokenizer tokenizer1 = new StringTokenizer( lookup, ";" ); //$NON-NLS-1$
       while ( tokenizer1.hasMoreTokens() ) {
