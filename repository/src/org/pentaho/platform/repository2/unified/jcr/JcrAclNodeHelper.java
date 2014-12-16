@@ -110,7 +110,7 @@ abstract class AbstractCommand<T> implements Callable<T> {
     }
 
     return repository.createFile( folder.getId(), new RepositoryFile.Builder( resolvedDsName ).aclNode( true ).build(),
-      new SimpleRepositoryFileData( null, "", "" ), "" );
+      new SimpleRepositoryFileData( new ByteArrayInputStream( new byte[0] ), "", "" ), "" );
   }
 }
 
