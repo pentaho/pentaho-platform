@@ -75,6 +75,7 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     super.tearDown();
   }
 
+
   @Test
   public void jcrAclNodeHelperDefaultLocation() {
     loginAsSysTenantAdmin();
@@ -117,6 +118,26 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     assertTrue( helper.hasAccess( DS_NAME, MONDRIAN ) );
   }
 
+  @Test
+  public void aclIsReplaced() {
+    loginAsRepositoryAdmin();
+    RepositoryFileAcl acl = createAclFor( USERNAME_SUZY );
+    helper.setAclFor( DS_NAME, MONDRIAN, acl );
+
+    loginAsSuzy();
+    assertTrue( helper.hasAccess( DS_NAME, MONDRIAN ) );
+
+    loginAsTiffany();
+    assertFalse( helper.hasAccess( DS_NAME, MONDRIAN ) );
+
+    loginAsRepositoryAdmin();
+    acl = createAclFor( USERNAME_TIFFANY );
+    helper.setAclFor( DS_NAME, MONDRIAN, acl );
+
+    loginAsTiffany();
+    assertTrue( helper.hasAccess( DS_NAME, MONDRIAN ) );
+  }
+
 
   @Test
   public void aclNodeIsCreated() {
@@ -143,11 +164,16 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
 
   private void makeDsPrivate() {
     loginAsRepositoryAdmin();
-    RepositoryFileSid userSid = new RepositoryFileSid( USERNAME_SUZY, RepositoryFileSid.Type.USER );
-    RepositoryFileAcl acl = new RepositoryFileAcl.Builder( USERNAME_SUZY ).ace( userSid,
-      EnumSet.of( RepositoryFilePermission.ALL ) ).entriesInheriting( false ).build();
-
+    RepositoryFileAcl acl = createAclFor( USERNAME_SUZY );
     helper.setAclFor( DS_NAME, MONDRIAN, acl );
+  }
+
+  private static RepositoryFileAcl createAclFor( String user ) {
+    RepositoryFileSid userSid = new RepositoryFileSid( user, RepositoryFileSid.Type.USER );
+    return new RepositoryFileAcl.Builder( user )
+      .ace( userSid, EnumSet.of( RepositoryFilePermission.ALL ) )
+      .entriesInheriting( false )
+      .build();
   }
 
 

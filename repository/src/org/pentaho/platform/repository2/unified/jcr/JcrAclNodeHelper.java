@@ -130,7 +130,7 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
       }
 
       String aclStoreName = getAclStorePath( resolvedName );
-      RepositoryFile aclStore = getAclNode( aclStoreName );
+      RepositoryFile aclStore = unifiedRepository.getFile( aclStoreName );
       if ( aclStore == null ) {
         aclStore = unifiedRepository.createFile(
           aclNode.getId(),
