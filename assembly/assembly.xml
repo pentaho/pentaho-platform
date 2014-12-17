@@ -39,7 +39,6 @@
   <property name="prep.pentaho.war.dir" value="${stage.dir.server}/tomcat/webapps/pentaho" />
   <property name="prep.pentaho.war.lib.dir" value="${prep.pentaho.war.dir}/WEB-INF/lib" />
   <property name="prep.pentaho.war.meta.dir" value="${prep.pentaho.war.dir}/META-INF" />
-  <property name="pdf.docs.dir" value="${prep.pentaho.war.dir}/docs" />
   <property name="container.lib.dir" value="${stage.dir.server}/tomcat/lib" />
   <property name="plugins.dir" value="plugins" />
   <property name="solution-archives.dir" value="solution-archives" />
@@ -74,8 +73,18 @@
   <property name="core-bundles.dir" value="${stage.dir.solutions}/system/osgi/core_bundles"/>
   <property name="fragment-bundles.dir" value="${stage.dir.solutions}/system/osgi/fragment_bundles"/>
   <property name="bundles.dir" value="${stage.dir.solutions}/system/osgi/bundles"/>
-	<property name="server.assembly.filename" value="server-assembly.properties" />
-	
+  <property name="server.assembly.filename" value="server-assembly.properties" />
+
+  <path id="dev.classpath">
+    <fileset dir="${dist.dir}">
+      <include name="*.jar" />
+    </fileset>
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar" />
+    </fileset>
+    <pathelement path="${classes.dir}" />
+  </path>
+
   <!-- =================================
           target: clean-all
          ================================= -->
@@ -170,7 +179,7 @@
       		and the structure for the wars that will go into the container.  This
       		task does not zip, tar or compress.                            
          ================================= -->
-  <target name="assemble-tomcat" depends="install-antcontrib,init.stage.pentaho,resolve-pdf-docs,resolve-datasource-libs,tomcat.download-check">
+  <target name="assemble-tomcat" depends="install-antcontrib,init.stage.pentaho,resolve-datasource-libs,tomcat.download-check">
     <sequential>
       <!-- Copy pure tomcat 6.0 -->
       <copy todir="${stage.dir.server}/tomcat">
@@ -294,7 +303,7 @@
   <!-- =================================
           target: assemble-pentaho-webapp
          ================================= -->
-  <target name="assemble-pentaho-webapp" depends="assemble-tomcat,resolve-solutions,resolve-oss-licenses">
+  <target name="assemble-pentaho-webapp" depends="assemble-tomcat,resolve-solutions,resolve-oss-licenses,subfloor.compile">
     <!-- Copy the base configuration -->
     <copy todir="${stage.dir.server}">
       <fileset dir="${package.res.dir}/biserver">
@@ -310,6 +319,34 @@
     <unzip dest="${prep.pentaho.war.dir}">
       <fileset dir="${lib.dir}" includes="pentaho-user-console-package-*.zip" />
     </unzip>
+
+    <!-- Compile LESS to CSS -->
+    <taskdef classpathref="dev.classpath" name="lesscss" classname="org.pentaho.platform.assembly.LessToCssCompiler" />
+
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/browser/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/browser/css"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/home/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/home/css"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/themes/crystal/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/themes/crystal"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/themes/onyx/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/themes/onyx"
+      />
+    <lesscss
+      sourceDirectory="${prep.pentaho.war.dir}/mantle/themes/slate/less"
+      outputDirectory="${prep.pentaho.war.dir}/mantle/themes/slate"
+      />
 
     <!-- Add general libs -->
     <copy todir="${prep.pentaho.war.lib.dir}">
@@ -423,6 +460,8 @@
   	  </sequential> 
   	</for>   	
 
+
+	  	
   </target>
 
     <target name="update-plugin-samples" if="plugin-samples.install">
@@ -448,6 +487,29 @@
     <unzip dest="${stage.dir.solutions}/system" overwrite="true">
       <fileset file="${plugins.dir}/*.zip" />
     </unzip>
+
+    <taskdef classpathref="dev.classpath" name="lesscss" classname="org.pentaho.platform.assembly.LessToCssCompiler" />
+
+    <lesscss
+      sourceDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/less"
+      outputDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/css"
+    />
+
+    <lesscss
+      sourceDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/native/less"
+      outputDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/native"
+    />
+
+    <lesscss
+      sourceDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/replaceable/less"
+      outputDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/replaceable"
+    />
+
+    <lesscss
+      sourceDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/sample1/less"
+      outputDirectory="${stage.dir.solutions}/system/common-ui/resources/themes/sample1"
+    />
+
   </target>
 
   <!-- - - - - - - - - - - - - - - - - -
@@ -634,9 +696,7 @@
 	          <include name="**/pentaho-solutions.zip" />
 	          <include name="**/pentaho.war" />
 	          <include name="**/pentaho-style.war" />
-<!--
 	          <include name="**/*.html" />
--->
 	        </zipfileset>
 	    </zip>
 		<delete>

@@ -23,7 +23,9 @@
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction" %>
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction" %>
 <%@page import="java.util.List" %>
-<%@page import="java.util.Locale"%>
+<%@page import="org.apache.commons.lang.StringUtils" %>
+<%@page import="org.owasp.esapi.ESAPI" %>
+<%@page import="java.util.Locale" %>
 <%@page import="javax.servlet.http.HttpServletRequest"%>
 <%
   boolean canCreateContent = PentahoSystem.get( IAuthorizationPolicy.class, PentahoSessionHolder.getSession() )
@@ -32,17 +34,43 @@
       .isAllowed( AdministerSecurityAction.NAME );
   List<String> pluginIds =
       PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins();
-  Locale locale = request.getLocale();
+
+  /**
+  System.out.println("home ======================================= home");
+  **/
+  Locale effectiveLocale = request.getLocale();
+  /**
+  System.out.println(" ==> effectiveLocale.toString() : " + effectiveLocale.toString());
+  **/
+  boolean isRtl = false;
+  String locale1 = ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString());
+
+  if ( !StringUtils.isEmpty( (String)session.getAttribute( "locale_override" ) ) ) {
+    /**
+    System.out.println(" ==> session.getAttribute(locale_override) : " + (String)session.getAttribute( "locale_override" ));
+    **/
+    locale1 = ESAPI.encoder().encodeForHTMLAttribute((String)session.getAttribute( "locale_override" ));
+  }
+
+  isRtl = locale1.substring(0,2).toLowerCase().matches("ar|fa|he|ur|yi");
+  /**
+  System.out.println(" ==> isRtl : " + isRtl);
+  System.out.println("home ======================================= home");
+  **/
 %>
 <html lang="en" class="bootstrap">
 <head>
   <meta charset="utf-8">
   <title>Home Page</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="locale" content="<%=locale.toString()%>">
+  <meta name="locale" content="<%=effectiveLocale.toString()%>">
 
   <!-- Le styles -->
-  <link href="css/home.css" rel="stylesheet">
+  <%if ( isRtl ) {%>
+    <link href="css/home_rtl.css" rel="stylesheet">
+  <%} else {%>
+    <link href="css/home_ltr.css" rel="stylesheet">
+  <%}%>
 
   <!-- We need web context for requirejs and css -->
   <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
@@ -233,7 +261,7 @@
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachFavorite favorites}}
                   <li>
-                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}'>
+                    <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')" title='{{title}}'>
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
                           {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"/> {{/if}}
@@ -241,7 +269,6 @@
                           {{#if xcdf}} <i class="pull-left content-icon file-xcdf"/> {{/if}}
                           {{#if prpti}} <i class="pull-left content-icon file-prpti"/> {{/if}}
                           {{#if prpt}} <i class="pull-left content-icon file-prpt"/> {{/if}}
-                          {{#if ktr}} <i class="pull-left content-icon file-ktr"/> {{/if}}
                           {{#if xaction}} <i class="pull-left content-icon file-xaction"/> {{/if}}
                           {{#if url}} <i class="pull-left content-icon file-url"/> {{/if}}
                           {{#if html}} <i class="pull-left content-icon file-html"/> {{/if}}
@@ -250,7 +277,7 @@
                         </div>
                         <div class="span2">
                           {{#unless isEmpty}}
-                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{escapeQuotes fullPath}}'); return false;"/>
+                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;"/>
                           {{/unless}}
                         </div>
                       </div>
@@ -283,31 +310,6 @@
     </div>
   </div>
 </div>
-  <script type="text/javascript">
-		
-		var popup_init = false;
-		
-		function preCreatePopover(){
-			if(!popup_init){
-				var tmp = $.fn.popover.Constructor.prototype.show; 
-				$.fn.popover.Constructor.prototype.show = function () {
-				  tmp.call(this);
 
-				  //Keep the popover from running off the screen
-				  var offset = 5;
-				  var top = this.$element.offset().top;
-				  var height =  this.$element.outerHeight();
-				  var topOffset = top-offset;
-				  $('.popover').css('top', topOffset+"px");
-				  $('.arrow').css('top', offset + height / 2);
-
-				  if (!$('.popover-title').html()) 
-						$('.popover-title').hide();
-				}; 
-				popup_init = true;
-			}
-		}
-  
-  </script>
 </body>
 </html>

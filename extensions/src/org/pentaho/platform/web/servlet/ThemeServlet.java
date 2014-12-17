@@ -22,16 +22,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.owasp.esapi.ESAPI;
 import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.ui.ModuleThemeInfo;
 import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.api.ui.ThemeResource;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -96,6 +99,34 @@ public class ThemeServlet extends ServletBase {
       JSONObject root = new JSONObject();
       JSONObject themeObject;
 
+      // locale detection
+      HttpSession httpSession = req.getSession( false );
+      String effectiveLocale = null;
+      boolean isRtl = false;
+
+      if (LocaleHelper.getLocale() != null) {
+        effectiveLocale = LocaleHelper.getLocale().toString();
+      }
+
+      if ( httpSession != null ) {
+        String localeOverride = (String) httpSession.getAttribute( "locale_override" );
+
+        if ( !StringUtils.isEmpty( localeOverride ) ) {
+          effectiveLocale = ESAPI.encoder().encodeForHTMLAttribute(localeOverride);
+        }
+        if ( !StringUtils.isEmpty( req.getParameter("locale") ) ) {
+          effectiveLocale = ESAPI.encoder().encodeForHTMLAttribute(req.getParameter("locale"));
+        }
+      }
+
+      if(effectiveLocale != null) {
+        isRtl = effectiveLocale.substring(0,2).toLowerCase().matches("ar|fa|he|ur|yi");
+      }
+//    System.out.println("================================== ThemeServlet ==================================");
+//    System.out.println(" ---> effectiveLocale = " + effectiveLocale);
+//    System.out.println(" ---> isRtl = " + isRtl);
+//    System.out.println("================================== ThemeServlet ==================================");
+
       for ( String systemThemeName : themeManager.getSystemThemeIds() ) {
         Theme theme = themeManager.getSystemTheme( systemThemeName );
 
@@ -103,6 +134,17 @@ public class ThemeServlet extends ServletBase {
         root.put( theme.getId(), themeObject );
         themeObject.put( "rootDir", theme.getThemeRootDir() );
         for ( ThemeResource res : theme.getResources() ) {
+          String location = res.getLocation();
+
+          // filter CSS resources by locale text direction (LTR / RTL)
+          if(effectiveLocale != null) {
+            if(isRtl && location.toLowerCase().contains("_ltr.css")) {
+              continue;
+            }
+            else if (!isRtl && location.toLowerCase().contains("_rtl.css")){
+              continue;
+            }
+          }
           themeObject.append( "resources", res.getLocation() );
         }
       }
@@ -119,6 +161,18 @@ public class ThemeServlet extends ServletBase {
           root.put( theme.getName(), themeObject );
           themeObject.put( "rootDir", theme.getThemeRootDir() );
           for ( ThemeResource res : theme.getResources() ) {
+            String location = res.getLocation();
+
+            // filter CSS resources by locale text direction (LTR / RTL)
+            if(effectiveLocale != null) {
+              if(isRtl && location.toLowerCase().contains("_ltr.css")) {
+                continue;
+              }
+              else if (!isRtl && location.toLowerCase().contains("_rtl.css")){
+                continue;
+              }
+            }
+
             themeObject.append( "resources", res.getLocation() );
           }
         }

@@ -69,53 +69,53 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <project name="subfloor" basedir="." default="default" xmlns:ivy="antlib:org.apache.ivy.ant">
   <description>
--------------------------------------------------------------------------------
-     subfloor.xml provides tasks needed to perform a project build. 
-     It is typically not used directly but imported by each project's build.xml
-     file.  The build.xml file can override tasks when customization is required. 
-      
-MAIN TARGETS
-============
-  * clean / clean-all : 
+    -------------------------------------------------------------------------------
+    subfloor.xml provides tasks needed to perform a project build.
+    It is typically not used directly but imported by each project's build.xml
+    file.  The build.xml file can override tasks when customization is required.
+
+    MAIN TARGETS
+    ============
+    * clean / clean-all :
     remove all artifacts of the build, clean-all adds the removal
     of any library or jar dependencies downloaded as part of the build
-    
-  * resolve :
+
+    * resolve :
     download/refresh library or jar dependencies needed for the build (uses Apache IVY)
-    
-  * compile :
+
+    * compile :
     run javac on the project's source
-    
-  * jar :
+
+    * jar :
     creates a jar file
-    
-  * dist :
+
+    * dist :
     creates all project distributables
-    
-  * test :
+
+    * test :
     runs JUnit tests from your project's test source
-    
-SPECIAL TARGETS
-============
-  * publish-local :
-    builds a jar for your project and registers it with the local artifact repository isolated 
+
+    SPECIAL TARGETS
+    ============
+    * publish-local :
+    builds a jar for your project and registers it with the local artifact repository isolated
     to your machine at $HOME/.ivy2/local.  Further executions of the the resolve target by this
     or other projects will find your published jar.
-    
-  * ivy-clean* :
+
+    * ivy-clean* :
     this family of targets helps reset your IVY environment in the event that you are having
     difficulty resolving dependencies
-    
-TYPICAL TARGET SEQUENCE
-============    
-  * clean-all resolve dist :
+
+    TYPICAL TARGET SEQUENCE
+    ============
+    * clean-all resolve dist :
     a good start to build all project distributables from scratch.  Note that jar dependencies
     will not be downloaded unless you explicitly run the resolve target.  We made the resolution
     and retrieval completely discretionary since there are many situations in which
     you will not want to get or refresh dependencies, e.g. if you are offline with no Internet
-    access.  In such case, you could just run "dist" if the set of jars you already have are 
+    access.  In such case, you could just run "dist" if the set of jars you already have are
     sufficient.
-    
+
   </description>
 
   <!-- Load the properties files in the proper order -->
@@ -179,7 +179,7 @@ TYPICAL TARGET SEQUENCE
   <property name="ivy.url"
             value="http://repo.pentaho.org/artifactory/repo/org/apache/ivy/ivy/2.3.0/ivy-2.3.0.jar"
             description="The URL to the current release of Apache IVY" />
-	
+
   <!-- Enunciate properties -->
   <property name="enunciate.home" value="${basedir}/enunciate" />
   <property name="enunciate.bin.dir" value="${bin.dir}/enunciate" />
@@ -209,8 +209,8 @@ TYPICAL TARGET SEQUENCE
   <property name="junit.haltonfailure" value="no" description="Fail the build if a test fails" />
   <property name="junit.haltonerror" value="no" description="Fail the build if a error occurs" />
   <property name="junit.maxmemory" value="256M" description="Heap size when Junit is run in fork mode" />
-  <property name="junit.forkmode" 
-            value="perTest" 
+  <property name="junit.forkmode"
+            value="perTest"
             description="Defines whether JUnit forks a new JVM for each test. Use 'once' for faster test runs, and 'perTest' for complete tests."/>
   <property name="headless.unittest" value="true" description="Runs the unit tests in headless mode" />
 
@@ -257,7 +257,7 @@ TYPICAL TARGET SEQUENCE
   <property name="source.zip.filename" value="${ivy.artifact.id}-${project.revision}-sources.zip" />
   <property name="source.tar.filename" value="${ivy.artifact.id}-${project.revision}-sources.tar.gz" />
   <property name="source.publish" value="true" />
-  
+
   <!-- Ivy properties -->
   <property name="ivy.settingsurl"
             value="file:${basedir}/ivysettings.xml"
@@ -301,7 +301,7 @@ TYPICAL TARGET SEQUENCE
   <property name="sonar.url"
             value="http://repo1.maven.org/maven2/org/codehaus/sonar-plugins/sonar-ant-task/1.2/sonar-ant-task-1.2.jar"/>
   <property name="sonar.classname"
-          value="org.sonar.ant.SonarTask"/>
+            value="org.sonar.ant.SonarTask"/>
 
   <!-- Load the manifest file (if any) as a properties file -->
   <property name="dist.manifest.file"
@@ -680,11 +680,11 @@ TYPICAL TARGET SEQUENCE
   </target>
 
 
-<!--=======================================================================
-      install-checkstyle
-
-      Fetches and installs CheckStyle resources for use by checkstyle targets
-      ====================================================================-->
+  <!--=======================================================================
+        install-checkstyle
+  
+        Fetches and installs CheckStyle resources for use by checkstyle targets
+        ====================================================================-->
   <target name="install-checkstyle" depends="install-ivy">
     <ivy:resolve inline="true"
                  keep="true"
@@ -854,7 +854,7 @@ TYPICAL TARGET SEQUENCE
       ====================================================================-->
   <target name="publish-local-nojar.post">
   </target>
-  
+
   <target name="publish-local-nojar.internal" depends="install-ivy">
     <ivy:resolve file="${ivy.artifact.ivyfilename}" />
     <ivy:publish resolver="local" pubrevision="${project.revision}" overwrite="true" forcedeliver="true" warnonmissing="yes" haltonmissing="no">
@@ -910,14 +910,14 @@ TYPICAL TARGET SEQUENCE
 
     <if>
       <equals arg1="${source.publish}" arg2="true" />
-        <then>
-          <antcall target="maven-publish-sources">
-            <param name="publish.groupId" value="${ivy.artifact.group}" />
-            <param name="publish.artifactId" value="${ivy.artifact.id}" />
-            <param name="publish.version" value="${project.revision}" />
-            <param name="publish.file" value="${dist.dir}/${ivy.artifact.id}-${project.revision}-sources.jar" />
-          </antcall>
-        </then>
+      <then>
+        <antcall target="maven-publish-sources">
+          <param name="publish.groupId" value="${ivy.artifact.group}" />
+          <param name="publish.artifactId" value="${ivy.artifact.id}" />
+          <param name="publish.version" value="${project.revision}" />
+          <param name="publish.file" value="${dist.dir}/${ivy.artifact.id}-${project.revision}-sources.jar" />
+        </antcall>
+      </then>
     </if>
 
     <antcall target="maven-publish-artifact">
@@ -926,13 +926,13 @@ TYPICAL TARGET SEQUENCE
     </antcall>
 
     <antcall target="maven-publish.post"/>
-    
+
   </target>
 
   <!-- Override this if anything is needed to be done after the standard parts of publish are completed -->
   <!-- Such as:  publishing non-standard/extended artifacts, etc -->
   <target name="maven-publish.post"/>
-  
+
   <!--=======================================================================
         ivy.deliver
     
@@ -1130,7 +1130,7 @@ TYPICAL TARGET SEQUENCE
   <target name="clean-dist">
     <delete dir="${dist.dir}" />
   </target>
-  
+
   <!--=======================================================================
       clean-checkstyle
       
@@ -1138,7 +1138,7 @@ TYPICAL TARGET SEQUENCE
       ====================================================================-->
   <target name="clean-checkstyle">
     <delete dir="${checkstyle.dir}" />
-  </target>  
+  </target>
 
 
   <!--=======================================================================
@@ -1420,7 +1420,7 @@ TYPICAL TARGET SEQUENCE
            source="${javac.source}"
            target="${javac.target}"
            fork="true"
-            encoding="UTF-8">
+           encoding="UTF-8">
       <src path="${testsrc.dir}" />
       <classpath refid="test.classpath" />
     </javac>
@@ -1450,12 +1450,12 @@ TYPICAL TARGET SEQUENCE
            haltonerror="${junit.haltonerror}"
            printsummary="yes">
       <sysproperty key="java.awt.headless" value="${headless.unittest}" />
-      
+
       <syspropertyset>
         <propertyref prefix="junit.sysprop." />
         <mapper type="glob" from="junit.sysprop.*" to="*"/>
       </syspropertyset>
-      
+
       <classpath refid="test.classpath" />
       <formatter type="xml" />
       <test name="${testcase}" todir="${testreports.xml.dir}" if="testcase" />
@@ -1551,7 +1551,7 @@ TYPICAL TARGET SEQUENCE
     </javadoc>
   </target>
 
-  	
+
   <!--=======================================================================
 	enunciate
         
@@ -1562,7 +1562,7 @@ TYPICAL TARGET SEQUENCE
     <path id="enunciate.classpath">
       <fileset dir="${lib.dir}">
         <include name="*.jar" />
-      	<exclude name="saxon*.jar" />
+        <exclude name="saxon*.jar" />
       </fileset>
       <dirset dir="${classes.dir}" />
       <fileset dir="${dist.dir}">
@@ -1577,16 +1577,16 @@ TYPICAL TARGET SEQUENCE
       <classpath refid="enunciate.classpath" />
     </taskdef>
 
-    <enunciate dir="${basedir}/src" 
-               configFile="${basedir}/enunciate.xml" 
-               generateDir="${enunciate.bin.dir}/generate" 
-               compileDir="${enunciate.bin.dir}/compile" 
-               buildDir="${enunciate.bin.dir}/build" 
-               packageDir="${enunciate.bin.dir}/package" 
+    <enunciate dir="${basedir}/src"
+               configFile="${basedir}/enunciate.xml"
+               generateDir="${enunciate.bin.dir}/generate"
+               compileDir="${enunciate.bin.dir}/compile"
+               buildDir="${enunciate.bin.dir}/build"
+               packageDir="${enunciate.bin.dir}/package"
                verbose="true">
       <include name="**/*.java" />
       <!-- have to exclude class that contains jersey multipart endpoint until http://jira.codehaus.org/browse/ENUNCIATE-537 is fixed -->
-      
+
       <classpath refid="enunciate.classpath" />
       <export artifactId="docs" destination="${dist.dir}/${enunciate.packagename}.zip" />
     </enunciate>
@@ -1760,7 +1760,7 @@ TYPICAL TARGET SEQUENCE
         <propertyref prefix="junit.sysprop." />
         <mapper type="glob" from="junit.sysprop.*" to="*"/>
       </syspropertyset>
-      
+
       <!--
         Note the classpath order: instrumented classes are before the
         original (uninstrumented) classes.  This is important.
@@ -1894,7 +1894,7 @@ TYPICAL TARGET SEQUENCE
         </not>
         <then>
           <ivy:retrieve inline="true"
-              conf="default"
+                        conf="default"
                         organisation="@{organisation}"
                         module="@{module}"
                         revision="@{revision}"
@@ -1998,9 +1998,9 @@ TYPICAL TARGET SEQUENCE
       <else>
         <download-antlib name="tattletale"
                          url="${tattletale.url}"
-                         classname="${tattletale.classname}" 
+                         classname="${tattletale.classname}"
                          extension="zip"/>
-                          
+
         <taskdef name="tattletale.report" classname="${tattletale.classname}">
           <classpath>
             <fileset dir="${subfloor.resources.dir}/tattletale">
@@ -2013,7 +2013,7 @@ TYPICAL TARGET SEQUENCE
       </else>
     </if>
   </target>
-  
+
   <!--=======================================================================
     tattletale-report
     
@@ -2022,12 +2022,12 @@ TYPICAL TARGET SEQUENCE
   <target name="tattletale-report" depends="install-tattletale,jar">
     <tattletale.report source="${basedir}" destination="${tattletale.reports.dir}"/>
   </target>
-  
-<!--=======================================================================
-    install-sonar
-    
-    (Fetches and) installs SONAR ant plugin for use by this ant script
-    ====================================================================-->
+
+  <!--=======================================================================
+      install-sonar
+      
+      (Fetches and) installs SONAR ant plugin for use by this ant script
+      ====================================================================-->
   <target name="install-sonar" depends="install-antcontrib">
     <if>
       <istrue value="${sonar.isinstalled}" />
@@ -2037,15 +2037,15 @@ TYPICAL TARGET SEQUENCE
       <else>
         <download-antlib name="sonar"
                          url="${sonar.url}"
-                         classname="${sonar.classname}" 
+                         classname="${sonar.classname}"
                          extension="jar"/>
-                          
+
         <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
-            <classpath>
-              <fileset dir="${subfloor.resources.dir}/sonar">
-                  <include name="*.jar" />
-              </fileset>
-            </classpath> 
+          <classpath>
+            <fileset dir="${subfloor.resources.dir}/sonar">
+              <include name="*.jar" />
+            </fileset>
+          </classpath>
         </taskdef>
 
         <property name="sonar.isinstalled" value="true" />
@@ -2072,10 +2072,10 @@ TYPICAL TARGET SEQUENCE
     <property name="sonar.dynamicAnalysis" value="reuseReports" />
     <property name="sonar.cobertura.reportPath" value="${coberturareports.xml.dir}/coverage.xml" />
     <property name="sonar.surefire.reportsPath" value="${testreports.xml.dir}" />
-    
+
     <sonar:sonar key="${ivy.artifact.group}:${ivy.artifact.id}" version="${project.revision}" xmlns:sonar="antlib:org.sonar.ant"/>
   </target>
-  
+
   <!--
     =============================================================================
        checkstyle.xml-report : Produces machine-readable xml Checkstyle report
@@ -2093,12 +2093,12 @@ TYPICAL TARGET SEQUENCE
     <get usetimestamp="true" src="${checkstyle.suppressions.url}" dest="${checkstyle.suppressions.file}"/>
 
     <mkdir dir="${checkstyle.reports.dir}/xml"/>
-      <checkstyle config="${checkstyle.config.file}" failonviolation="false">
-        <property key="samedir" value="${checkstyle.dir}"/>
-        <fileset dir="${src.dir}" includes="**/*.java"/>
-        <fileset dir="${testsrc.dir}" includes="**/*.java" erroronmissingdir="false"/>
-        <formatter type="xml" tofile="${checkstyle.reports.dir}/xml/checkstyle-result.xml"/>
-      </checkstyle>
+    <checkstyle config="${checkstyle.config.file}" failonviolation="false">
+      <property key="samedir" value="${checkstyle.dir}"/>
+      <fileset dir="${src.dir}" includes="**/*.java"/>
+      <fileset dir="${testsrc.dir}" includes="**/*.java" erroronmissingdir="false"/>
+      <formatter type="xml" tofile="${checkstyle.reports.dir}/xml/checkstyle-result.xml"/>
+    </checkstyle>
   </target>
 
   <!--

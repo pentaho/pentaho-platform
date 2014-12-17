@@ -17,17 +17,49 @@
 
 <!DOCTYPE html>
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder" %>
+<%@page import="org.apache.commons.lang.StringUtils" %>
+<%@page import="org.owasp.esapi.ESAPI" %>
+<%@page import="java.util.Locale" %>
 <%
   String userName = PentahoSessionHolder.getSession().getName();
+
+  /**
+  System.out.println("browser ======================================= browser");
+  **/
+  Locale effectiveLocale = request.getLocale();
+  /**
+  System.out.println(" ==> effectiveLocale.toString() : " + effectiveLocale.toString());
+  **/
+  boolean isRtl = false;
+  String locale1 = ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString());
+
+  if ( !StringUtils.isEmpty( (String)session.getAttribute( "locale_override" ) ) ) {
+    /**
+    System.out.println(" ==> session.getAttribute(locale_override) : " + (String)session.getAttribute( "locale_override" ));
+    **/
+    locale1 = ESAPI.encoder().encodeForHTMLAttribute((String)session.getAttribute( "locale_override" ));
+  }
+
+  isRtl = locale1.substring(0,2).toLowerCase().matches("ar|fa|he|ur|yi");
+  /**
+  System.out.println(" ==> isRtl : " + isRtl);
+  System.out.println("browser ======================================= browser");
+  **/
 %>
-<html lang="en" class="bootstrap">
+<html lang="en" class="bootstrap" <%if ( isRtl ) {%> dir="RTL" <%}%> >
+
 <head>
 <meta charset="utf-8" class="bootstrap">
 <title>Browse Files</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Le styles -->
-<link href="css/browser.css" rel="stylesheet">
+
+<%if ( isRtl ) {%>
+  <link href="css/browser_rtl.css" rel="stylesheet">
+<%} else {%>
+  <link href="css/browser_ltr.css" rel="stylesheet">
+<%}%>
 
 <!-- We need web context for requirejs and css -->
 <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
