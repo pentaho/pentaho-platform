@@ -32,7 +32,6 @@ import org.pentaho.metadata.model.SqlDataSource.DataSourceType;
 import org.pentaho.metadata.model.SqlPhysicalColumn;
 import org.pentaho.metadata.model.SqlPhysicalModel;
 import org.pentaho.metadata.model.SqlPhysicalTable;
-import org.pentaho.metadata.model.concept.Property;
 import org.pentaho.metadata.model.concept.types.DataType;
 import org.pentaho.metadata.model.concept.types.LocalizedString;
 import org.pentaho.metadata.model.concept.types.TargetTableType;
@@ -83,7 +82,7 @@ public class MetadataQueryComponentTest {
 
       Domain domain3 = getJdbcDomain();
       domain3.setId( "JDBCDOMAIN2" );
-      domain3.getLogicalModels().get( 0 ).setProperty( "max_rows", new Property( new BigDecimal( 10 ) ) );
+      domain3.getLogicalModels().get( 0 ).setProperty( "max_rows", new BigDecimal( 10 ) );
 
       Domain domain4 = getBasicDomain();
       ( (SqlPhysicalModel) domain4.getPhysicalModels().get( 0 ) ).getDatasource().setDialectType( "MYSQL" );
@@ -144,8 +143,8 @@ public class MetadataQueryComponentTest {
     }
 
     component = new MetadataQueryComponent();
-    Map<String, Property> inputs = new HashMap<String, Property>();
-    inputs.put( "param1", new Property( "B%" ) );
+    Map<String, Object> inputs = new HashMap<String, Object>();
+    inputs.put( "param1", "B%" );
     component.setInputs( inputs );
     component.setQuery( mql );
     component.execute();
@@ -203,9 +202,9 @@ public class MetadataQueryComponentTest {
     }
 
     component = new MetadataQueryComponent();
-    Map<String, Property> inputs = new HashMap<String, Property>();
-    inputs.put( "param1", new Property( new String[] { "BG&E Collectables", "Baane Mini Imports",
-      "Bavarian Collectables Imports, Co.", "Boards & Toys Co." } ) );
+    Map<String, Object> inputs = new HashMap<String, Object>();
+    inputs.put( "param1", new String[] { "BG&E Collectables", "Baane Mini Imports",
+      "Bavarian Collectables Imports, Co.", "Boards & Toys Co." } );
     component.setInputs( inputs );
     component.setQuery( mql );
     component.execute();
@@ -404,8 +403,8 @@ public class MetadataQueryComponentTest {
 
     MetadataQueryComponent component2 = new MetadataQueryComponent();
     component2.setQuery( mql );
-    Map<String, Property> inputs = new HashMap<String, Property>();
-    inputs.put( "forcedbdialect", new Property( "true" ) );
+    Map<String, Object> inputs = new HashMap<String, Object>();
+    inputs.put( "forcedbdialect", "true" );
     component2.setInputs( inputs );
     result = component2.execute();
     Assert.assertFalse( result );
@@ -447,8 +446,8 @@ public class MetadataQueryComponentTest {
             + "<view>CATEGORY</view>" + "<column>LC_CUSTOMERNAME</column>" + "</selection>" + "</selections></mql>";
 
     MetadataQueryComponent component = new MetadataQueryComponent();
-    Map<String, Property> map = new HashMap<String, Property>();
-    map.put( "domain", new Property( "JDBCDOMAIN" ) );
+    Map<String, Object> map = new HashMap<String, Object>();
+    map.put( "domain", "JDBCDOMAIN" );
     component.setInputs( map );
     component.setQuery( mql );
     component.execute();
