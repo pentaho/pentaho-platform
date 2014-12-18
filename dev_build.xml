@@ -3,7 +3,7 @@
   <description>
   </description>
 
-  <!-- This file inherits from the open assembly project -->
+  <!-- This file inherits from the open assembly prgit config --global merge.tool araxisoject -->
   <property name="assembly.dir" location="assembly" />
 
   <property file="dev_override.properties" />
