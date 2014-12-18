@@ -19,7 +19,6 @@ package org.pentaho.platform.plugin.services.metadata;
 
 import org.pentaho.metadata.model.concept.Concept;
 import org.pentaho.metadata.model.concept.IConcept;
-import org.pentaho.metadata.model.concept.Property;
 import org.pentaho.metadata.model.concept.security.Security;
 import org.pentaho.metadata.model.concept.security.SecurityOwner;
 import org.pentaho.platform.api.engine.IAclHolder;
@@ -37,11 +36,7 @@ public class PentahoMetadataAclHolder implements IAclHolder {
 
   public PentahoMetadataAclHolder( final IConcept aclHolder ) {
     try {
-      Security sec = null;
-      Property secProperty = aclHolder.getProperty( Concept.SECURITY_PROPERTY );
-      if ( secProperty != null ) {
-        sec = (Security) secProperty.getValue();
-      }
+      Security sec = (Security) aclHolder.getProperty( Concept.SECURITY_PROPERTY );
       if ( sec != null ) {
         Map<SecurityOwner, Integer> securityMap = sec.getOwnerAclMap();
         SecurityOwner secOwn = null;

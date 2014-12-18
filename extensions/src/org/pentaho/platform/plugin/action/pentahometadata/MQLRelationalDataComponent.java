@@ -23,7 +23,6 @@ import org.pentaho.actionsequence.dom.ActionInputConstant;
 import org.pentaho.actionsequence.dom.IActionInput;
 import org.pentaho.actionsequence.dom.IActionOutput;
 import org.pentaho.actionsequence.dom.actions.MQLAction;
-import org.pentaho.metadata.model.concept.Property;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
 
@@ -102,9 +101,9 @@ public class MQLRelationalDataComponent extends ComponentBase {
     // TODO: We also need to pass in the component definitions
     Set<String> inputNames = getInputNames();
     if ( inputNames != null ) {
-      Map<String, Property> inputMap = new HashMap<String, Property>();
+      Map<String, Object> inputMap = new HashMap<String, Object>();
       for ( String inputName : inputNames ) {
-        inputMap.put( ActionDefinitionEncoder.decodeBlankSpaces( inputName ), new Property( getInputValue( inputName ) ) );
+        inputMap.put( ActionDefinitionEncoder.decodeBlankSpaces( inputName ), getInputValue( inputName ) );
       }
       component.setInputs( inputMap );
     }

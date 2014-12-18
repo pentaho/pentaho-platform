@@ -35,7 +35,6 @@ import org.pentaho.di.core.database.DatabaseInterface;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.database.GenericDatabaseMeta;
 import org.pentaho.metadata.model.SqlPhysicalModel;
-import org.pentaho.metadata.model.concept.Property;
 import org.pentaho.metadata.query.BaseMetadataQueryExec;
 import org.pentaho.metadata.query.impl.sql.MappedQuery;
 import org.pentaho.metadata.query.impl.sql.SqlGenerator;
@@ -121,12 +120,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
       // Fix for PDB-1753
       for ( Parameter param : queryObject.getParameters() ) {
         String pName = param.getName();
-        Object paramValue = null;
-        Property paramProperty = parameters.get ( pName );
-        if ( paramProperty != null ) {
-          paramValue = paramProperty.getValue();
-        }
-        if ( parameters.containsKey( pName ) && !paramValue.getClass().isArray() ) {
+        if ( parameters.containsKey( pName ) && !parameters.get( pName ).getClass().isArray() ) {
           parameters.put( pName, this.convertParameterValue( param, parameters.get( pName ) ) );
         }
       }
@@ -170,11 +164,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
       if ( mappedQuery.getParamList() != null ) {
         sqlParams = new ArrayList<Object>();
         for ( String param : mappedQuery.getParamList() ) {
-          Object sqlParam = null;
-          Property paramProperty = parameters.get( param );
-          if( paramProperty != null ) {
-            sqlParam = paramProperty.getValue();
-          }
+          Object sqlParam = parameters.get( param );
           // lets see if the parameter is a multi valued param
           if ( sqlParam instanceof Object[] ) {
             Object[] multivaluedParamValues = (Object[]) sqlParam;
@@ -229,11 +219,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
   }
 
   public boolean getForceDbDialect() {
-    Object obj = null;
-    Property forceDbDialectProp = inputs.get( "forcedbdialect" );
-    if ( forceDbDialectProp != null ) {
-      obj = forceDbDialectProp.getValue();
-    }
+    Object obj = inputs.get( "forcedbdialect" );
     if ( obj instanceof String && "true".equalsIgnoreCase( (String) obj ) ) {
       return true;
     }
@@ -350,11 +336,8 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
   private SqlGenerator createSqlGenerator() throws Exception {
 
     SqlGenerator sqlGenerator = null;
-    String inputClass = null;
-    Property sqlGeneratorProperty = inputs.get( "sqlgenerator" );
-    if( sqlGeneratorProperty != null ) {
-      inputClass = (String) sqlGeneratorProperty.getValue();
-    }
+
+    String inputClass = (String) inputs.get( "sqlgenerator" );
     if ( inputClass != null ) {
       sqlGeneratorClass = inputClass;
     }
