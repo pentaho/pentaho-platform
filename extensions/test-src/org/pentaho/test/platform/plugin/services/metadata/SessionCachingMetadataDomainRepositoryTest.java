@@ -17,6 +17,7 @@
 
 package org.pentaho.test.platform.plugin.services.metadata;
 
+import org.mockito.Mockito;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -28,12 +29,16 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 import org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository;
+import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.engine.core.SimpleObjectFactory;
 
 import java.io.File;
 import java.util.Set;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.pentaho.test.platform.plugin.services.metadata.MockSessionAwareMetadataDomainRepository.TEST_LOCALE;
 
 public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
@@ -105,11 +110,17 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
   public void testGetDomain() throws Exception {
     final String SESSION_ID = "1234-5678-90"; //$NON-NLS-1$
     final String ID = "1"; //$NON-NLS-1$
+    final String ID2 = "2"; //$NON-NLS-1$
+
     MockSessionAwareMetadataDomainRepository mock = new MockSessionAwareMetadataDomainRepository();
     mock.storeDomain( getTestDomain( ID ), false );
 
     SessionCachingMetadataDomainRepository repo = new SessionCachingMetadataDomainRepository( mock );
     PentahoSessionHolder.setSession( new StandaloneSession( "Standalone Session", SESSION_ID ) ); //$NON-NLS-1$
+
+    IAclNodeHelper helper = Mockito.mock( IAclNodeHelper.class );
+    doReturn( true ).when( helper ).hasAccess( ID, IAclNodeHelper.DatasourceType.METADATA );
+    repo.setAclHelper( helper );
 
     assertEquals( 0, mock.getInvocationCount( "getDomain" ) ); //$NON-NLS-1$
     Domain d = repo.getDomain( ID );
@@ -120,12 +131,30 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
     // Cache should contain a domain for this session
     assertEquals( 1, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
 
-    d = repo.getDomain( ID );
+    repo.getDomain( ID );
     // Make sure cache was hit and delegate was not called
     assertEquals( 1, mock.getInvocationCount( "getDomain" ) ); //$NON-NLS-1$
 
     // Cache should contain a domain for this session
     assertEquals( 1, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
+
+    mock.storeDomain( getTestDomain( ID2 ), false );
+    repo.getDomain( ID2 );
+    // Cache should contain tow domains for this session
+    assertEquals( 2, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
+
+    // Block access to domain ID2. Cache should be cleared for this domain
+    doReturn( false ).when( helper ).hasAccess( ID2, IAclNodeHelper.DatasourceType.METADATA );
+    repo.setAclHelper( helper );
+
+    repo.getDomain( ID2 );
+
+    // Make sure cache was hit and delegate was not called
+    assertEquals( 2, mock.getInvocationCount( "getDomain" ) ); //$NON-NLS-1$
+
+    // Cache should contain a domain for this session
+    assertEquals( 1, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
+
   }
 
   public void testGetDomain_null_session() throws Exception {
@@ -186,10 +215,15 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
    */
   public void testGetDomainIds() throws Exception {
     final String ID = "1"; //$NON-NLS-1$
+    final String ID2 = "2"; //$NON-NLS-1$
     MockSessionAwareMetadataDomainRepository mock = new MockSessionAwareMetadataDomainRepository();
 
     SessionCachingMetadataDomainRepository repo = new SessionCachingMetadataDomainRepository( mock );
     PentahoSessionHolder.setSession( new StandaloneSession( "Standalone Session", "1234-5678-90" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+
+    IAclNodeHelper helper = Mockito.mock( IAclNodeHelper.class );
+    doReturn( true ).when( helper ).hasAccess( ID, IAclNodeHelper.DatasourceType.METADATA );
+    repo.setAclHelper( helper );
 
     Set<String> ids = repo.getDomainIds();
     assertEquals( 0, ids.size() );
@@ -200,10 +234,6 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
 
     ids = repo.getDomainIds();
     assertEquals( 1, ids.size() );
-    assertEquals( 2, mock.getInvocationCount( "getDomainIds" ) ); //$NON-NLS-1$
-    assertEquals( 1, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
-
-    ids = repo.getDomainIds();
     assertEquals( 2, mock.getInvocationCount( "getDomainIds" ) ); //$NON-NLS-1$
     assertEquals( 1, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
   }
