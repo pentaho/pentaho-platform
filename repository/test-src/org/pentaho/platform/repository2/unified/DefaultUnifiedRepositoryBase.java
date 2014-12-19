@@ -179,7 +179,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   protected ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
 
   protected ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver(
-    DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER );
+      DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER );
 
   protected String superAdminRoleName;
   protected String tenantAdminRoleName;
@@ -229,14 +229,14 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate,
-      this.repositoryFileDao ) );
+        this.repositoryFileDao ) );
     mp.defineInstance( "ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver() );
     mp.defineInstance("useMultiByteEncoding", Boolean.FALSE );
     mp.defineInstance( IUnifiedRepository.class, repo );
     mp.defineInstance( IRepositoryFileAclDao.class, repositoryFileAclDao );
     IUserRoleListService userRoleListService = mock( IUserRoleListService.class );
     when( userRoleListService.getRolesForUser( any( ITenant.class ), anyString() ) ).thenReturn(
-      Arrays.asList( tenantAdminRoleName, AUTHENTICATED_ROLE_NAME ) );
+        Arrays.asList( tenantAdminRoleName, AUTHENTICATED_ROLE_NAME ) );
     mp.defineInstance( IUserRoleListService.class, userRoleListService );
     mp.defineInstance( "singleTenantAdminUserName", singleTenantAdminUserName );
     // Start the micro-platform
@@ -257,7 +257,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     authorizationPolicy = null;
     loginAsSysTenantAdmin();
     ITenant tenant =
-      tenantManager.getTenant( "/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/" + TENANT_ID_ACME );
+        tenantManager.getTenant( "/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/" + TENANT_ID_ACME );
     if ( tenant != null ) {
       cleanupUserAndRoles( tenant );
     }
@@ -269,6 +269,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     cleanupUserAndRoles( systemTenant );
     SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
     logout();
+    mp.stop();
 
     repositoryAdminUsername = null;
     singleTenantAdminUserName = null;
@@ -348,9 +349,9 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
       new GrantedAuthority[] { new GrantedAuthorityImpl( superAdminRoleName ) };
     final String password = "ignored";
     UserDetails repositoryAdminUserDetails =
-      new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
+        new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
     Authentication repositoryAdminAuthentication =
-      new UsernamePasswordAuthenticationToken( repositoryAdminUserDetails, password, repositoryAdminAuthorities );
+        new UsernamePasswordAuthenticationToken( repositoryAdminUserDetails, password, repositoryAdminAuthorities );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( repositoryAdminAuthentication );
@@ -405,7 +406,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
 
               String tenantAuthenticatedRoleId = roleNameUtils.getPrincipleId( theTenant, tenantAuthenticatedRoleName );
               RepositoryFileSid tenantAuthenticatedRoleSid =
-                new RepositoryFileSid( tenantAuthenticatedRoleId, RepositoryFileSid.Type.ROLE );
+                  new RepositoryFileSid( tenantAuthenticatedRoleId, RepositoryFileSid.Type.ROLE );
 
               aclsForTenantHomeFolder =
                 new RepositoryFileAcl.Builder( userSid ).ace( tenantAuthenticatedRoleSid, EnumSet
@@ -487,7 +488,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   }
 
   protected RepositoryFile createSampleFile( final String parentFolderPath, final String fileName,
-    final String sampleString, final boolean sampleBoolean, final int sampleInteger, boolean versioned )
+      final String sampleString, final boolean sampleBoolean, final int sampleInteger, boolean versioned )
     throws Exception {
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final SampleRepositoryFileData content = new SampleRepositoryFileData( sampleString, sampleBoolean, sampleInteger );
@@ -496,7 +497,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   }
 
   protected RepositoryFile createSampleFile( final String parentFolderPath, final String fileName,
-    final String sampleString, final boolean sampleBoolean, final int sampleInteger ) throws Exception {
+      final String sampleString, final boolean sampleBoolean, final int sampleInteger ) throws Exception {
     return createSampleFile( parentFolderPath, fileName, sampleString, sampleBoolean, sampleInteger, false );
   }
 
@@ -515,7 +516,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
           privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
         } catch ( AccessControlException ace ) {
           privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
-            new String[0] );
+              new String[0] );
         }
         session.save();
         return null;
