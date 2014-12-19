@@ -36,6 +36,7 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.NameScope;
 import org.apache.commons.vfs.operations.FileOperations;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -43,20 +44,22 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 
 public class SolutionRepositoryVfsFileObject implements FileObject {
 
   private String fileRef;
 
-  private static final IUnifiedRepository REPOSITORY = PentahoSystem.get( IUnifiedRepository.class, null );
+  private static final IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class, null );
 
   private FileContent content = null;
 
-  private boolean fileInitialized;
-
   private RepositoryFile repositoryFile = null;
-  
+
   private IRepositoryContentConverterHandler converterHandler;
+
+  private IAclNodeHelper aclHelper;
 
   public SolutionRepositoryVfsFileObject( final String fileRef ) {
     super();
@@ -64,12 +67,12 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   }
 
   public IUnifiedRepository getRepository() {
-    return REPOSITORY;
+    return repository;
   }
 
   public IRepositoryContentConverterHandler getConverterHandler() {
-    if(converterHandler == null) {
-      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+    if ( converterHandler == null ) {
+      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
     }
     return converterHandler;
   }
@@ -100,20 +103,22 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   }
 
   private void initFile() {
-    if ( !fileInitialized ) {
-      // decode URL before 'get'
-      String fileUrl = fileRef;
+    // decode URL before 'get'
+    String fileUrl = fileRef;
 
-      try{
-        fileUrl = URLDecoder.decode( fileUrl, Charset.defaultCharset().name() );
-      }
-      catch ( UnsupportedEncodingException e ){
-        fileUrl = fileRef;
-      }
+    try {
+      fileUrl = URLDecoder.decode( fileUrl, Charset.defaultCharset().name() );
+    } catch ( UnsupportedEncodingException e ) {
+      fileUrl = fileRef;
+    }
 
-      repositoryFile = REPOSITORY.getFile( fileUrl );
+    String name = fileUrl;
+    if ( fileUrl.matches( "^(/etc/mondrian/)(.*)(/schema.xml)" ) ) {
+      name = fileUrl.split( "/" )[3];
+    }
 
-      fileInitialized = true;
+    if ( getAclHelper().hasAccess( name, IAclNodeHelper.DatasourceType.MONDRIAN ) ) {
+      repositoryFile = getRepository().getFile( fileUrl );
     }
   }
 
@@ -155,7 +160,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
 
     List<FileObject> fileList = new ArrayList<FileObject>();
     if ( exists() ) {
-      for ( RepositoryFile child : REPOSITORY.getChildren( repositoryFile.getId() ) ) {
+      for ( RepositoryFile child : getRepository().getChildren( repositoryFile.getId() ) ) {
         SolutionRepositoryVfsFileObject fileInfo = new SolutionRepositoryVfsFileObject( child.getPath() );
         fileList.add( fileInfo );
       }
@@ -257,16 +262,29 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
       String extension = FilenameUtils.getExtension( repositoryFile.getPath() );
       // Try to get the converter for the extension. If there is not converter available then we will
       //assume simple type and will get the data that way
-      if(getConverterHandler() != null) {
+      if ( getConverterHandler() != null ) {
         Converter converter = getConverterHandler().getConverter( extension );
-        if(converter != null) {
+        if ( converter != null ) {
           inputStream = converter.convert( repositoryFile.getId() );
         }
       }
-      if(inputStream == null) {
-        inputStream = REPOSITORY.getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
+      if ( inputStream == null ) {
+        inputStream = getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
       }
     }
     return inputStream;
   }
+
+  protected synchronized IAclNodeHelper getAclHelper() {
+    if ( aclHelper == null ) {
+      ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+      String alcFolder = null;
+      if ( systemConfig != null && systemConfig.getConfiguration( "repository" ) != null ) {
+        alcFolder = systemConfig.getProperty( "repository.aclNodeFolder" );
+      }
+      aclHelper = new JcrAclNodeHelper( getRepository(), alcFolder );
+    }
+    return aclHelper;
+  }
+
 }
