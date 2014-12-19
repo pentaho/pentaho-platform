@@ -1215,7 +1215,7 @@ public class JcrRepositoryFileUtils {
 
     RepositoryFile rootFile =
         nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode, false, null );
-    if ( ( !showHidden && rootFile.isHidden() )
+    if ( ( !showHidden && rootFile.isHidden() ) || rootFile.isAclNode()
         || ( !accessVoterManager.hasAccess( rootFile, RepositoryFilePermission.READ, JcrRepositoryFileAclUtils.getAcl(
             session, pentahoJcrConstants, rootFile.getId() ), PentahoSessionHolder.getSession() ) ) ) {
       return null;
