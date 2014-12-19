@@ -66,6 +66,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
@@ -140,7 +141,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   // ~ Constructors ====================================================================================================
 
   @SuppressWarnings( "unchecked" )
-  private List<MondrianCatalog> getCatalogs( IPentahoSession pentahoSession ) {
+  protected List<MondrianCatalog> getCatalogs( IPentahoSession pentahoSession ) {
 
     Map<String, MondrianCatalog> catalogsMap =
         (Map<String, MondrianCatalog>) PentahoSystem.getCacheManager( pentahoSession ).getFromRegionCache(
@@ -172,7 +173,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    * @param pentahoSession The session with which this request is associated (Used to locate the cache)
    * @return True if an existing match has been found for the catalog
    */
-  private boolean catalogExists( MondrianCatalog catalog, IPentahoSession pentahoSession ) {
+  protected boolean catalogExists( MondrianCatalog catalog, IPentahoSession pentahoSession ) {
     if ( catalog != null ) {
       MondrianCatalog foundCatalog = getCatalogFromCache( catalog.getName(), pentahoSession );
       // Was the catalog found by name?
@@ -197,7 +198,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     return false;
   }
 
-  private static final MondrianCatalog getCatalogFromCache( String context, IPentahoSession pentahoSession ) {
+  protected MondrianCatalog getCatalogFromCache( String context, IPentahoSession pentahoSession ) {
     // NOTE that the context can be the catalog name or the definition string for the catalog. If you are using the
     // definition string to
     // retrieve the catalog form the cache, you cannot be guaranteed what datasource is in play; so under these
@@ -430,9 +431,9 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       return new DataSourcesConfig.DataSources( doc );
 
     } catch ( XOMException e ) {
-      throw Util.newError( e, Messages.getInstance().getErrorString(
-          "MondrianCatalogHelper.ERROR_0002_FAILED_TO_PARSE_DATASOURCE_CONFIG",
-          dataSourcesConfigString ) ); //$NON-NLS-1$
+      throw Util.newError( e, Messages.getInstance()
+          .getErrorString( "MondrianCatalogHelper.ERROR_0002_FAILED_TO_PARSE_DATASOURCE_CONFIG",
+              dataSourcesConfigString ) ); //$NON-NLS-1$
     }
   }
 
@@ -628,9 +629,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
           Reason.valueOf( ex.getMessage() ) );
     }
     try {
-      org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper =
-          new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper( PentahoSystem
-              .get( IUnifiedRepository.class ) );
+      MondrianCatalogRepositoryHelper helper = getMondrianCatalogRepositoryHelper();
       helper.addSchema( schemaInputStream, catalog.getName(), catalog.getDataSourceInfo() );
     } catch ( Exception e ) {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
@@ -644,15 +643,27 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     }
     reInit( pentahoSession );
 
-    if (acl != null) {
+    if ( acl != null ) {
       getAclHelper().setAclFor( catalog.getName(), IAclNodeHelper.DatasourceType.MONDRIAN, acl );
     }
   }
 
-  private synchronized IAclNodeHelper getAclHelper() {
+  protected IUnifiedRepository getRepository() {
+    return PentahoSystem.get( IUnifiedRepository.class );
+  }
+
+  protected MondrianCatalogRepositoryHelper getMondrianCatalogRepositoryHelper() {
+    return new MondrianCatalogRepositoryHelper( PentahoSystem.get( IUnifiedRepository.class ) );
+  }
+
+  protected synchronized IAclNodeHelper getAclHelper() {
     if ( aclHelper == null ) {
-      String aclFolder = PentahoSystem.get( ISystemConfig.class ).getProperty( "repository.aclNodeFolder" );
-      aclHelper = new JcrAclNodeHelper( PentahoSystem.get( IUnifiedRepository.class ), aclFolder );
+      ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+      String alcFolder = null;
+      if ( systemConfig != null && systemConfig.getConfiguration( "repository" ) != null ) {
+        alcFolder = systemConfig.getProperty( "repository.aclNodeFolder" );
+      }
+      aclHelper = new JcrAclNodeHelper( PentahoSystem.get( IUnifiedRepository.class ), alcFolder );
     }
     return aclHelper;
   }
@@ -1025,9 +1036,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    */
   protected boolean hasAccess( final MondrianCatalog cat, final CatalogPermission perm,
       final IPentahoSession pentahoSession ) {
-    // IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
-    // unifiedRepository.hasAccess(null, null);
-    return true;
+    return getAclHelper().hasAccess( cat.getName(), IAclNodeHelper.DatasourceType.MONDRIAN );
   }
 
   protected String getSolutionRepositoryRelativePath( final String path, final IPentahoSession pentahoSession ) {
@@ -1146,7 +1155,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
           "MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION" ), Reason.ACCESS_DENIED ); //$NON-NLS-1$
     }
 
-    IUnifiedRepository solutionRepository = PentahoSystem.get( IUnifiedRepository.class );
+    IUnifiedRepository solutionRepository = getRepository();
     RepositoryFile deletingFile = solutionRepository.getFile( RepositoryFile.SEPARATOR + "etc" //$NON-NLS-1$
         + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName() ); //$NON-NLS-1$
     solutionRepository.deleteFile( deletingFile.getId(), true, "" ); //$NON-NLS-1$

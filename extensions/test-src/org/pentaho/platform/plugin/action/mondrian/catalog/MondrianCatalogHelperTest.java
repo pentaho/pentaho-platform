@@ -32,18 +32,24 @@ import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.SystemSettings;
+import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.services.cache.CacheManager;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
 import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.plugin.UserRoleMapperTest.TestUserRoleListService;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -82,7 +88,7 @@ public class MondrianCatalogHelperTest {
     booter.define( IPasswordService.class, Base64PasswordService.class, Scope.GLOBAL );
     booter.define( IDatabaseConnection.class, DatabaseConnection.class, Scope.GLOBAL );
     booter.define( IDatabaseDialectService.class, DatabaseDialectService.class, Scope.GLOBAL );
-    booter.define( IMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL );
+    booter.define( IAclAwareMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL );
     booter.define( ICacheManager.class, CacheManager.class, Scope.GLOBAL );
     booter.define( IUserRoleListService.class, TestUserRoleListService.class, Scope.GLOBAL );
     booter.defineInstance( IUnifiedRepository.class, repo );
@@ -115,7 +121,7 @@ public class MondrianCatalogHelperTest {
     stubGetChildren( repo, olapFolderPath ); // return no children
 
     IPentahoSession session = new StandaloneSession( "admin" );
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
 
     MondrianSchema schema = new MondrianSchema( "SteelWheels", null );
     MondrianCatalog cat =
@@ -136,6 +142,68 @@ public class MondrianCatalogHelperTest {
     verify( repo ).createFile( eq( makeIdObject( steelWheelsFolderPath ) ),
         argThat( isLikeFile( makeFileObject( steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
         any( IRepositoryFileData.class ), anyString() );
+  }
+
+  @Test
+  public void testAddCatalogWithAcl() throws Exception {
+    String catalogName = "SteelWheels";
+
+    MondrianSchema schema = new MondrianSchema( catalogName, null );
+
+    MondrianCatalog cat =
+        new MondrianCatalog( catalogName, "Provider=mondrian;DataSource=SampleData;",
+            "solution:test/charts/steelwheels.mondrian.xml", schema );
+
+    IPentahoSession session = mock( IPentahoSession.class );
+
+    RepositoryFileAcl acl = mock( RepositoryFileAcl.class );
+
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
+    MondrianCatalogHelper helperSpy = spy( helper );
+    doNothing().when( helperSpy ).init( session );
+    doReturn( false ).when( helperSpy ).hasAccess( cat, MondrianCatalogHelper.CatalogPermission.WRITE, session );
+
+    try {
+      helperSpy.addCatalog( mock( InputStream.class ), cat, true, acl, session );
+      fail();
+    } catch ( MondrianCatalogServiceException e ) {
+      verify( helperSpy, times( 1 ) ).hasAccess( cat, MondrianCatalogHelper.CatalogPermission.WRITE, session );
+      assertEquals( e.getMessage(),
+          Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION" ) );
+    }
+
+    doReturn( true ).when( helperSpy ).hasAccess( cat, MondrianCatalogHelper.CatalogPermission.WRITE, session );
+    doReturn( true ).when( helperSpy ).catalogExists( cat, session );
+
+    try {
+      helperSpy.addCatalog( mock( InputStream.class ), cat, false, acl, session );
+      fail();
+    } catch ( MondrianCatalogServiceException e ) {
+      verify( helperSpy, times( 2 ) ).hasAccess( cat, MondrianCatalogHelper.CatalogPermission.WRITE, session );
+      verify( helperSpy, times( 1 ) ).catalogExists( cat, session );
+      assertEquals( e.getMessage(),
+          Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS" ) );
+    }
+
+    doReturn( false ).when( helperSpy ).catalogExists( cat, session );
+    doReturn( new ArrayList<MondrianCatalog>() ).when( helperSpy ).getCatalogs( session );
+    doReturn( null ).when( helperSpy ).makeSchema( anyString() );
+
+    IAclNodeHelper aclNodeHelper = mock( IAclNodeHelper.class );
+    doNothing().when( aclNodeHelper ).setAclFor( catalogName, IAclNodeHelper.DatasourceType.MONDRIAN, acl );
+    doReturn( aclNodeHelper ).when( helperSpy ).getAclHelper();
+
+    File file = new File( "test-src/solution/test/charts/steelwheels.mondrian.xml" );
+    InputStream inputStream = new FileInputStream( file );
+
+    MondrianCatalogRepositoryHelper mondrianCatalogRepositoryHelper = mock( MondrianCatalogRepositoryHelper.class );
+    doNothing().when( mondrianCatalogRepositoryHelper ).addSchema( any( InputStream.class ), anyString(), anyString() );
+    doReturn( mondrianCatalogRepositoryHelper ).when( helperSpy ).getMondrianCatalogRepositoryHelper();
+
+    helperSpy.addCatalog( inputStream, cat, false, acl, session );
+    verify( helperSpy, times( 3 ) ).hasAccess( cat, MondrianCatalogHelper.CatalogPermission.WRITE, session );
+    verify( helperSpy, times( 2 ) ).catalogExists( cat, session );
+    verify( helperSpy, times( 1 ) ).getAclHelper();
   }
 
   @Test
@@ -161,15 +229,14 @@ public class MondrianCatalogHelperTest {
     stubGetFolder( repo, olapFolderPath );
     stubGetChildren( repo, olapFolderPath ); // return no children
 
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
     helper.importSchema( mondrianFile, "SampleData", "" );
 
-    verify( repo ).createFile(
-        eq( makeIdObject( sampleDataFolderPath ) ),
-        argThat( isLikeFile( makeFileObject( metadataPath ) ) ),
-        argThat( hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + "SampleData" ), pathPropertyPair(
-            "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ), anyString()
-    );
+    verify( repo ).createFile( eq( makeIdObject( sampleDataFolderPath ) ),
+        argThat( isLikeFile( makeFileObject( metadataPath ) ) ), argThat(
+            hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + "SampleData" ),
+                pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ),
+        anyString() );
     verify( repo ).createFile( eq( makeIdObject( sampleDataFolderPath ) ),
         argThat( isLikeFile( makeFileObject( sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
         any( IRepositoryFileData.class ), anyString() );
@@ -211,7 +278,7 @@ public class MondrianCatalogHelperTest {
     stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
 
     IPentahoSession session = new StandaloneSession( "admin" );
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
 
     List<MondrianCatalog> cats = helper.listCatalogs( session, false );
     Assert.assertEquals( 1, cats.size() );
@@ -230,20 +297,82 @@ public class MondrianCatalogHelperTest {
     final String steelWheelsMetadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
     final String steelWheelsSchemaPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
     stubGetFile( repo, steelWheelsMetadataPath );
-    stubGetData( repo, steelWheelsMetadataPath, "catalog", pathPropertyPair( "/catalog/definition",
-        "mondrian:/SteelWheels" ), pathPropertyPair( "/catalog/datasourceInfo",
-        "Provider=mondrian;DataSource=SteelWheels;" ) );
+    stubGetData( repo, steelWheelsMetadataPath, "catalog",
+        pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+        pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
     stubGetFile( repo, steelWheelsSchemaPath );
     stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
 
     stubGetFolder( repo, steelWheelsFolderPath );
 
     IPentahoSession session = new StandaloneSession( "admin" );
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
 
     helper.removeCatalog( "mondrian:/SteelWheels", session );
 
     verify( repo ).deleteFile( eq( makeIdObject( steelWheelsFolderPath ) ), eq( true ), anyString() );
+  }
+
+  @Test
+  public void testRemoveCatalogWithAcl() throws Exception {
+    String catalogName = "SteelWheels";
+    String repositoryFileId = "myFile";
+
+    MondrianCatalog cat = mock( MondrianCatalog.class );
+    doReturn( catalogName ).when( cat ).getName();
+
+    IPentahoSession session = mock( IPentahoSession.class );
+
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
+    MondrianCatalogHelper helperSpy = spy( helper );
+
+    doReturn( null ).when( helperSpy ).getCatalog( catalogName, session );
+
+    try {
+      helperSpy.removeCatalog( catalogName, session );
+      fail();
+    } catch ( MondrianCatalogServiceException e ) {
+      verify( helperSpy, times( 1 ) ).getCatalog( catalogName, session );
+      assertEquals( e.getMessage(), Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0015_CATALOG_NOT_FOUND", catalogName ) );
+    }
+
+    doReturn( cat ).when( helperSpy ).getCatalog( catalogName, session );
+    doReturn( false ).when( helperSpy ).hasAccess( cat, MondrianCatalogHelper.CatalogPermission.WRITE, session );
+
+    try {
+      helperSpy.removeCatalog( catalogName, session );
+      fail();
+    } catch ( MondrianCatalogServiceException e ) {
+      verify( helperSpy, times( 2 ) ).getCatalog( catalogName, session );
+      verify( helperSpy, times( 1 ) ).hasAccess( cat, MondrianCatalogHelper.CatalogPermission.WRITE, session );
+      assertEquals( e.getMessage(),
+          Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION" ) );
+    }
+
+    doReturn( true ).when( helperSpy ).hasAccess( cat, MondrianCatalogHelper.CatalogPermission.WRITE, session );
+
+    RepositoryFile file = mock( RepositoryFile.class );
+    doReturn( repositoryFileId ).when( file ).getId();
+
+    IUnifiedRepository repository = mock( IUnifiedRepository.class );
+
+    doReturn( file ).when( repository ).getFile( RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR
+        + "mondrian" + RepositoryFile.SEPARATOR + catalogName );
+    doNothing().when( repository ).deleteFile( eq( repositoryFileId ), eq( true ), anyString() );
+    doReturn( repository ).when( helperSpy ).getRepository();
+
+    IAclNodeHelper aclNodeHelper = mock( IAclNodeHelper.class );
+    doNothing().when( aclNodeHelper ).removeAclNodeFor( catalogName, IAclNodeHelper.DatasourceType.MONDRIAN );
+    doReturn( aclNodeHelper ).when( helperSpy ).getAclHelper();
+
+    doNothing().when( helperSpy ).reInit( session );
+
+    helperSpy.removeCatalog( catalogName, session );
+
+    verify( helperSpy, times( 3 ) ).getCatalog( catalogName, session );
+    verify( helperSpy, times( 2 ) ).hasAccess( cat, MondrianCatalogHelper.CatalogPermission.WRITE, session );
+    verify( aclNodeHelper, times( 1 ) ).removeAclNodeFor( catalogName, IAclNodeHelper.DatasourceType.MONDRIAN );
   }
 
   @Test
@@ -254,7 +383,7 @@ public class MondrianCatalogHelperTest {
         "DynamicSchemaProcessor=org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelperTest$DynamicDSPTest";
     final String SCHEMA_MOCK = "Test Schema Mock " + replaceTemplate;
 
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
     MondrianCatalogHelper helperSpy = spy( helper );
     IPentahoSession session = new StandaloneSession( "admin" );
     String schema = helperSpy.applyDSP( session, DATA_SOURCE_INFO_WITH_DSP, SCHEMA_MOCK );
@@ -270,7 +399,7 @@ public class MondrianCatalogHelperTest {
     final String DATA_SOURCE_INFO_WITHOUT_DSP = "DataSource=TestDataSource";
     final String SCHEMA_MOCK = "Test Schema Mock " + replaceTemplate;
 
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
     MondrianCatalogHelper helperSpy = spy( helper );
     doReturn( SCHEMA_MOCK ).when( helperSpy ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
 
@@ -280,6 +409,30 @@ public class MondrianCatalogHelperTest {
     verify( helperSpy ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
     assertFalse( schema.contains( "REPLACE_TOKEN" ) );
 
+  }
+
+  @Test
+  public void testGetCatalog() throws Exception {
+    String catalogName = "SteelWheels";
+
+    MondrianCatalog cat = mock( MondrianCatalog.class );
+    doReturn( catalogName ).when( cat ).getName();
+    IPentahoSession session = mock( IPentahoSession.class );
+
+    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
+    MondrianCatalogHelper helperSpy = spy( helper );
+    doReturn( true ).when( helperSpy ).hasAccess( eq( cat ), any( MondrianCatalogHelper.CatalogPermission.class ),
+        any( IPentahoSession.class ) );
+    doNothing().when( helperSpy ).init( session );
+    doReturn( cat ).when( helperSpy ).getCatalogFromCache( anyString(), eq( session ) );
+        
+    assertEquals( helperSpy.getCatalog( catalogName, session ).getName(), catalogName );
+    verify( helperSpy ).hasAccess( eq( cat ), any( MondrianCatalogHelper.CatalogPermission.class ),
+        any( IPentahoSession.class ) );
+
+    doReturn( false ).when( helperSpy ).hasAccess( eq( cat ), any( MondrianCatalogHelper.CatalogPermission.class ),
+        any( IPentahoSession.class ) );
+    assertNull( helperSpy.getCatalog( catalogName, session ) );
   }
 
   public static class DynamicDSPTest implements DynamicSchemaProcessor {
