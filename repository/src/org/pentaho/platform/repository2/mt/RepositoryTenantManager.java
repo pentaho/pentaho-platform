@@ -515,6 +515,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         .build(), new RepositoryFileAcl.Builder( fileOwnerSid ).entriesInheriting( true ).build(), null );
     repositoryFileDao.createFolder( pdiFolder.getId(), new RepositoryFile.Builder( "partitionSchemas" ).folder( true )
         .build(), new RepositoryFileAcl.Builder( fileOwnerSid ).entriesInheriting( true ).build(), null );
+    repositoryFileDao.createFolder( pdiFolder.getId(), new RepositoryFile.Builder( "namedConfigurations" ).folder( true )
+        .build(), new RepositoryFileAcl.Builder( fileOwnerSid ).entriesInheriting( true ).build(), null );
 
     repositoryFileDao.createFolder( etcFolder.getId(),
         new RepositoryFile.Builder( "metastore" ).folder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid )
