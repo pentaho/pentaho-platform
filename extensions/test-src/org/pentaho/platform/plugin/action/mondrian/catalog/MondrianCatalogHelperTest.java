@@ -62,20 +62,12 @@ public class MondrianCatalogHelperTest {
   // ~ Instance fields
   // =================================================================================================
 
-  private MicroPlatform booter;
+  private static MicroPlatform booter;
   private ICacheManager cacheMgr;
-  private IUnifiedRepository repo;
+  private static IUnifiedRepository repo;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-  }
-
-  @AfterClass
-  public static void tearDownClass() throws Exception {
-  }
-
-  @Before
-  public void setUp() throws Exception {
     repo = mock( IUnifiedRepository.class );
 
     booter = new MicroPlatform( "test-src/solution" );
@@ -88,7 +80,14 @@ public class MondrianCatalogHelperTest {
     booter.defineInstance( IUnifiedRepository.class, repo );
     booter.setSettingsProvider( new SystemSettings() );
     booter.start();
+  }
 
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+  }
+
+  @Before
+  public void setUp() throws Exception {
     // Clear up the cache
     cacheMgr = PentahoSystem.getCacheManager( null );
     cacheMgr.clearRegionCache( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION );
@@ -96,7 +95,7 @@ public class MondrianCatalogHelperTest {
 
   @After
   public void tearDown() throws Exception {
-    cacheMgr.cacheStop();
+    reset( repo );
   }
 
   @Test
@@ -214,7 +213,7 @@ public class MondrianCatalogHelperTest {
     MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
 
     List<MondrianCatalog> cats = helper.listCatalogs( session, false );
-    Assert.assertEquals( 1, cats.size() );
+    Assert.assertEquals( 2, cats.size() );
   }
 
   @Test
