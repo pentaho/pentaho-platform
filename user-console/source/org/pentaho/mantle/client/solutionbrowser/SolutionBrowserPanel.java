@@ -451,7 +451,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
       editFile( repositoryFile );
     } else if ( mode == FileCommand.COMMAND.SCHEDULE_NEW ) {
-      ScheduleHelper.createSchedule( repositoryFile );
+      ScheduleHelper.createSchedule( repositoryFile, new ScheduleCallback( repositoryFile ) );
       return;
     } else if ( mode == FileCommand.COMMAND.SHARE ) {
       ShareFileCommand sfc = new ShareFileCommand();
