@@ -28,6 +28,7 @@ import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -175,7 +176,7 @@ public class SystemResource extends AbstractJaxRSResource {
   @Path( "/locale" )
   @Facet ( name = "Unsupported" )
   public Response setLocaleOverride( String locale ) {
-    httpServletRequest.getSession().setAttribute( "locale_override", locale );
+    PentahoSessionHolder.getSession().setAttribute( "locale_override", locale );
     if ( !StringUtils.isEmpty( locale ) ) {
       LocaleHelper.setLocaleOverride( new Locale( locale ) );
     } else {
