@@ -31,30 +31,36 @@ import java.util.Locale;
 
 public interface IPentahoSession extends ILogger, IAuditable {
 
+  /**
+   * Key for searching the tenant ID.
+   */
   public static final String TENANT_ID_KEY = "org.pentaho.tenantId"; //$NON-NLS-1$
 
+  /**
+   * Roles that are authorized in current session.
+   */
   public static final String SESSION_ROLES = "roles"; //$NON-NLS-1$
 
   /**
-   * Gets the name for this session, for example if this is an authenticated HTTP or Portlet session the name will be
-   * the name of the user
+   * Gets the name for this session, for example if this is an authenticated HTTP or Portlet session, the name will be
+   * the name of the user.
    * 
-   * @return Name for this session
+   * @return Returns the name for this session.
    */
   public String getName();
 
   /**
-   * Gets ths id for this session. This is typically a GUID or semi-unique string.
+   * Gets the ID for this session. This is typically a GUID or semi-unique string.
    * 
-   * @return Id for this session
+   * @return Returns the ID for this session.
    */
   public String getId();
 
   /**
-   * Sets the name of the action sequence document that the session is currently performing
+   * Sets the name of the action sequence document that the session is currently performing.
    * 
    * @param actionName
-   *          The name of the action sequence document
+   *          The name of the action sequence document.
    */
   public void setActionName( String actionName );
 
@@ -62,77 +68,77 @@ public interface IPentahoSession extends ILogger, IAuditable {
    * Sets the name of the process for which an action sequence is being performed.
    * 
    * @param processId
-   *          The name of the process
+   *          The name of the process.
    */
   public void setProcessId( String processId );
 
   /**
-   * Destroys any resources owned by the session object
+   * Destroys any resources owned by the session object.
    * 
    */
   public void destroy();
 
   /**
-   * Get the value of a named session attribute
+   * Gets the value of a named session attribute.
    * 
    * @param attributeName
-   *          The name of the attribute
-   * @return The value of the attribute
+   *          The name of the attribute.
+   * @return Returns the value of the attribute.
    */
   public Object getAttribute( String attributeName );
 
   /**
-   * Sets the value of a session attribute
+   * Sets the value of the session attribute.
    * 
    * @param attributeName
-   *          The name of the attribute
+   *          The name of the attribute.
    * @param value
-   *          The value of the attribute
+   *          The value of the attribute.
    */
   public void setAttribute( String attributeName, Object value );
 
   /**
-   * Removes an attribute from the session and returns is
+   * Removes an attribute from the session and returns it.
    * 
    * @param attributeName
-   *          The name of the attribute to remove
-   * @return The value of the removed attribute
+   *          The name of the attribute to remove.
+   * @return Returns the value of the removed attribute.
    */
   public Object removeAttribute( String attributeName );
 
   /**
-   * Returns an enumeration of the names of the attributes stored in the session
+   * Returns an enumeration of the names of the attributes stored in the session.
    * 
-   * @return The enumeration of the attribute names
+   * @return Returns the enumeration of the attributes names.
    */
   @SuppressWarnings( "rawtypes" )
   public Iterator getAttributeNames();
 
   /**
-   * Gets the Locale of the session
+   * Gets the locale of the session.
    * 
-   * @return The Locale of the session
+   * @return Returns the locale of the session.
    */
   public Locale getLocale();
 
   /**
-   * Gets whether the session is known to be authenticated or not
+   * Gets whether the session is known to be authenticated or not.
    * 
-   * @return Is the session authenticated
+   * @return Returns true if the session is authenticated.
    */
   public boolean isAuthenticated();
 
   /**
-   * Sets the name of the session and indicates that the session is authenticated. If this is a HTTP or Portlet session
-   * the name should be the name of the user that is logged in (e.g. using <code>request.getRemoteUser()</code> )
+   * Sets the name of the session and indicates that the session is authenticated. If this is an HTTP or Portlet session
+   * the name should be the name of the user that is logged in (e.g. using <code>request.getRemoteUser()</code> ).
    * 
    * @param name
-   *          The name of the session
+   *          The name of the session.
    */
   public void setAuthenticated( String name );
 
   /**
-   * Sets that the user is no longer authenticated
+   * Sets the indication that the user is no longer authenticated.
    */
   public void setNotAuthenticated();
 
@@ -145,7 +151,7 @@ public interface IPentahoSession extends ILogger, IAuditable {
   /**
    * Checks the status of a background execution task.
    * 
-   * @return True if a background execution has triggered an alert.
+   * @return Returns true if a background execution has triggered an alert.
    */
   public boolean getBackgroundExecutionAlert();
 
