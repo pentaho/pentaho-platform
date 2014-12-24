@@ -18,24 +18,24 @@
 package org.pentaho.platform.api.engine.security;
 
 /**
- * Map ldap roles to pentaho security roles using map defined in spring configuration
- * (applicationContext-spring-security-ldap.xml)
+ * Maps LDAP roles to pentaho security roles using the map defined in the spring configuration file
+ * (applicationContext-spring-security-ldap.xml).
  */
 public interface IAuthenticationRoleMapper {
 
   /**
-   * Take a string name of third party role and return mapped pentaho security role
+   * Takes a string name of third party role and returns the mapped Pentaho security role.
    * 
-   * @param ldapRole
-   * @return pentaho security role
+   * @param ldapRole Third party role.
+   * @return Returns the Pentaho security role.
    */
   public String toPentahoRole( String thirdPartyRole );
 
   /**
-   * Take a pentaho security role and return mapped third party role
+   * Takes a Pentaho security role and returns the mapped third party role.
    * 
-   * @param pentahoRole
-   * @return ldap role
+   * @param pentahoRole Pentaho security role.
+   * @return Returns the third party role.
    */
   public String fromPentahoRole( String pentahoRole );
 

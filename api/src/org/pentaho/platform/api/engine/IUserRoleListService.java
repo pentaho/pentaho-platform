@@ -24,50 +24,50 @@ import java.util.List;
 public interface IUserRoleListService {
 
   /**
-   * Returns all authorities known to the provider. Cannot return <code>null</code>
+   * Returns all authorities known to the provider. Cannot return <code>null</code>.
    * 
-   * @return the authorities (never <code>null</code>)
+   * @return Returns the authorities.  Cannot return <code>null</code>.
    */
   public List<String> getAllRoles();
 
   /**
-   * Returns all System authorities known to the provider. Cannot return <code>null</code>
+   * Returns all system authorities known to the provider. Cannot return <code>null</code>.
    * 
-   * @return the authorities (never <code>null</code>)
+   * @return Returns the authorities.  Cannot return <code>null</code>.
    */
   public List<String> getSystemRoles();
 
   /**
-   * Returns all authorities known to the provider for a given tenant. Cannot return <code>null</code>
+   * Returns all authorities known to the provider for a given tenant. Cannot return <code>null</code>.
    * 
-   * @param tenant
-   * @return the authorities (never <code>null</code>)
+   * @param tenant To be used for searching authorities.
+   * @return Returns the authorities.  Cannot return <code>null</code>.
    */
   public List<String> getAllRoles( ITenant tenant );
 
   /**
-   * Returns all user names known to the provider. Cannot return <code>null</code>
+   * Returns all user names known to the provider. Cannot return <code>null</code>.
    * 
-   * @return the users (never <code>null</code>)
+   * @return Returns the users.  Cannot return <code>null</code>.
    */
   public List<String> getAllUsers();
 
   /**
-   * Returns all user names known to the provider for a given tenant. Cannot return <code>null</code>
+   * Returns all user names known to the provider for a given tenant. Cannot return <code>null</code>.
    * 
-   * @param tenant
-   * @return the users (never <code>null</code>)
+   * @param tenant Tenant to be used for searching users.
+   * @return Returns the users.  Cannot return <code>null</code>.
    */
   public List<String> getAllUsers( ITenant tenant );
 
   /**
-   * Returns all known users in the specified role. Cannot return <code>null</code>
+   * Returns all known users in the specified role. Cannot return <code>null</code>.
    * 
    * @param tenant
-   *          . tenant information
+   *          Tenant information.
    * @param authority
-   *          The authority to look users up by. Cannot be <code>null</code>
-   * @return the users. (never <code>null</code>)
+   *          Indicates the authority to look users up by. Cannot be <code>null</code>.
+   * @return Returns the users with the specified roles in scope of the specified tenant.  Cannot return <code>null</code>.
    */
   public List<String> getUsersInRole( ITenant tenant, String role );
 
@@ -75,10 +75,10 @@ public interface IUserRoleListService {
    * Returns all authorities granted for a specified user.
    * 
    * @param tenant
-   *          information
+   *          Tenant information.
    * @param username
-   *          The name of the user to look up authorities for
-   * @return the authorities. (Never <code>null</code>)
+   *          Indicates the name of the user to look up authorities for.
+   * @return Returns the authorities of the user. Cannot return <code>null</code>.
    */
   public List<String> getRolesForUser( ITenant tenant, String username );
 
