@@ -8,8 +8,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="api" exported="" />
-    <orderEntry type="module" module-name="core" exported="" />
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
@@ -23,6 +21,8 @@
         <jarDirectory url="file://$MODULE_DIR$/test-lib" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="api" exported="" />
+    <orderEntry type="module" module-name="core" exported="" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -40,4 +40,3 @@
     </orderEntry>
   </component>
 </module>
-

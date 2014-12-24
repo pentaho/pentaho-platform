@@ -1,163 +1,171 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.messages.Messages;
-import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 
-import java.io.ByteArrayInputStream;
 import java.util.EnumSet;
-
-import static org.pentaho.platform.repository.RepositoryFilenameUtils.normalize;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Callable;
 
 /**
  * @author Andrey Khayrutdinov
+ * @author Nick Baker
  */
 public class JcrAclNodeHelper implements IAclNodeHelper {
   private static final Log logger = LogFactory.getLog( JcrAclNodeHelper.class );
 
-  private static final String AUTHENTICATED_ROLE = "Authenticated";
-  private static final String ACL_STORE = "acl.store";
+  private static final String IS_ACL_NODE = "IS_ACL_NODE";
+  private static final String TARGET = "TARGET";
 
   private final IUnifiedRepository unifiedRepository;
-  private final String aclNodeFolder;
 
-  public JcrAclNodeHelper( IUnifiedRepository unifiedRepository,
-                           String aclNodeFolder ) {
+  public JcrAclNodeHelper( IUnifiedRepository unifiedRepository) {
     this.unifiedRepository = unifiedRepository;
-    this.aclNodeFolder = StringUtils.defaultIfEmpty( aclNodeFolder, ServerRepositoryPaths.getAclNodeFolderPath() );
   }
 
-  private String getAclNodePath( String filename ) {
-    return normalize( getAclNodeFolder() + RepositoryFile.SEPARATOR + filename );
+  private boolean hasAclNode( final RepositoryFile file ) {
+    return getAclNode( file ) != null;
   }
 
-  private String getAclStorePath( String filename ) {
-    return normalize( getAclNodePath( filename ) + RepositoryFile.SEPARATOR + ACL_STORE );
-  }
-
-  private RepositoryFile getAclNode( String filename ) {
-    return unifiedRepository.getFile( getAclNodePath( filename ) );
-  }
-
-  private RepositoryFile createAclNodeInternal( RepositoryFile folder, String filename ) {
-    return unifiedRepository.createFolder(
-      folder.getId(),
-      new RepositoryFile.Builder( filename ).folder( true ).aclNode( true ).build(),
-      ""
-    );
-  }
-
-  private RepositoryFile getAclNodeRepositoryFolder() {
-    RepositoryFile folder;
+  private RepositoryFile getAclNode( final RepositoryFile file ) {
     try {
-      folder = unifiedRepository.getFile( getAclNodeFolder() );
-    } catch ( Exception t ) {
-      logger.error( Messages.getInstance().getString( "AclNodeHelper.ERROR_0001_ROOT_FOLDER_NOT_AVAILABLE",
-          aclNodeFolder, ServerRepositoryPaths.getAclNodeFolderPath() ) );
-      folder = unifiedRepository.getFile( ServerRepositoryPaths.getAclNodeFolderPath() );
-    }
-    return folder;
-  }
+      return SecurityHelper.getInstance().runAsSystem( new Callable<RepositoryFile>() {
+        @Override public RepositoryFile call() throws Exception {
 
-  private RepositoryFile createAclNode( String filename ) {
-    RepositoryFile folder = getAclNodeRepositoryFolder();
+          List<RepositoryFile> referrers = unifiedRepository.getReferrers( file.getId() );
 
-    RepositoryFile aclNode = createAclNodeInternal( folder, filename );
-    RepositoryFileAcl aclNodeAcl = new RepositoryFileAcl.Builder( unifiedRepository.getAcl( aclNode.getId() ) )
-        .ace( AUTHENTICATED_ROLE, RepositoryFileSid.Type.ROLE, EnumSet.of( RepositoryFilePermission.ALL ) )
-        .build();
-    unifiedRepository.updateAcl( aclNodeAcl );
-    return aclNode;
-  }
+          // Loop through nodes referring to the target file, return the first one designated as an ACL node
+          int i = referrers.size();
+          while ( i-- > 0 ) {
+            RepositoryFile referrer = referrers.get( i );
+            NodeRepositoryFileData dataForRead =
+                unifiedRepository.getDataForRead( referrer.getId(), NodeRepositoryFileData.class );
+            if ( dataForRead != null && dataForRead.getNode().hasProperty( IS_ACL_NODE ) ) {
+              return referrer;
+            }
+          }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override public boolean hasAccess( String dataSourceName, DatasourceType type ) {
-    String resolveName = type.resolveName( dataSourceName );
-
-    String aclNodePath = getAclNodePath( resolveName );
-    try {
-      boolean nodeExists = unifiedRepository.hasAccess( aclNodePath, EnumSet.of( RepositoryFilePermission.READ ) );
-
-      return !nodeExists
-        || unifiedRepository.hasAccess( getAclStorePath( resolveName ), EnumSet.of( RepositoryFilePermission.READ ) );
-    } catch ( UnsupportedOperationException e ) {
-      return true;
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override public RepositoryFileAcl getAclFor( String dataSourceName, DatasourceType type ) {
-    String resolvedDsName = type.resolveName( dataSourceName );
-    RepositoryFile aclNode = getAclNode( resolvedDsName );
-    if ( aclNode == null ) {
+          // No ACL node found
+          return null;
+        }
+      } );
+    } catch ( Exception e ) {
+      logger.error( "Error retriving ACL Node", e );
       return null;
     }
 
-    RepositoryFile aclStore = unifiedRepository.getFile( getAclStorePath( resolvedDsName ) );
-    return ( aclStore == null ) ? null : unifiedRepository.getAcl( aclStore.getId() );
+  }
+
+  @Override public boolean canAccess( final RepositoryFile repositoryFile,
+                                      final EnumSet<RepositoryFilePermission> permissions ) {
+
+    // First check to see if there is an ACL node, this call is done as "system"
+    boolean hasAclNode = hasAclNode( repositoryFile );
+
+    // If no ACL node is present, it's a public resource
+    if ( !hasAclNode ) {
+      return true;
+    }
+
+    // Obtain a reference to ACL node as "system", guaranteed access
+    final RepositoryFile aclNode = getAclNode( repositoryFile );
+
+    // Check to see if user has READ access to file, this will throw and exception if not.
+    try {
+      unifiedRepository.getFile( aclNode.getPath() );
+    } catch ( Exception e ) {
+      logger.warn( "Error checking access for file", e );
+      return false;
+    }
+
+    // if read passed, check the other permissions
+    return unifiedRepository.hasAccess( aclNode.getPath(), permissions );
+
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override public RepositoryFileAcl getAclFor( final RepositoryFile repositoryFile ) {
+
+    boolean hasAclNode = hasAclNode( repositoryFile );
+    if ( !hasAclNode ) {
+      return null;
+    }
+
+    return unifiedRepository.getAcl( getAclNode( repositoryFile ).getId() );
+
   }
 
   /**
    * {@inheritDoc}
    */
-  @Override public void setAclFor( String dataSourceName, DatasourceType type, RepositoryFileAcl acl ) {
-    String resolvedName = type.resolveName( dataSourceName );
+  @Override public void setAclFor( final RepositoryFile fileToAddAclFor, final RepositoryFileAcl acl ) {
 
-    RepositoryFile aclNode = getAclNode( resolvedName );
+    try {
+      SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
+        @Override public Void call() throws Exception {
+          RepositoryFile aclNode = getAclNode( fileToAddAclFor );
 
-    if ( acl == null ) {
-      if ( aclNode != null ) {
-        RepositoryFile aclStore = unifiedRepository.getFile( getAclStorePath( resolvedName ) );
-        if ( aclStore != null ) {
-          unifiedRepository.deleteFile( aclStore.getId(), true,
-              Messages.getInstance().getString( "AclNodeHelper.WARN_0002_REMOVE_ACL_STORE", aclStore.getPath() ) );
+          if ( acl == null ) {
+            if ( aclNode != null ) {
+              unifiedRepository.deleteFile( aclNode.getId(), true,
+                  Messages.getInstance().getString( "AclNodeHelper.WARN_0001_REMOVE_ACL_NODE", aclNode.getPath() ) );
+            }
+            // ignore if no ACL node is present.
+          } else {
+            if ( aclNode == null ) {
+              // Create ACL Node with reference to given file.
+              aclNode = createAclNode( fileToAddAclFor );
+            }
+            // Update ACL on file.
+            RepositoryFileAcl existing = unifiedRepository.getAcl( aclNode.getId() );
+            RepositoryFileAcl updated =
+                new RepositoryFileAcl.Builder( existing )
+                    .clearAces()
+                    .entriesInheriting( false )
+                    .aces( acl.getAces() )
+                    .build();
+            unifiedRepository.updateAcl( updated );
+          }
+          return null;
         }
-
-        unifiedRepository.deleteFile( aclNode.getId(), true,
-            Messages.getInstance().getString( "AclNodeHelper.WARN_0001_REMOVE_ACL_NODE", aclNode.getPath() ) );
-      }
-    } else {
-      if ( aclNode == null ) {
-        aclNode = createAclNode( resolvedName );
-      }
-
-      String aclStoreName = getAclStorePath( resolvedName );
-      RepositoryFile aclStore = unifiedRepository.getFile( aclStoreName );
-      if ( aclStore == null ) {
-        aclStore = unifiedRepository.createFile(
-          aclNode.getId(),
-          new RepositoryFile.Builder( ACL_STORE ).aclNode( true ).build(),
-          new SimpleRepositoryFileData( new ByteArrayInputStream( new byte[ 0 ] ), "", "" ),
-          ""
-        );
-      }
-      RepositoryFileAcl existing = unifiedRepository.getAcl( aclStore.getId() );
-      RepositoryFileAcl updated = new RepositoryFileAcl.Builder( existing ).aces( acl.getAces() ).build();
-      unifiedRepository.updateAcl( updated );
+      } );
+    } catch ( Exception e ) {
+      logger.error( "Error setting ACL on node: " + fileToAddAclFor.getPath(), e );
     }
   }
 
-  @Override public void publishDatasource( String dataSourceName, DatasourceType type ) {
-    setAclFor( dataSourceName, type, null );
+  private RepositoryFile createAclNode( RepositoryFile fileToAddAclFor ) {
+
+    DataNode dataNode = new DataNode( "acl node" );
+    DataNodeRef dataNodeRef = new DataNodeRef( fileToAddAclFor.getId() );
+    dataNode.setProperty( TARGET, dataNodeRef );
+    dataNode.setProperty( IS_ACL_NODE, true );
+    NodeRepositoryFileData nodeRepositoryFileData = new NodeRepositoryFileData( dataNode );
+
+    return unifiedRepository.createFile(
+        unifiedRepository.getFile( "/" ).getId(),
+        new RepositoryFile.Builder( UUID.randomUUID().toString() ).build(),
+        nodeRepositoryFileData, ""
+    );
+
   }
 
-  @Override public void removeAclNodeFor( String dataSourceName, DatasourceType type ) {
-    setAclFor( dataSourceName, type, null );
+  @Override public void removeAclFor( RepositoryFile file ) {
+    setAclFor( file, null );
   }
 
-  @Override public String getAclNodeFolder() {
-    return aclNodeFolder;
-  }
 }

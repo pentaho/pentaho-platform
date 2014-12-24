@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -41,10 +42,12 @@ import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 
 public class SolutionRepositoryVfsFileObject implements FileObject {
@@ -117,8 +120,10 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
       name = fileUrl.split( "/" )[3];
     }
 
-    if ( getAclHelper().hasAccess( name, IAclNodeHelper.DatasourceType.MONDRIAN ) ) {
-      repositoryFile = getRepository().getFile( fileUrl );
+    repositoryFile = getRepository().getFile( fileUrl );
+    if ( !getAclHelper().canAccess( repositoryFile,  EnumSet.of(
+        RepositoryFilePermission.READ) ) ) {
+      repositoryFile = null;
     }
   }
 
@@ -277,12 +282,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
 
   protected synchronized IAclNodeHelper getAclHelper() {
     if ( aclHelper == null ) {
-      ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
-      String alcFolder = null;
-      if ( systemConfig != null && systemConfig.getConfiguration( "repository" ) != null ) {
-        alcFolder = systemConfig.getProperty( "repository.aclNodeFolder" );
-      }
-      aclHelper = new JcrAclNodeHelper( getRepository(), alcFolder );
+      aclHelper = new JcrAclNodeHelper( getRepository() );
     }
     return aclHelper;
   }

@@ -3,7 +3,10 @@ package org.pentaho.platform.repository.solution.filebased;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+
+import java.util.EnumSet;
 
 import static org.mockito.Mockito.*;
 
@@ -12,16 +15,17 @@ public class SolutionRepositoryVfsFileObjectTest {
 
   @Test
   public void initFileTest() throws Exception {
-    String datasource = "SteelWheels";
+
     String fileRef = "/etc/mondrian/SteelWheels/schema.xml";
     SolutionRepositoryVfsFileObject fileObject = new SolutionRepositoryVfsFileObject( fileRef );
     SolutionRepositoryVfsFileObject fileObjectSpy = spy( fileObject );
 
     IAclNodeHelper aclNodeHelper = mock( IAclNodeHelper.class );
     doReturn( aclNodeHelper ).when( fileObjectSpy ).getAclHelper();
-    doReturn( true ).when( aclNodeHelper ).hasAccess( datasource, IAclNodeHelper.DatasourceType.MONDRIAN );
 
     RepositoryFile file = mock( RepositoryFile.class );
+    doReturn( true ).when( aclNodeHelper ).canAccess( file, EnumSet.of( RepositoryFilePermission.READ ) );
+
 
     IUnifiedRepository repository = mock( IUnifiedRepository.class );
     doReturn( file ).when( repository ).getFile( fileRef );
@@ -36,7 +40,7 @@ public class SolutionRepositoryVfsFileObjectTest {
     fileObjectSpy = spy( fileObject );
 
     doReturn( aclNodeHelper ).when( fileObjectSpy ).getAclHelper();
-    doReturn( false ).when( aclNodeHelper ).hasAccess( datasource, IAclNodeHelper.DatasourceType.MONDRIAN );
+    doReturn( false ).when( aclNodeHelper ).canAccess( file, EnumSet.of( RepositoryFilePermission.READ ) );
     doReturn( repository ).when( fileObjectSpy ).getRepository();
 
     fileObjectSpy.getName();
