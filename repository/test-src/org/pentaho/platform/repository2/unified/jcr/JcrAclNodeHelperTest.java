@@ -156,6 +156,37 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     assertTrue( "Referrers should be null after ACL delete", repo.getReferrers( targetFile.getId() ).size() == 0 );
   }
 
+  @Test
+  public void cannotDeleteTargetWithAclNode() {
+    makeDsPrivate();
+
+    loginAsRepositoryAdmin();
+    try {
+      repo.deleteFile( targetFile.getId(), true, "I cannot be killed" );
+      fail("Should have thrown Referential Integrity Exception");
+    } catch( Exception e ){
+      assertTrue( repo.getFile( targetFile.getPath() ) != null );
+    }
+
+  }
+
+  @Test
+  public void canDeleteTargetIfAclNodeRemoved() {
+    makeDsPrivate();
+
+    loginAsRepositoryAdmin();
+    helper.setAclFor( targetFile, null );
+    repo.deleteFile( targetFile.getId(), true, "I can be killed" );
+
+    try{
+      repo.getFile( targetFile.getPath() );
+      fail("Should have thrown PathNotFoundException");
+    } catch ( Exception e ){
+
+    }
+
+  }
+
 
   private void makeDsPrivate() {
     loginAsRepositoryAdmin();
