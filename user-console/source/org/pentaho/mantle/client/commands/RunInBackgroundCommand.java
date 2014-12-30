@@ -30,11 +30,16 @@ import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.Window;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
+import org.pentaho.mantle.client.dialogs.scheduling.ScheduleCreateStatusDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsDialog;
@@ -42,6 +47,7 @@ import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 
 import java.util.Date;
 
@@ -283,6 +289,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
                       ScheduleParamsDialog dialog =
                           new ScheduleParamsDialog( filePath, scheduleRequest, isEmailConfValid );
                       dialog.center();
+                      dialog.setAfterResponseCallback( scheduleParamsDialogCallback );
                     } else if ( isEmailConfValid ) {
                       ScheduleEmailDialog scheduleEmailDialog =
                           new ScheduleEmailDialog( null, filePath, scheduleRequest, null, null );
@@ -355,4 +362,26 @@ public class RunInBackgroundCommand extends AbstractCommand {
     }
   }
 
+  ScheduleParamsDialog.IAfterResponse scheduleParamsDialogCallback = new ScheduleParamsDialog.IAfterResponse() {
+    @Override
+    public void onResponse( JSONValue rib ) {
+      if ( rib != null && rib.isBoolean() != null && rib.isBoolean().booleanValue() ) {
+        MessageDialogBox dialogBox =
+            new MessageDialogBox(
+                Messages.getString( "runInBackground" ), Messages.getString( "backgroundExecutionStarted" ), //$NON-NLS-1$ //$NON-NLS-2$
+                false, false, true );
+        dialogBox.center();
+      } else if ( !PerspectiveManager.getInstance().getActivePerspective().getId().equals(
+          PerspectiveManager.SCHEDULES_PERSPECTIVE ) ) {
+        ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
+        successDialog.center();
+      } else {
+        MessageDialogBox dialogBox =
+            new MessageDialogBox(
+                Messages.getString( "scheduleUpdatedTitle" ), Messages.getString( "scheduleUpdatedMessage" ), //$NON-NLS-1$ //$NON-NLS-2$ 
+                false, false, true );
+        dialogBox.center();
+      }
+    }
+  };
 }

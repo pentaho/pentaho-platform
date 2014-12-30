@@ -19,6 +19,7 @@ package org.pentaho.mantle.client.solutionbrowser.filelist;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
+
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.commands.ExportFileCommand;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
@@ -28,8 +29,10 @@ import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
+import org.pentaho.mantle.client.solutionbrowser.ScheduleCallback;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
+
 import java.util.List;
 
 public class FileCommand implements Command {
@@ -91,7 +94,8 @@ public class FileCommand implements Command {
     } else if ( mode == COMMAND.BACKGROUND ) {
       new RunInBackgroundCommand( selectedItem ).execute( true );
     } else if ( mode == COMMAND.SCHEDULE_NEW ) {
-      ScheduleHelper.createSchedule( selectedItem.getRepositoryFile() );
+      ScheduleHelper.createSchedule( selectedItem.getRepositoryFile(), new ScheduleCallback( selectedItem
+          .getRepositoryFile() ) );
     } else if ( mode == COMMAND.SHARE ) {
       new ShareFileCommand().execute();
     } else if ( mode == COMMAND.IMPORT ) {
