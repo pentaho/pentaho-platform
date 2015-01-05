@@ -26,9 +26,9 @@ public interface IDocumentEvent {
   /**
    * Gets the document to which this event occurred.
    *
-   * @return the IMetaverseDocument instance to which this event occurred.
+   * @return the IDocument instance to which this event occurred.
    */
-  IMetaverseDocument getDocument();
+  IDocument getDocument();
 
   /**
    * Gets the type of this document event

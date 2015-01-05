@@ -20,10 +20,10 @@ package org.pentaho.platform.api.metaverse;
 import java.util.Set;
 
 /**
- * The IDocumentAnalyzer interface represents an object capable of analyzing certain types of IMetaverseDocuments.
+ * The IDocumentAnalyzer interface represents an object capable of analyzing certain types of documents.
  * 
  */
-public interface IDocumentAnalyzer extends IAnalyzer<IMetaverseDocument> {
+public interface IDocumentAnalyzer<S> extends IAnalyzer<S, IDocument> {
 
   /**
    * Gets the types of documents supported by this analyzer

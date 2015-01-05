@@ -18,11 +18,11 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * IMetaverseComponentDescriptor is a contract for an object that can describe a metaverse component. For example, it
+ * IComponentDescriptor is a contract for an object that can describe a metaverse component. For example, it
  * could contain name, type, and namespace information for a particular document. The metadata about the component and
  * the component itself are separated to allow for maximum flexibility.
  */
-public interface IMetaverseComponentDescriptor extends IIdentifiable, INamespace {
+public interface IComponentDescriptor extends IIdentifiable, INamespace {
 
   /**
    * Sets the namespace for the component described by this descriptor.

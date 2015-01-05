@@ -18,9 +18,9 @@
 package org.pentaho.platform.api.metaverse;
 
 /**
- * The IMetaverseDocument interface represents a document in the metaverse.
+ * The IDocument interface represents a document in the metaverse.
  */
-public interface IMetaverseDocument extends IMetaverseComponentDescriptor, IIdentifierModifiable, IHasProperties {
+public interface IDocument extends IComponentDescriptor, IIdentifierModifiable, IHasProperties {
 
   /**
    * Gets the object representing the content of this document
