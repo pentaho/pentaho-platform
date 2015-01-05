@@ -27,9 +27,9 @@ public interface IMetaverseObjectFactory {
   /**
    * Creates a new metaverse document object.
    * 
-   * @return the new IMetaverseDocument instance
+   * @return the new IDocument instance
    */
-  IMetaverseDocument createDocumentObject();
+  IDocument createDocumentObject();
 
   /**
    * Creates a new metaverse node object and adds it to the current metaverse
