@@ -179,6 +179,11 @@ public class SchedulesPanel extends SimplePanel {
       // Remove Next Line to disable deletion of old job
       controlJobs( getSelectedJobs(), "removeJob", RequestBuilder.DELETE, true );
       refresh();
+
+      MessageDialogBox dialogBox =
+          new MessageDialogBox(
+              Messages.getString( "scheduleUpdatedTitle" ), Messages.getString( "scheduleUpdatedMessage" ), false, false, true ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+      dialogBox.center();
     }
 
     public void cancelPressed() {

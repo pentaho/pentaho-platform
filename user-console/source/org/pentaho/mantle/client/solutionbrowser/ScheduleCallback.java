@@ -21,7 +21,20 @@ public class ScheduleCallback implements IDialogCallback {
     }
 
     if ( SolutionBrowserPanel.getInstance().getExecutableFileExtensions().contains( extension ) ) {
-      ScheduleHelper.showScheduleDialog( repositoryFile.getPath() );
+
+      IDialogCallback callback = new IDialogCallback() {
+        @Override
+        public void okPressed() {
+          ScheduleCreateStatusDialog dialog = new ScheduleCreateStatusDialog();
+          dialog.center();
+        }
+
+        @Override
+        public void cancelPressed() {
+        }
+      };
+
+      ScheduleHelper.showScheduleDialog( repositoryFile.getPath(), callback );
     } else {
       final MessageDialogBox dialogBox =
           new MessageDialogBox(
