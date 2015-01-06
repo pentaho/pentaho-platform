@@ -47,10 +47,19 @@ public class PentahoSessionHolder {
 
   private static final Log logger = LogFactory.getLog( PentahoSessionHolder.class );
 
+  /**
+   * Inheritable local strategy.
+   */
   public static final String MODE_INHERITABLETHREADLOCAL = "MODE_INHERITABLETHREADLOCAL"; //$NON-NLS-1$
 
+  /**
+   * Global strategy.
+   */
   public static final String MODE_GLOBAL = "MODE_GLOBAL"; //$NON-NLS-1$
 
+  /**
+   * Key for finding session holder strategy.
+   */
   public static final String SYSTEM_PROPERTY = "pentaho.sessionHolder.strategy"; //$NON-NLS-1$
 
   private static String strategyName = System.getProperty( SYSTEM_PROPERTY );
@@ -67,6 +76,9 @@ public class PentahoSessionHolder {
   // ~ Constructors
   // ====================================================================================================
 
+  /**
+   * Default constructor.
+   */
   public PentahoSessionHolder() {
     super();
   }
@@ -75,18 +87,18 @@ public class PentahoSessionHolder {
   // =========================================================================================================
 
   /**
-   * Sets an IPentahoSession for the current thread
+   * Sets an IPentahoSession for the current thread.
    * 
-   * @param session
+   * @param session Session to be set.
    */
   public static void setSession( IPentahoSession session ) {
     strategy.setSession( session );
   }
 
   /**
-   * Returns the IPentahoSession for the current thread
+   * Returns the IPentahoSession for the current thread.
    * 
-   * @return thread session
+   * @return Returns the thread session.
    */
   public static IPentahoSession getSession() {
     return strategy.getSession();
@@ -94,12 +106,15 @@ public class PentahoSessionHolder {
 
   /**
    * Removes the IPentahoSession for the current thread. It is important that the framework calls this to prevent
-   * session bleed- through between requests as threads are re-used by the server.
+   * session "bleed-through" between requests as threads are reused by the server.
    */
   public static void removeSession() {
     strategy.removeSession();
   }
 
+  /**
+   * Initializes the session holder with the previously set strategy name. 
+   */
   private static void initialize() {
     if ( ( strategyName == null ) || "".equals( strategyName ) ) { //$NON-NLS-1$
       strategyName = MODE_INHERITABLETHREADLOCAL;
@@ -124,6 +139,13 @@ public class PentahoSessionHolder {
 
   }
 
+  /**
+   * Sets the behavior of the session.
+   * Valid values are: {@code MODE_INHERITABLETHREADLOCAL} and {@code MODE_GLOBAL}.
+   * The changes to the strategy are applied immediately.
+   * 
+   * @param strategyName Name of the strategy to be used.
+   */
   public static void setStrategyName( final String strategyName ) {
     PentahoSessionHolder.strategyName = strategyName;
     initialize();

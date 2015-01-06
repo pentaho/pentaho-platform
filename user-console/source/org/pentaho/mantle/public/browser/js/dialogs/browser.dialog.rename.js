@@ -21,11 +21,12 @@ define([
   "js/dialogs/browser.dialog.rename.templates",
   "js/browser.utils.js",
   "common-ui/util/URLEncoder",
+  "dojox/html/entities",
   "common-ui/bootstrap",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery",
   "../../../../js/utils.js"  
-], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder) {
+], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder, Entities) {
 
   var BrowserUtils = new Utils();
 
@@ -87,6 +88,8 @@ define([
       if (m != null) {
 	      var i18n = me.view.options.i18n;
 	      var body = i18n.prop("invalidCharactersDialogDescription", name, invalidCharacters);
+	      //preventing XSS
+	      body = Entities.encode( body );
 	      me.view.createCannotRenameDialog(body, me.view).show(me.view);
         setPrevVals.apply(me);
       }else{

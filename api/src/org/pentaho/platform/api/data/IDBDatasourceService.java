@@ -20,7 +20,8 @@ package org.pentaho.platform.api.data;
 import javax.sql.DataSource;
 
 /**
- * This interface defines Pentaho's DatasourceService API
+ * This interface defines Pentaho's DatasourceService API. You should implement it
+ * if you want to create your own DB data sources management system.
  * 
  * @author Ramaiz Mansoor (rmansoor@pentaho.org)
  * 
@@ -52,49 +53,52 @@ public interface IDBDatasourceService {
   public static final String INITIAL_SIZE = "initialSize";
 
   /**
-   * This method clears the JNDI DS cache. The need exists because after a JNDI connection edit the old DS must be
+   * This method clears the whole JNDI data source cache. The need exists because after a JNDI connection is edited the old data source must be
    * removed from the cache.
    */
   public void clearCache();
 
   /**
-   * This method clears the JNDI DS cache. The need exists because after a JNDI connection edit the old DS must be
+   * This method clears the specified JNDI data source from cache. 
+   * The need exists because after a JNDI connection is edited the old data source must be
    * removed from the cache.
+   * 
+   * @param dsName  The name of the data source to be removed from the cache.
    */
   public void clearDataSource( String dsName );
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
-   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
-   * jndi name.
+   * Since JNDI is supported in different ways by different application servers, it's nearly impossible to have a standard
+   * way to look up a data source.  This method hides all of the lookups that may be required to find a
+   * JNDI name.
    * 
    * @param dsName
-   *          The Datasource name
-   * @return DataSource if there is one bound in JNDI
+   *          The data source name.
+   * @return Returns DataSource if there is one bound in JNDI.
    * @throws DBDatasourceServiceException
    */
   public DataSource getDataSource( String dsName ) throws DBDatasourceServiceException;
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
-   * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
-   * jndi name, and return the actual bound name.
+   * Since JNDI is supported in different ways by different application servers, it's nearly impossible to have a standard
+   * way to look up a data source. This method hides all the lookups that may be required to find a
+   * JNDI name, and returns the actual bound name.
    * 
    * @param dsName
-   *          The Datasource name (like SampleData)
-   * @return The bound DS name if it is bound in JNDI (like "jdbc/SampleData")
+   *          The Datasource name (e.g. SampleData).
+   * @return Returns the bound data source name if it is bound in JNDI (e.g. "jdbc/SampleData").
    * @throws DBDatasourceServiceException
    */
   public String getDSBoundName( String dsName ) throws DBDatasourceServiceException;
 
   /**
-   * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
-   * way to look up a datasource. This method is intended to extract just the regular name of a specified JNDI
+   * Since JNDI is supported in different ways by different application servers, it's nearly impossible to have a standard
+   * way to look up a data source. This method extracts the regular name of a specified JNDI
    * source.
    * 
    * @param dsName
-   *          The Datasource name (like "jdbc/SampleData")
-   * @return The unbound DS name (like "SampleData")
+   *          The data source name (e.g. "jdbc/SampleData").
+   * @return Returns the unbound data source name (e.g. "SampleData").
    */
   public String getDSUnboundName( String dsName );
 }
