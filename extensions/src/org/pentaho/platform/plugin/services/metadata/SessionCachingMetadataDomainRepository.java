@@ -30,27 +30,26 @@ import org.pentaho.metadata.util.SecurityHelper;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
-import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * This is the platform implementation which provides session-based caching for an existing
- * {@link IMetadataDomainRepository}.
+ * This is the platform implementation which provides session-based caching for an existing {@link
+ * IMetadataDomainRepository}.
  *
  * @author Jordan Ganoff (jganoff@pentaho.com)
  */
 public class SessionCachingMetadataDomainRepository implements IMetadataDomainRepository,
-    org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter, ILogoutListener {
+  org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter, ILogoutListener {
 
   private static final Log logger = LogFactory.getLog( SessionCachingMetadataDomainRepository.class );
 
@@ -61,9 +60,9 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
 
   private ICacheManager cacheManager;
 
-  private IAclNodeHelper aclHelper;
+  private final IAclNodeHelper aclHelper;
 
-  private IMetadataDomainRepository delegate;
+  private final IMetadataDomainRepository delegate;
   private static final String DOMAIN_CACHE_KEY_PREDICATE = "domain-id-cache-for-session:";
 
   /**
@@ -75,7 +74,8 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     public String sessionId;
     public String domainId;
 
-    protected CacheKey() { }
+    protected CacheKey() {
+    }
 
     public CacheKey( String sessionId, String domainId ) {
       this.sessionId = sessionId;
@@ -124,6 +124,13 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
       throw new NullPointerException();
     }
     this.delegate = delegate;
+
+    if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter ) {
+      aclHelper = ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).getAclHelper();
+    } else {
+      aclHelper = null;
+    }
+
     cacheManager = PentahoSystem.getCacheManager( null ); // cache manager gets loaded just once...
     if ( cacheManager != null ) {
       if ( !cacheManager.cacheEnabled( CACHE_REGION ) ) {
@@ -133,7 +140,8 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
       }
     }
     if ( cacheManager == null ) {
-      throw new IllegalStateException( getClass().getSimpleName() + " (" + CACHE_REGION + ") cannot be initialized" ); //$NON-NLS-1$ //$NON-NLS-2$
+      throw new IllegalStateException(
+        getClass().getSimpleName() + " (" + CACHE_REGION + ") cannot be initialized" ); //$NON-NLS-1$ //$NON-NLS-2$
     }
     PentahoSystem.addLogoutListener( this ); // So you can remove a users' region when their session disappears
   }
@@ -145,10 +153,8 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     /**
      * Will be called for each cache key found
      *
-     * @param cacheManager
-     *          The cache manager we're iterating through
-     * @param key
-     *          Key from cache manager
+     * @param cacheManager The cache manager we're iterating through
+     * @param key          Key from cache manager
      * @return Returning false will cause the look that is calling this callback to break
      */
     public Boolean call( final ICacheManager cacheManager, final CacheKey key );
@@ -171,8 +177,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   /**
    * Calls the callback for every key in the cache region
    *
-   * @param callback
-   *          {@see CacheCallback}
+   * @param callback {@see CacheCallback}
    */
   protected void forAllKeys( final CacheIteratorCallback callback ) {
     try {
@@ -201,10 +206,8 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   /**
    * Calls the callback for every key in the cache region whose session id matches the provided session's id.
    *
-   * @param session
-   *          Session to use for matching keys
-   * @param callback
-   *          {@see CacheCallback}
+   * @param session  Session to use for matching keys
+   * @param callback {@see CacheCallback}
    */
   protected void forAllKeysInSession( final IPentahoSession session, final CacheIteratorCallback callback ) {
     forAllKeys( new CacheIteratorCallback() {
@@ -229,7 +232,10 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Found domain in cache: " + key ); //$NON-NLS-1$
       }
-      if ( !getAclHelper().hasAccess( id, IAclNodeHelper.DatasourceType.METADATA ) ) {
+      if ( aclHelper != null &&
+        !aclHelper
+          .canAccess( ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).getDomainRepositoryFile( id ),
+            EnumSet.of( RepositoryFilePermission.READ ) ) ) {
         purgeDomain( domain.getId() );
         domain = null;
       }
@@ -251,8 +257,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   /**
    * Remove all cache entries whose domain's id is equal to {@code domainId}.
    *
-   * @param domainId
-   *          Domain id to remove from cache
+   * @param domainId Domain id to remove from cache
    */
   private void purgeDomain( final String domainId ) {
     forAllKeys( new CacheIteratorCallback() {
@@ -392,7 +397,9 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
       boolean dirtyCache = false;
 
       for ( String domain : domainIds ) {
-        if ( !getAclHelper().hasAccess( domain, IAclNodeHelper.DatasourceType.METADATA ) ) {
+        if ( aclHelper != null && !aclHelper.canAccess(
+          ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).getDomainRepositoryFile( domain ),
+          EnumSet.of( RepositoryFilePermission.READ ) ) ) {
           domainIds.remove( domain );
           removeDomainFromIDCache( domain );
           dirtyCache = true;
@@ -410,22 +417,6 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     domainIds = delegate.getDomainIds();
     cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
     return domainIds;
-  }
-
-  protected synchronized IAclNodeHelper getAclHelper() {
-    if ( aclHelper == null ) {
-      ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
-      String alcFolder = null;
-      if ( systemConfig != null && systemConfig.getConfiguration( "repository" ) != null ) {
-        alcFolder = systemConfig.getProperty( "repository.aclNodeFolder" );
-      }
-      aclHelper = new JcrAclNodeHelper( PentahoSystem.get( IUnifiedRepository.class ), alcFolder );
-    }
-    return aclHelper;
-  }
-
-  public void setAclHelper( IAclNodeHelper helper ) {
-    this.aclHelper = helper;
   }
 
   @Override
@@ -446,7 +437,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   public Map<String, InputStream> getDomainFilesData( final String domainId ) {
     if ( delegate instanceof org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter ) {
       return ( (org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter) delegate )
-          .getDomainFilesData( domainId );
+        .getDomainFilesData( domainId );
     } else {
       throw new UnsupportedOperationException( "Exporting is not supported by this Metadata Domain Repository" );
     }

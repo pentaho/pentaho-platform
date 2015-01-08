@@ -231,7 +231,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate,
         this.repositoryFileDao ) );
     mp.defineInstance( "ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver() );
-    mp.defineInstance("useMultiByteEncoding", Boolean.FALSE );
+    mp.defineInstance( "useMultiByteEncoding", Boolean.FALSE );
     mp.defineInstance( IUnifiedRepository.class, repo );
     mp.defineInstance( IRepositoryFileAclDao.class, repositoryFileAclDao );
     IUserRoleListService userRoleListService = mock( IUserRoleListService.class );
@@ -239,6 +239,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
         Arrays.asList( tenantAdminRoleName, AUTHENTICATED_ROLE_NAME ) );
     mp.defineInstance( IUserRoleListService.class, userRoleListService );
     mp.defineInstance( "singleTenantAdminUserName", singleTenantAdminUserName );
+    mp.defineInstance( "singleTenantAdminAuthorityName", tenantAdminRoleName );
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
