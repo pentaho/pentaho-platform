@@ -5,11 +5,15 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.messages.Messages;
 
@@ -61,7 +65,7 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
         }
       } );
     } catch ( Exception e ) {
-      logger.error( "Error retriving ACL Node", e );
+      logger.error( "Error retrieving ACL Node", e );
       return null;
     }
 
@@ -83,7 +87,7 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
 
     // Check to see if user has READ access to file, this will throw and exception if not.
     try {
-      unifiedRepository.getFile( aclNode.getPath() );
+      unifiedRepository.getFileById( aclNode.getId() );
     } catch ( Exception e ) {
       logger.warn( "Error checking access for file", e );
       return false;
@@ -105,8 +109,19 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
       return null;
     }
 
-    return unifiedRepository.getAcl( getAclNode( repositoryFile ).getId() );
+    //add the Administrator role
+    RepositoryFileAcl acl = unifiedRepository.getAcl( getAclNode( repositoryFile ).getId() );
+    RepositoryFileAcl.Builder aclBuilder = new RepositoryFileAcl.Builder( acl.getId(), acl.getOwner().getName(),
+        RepositoryFileSid.Type.ROLE );
+    aclBuilder.aces( acl.getAces() );
 
+    String adminRoleName =
+        PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
+
+    RepositoryFileAce adminGroup = new RepositoryFileAce( new RepositoryFileSid( adminRoleName,
+        RepositoryFileSid.Type.ROLE ), RepositoryFilePermission.ALL );
+    aclBuilder.ace( adminGroup );
+    return aclBuilder.build();
   }
 
   /**
@@ -134,8 +149,6 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
             RepositoryFileAcl existing = unifiedRepository.getAcl( aclNode.getId() );
             RepositoryFileAcl updated =
                 new RepositoryFileAcl.Builder( existing )
-                    .clearAces()
-                    .entriesInheriting( false )
                     .aces( acl.getAces() )
                     .build();
             unifiedRepository.updateAcl( updated );
