@@ -1,6 +1,7 @@
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 
 import java.io.InputStream;
@@ -24,4 +25,10 @@ public interface IAclAwareMondrianCatalogService extends IMondrianCatalogService
    */
   void addCatalog( InputStream inputStream, MondrianCatalog catalog, boolean overwriteInRepository,
                    RepositoryFileAcl acl, IPentahoSession session );
+
+  /**
+   * Never returns <tt>null</tt>.
+   * @return    an ACL helper instance
+   */
+  IAclNodeHelper getAclHelper();
 }

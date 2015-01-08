@@ -2,10 +2,12 @@ package org.pentaho.platform.repository2.unified.jcr;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
@@ -16,6 +18,8 @@ import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.jcr.PathNotFoundException;
+import javax.jcr.ReferentialIntegrityException;
 import java.util.EnumSet;
 
 import static org.junit.Assert.*;
@@ -24,8 +28,6 @@ import static org.junit.Assert.*;
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" } )
 public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
-
-  private static final String DS_NAME = "test.txt";
 
   private JcrAclNodeHelper helper;
   private ITenant defaultTenant;
@@ -144,7 +146,7 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     makeDsPrivate();
 
     loginAsRepositoryAdmin();
-    assertTrue( "No ACL node was created", repo.getReferrers( targetFile.getId() ).size() > 0 );
+    assertTrue( "No ACL node was created", !repo.getReferrers( targetFile.getId() ).isEmpty() );
   }
 
   @Test
@@ -153,7 +155,7 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
 
     loginAsRepositoryAdmin();
     helper.setAclFor( targetFile, null );
-    assertTrue( "Referrers should be null after ACL delete", repo.getReferrers( targetFile.getId() ).size() == 0 );
+    assertTrue( "Referrers should be null after ACL delete", repo.getReferrers( targetFile.getId() ).isEmpty() );
   }
 
   @Test
@@ -178,15 +180,39 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     helper.setAclFor( targetFile, null );
     repo.deleteFile( targetFile.getId(), true, "I can be killed" );
 
-    try{
+    Throwable pathNotFound = null;
+    try {
       repo.getFile( targetFile.getPath() );
-      fail("Should have thrown PathNotFoundException");
-    } catch ( Exception e ){
-
+    } catch ( Throwable e ) {
+      while ( e != null ) {
+        if (e instanceof PathNotFoundException) {
+          pathNotFound = e;
+          e = null;
+        } else {
+          e = e.getCause();
+        }
+      }
     }
-
+    assertNotNull( pathNotFound );
   }
 
+  @Test
+  public void administratorRoleIsAdded() {
+    makeDsPrivate();
+    loginAsSuzy();
+
+    RepositoryFileAcl aclReturned = helper.getAclFor( targetFile );
+    boolean adminPresent = false;
+
+    for( RepositoryFileAce ace : aclReturned.getAces() ){
+      if( ace.getSid().getName() == tenantAdminRoleName ) {
+        adminPresent = true;
+        break;
+      }
+    }
+
+    assertTrue( adminPresent );
+  }
 
   private void makeDsPrivate() {
     loginAsRepositoryAdmin();
