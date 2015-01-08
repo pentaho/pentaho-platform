@@ -21,15 +21,19 @@ package org.pentaho.platform.plugin.services.metadata;
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.model.concept.types.LocaleType;
 import org.pentaho.metadata.util.LocalizationUtil;
 import org.pentaho.metadata.util.XmiParser;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
+import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
 import java.io.ByteArrayInputStream;
@@ -41,6 +45,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
 /**
  * Class Description
  *
@@ -71,14 +77,29 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     // System.err.println("tempDir = " + tempDir.getAbsolutePath());
     // repository = new FileSystemBackedUnifiedRepository(tempDir);
     // new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null);
+
+    final IPentahoSession mockSession = Mockito.mock(IPentahoSession.class);
+    PentahoSessionHolder.setSession( mockSession );
+
     repository.deleteFile( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ).getId(), true, null );
     assertNotNull( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ) );
 
     final MockXmiParser xmiParser = new MockXmiParser();
     domainRepository = createDomainRepository( repository, null, xmiParser, null );
+
+
+
+    IAclNodeHelper helper = Mockito.mock( IAclNodeHelper.class );
+    doReturn( true ).when( helper ).hasAccess( "dsaasdads", IAclNodeHelper.DatasourceType.METADATA );
+    domainRepository.setAclHelper( helper );
+/*
+    PentahoMetadataDomainRepository mockit = Mockito.mock( PentahoMetadataDomainRepository.class );
+    doReturn( helper ).when( mockit ).getAclHelper();
+*/
     while ( domainRepository.getDomainIds().size() > 0 ) {
       domainRepository.removeDomain( domainRepository.getDomainIds().iterator().next() );
     }
+
   }
 
   public void tearDown() throws Exception {
@@ -184,9 +205,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     domainRepository.removeDomain( STEEL_WHEELS );
     domainRepository.removeDomain( SAMPLE_DOMAIN_ID );
 
+    IAclNodeHelper helper = Mockito.mock( IAclNodeHelper.class );
+    doReturn( true ).when( helper ).hasAccess( SAMPLE_DOMAIN_ID, IAclNodeHelper.DatasourceType.METADATA );
+    domainRepository.setAclHelper( helper );
+
     final MockDomain originalDomain = new MockDomain( SAMPLE_DOMAIN_ID );
     domainRepository.storeDomain( originalDomain, false );
     final Domain testDomain1 = domainRepository.getDomain( SAMPLE_DOMAIN_ID );
+
     assertNotNull( testDomain1 );
     assertEquals( SAMPLE_DOMAIN_ID, testDomain1.getId() );
 
@@ -314,8 +340,13 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     domainRepository.removeDomain( STEEL_WHEELS );
     domainRepository.removeDomain( SAMPLE_DOMAIN_ID );
 
+    IAclNodeHelper helper = Mockito.mock( IAclNodeHelper.class );
+    doReturn( true ).when( helper ).hasAccess( SAMPLE_DOMAIN_ID, IAclNodeHelper.DatasourceType.METADATA );
+    domainRepository.setAclHelper( helper );
+
     domainRepository.storeDomain( new MockDomain( SAMPLE_DOMAIN_ID ), true );
     final Set<String> domainIds1 = domainRepository.getDomainIds();
+
     assertNotNull( domainIds1 );
     assertEquals( 1, domainIds1.size() );
     assertTrue( domainIds1.contains( SAMPLE_DOMAIN_ID ) );

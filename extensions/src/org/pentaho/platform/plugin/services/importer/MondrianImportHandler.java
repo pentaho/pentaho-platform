@@ -30,8 +30,11 @@ import mondrian.util.Pair;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IAclAwareMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
@@ -42,6 +45,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,9 +96,17 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       throw new PlatformImportException( "Bundle missing required domain-id property" );
     }
     try {
+      InputStream is = bundle.getInputStream();
       MondrianCatalog catalog = this.createCatalogObject( domainId, xmla, bundle );
-      mondrianRepositoryImporter.addCatalog( bundle.getInputStream(), catalog, overwriteInRepossitory,
-          PentahoSessionHolder.getSession() );
+      IPentahoSession session = PentahoSessionHolder.getSession();
+
+      if ( mondrianRepositoryImporter instanceof IAclAwareMondrianCatalogService ) {
+        RepositoryFileAcl acl = bundle.isApplyAclSettings() ? bundle.getAcl() : null;
+        IAclAwareMondrianCatalogService aware = (IAclAwareMondrianCatalogService) mondrianRepositoryImporter;
+        aware.addCatalog( is, catalog, overwriteInRepossitory, acl, session );
+      } else {
+        mondrianRepositoryImporter.addCatalog( is, catalog, overwriteInRepossitory, session );
+      }
     } catch ( MondrianCatalogServiceException mse ) {
       int statusCode = convertExceptionToStatus( mse );
       throw new PlatformImportException( mse.getMessage(), statusCode );
