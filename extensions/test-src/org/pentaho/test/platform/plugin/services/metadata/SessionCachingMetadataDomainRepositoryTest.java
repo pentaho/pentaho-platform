@@ -21,24 +21,29 @@ import org.mockito.Mockito;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
+import org.pentaho.platform.plugin.services.metadata.IAclAwarePentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository;
-import org.pentaho.platform.repository2.unified.jcr.IAclNodeHelper;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.engine.core.SimpleObjectFactory;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.EnumSet;
 import java.util.Set;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.pentaho.test.platform.plugin.services.metadata.MockSessionAwareMetadataDomainRepository.TEST_LOCALE;
 
 public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
@@ -112,15 +117,14 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
     final String ID = "1"; //$NON-NLS-1$
     final String ID2 = "2"; //$NON-NLS-1$
 
-    MockSessionAwareMetadataDomainRepository mock = new MockSessionAwareMetadataDomainRepository();
+    IAclNodeHelper aclNodeHelper = mock( IAclNodeHelper.class );
+    when( aclNodeHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
+
+    MockAclAwareMetadataDomainRepository mock = new MockAclAwareMetadataDomainRepository(aclNodeHelper, null);
     mock.storeDomain( getTestDomain( ID ), false );
 
     SessionCachingMetadataDomainRepository repo = new SessionCachingMetadataDomainRepository( mock );
     PentahoSessionHolder.setSession( new StandaloneSession( "Standalone Session", SESSION_ID ) ); //$NON-NLS-1$
-
-    IAclNodeHelper helper = Mockito.mock( IAclNodeHelper.class );
-    doReturn( true ).when( helper ).hasAccess( ID, IAclNodeHelper.DatasourceType.METADATA );
-    repo.setAclHelper( helper );
 
     assertEquals( 0, mock.getInvocationCount( "getDomain" ) ); //$NON-NLS-1$
     Domain d = repo.getDomain( ID );
@@ -140,21 +144,19 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
 
     mock.storeDomain( getTestDomain( ID2 ), false );
     repo.getDomain( ID2 );
+
     // Cache should contain tow domains for this session
     assertEquals( 2, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
 
     // Block access to domain ID2. Cache should be cleared for this domain
-    doReturn( false ).when( helper ).hasAccess( ID2, IAclNodeHelper.DatasourceType.METADATA );
-    repo.setAclHelper( helper );
+    when( aclNodeHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( false );
 
     repo.getDomain( ID2 );
 
     // Make sure cache was hit and delegate was not called
     assertEquals( 2, mock.getInvocationCount( "getDomain" ) ); //$NON-NLS-1$
-
     // Cache should contain a domain for this session
     assertEquals( 1, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
-
   }
 
   public void testGetDomain_null_session() throws Exception {
@@ -220,10 +222,6 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
 
     SessionCachingMetadataDomainRepository repo = new SessionCachingMetadataDomainRepository( mock );
     PentahoSessionHolder.setSession( new StandaloneSession( "Standalone Session", "1234-5678-90" ) ); //$NON-NLS-1$ //$NON-NLS-2$
-
-    IAclNodeHelper helper = Mockito.mock( IAclNodeHelper.class );
-    doReturn( true ).when( helper ).hasAccess( ID, IAclNodeHelper.DatasourceType.METADATA );
-    repo.setAclHelper( helper );
 
     Set<String> ids = repo.getDomainIds();
     assertEquals( 0, ids.size() );
@@ -454,5 +452,42 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
     // Logging out session 2 should only remove cached domains from session 2
     repo.onLogout( session2 );
     assertEquals( 1, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
+  }
+
+  private static class MockAclAwareMetadataDomainRepository extends MockSessionAwareMetadataDomainRepository implements
+    IAclAwarePentahoMetadataDomainRepositoryImporter {
+
+    private final IAclNodeHelper aclNodeHelper;
+    private final RepositoryFile repositoryFile;
+
+    public MockAclAwareMetadataDomainRepository( IAclNodeHelper aclNodeHelper,
+                                                 RepositoryFile repositoryFile ) {
+      this.aclNodeHelper = aclNodeHelper;
+      this.repositoryFile = repositoryFile;
+    }
+
+    @Override
+    public void storeDomain( InputStream inputStream, String domainId, boolean overwrite, RepositoryFileAcl acl )
+      throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
+      // do nothing
+    }
+
+    @Override public IAclNodeHelper getAclHelper() {
+      return aclNodeHelper;
+    }
+
+    @Override public RepositoryFile getDomainRepositoryFile( String domainId ) {
+      return repositoryFile;
+    }
+
+    @Override public void storeDomain( InputStream inputStream, String domainId, boolean overwrite )
+      throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
+      storeDomain( inputStream, domainId, overwrite, null );
+    }
+
+    @Override public void addLocalizationFile( String domainId, String locale, InputStream inputStream,
+                                               boolean overwrite ) throws DomainStorageException {
+      // do nothing
+    }
   }
 }

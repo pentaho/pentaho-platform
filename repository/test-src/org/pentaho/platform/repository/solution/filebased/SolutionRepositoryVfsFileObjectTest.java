@@ -44,6 +44,6 @@ public class SolutionRepositoryVfsFileObjectTest {
     doReturn( repository ).when( fileObjectSpy ).getRepository();
 
     fileObjectSpy.getName();
-    verify( repository, times( 1 ) ).getFile( anyString() );
+    verify( repository, times( 2 ) ).getFile( anyString() );
   }
 }
