@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDADescriptor>
+   <DataSources>
+      <Connection id="yearSelectorQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="totalSalesValue" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="quantitySoldValue" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="salesByTerritoryChart" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="totalSalesSunburstChart" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="quantitySoldSunburstChart" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="totalSalesChart" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="quantitySoldChart" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="linesQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+   </DataSources>
+   <DataAccess access="public" cache="true" cacheDuration="3600"
+               connection="yearSelectorQuery"
+               id="yearSelectorQuery"
+               type="mdx">
+      <BandedMode>compact</BandedMode>
+      <Columns/>
+      <Output indexes="1,0" mode="include"/>
+      <Parameters/>
+      <Query>WITH
+    MEMBER [Measures].[Years UniqueName]  AS  [Time].currentmember.UniqueName
+    SET  YEAR  AS  UNION( [Time].[All Years] , [Time].[Years].Members )
+    
+SELECT
+    [Measures].[Years UniqueName]  ON COLUMNS,
+    YEAR   ON ROWS
+FROM [SteelWheelsSales]</Query>
+   </DataAccess>
+   <DataAccess access="public" cache="true" cacheDuration="3600" connection="totalSalesValue"
+               id="totalSalesValue"
+               type="mdx">
+      <BandedMode>compact</BandedMode>
+      <Columns/>
+      <Parameters>
+         <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
+         <Parameter default="[Product].[Classic Cars], [Product].[Vintage Cars], [Product].[Motorcycles], [Product].[Trucks and Buses], [Product].[Trains]"
+                    name="selectedLinesParam"
+                    type="String"/>
+      </Parameters>
+      <Query>WITH
+    MEMBER [Measures].[Total Sales] AS ( [Measures].[Sales] , ${dateParam} )
+
+SELECT
+    [Measures].[Total Sales] ON COLUMNS
+FROM [SteelWheelsSales]
+WHERE { ${selectedLinesParam} }</Query>
+   </DataAccess>
+   <DataAccess access="public" cache="true" cacheDuration="3600"
+               connection="quantitySoldValue"
+               id="quantitySoldValue"
+               type="mdx">
+      <BandedMode>compact</BandedMode>
+      <Columns/>
+      <Parameters>
+         <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
+         <Parameter default="[Product].[Classic Cars], [Product].[Vintage Cars], [Product].[Motorcycles], [Product].[Trucks and Buses], [Product].[Trains]"
+                    name="selectedLinesParam"
+                    type="String"/>
+      </Parameters>
+      <Query>WITH
+    MEMBER [Measures].[Quantity Sold] AS ([Measures].[Quantity], ${dateParam})
+
+SELECT
+    [Measures].[Quantity Sold] ON COLUMNS
+FROM [SteelWheelsSales]
+WHERE { ${selectedLinesParam} }</Query>
+   </DataAccess>
+   <DataAccess access="public" cache="true" cacheDuration="3600"
+               connection="salesByTerritoryChart"
+               id="salesByTerritoryChart"
+               type="mdx">
+      <BandedMode>compact</BandedMode>
+      <Columns/>
+      <Parameters>
+         <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
+         <Parameter default="[Product].[Classic Cars], [Product].[Vintage Cars], [Product].[Motorcycles], [Product].[Trucks and Buses], [Product].[Trains]"
+                    name="selectedLinesParam"
+                    type="String"/>
+      </Parameters>
+      <Query>WITH
+    MEMBER [Measures].[Sales in Time] AS ( [Measures].[Sales] , ${dateParam} )
+
+Select
+    { [Markets].[APAC] , [Markets].[EMEA] , [Markets].[NA] } on COLUMNS,
+    { ${selectedLinesParam} } on ROWS
+FROM [SteelWheelsSales]
+Where [Measures].[Sales in Time]</Query>
+   </DataAccess>
+   <DataAccess access="public" cache="true" cacheDuration="3600"
+               connection="totalSalesSunburstChart"
+               id="totalSalesSunburstChart"
+               type="mdx">
+      <BandedMode>compact</BandedMode>
+      <Columns/>
+      <Output indexes="1,0,2" mode="include"/>
+      <Parameters>
+         <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
+         <Parameter default="[Product].[Classic Cars], [Product].[Vintage Cars], [Product].[Motorcycles], [Product].[Trucks and Buses], [Product].[Trains]"
+                    name="selectedLinesParam"
+                    type="String"/>
+      </Parameters>
+      <Query>WITH
+  MEMBER [Measures].[Line] AS [Product].Parent.Parent.Name
+
+SELECT
+  { [Measures].[Line], [Measures].[Sales] } ON COLUMNS,
+  { Filter ( Descendants ( {${selectedLinesParam}}, 2, SELF), [Measures].[Sales] &gt; 0 ) } ON ROWS
+FROM [SteelWheelsSales]
+WHERE ${dateParam}</Query>
+   </DataAccess>
+   <DataAccess access="public" cache="true" cacheDuration="3600"
+               connection="quantitySoldSunburstChart"
+               id="quantitySoldSunburstChart"
+               type="mdx">
+      <BandedMode>compact</BandedMode>
+      <Columns/>
+      <Output indexes="1,0,2" mode="include"/>
+      <Parameters>
+         <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
+         <Parameter default="[Product].[Classic Cars], [Product].[Vintage Cars], [Product].[Motorcycles], [Product].[Trucks and Buses], [Product].[Trains]"
+                    name="selectedLinesParam"
+                    type="String"/>
+      </Parameters>
+      <Query>WITH
+  MEMBER [Measures].[Line] AS [Product].Parent.Parent.Name
+
+SELECT
+  { [Measures].[Line], [Measures].[Quantity] } ON COLUMNS,
+  { Filter ( Descendants ( {${selectedLinesParam}}, 2, SELF), [Measures].[Quantity] &gt; 0 ) } ON ROWS
+FROM [SteelWheelsSales]
+WHERE ${dateParam}</Query>
+   </DataAccess>
+   <DataAccess access="public" cache="true" cacheDuration="3600" connection="totalSalesChart"
+               id="totalSalesChart"
+               type="denormalizedMdx">
+      <Columns/>
+      <Output indexes="1,2,4,6" mode="include"/>
+      <Parameters>
+         <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
+         <Parameter default="[Product].[Classic Cars], [Product].[Vintage Cars], [Product].[Motorcycles], [Product].[Trucks and Buses], [Product].[Trains]"
+                    name="selectedLinesParam"
+                    type="String"/>
+      </Parameters>
+      <Query>SELECT
+    NON EMPTY CrossJoin( { ${selectedLinesParam} }, {[Measures].[Sales]} ) ON COLUMNS,
+    NON EMPTY Except( Descendants(${dateParam}, [Time].[Quarters]) , [Time].[All Years] ) ON ROWS
+FROM [SteelWheelsSales]</Query>
+   </DataAccess>
+   <DataAccess access="public" cache="true" cacheDuration="3600"
+               connection="quantitySoldChart"
+               id="quantitySoldChart"
+               type="denormalizedMdx">
+      <Columns/>
+      <Output indexes="1,2,4,6" mode="include"/>
+      <Parameters>
+         <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
+         <Parameter default="[Product].[Classic Cars], [Product].[Vintage Cars], [Product].[Motorcycles], [Product].[Trucks and Buses], [Product].[Trains]"
+                    name="selectedLinesParam"
+                    type="String"/>
+      </Parameters>
+      <Query>SELECT
+    NON EMPTY CrossJoin( { ${selectedLinesParam} }, {[Measures].[Quantity]} ) ON COLUMNS,
+    NON EMPTY Except( Descendants(${dateParam}, [Time].[Quarters]) , [Time].[All Years] ) ON ROWS
+FROM [SteelWheelsSales]</Query>
+   </DataAccess>
+   <DataAccess access="public" cache="true" cacheDuration="3600" connection="linesQuery"
+               id="linesQuery"
+               type="denormalizedMdx">
+      <Columns/>
+      <Output indexes="1" mode="include"/>
+      <Parameters/>
+      <Query>SELECT&#xD;
+    [Measures].[Sales] ON COLUMNS,&#xD;
+    { [Product].[Trains], [Product].[Trucks and Buses], [Product].[Motorcycles],  [Product].[Vintage Cars], [Product].[Classic Cars] } ON ROWS&#xD;
+FROM [SteelWheelsSales]</Query>
+   </DataAccess>
+</CDADescriptor>
