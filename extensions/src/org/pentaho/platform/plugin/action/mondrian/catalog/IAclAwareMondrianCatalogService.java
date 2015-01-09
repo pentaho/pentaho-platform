@@ -26,9 +26,7 @@ public interface IAclAwareMondrianCatalogService extends IMondrianCatalogService
   void addCatalog( InputStream inputStream, MondrianCatalog catalog, boolean overwriteInRepository,
                    RepositoryFileAcl acl, IPentahoSession session );
 
-  /**
-   * Never returns <tt>null</tt>.
-   * @return    an ACL helper instance
-   */
-  IAclNodeHelper getAclHelper();
+  void setAclFor( String catalogName, RepositoryFileAcl acl );
+
+  RepositoryFileAcl getAclFor( String catalogName );
 }

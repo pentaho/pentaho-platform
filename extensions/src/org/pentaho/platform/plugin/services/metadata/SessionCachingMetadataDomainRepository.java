@@ -30,14 +30,12 @@ import org.pentaho.metadata.util.SecurityHelper;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +47,8 @@ import java.util.Set;
  * @author Jordan Ganoff (jganoff@pentaho.com)
  */
 public class SessionCachingMetadataDomainRepository implements IMetadataDomainRepository,
-  org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter, ILogoutListener {
+    org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter, ILogoutListener,
+    IAclAwarePentahoMetadataDomainRepositoryImporter {
 
   private static final Log logger = LogFactory.getLog( SessionCachingMetadataDomainRepository.class );
 
@@ -59,8 +58,6 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   public static String CACHE_REGION = "metadata-domain-repository"; //$NON-NLS-1$
 
   private ICacheManager cacheManager;
-
-  private final IAclNodeHelper aclHelper;
 
   private final IMetadataDomainRepository delegate;
   private static final String DOMAIN_CACHE_KEY_PREDICATE = "domain-id-cache-for-session:";
@@ -124,12 +121,6 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
       throw new NullPointerException();
     }
     this.delegate = delegate;
-
-    if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter ) {
-      aclHelper = ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).getAclHelper();
-    } else {
-      aclHelper = null;
-    }
 
     cacheManager = PentahoSystem.getCacheManager( null ); // cache manager gets loaded just once...
     if ( cacheManager != null ) {
@@ -232,10 +223,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Found domain in cache: " + key ); //$NON-NLS-1$
       }
-      if ( aclHelper != null &&
-        !aclHelper
-          .canAccess( ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).getDomainRepositoryFile( id ),
-            EnumSet.of( RepositoryFilePermission.READ ) ) ) {
+      if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( id ) ) {
         purgeDomain( domain.getId() );
         domain = null;
       }
@@ -397,9 +385,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
       boolean dirtyCache = false;
 
       for ( String domain : domainIds ) {
-        if ( aclHelper != null && !aclHelper.canAccess(
-          ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).getDomainRepositoryFile( domain ),
-          EnumSet.of( RepositoryFilePermission.READ ) ) ) {
+        if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( domain ) ) {
           domainIds.remove( domain );
           removeDomainFromIDCache( domain );
           dirtyCache = true;
@@ -440,6 +426,53 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
         .getDomainFilesData( domainId );
     } else {
       throw new UnsupportedOperationException( "Exporting is not supported by this Metadata Domain Repository" );
+    }
+  }
+
+  @Override
+  public void storeDomain( InputStream inputStream, String domainId, boolean overwrite, RepositoryFileAcl acl )
+    throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
+    if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter ) {
+      ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).storeDomain( inputStream, domainId, overwrite, acl );
+    }
+  }
+
+  @Override
+  public void setAclFor( String domainId, RepositoryFileAcl acl ) {
+    if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter ) {
+      ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).setAclFor( domainId, acl );
+    }
+  }
+
+  @Override
+  public RepositoryFileAcl getAclFor( String domainId ) {
+    if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter ) {
+      return ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).getAclFor( domainId );
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public boolean hasAccessFor( String domainId ) {
+    return !( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter )
+      || ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( domainId );
+  }
+
+  @Override
+  public void storeDomain( InputStream inputStream, String domainId, boolean overwrite ) throws DomainIdNullException,
+    DomainAlreadyExistsException, DomainStorageException {
+    if ( delegate instanceof IPentahoMetadataDomainRepositoryImporter ) {
+      ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).storeDomain( inputStream, domainId, overwrite );
+    }
+  }
+
+  @Override
+  public void addLocalizationFile( String domainId, String locale, InputStream inputStream, boolean overwrite )
+    throws DomainStorageException {
+    if ( delegate instanceof IPentahoMetadataDomainRepositoryImporter ) {
+      ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).addLocalizationFile( domainId, locale,
+          inputStream, overwrite );
     }
   }
 }
