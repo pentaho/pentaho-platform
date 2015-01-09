@@ -221,6 +221,10 @@
     <dependency org="wsdl4j" name="wsdl4j" rev="1.5.0" />
     <dependency org="org.quartz-scheduler" name="quartz-oracle" rev="1.7.2" />
 
+
+    <dependency org="pentaho" name="pdi-osgi-bridge" rev="${project.revision}" />
+    <dependency org="pentaho" name="pdi-osgi-utils-api" rev="${project.revision}" />
+
     <!-- Platform plugins -->
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core-platform-plugin-package" rev="${dependency.pentaho-reporting-plugin.revision}" transitive="false" changing="true"  conf="plugin->default" />
     <!-- In progrress D-A-v2
