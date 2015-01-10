@@ -15,7 +15,6 @@
  *
  * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
-
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import java.net.InetAddress;
@@ -26,6 +25,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
@@ -61,8 +61,12 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
 
           Logger.debug( this, "  Setting up datasource - " + databaseConnection ); //$NON-NLS-1$
 
-          // if connection's port used by server there is no sense to get DataSource for this
-          ds = isPortUsedByServer( databaseConnection ) ? null : setupDataSourceForConnection( databaseConnection );
+          //isPortUsedByServer should NOT be called on a JNDI data source
+          //http://jira.pentaho.com/browse/BISERVER-12244
+          if ( !databaseConnection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
+            // if connection's port used by server there is no sense to get DataSource for this
+            ds = isPortUsedByServer( databaseConnection ) ? null : setupDataSourceForConnection( databaseConnection );
+          }
 
           dsName = databaseConnection.getName();
 
@@ -124,7 +128,7 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
 
   @VisibleForTesting
   protected List<IDatabaseConnection> getListOfDatabaseConnections( final IPentahoSession session )
-      throws ObjectFactoryException, DatasourceMgmtServiceException {
+    throws ObjectFactoryException, DatasourceMgmtServiceException {
     IDatasourceMgmtService datasourceMgmtSvc =
         (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get( IDatasourceMgmtService.class, session );
 

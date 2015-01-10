@@ -1,32 +1,56 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2014 Pentaho Corporation.  All rights reserved.
+ */
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import java.sql.Connection;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import java.util.HashMap;
 
 import javax.sql.DataSource;
 
-import junit.framework.TestCase;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import org.apache.commons.dbcp.PoolingDataSource;
+import org.junit.Test;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
-public class PooledDatasourceHelperTest extends TestCase {
+public class PooledDatasourceHelperTest {
   MicroPlatform mp;
 
-  public PooledDatasourceHelperTest() {
+  @Test
+  public void testSetupPooledDataSourceForJNDI() {
+    try {
+      IDatabaseConnection databaseConnection = mock( IDatabaseConnection.class );
+      when( databaseConnection.getAccessType() ).thenReturn( DatabaseAccessType.JNDI );
+      PooledDatasourceHelper.setupPooledDataSource( databaseConnection );
+      fail( "Expecting the exception to be thrown" );
+    } catch ( DBDatasourceServiceException ex ) {
+      assertNotNull( ex );
+    }
   }
 
-  protected void setUp() throws Exception {
-  }
-
+  @Test
   public void testCreatePoolNoDialectService() throws Exception {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
     final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );
@@ -49,6 +73,7 @@ public class PooledDatasourceHelperTest extends TestCase {
     }
   }
 
+  @Test
   public void testCreatePoolNoDialect() throws Exception {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
     final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );
@@ -76,6 +101,7 @@ public class PooledDatasourceHelperTest extends TestCase {
 
   }
 
+  @Test
   public void testCreatePoolNoClassName() throws Exception {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
     final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );
@@ -104,6 +130,7 @@ public class PooledDatasourceHelperTest extends TestCase {
 
   }
 
+  @Test
   public void testCreateDatasourceNoDialect() throws Exception {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
     final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );
@@ -128,6 +155,7 @@ public class PooledDatasourceHelperTest extends TestCase {
     }
   }
 
+  @Test
   public void testCreateDatasourceNoClassName() throws Exception {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
     final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );

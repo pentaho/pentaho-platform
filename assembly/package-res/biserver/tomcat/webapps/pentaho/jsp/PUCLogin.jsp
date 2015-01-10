@@ -1,19 +1,24 @@
-<%--
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
---%>
+<%-- /*!
+ * PENTAHO CORPORATION PROPRIETARY AND CONFIDENTIAL
+ *
+ * Copyright 2002 - 2014 Pentaho Corporation (Pentaho). All rights reserved.
+ *
+ * NOTICE: All information including source code contained herein is, and
+ * remains the sole property of Pentaho and its licensors. The intellectual
+ * and technical concepts contained herein are proprietary and confidential
+ * to, and are trade secrets of Pentaho and may be covered by U.S. and foreign
+ * patents, or patents in process, and are protected by trade secret and
+ * copyright laws. The receipt or possession of this source code and/or related
+ * information does not convey or imply any rights to reproduce, disclose or
+ * distribute its contents, or to manufacture, use, or sell anything that it
+ * may describe, in whole or in part. Any reproduction, modification, distribution,
+ * or public display of this information without the express written authorization
+ * from Pentaho is strictly prohibited and in violation of applicable laws and
+ * international treaties. Access to the source code contained herein is strictly
+ * prohibited to anyone except those individuals and entities who have executed
+ * confidentiality and non-disclosure agreements or other agreements with Pentaho,
+ * explicitly covering such access.
+ */ --%> 
 
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
 <%@
@@ -36,7 +41,10 @@
             org.apache.commons.lang.StringEscapeUtils,
             org.pentaho.platform.engine.core.system.PentahoSessionHolder,
             org.owasp.esapi.ESAPI,
-            org.pentaho.platform.util.ServerTypeUtil"%>
+            org.pentaho.platform.util.ServerTypeUtil,
+			java.util.Map,
+			java.util.Set,
+			java.util.Iterator"%>
 <%!
   // List of request URL strings to look for to send 401
 
@@ -101,24 +109,41 @@
         List<String> pluginIds = pluginManager.getRegisteredPlugins();
         for (String id : pluginIds) {
           String mobileRedirect = (String)pluginManager.getPluginSetting(id, "mobile-redirect", null);
+		  
           if (mobileRedirect != null) {
-            // we have a mobile redirect
+            // we have a mobile redirect			
+			String name = null;
+			String startupUrl = null;
+			String keyStr;
+			String[] value;
+				Map map = ((SavedRequest) reqObj).getParameterMap();
+				for (Object key: map.keySet())
+				{
+					keyStr = (String)key;
+					value = (String[])map.get(keyStr);
+					if (keyStr.equals("name"))	{
+						name = (String)value[0];
+					}
+					if (keyStr.equals("startup-url"))	{
+						startupUrl = (String)value[0];
+					}
+				}
+			
+			if (startupUrl != null && name != null){
+              //Sanitize the value assigned to startupUrl
+              mobileRedirect += "?name=" + ESAPI.encoder().encodeForURL(name) + "&startup-url=" + ESAPI.encoder().encodeForURL(startupUrl);
+            }
+			
   %>
   <script type="text/javascript">
-    //Get URL parameters
-    var requestedURL = '<%=requestedURL%>';
-    var getParams = requestedURL.split("?");
-    var params = '';
 
-    //If there are no GET parameters on the URL leave the params object empty so that the check for
-    //a startup report setting is conducted
-    if (getParams.length > 1) {
-      params = '?' + getParams[1];
-    }
     if(typeof window.top.PentahoMobile != "undefined"){
       window.top.location.reload();
     } else {
-      document.write('<META HTTP-EQUIV="refresh" CONTENT="0;URL=<%=mobileRedirect%>' + params + '">');
+      var tag = document.createElement('META');
+      tag.setAttribute('HTTP-EQUIV', 'refresh');
+      tag.setAttribute('CONTENT', '0;URL=<%=ESAPI.encoder().encodeForJavaScript(mobileRedirect)%>');
+      document.getElementsByTagName('HEAD')[0].appendChild(tag);
     }
   </script>
 </head>
@@ -179,10 +204,10 @@
             <%
               if (showUsers) {
             %>
-            <div id="eval-users-toggle" onClick="toggleEvalPanel()">
-              <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
+              <div id="eval-users-toggle" onClick="toggleEvalPanel()">
+                <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
                 <div id="eval-arrow" class="closed"></div>
-            </div>
+              </div>
 
             <%
             } else {
@@ -208,7 +233,7 @@
               <div class="span6 login-value">password</div>
             </div>
             <button class="btn" onClick="loginAs('Admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.GO")%></button>
-          </div>
+        </div>
           <div id="role-business-user-panel" class="span6 well ">
             <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
             <div class="row-fluid">
@@ -310,7 +335,7 @@
           bounceToReturnLocation();
           return;
         }
-        // fail
+		// fail
         $("#loginError").show();
         $("#loginError button").focus();
       },

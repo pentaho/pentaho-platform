@@ -38,6 +38,7 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.pentaho.database.DatabaseDialectException;
 import org.pentaho.database.IDatabaseDialect;
 import org.pentaho.database.dialect.GenericDatabaseDialect;
+import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
@@ -59,6 +60,11 @@ public class PooledDatasourceHelper {
     String driverClass = null;
     String url = null;
     try {
+      if ( databaseConnection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
+        throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
+            "PooledDatasourceHelper.ERROR_0008_UNABLE_TO_POOL_DATASOURCE_IT_IS_JNDI",
+            databaseConnection.getName() ) );
+      }
       ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
       IDatabaseDialectService databaseDialectService = PentahoSystem.get( IDatabaseDialectService.class );
       if ( databaseDialectService == null ) {
@@ -230,13 +236,14 @@ public class PooledDatasourceHelper {
        * Puts pool-specific wrappers on factory connections. For clarification: "[PoolableConnection]Factory," not
        * "Poolable[ConnectionFactory]."
        */
-      PoolableConnectionFactory pcf = new PoolableConnectionFactory( factory, // ConnectionFactory
+      PoolableConnectionFactory pcf = new PoolableConnectionFactory(
+          factory, // ConnectionFactory
           pool, // ObjectPool
           kopf, // KeyedObjectPoolFactory
           validQuery, // String (validation query)
           defaultReadOnly, // boolean (default to read-only?)
           defaultAutoCommit // boolean (default to auto-commit statements?)
-          );
+      );
 
       if ( attributes.containsKey( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION )
           && !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE.equalsIgnoreCase( attributes
