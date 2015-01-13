@@ -30,6 +30,7 @@ import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.util.LocalizationUtil;
 import org.pentaho.metadata.util.XmiParser;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -359,14 +360,16 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
                 "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN", domainId, "data not found" ) );
           }
         } else {
-          throw new UnifiedRepositoryException( messages.getErrorString(
+          throw new PentahoAccessControlException( messages.getErrorString(
               "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN", domainId, "access denied" ) );
         }
       }
     } catch ( Exception e ) {
-      throw new UnifiedRepositoryException( messages.getErrorString(
-          "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN",
-          domainId, e.getLocalizedMessage() ), e );
+      if ( !( e instanceof UnifiedRepositoryException || e instanceof PentahoAccessControlException ) ) {
+        throw new UnifiedRepositoryException( messages.getErrorString(
+            "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN",
+            domainId, e.getLocalizedMessage() ), e );
+      }
     }
 
     // Return
@@ -495,25 +498,27 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       final List<RepositoryFile> children = repository.getChildren( getMetadataDir().getId(), "*" );
       logger.trace( "\tFound " + children.size() + " files in the repository" );
       for ( final RepositoryFile child : children ) {
-        // Get the metadata for this file
-        final Map<String, Serializable> fileMetadata = repository.getFileMetadata( child.getId() );
-        if ( fileMetadata == null || StringUtils.isEmpty( (String) fileMetadata.get( PROPERTY_NAME_DOMAIN_ID ) ) ) {
-          logger.warn( messages.getString( "PentahoMetadataDomainRepository.WARN_0001_FILE_WITHOUT_METADATA", child
-              .getName() ) );
-          continue;
-        }
-        final String domainId = (String) fileMetadata.get( PROPERTY_NAME_DOMAIN_ID );
-        final String type = (String) fileMetadata.get( PROPERTY_NAME_TYPE );
-        final String locale = (String) fileMetadata.get( PROPERTY_NAME_LOCALE );
-        if ( logger.isTraceEnabled() ) {
-          logger.trace( "\tprocessing file [type=" + type + " : domainId=" + domainId + " : locale=" + locale + "]" );
-        }
+        if ( getAclHelper().canAccess( child, EnumSet.of( RepositoryFilePermission.READ ) ) ) {
+          // Get the metadata for this file
+          final Map<String, Serializable> fileMetadata = repository.getFileMetadata( child.getId() );
+          if ( fileMetadata == null || StringUtils.isEmpty( (String) fileMetadata.get( PROPERTY_NAME_DOMAIN_ID ) ) ) {
+            logger.warn( messages.getString( "PentahoMetadataDomainRepository.WARN_0001_FILE_WITHOUT_METADATA", child
+                .getName() ) );
+            continue;
+          }
+          final String domainId = (String) fileMetadata.get( PROPERTY_NAME_DOMAIN_ID );
+          final String type = (String) fileMetadata.get( PROPERTY_NAME_TYPE );
+          final String locale = (String) fileMetadata.get( PROPERTY_NAME_LOCALE );
+          if ( logger.isTraceEnabled() ) {
+            logger.trace( "\tprocessing file [type=" + type + " : domainId=" + domainId + " : locale=" + locale + "]" );
+          }
 
-        // Save the data in the map
-        if ( StringUtils.equals( type, TYPE_DOMAIN ) ) {
-          metadataMapping.addDomain( domainId, child );
-        } else if ( StringUtils.equals( type, TYPE_LOCALE ) ) {
-          metadataMapping.addLocale( domainId, locale, child );
+          // Save the data in the map
+          if ( StringUtils.equals( type, TYPE_DOMAIN ) ) {
+            metadataMapping.addDomain( domainId, child );
+          } else if ( StringUtils.equals( type, TYPE_LOCALE ) ) {
+            metadataMapping.addLocale( domainId, locale, child );
+          }
         }
       }
     }
