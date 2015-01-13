@@ -211,6 +211,20 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
       }
     }
 
+    assertFalse( adminPresent );
+
+    loginAsRepositoryAdmin();
+
+    aclReturned = helper.getAclFor( targetFile );
+    adminPresent = false;
+
+    for( RepositoryFileAce ace : aclReturned.getAces() ){
+      if( ace.getSid().getName() == tenantAdminRoleName ) {
+        adminPresent = true;
+        break;
+      }
+    }
+
     assertTrue( adminPresent );
   }
 
