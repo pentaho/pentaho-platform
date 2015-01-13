@@ -2,6 +2,7 @@ package org.pentaho.platform.repository2.unified.jcr;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -16,6 +17,9 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -109,18 +113,27 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
       return null;
     }
 
-    //add the Administrator role
-    RepositoryFileAcl acl = unifiedRepository.getAcl( getAclNode( repositoryFile ).getId() );
+    RepositoryFileAcl acl;
+    try {
+      acl = unifiedRepository.getAcl( getAclNode( repositoryFile ).getId() );
+    } catch ( Exception e ) {
+      return null;
+    }
+
     RepositoryFileAcl.Builder aclBuilder = new RepositoryFileAcl.Builder( acl.getId(), acl.getOwner().getName(),
         RepositoryFileSid.Type.ROLE );
     aclBuilder.aces( acl.getAces() );
 
-    String adminRoleName =
-        PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
+    //add the Administrator role
+    if( canAdminister() ) {
+      String adminRoleName =
+          PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
 
-    RepositoryFileAce adminGroup = new RepositoryFileAce( new RepositoryFileSid( adminRoleName,
-        RepositoryFileSid.Type.ROLE ), RepositoryFilePermission.ALL );
-    aclBuilder.ace( adminGroup );
+      RepositoryFileAce adminGroup = new RepositoryFileAce( new RepositoryFileSid( adminRoleName,
+          RepositoryFileSid.Type.ROLE ), RepositoryFilePermission.ALL );
+      aclBuilder.ace( adminGroup );
+    }
+
     return aclBuilder.build();
   }
 
@@ -179,6 +192,12 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
 
   @Override public void removeAclFor( RepositoryFile file ) {
     setAclFor( file, null );
+  }
+
+  private boolean canAdminister() {
+    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
+    return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
+        && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
   }
 
 }
