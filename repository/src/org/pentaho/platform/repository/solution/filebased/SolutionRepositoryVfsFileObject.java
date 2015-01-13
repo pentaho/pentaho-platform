@@ -115,7 +115,12 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
       fileUrl = fileRef;
     }
 
-    repositoryFile = getRepository().getFile( fileUrl );
+    String dsPath = fileUrl;
+    if ( fileUrl.matches( "^(/etc/mondrian/)(.*)(/schema.xml)" ) ) {
+      dsPath = fileUrl.substring( 0, fileUrl.indexOf( "/schema.xml" ) );
+    }
+
+    repositoryFile = getRepository().getFile( dsPath );
     if ( !getAclHelper().canAccess( repositoryFile,  EnumSet.of(
         RepositoryFilePermission.READ) ) ) {
       repositoryFile = null;
