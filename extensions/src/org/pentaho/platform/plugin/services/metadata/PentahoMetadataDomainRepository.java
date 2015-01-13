@@ -50,7 +50,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Handles the storage and retrieval of Pentaho Metada Domain objects in a repository. It does this by using a
@@ -270,15 +279,26 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     getAclHelper().setAclFor( newDomainFile, acl );
   }
 
-  public synchronized IAclNodeHelper getAclHelper() {
+  protected synchronized IAclNodeHelper getAclHelper() {
     if ( aclHelper == null ) {
       aclHelper = new JcrAclNodeHelper( repository );
     }
     return aclHelper;
   }
 
-  @Override public RepositoryFile getDomainRepositoryFile( String domainId ) {
-    return getMetadataRepositoryFile( domainId );
+  @Override
+  public void setAclFor( String domainId, RepositoryFileAcl acl ) {
+    getAclHelper().setAclFor( getMetadataRepositoryFile( domainId ), acl );
+  }
+
+  @Override
+  public RepositoryFileAcl getAclFor( String domainId ) {
+    return getAclHelper().getAclFor( getMetadataRepositoryFile( domainId ) );
+  }
+
+  @Override
+  public boolean hasAccessFor( String domainId ) {
+    return getAclHelper().canAccess( getMetadataRepositoryFile( domainId ), EnumSet.of( RepositoryFilePermission.READ ) );
   }
 
   /*
@@ -325,7 +345,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       // Load the domain file
       final RepositoryFile file = getMetadataRepositoryFile( domainId );
       if ( file != null ) {
-        if ( getAclHelper().canAccess( file, EnumSet.of( RepositoryFilePermission.READ ) ) ) {
+        if ( hasAccessFor( domainId ) ) {
           SimpleRepositoryFileData data = repository.getDataForRead( file.getId(), SimpleRepositoryFileData.class );
           if ( data != null ) {
             domain = xmiParser.parseXmi( data.getStream() );
@@ -366,7 +386,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     synchronized ( metadataMapping ) {
       Collection<String> domains = metadataMapping.getDomainIds();
       for ( String domain : domains ) {
-        if ( getAclHelper().canAccess( getMetadataRepositoryFile( domain ), EnumSet.of( RepositoryFilePermission.READ ) ) ) {
+        if ( hasAccessFor( domain ) ) {
           domainIds.add( domain );
         }
       }

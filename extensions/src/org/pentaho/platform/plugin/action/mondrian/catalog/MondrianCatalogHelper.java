@@ -227,7 +227,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   @VisibleForTesting
   @Deprecated
-  public MondrianCatalogHelper(IAclNodeHelper aclHelper) {
+  public MondrianCatalogHelper( IAclNodeHelper aclHelper ) {
     this();
     this.aclHelper = aclHelper;
   }
@@ -643,7 +643,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     }
     reInit( pentahoSession );
 
-    getAclHelper().setAclFor( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( catalog.getName() ), acl );
+    setAclFor( catalog.getName(), acl );
   }
 
   protected IUnifiedRepository getRepository() {
@@ -651,17 +651,27 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   protected synchronized MondrianCatalogRepositoryHelper getMondrianCatalogRepositoryHelper() {
-    if (catalogRepositoryHelper == null) {
+    if ( catalogRepositoryHelper == null ) {
       catalogRepositoryHelper = new MondrianCatalogRepositoryHelper( PentahoSystem.get( IUnifiedRepository.class ) );
     }
     return catalogRepositoryHelper;
   }
 
-  public synchronized IAclNodeHelper getAclHelper() {
+  protected synchronized IAclNodeHelper getAclHelper() {
     if ( aclHelper == null ) {
       aclHelper = new JcrAclNodeHelper( PentahoSystem.get( IUnifiedRepository.class ) );
     }
     return aclHelper;
+  }
+
+  @Override
+  public void setAclFor( String catalogName, RepositoryFileAcl acl ) {
+    getAclHelper().setAclFor( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( catalogName ), acl );
+  }
+
+  @Override
+  public RepositoryFileAcl getAclFor( String catalogName ) {
+    return getAclHelper().getAclFor( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( catalogName ) );
   }
 
   public void importSchema( File mondrianFile, String databaseConnection, String parameters ) {

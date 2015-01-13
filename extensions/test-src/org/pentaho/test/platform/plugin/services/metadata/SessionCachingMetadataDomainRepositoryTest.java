@@ -17,7 +17,6 @@
 
 package org.pentaho.test.platform.plugin.services.metadata;
 
-import org.mockito.Mockito;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -120,7 +119,7 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
     IAclNodeHelper aclNodeHelper = mock( IAclNodeHelper.class );
     when( aclNodeHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
 
-    MockAclAwareMetadataDomainRepository mock = new MockAclAwareMetadataDomainRepository(aclNodeHelper, null);
+    MockAclAwareMetadataDomainRepository mock = new MockAclAwareMetadataDomainRepository( aclNodeHelper, null );
     mock.storeDomain( getTestDomain( ID ), false );
 
     SessionCachingMetadataDomainRepository repo = new SessionCachingMetadataDomainRepository( mock );
@@ -455,7 +454,7 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
   }
 
   private static class MockAclAwareMetadataDomainRepository extends MockSessionAwareMetadataDomainRepository implements
-    IAclAwarePentahoMetadataDomainRepositoryImporter {
+      IAclAwarePentahoMetadataDomainRepositoryImporter {
 
     private final IAclNodeHelper aclNodeHelper;
     private final RepositoryFile repositoryFile;
@@ -472,12 +471,19 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
       // do nothing
     }
 
-    @Override public IAclNodeHelper getAclHelper() {
-      return aclNodeHelper;
+    @Override
+    public void setAclFor( String domainId, RepositoryFileAcl acl ) {
+      // do nothing
     }
 
-    @Override public RepositoryFile getDomainRepositoryFile( String domainId ) {
-      return repositoryFile;
+    @Override
+    public RepositoryFileAcl getAclFor( String domainId ) {
+      return null;
+    }
+
+    @Override
+    public boolean hasAccessFor( String domainId ) {
+      return aclNodeHelper.canAccess( null, null );
     }
 
     @Override public void storeDomain( InputStream inputStream, String domainId, boolean overwrite )

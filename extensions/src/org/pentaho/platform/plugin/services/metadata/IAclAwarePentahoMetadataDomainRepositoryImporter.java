@@ -20,11 +20,9 @@ public interface IAclAwarePentahoMetadataDomainRepositoryImporter extends IPenta
   void storeDomain( InputStream inputStream, String domainId, boolean overwrite, RepositoryFileAcl acl )
     throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException;
 
-  /**
-   * Never returns <tt>null</tt>.
-   * @return    an ACL helper instance
-   */
-  IAclNodeHelper getAclHelper();
+  void setAclFor( String domainId, RepositoryFileAcl acl );
 
-  RepositoryFile getDomainRepositoryFile( String domainId );
+  RepositoryFileAcl getAclFor( String domainId );
+
+  boolean hasAccessFor( String domainId );
 }
