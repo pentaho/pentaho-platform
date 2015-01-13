@@ -109,6 +109,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     aclNodeHelper = mock( IAclNodeHelper.class );
     doReturn( aclNodeHelper ).when( domainRepositorySpy ).getAclHelper();
     doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
+    when( aclNodeHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
 
     while ( domainRepositorySpy.getDomainIds().size() > 0 ) {
       domainRepositorySpy.removeDomain( domainRepositorySpy.getDomainIds().iterator().next() );
