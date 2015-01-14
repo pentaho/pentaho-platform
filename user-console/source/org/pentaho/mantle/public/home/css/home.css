@@ -284,11 +284,15 @@ button.btn-large.btn-block {
 }
 
 #sample-card7 .card-img {
-  background-image: url("../images/product_perf_dasb_sm.png");
+  background-image: url("../images/sales_performance_sm.png");
 }
 
 #sample-card8 .card-img {
-  background-image: url("../images/reg_sales_dashbaord_sm.png");
+  background-image: url("../images/regional_product_mix_sm.png");
+}
+
+#sample-card9 .card-img {
+  background-image: url("../images/sales_breakdown_sm.png");
 }
 
 /* Sample Images Large */
@@ -317,11 +321,15 @@ button.btn-large.btn-block {
 }
 
 .sample-details-img#sample-img7 {
-  background-image: url("../images/product_perf_dasb_lg.png");
+  background-image: url("../images/sales_performance_lg.png");
 }
 
 .sample-details-img#sample-img8 {
-  background-image: url("../images/reg_sales_dashbaord_lg.png");
+  background-image: url("../images/regional_product_mix_lg.png");
+}
+
+.sample-details-img#sample-img9 {
+  background-image: url("../images/sales_breakdown_lg.png");
 }
 
 /* Tutorial Images Small */
