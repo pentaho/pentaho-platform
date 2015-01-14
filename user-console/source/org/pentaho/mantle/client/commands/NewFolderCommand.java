@@ -71,7 +71,16 @@ public class NewFolderCommand extends AbstractCommand {
 
   protected void performOperation() {
     if ( this.getSolutionPath() != null ) {
-      SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+      final SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
+
+      if ( callback == null ) {
+        setCallback( new ICallback<String>() {
+          public void onHandle( String path ) {
+            sbp.getSolutionTree().select( path );
+          }
+        } );
+      }
+
       sbp.getFile( this.getSolutionPath(), new SolutionFileHandler() {
         @Override
         public void handle( RepositoryFile repositoryFile ) {
