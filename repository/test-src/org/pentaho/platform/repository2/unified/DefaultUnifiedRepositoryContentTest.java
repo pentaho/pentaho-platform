@@ -376,6 +376,41 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     assertNotNull( newFolder );
     assertNotNull( newFolder.getId() );
     assertTrue( newFolder.isHidden() );
+    assertFalse( newFolder.isAclNode() );
+    assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
+        tenantAcme, USERNAME_SUZY )
+        + "/test" ) );
+  }
+
+  @Test
+  public void testCreateShadowFolder() throws Exception {
+    loginAsSysTenantAdmin();
+    ITenant tenantAcme =
+        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
+
+    login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
+
+    login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
+
+    RepositoryFile parentFolder = repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) );
+    RepositoryFile newFolder = new RepositoryFile.Builder( "test" ).folder( true ).aclNode( true ).build();
+
+    Date beginTime = Calendar.getInstance().getTime();
+
+    // Sleep for 1 second for time comparison
+    Thread.sleep( 1000 );
+    newFolder = repo.createFolder( parentFolder.getId(), newFolder, null );
+    Thread.sleep( 1000 );
+
+    Date endTime = Calendar.getInstance().getTime();
+    assertTrue( beginTime.before( newFolder.getCreatedDate() ) );
+    assertTrue( endTime.after( newFolder.getCreatedDate() ) );
+    assertNotNull( newFolder );
+    assertNotNull( newFolder.getId() );
+    assertTrue( newFolder.isAclNode() );
     assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
         tenantAcme, USERNAME_SUZY )
         + "/test" ) );
@@ -736,6 +771,50 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
         assertEquals( newChild2.getName(), currentNode.getName() );
       }
     }
+  }
+
+  @Test
+  public void testCreateACLNodeFile() throws Exception {
+    loginAsSysTenantAdmin();
+    ITenant tenantAcme =
+        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
+
+    login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
+
+    login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
+
+    final String expectedName = "aclnode";
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY );
+    RepositoryFile parentFolder = repo.getFile( parentFolderPath );
+    final String expectedPath = parentFolderPath + RepositoryFile.SEPARATOR + expectedName;
+
+    DataNode node = new DataNode( "kdjd" );
+    DataNode newChild1 = node.addNode( "herfkmdx" );
+    DataNode newChild2 = node.addNode( JcrStringHelper.fileNameEncode( "pppq/qqs2" ) );
+    newChild2.setProperty( JcrStringHelper.fileNameEncode( "ttt*ss4" ), "843skdfj33ksaljdfj" );
+
+    NodeRepositoryFileData data = new NodeRepositoryFileData( node );
+    RepositoryFile newFile =
+        repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( expectedName ).aclNode( true ).build(), data,
+            null );
+
+    assertNotNull( newFile.getId() );
+    RepositoryFile foundFile = repo.getFile( expectedPath );
+    assertNotNull( foundFile );
+    assertEquals( expectedName, foundFile.getName() );
+
+    DataNode foundNode = repo.getDataForRead( foundFile.getId(), NodeRepositoryFileData.class ).getNode();
+
+    assertEquals( node.getName(), foundNode.getName() );
+    assertNotNull( foundNode.getId() );
+    assertTrue( foundNode.hasNode( "herfkmdx" ) );
+    DataNode foundChild1 = foundNode.getNode( "herfkmdx" );
+    assertNotNull( foundChild1.getId() );
+    assertEquals( newChild1.getName(), foundChild1.getName() );
+    assertEquals( newChild1.getProperty( "shadow" ), foundChild1.getProperty( "shadow" ) );
   }
 
   @Test
@@ -1921,6 +2000,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
   public void testGetReservedChars() throws Exception {
     assertFalse( repo.getReservedChars().isEmpty() );
   }
+
 
   private RepositoryFile createSimpleFile( final Serializable parentFolderId, final String fileName ) throws Exception {
     final String dataString = "Hello World!";
