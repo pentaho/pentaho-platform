@@ -17,6 +17,7 @@ public class SolutionRepositoryVfsFileObjectTest {
   public void initFileTest() throws Exception {
 
     String fileRef = "/etc/mondrian/SteelWheels/schema.xml";
+    String dsRef = "/etc/mondrian/SteelWheels";
     SolutionRepositoryVfsFileObject fileObject = new SolutionRepositoryVfsFileObject( fileRef );
     SolutionRepositoryVfsFileObject fileObjectSpy = spy( fileObject );
 
@@ -26,13 +27,15 @@ public class SolutionRepositoryVfsFileObjectTest {
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( true ).when( aclNodeHelper ).canAccess( file, EnumSet.of( RepositoryFilePermission.READ ) );
 
-
     IUnifiedRepository repository = mock( IUnifiedRepository.class );
     doReturn( file ).when( repository ).getFile( fileRef );
     doReturn( repository ).when( fileObjectSpy ).getRepository();
 
     fileObjectSpy.getName();
-    verify( repository, times( 1 ) ).getFile( anyString() );
+    verify( repository, times( 1 ) ).getFile( eq( dsRef ) );
+    verify( repository, times( 1 ) ).getFile( eq( fileRef ) );
+    verify( aclNodeHelper, times( 1 ) ).canAccess( any( RepositoryFile.class ), eq(
+        EnumSet.of( RepositoryFilePermission.READ ) ) );
 
     fileRef = "/etca/mondriana/SteelWheels/schema.xml";
 
@@ -44,6 +47,8 @@ public class SolutionRepositoryVfsFileObjectTest {
     doReturn( repository ).when( fileObjectSpy ).getRepository();
 
     fileObjectSpy.getName();
-    verify( repository, times( 2 ) ).getFile( anyString() );
+    verify( repository, times( 2 ) ).getFile( eq( fileRef ) );
+    verify( aclNodeHelper, times( 2 ) ).canAccess( any( RepositoryFile.class ), eq(
+        EnumSet.of( RepositoryFilePermission.READ ) ) );
   }
 }
