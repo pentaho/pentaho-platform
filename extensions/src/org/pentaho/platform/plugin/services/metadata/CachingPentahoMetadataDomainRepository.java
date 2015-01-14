@@ -122,7 +122,8 @@ public class CachingPentahoMetadataDomainRepository extends PentahoMetadataDomai
   @Override
   public void reloadDomains() {
     flushDomains();
-    getDomainIds();
+    // it causes stack overflow
+    //getDomainIds();
   }
 
   /**

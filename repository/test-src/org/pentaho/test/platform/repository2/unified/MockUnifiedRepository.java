@@ -181,7 +181,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
                                      final boolean showHidden ) {
     FileRecord r = root.getFileRecord( path );
     RepositoryFile rootFile = r.getFile();
-    if ( !showHidden && rootFile.isHidden() ) {
+    if ( (!showHidden && rootFile.isHidden()) || rootFile.isAclNode() ) {
       return null;
     }
     List<RepositoryFileTree> children;
@@ -1404,7 +1404,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
     FileRecord fileRecord = idManager.getFileById( folder.getId() );
     fileRecord.setFile( new RepositoryFile.Builder( folder ).hidden( folder.isHidden() ).title( findTitle( folder ) )
-        .description( findDesc( folder ) ).build() );
+        .description( findDesc( folder ) ).aclNode( folder.isAclNode() ).build() );
     if ( folder.isVersioned() ) {
       versionManager.createVersion( fileRecord.getFile().getId(), currentUserProvider.getUser(), versionMessage,
           new Date() );

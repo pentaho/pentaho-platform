@@ -74,36 +74,6 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Pattern;
-
-import javax.jcr.Item;
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.UnsupportedRepositoryOperationException;
-import javax.jcr.lock.Lock;
-import javax.jcr.version.Version;
-import javax.jcr.version.VersionHistory;
-import javax.jcr.version.VersionManager;
-
 /**
  * Class of static methods where the real JCR work takes place.
  * 
@@ -217,6 +187,7 @@ public class JcrRepositoryFileUtils {
     String lockMessage = null;
     String title = null;
     String description = null;
+    Boolean aclNode = false;
     Map<String, Properties> localePropertiesMap = null;
 
     id = getNodeId( session, pentahoJcrConstants, node );
@@ -249,6 +220,9 @@ public class JcrRepositoryFileUtils {
     }
     if ( node.hasProperty( pentahoJcrConstants.getPHO_FILESIZE() ) ) {
       fileSize = node.getProperty( pentahoJcrConstants.getPHO_FILESIZE() ).getLong();
+    }
+    if ( node.hasProperty( pentahoJcrConstants.getPHO_ACLNODE() ) ) {
+      aclNode = node.getProperty( pentahoJcrConstants.getPHO_ACLNODE() ).getBoolean();
     }
     if ( isPentahoFile( pentahoJcrConstants, node ) ) {
       // pho:lastModified nodes have OnParentVersion values of IGNORE; i.e. they don't exist in frozen nodes
@@ -330,7 +304,7 @@ public class JcrRepositoryFileUtils {
             lastModified ).folder( folder ).versioned( versioned ).path( path ).versionId( versionId ).fileSize(
             fileSize ).locked( locked ).lockDate( lockDate ).hidden( hidden ).lockMessage( lockMessage ).lockOwner(
             lockOwner ).title( title ).description( description ).locale( pentahoLocale.toString() )
-            .localePropertiesMap( localePropertiesMap ).build();
+            .localePropertiesMap( localePropertiesMap ).aclNode( aclNode ).build();
 
     return file;
   }
@@ -582,6 +556,7 @@ public class JcrRepositoryFileUtils {
     String encodedfolderName = JcrStringHelper.fileNameEncode( folder.getName() );
     Node folderNode = parentFolderNode.addNode( encodedfolderName, pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER() );
     folderNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), folder.isHidden() );
+    folderNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), folder.isAclNode() );
     // folderNode.setProperty(pentahoJcrConstants.getPHO_TITLE(), folder.getTitle());
     Node localeNodes = null;
     if ( folder.getTitle() != folder.getName() ) { // Title is different from the name
@@ -624,6 +599,7 @@ public class JcrRepositoryFileUtils {
     fileNode.setProperty( pentahoJcrConstants.getPHO_LASTMODIFIED(), Calendar.getInstance() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), file.isHidden() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_FILESIZE(), content.getDataSize() );
+    fileNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), file.isAclNode() );
     if ( file.getLocalePropertiesMap() != null && !file.getLocalePropertiesMap().isEmpty() ) {
       Node localeNodes =
           fileNode.addNode( pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE() );
@@ -670,6 +646,7 @@ public class JcrRepositoryFileUtils {
     fileNode.setProperty( pentahoJcrConstants.getPHO_LASTMODIFIED(), Calendar.getInstance() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), file.isHidden() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_FILESIZE(), content.getDataSize() );
+    fileNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), file.isAclNode() );
     if ( file.getLocalePropertiesMap() != null && !file.getLocalePropertiesMap().isEmpty() ) {
       Node localePropertiesMapNode = null;
       if ( !fileNode.hasNode( pentahoJcrConstants.getPHO_LOCALES() ) ) {
@@ -704,6 +681,7 @@ public class JcrRepositoryFileUtils {
     preventLostUpdate( session, pentahoJcrConstants, folder );
 
     folderNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), folder.isHidden() );
+    folderNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), folder.isAclNode() );
     if ( folder.getLocalePropertiesMap() != null && !folder.getLocalePropertiesMap().isEmpty() ) {
       Node localePropertiesMapNode = null;
       if ( !folderNode.hasNode( pentahoJcrConstants.getPHO_LOCALES() ) ) {
@@ -756,15 +734,12 @@ public class JcrRepositoryFileUtils {
       Node node = nodeIterator.nextNode();
       if ( isSupportedNodeType( pentahoJcrConstants, node ) ) {
         RepositoryFile file = nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, node );
-        if ( !repositoryRequest.isShowHidden() ) {
-          if ( !file.isHidden() ) {
-            children.add( file );
-          }
-        } else {
+        if ( !file.isAclNode() && ( !file.isHidden() || repositoryRequest.isShowHidden() ) ) {
           children.add( file );
         }
       }
     }
+
     Collections.sort( children );
     return children;
 
@@ -1237,7 +1212,7 @@ public class JcrRepositoryFileUtils {
 
     RepositoryFile rootFile =
         nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode, false, null );
-    if ( ( !showHidden && rootFile.isHidden() )
+    if ( ( !showHidden && rootFile.isHidden() ) || rootFile.isAclNode()
         || ( !accessVoterManager.hasAccess( rootFile, RepositoryFilePermission.READ, JcrRepositoryFileAclUtils.getAcl(
             session, pentahoJcrConstants, rootFile.getId() ), PentahoSessionHolder.getSession() ) ) ) {
       return null;
