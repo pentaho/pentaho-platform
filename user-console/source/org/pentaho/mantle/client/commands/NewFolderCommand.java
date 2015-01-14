@@ -52,7 +52,16 @@ public class NewFolderCommand extends AbstractCommand {
 
   private RepositoryFile parentFolder;
 
-  private ICallback<String> callback;
+  private ICallback<String> callback = new ICallback<String>() {
+
+    /**
+     * Default handler
+     */
+    @Override
+    public void onHandle( String param ) {
+    }
+    
+  };
 
   public NewFolderCommand() {
   }
