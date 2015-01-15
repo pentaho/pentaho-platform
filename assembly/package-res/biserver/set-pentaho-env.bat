@@ -1,4 +1,3 @@
-
 rem ---------------------------------------------------------------------------
 rem Finds a suitable Java
 rem
@@ -16,7 +15,7 @@ rem 2. environment variable PENTAHO_JAVA_HOME - path to Java home
 rem 3. jre folder at current folder level
 rem 4. java folder at current folder level
 rem 5. jre folder one level up
-rem 6 java folder one level up
+rem 6. java folder one level up
 rem 7. jre folder two levels up
 rem 8. java folder two levels up
 rem 9. environment variable JAVA_HOME - path to Java home
@@ -32,6 +31,16 @@ rem Finally, there is one final optional environment variable: PENTAHO_JAVA.
 rem If set, this value is used in the construction of _PENTAHO_JAVA. If not 
 rem set, then the value java.exe is used. 
 rem ---------------------------------------------------------------------------
+
+set SERVICE_NAME=pentahobaserver
+set CATALINA_HOME=%~dp0tomcat
+SET BITS=64
+for /f %%a in ('echo %PROCESSOR_ARCHITECTURE% ^| "%SystemRoot%\system32\find" /c "64"') do if not "%%a"=="1" SET BITS=32
+IF "%BITS%" == "64" (
+  set CATALINA_OPTS=-Xms1024m -Xmx2048m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
+) ELSE (
+  set CATALINA_OPTS=-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
+)
 
 if not "%PENTAHO_JAVA%" == "" goto gotPentahoJava
 set __LAUNCHER=java.exe
