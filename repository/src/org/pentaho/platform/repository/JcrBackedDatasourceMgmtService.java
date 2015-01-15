@@ -138,11 +138,15 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
             "DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", "", "" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$       
       }
     } catch ( UnifiedRepositoryException ure ) {
-      throw new DatasourceMgmtServiceException(
+      try{
+        repository.deleteFile( file.getId(), null );
+      }catch ( UnifiedRepositoryException ure1 ) {
+        throw new DatasourceMgmtServiceException(
           Messages
               .getInstance()
               .getErrorString(
-                  "DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", file.getName(), ure.getLocalizedMessage() ), ure ); //$NON-NLS-1$
+                  "DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", file.getName(), ure1.getLocalizedMessage() ), ure1 ); //$NON-NLS-1$
+      }
     }
   }
 
