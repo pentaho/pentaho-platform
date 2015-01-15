@@ -95,6 +95,11 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     if ( include( "creatorId", memberSet, exclude ) ) {
       f.creatorId = v.getCreatorId();
     }
+
+    if ( include( "owner", memberSet, exclude ) ) {
+      f.owner = getRepoWs().getAcl( "" + v.getId() ).getOwner();
+    }
+
     if ( include( "fileSize", memberSet, exclude ) ) {
       f.fileSize = v.getFileSize();
     }
