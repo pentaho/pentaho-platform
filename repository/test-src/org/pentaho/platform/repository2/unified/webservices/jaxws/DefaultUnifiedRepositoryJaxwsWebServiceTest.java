@@ -19,9 +19,12 @@
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
 import com.sun.xml.ws.developer.JAXWSProperties;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;
@@ -50,6 +53,7 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
@@ -73,6 +77,18 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest extends DefaultUnifiedR
   // ======================================================================================
 
   private final Logger logger = Logger.getLogger( DefaultUnifiedRepositoryJaxwsWebServiceTest.class );
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    DefaultUnifiedRepositoryBase.setUpClass();
+
+    FileUtils.deleteDirectory( new File( "/tmp/repository/jackrabbit-test-TRUNK" ) );
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    DefaultUnifiedRepositoryBase.tearDownClass();
+  }
 
   // ~ Instance fields
   // =================================================================================================
@@ -121,7 +137,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest extends DefaultUnifiedR
   @Test
   public void testEverything() throws Exception {
     login( sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName,
-      tenantAuthenticatedRoleName } );
+        tenantAuthenticatedRoleName } );
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName,
             tenantAuthenticatedRoleName, ANONYMOUS_ROLE_NAME );

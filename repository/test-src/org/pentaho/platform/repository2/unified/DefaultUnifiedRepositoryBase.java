@@ -20,7 +20,6 @@ package org.pentaho.platform.repository2.unified;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -32,13 +31,10 @@ import javax.jcr.Session;
 import javax.jcr.Workspace;
 import javax.jcr.security.AccessControlException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
 import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -115,7 +111,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings( "nls" )
-public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
+public abstract class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
 
   protected static final String NAMESPACE_REPOSITORY = "org.pentaho.repository";
 
@@ -187,11 +183,12 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   protected TransactionTemplate jcrTransactionTemplate;
   protected TransactionTemplate txnTemplate;
 
-  @BeforeClass
+  /**
+   * need to be called from subclass with BeforeClass annotation
+   *
+   * @throws Exception
+   */
   public static void setUpClass() throws Exception {
-    // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
-    // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
-    FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
 
     // register repository spring context for correct work of <pen:list>
@@ -204,7 +201,11 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     PentahoSystem.registerObjectFactory( pentahoObjectFactory );
   }
 
-  @AfterClass
+  /**
+   * need to be called from subclass with AfterClass annotation
+   *
+   * @throws Exception
+   */
   public static void tearDownClass() throws Exception {
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
   }

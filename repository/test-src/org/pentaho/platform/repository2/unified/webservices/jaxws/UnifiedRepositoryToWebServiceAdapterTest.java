@@ -17,8 +17,11 @@
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;
@@ -29,6 +32,7 @@ import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +49,18 @@ import static org.junit.Assert.*;
 public class UnifiedRepositoryToWebServiceAdapterTest extends DefaultUnifiedRepositoryBase {
   private UnifiedRepositoryToWebServiceAdapter adapter;
   public static final String MAIN_TENANT_1 = "maintenant1";
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    DefaultUnifiedRepositoryBase.setUpClass();
+
+    FileUtils.deleteDirectory( new File( "/tmp/repository/jackrabbit-test-TRUNK" ) );
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    DefaultUnifiedRepositoryBase.tearDownClass();
+  }
 
   @Before
   public void setUp() throws Exception {
