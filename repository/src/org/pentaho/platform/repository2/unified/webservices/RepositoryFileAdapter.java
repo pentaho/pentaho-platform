@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +98,13 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     }
 
     if ( include( "owner", memberSet, exclude ) ) {
-      f.owner = getRepoWs().getAcl( "" + v.getId() ).getOwner();
+      Serializable id = v.getId();
+      if( id != null ) {
+        RepositoryFileAclDto acl = getRepoWs().getAcl( "" + id );
+        if ( acl != null ) {
+          f.owner = acl.getOwner();
+        }
+      }
     }
 
     if ( include( "fileSize", memberSet, exclude ) ) {
@@ -225,10 +232,10 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     }
 
     return builder.path( v.path ).createdDate( v.createdDate ).creatorId( v.creatorId ).description( v.description )
-      .folder( v.folder ).fileSize( v.fileSize ).lastModificationDate( v.lastModifiedDate ).locale( v.locale )
-      .lockDate( v.lockDate ).locked( v.locked ).lockMessage( v.lockMessage ).lockOwner( v.lockOwner )
-      .title( v.title ).versioned( v.versioned ).versionId( v.versionId ).originalParentFolderPath(
-        v.originalParentFolderPath ).deletedDate( v.deletedDate ).hidden( v.hidden ).aclNode( v.aclNode ).build();
+        .folder( v.folder ).fileSize( v.fileSize ).lastModificationDate( v.lastModifiedDate ).locale( v.locale )
+        .lockDate( v.lockDate ).locked( v.locked ).lockMessage( v.lockMessage ).lockOwner( v.lockOwner )
+        .title( v.title ).versioned( v.versioned ).versionId( v.versionId ).originalParentFolderPath(
+            v.originalParentFolderPath ).deletedDate( v.deletedDate ).hidden( v.hidden ).aclNode( v.aclNode ).build();
   }
 
   private static DefaultUnifiedRepositoryWebService getRepoWs() {
