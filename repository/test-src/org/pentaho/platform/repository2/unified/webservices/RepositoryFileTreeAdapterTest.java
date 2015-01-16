@@ -20,8 +20,11 @@ package org.pentaho.platform.repository2.unified.webservices;
 
 import junit.framework.TestCase;
 import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -31,6 +34,10 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class RepositoryFileTreeAdapterTest extends TestCase {
 
   /**
@@ -38,6 +45,12 @@ public class RepositoryFileTreeAdapterTest extends TestCase {
    */
   @Test
   public void testBIServer7777() throws Exception {
+
+    IUnifiedRepository unifiedRepository = mock( IUnifiedRepository.class );
+    PentahoSystem.registerObject( unifiedRepository );
+    RepositoryFileAcl acl = new RepositoryFileAcl.Builder("admin").build();
+    when( unifiedRepository.getAcl( anyString() )).thenReturn( acl );
+
     // file tree with empty children
     RepositoryFile empty = new RepositoryFile.Builder( "empty" ).build();
     RepositoryFileTree emptyDir = new RepositoryFileTree( empty, Collections.<RepositoryFileTree>emptyList() );
