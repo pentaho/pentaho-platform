@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +98,13 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     }
 
     if ( include( "owner", memberSet, exclude ) ) {
-      f.owner = getRepoWs().getAcl( "" + v.getId() ).getOwner();
+      Serializable id = v.getId();
+      if( id != null ) {
+        RepositoryFileAclDto acl = getRepoWs().getAcl( "" + id );
+        if ( acl != null ) {
+          f.owner = acl.getOwner();
+        }
+      }
     }
 
     if ( include( "fileSize", memberSet, exclude ) ) {
