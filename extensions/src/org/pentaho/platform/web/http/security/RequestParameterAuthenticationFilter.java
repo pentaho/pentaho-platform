@@ -17,20 +17,12 @@
 
 package org.pentaho.platform.web.http.security;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.di.core.encryption.Encr;
+import org.pentaho.platform.api.engine.IConfiguration;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.pentaho.platform.web.http.request.MultiReadHttpServletRequest;
 import org.springframework.beans.factory.InitializingBean;
@@ -42,33 +34,40 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.util.Assert;
-import org.pentaho.platform.api.engine.IConfiguration;
-import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Processes Request Parameter authorization, putting the result into the <code>SecurityContextHolder</code>.
- * 
+ *
  * <p>
  * In summary, this filter looks for request parameters with the userid/password
  * </p>
- * 
+ *
  * <P>
  * If authentication is successful, the resulting {@link Authentication} object will be placed into the
  * <code>SecurityContextHolder</code>.
  * </p>
- * 
+ *
  * <p>
  * If authentication fails and <code>ignoreFailure</code> is <code>false</code> (the default), an
  * {@link AuthenticationEntryPoint} implementation is called. Usually this should be
  * {@link RequestParameterFilterEntryPoint}.
  * </p>
- * 
+ *
  * <p>
  * <b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the
  * {@link org.springframework.security.util.FilterToBeanProxy}.
  * </p>
- * 
+ *
  */
 public class RequestParameterAuthenticationFilter implements Filter, InitializingBean {
   // ~ Static fields/initializers =============================================
@@ -92,10 +91,10 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
   private String passwordParameter = RequestParameterAuthenticationFilter.DefaultPasswordParameter;
 
   private ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
-  
+
   private boolean isRequestParameterAuthenticationEnabled;
   private boolean isRequestAuthenticationParameterLoaded = false;
- 
+
   // ~ Methods ================================================================
 
   public void afterPropertiesSet() throws Exception {
@@ -116,7 +115,7 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
   public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain chain )
     throws IOException, ServletException {
     IConfiguration config = this.systemConfig.getConfiguration( "security" );
-    
+
     if ( !isRequestAuthenticationParameterLoaded ) {
       String strParameter = config.getProperties().getProperty( "requestParameterAuthenticationEnabled" );
       isRequestParameterAuthenticationEnabled = Boolean.valueOf( strParameter );
@@ -191,7 +190,7 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
     } else {
       chain.doFilter( request, response );
     }
-    
+
   }
 
   public AuthenticationEntryPoint getAuthenticationEntryPoint() {
@@ -237,4 +236,11 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
     passwordParameter = value;
   }
 
+  public ISystemConfig getSystemConfig() {
+    return systemConfig;
+  }
+
+  public void setSystemConfig( ISystemConfig systemConfig ) {
+    this.systemConfig = systemConfig;
+  }
 }
