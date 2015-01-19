@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<audit-sql>
+
+  <auditConnection>
+    <insertSQL>
+    INSERT INTO PRO_AUDIT (JOB_ID, INST_ID, OBJ_ID, OBJ_TYPE, ACTOR, MESSAGE_TYPE, MESSAGE_NAME, MESSAGE_TEXT_VALUE, MESSAGE_NUM_VALUE, DURATION, AUDIT_TIME) values (?,?,?,?,?,?,?,?,?,?,?)
+    </insertSQL>
+    <JNDI>Hibernate</JNDI>
+  </auditConnection>
+
+</audit-sql>
