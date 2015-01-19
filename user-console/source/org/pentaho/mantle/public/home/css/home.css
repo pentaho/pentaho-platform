@@ -264,35 +264,35 @@ button.btn-large.btn-block {
 }
 
 #sample-card2 .card-img {
-  background-image: url("../images/european_map_sm.png");
+  background-image: url("../images/sales_breakdown_sm.png");
 }
 
 #sample-card3 .card-img {
-  background-image: url("../images/country_perf_heat_grid_sm.png");
+  background-image: url("../images/european_map_sm.png");
 }
 
 #sample-card4 .card-img {
-  background-image: url("../images/vendor_interactive_sm.png");
+  background-image: url("../images/country_perf_heat_grid_sm.png");
 }
 
 #sample-card5 .card-img {
-  background-image: url("../images/inventory_list_sm.png");
+  background-image: url("../images/vendor_interactive_sm.png");
 }
 
 #sample-card6 .card-img {
-  background-image: url("../images/top_customers_sm.png");
+  background-image: url("../images/inventory_list_sm.png");
 }
 
 #sample-card7 .card-img {
-  background-image: url("../images/sales_performance_sm.png");
+  background-image: url("../images/top_customers_sm.png");
 }
 
 #sample-card8 .card-img {
-  background-image: url("../images/regional_product_mix_sm.png");
+  background-image: url("../images/sales_performance_sm.png");
 }
 
 #sample-card9 .card-img {
-  background-image: url("../images/sales_breakdown_sm.png");
+  background-image: url("../images/regional_product_mix_sm.png");
 }
 
 /* Sample Images Large */
@@ -301,35 +301,35 @@ button.btn-large.btn-block {
 }
 
 .sample-details-img#sample-img2 {
-  background-image: url("../images/european_map_lg.png");
+  background-image: url("../images/sales_breakdown_lg.png");
 }
 
 .sample-details-img#sample-img3 {
-  background-image: url("../images/country_perf_heat_grid_lg.png");
+  background-image: url("../images/european_map_lg.png");
 }
 
 .sample-details-img#sample-img4 {
-  background-image: url("../images/vendor_interactive_lg.png");
+  background-image: url("../images/country_perf_heat_grid_lg.png");
 }
 
 .sample-details-img#sample-img5 {
-  background-image: url("../images/inventory_list_lg.png");
+  background-image: url("../images/vendor_interactive_lg.png");
 }
 
 .sample-details-img#sample-img6 {
-  background-image: url("../images/top_customers_lg.png");
+  background-image: url("../images/inventory_list_lg.png");
 }
 
 .sample-details-img#sample-img7 {
-  background-image: url("../images/sales_performance_lg.png");
+  background-image: url("../images/top_customers_lg.png");
 }
 
 .sample-details-img#sample-img8 {
-  background-image: url("../images/regional_product_mix_lg.png");
+  background-image: url("../images/sales_performance_lg.png");
 }
 
 .sample-details-img#sample-img9 {
-  background-image: url("../images/sales_breakdown_lg.png");
+  background-image: url("../images/regional_product_mix_lg.png");
 }
 
 /* Tutorial Images Small */
