@@ -66,6 +66,15 @@
     <param name="schema" value="postgresql"/>
     <param name="schemaObjectPrefix" value="fs_repos_"/>
   </FileSystem>
+
+  <FileSystem class="org.apache.jackrabbit.core.fs.db.MSSqlFileSystem">
+    <param name="driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+    <param name="url" value="jdbc:sqlserver://localhost:1433;DatabaseName=jackrabbit"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="schema" value="mssql"/>
+    <param name="schemaObjectPrefix" value="fs_repos_"/>
+  </FileSystem>
   -->
 
   <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
@@ -117,6 +126,19 @@
     <param name="user" value="jcr_user"/>
     <param name="password" value="password"/>
     <param name="databaseType" value="postgresql"/>
+    <param name="minRecordLength" value="1024"/>
+    <param name="maxConnections" value="3"/>
+    <param name="copyWhenReading" value="true"/>
+    <param name="tablePrefix" value=""/>
+    <param name="schemaObjectPrefix" value="ds_repos_"/>
+  </DataStore>
+
+  <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
+    <param name="url" value="jdbc:sqlserver://localhost:1433;DatabaseName=jackrabbit"/>
+    <param name="driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="databaseType" value="mssql"/>
     <param name="minRecordLength" value="1024"/>
     <param name="maxConnections" value="3"/>
     <param name="copyWhenReading" value="true"/>
@@ -219,6 +241,15 @@
       <param name="schema" value="postgresql"/>
       <param name="schemaObjectPrefix" value="fs_ws_"/>
     </FileSystem>
+
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.MSSqlFileSystem">
+      <param name="driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+      <param name="url" value="jdbc:sqlserver://localhost:1433;DatabaseName=jackrabbit"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="mssql"/>
+      <param name="schemaObjectPrefix" value="fs_ws_"/>
+    </FileSystem>
     -->
 
 
@@ -265,6 +296,15 @@
       <param name="user" value="jcr_user"/>
       <param name="password" value="password"/>
       <param name="schema" value="postgresql"/>
+      <param name="schemaObjectPrefix" value="${wsp.name}_pm_ws_"/>
+    </PersistenceManager>
+
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MSSqlPersistenceManager">
+      <param name="url" value="jdbc:sqlserver://localhost:1433;DatabaseName=jackrabbit"/>
+      <param name="driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="mssql"/>
       <param name="schemaObjectPrefix" value="${wsp.name}_pm_ws_"/>
     </PersistenceManager>
     -->
@@ -349,6 +389,15 @@ value="{0}/etc;org.pentaho.security.publish;jcr:read,jcr:readAccessControl,jcr:w
       <param name="schema" value="postgresql"/>
       <param name="schemaObjectPrefix" value="fs_ver_"/>
     </FileSystem>
+
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.MSSqlFileSystem">
+      <param name="driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+      <param name="url" value="jdbc:sqlserver://localhost:1433;DatabaseName=jackrabbit"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="mssql"/>
+      <param name="schemaObjectPrefix" value="fs_ver_"/>
+    </FileSystem>
     -->
 
     <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
@@ -395,6 +444,15 @@ value="{0}/etc;org.pentaho.security.publish;jcr:read,jcr:readAccessControl,jcr:w
       <param name="user" value="jcr_user"/>
       <param name="password" value="password"/>
       <param name="schema" value="postgresql"/>
+      <param name="schemaObjectPrefix" value="pm_ver_"/>
+    </PersistenceManager>
+
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MSSqlPersistenceManager">
+      <param name="url" value="jdbc:sqlserver://localhost:1433;DatabaseName=jackrabbit"/>
+      <param name="driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="mssql"/>
       <param name="schemaObjectPrefix" value="pm_ver_"/>
     </PersistenceManager>
     -->

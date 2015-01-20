@@ -10,6 +10,7 @@
   * system/hibernate/mysql5.hibernate.cfg.xml
   * system/hibernate/postgresql.hibernate.cfg.xml
   * system/hibernate/oracle10g.hibernate.cfg.xml
+  * system/hibernate/sqlserver.hibernate.cfg.xml
   *
   -->
     <config-file>system/hibernate/hsql.hibernate.cfg.xml</config-file>
