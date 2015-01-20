@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <!--
+    Depends on Hibernate configuration with hibernate.hbm2ddl.auto=update.
+  -->
+	<class name="org.pentaho.platform.repository.runtime.RuntimeElement"
+		table="RTELEMENT">
+		<cache usage="read-write" />
+		<id column="INSTANCEID" name="instanceId" type="string"
+			unsaved-value="null" length="100">
+			<generator class="assigned" />
+		</id>
+		<version column="REVISION" name="revision" />
+		<property name="parentId" type="string" not-null="false">
+			<column name="PARID" length="254" not-null="false" />
+		</property>
+		<property name="parentType" type="string" not-null="false">
+			<column name="PARTYPE" length="50" not-null="false" />
+		</property>
+		<property name="solutionId" type="string" not-null="false">
+			<column name="SOLNID" length="254" not-null="false" />
+		</property>
+		<map name="paramMapSS" table="SSPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+				column="PARAMVALUE" length="254" />
+		</map>
+		<map name="typesMap" table="PARAMTYPESMAP" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+				column="PARAMVALUE" length="25" />
+		</map>
+		<map name="paramMapLS" table="LSPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.LongStringUserType"
+				column="PARAMVALUE" />
+		</map>
+		<map name="paramMapDT" table="DTPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element type="timestamp" column="PARAMVALUE" />
+		</map>
+		<map name="paramMapBD" table="BDPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element type="string" length="50" column="PARAMVALUE" />
+		</map>
+		<map name="paramMapLong" table="LNGPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element type="long" column="PARAMVALUE" />
+		</map>
+		<map name="paramMapCPLX" table="CPLXPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.BlobUserType"
+				column="PARAMVALUE" />
+		</map>
+		<property name="readOnly" type="boolean" not-null="false">
+			<column name="READONLY" not-null="false" />
+		</property>
+		<property name="createDate" type="timestamp" not-null="true">
+			<column name="CREATED" not-null="true" />
+		</property>
+	</class>
+
+	<class
+		name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile"
+		table="PRO_FILES">
+		<cache usage="read-write" />
+		<id column="FILE_ID" name="fileId" type="string" length="100">
+			<generator class="assigned" />
+		</id>
+
+		<version name="revision" />
+
+		<many-to-one name="parent" />
+
+		<property name="fileName" not-null="true" />
+
+		<property name="fullPath" not-null="true" length="1024"
+			unique="true" />
+
+		<property name="data" not-null="false" type="binary"
+			length="1000000000" />
+
+		<property name="directory" type="boolean" not-null="true" />
+
+		<property name="lastModified" type="long" not-null="true" />
+
+		<set name="childrenFiles" lazy="true"
+			cascade="all-delete-orphan"
+			order-by="DIRECTORY DESC, lower(FILENAME)">
+			<cache usage="read-write" />
+			<key column="CHILD_ID" />
+			<one-to-many class="org.pentaho.platform.repository.solution.dbbased.RepositoryFile" />
+		</set>
+
+		<list name="accessControls" lazy="false"
+			cascade="all-delete-orphan" table="PRO_ACLS_LIST" fetch="join">
+			<cache usage="read-write" />
+			<key column="ACL_ID" />
+			<index column="ACL_POSITION" />
+			<composite-element
+				class="org.pentaho.platform.engine.security.acls.PentahoAclEntry">
+				<property name="mask" column="ACL_MASK" not-null="true" />
+				<property name="recipientType" column="RECIP_TYPE"
+					not-null="true" />
+				<property name="recipientString" column="RECIPIENT"
+					not-null="true" />
+			</composite-element>
+		</list>
+		<query name="findAllRootSolutionFolders">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where file.parent is null
+                 ]]>
+		</query>
+
+		<query name="findNamedRootSolutionFolders">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where file.parent is null and file.fileName = :fileName
+                 ]]>
+		</query>
+
+		<query name="findChildrenFilesByParentId">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where file.parent = :parentId
+                 ]]>
+		</query>
+
+		<query name="findFileByPath">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where file.fullPath = :fullPath
+                 ]]>
+		</query>
+
+		<query name="findAllActionSequences">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where lower(file.fileName) like '%.xaction'
+                 ]]>
+		</query>
+		<query name="filesWithModDates">
+			<![CDATA[
+                 select fullPath, lastModified, directory from org.pentaho.platform.repository.solution.dbbased.RepositoryFile
+                 ]]>
+		</query>
+
+	</class>    
+   	<class
+		name="org.pentaho.platform.repository.usersettings.pojo.UserSetting"
+		table="USER_SETTINGS">
+
+		<cache usage="read-write" />
+
+        <id name="id" type="long" column="USER_SETTINGS_ID" >
+           <generator class="increment"/>
+        </id>
+		<property name="username" type="string" not-null="true">
+			<column name="USERNAME" length="50" not-null="true" />
+		</property>
+		<property name="settingName" type="string" not-null="true">
+			<column name="SETTING_NAME" length="100" not-null="true" />
+		</property>
+		<property name="settingValue" type="string" not-null="true">
+			<column name="SETTING_VALUE" length="2048" not-null="true" />
+		</property>
+		<query name="getUserSettings">
+			<![CDATA[
+     from org.pentaho.platform.repository.usersettings.pojo.UserSetting settings where 
+     settings.username = :username
+     ]]>
+		</query>
+		<query name="getUserSetting">
+			<![CDATA[
+     from org.pentaho.platform.repository.usersettings.pojo.UserSetting settings where 
+     settings.username = :username and settings.settingName = :settingName
+     ]]>
+		</query>
+	</class>    
+    
+</hibernate-mapping>
