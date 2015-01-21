@@ -96,17 +96,6 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     if ( include( "creatorId", memberSet, exclude ) ) {
       f.creatorId = v.getCreatorId();
     }
-
-    if ( include( "owner", memberSet, exclude ) ) {
-      Serializable id = v.getId();
-      if( id != null ) {
-        RepositoryFileAclDto acl = getRepoWs().getAcl( "" + id );
-        if ( acl != null ) {
-          f.owner = acl.getOwner();
-        }
-      }
-    }
-
     if ( include( "fileSize", memberSet, exclude ) ) {
       f.fileSize = v.getFileSize();
     }
@@ -167,6 +156,16 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
           }
         } catch ( Exception e ) {
           e.printStackTrace();
+        }
+      }
+
+      if ( include( "owner", memberSet, exclude ) ) {
+        Serializable id = v.getId();
+        if( id != null ) {
+          RepositoryFileAclDto acl = getRepoWs().getAcl( "" + id );
+          if ( acl != null ) {
+            f.owner = acl.getOwner();
+          }
         }
       }
     }
