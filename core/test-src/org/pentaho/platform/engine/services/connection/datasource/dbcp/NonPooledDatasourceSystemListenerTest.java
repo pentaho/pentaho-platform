@@ -17,7 +17,7 @@
  */
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -35,6 +35,7 @@ import org.mockito.MockitoAnnotations;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -119,6 +120,32 @@ public class NonPooledDatasourceSystemListenerTest {
     isSetupDataSourceForConnectionWasCalled( 0 );
   }
 
+  @Test
+  public void testStartupIsSetupDataSourceForConnectionCalledForNativeNotForJNDI() throws ObjectFactoryException,
+      DatasourceMgmtServiceException {
+
+    stubGetListOfDatabaseConnectionsMethod( DatabaseAccessType.NATIVE, DatabaseAccessType.JNDI );
+    stubIsPortUsedByServerMethod( false );
+    // to avoid NullPointerException
+    stubAddCacheRegionsMethod();
+
+    // call real methods
+    callRealSetupDataSourceForConnection();
+    callRealStartup();
+
+    // calling testing method
+    callStartup();
+
+    // check if setupDataSourceForConnection was called 1 time for the non-jndi ds
+    isSetupDataSourceForConnectionWasCalled( 1 );
+
+    // check that isPortUsedByServer was called for 1 time for the non-jndi ds
+    isPortUsedByServerCalled( 1 );
+
+    // check how putInRegionCache was called was called 1 time per data source for the non-jndi ds
+    putInRegionCacheWasCalled( 1 );
+  }
+
   private void stubIsPortUsedByServerMethod( boolean returnedValue ) {
     when( nonPooledDatasourceSystemListenerSpy.isPortUsedByServer( any( IDatabaseConnection.class ) ) ).thenReturn(
         returnedValue );
@@ -128,15 +155,19 @@ public class NonPooledDatasourceSystemListenerTest {
     when( nonPooledDatasourceSystemListenerSpy.addCacheRegions() ).thenReturn( ICacheManagerMock );
   }
 
-  private void stubGetListOfDatabaseConnectionsMethod( DatabaseAccessType databaseAccessType )
+  private void stubGetListOfDatabaseConnectionsMethod( DatabaseAccessType... databaseAccessTypes )
     throws ObjectFactoryException, DatasourceMgmtServiceException {
-    DatabaseConnection databaseConnection = mock( DatabaseConnection.class );
-    when( databaseConnection.getAccessType() ).thenReturn( databaseAccessType );
 
-    List<IDatabaseConnection> connectionsList = new LinkedList<IDatabaseConnection>();
-    connectionsList.add( databaseConnection );
+    List<IDatabaseConnection> databaseConnections = new LinkedList<IDatabaseConnection>();
+    for ( DatabaseAccessType databaseAccessType : databaseAccessTypes ) {
+      IDatabaseConnection connection = mock( DatabaseConnection.class );
+      when( connection.getAccessType() ).thenReturn( databaseAccessType );
+      when( connection.getName() ).thenReturn( "" );
+      databaseConnections.add( connection );
+    }
+
     when( nonPooledDatasourceSystemListenerSpy.getListOfDatabaseConnections( any( IPentahoSession.class ) ) )
-        .thenReturn( connectionsList );
+        .thenReturn( databaseConnections );
   }
 
   private void callStartup() {
@@ -166,5 +197,14 @@ public class NonPooledDatasourceSystemListenerTest {
             any( IDatabaseConnection.class ) );
         break;
     }
+  }
+
+  private void putInRegionCacheWasCalled( int wishedTimes ) {
+    verify( ICacheManagerMock, times( wishedTimes ) ).putInRegionCache( eq( IDBDatasourceService.JDBC_DATASOURCE ), anyString(),
+        anyObject() );
+  }
+
+  private void isPortUsedByServerCalled( int wishedTimes ) {
+    verify( nonPooledDatasourceSystemListenerSpy, times( wishedTimes ) ).isPortUsedByServer( any( IDatabaseConnection.class ) );
   }
 }
