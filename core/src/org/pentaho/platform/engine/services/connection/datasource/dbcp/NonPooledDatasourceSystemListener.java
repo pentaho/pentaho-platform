@@ -66,6 +66,10 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
           if ( !databaseConnection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
             // if connection's port used by server there is no sense to get DataSource for this
             ds = isPortUsedByServer( databaseConnection ) ? null : setupDataSourceForConnection( databaseConnection );
+          } else {
+            Logger.debug( this, "(Datasource \"" + IDBDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$
+                + dsName + "\" not cached)" ); //$NON-NLS-1$
+            continue;
           }
 
           dsName = databaseConnection.getName();
