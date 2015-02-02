@@ -98,14 +98,6 @@
   border-bottom: 1px solid #dfdfdf;
 }
 
-.select-folder-tree {
-  height: 360px;
-  overflow: auto;
-  width: 380px;
-  border: 1px solid #cbdde8;
-  background-color: white;
-}
-
 .mantle-perspective-toggle {
   background: black;
   color: white;
@@ -709,32 +701,6 @@ a:active, a:hover {
   filter: alpha(opacity=85);
   border: 1px dashed #999 !important;
   background: transparent;
-}
-
-.leaf-widget {
-  /*font-size: 13px;*/
-}
-
-.leaf-widget .gwt-TreeItem > table {
-
-}
-
-.leaf-widget .gwt-TreeItem-selected > table {
-  background-color: #dbdbdb;
-}
-
-.leaf-widget .leaf-widget-hidden .gwt-TreeItem > table {
-  width: 100%;
-  opacity: .7;
-  font-style: italic;
-  background-color: #ffffff;
-}
-
-.leaf-widget .leaf-widget-hidden .gwt-TreeItem-selected > table {
-  width: 100%;
-  opacity: .7;
-  font-style: italic;
-  background-color: #dbdbdb;
 }
 
 .gwt-MenuItem,
