@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Vector;
 
 /**
  * Created by nbaker on 2/4/15.
@@ -19,17 +18,17 @@ public class SystemPackageExtrapolator {
   public static final String ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA = "org.osgi.framework.system.packages.extra";
   Logger logger = LoggerFactory.getLogger( getClass() );
 
-  public Properties expandProperties( Properties properties ){
+  public Properties expandProperties( Properties properties ) {
 
     Field f;
     try {
-      f = ClassLoader.class.getDeclaredField("packages");
+      f = ClassLoader.class.getDeclaredField( "packages" );
     } catch ( NoSuchFieldException e ) {
       logger.warn( "Not able to expand system.packages.extra properties as the classloader does not support accessing "
           + "the classes field" );
       return properties;
     }
-    f.setAccessible(true);
+    f.setAccessible( true );
     Map<String, Package> packageMap = null;
     ClassLoader classLoader = getClass().getClassLoader();
     Set<String> packages = new HashSet<String>();
@@ -43,7 +42,7 @@ public class SystemPackageExtrapolator {
       }
       packages.addAll( packageMap.keySet() );
 
-    } while ((classLoader = classLoader.getParent()) != null);
+    } while ( ( classLoader = classLoader.getParent() ) != null );
 
     String packagesImports = properties.getProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA );
     Set<String> imports = new HashSet<String>();
@@ -54,18 +53,18 @@ public class SystemPackageExtrapolator {
 
     for ( String pack : split ) {
       pack = pack.trim();
-      if(pack.indexOf( ";" ) > 0){
-        qualifiedPackages.add(pack.substring( pack.indexOf( ";" ) ));
-        qualifiedPackagesWhole.add(pack);
+      if ( pack.indexOf( ";" ) > 0 ) {
+        qualifiedPackages.add( pack.substring( pack.indexOf( ";" ) ) );
+        qualifiedPackagesWhole.add( pack );
       }
     }
     for ( String pack : split ) {
-      if( StringUtils.isNotEmpty( pack ) && pack.contains( ".*" ) ){
+      if ( StringUtils.isNotEmpty( pack ) && pack.contains( ".*" ) ) {
         // expand out
         String basePackage = pack.substring( 0, pack.indexOf( "*" ) ).trim(); // including "."
         String predicate = pack.substring( pack.indexOf( "*" ) + 1 );
         for ( String aPackage : packages ) {
-          if(aPackage.startsWith( basePackage ) && ! qualifiedPackages.contains( aPackage )){
+          if ( aPackage.startsWith( basePackage ) && !qualifiedPackages.contains( aPackage ) ) {
             imports.add( aPackage + predicate );
           }
         }

@@ -50,6 +50,7 @@ public class KarafBoot implements IPentahoSystemListener {
   private Main main;
   Logger logger = LoggerFactory.getLogger( getClass() );
   private static boolean initialized;
+  public static final String ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA = "org.osgi.framework.system.packages.extra";
 
   @Override public boolean startup( IPentahoSession session ) {
     try {
@@ -129,16 +130,18 @@ public class KarafBoot implements IPentahoSystemListener {
     }
 
     properties = new SystemPackageExtrapolator().expandProperties( properties );
+    System.setProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA,
+        properties.getProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA ) );
 
-    FileOutputStream out = null;
-    try {
-      out = new FileOutputStream( customFile );
-      properties.store( out, "expanding osgi properties" );
-    } catch ( IOException e ) {
-      logger.error( "Not able to expand system.packages.extra properties due error saving custom.properties", e );
-    } finally {
-      IOUtils.closeQuietly( out );
-    }
+//    FileOutputStream out = null;
+//    try {
+//      out = new FileOutputStream( customFile );
+//      properties.store( out, "expanding osgi properties" );
+//    } catch ( IOException e ) {
+//      logger.error( "Not able to expand system.packages.extra properties due error saving custom.properties", e );
+//    } finally {
+//      IOUtils.closeQuietly( out );
+//    }
 
   }
 
