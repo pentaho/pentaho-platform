@@ -591,7 +591,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     init( pentahoSession );
 
     // check for existing dataSourceInfo+catalog
-    if ( catalogExists( catalog, pentahoSession ) && !overwrite ) {
+    final boolean catalogExistsWithSameDatasource = catalogExists( catalog, pentahoSession );
+    if ( catalogExistsWithSameDatasource && !overwrite ) {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS" ), Reason.ALREADY_EXISTS ); //$NON-NLS-1$
     }
@@ -606,10 +607,10 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       }
     }
     //compare the catalog names and throw exception if same and NOT ovewrite
-    if ( fileLocationCatalogTest != null
+    final boolean catalogExistsWithDifferentDatasource = fileLocationCatalogTest != null
         && definitionEquals( fileLocationCatalogTest.getDefinition(),
-          "mondrian:/" + catalog.getName() )
-        && !overwrite ) {
+        "mondrian:/" + catalog.getName() );
+    if ( catalogExistsWithDifferentDatasource && !overwrite ) {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS" ), //$NON-NLS-1$
           Reason.XMLA_SCHEMA_NAME_EXISTS );
@@ -631,7 +632,9 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
     setAclFor( catalog.getName(), acl );
 
-    flushCacheForCatalog( catalog.getName(), pentahoSession );
+    if ( catalogExistsWithSameDatasource || catalogExistsWithDifferentDatasource ) {
+      flushCacheForCatalog( catalog.getName(), pentahoSession );
+    }
   }
 
   private void flushCacheForCatalog( String catalogName, IPentahoSession pentahoSession ) {
@@ -1173,6 +1176,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION" ), Reason.ACCESS_DENIED ); //$NON-NLS-1$
     }
+    flushCacheForCatalog( catalog.getName(), pentahoSession );
 
     getAclHelper().removeAclFor( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( catalog.getName() ) );
 
@@ -1181,6 +1185,5 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
         + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName() ); //$NON-NLS-1$
     solutionRepository.deleteFile( deletingFile.getId(), true, "" ); //$NON-NLS-1$
     reInit( pentahoSession );
-
   }
 }
