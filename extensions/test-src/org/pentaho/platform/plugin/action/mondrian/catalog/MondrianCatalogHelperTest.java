@@ -192,8 +192,9 @@ public class MondrianCatalogHelperTest {
     IAclNodeHelper aclNodeHelper = mock( IAclNodeHelper.class );
     doNothing().when( aclNodeHelper ).setAclFor( any( RepositoryFile.class ), any( RepositoryFileAcl.class ) );
     doReturn( aclNodeHelper ).when( helperSpy ).getAclHelper();
+    doReturn( true ).when( helperSpy ).catalogExists( any( MondrianCatalog.class ), eq( session ) );
 
-    helperSpy.addCatalog( cat, false, session );
+    helperSpy.addCatalog( cat, true, session );
 
     verify( repo ).createFile(
         eq( makeIdObject( steelWheelsFolderPath ) ),
@@ -370,6 +371,10 @@ public class MondrianCatalogHelperTest {
     helper.removeCatalog( "mondrian:/SteelWheels", session );
 
     verify( repo ).deleteFile( eq( makeIdObject( steelWheelsFolderPath ) ), eq( true ), anyString() );
+
+    // cache should be cleared for this schema only
+    verify( olapService, times( 1 ) ).getConnection( CATALOG_NAME, session );
+    verify( mondrianCacheControl, times( 1 ) ).flushSchema( this.mondrianSchema );
   }
 
   @Test
