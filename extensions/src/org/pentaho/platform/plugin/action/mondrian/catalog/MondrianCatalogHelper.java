@@ -19,16 +19,15 @@ package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import com.google.common.annotations.VisibleForTesting;
 import mondrian.i18n.LocalizingDynamicSchemaProcessor;
+import mondrian.olap.Connection;
 import mondrian.olap.MondrianDef;
 import mondrian.olap.Util;
 import mondrian.olap.Util.PropertyList;
 import mondrian.rolap.RolapConnectionProperties;
-import mondrian.rolap.agg.AggregationManager;
 import mondrian.spi.DynamicSchemaProcessor;
 import mondrian.util.ClassResolver;
 import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.DataSources;
-
 import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,6 +45,7 @@ import org.eigenbase.xom.Parser;
 import org.eigenbase.xom.XMLOutput;
 import org.eigenbase.xom.XOMException;
 import org.eigenbase.xom.XOMUtil;
+import org.olap4j.OlapConnection;
 import org.owasp.esapi.ESAPI;
 import org.owasp.esapi.Encoder;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
@@ -67,6 +67,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
+import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
@@ -81,8 +82,6 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -92,6 +91,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -265,7 +265,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     // By default, we will use the system to load all schemas into the cache.
     // access to these schemas is controlled later via the hasAccess() method
     loadCatalogsIntoCache( makeDataSources(), PentahoSessionHolder.getSession() );
-    AggregationManager.instance().getCacheControl( null, null ).flushSchemaCache();
   }
 
   public synchronized void reInit( final IPentahoSession pentahoSession ) {
@@ -632,6 +631,23 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     reInit( pentahoSession );
 
     setAclFor( catalog.getName(), acl );
+
+    flushCacheForCatalog( catalog.getName(), pentahoSession );
+  }
+
+  private void flushCacheForCatalog( String catalogName, IPentahoSession pentahoSession ) {
+    IOlapService olapService =
+          PentahoSystem.get( IOlapService.class, "IOlapService", pentahoSession );
+    OlapConnection connection = olapService.getConnection( catalogName, pentahoSession );
+    Connection unwrap;
+    try {
+      unwrap = connection.unwrap( Connection.class );
+    } catch ( SQLException e ) {
+      MondrianCatalogHelper.logger
+        .error( "Flush failed for catalog " + catalogName, e );
+      return;
+    }
+    unwrap.getCacheControl( null ).flushSchema( unwrap.getSchema() );
   }
 
   protected IUnifiedRepository getRepository() {
@@ -695,6 +711,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
       reInit( PentahoSessionHolder.getSession() );
 
+      flushCacheForCatalog( catalogName, PentahoSessionHolder.getSession() );
     } catch ( SAXParseException e ) {
       throw new MondrianCatalogServiceException( Messages.getInstance().getString(
           "MondrianCatalogHelper.ERROR_0018_IMPORT_SCHEMA_ERROR" ) ); //$NON-NLS-1$

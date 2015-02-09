@@ -17,17 +17,8 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.codehaus.enunciate.Facet;
@@ -36,7 +27,6 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
-import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importer.IPlatformImportMimeResolver;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
@@ -48,8 +38,15 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 @Path ( "/repo/files/import" )
 public class RepositoryImportResource {
@@ -86,7 +83,6 @@ public class RepositoryImportResource {
                                 @FormDataParam ( "retainOwnership" ) String retainOwnership, @FormDataParam ( "charSet" ) String pCharSet,
                                 @FormDataParam ( "logLevel" ) String logLevel, @FormDataParam ( "fileUpload" ) FormDataContentDisposition fileInfo,
                                 @FormDataParam ( "fileNameOverride" ) String fileNameOverride ) {
-    
     IRepositoryImportLogger importLogger = null;
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
@@ -145,12 +141,6 @@ public class RepositoryImportResource {
           PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", PentahoSessionHolder
               .getSession() );
       mondrianCatalogService.reInit( PentahoSessionHolder.getSession() );
-
-      // Flush the IOlapService
-      IOlapService olapService =
-          PentahoSystem.get( IOlapService.class, "IOlapService", PentahoSessionHolder.getSession() ); //$NON-NLS-1$
-      olapService.flushAll( PentahoSessionHolder.getSession() );
-
     } catch ( PentahoAccessControlException e ) {
       return Response.serverError().entity( e.toString() ).build();
     } catch ( Exception e ) {
@@ -160,7 +150,7 @@ public class RepositoryImportResource {
         importLogger.endJob();
       }
     }
-    String responseBody = null;
+    String responseBody;
     try {
       responseBody = importLoggerStream.toString( charSet );
     } catch ( UnsupportedEncodingException e ) {
@@ -179,5 +169,4 @@ public class RepositoryImportResource {
       throw new PentahoAccessControlException( "Access Denied" );
     }
   }
-  
 }
