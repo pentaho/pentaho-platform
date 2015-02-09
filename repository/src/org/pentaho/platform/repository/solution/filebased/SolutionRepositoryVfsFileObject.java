@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.vfs.FileContent;
 import org.apache.commons.vfs.FileName;
@@ -51,6 +52,8 @@ import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 
 public class SolutionRepositoryVfsFileObject implements FileObject {
+
+  private static IAclNodeHelper testAclHelper;
 
   private String fileRef;
 
@@ -280,10 +283,23 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   }
 
   protected synchronized IAclNodeHelper getAclHelper() {
+    if( testAclHelper != null ){
+      return testAclHelper;
+    }
     if ( aclHelper == null ) {
       aclHelper = new JcrAclNodeHelper( getRepository() );
     }
     return aclHelper;
   }
 
+  /**
+   * We do not control the lifecycle (creation) of these class instances. Therefore, for testing purposes when we need
+   * to override the IAclNodeHelper, this is the method to call.
+   *
+   * @param helper
+   */
+  @VisibleForTesting
+  public static void setTestAclHelper( IAclNodeHelper helper ){
+    testAclHelper = helper;
+  }
 }

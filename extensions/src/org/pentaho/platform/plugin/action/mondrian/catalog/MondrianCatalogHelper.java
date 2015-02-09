@@ -652,6 +652,10 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     return aclHelper;
   }
 
+  public synchronized void setAclHelper( IAclNodeHelper helper ) {
+    aclHelper = helper;
+  }
+
   @Override
   public void setAclFor( String catalogName, RepositoryFileAcl acl ) {
     getAclHelper().setAclFor( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( catalogName ), acl );

@@ -336,8 +336,10 @@ public class SecurityHelper implements ISecurityHelper {
     }
 
     GrantedAuthority[] grantedAuthorities = new GrantedAuthority[ roles.size() ];
-    for ( int i = 0; i < roles.size(); i++ ) {
-      grantedAuthorities[ i ] = new GrantedAuthorityImpl( roles.get( i ) );
+    if( roles != null ) {
+      for ( int i = 0; i < roles.size(); i++ ) {
+        grantedAuthorities[ i ] = new GrantedAuthorityImpl( roles.get( i ) );
+      }
     }
 
     User user = new User( principalName, "", true, true, true, true, grantedAuthorities );
