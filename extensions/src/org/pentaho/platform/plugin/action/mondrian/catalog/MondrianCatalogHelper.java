@@ -91,7 +91,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -638,16 +637,20 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   private void flushCacheForCatalog( String catalogName, IPentahoSession pentahoSession ) {
     IOlapService olapService =
           PentahoSystem.get( IOlapService.class, "IOlapService", pentahoSession );
-    OlapConnection connection = olapService.getConnection( catalogName, pentahoSession );
-    Connection unwrap;
+    Connection unwrap = null;
     try {
+      OlapConnection connection = olapService.getConnection( catalogName, pentahoSession );
       unwrap = connection.unwrap( Connection.class );
-    } catch ( SQLException e ) {
-      MondrianCatalogHelper.logger
-        .error( "Flush failed for catalog " + catalogName, e );
-      return;
+      unwrap.getCacheControl( null ).flushSchema( unwrap.getSchema() );
+    } catch ( Throwable e ) {
+      MondrianCatalogHelper.logger.warn(
+          Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", catalogName ), e );
+    } finally {
+      if ( unwrap != null ) {
+        unwrap.close();
+      }
     }
-    unwrap.getCacheControl( null ).flushSchema( unwrap.getSchema() );
   }
 
   protected IUnifiedRepository getRepository() {
