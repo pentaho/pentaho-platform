@@ -103,7 +103,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </not>
       <then>
         <ivy:resolve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true"/>
-        <ivy:retrieve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true" pattern="build-res/[artifact].[ext]"/>
+        <ivy:retrieve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true"
+                      pattern="build-res/[artifact].[ext]"/>
         <unzip src="build-res/pentaho-js-build.zip" dest="build-res"/>
       </then>
     </if>
