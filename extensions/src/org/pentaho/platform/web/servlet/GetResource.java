@@ -77,8 +77,6 @@ public class GetResource extends ServletBase {
         || resLower.endsWith( ".gif" ) || resLower.endsWith(
           ".png" ) || resLower.endsWith( ".bmp" ) ) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
         resourcePath = resource;
-      } else if ( resLower.endsWith( ".properties" ) ) { //$NON-NLS-1$
-        resourcePath = resource;
       } else if ( resLower.endsWith( ".jar" ) ) { //$NON-NLS-1$
         resourcePath = resource;
       } else {
