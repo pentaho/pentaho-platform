@@ -58,7 +58,7 @@
     <drilldown-profile name="remote-sugar-no-parameter" class="org.pentaho.reporting.engine.classic.extensions.drilldown.SugarFormulaLinkCustomizer"
                        bundle-name="org.pentaho.reporting.engine.classic.extensions.drilldown.drilldown-profile"
                        expert="false" hidden="false" deprecated="false" preferred="false">
-      <attribute name="formula"><![CDATA[IF(ISCONTENTLINK(["::entries"]); CONTENTLINK(["::entries"]);OPENINMANTLETAB(["::path"] & "api/repos/" & ["::pentaho-path"] & "/content?" &["::parameter"]; IFNA(["::TabName"]; FALSE()); IFNA(["::TabActive"]; FALSE())))]]></attribute>
+      <attribute name="formula"><![CDATA[IF(ISCONTENTLINK(["::entries"]); CONTENTLINK(["::entries"]);OPENINMANTLETAB(["::path"] & "api/repos/" & ["::pentaho-path"] & "/viewer?showParameters=false&" &["::parameter"]; IFNA(["::TabName"]; FALSE()); IFNA(["::TabActive"]; FALSE())))]]></attribute>
       <attribute name="extension">prpt</attribute>
     </drilldown-profile>
     <drilldown-profile name="local-sugar"
@@ -72,7 +72,7 @@
                        class="org.pentaho.reporting.engine.classic.extensions.drilldown.SugarFormulaLinkCustomizer"
                        bundle-name="org.pentaho.reporting.engine.classic.extensions.drilldown.drilldown-profile"
                        expert="false" hidden="false" deprecated="false" preferred="false">
-      <attribute name="formula"><![CDATA[IF(ISCONTENTLINK(["::entries"]); CONTENTLINK(["::entries"]);OPENINMANTLETAB(ENV("pentahoBaseURL") & "api/repos/" & ["::pentaho-path"] & "/content?" & ["::parameter"]; IFNA(["::TabName"]; FALSE()); IFNA(["::TabActive"]; FALSE())))]]></attribute>
+      <attribute name="formula"><![CDATA[IF(ISCONTENTLINK(["::entries"]); CONTENTLINK(["::entries"]);OPENINMANTLETAB(ENV("pentahoBaseURL") & "api/repos/" & ["::pentaho-path"] & "/viewer?showParameters=false&" & ["::parameter"]; IFNA(["::TabName"]; FALSE()); IFNA(["::TabActive"]; FALSE())))]]></attribute>
       <attribute name="extension">prpt</attribute>
     </drilldown-profile>
     <drilldown-profile name="remote-sugar-prpti" class="org.pentaho.reporting.engine.classic.extensions.drilldown.SugarFormulaLinkCustomizer"
