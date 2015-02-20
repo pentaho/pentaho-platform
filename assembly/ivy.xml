@@ -299,9 +299,6 @@
     <dependency org="pentaho" name="pentaho-big-data-plugin-samples" rev="${dependency.pentaho-big-data-plugin-samples.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
       <artifact name="pentaho-big-data-plugin-samples" type="zip"/>
     </dependency>
-    <dependency org="pentaho" name="pentaho-mongodb-plugin" rev="${dependency.pentaho-mongodb-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
-      <artifact name="pentaho-mongodb-plugin" type="zip"/>
-    </dependency>
     <dependency org="pentaho" name="pentaho-cassandra-plugin" rev="${dependency.pentaho-cassandra-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
       <artifact name="pentaho-cassandra-plugin" type="zip"/>
     </dependency>
