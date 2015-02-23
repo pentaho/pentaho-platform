@@ -17,19 +17,10 @@
 
 package org.pentaho.platform.osgi;
 
-import org.apache.karaf.jaas.boot.principal.RolePrincipal;
-import org.apache.karaf.jaas.boot.principal.UserPrincipal;
-import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.HashSet;
+import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -38,10 +29,21 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
-import java.io.IOException;
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Map;
+
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.apache.karaf.jaas.boot.principal.UserPrincipal;
+import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
  * JAAS LoginModule which delegates to the Platform's Spring Security {@link org.springframework.security.AuthenticationManager}.
@@ -145,10 +147,19 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
       UsernamePasswordAuthenticationToken token =
         new UsernamePasswordAuthenticationToken( name, String.valueOf( password ) );
 
-      authentication = getAuthenticationManager().authenticate( token );
-      // the above throws an exception on failure.
+      IPentahoSession session = new StandaloneSession( name );
+      PentahoSessionHolder.setSession( session );
+      try {
+        // Throws an exception on failure.
+        authentication = getAuthenticationManager().authenticate( token );
+        if ( authentication != null && !authentication.isAuthenticated() ) {
+          throw new IllegalStateException("Got a bad authentication");
+        }
+      } catch (Exception e) {
+        session.destroy();
+        PentahoSessionHolder.removeSession();
+      }
     }
-
 
     principals = new HashSet<Principal>();
     principals.add( new UserPrincipal( authentication.getName() ) );
