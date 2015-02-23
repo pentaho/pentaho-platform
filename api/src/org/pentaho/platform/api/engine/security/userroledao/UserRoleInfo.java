@@ -19,6 +19,7 @@ package org.pentaho.platform.api.engine.security.userroledao;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class UserRoleInfo implements Serializable {
@@ -33,6 +34,7 @@ public class UserRoleInfo implements Serializable {
   }
 
   public List<String> getUsers() {
+    Collections.sort( users );
     return users;
   }
 
@@ -41,6 +43,7 @@ public class UserRoleInfo implements Serializable {
   }
 
   public List<String> getRoles() {
+    Collections.sort( roles );
     return roles;
   }
 
