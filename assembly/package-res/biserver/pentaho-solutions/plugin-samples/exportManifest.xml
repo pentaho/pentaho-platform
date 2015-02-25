@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- test -->
+<ns2:ExportManifest xmlns:ns2="http://www.pentaho.com/schema/">
+    <ExportManifestInformation exportDate="17-02-2015 03:07:17 BRT" exportBy="admin" rootFolder="/"/>
+	
+	<ExportManifestEntity path="public">
+        <ExportManifestProperty>
+            <EntityMetaData name="public" createdDate="2013-09-24T17:12:53.775+01:00" isFolder="true" path="public" isHidden="false" locale="en_US" title="Public"/>
+        </ExportManifestProperty>
+        <ExportManifestProperty>
+            <EntityAcl>
+                <aces>
+                    <permissions>READ</permissions>
+                    <recipient>Authenticated</recipient>
+                    <recipientType>ROLE</recipientType>
+                </aces>
+                <entriesInheriting>false</entriesInheriting>
+                <owner>pentahoRepoAdmin</owner>
+                <ownerType>USER</ownerType>
+            </EntityAcl>
+        </ExportManifestProperty>
+	</ExportManifestEntity>
+	
+    <ExportManifestEntity path="public/plugin-samples">
+        <ExportManifestProperty>
+            <EntityMetaData name="plugin-samples" createdDate="2015-02-17T15:03:21.570-03:00" isFolder="true" path="public/plugin-samples" isHidden="true" locale="en_US" description="plugin-samples-ddd" title="plugin-samples-nnn"/>
+        </ExportManifestProperty>
+        <ExportManifestProperty>
+            <EntityAcl>
+                <entriesInheriting>true</entriesInheriting>
+                <owner>admin</owner>
+                <ownerType>USER</ownerType>
+            </EntityAcl>
+        </ExportManifestProperty>
+    </ExportManifestEntity>
+	
+</ns2:ExportManifest>
