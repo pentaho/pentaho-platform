@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * This class contains a list of UserDetailsService objects. Requests to load UserDetails will be delegated down to the
- * list in a round-robbin fashion until a match is found. This first UserDetailsService to return a match will be used.
+ * list in a round-robin fashion until a match is found. This first UserDetailsService to return a match will be used.
  * <p/>
  * Created by nbaker on 5/13/14.
  */
