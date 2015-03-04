@@ -27,20 +27,32 @@
 package org.pentaho.platform.repository2.unified;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoter;
 import org.springframework.beans.factory.FactoryBean;
+
+import java.util.Collections;
+import java.util.List;
 
 public class RepositoryAccessVoterManager implements FactoryBean {
 
+  private List<IRepositoryAccessVoter> voters;
   private IAuthorizationPolicy authorizationPolicy;
 
   public RepositoryAccessVoterManager( final IAuthorizationPolicy authorizationPolicy,
       final String repositoryAdminUsername ) {
+    this( Collections.<IRepositoryAccessVoter>emptyList(), authorizationPolicy, repositoryAdminUsername );
+  }
+
+
+  public RepositoryAccessVoterManager( final List<IRepositoryAccessVoter> voters,
+                                       final IAuthorizationPolicy authorizationPolicy, final String repositoryAdminUsername ) {
+    this.voters = voters;
     this.authorizationPolicy = authorizationPolicy;
   }
 
   @Override
   public Object getObject() throws Exception {
-    return new RepositoryAccessVoterManagerInst( authorizationPolicy );
+    return new RepositoryAccessVoterManagerInst( voters, authorizationPolicy );
   }
 
   @Override
