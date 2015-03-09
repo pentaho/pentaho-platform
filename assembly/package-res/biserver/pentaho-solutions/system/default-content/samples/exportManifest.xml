@@ -17,7 +17,7 @@
                 <ownerType>USER</ownerType>
             </EntityAcl>
         </ExportManifestProperty>
-    </ExportManifestEntity>
+    </ExportManifestEntity>    
     <ExportManifestEntity path="public/Steel Wheels">
         <ExportManifestProperty>
             <EntityMetaData name="Steel Wheels" createdDate="2013-09-24T17:13:26.943+01:00" isFolder="true" path="public/Steel Wheels" isHidden="false" locale="en_US" description="Reporting, Analysis, and Dashboarding Samples for Steel Wheels, Inc." title="Steel Wheels"/>
@@ -29,7 +29,7 @@
                 <ownerType>USER</ownerType>
             </EntityAcl>
         </ExportManifestProperty>
-    </ExportManifestEntity>
+    </ExportManifestEntity>    
     <ExportManifestEntity path="public/Steel Wheels/Analysis">
         <ExportManifestProperty>
             <EntityMetaData name="Analysis" createdDate="2013-09-24T17:13:27.315+01:00" isFolder="true" path="public/Steel Wheels/Analysis" isHidden="false" locale="en_US" title="Analysis"/>
@@ -78,6 +78,42 @@
             </EntityAcl>
         </ExportManifestProperty>
     </ExportManifestEntity>
+    <ExportManifestEntity path="public/Steel Wheels/Dashboards/CTools_dashboard_files">
+        <ExportManifestProperty>
+            <EntityMetaData name="CTools_dashboard_files" createdDate="2013-09-24T17:13:26.943+01:00" isFolder="true" path="public/Steel Wheels/Dashboards/CTools_dashboard_files" isHidden="true" locale="en_US" description="Resources for CTools dashboards" title="CTools_dashboard_files"/>
+        </ExportManifestProperty>
+        <ExportManifestProperty>
+            <EntityAcl>
+                <entriesInheriting>true</entriesInheriting>
+                <owner>admin</owner>
+                <ownerType>USER</ownerType>
+            </EntityAcl>
+        </ExportManifestProperty>
+    </ExportManifestEntity>        
+    <ExportManifestEntity path="public/Steel Wheels/Dashboards/CTools_dashboard.cdfde">
+        <ExportManifestProperty>
+            <EntityMetaData name="CTools_dashboard.cdfde" createdDate="2013-09-24T17:13:27.601+01:00" isFolder="false" path="public/Steel Wheels/Dashboards/CTools_dashboard.cdfde" isHidden="true" locale="en_US" title="CTools_dashboard"/>
+        </ExportManifestProperty>
+        <ExportManifestProperty>
+            <EntityAcl>
+                <entriesInheriting>true</entriesInheriting>
+                <owner>admin</owner>
+                <ownerType>USER</ownerType>
+            </EntityAcl>
+        </ExportManifestProperty>
+    </ExportManifestEntity>    
+    <ExportManifestEntity path="public/Steel Wheels/Dashboards/CTools_dashboard.cda">
+        <ExportManifestProperty>
+            <EntityMetaData name="CTools_dashboard.cda" createdDate="2013-09-24T17:13:27.601+01:00" isFolder="false" path="public/Steel Wheels/Dashboards/CTools_dashboard.cda" isHidden="true" locale="en_US" title="CTools_dashboard"/>
+        </ExportManifestProperty>
+        <ExportManifestProperty>
+            <EntityAcl>
+                <entriesInheriting>true</entriesInheriting>
+                <owner>admin</owner>
+                <ownerType>USER</ownerType>
+            </EntityAcl>
+        </ExportManifestProperty>
+    </ExportManifestEntity>        
     <ExportManifestEntity path="public/Steel Wheels/Dashboards/Home Dashboard.xcdf">
         <ExportManifestProperty>
             <EntityMetaData name="Home Dashboard.xcdf" createdDate="2013-09-24T17:13:27.464+01:00" isFolder="false" path="public/Steel Wheels/Dashboards/Home Dashboard.xcdf" isHidden="false" locale="en_US" title="Home Dashboard"/>

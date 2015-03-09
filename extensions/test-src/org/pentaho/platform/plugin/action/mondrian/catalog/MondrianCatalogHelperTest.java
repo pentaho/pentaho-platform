@@ -17,10 +17,16 @@
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
+import mondrian.olap.CacheControl;
+import mondrian.olap.Connection;
+import mondrian.olap.Schema;
 import mondrian.olap.Util.PropertyList;
 import mondrian.spi.DynamicSchemaProcessor;
 import org.apache.commons.io.IOUtils;
 import org.junit.*;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.olap4j.OlapConnection;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
@@ -32,22 +38,30 @@ import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.SystemSettings;
+import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.cache.CacheManager;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.util.Base64PasswordService;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.plugin.UserRoleMapperTest.TestUserRoleListService;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.StringContains.containsString;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -59,51 +73,105 @@ import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtil
 @SuppressWarnings( "nls" )
 public class MondrianCatalogHelperTest {
 
+  private static final String CATALOG_NAME = "SteelWheels";
+
   // ~ Instance fields
   // =================================================================================================
 
   private static MicroPlatform booter;
   private ICacheManager cacheMgr;
-  private static IUnifiedRepository repo;
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    repo = mock( IUnifiedRepository.class );
+  private MondrianCatalogHelper helper;
+
+  @Mock private IUnifiedRepository repo;
+
+  @Mock private  IOlapService olapService;
+
+  @Mock private CacheControl mondrianCacheControl;
+
+  @Mock private Schema mondrianSchema;
+
+  @Mock private OlapConnection olapConn;
+
+  @Mock private Connection rolapConn;
+
+
+  @Before
+  public void setUp() throws Exception {
+    MockitoAnnotations.initMocks( this );
+
+    when( olapService.getConnection( any( String.class ), any( IPentahoSession.class ) ) )
+      .thenReturn( olapConn );
+    when( rolapConn.getSchema() ).thenReturn( mondrianSchema );
+    when( rolapConn.getCacheControl( any( PrintWriter.class ) ) )
+      .thenReturn( mondrianCacheControl );
+    when( olapConn.unwrap( Connection.class ) )
+      .thenReturn( rolapConn );
 
     booter = new MicroPlatform( "test-src/solution" );
     booter.define( IPasswordService.class, Base64PasswordService.class, Scope.GLOBAL );
     booter.define( IDatabaseConnection.class, DatabaseConnection.class, Scope.GLOBAL );
     booter.define( IDatabaseDialectService.class, DatabaseDialectService.class, Scope.GLOBAL );
-    booter.define( IMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL );
+    booter.define( IAclAwareMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL );
     booter.define( ICacheManager.class, CacheManager.class, Scope.GLOBAL );
     booter.define( IUserRoleListService.class, TestUserRoleListService.class, Scope.GLOBAL );
     booter.defineInstance( IUnifiedRepository.class, repo );
+    booter.defineInstance( IOlapService.class, olapService );
     booter.setSettingsProvider( new SystemSettings() );
     booter.start();
+
+    cacheMgr = PentahoSystem.getCacheManager( null );
+    helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
   }
 
   @AfterClass
   public static void tearDownClass() throws Exception {
   }
 
-  @Before
-  public void setUp() throws Exception {
-    // Clear up the cache
-    cacheMgr = PentahoSystem.getCacheManager( null );
-    cacheMgr.clearRegionCache( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION );
-  }
-
   @After
   public void tearDown() throws Exception {
     reset( repo );
+    cacheMgr.clearRegionCache( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION );
+    booter.stop();
   }
+
+  private void initMondrianCatalogsCache() {
+    initMondrianCatalogsCache( new HashMap<String, MondrianCatalog>(  ) );
+  }
+
+  private void initMondrianCatalogsCache( Map<String, MondrianCatalog> map ) {
+    cacheMgr.addCacheRegion( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION );
+    cacheMgr.putInRegionCache( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION, LocaleHelper.getLocale().toString(), map );
+  }
+
+
+  private MondrianCatalog createTestCatalog() {
+    MondrianSchema schema = new MondrianSchema( CATALOG_NAME, null );
+    return  new MondrianCatalog( CATALOG_NAME, "Provider=mondrian;DataSource=SampleData;",
+        "solution:test/charts/steelwheels.mondrian.xml", schema );
+  }
+
+
+  @Test( expected = MondrianCatalogServiceException.class )
+  public void addCatalog_WhenAlreadyExists() throws Exception {
+    MondrianCatalog cat = createTestCatalog();
+    initMondrianCatalogsCache( Collections.singletonMap( CATALOG_NAME, cat ) );
+
+    helper = spy( helper );
+
+    IPentahoSession session = mock( IPentahoSession.class );
+    doNothing().when( helper ).init( session );
+
+    helper.addCatalog( new ByteArrayInputStream( new byte[ 0 ] ), cat, false, null, session );
+  }
+
 
   @Test
   public void testAddCatalog() throws Exception {
     final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
     stubGetFolder( repo, mondrianFolderPath );
     stubGetChildren( repo, mondrianFolderPath ); // return no children
-    final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
+    final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + CATALOG_NAME;
     stubGetFileDoesNotExist( repo, steelWheelsFolderPath );
     stubCreateFolder( repo, steelWheelsFolderPath );
     final String metadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
@@ -114,16 +182,19 @@ public class MondrianCatalogHelperTest {
     stubGetChildren( repo, olapFolderPath ); // return no children
 
     IPentahoSession session = new StandaloneSession( "admin" );
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
 
-    MondrianSchema schema = new MondrianSchema( "SteelWheels", null );
-    MondrianCatalog cat =
-        new MondrianCatalog( "SteelWheels", "Provider=mondrian;DataSource=SampleData;",
-            "solution:test/charts/steelwheels.mondrian.xml", schema );
+    MondrianCatalog cat = createTestCatalog();
     File file = new File( "test-src/solution/test/charts/steelwheels.mondrian.xml" );
     String mondrianSchema = IOUtils.toString( new FileInputStream( file ) );
     session.setAttribute( "MONDRIAN_SCHEMA_XML_CONTENT", mondrianSchema );
-    helper.addCatalog( cat, false, session );
+
+    MondrianCatalogHelper helperSpy = spy( helper );
+    IAclNodeHelper aclNodeHelper = mock( IAclNodeHelper.class );
+    doNothing().when( aclNodeHelper ).setAclFor( any( RepositoryFile.class ), any( RepositoryFileAcl.class ) );
+    doReturn( aclNodeHelper ).when( helperSpy ).getAclHelper();
+    doReturn( true ).when( helperSpy ).catalogExists( any( MondrianCatalog.class ), eq( session ) );
+
+    helperSpy.addCatalog( cat, true, session );
 
     verify( repo ).createFile(
         eq( makeIdObject( steelWheelsFolderPath ) ),
@@ -135,11 +206,47 @@ public class MondrianCatalogHelperTest {
     verify( repo ).createFile( eq( makeIdObject( steelWheelsFolderPath ) ),
         argThat( isLikeFile( makeFileObject( steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
         any( IRepositoryFileData.class ), anyString() );
+
+
+    // cache should be cleared for this schema only
+    verify( olapService, times( 1 ) ).getConnection( CATALOG_NAME, session );
+    verify( mondrianCacheControl, times( 1 ) ).flushSchema( this.mondrianSchema );
+  }
+
+  @Test
+  public void addCatalog_WithAcl() throws Exception {
+    initMondrianCatalogsCache();
+
+    MondrianCatalogHelper helperSpy = spy( helper );
+
+    IPentahoSession session = mock( IPentahoSession.class );
+    doNothing().when( helperSpy ).init( session );
+
+    doReturn( Collections.<MondrianCatalog>emptyList() ).when( helperSpy ).getCatalogs( session );
+    doReturn( null ).when( helperSpy ).makeSchema( anyString() );
+
+    MondrianCatalog cat = createTestCatalog();
+    RepositoryFileAcl acl = mock( RepositoryFileAcl.class );
+
+    IAclNodeHelper aclHelper = mock( IAclNodeHelper.class );
+    doNothing().when( aclHelper ).setAclFor( any( RepositoryFile.class ), eq( acl ) );
+    doReturn( aclHelper ).when( helperSpy ).getAclHelper();
+    doReturn( null ).when( helperSpy ).makeSchema( CATALOG_NAME );
+    doReturn( true ).when( helperSpy ).catalogExists( any( MondrianCatalog.class ), eq( session ) );
+
+    MondrianCatalogRepositoryHelper repositoryHelper = mock( MondrianCatalogRepositoryHelper.class );
+    doReturn( repositoryHelper ).when( helperSpy ).getMondrianCatalogRepositoryHelper();
+
+    helperSpy.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, true, acl, session );
+    verify( aclHelper, times( 1 ) ).setAclFor( any( RepositoryFile.class ), eq( acl ) );
+
+    doNothing().when( aclHelper ).setAclFor( any( RepositoryFile.class ), any( RepositoryFileAcl.class ) );
+    helperSpy.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, true, null, session );
+    verify( aclHelper, times( 2 ) ).setAclFor( any( RepositoryFile.class ), any( RepositoryFileAcl.class ) );
   }
 
   @Test
   public void testImportSchema() throws Exception {
-
     String TMP_FILE_PATH = File.separatorChar + "test" + File.separatorChar + "analysis" + File.separatorChar;
     String uploadDir = PentahoSystem.getApplicationContext().getSolutionPath( TMP_FILE_PATH );
     File mondrianFile = new File( uploadDir + File.separatorChar + "SampleData.mondrian.xml" );
@@ -160,18 +267,20 @@ public class MondrianCatalogHelperTest {
     stubGetFolder( repo, olapFolderPath );
     stubGetChildren( repo, olapFolderPath ); // return no children
 
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
     helper.importSchema( mondrianFile, "SampleData", "" );
 
-    verify( repo ).createFile(
-        eq( makeIdObject( sampleDataFolderPath ) ),
-        argThat( isLikeFile( makeFileObject( metadataPath ) ) ),
-        argThat( hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + "SampleData" ), pathPropertyPair(
-            "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ), anyString()
-    );
+    verify( repo ).createFile( eq( makeIdObject( sampleDataFolderPath ) ),
+        argThat( isLikeFile( makeFileObject( metadataPath ) ) ), argThat(
+            hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + "SampleData" ),
+                pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ),
+        anyString() );
     verify( repo ).createFile( eq( makeIdObject( sampleDataFolderPath ) ),
         argThat( isLikeFile( makeFileObject( sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
         any( IRepositoryFileData.class ), anyString() );
+
+    // cache should be cleared for this schema only
+    verify( olapService, times( 1 ) ).getConnection( "SampleData",  null );
+    verify( mondrianCacheControl, times( 1 ) ).flushSchema( mondrianSchema );
   }
 
   @Test
@@ -210,10 +319,22 @@ public class MondrianCatalogHelperTest {
     stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
 
     IPentahoSession session = new StandaloneSession( "admin" );
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
 
-    List<MondrianCatalog> cats = helper.listCatalogs( session, false );
-    Assert.assertEquals( 2, cats.size() );
+    helper = spy( helper );
+
+    IAclNodeHelper aclHelper = mock( IAclNodeHelper.class );
+    when( aclHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
+    doReturn( aclHelper ).when( helper ).getAclHelper();
+
+    MondrianCatalog[] testCatalogs = new MondrianCatalog[] { spy( createTestCatalog() ), spy( createTestCatalog() ) };
+    doReturn( true ).when( testCatalogs[ 0 ] ).isJndi();
+    doReturn( false ).when( testCatalogs[ 1 ] ).isJndi();
+    doReturn( asList( testCatalogs ) ).when( helper ).getCatalogs( session );
+
+    List<MondrianCatalog> cats = helper.listCatalogs( session, true );
+    assertEquals( 1, cats.size() );
+
+    verify( mondrianCacheControl, never() ).flushSchema( mondrianSchema );
   }
 
   @Test
@@ -229,20 +350,73 @@ public class MondrianCatalogHelperTest {
     final String steelWheelsMetadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
     final String steelWheelsSchemaPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
     stubGetFile( repo, steelWheelsMetadataPath );
-    stubGetData( repo, steelWheelsMetadataPath, "catalog", pathPropertyPair( "/catalog/definition",
-        "mondrian:/SteelWheels" ), pathPropertyPair( "/catalog/datasourceInfo",
-        "Provider=mondrian;DataSource=SteelWheels;" ) );
+    stubGetData( repo, steelWheelsMetadataPath, "catalog",
+        pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+        pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
     stubGetFile( repo, steelWheelsSchemaPath );
     stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
 
     stubGetFolder( repo, steelWheelsFolderPath );
 
     IPentahoSession session = new StandaloneSession( "admin" );
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
+
+    helper = spy( helper );
+    IAclNodeHelper aclHelper = mock( IAclNodeHelper.class );
+    when( aclHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
+    doReturn( aclHelper ).when( helper ).getAclHelper();
+
+    MondrianCatalogRepositoryHelper repositoryHelper = mock( MondrianCatalogRepositoryHelper.class );
+    doReturn( repositoryHelper ).when( helper ).getMondrianCatalogRepositoryHelper();
 
     helper.removeCatalog( "mondrian:/SteelWheels", session );
 
     verify( repo ).deleteFile( eq( makeIdObject( steelWheelsFolderPath ) ), eq( true ), anyString() );
+
+    // cache should be cleared for this schema only
+    verify( olapService, times( 1 ) ).getConnection( CATALOG_NAME, session );
+    verify( mondrianCacheControl, times( 1 ) ).flushSchema( this.mondrianSchema );
+  }
+
+  @Test
+  public void removeCatalog_WithAcl() throws Exception {
+    IPentahoSession session = mock( IPentahoSession.class );
+
+    helper = spy( helper );
+    doReturn( createTestCatalog() ).when( helper ).getCatalog( eq( CATALOG_NAME ), eq( session ) );
+    doNothing().when( helper ).reInit( eq( session ) );
+
+    MondrianCatalogRepositoryHelper repositoryHelper = mock( MondrianCatalogRepositoryHelper.class );
+    doReturn( repositoryHelper ).when( helper ).getMondrianCatalogRepositoryHelper();
+
+    IAclNodeHelper aclHelper = mock( IAclNodeHelper.class );
+    when( aclHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
+    doReturn( aclHelper ).when( helper ).getAclHelper();
+
+    RepositoryFile file = mock( RepositoryFile.class );
+    when( file.getId() ).thenReturn( "1" );
+    when( repo.getFile( "/etc/mondrian/" + CATALOG_NAME ) ).thenReturn( file );
+
+    helper.removeCatalog( CATALOG_NAME, session );
+
+    verify( aclHelper ).removeAclFor( any( RepositoryFile.class ) );
+  }
+
+  @Test( expected = MondrianCatalogServiceException.class )
+  public void removeCatalog_WhenProhibited() throws Exception {
+    IPentahoSession session = mock( IPentahoSession.class );
+
+    helper = spy( helper );
+    doReturn( createTestCatalog() ).when( helper ).getCatalog( eq( CATALOG_NAME ), eq( session ) );
+    doNothing().when( helper ).reInit( eq( session ) );
+
+    MondrianCatalogRepositoryHelper repositoryHelper = mock( MondrianCatalogRepositoryHelper.class );
+    doReturn( repositoryHelper ).when( helper ).getMondrianCatalogRepositoryHelper();
+
+    IAclNodeHelper aclHelper = mock( IAclNodeHelper.class );
+    when( aclHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( false );
+    doReturn( aclHelper ).when( helper ).getAclHelper();
+
+    helper.removeCatalog( CATALOG_NAME, session );
   }
 
   @Test
@@ -253,7 +427,6 @@ public class MondrianCatalogHelperTest {
         "DynamicSchemaProcessor=org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelperTest$DynamicDSPTest";
     final String SCHEMA_MOCK = "Test Schema Mock " + replaceTemplate;
 
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
     MondrianCatalogHelper helperSpy = spy( helper );
     IPentahoSession session = new StandaloneSession( "admin" );
     String schema = helperSpy.applyDSP( session, DATA_SOURCE_INFO_WITH_DSP, SCHEMA_MOCK );
@@ -269,7 +442,6 @@ public class MondrianCatalogHelperTest {
     final String DATA_SOURCE_INFO_WITHOUT_DSP = "DataSource=TestDataSource";
     final String SCHEMA_MOCK = "Test Schema Mock " + replaceTemplate;
 
-    MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
     MondrianCatalogHelper helperSpy = spy( helper );
     doReturn( SCHEMA_MOCK ).when( helperSpy ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
 
@@ -279,6 +451,26 @@ public class MondrianCatalogHelperTest {
     verify( helperSpy ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
     assertFalse( schema.contains( "REPLACE_TOKEN" ) );
 
+  }
+
+  @Test
+  public void testGetCatalog() throws Exception {
+    String catalogName = "SteelWheels";
+
+    MondrianCatalog cat = mock( MondrianCatalog.class );
+    doReturn( catalogName ).when( cat ).getName();
+    IPentahoSession session = mock( IPentahoSession.class );
+
+    MondrianCatalogHelper helperSpy = spy( helper );
+    doReturn( true ).when( helperSpy ).hasAccess( eq( cat ), any( RepositoryFilePermission.class ) );
+    doNothing().when( helperSpy ).init( session );
+    doReturn( cat ).when( helperSpy ).getCatalogFromCache( anyString(), eq( session ) );
+
+    assertEquals( helperSpy.getCatalog( catalogName, session ).getName(), catalogName );
+    verify( helperSpy ).hasAccess( eq( cat ), any( RepositoryFilePermission.class ) );
+
+    doReturn( false ).when( helperSpy ).hasAccess( eq( cat ), any( RepositoryFilePermission.class ) );
+    assertNull( helperSpy.getCatalog( catalogName, session ) );
   }
 
   public static class DynamicDSPTest implements DynamicSchemaProcessor {
@@ -300,45 +492,5 @@ public class MondrianCatalogHelperTest {
 
     String result = helperMock.generateInMemoryDatasourcesXml( unifiedRepositoryMock );
     assertNull( result, null );
-  }
-
-  // The next block of 3 tests is for MONDRIAN-2229 issue
-  @Test
-  public void testGenerateInMemoryDatasourcesXml_DataSourceNameProviderUsingLegacyDbName() throws Exception {
-    String result = prepareResultForMondrian2229Tests( true );
-    assertThat( result, containsString( "<DataSourceName>Provider=Mondrian</DataSourceName>" ) );
-  }
-
-  @Test
-  public void testGenerateInMemoryDatasourcesXml_DataSourceNameProviderNotUsingLegacyDbName() throws Exception {
-    String result = prepareResultForMondrian2229Tests( false );
-    assertThat( result, containsString( "<DataSourceName>Pentaho Mondrian</DataSourceName>" ) );
-  }
-
-  @Test
-  public void testGenerateInMemoryDatasourcesXml_DataSourceInfoProvider() throws Exception {
-    String result = prepareResultForMondrian2229Tests( true );
-    assertThat( result, containsString( "<DataSourceInfo>Provider=Mondrian</DataSourceInfo>" ) );
-  }
-
-  private String prepareResultForMondrian2229Tests( boolean isUseLegacyDbName ) {
-    MondrianCatalogHelper helper = new MondrianCatalogHelper( isUseLegacyDbName );
-    MondrianCatalogHelper helperSpy = spy( helper );
-
-    IUnifiedRepository unifiedRepositoryMock = mock( IUnifiedRepository.class );
-    RepositoryFile repositoryFileMock = mock( RepositoryFile.class );
-
-    when( unifiedRepositoryMock.getFile( any( String.class ) ) ).thenReturn( repositoryFileMock );
-
-    String contextPathStub = "Stub";
-    doReturn( contextPathStub ).when( helperSpy ).contextPathFromRequestContextHolder();
-
-    doNothing().when( helperSpy )
-        .appendCatalogsSection( any( IUnifiedRepository.class ), anyString(), any( RepositoryFile.class ),
-            any( StringBuffer.class ) );
-
-    String result = helperSpy.generateInMemoryDatasourcesXml( unifiedRepositoryMock );
-
-    return result;
   }
 }

@@ -55,9 +55,9 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
-import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
@@ -362,7 +362,7 @@ public class PentahoSystem {
     final String name =
         StringUtils.defaultIfEmpty( PentahoSystem.get( String.class, "singleTenantAdminUserName", null ), "admin" );
     IPentahoSession origSession = PentahoSessionHolder.getSession();
-    Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
+    SecurityContext originalContext = SecurityContextHolder.getContext();
     try {
       // create pentaho session
       StandaloneSession session = new StandaloneSession( name );
@@ -382,6 +382,11 @@ public class PentahoSystem {
 
       // set holders
       PentahoSessionHolder.setSession( session );
+
+      // Clearing the SecurityContext to force the subsequent call to getContext() to generate a new SecurityContext.
+      // This prevents us from modifying the Authentication on a SecurityContext isntance which may be shared between
+      // threads.
+      SecurityContextHolder.clearContext();
       SecurityContextHolder.getContext().setAuthentication( auth );
       return callable.call();
     } finally {
@@ -394,7 +399,7 @@ public class PentahoSystem {
         }
       }
       PentahoSessionHolder.setSession( origSession );
-      SecurityContextHolder.getContext().setAuthentication( origAuth );
+      SecurityContextHolder.setContext( originalContext );
     }
   }
 

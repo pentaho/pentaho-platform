@@ -21,15 +21,28 @@ package org.pentaho.platform.plugin.services.metadata;
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.model.concept.types.LocaleType;
+import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.util.LocalizationUtil;
 import org.pentaho.metadata.util.XmiParser;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
 import java.io.ByteArrayInputStream;
@@ -37,9 +50,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Class Description
@@ -52,18 +70,21 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   private static final Properties EMPTY_PROPERTIES = new Properties();
   private static final InputStream EMPTY_INPUT_STREAM = new ByteArrayInputStream( "".getBytes() );
 
-  IUnifiedRepository repository = new FileSystemBackedUnifiedRepository();
+  IUnifiedRepository repository;
   private PentahoMetadataDomainRepository domainRepository;
+  private PentahoMetadataDomainRepository domainRepositorySpy;
+  private IAclNodeHelper aclNodeHelper;
 
   protected PentahoMetadataDomainRepository createDomainRepository( final IUnifiedRepository repository ) {
     return new PentahoMetadataDomainRepository( repository );
   }
 
   protected PentahoMetadataDomainRepository createDomainRepository( final IUnifiedRepository repository,
-                                                                    final RepositoryUtils repositoryUtils, final XmiParser xmiParser, final LocalizationUtil localizationUtil ) {
+      final RepositoryUtils repositoryUtils, final XmiParser xmiParser, final LocalizationUtil localizationUtil ) {
     return new PentahoMetadataDomainRepository( repository, repositoryUtils, xmiParser, localizationUtil );
   }
 
+  @Before
   public void setUp() throws Exception {
     // File tempDir = File.createTempFile("test", "");
     // tempDir.delete();
@@ -71,21 +92,38 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     // System.err.println("tempDir = " + tempDir.getAbsolutePath());
     // repository = new FileSystemBackedUnifiedRepository(tempDir);
     // new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null);
-    repository.deleteFile( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ).getId(), true, null );
+
+    final IPentahoSession mockSession = Mockito.mock( IPentahoSession.class );
+    PentahoSessionHolder.setSession( mockSession );
+
+    repository = new FileSystemBackedUnifiedRepository();
+
+    repository.deleteFile( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ).getId(),
+        true, null );
     assertNotNull( new RepositoryUtils( repository ).getFolder( "/etc/metadata", true, true, null ) );
 
     final MockXmiParser xmiParser = new MockXmiParser();
     domainRepository = createDomainRepository( repository, null, xmiParser, null );
-    while ( domainRepository.getDomainIds().size() > 0 ) {
-      domainRepository.removeDomain( domainRepository.getDomainIds().iterator().next() );
+    domainRepositorySpy = spy( domainRepository );
+
+    aclNodeHelper = mock( IAclNodeHelper.class );
+    doReturn( aclNodeHelper ).when( domainRepositorySpy ).getAclHelper();
+    doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
+    when( aclNodeHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
+
+    while ( domainRepositorySpy.getDomainIds().size() > 0 ) {
+      domainRepositorySpy.removeDomain( domainRepositorySpy.getDomainIds().iterator().next() );
     }
   }
 
+  @After
   public void tearDown() throws Exception {
     repository = null;
     domainRepository = null;
+    domainRepositorySpy = null;
   }
 
+  @Test
   public void testInitialization() throws Exception {
     try {
       createDomainRepository( null );
@@ -104,8 +142,8 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     final RepositoryUtils repositoryUtils = new RepositoryUtils( repository );
     final XmiParser xmiParser = new XmiParser();
     final LocalizationUtil localizationUtil = new LocalizationUtil();
-    final PentahoMetadataDomainRepository repo =
-        createDomainRepository( repository, repositoryUtils, xmiParser, localizationUtil );
+    final PentahoMetadataDomainRepository repo = createDomainRepository( repository, repositoryUtils, xmiParser,
+        localizationUtil );
     assertEquals( repository, repo.getRepository() );
     assertEquals( repositoryUtils, repo.getRepositoryUtils() );
     assertEquals( xmiParser, repo.getXmiParser() );
@@ -113,88 +151,150 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
   }
 
-  /*
-   * public void testStoreDomain() throws Exception { try { domainRepository.storeDomain(null, true);
-   * fail("Invalid domain should throw exception"); } catch (DomainIdNullException success) { }
-   * 
-   * try { domainRepository.storeDomain(new MockDomain(null), true); fail("Null domain id should throw exception"); }
-   * catch (DomainIdNullException success) { }
-   * 
-   * try { domainRepository.storeDomain(new MockDomain(""), true); fail("Empty domain id should throw exception"); }
-   * catch (DomainIdNullException success) { }
-   * 
-   * try { domainRepository.storeDomain(null, null, true); fail("Null InputStream should throw an exception"); } catch
-   * (IllegalArgumentException success) { }
-   * 
-   * try { domainRepository.storeDomain(null, "", true); fail("Null InputStream should throw an exception"); } catch
-   * (IllegalArgumentException success) { }
-   * 
-   * try { domainRepository.storeDomain(null, "valid", true); fail("Null InputStream should throw an exception"); }
-   * catch (IllegalArgumentException success) { }
-   * 
-   * try { domainRepository.storeDomain(EMPTY_INPUT_STREAM, null, true);
-   * fail("Invalid domain id should throw exception"); } catch (DomainIdNullException success) { }
-   * 
-   * try { domainRepository.storeDomain(EMPTY_INPUT_STREAM, "", true); fail("Invalid domain id should throw exception");
-   * } catch (DomainIdNullException success) { }
-   * 
-   * // Have the XmiParser fail try { domainRepository.storeDomain(new MockDomain("exception"), true);
-   * fail("An unexpected exception should throw a DomainStorageException"); } catch (DomainStorageException success) { }
-   * 
-   * try { domainRepository.storeDomain(new ByteArrayInputStream(null), "valid", true);
-   * fail("Error with byte array input stream should throw exception"); } catch (Exception success) { }
-   * domainRepository.removeDomain("steel-wheels_test"); domainRepository.removeDomain(STEEL_WHEELS);
-   * domainRepository.removeDomain(SAMPLE_DOMAIN_ID);
-   * 
-   * final MockDomain sample = new MockDomain(SAMPLE_DOMAIN_ID); domainRepository.storeDomain(sample, false); final
-   * Domain domain = domainRepository.getDomain(SAMPLE_DOMAIN_ID); assertNotNull(domain); final List<LogicalModel>
-   * logicalModels = domain.getLogicalModels(); assertNotNull(logicalModels); assertEquals(0, logicalModels.size());
-   * 
-   * try { domainRepository.storeDomain(sample, false); fail("A duplicate domain with overwrite=false should fail"); }
-   * catch (DomainAlreadyExistsException success) { }
-   * 
-   * sample.addLogicalModel("test"); domainRepository.storeDomain(sample, true); assertEquals(1,
-   * domainRepository.getDomain(SAMPLE_DOMAIN_ID).getLogicalModels().size());
-   * 
-   * final RepositoryFile folder = domainRepository.getMetadataDir(); assertNotNull(folder);
-   * assertTrue(folder.isFolder()); assertEquals(1, repository.getChildren(folder.getId()).size());
-   * 
-   * final Domain steelWheelsDomain = loadDomain(STEEL_WHEELS, "./steel-wheels.xmi");
-   * domainRepository.storeDomain(steelWheelsDomain, true); assertEquals(2,
-   * repository.getChildren(folder.getId()).size()); }
-   */
+  @Test
+  public void testStoreDomain() throws Exception {
+    try {
+      domainRepositorySpy.storeDomain( null, true );
+      fail( "Invalid domain should throw exception" );
+    } catch ( DomainIdNullException success ) {
+      //ignored
+    }
+
+    try {
+      domainRepositorySpy.storeDomain( new MockDomain( null ), true );
+      fail( "Null domain id should throw exception" );
+    } catch ( DomainIdNullException success ) {
+      //ignored
+
+    }
+
+    try {
+      domainRepositorySpy.storeDomain( new MockDomain( "" ), true );
+      fail( "Empty domain id should throw exception" );
+    } catch ( DomainIdNullException success ) {
+      //ignored
+    }
+
+    try {
+      domainRepositorySpy.storeDomain( null, null, true );
+      fail( "Null InputStream should throw an exception" );
+    } catch ( IllegalArgumentException success ) {
+    }
+
+    try {
+      domainRepositorySpy.storeDomain( null, "", true );
+      fail( "Null InputStream should throw an exception" );
+    } catch ( IllegalArgumentException success ) {
+      //ignored
+    }
+
+    try {
+      domainRepositorySpy.storeDomain( null, "valid", true );
+      fail( "Null InputStream should throw an exception" );
+    } catch ( IllegalArgumentException success ) {
+      //ignored
+    }
+
+    try {
+      domainRepositorySpy.storeDomain( EMPTY_INPUT_STREAM, null, true );
+      fail( "Invalid domain id should throw exception" );
+    } catch ( DomainIdNullException success ) {
+      //ignored
+    }
+
+    try {
+      domainRepositorySpy.storeDomain( EMPTY_INPUT_STREAM, "", true );
+      fail( "Invalid domain id should throw exception" );
+    } catch ( DomainIdNullException success ) {
+      //ignored
+    }
+
+    // Have the XmiParser fail
+    try {
+      domainRepositorySpy.storeDomain( new MockDomain( "exception" ), true );
+      fail( "An unexpected exception should throw a DomainStorageException" );
+    } catch ( DomainStorageException success ) {
+      //ignored
+    }
+
+    try {
+      domainRepositorySpy.storeDomain( new ByteArrayInputStream( null ), "valid", true );
+      fail( "Error with byte array input stream should throw exception" );
+    } catch ( Exception success ) {
+      //ignored
+    }
+
+    domainRepositorySpy.removeDomain( "steel-wheels_test" );
+    domainRepositorySpy.removeDomain( STEEL_WHEELS );
+    domainRepositorySpy.removeDomain( SAMPLE_DOMAIN_ID );
+
+    final MockDomain sample = new MockDomain( SAMPLE_DOMAIN_ID );
+    domainRepositorySpy.storeDomain( sample, false );
+    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
+        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    final Domain domain = domainRepositorySpy.getDomain( SAMPLE_DOMAIN_ID );
+    assertNotNull( domain );
+    final List<LogicalModel> logicalModels = domain.getLogicalModels();
+    assertNotNull( logicalModels );
+    assertEquals( 0, logicalModels.size() );
+
+    try {
+      domainRepositorySpy.storeDomain( sample, false ); fail( "A duplicate domain with overwrite=false should fail" );
+    } catch ( DomainAlreadyExistsException success ) {
+    }
+
+    sample.addLogicalModel( "test" );
+    domainRepositorySpy.storeDomain( sample, true );
+    assertEquals( 1, domainRepositorySpy.getDomain( SAMPLE_DOMAIN_ID ).getLogicalModels().size() );
+
+    final RepositoryFile folder = domainRepositorySpy.getMetadataDir();
+    assertNotNull( folder );
+    assertTrue( folder.isFolder() );
+    assertEquals( 1, repository.getChildren( folder.getId() ).size() );
+
+    final Domain steelWheelsDomain = loadDomain( STEEL_WHEELS, "./steel-wheels.xmi" );
+    domainRepositorySpy.storeDomain( steelWheelsDomain, true );
+    assertEquals( 2, repository.getChildren( folder.getId() ).size() );
+  }
 
   public void testGetDomain() throws Exception {
     try {
-      domainRepository.getDomain( null );
+      domainRepositorySpy.getDomain( null );
       fail( "Null domainID should throw exception" );
     } catch ( Exception success ) {
       //ignored
     }
 
     try {
-      domainRepository.getDomain( "" );
+      domainRepositorySpy.getDomain( "" );
       fail( "Empty domainID should throw exception" );
     } catch ( Exception success ) {
       //ignored
     }
 
-    assertNull( domainRepository.getDomain( "doesn't exist" ) );
-    domainRepository.removeDomain( "steel-wheels_test" );
-    domainRepository.removeDomain( STEEL_WHEELS );
-    domainRepository.removeDomain( SAMPLE_DOMAIN_ID );
+    doReturn( false ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ), eq( EnumSet.of(
+        RepositoryFilePermission.READ ) ) );
+    assertNull( domainRepositorySpy.getDomain( "doesn't exist" ) );
+    doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
+    domainRepositorySpy.removeDomain( "steel-wheels_test" );
+    domainRepositorySpy.removeDomain( STEEL_WHEELS );
+    domainRepositorySpy.removeDomain( SAMPLE_DOMAIN_ID );
 
     final MockDomain originalDomain = new MockDomain( SAMPLE_DOMAIN_ID );
-    domainRepository.storeDomain( originalDomain, false );
-    final Domain testDomain1 = domainRepository.getDomain( SAMPLE_DOMAIN_ID );
+    domainRepositorySpy.storeDomain( originalDomain, false );
+
+    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ), eq ( EnumSet.of(
+        RepositoryFilePermission.READ ) ) );
+    final Domain testDomain1 = domainRepositorySpy.getDomain( SAMPLE_DOMAIN_ID );
+
     assertNotNull( testDomain1 );
     assertEquals( SAMPLE_DOMAIN_ID, testDomain1.getId() );
 
     originalDomain.addLogicalModel( "MODEL 1" );
     originalDomain.addLogicalModel( "MODEL 2" );
-    domainRepository.storeDomain( originalDomain, true );
+    domainRepositorySpy.storeDomain( originalDomain, true );
 
-    final Domain testDomain2 = domainRepository.getDomain( SAMPLE_DOMAIN_ID );
+    final Domain testDomain2 = domainRepositorySpy.getDomain( SAMPLE_DOMAIN_ID );
     assertNotNull( testDomain2 );
     final List<LogicalModel> logicalModels = testDomain2.getLogicalModels();
     assertEquals( 2, logicalModels.size() );
@@ -306,99 +406,151 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
    * assertEquals(newTestDescription, hrModel.getDescription("ru")); assertEquals(testDescription,
    * hrModel.getDescription("pl")); } }
    */
+
+  @Test
   public void testGetDomainIds() throws Exception {
-    final Set<String> emptyDomainList = domainRepository.getDomainIds();
+    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
+        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    Set<String> emptyDomainList = domainRepositorySpy.getDomainIds();
     assertNotNull( emptyDomainList );
 
-    domainRepository.removeDomain( "steel-wheels_test" );
-    domainRepository.removeDomain( STEEL_WHEELS );
-    domainRepository.removeDomain( SAMPLE_DOMAIN_ID );
+    doReturn( false ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
+        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    emptyDomainList = domainRepositorySpy.getDomainIds();
+    assertNotNull( emptyDomainList );
 
-    domainRepository.storeDomain( new MockDomain( SAMPLE_DOMAIN_ID ), true );
-    final Set<String> domainIds1 = domainRepository.getDomainIds();
+    doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
+    domainRepositorySpy.removeDomain( "steel-wheels_test" );
+    domainRepositorySpy.removeDomain( STEEL_WHEELS );
+    domainRepositorySpy.removeDomain( SAMPLE_DOMAIN_ID );
+
+    domainRepositorySpy.storeDomain( new MockDomain( SAMPLE_DOMAIN_ID ), true );
+    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
+        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    final Set<String> domainIds1 = domainRepositorySpy.getDomainIds();
+
     assertNotNull( domainIds1 );
     assertEquals( 1, domainIds1.size() );
     assertTrue( domainIds1.contains( SAMPLE_DOMAIN_ID ) );
   }
 
+  @Test
   public void testRemoveDomain() throws Exception {
+    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
+        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
+    doNothing().when( aclNodeHelper ).setAclFor( any( RepositoryFile.class ), any( RepositoryFileAcl.class ) );
     // Errors / NoOps
     try {
-      domainRepository.removeDomain( null );
+      domainRepositorySpy.removeDomain( null );
       fail( "should throw exception" );
     } catch ( IllegalArgumentException success ) {
       //ignore
     }
 
     try {
-      domainRepository.removeDomain( "" );
+      domainRepositorySpy.removeDomain( "" );
       fail( "should throw exception" );
     } catch ( IllegalArgumentException success ) {
       //ignore
     }
+
+    domainRepositorySpy.removeDomain( "steel-wheels_test" );
+    domainRepositorySpy.removeDomain( STEEL_WHEELS );
+    domainRepositorySpy.removeDomain( SAMPLE_DOMAIN_ID );
+
 
     // Create a domain that starts with "steel-wheels" to try to mess up any of the following tests
     final String notSteelWheelsDomainId = STEEL_WHEELS + "_test";
-    domainRepository.storeDomain( new MockDomain( notSteelWheelsDomainId ), false );
-    domainRepository.addLocalizationFile( notSteelWheelsDomainId, "en", EMPTY_PROPERTIES );
+    domainRepositorySpy.storeDomain( new MockDomain( notSteelWheelsDomainId ), false );
+    domainRepositorySpy.addLocalizationFile( notSteelWheelsDomainId, "en", EMPTY_PROPERTIES );
 
     // Get the current number of files
-    final RepositoryFile folder = domainRepository.getMetadataDir();
+    final RepositoryFile folder = domainRepositorySpy.getMetadataDir();
     final int originalFileCount = repository.getChildren( folder.getId() ).size();
     int fileCount = originalFileCount;
 
     // Add steel-wheels and some properties files
-    domainRepository.storeDomain( new MockDomain( STEEL_WHEELS ), true );
+    domainRepositorySpy.storeDomain( new MockDomain( STEEL_WHEELS ), true );
     assertEquals( ++fileCount, repository.getChildren( folder.getId() ).size() );
-    domainRepository.addLocalizationFile( STEEL_WHEELS, "en", EMPTY_PROPERTIES );
+    domainRepositorySpy.addLocalizationFile( STEEL_WHEELS, "en", EMPTY_PROPERTIES );
     assertEquals( ++fileCount, repository.getChildren( folder.getId() ).size() );
-    domainRepository.addLocalizationFile( STEEL_WHEELS, "en_US", EMPTY_PROPERTIES );
+    domainRepositorySpy.addLocalizationFile( STEEL_WHEELS, "en_US", EMPTY_PROPERTIES );
     assertEquals( ++fileCount, repository.getChildren( folder.getId() ).size() );
-    domainRepository.addLocalizationFile( STEEL_WHEELS, "ru", EMPTY_PROPERTIES );
+    domainRepositorySpy.addLocalizationFile( STEEL_WHEELS, "ru", EMPTY_PROPERTIES );
     assertEquals( ++fileCount, repository.getChildren( folder.getId() ).size() );
 
     // Test the delete
-    domainRepository.removeDomain( "fake" );
+    domainRepositorySpy.removeDomain( "fake" );
     assertEquals( fileCount, repository.getChildren( folder.getId() ).size() );
-    domainRepository.removeDomain( STEEL_WHEELS );
+    domainRepositorySpy.removeDomain( STEEL_WHEELS );
     assertEquals( originalFileCount, repository.getChildren( folder.getId() ).size() );
-    assertNull( domainRepository.getDomain( STEEL_WHEELS ) );
-    domainRepository.removeDomain( STEEL_WHEELS );
+    assertNull( domainRepositorySpy.getDomain( STEEL_WHEELS ) );
+    domainRepositorySpy.removeDomain( STEEL_WHEELS );
     assertEquals( originalFileCount, repository.getChildren( folder.getId() ).size() );
   }
 
-  /*
-   * public void testRemoveModel() throws Exception { // Invalid parameters try { domainRepository.removeModel(null,
-   * null); fail("Should throw exception"); } catch (Exception success) { }
-   * 
-   * try { domainRepository.removeModel("", null); fail("Should throw exception"); } catch (Exception success) { }
-   * 
-   * try { domainRepository.removeModel("valid", null); fail("Should throw exception"); } catch (Exception success) { }
-   * 
-   * try { domainRepository.removeModel("valid", ""); fail("Should throw exception"); } catch (Exception success) { }
-   * 
-   * // Deleting a model from a domain that doesn't exist should not throw exception
-   * domainRepository.removeModel("does not exist", "does not exist");
-   * 
-   * // Use a real XmiParser with real data domainRepository.setXmiParser(new MockXmiParser());
-   * domainRepository.storeDomain(loadDomain(STEEL_WHEELS, "./steel-wheels.xmi"), true); final Domain steelWheels =
-   * domainRepository.getDomain(STEEL_WHEELS); assertNotNull(steelWheels);
-   * 
-   * final String validModelName = "BV_HUMAN_RESOURCES";
-   * 
-   * { // Can't delete a model that doesn't exist domainRepository.removeModel(STEEL_WHEELS, "no such model"); final
-   * Domain test = domainRepository.getDomain(STEEL_WHEELS); assertNotNull(test);
-   * assertEquals(steelWheels.getPhysicalModels().size(), test.getPhysicalModels().size());
-   * assertEquals(steelWheels.getLogicalModels().size(), test.getLogicalModels().size());
-   * assertNotNull(getLogicalModelByName(test, validModelName)); }
-   * 
-   * { // Delete a model that does exist // NOTE: if caching is enabled, the original STEEL_WHEELS is cached and is the
-   * one that will be modified ... // ... so we need to flush the cache to prevent that from happening
-   * domainRepository.flushDomains(); domainRepository.removeModel(STEEL_WHEELS, validModelName); final Domain test =
-   * domainRepository.getDomain(STEEL_WHEELS); assertNotNull(test); assertEquals(steelWheels.getPhysicalModels().size(),
-   * test.getPhysicalModels().size()); assertEquals(steelWheels.getLogicalModels().size() - 1,
-   * test.getLogicalModels().size()); assertNull(getLogicalModelByName(test, validModelName)); } }
-   */
+  @Test
+  public void testRemoveModel() throws Exception {
+    // Invalid parameters
+    try {
+      domainRepositorySpy.removeModel( null, null );
+      fail( "Should throw exception" );
+    } catch ( Exception success ) {
+    }
+
+    try {
+      domainRepositorySpy.removeModel( "", null );
+      fail( "Should throw exception" );
+    } catch ( Exception success ) {
+    }
+
+    try {
+      domainRepositorySpy.removeModel( "valid", null );
+      fail( "Should throw exception" );
+    } catch ( Exception success ) {
+    }
+
+    try {
+      domainRepositorySpy.removeModel( "valid", "" );
+      fail( "Should throw exception" );
+    } catch ( Exception success ) {
+    }
+
+    // Deleting a model from a domain that doesn't exist should not throw exception
+    domainRepositorySpy.removeModel( "does not exist", "does not exist" );
+
+    // Use a real XmiParser with real data
+    domainRepositorySpy.setXmiParser( new MockXmiParser() );
+    domainRepositorySpy.storeDomain( loadDomain( STEEL_WHEELS, "./steel-wheels.xmi" ), true );
+    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
+        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    doNothing().when( domainRepositorySpy ).loadLocaleStrings( anyString(), any( Domain.class ) );
+    final Domain steelWheels = domainRepositorySpy.getDomain( STEEL_WHEELS );
+    assertNotNull( steelWheels );
+
+    final String validModelName = "BV_HUMAN_RESOURCES";
+
+    { // Can't delete a model that doesn't exist
+      domainRepositorySpy.removeModel( STEEL_WHEELS, "no such model" );
+      final Domain test = domainRepositorySpy.getDomain( STEEL_WHEELS );
+      assertNotNull( test );
+      assertEquals( steelWheels.getPhysicalModels().size(), test.getPhysicalModels().size() );
+      assertEquals( steelWheels.getLogicalModels().size(), test.getLogicalModels().size() );
+      assertNotNull( getLogicalModelByName( test, validModelName ) );
+    }
+
+    {
+      // Delete a model that does exist
+      // NOTE: if caching is enabled, the original STEEL_WHEELS is cached and is the one that will be modified ...
+      // ... so we need to flush the cache to prevent that from happening
+      domainRepositorySpy.flushDomains();
+      domainRepositorySpy.removeModel( STEEL_WHEELS, validModelName );
+      final Domain test = domainRepositorySpy.getDomain( STEEL_WHEELS );
+      assertNotNull( test );
+      assertNull( getLogicalModelByName( test, validModelName ) );
+    }
+  }
 
   private static LogicalModel getLogicalModelByName( final Domain domain, final String logicalModelName ) {
     for ( final LogicalModel logicalModel : domain.getLogicalModels() ) {
@@ -409,56 +561,63 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     return null;
   }
 
+  @Test
   public void testReloadDomains() throws Exception {
-    domainRepository.reloadDomains();
+    domainRepositorySpy.reloadDomains();
   }
 
+  @Test
   public void testFlushDomains() throws Exception {
-    domainRepository.flushDomains();
+    domainRepositorySpy.flushDomains();
   }
 
+  @Test
   public void testGenerateRowLevelSecurityConstraint() throws Exception {
-    domainRepository.generateRowLevelSecurityConstraint( null );
+    domainRepositorySpy.generateRowLevelSecurityConstraint( null );
   }
 
+  @Test
   public void testHasAccess() throws Exception {
-    domainRepository.hasAccess( 0, null );
+    domainRepositorySpy.hasAccess( 0, null );
   }
 
+  @Test
   public void testToString() throws Exception {
     // Neither case should throw an exception
-    domainRepository.toString( null );
-    domainRepository.toString( new RepositoryFile.Builder( "" ).build() );
-    domainRepository.toString( repository.getFile( "/etc/metadata" ) );
+    domainRepositorySpy.toString( null );
+    domainRepositorySpy.toString( new RepositoryFile.Builder( "" ).build() );
+    domainRepositorySpy.toString( repository.getFile( "/etc/metadata" ) );
   }
 
+  @Test
   public void testLoadLocaleStrings() throws Exception {
     // Add a domain with no external locale information
-    domainRepository.setXmiParser( new XmiParser() );
+    domainRepositorySpy.setXmiParser( new XmiParser() );
     final Domain steelWheels = loadDomain( STEEL_WHEELS, "./steel-wheels.xmi" );
-    domainRepository.storeDomain( steelWheels, true );
+    domainRepositorySpy.storeDomain( steelWheels, true );
 
     final int initialLocaleSize = steelWheels.getLocaleCodes().length;
     assertEquals( initialLocaleSize, steelWheels.getLocales().size() );
-    domainRepository.loadLocaleStrings( STEEL_WHEELS, steelWheels );
+    domainRepositorySpy.loadLocaleStrings( STEEL_WHEELS, steelWheels );
     assertEquals( initialLocaleSize, steelWheels.getLocaleCodes().length );
     assertEquals( initialLocaleSize, steelWheels.getLocales().size() );
 
     final Properties newLocale = new Properties();
     newLocale.put( "[LogicalModel-BV_HUMAN_RESOURCES].[description]", "New Description in Italian" );
-    domainRepository.addLocalizationFile( STEEL_WHEELS, "it_IT", newLocale );
+    domainRepositorySpy.addLocalizationFile( STEEL_WHEELS, "it_IT", newLocale );
 
-    domainRepository.loadLocaleStrings( STEEL_WHEELS, steelWheels );
+    domainRepositorySpy.loadLocaleStrings( STEEL_WHEELS, steelWheels );
     final int newLocaleSize = initialLocaleSize + 1;
     assertEquals( newLocaleSize, steelWheels.getLocales().size() );
-    domainRepository.loadLocaleStrings( STEEL_WHEELS, steelWheels );
+    domainRepositorySpy.loadLocaleStrings( STEEL_WHEELS, steelWheels );
     assertEquals( newLocaleSize, steelWheels.getLocaleCodes().length );
     assertEquals( newLocaleSize, steelWheels.getLocales().size() );
   }
 
+  @Test
   public void testSetXmiParser() throws Exception {
-    domainRepository.setXmiParser( null );
-    domainRepository.setXmiParser( new XmiParser() );
+    domainRepositorySpy.setXmiParser( null );
+    domainRepositorySpy.setXmiParser( new XmiParser() );
   }
 
   private InputStream toInputStream( final Properties newProperties ) {

@@ -1,0 +1,519 @@
+/* ====================================== */
+/* ========== STEEL WHEELS CSS ========== */
+/* ====================================== */
+
+
+/* ================ FONTS =============== */
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src:  local('Open Sans Light'), 
+        local('OpenSans-Light'),
+        /* CE */
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-light.eot') format('embedded-opentype'),
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-light.woff') format('woff'),
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-light.ttf') format('truetype'),
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-light.svg#OpenSansLight') format('svg');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src:  local('Open Sans'), 
+        local('OpenSans'),
+        /* CE */
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-regular.eot') format('embedded-opentype'),
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-regular.woff') format('woff'),
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-regular.ttf') format('truetype'),
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-regular.svg#OpenSansRegular') format('svg');
+}
+
+
+/* ================ GENERAL STYLES ================ */
+
+html {
+    overflow-y: scroll;
+    height: 100%;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    background: #FFFFFF;
+    position: relative;
+    min-height: 100%;
+    padding-bottom: 45px;
+    color: #343E47;
+}
+
+.container {
+    width: 1130px;
+}
+
+
+/* ================ HEADER ================ */
+
+/* full width div to decorate header background */
+.headerBackground {
+    width: 100%;
+    min-width: 1130px;
+    height: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 0;
+    background: url('../img/header-bg.png') repeat-x left top;  
+    margin: 0;
+}
+
+.headerRow {
+    height: 100px;
+}
+
+.headerRow .pentahoLogo a {
+    height: 42px;
+    margin-top: 29px;
+    width: 157px;
+    display: inline-block;
+    background: url('../img/pentaho-logo.svg') repeat-x left center;    
+}
+
+.no-svg .headerRow .pentahoLogo a {
+    background: url('../img/pentaho-logo.png') repeat-x left center; /* ie8 fix - use png instead of svg */
+}
+
+.welcomeMsg p {
+    margin: 40px 0;
+    padding: 0;
+    line-height: 20px;
+    font-size: 14px;
+    border-left: 1px solid #C6C6C6;
+    padding-left: 20px;
+}
+
+.welcomeMsg p .username {
+    color: #005CA7;
+}
+
+
+/* ================ FOOTER ================ */
+
+.footer {
+    width: 100%;
+    min-width: 1130px;
+    height: 45px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    background: url('../img/footer-bg.png') repeat-x left top;
+    margin: 0;
+}
+
+/* ================ DASHBOARD ================ */
+
+/* dashboard title */
+.titleObj {
+    font-size: 16px;
+    margin-top: 25px;
+    padding-bottom: 7px;
+    line-height: 24px;
+    font-weight: 400;
+    border-bottom: 1px solid #E6E6E6;
+}
+
+/* sections sub-titles */
+.subTitle {
+    padding: 8px 0;
+    color: #666666;
+    border-bottom: 1px solid #E6E6E6;
+    line-height: 18px;
+}
+
+/* kpi column */
+.kpiContainer {
+    padding-bottom: 20px;
+}
+
+.kpiColumn {
+    border-bottom: 1px solid #E6E6E6;
+    padding-bottom: 10px;
+}
+
+.radioButtonObj {
+    padding: 5px 0;
+}
+
+.radioButtonObj button {
+    padding-left: 20px;
+    background: none;
+    border: none;
+    outline: 0;
+    box-shadow: none;
+    color: #666666;
+    position: relative;
+}
+
+.radioButtonObj button:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin-top: -6px;
+    width: 12px;
+    height: 12px;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    border: 1px solid #CCCCCC;
+    
+    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+
+.radioButtonObj button:after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    margin-top: -2px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    background: #343E47;
+    
+    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+.opacity .radioButtonObj button:after {
+    opacity: 0;
+}
+.no-opacity .radioButtonObj button:after {
+    display: none; /* ie8 fix */
+}
+
+.radioButtonObj button.active {
+    cursor: default;
+}
+
+.radioButtonObj button.active:after {
+    /* ie8 fix */
+    content: ' ';
+}
+
+.radioButtonObj button:hover:before {
+    border: 1px solid #343E47;
+}
+
+.radioButtonObj button.active:hover:before {
+    border: 1px solid #CCCCCC;
+}
+
+.opacity .radioButtonObj button.active:after {
+    opacity: 1;
+}
+.no-opacity .radioButtonObj button.active:after {
+    display: block; /* ie8 fix */
+}
+
+.kpiValueObj {
+    font-size: 24px;
+    height: 34px;
+}
+
+.kpiChart {
+    margin-top: 10px;
+}
+
+.centerRow {
+    display: none;
+    margin: 50px 0;
+}
+
+
+/* ================ LEGEND ================ */
+
+.legendObj table.dataTable thead {
+    display: none;
+}
+
+.legendObj table.dataTable {
+    border: none;    
+    margin-top: 6px;
+}
+
+.legendObj table.dataTable > tbody > tr > td {
+    border: none;
+    background: none;
+    text-align: right;
+    font-size: 12px;
+    padding: 6px 32px 6px 0;
+    height: 32px;
+    position: relative;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    cursor: pointer;
+}
+
+.legendObj table.dataTable > tbody > tr > td:after {
+    height: 20px;
+    width: 20px;
+    position: absolute;
+    content: '';
+    right: 0;
+    top: 50%;
+    margin-top: -10px;
+    background: url('../img/check.svg') no-repeat center center;
+}
+
+.no-svg .legendObj table.dataTable > tbody > tr > td:after {
+    background: url('../img/check.png') no-repeat center center; /* ie8 fix - use png instead of svg */
+}
+
+.legendObj table.dataTable > tbody > tr.disabled > td:after {
+    content: ' '; /* ie8 fix */
+    background: none;
+}
+
+/* Use classes created on legendTable's "Draw Function" to style checkboxes' background color */
+.legendObj table.dataTable > tbody > tr.row0 > td:after {
+    background-color: #22B573 ;
+}
+.legendObj table.dataTable > tbody > tr.row1 > td:after {
+    background-color: #66C2A5;
+}
+.legendObj table.dataTable > tbody > tr.row2 > td:after {
+    background-color: #5C9FBC;
+}
+.legendObj table.dataTable > tbody > tr.row3 > td:after {
+    background-color: #3E83B7;
+}
+.legendObj table.dataTable > tbody > tr.row4 > td:after {
+    background-color: #005CA7;
+}
+
+
+/* ================ DATE RANGE ================ */
+
+.dateObj {
+    margin-top: 40px;
+}
+
+.dateObj .chzn-container {
+    width: 100px !important;
+    font-size: 12px;
+    display: block;
+    float: right;
+}
+
+.dateObj .chzn-container-single .chzn-single {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding-left: 36px;
+    background: none;
+    filter: none;
+    color: #666;
+    border-radius: 0;
+    
+    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+
+.dateObj .chzn-container-single .chzn-single:before {
+    width: 23px;
+    height: 20px;
+    left: 3px;
+    top: 50%;
+    margin-top: -11px;
+    position: absolute;
+    content: '';
+    background: url('../img/calendar.svg') no-repeat center center;
+    z-index: 1;
+    
+    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+.no-svg .dateObj .chzn-container-single .chzn-single:before {
+    background: url('../img/calendar.png') no-repeat center center; /* ie8 fix - use png instead of svg */
+}
+
+.dateObj .chzn-container-single .chzn-single:hover:before,
+.dateObj .chzn-container-single .chzn-single-with-drop:before {
+    content: ' ';
+}
+
+.opacity .dateObj .chzn-container-single .chzn-single:hover:before,
+.opacity .dateObj .chzn-container-single .chzn-single-with-drop:before {
+    opacity: 0;
+}
+
+.dateObj .chzn-container-single .chzn-single:after {
+    width: 23px;
+    height: 20px;
+    left: 3px;
+    top: 50%;
+    margin-top: -11px;
+    position: absolute;
+    content: '';
+    background: url('../img/calendar-hover.svg') no-repeat center center;
+    z-index: 2;
+    
+    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+.opacity .dateObj .chzn-container-single .chzn-single:after {
+    opacity: 0;
+}
+.no-svg .dateObj .chzn-container-single .chzn-single:after {
+    background: url('../img/calendar-hover.png') no-repeat center center; /* ie8 fix - use png instead of svg */
+}
+.no-opacity .dateObj .chzn-container-single .chzn-single:after {
+    display: none; /* ie8 fix */
+}
+
+.no-opacity .dateObj .chzn-container-single .chzn-single:hover:after,
+.no-opacity .dateObj .chzn-container-single .chzn-single-with-drop:after {
+    display: block; /* ie8 fix */
+}
+
+.opacity .dateObj .chzn-container-single .chzn-single:hover:after,
+.opacity .dateObj .chzn-container-single .chzn-single-with-drop:after {
+    opacity: 1;
+}
+
+.dateObj .chzn-container-single .chzn-single:hover,
+.dateObj .chzn-container-single .chzn-single.chzn-single-with-drop {
+    background: #005CA7;
+    color: #FFF;
+}
+
+.dateObj .chzn-container-single .chzn-single span {
+    color: #666;
+    margin-right: 10px;
+    
+    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+
+.dateObj .chzn-container-single .chzn-single:hover span,
+.dateObj .chzn-container-single .chzn-single-with-drop span {
+    color: #FFF;
+}
+
+.dateObj .chzn-container-single .chzn-single:focus {
+    outline: 0;
+}
+
+.dateObj .chzn-container-single .chzn-drop {
+    width: 100% !important;
+    background: #FFF;
+    border: 1px solid #D1D7DA;
+    padding: 15px;
+    text-align: left;
+    border-radius: 0;
+    margin-top: 1px;
+}
+
+.dateObj .chzn-container .chzn-results {
+    padding: 0;
+    margin: 0;
+}
+
+.dateObj .chzn-container .chzn-results .highlighted {
+    background: #005CA7;
+}
+
+.dateObj .chzn-container-single .chzn-single div {
+    background: none;
+    border: none;
+    display: none;
+}
+
+.dateObj .chzn-container-single .chzn-search {
+    display: none;
+}
+
+/* ================ CHART TOOLTIP ================ */
+
+.tipsy-inner {
+    background: #FFFFFF;
+    font-family: 'Open Sans', Arial, sans-serif;
+    border: 1px solid #E6E6E6;
+    -webkit-box-shadow: 1px 1px 2px rgba(0,0,0,.2);
+      -msie-box-shadow: 1px 1px 2px rgba(0,0,0,.2);
+       -moz-box-shadow: 1px 1px 2px rgba(0,0,0,.2);
+         -o-box-shadow: 1px 1px 2px rgba(0,0,0,.2);
+            box-shadow: 1px 1px 2px rgba(0,0,0,.2);
+    padding: 10px 15px 11px;
+    color: #4D4D4D;
+}
+
+.tooltipContainer .tooltipTitle {
+    color: #666666;
+    display: block;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1;
+    margin-bottom: 3px;
+    line-height: 16px;
+}
+
+.tooltipContainer .tooltipSubtitle {
+    color: #666666;
+    display: block;
+    text-align: center;
+    font-size: 9px;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+
+.tooltipContainer .tooltipValue {
+    display: block;
+    text-align: center;
+    font-weight: 300;
+    line-height: 1;    
+    font-size: 24px;
+    color: #343E47;
+}
+
+.tooltipContainer .tooltipValue.classic {
+    color: #005CA7;
+}
+.tooltipContainer .tooltipValue.vintage {
+    color: #3E83B7;
+}
+.tooltipContainer .tooltipValue.motorcycles {
+    color: #5C9FBC;
+}
+.tooltipContainer .tooltipValue.trucks {
+    color: #66C2A5;
+}
+.tooltipContainer .tooltipValue.trains {
+    color: #22B573;
+}

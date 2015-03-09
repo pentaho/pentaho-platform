@@ -289,6 +289,10 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileAclDto getAcl( String fileId ) {
+    if( repo == null ){
+      // many tests do not have a repo setup.
+      return null;
+    }
     return repositoryFileAclAdapter.marshal( repo.getAcl( fileId ) );
   }
 

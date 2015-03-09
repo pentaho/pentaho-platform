@@ -39,6 +39,16 @@ public class JerseyUtil {
         formParamsHashMap.put( key, value );
       }
     }
+    
+    Map mapParams = httpServletRequest.getParameterMap();
+    for ( Object key : mapParams.keySet() ) {
+      Object value = mapParams.get( key );
+      if ( value instanceof List ) {
+        formParamsHashMap.put( (String) key, ( (List<?>) value ).toArray() );
+      } else {
+        formParamsHashMap.put( (String) key, value );
+      }
+    }
 
     HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper( httpServletRequest ) {
       @Override

@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.util;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import java.awt.Color;
@@ -30,11 +29,14 @@ public class ColorHelperTest extends TestCase {
 
   public void testColorHelper() {
     Color color = ColorHelper.lookupColor( "thistle" ); //$NON-NLS-1$
-    Assert.assertEquals( color, Color.decode( "#d8bfd8" ) ); //$NON-NLS-1$
+    assertEquals( color, Color.decode( "#d8bfd8" ) ); //$NON-NLS-1$
+
     color = ColorHelper.lookupColor( "teal", Color.BLACK ); //$NON-NLS-1$
-    Assert.assertEquals( color, Color.decode( "#008080" ) ); //$NON-NLS-1$
-    color = ColorHelper.lookupColor( "noSuchColorInMap", Color.BLACK ); //$NON-NLS-1$
-    Assert.assertEquals( color, Color.BLACK );
+    assertEquals( color, Color.decode( "#008080" ) ); //$NON-NLS-1$
+  }
+
+  public void testUsingDefaultWhenNotFound() {
+    assertEquals( ColorHelper.lookupColor( "noSuchColorInMap", Color.BLACK ), Color.BLACK );
   }
 
 }

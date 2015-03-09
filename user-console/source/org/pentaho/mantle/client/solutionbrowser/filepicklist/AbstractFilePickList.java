@@ -25,12 +25,17 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.ArrayList;
 
 public abstract class AbstractFilePickList<T extends IFilePickItem> {
+
+  private static final String FILE_PICK_ADD = "add";
+  private static final String FILE_PICK_REMOVE = "remove";
 
   private ArrayList<T> filePickList;
   private int maxSize = 0; // 0 size equals no limit
@@ -77,7 +82,7 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
   }
 
   public void add( T pickListItem ) {
-    add( filePickList.size(), pickListItem );
+    reloadFavorites( pickListItem, FILE_PICK_ADD );
   }
 
   /**
@@ -101,12 +106,13 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
     fireItemsChangedEvent();
   }
 
-  public boolean remove( T pickListItem ) {
-    boolean removed = filePickList.remove( pickListItem );
-    if ( removed ) {
-      fireItemsChangedEvent();
+  public void remove( T pickListItem ) {
+    if ( pickListItem instanceof FavoritePickItem ) {
+      reloadFavorites( pickListItem, FILE_PICK_REMOVE );
     }
-    return removed;
+    else if ( pickListItem instanceof RecentPickItem ) {
+      reloadRecents( pickListItem, FILE_PICK_REMOVE );
+    }
   }
 
   public T remove( int index ) {
@@ -224,10 +230,97 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
     }
   }
 
+  public void reloadFavorites( final T pickListItem, final String command ) {
+    final String url = GWT.getHostPageBaseURL() + "api/user-settings/favorites"; //$NON-NLS-1$
+
+    RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
+    try {
+      builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+      builder.setHeader( "accept", "application/json" );
+      builder.sendRequest( null, new RequestCallback() {
+        public void onError( Request request, Throwable exception ) {
+          // showError(exception);
+        }
+
+        public void onResponseReceived( Request request, Response response ) {
+          if ( response.getStatusCode() == Response.SC_OK ) {
+            try {
+              JSONArray jsonArr = ( JSONArray ) JSONParser.parse( response.getText() );
+              filePickList = new ArrayList<T>();
+              T filePickItem;
+              for ( int i = 0; i < jsonArr.size(); i++ ) {
+                filePickItem = createFilePickItem( jsonArr.get( i ).isObject() );
+                filePickList.add( filePickItem );
+              }
+              if ( FILE_PICK_ADD.equals( command ) ) {
+                add( filePickList.size(), pickListItem );
+              }
+              else if ( FILE_PICK_REMOVE.equals( command ) ) {
+                filePickList.remove( pickListItem );
+                fireItemsChangedEvent();
+              }
+            }
+            catch( Exception e ) {
+              if ( FILE_PICK_ADD.equals( command ) ) {
+                add( filePickList.size(), pickListItem );
+              }
+              else if ( FILE_PICK_REMOVE.equals( command ) ) {
+                filePickList.remove( pickListItem );
+                fireItemsChangedEvent();
+              }
+            }
+          }
+        }
+      } );
+    } catch ( RequestException e ) {
+      // showError(e);
+    }
+  }
+
+  public void reloadRecents( final T pickListItem, final String command ) {
+    final String url = GWT.getHostPageBaseURL() + "api/user-settings/recent"; //$NON-NLS-1$
+
+    RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
+    try {
+      builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+      builder.setHeader( "accept", "application/json" );
+      builder.sendRequest( null, new RequestCallback() {
+        public void onError( Request request, Throwable exception ) {
+          // showError(exception);
+        }
+
+        public void onResponseReceived( Request request, Response response ) {
+          if ( response.getStatusCode() == Response.SC_OK ) {
+            try {
+              JSONArray jsonArr = ( JSONArray ) JSONParser.parse( response.getText() );
+              filePickList = new ArrayList<T>();
+              T filePickItem;
+              for ( int i = 0; i < jsonArr.size(); i++ ) {
+                filePickItem = createFilePickItem( jsonArr.get( i ).isObject() );
+                filePickList.add( filePickItem );
+              }
+              if ( FILE_PICK_REMOVE.equals( command ) ) {
+                filePickList.remove( pickListItem );
+                fireItemsChangedEvent();
+              }
+            }
+            catch( Exception e ) {
+              if ( FILE_PICK_REMOVE.equals( command ) ) {
+                filePickList.remove( pickListItem );
+                fireItemsChangedEvent();
+              }
+            }
+          }
+        }
+      } );
+    } catch ( RequestException e ) {
+      // showError(e);
+    }
+  }
+
   private void fireOnSavedEvent() {
     for ( IFilePickListListener<T> listener : listeners ) {
       listener.onSaveComplete( this );
     }
   }
-
 }

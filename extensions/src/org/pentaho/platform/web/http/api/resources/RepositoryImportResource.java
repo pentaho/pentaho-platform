@@ -17,17 +17,10 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.codehaus.enunciate.Facet;
@@ -36,7 +29,6 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
-import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importer.IPlatformImportMimeResolver;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
@@ -48,8 +40,16 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 @Path ( "/repo/files/import" )
 public class RepositoryImportResource {
@@ -59,39 +59,124 @@ public class RepositoryImportResource {
   private static final String DEFAULT_CHAR_SET = "UTF-8";
 
   /**
-   * Attempts to import all files from the zip file. A log file is produced at the end of import
+   * Attempts to import all files from the zip archive or single file. A log file is produced at the end of import.
    *
-   * @param uploadDir : JCR Directory to which the zip structure or single file will be uploaded to.
-   * @param fileIS    : Input stream for the file.
-   * @param fileInfo  : Info about he file
-   * @param fileNameOverride: If present and the content represents a single file, this parameter
-   * contains the filename to use when storing the file in the repository.  If not present, the
-   * fileInfo.getFileName will be used.  Note that the later cannot reliably handle foreign character
-   * sets.
-   * @return http ok response of everything went well... some other error otherwise
-   * <p/>
-   * This REST method takes multi-part form data and imports it to a JCR repository. --import
-   * --url=http://localhost:8080/pentaho --username=admin --password=password --source=file-system --type=files
-   * --charset=UTF-8 --path=/public --file-path="C:/pentahotraining/BootCamp Labs/Pilot Project/SteelWheels.csv"
-   * --permission=true --overwrite=true --retainOwnership=true --rest=true
+   * <p><b>Example Request:</b><br />
+   *    POST pentaho/api/repo/files/import
+   *    <br /><b>POST data:</b>
+   *    <pre function="syntax.xml">
+   *      ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+   *      Content-Disposition: form-data; name="importDir"
+   *
+   *      /public
+   *      ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+   *      Content-Disposition: form-data; name="fileUpload"; filename="test.csv"
+   *      Content-Type: application/vnd.ms-excel
+   *
+   *      ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+   *      Content-Disposition: form-data; name="overwriteFile"
+   *
+   *      true
+   *      ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+   *      Content-Disposition: form-data; name="overwriteAclPermissions"
+   *
+   *      true
+   *      ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+   *      Content-Disposition: form-data; name="applyAclPermissions"
+   *
+   *      true
+   *      ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+   *      Content-Disposition: form-data; name="retainOwnership"
+   *
+   *      true
+   *      ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+   *      Content-Disposition: form-data; name="charSet"
+   *
+   *      UTF-8
+   *      ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+   *      Content-Disposition: form-data; name="logLevel"
+   *
+   *      INFO
+   *      ------WebKitFormBoundaryd1z6iZhXyx12RYxV
+   *      Content-Disposition: form-data; name="fileNameOverride"
+   *
+   *      fileNameOverriden.csv
+   *      ------WebKitFormBoundaryd1z6iZhXyx12RYxV--
+   *    </pre>
+   * </p>
+   *
+   * @param importDir               JCR Directory to which the zip structure or single file will be uploaded to.
+   * @param fileUpload              Input stream for the file.
+   * @param overwriteFile           The flag indicates ability to overwrite existing file.
+   * @param overwriteAclPermissions The flag indicates ability to overwrite Acl permissions.
+   * @param applyAclPermissions     The flag indicates ability to apply Acl permissions.
+   * @param retainOwnership         The flag indicates ability to retain ownership.
+   * @param charSet                 The charset for imported file.
+   * @param logLevel                The level of logging.
+   * @param fileNameOverride        If present and the content represents a single file, this parameter contains the filename to use
+   *                                when storing the file in the repository. If not present, the fileInfo.getFileName will be used.
+   *                                Note that the later cannot reliably handle foreign character sets.
+   *
+   * @return A jax-rs Response object with the appropriate header and body.
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   *   &lt;html&gt;
+   *   &lt;head&gt;
+   *   &lt;title&gt;Repository Import Log&lt;/title&gt;
+   *   &lt;/head&gt;
+   *   &lt;body bgcolor="#FFFFFF" topmargin="6" leftmargin="6" style="font-family: arial,sans-serif; font-size: x-small"&gt;
+   *   &lt;hr size="1" noshade&gt;
+   *   Log session start time Thu Feb 26 11:04:19 BRT 2015&lt;br&gt;
+   *   &lt;br&gt;
+   *   &lt;table cellspacing="0" cellpadding="4" border="1" bordercolor="#224466" width="100%"&gt;
+   *   &lt;tr style="background: #336699; color: #FFFFFF; text-align: left"&gt;
+   *   &lt;th&gt;Import File&lt;/th&gt;
+   *   &lt;th&gt;Level&lt;/th&gt;
+   *   &lt;th&gt;Message&lt;/th&gt;
+   *   &lt;/tr&gt;
+   *   &lt;td title="importFile"&gt;/public&lt;/td&gt;
+   *   &lt;td title="Level"&gt;INFO&lt;/td&gt;
+   *   &lt;td title="Message"&gt;Start Import Job&lt;/td&gt;
+   *   &lt;/tr&gt;
+   *   &lt;td title="importFile"&gt;/public/fileNameOverriden.csv&lt;/td&gt;
+   *   &lt;td title="Level"&gt;INFO&lt;/td&gt;
+   *   &lt;td title="Message"&gt;Start File Import&lt;/td&gt;
+   *   &lt;/tr&gt;
+   *   &lt;td title="importFile"&gt;/public/fileNameOverriden.csv&lt;/td&gt;
+   *   &lt;td title="Level"&gt;&lt;font color="#993300"&gt;&lt;strong&gt;WARN&lt;/strong&gt;&lt;/font&gt;&lt;/td&gt;
+   *   &lt;td title="Message"&gt;fileNameOverriden.csv&lt;/td&gt;
+   *   &lt;/tr&gt;
+   *   &lt;td title="importFile"&gt;/public&lt;/td&gt;
+   *   &lt;td title="Level"&gt;INFO&lt;/td&gt;
+   *   &lt;td title="Message"&gt;End Import Job&lt;/td&gt;
+   *   &lt;/tr&gt;
+   *   &lt;/table&gt;
+   *   &lt;br&gt;
+   *   &lt;/body&gt;&lt;/html&gt;
+   * </pre>
    */
   @POST
   @Consumes ( MediaType.MULTIPART_FORM_DATA )
   @Produces ( MediaType.TEXT_HTML )
   @Facet( name = "Unsupported" )
-  public Response doPostImport( @FormDataParam ( "importDir" ) String uploadDir,
-                                @FormDataParam ( "fileUpload" ) InputStream fileIS, @FormDataParam ( "overwriteFile" ) String overwriteFile,
+  public Response doPostImport( @FormDataParam ( "importDir" ) String importDir,
+                                @FormDataParam ( "fileUpload" ) InputStream fileUpload,
+                                @FormDataParam ( "overwriteFile" ) String overwriteFile,
                                 @FormDataParam ( "overwriteAclPermissions" ) String overwriteAclPermissions,
                                 @FormDataParam ( "applyAclPermissions" ) String applyAclPermission,
-                                @FormDataParam ( "retainOwnership" ) String retainOwnership, @FormDataParam ( "charSet" ) String pCharSet,
-                                @FormDataParam ( "logLevel" ) String logLevel, @FormDataParam ( "fileUpload" ) FormDataContentDisposition fileInfo,
+                                @FormDataParam ( "retainOwnership" ) String retainOwnership,
+                                @FormDataParam ( "charSet" ) String charSet,
+                                @FormDataParam ( "logLevel" ) String logLevel,
+                                @FormDataParam ( "fileUpload" ) FormDataContentDisposition fileInfo,
                                 @FormDataParam ( "fileNameOverride" ) String fileNameOverride ) {
-    
     IRepositoryImportLogger importLogger = null;
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
 
-    String charSet = pCharSet == null ? DEFAULT_CHAR_SET : pCharSet;
+    if (StringUtils.isBlank( charSet )) {
+      charSet =  DEFAULT_CHAR_SET;
+    }
 
     try {
       validateAccess();
@@ -109,10 +194,10 @@ public class RepositoryImportResource {
       String fileName = fileNameOverride != null ? fileNameOverride : fileInfo.getFileName();
 
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
-      bundleBuilder.input( fileIS );
+      bundleBuilder.input( fileUpload );
       bundleBuilder.charSet( charSet );
       bundleBuilder.hidden( false );
-      bundleBuilder.path( uploadDir );
+      bundleBuilder.path( importDir );
       bundleBuilder.overwriteFile( overwriteFileFlag );
       bundleBuilder.applyAclSettings( applyAclSettingsFlag );
       bundleBuilder.overwriteAclSettings( overwriteAclSettingsFlag );
@@ -137,7 +222,7 @@ public class RepositoryImportResource {
       }
 
       logJobStarted = true;
-      importLogger.startJob( importLoggerStream, uploadDir, level );
+      importLogger.startJob( importLoggerStream, importDir, level );
       importer.importFile( bundle );
 
       // Flush the Mondrian cache to show imported data-sources.
@@ -145,12 +230,6 @@ public class RepositoryImportResource {
           PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", PentahoSessionHolder
               .getSession() );
       mondrianCatalogService.reInit( PentahoSessionHolder.getSession() );
-
-      // Flush the IOlapService
-      IOlapService olapService =
-          PentahoSystem.get( IOlapService.class, "IOlapService", PentahoSessionHolder.getSession() ); //$NON-NLS-1$
-      olapService.flushAll( PentahoSessionHolder.getSession() );
-
     } catch ( PentahoAccessControlException e ) {
       return Response.serverError().entity( e.toString() ).build();
     } catch ( Exception e ) {
@@ -160,7 +239,7 @@ public class RepositoryImportResource {
         importLogger.endJob();
       }
     }
-    String responseBody = null;
+    String responseBody;
     try {
       responseBody = importLoggerStream.toString( charSet );
     } catch ( UnsupportedEncodingException e ) {
@@ -179,5 +258,4 @@ public class RepositoryImportResource {
       throw new PentahoAccessControlException( "Access Denied" );
     }
   }
-  
 }

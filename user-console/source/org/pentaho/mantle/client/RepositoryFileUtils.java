@@ -82,6 +82,7 @@ public class RepositoryFileUtils {
     repositoryFile.setDescription( file.getDescription() );
     repositoryFile.setFolder( file.isFolder() );
     repositoryFile.setHidden( file.isHidden() );
+    repositoryFile.setAclNode( false );
     repositoryFile.setId( file.getId() );
     repositoryFile.setLastModifiedDate( file.getLastModifiedDate() );
     repositoryFile.setLocale( file.getLocale() );

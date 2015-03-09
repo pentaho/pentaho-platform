@@ -149,7 +149,7 @@ public class GetResourceTest {
 
   @Test
   public void testRepositoryFile() throws ServletException, IOException {
-    final String repoFileName = "repo_file.properties";
+    final String repoFileName = "repo_file.jpg";
     final int repoFileLength = 100;
 
     final RepositoryFile repositoryFile = mock( RepositoryFile.class );

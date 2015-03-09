@@ -24,8 +24,10 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.vfs.FileContent;
 import org.apache.commons.vfs.FileName;
@@ -36,27 +38,34 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.NameScope;
 import org.apache.commons.vfs.operations.FileOperations;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 
 public class SolutionRepositoryVfsFileObject implements FileObject {
 
+  private static IAclNodeHelper testAclHelper;
+
   private String fileRef;
 
-  private static final IUnifiedRepository REPOSITORY = PentahoSystem.get( IUnifiedRepository.class, null );
+  private static final IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class, null );
 
   private FileContent content = null;
 
-  private boolean fileInitialized;
-
   private RepositoryFile repositoryFile = null;
-  
+
   private IRepositoryContentConverterHandler converterHandler;
+
+  private IAclNodeHelper aclHelper;
 
   public SolutionRepositoryVfsFileObject( final String fileRef ) {
     super();
@@ -64,12 +73,12 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   }
 
   public IUnifiedRepository getRepository() {
-    return REPOSITORY;
+    return repository;
   }
 
   public IRepositoryContentConverterHandler getConverterHandler() {
-    if(converterHandler == null) {
-      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class);
+    if ( converterHandler == null ) {
+      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
     }
     return converterHandler;
   }
@@ -100,20 +109,23 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   }
 
   private void initFile() {
-    if ( !fileInitialized ) {
-      // decode URL before 'get'
-      String fileUrl = fileRef;
+    // decode URL before 'get'
+    String fileUrl = fileRef;
 
-      try{
-        fileUrl = URLDecoder.decode( fileUrl, Charset.defaultCharset().name() );
-      }
-      catch ( UnsupportedEncodingException e ){
-        fileUrl = fileRef;
-      }
+    try {
+      fileUrl = URLDecoder.decode( fileUrl, Charset.defaultCharset().name() );
+    } catch ( UnsupportedEncodingException e ) {
+      fileUrl = fileRef;
+    }
 
-      repositoryFile = REPOSITORY.getFile( fileUrl );
+    String dsPath = fileUrl;
+    if ( fileUrl.matches( "^(/etc/mondrian/)(.*)(/schema.xml)" ) ) {
+      dsPath = fileUrl.substring( 0, fileUrl.indexOf( "/schema.xml" ) );
+    }
 
-      fileInitialized = true;
+    repositoryFile = getRepository().getFile( fileUrl );
+    if ( !getAclHelper().canAccess( getRepository().getFile( dsPath ),  EnumSet.of( RepositoryFilePermission.READ) ) ) {
+      repositoryFile = null;
     }
   }
 
@@ -155,7 +167,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
 
     List<FileObject> fileList = new ArrayList<FileObject>();
     if ( exists() ) {
-      for ( RepositoryFile child : REPOSITORY.getChildren( repositoryFile.getId() ) ) {
+      for ( RepositoryFile child : getRepository().getChildren( repositoryFile.getId() ) ) {
         SolutionRepositoryVfsFileObject fileInfo = new SolutionRepositoryVfsFileObject( child.getPath() );
         fileList.add( fileInfo );
       }
@@ -257,16 +269,37 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
       String extension = FilenameUtils.getExtension( repositoryFile.getPath() );
       // Try to get the converter for the extension. If there is not converter available then we will
       //assume simple type and will get the data that way
-      if(getConverterHandler() != null) {
+      if ( getConverterHandler() != null ) {
         Converter converter = getConverterHandler().getConverter( extension );
-        if(converter != null) {
+        if ( converter != null ) {
           inputStream = converter.convert( repositoryFile.getId() );
         }
       }
-      if(inputStream == null) {
-        inputStream = REPOSITORY.getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
+      if ( inputStream == null ) {
+        inputStream = getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class ).getStream();
       }
     }
     return inputStream;
+  }
+
+  protected synchronized IAclNodeHelper getAclHelper() {
+    if( testAclHelper != null ){
+      return testAclHelper;
+    }
+    if ( aclHelper == null ) {
+      aclHelper = new JcrAclNodeHelper( getRepository() );
+    }
+    return aclHelper;
+  }
+
+  /**
+   * We do not control the lifecycle (creation) of these class instances. Therefore, for testing purposes when we need
+   * to override the IAclNodeHelper, this is the method to call.
+   *
+   * @param helper
+   */
+  @VisibleForTesting
+  public static void setTestAclHelper( IAclNodeHelper helper ){
+    testAclHelper = helper;
   }
 }
