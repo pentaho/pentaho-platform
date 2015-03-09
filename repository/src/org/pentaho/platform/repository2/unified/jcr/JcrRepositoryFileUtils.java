@@ -222,8 +222,8 @@ public class JcrRepositoryFileUtils {
       fileSize = node.getProperty( pentahoJcrConstants.getPHO_FILESIZE() ).getLong();
     }
     if ( node.hasProperty( pentahoJcrConstants.getPHO_ACLNODE() ) ) {
-      aclNode = node.getProperty( pentahoJcrConstants.getPHO_ACLNODE() ).getBoolean();
-    }
+        aclNode = node.getProperty( pentahoJcrConstants.getPHO_ACLNODE() ).getBoolean();
+    }    
     if ( isPentahoFile( pentahoJcrConstants, node ) ) {
       // pho:lastModified nodes have OnParentVersion values of IGNORE; i.e. they don't exist in frozen nodes
       if ( !node.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ) {
@@ -304,7 +304,7 @@ public class JcrRepositoryFileUtils {
             lastModified ).folder( folder ).versioned( versioned ).path( path ).versionId( versionId ).fileSize(
             fileSize ).locked( locked ).lockDate( lockDate ).hidden( hidden ).lockMessage( lockMessage ).lockOwner(
             lockOwner ).title( title ).description( description ).locale( pentahoLocale.toString() )
-            .localePropertiesMap( localePropertiesMap ).aclNode( aclNode ).build();
+    		.localePropertiesMap( localePropertiesMap ).aclNode( aclNode ).build();    
 
     return file;
   }
@@ -599,7 +599,7 @@ public class JcrRepositoryFileUtils {
     fileNode.setProperty( pentahoJcrConstants.getPHO_LASTMODIFIED(), Calendar.getInstance() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), file.isHidden() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_FILESIZE(), content.getDataSize() );
-    fileNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), file.isAclNode() );
+    fileNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), file.isAclNode() );    
     if ( file.getLocalePropertiesMap() != null && !file.getLocalePropertiesMap().isEmpty() ) {
       Node localeNodes =
           fileNode.addNode( pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE() );
@@ -646,7 +646,7 @@ public class JcrRepositoryFileUtils {
     fileNode.setProperty( pentahoJcrConstants.getPHO_LASTMODIFIED(), Calendar.getInstance() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), file.isHidden() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_FILESIZE(), content.getDataSize() );
-    fileNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), file.isAclNode() );
+    fileNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), file.isAclNode() );    
     if ( file.getLocalePropertiesMap() != null && !file.getLocalePropertiesMap().isEmpty() ) {
       Node localePropertiesMapNode = null;
       if ( !fileNode.hasNode( pentahoJcrConstants.getPHO_LOCALES() ) ) {
@@ -735,11 +735,10 @@ public class JcrRepositoryFileUtils {
       if ( isSupportedNodeType( pentahoJcrConstants, node ) ) {
         RepositoryFile file = nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, node );
         if ( !file.isAclNode() && ( !file.isHidden() || repositoryRequest.isShowHidden() ) ) {
-          children.add( file );
+            children.add( file );
         }
       }
     }
-
     Collections.sort( children );
     return children;
 
@@ -1018,9 +1017,8 @@ public class JcrRepositoryFileUtils {
     return nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, fileNode );
   }
 
-  public static List<VersionSummary> getVersionSummaries( final Session session,
-      final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId, final boolean includeAclOnlyChanges )
-    throws RepositoryException {
+  public static Object getVersionSummaries( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final Serializable fileId, final boolean includeAclOnlyChanges ) throws RepositoryException {
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
     VersionHistory versionHistory = session.getWorkspace().getVersionManager().getVersionHistory( fileNode.getPath() );
     // get root version but don't include it in version summaries; from JSR-170 specification section 8.2.5:
@@ -1117,7 +1115,7 @@ public class JcrRepositoryFileUtils {
     return session.getWorkspace().getVersionManager().getBaseVersion( node.getPath() ).getName();
   }
 
-  public static VersionSummary getVersionSummary( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+  public static Object getVersionSummary( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId, final Serializable versionId ) throws RepositoryException {
     VersionManager vMgr = session.getWorkspace().getVersionManager();
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
