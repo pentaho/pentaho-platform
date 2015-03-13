@@ -44,7 +44,7 @@ define([
       if (value == "favorites" ) {
         favoriteControllerConfig.favoritesDisabled = true;
       }
-	    if (value == "recents") {
+      if (value == "recents") {
         favoriteControllerConfig.recentsDisabled = true;
       }
     });
