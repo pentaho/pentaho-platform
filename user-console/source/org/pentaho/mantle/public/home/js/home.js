@@ -41,8 +41,11 @@ define([
     var disabledWidgetIdsArr = context.config.disabled_widgets.split(",");
     $.each(disabledWidgetIdsArr, function (index, value) {
 
-      if (value == "favorites" || value == "recents") {
+      if (value == "favorites") {
         favoriteControllerConfig.favoritesDisabled = true;
+      }
+      if (value == "recents") {
+        favoriteControllerConfig.recentsDisabled = true;
       }
     });
 
