@@ -315,7 +315,8 @@ TYPICAL TARGET SEQUENCE
   <property name="sonar.sourceEncoding" value="UTF-8" />
   <property name="sonar.java.coveragePlugin" value="jacoco" />
 
-
+   <!-- Maven properties -->
+   <property name="maven.options" value="-q" />
 
   <!-- Load the manifest file (if any) as a properties file -->
   <property name="dist.manifest.file"
@@ -1005,6 +1006,7 @@ TYPICAL TARGET SEQUENCE
             <arg value="-Dversion=${publish.version}" />
             <arg value="-Dpackaging=ivy.xml" />
             <arg value="-Dfile=${publish.file}" />
+            <arg value="${maven.options}" />
           </exec>
         </then>
         <else>
@@ -1017,7 +1019,7 @@ TYPICAL TARGET SEQUENCE
             <arg value="-Dversion=${publish.version}" />
             <arg value="-Dpackaging=ivy.xml" />
             <arg value="-Dfile=${publish.file}" />
-            <arg value="-e" />
+            <arg value="${maven.options}" />
           </exec>
         </else>
       </if>
@@ -1051,6 +1053,7 @@ TYPICAL TARGET SEQUENCE
             <arg value="-Durl=${ivy.repository.publish}" />
             <arg value="-DpomFile=${publish.pomFile}" />
             <arg value="-Dfile=${publish.file}" />
+            <arg value="${maven.options}" />
           </exec>
         </then>
         <else>
@@ -1060,6 +1063,7 @@ TYPICAL TARGET SEQUENCE
             <arg value="-Durl=${ivy.repository.publish}" />
             <arg value="-DpomFile=${publish.pomFile}" />
             <arg value="-Dfile=${publish.file}" />
+            <arg value="${maven.options}" />
           </exec>
         </else>
       </if>
@@ -1097,6 +1101,7 @@ TYPICAL TARGET SEQUENCE
             <arg value="-DgeneratePom=true" />
             <arg value="-Dpackaging=java-source" />
             <arg value="-Dfile=${publish.file}" />
+            <arg value="${maven.options}" />
           </exec>
         </then>
         <else>
@@ -1110,6 +1115,7 @@ TYPICAL TARGET SEQUENCE
             <arg value="-DgeneratePom=true" />
             <arg value="-Dpackaging=java-source" />
             <arg value="-Dfile=${publish.file}" />
+            <arg value="${maven.options}" />
           </exec>
         </else>
       </if>
@@ -1698,6 +1704,14 @@ TYPICAL TARGET SEQUENCE
       ====================================================================-->
   <target name="jacoco" depends="install-jacoco,compile,compile-tests, init-test-reports" description="Compiles and runs unit tests with Jacoco code coverage.">
 
+    <if>
+     <!--
+          If JUnit not in class path, jacoco junits will fail the build
+          Need to skip over this for some projects that have no tests (sample file assemblies)
+     -->
+     <available classname="org.junit.Test" />
+     <then>
+
 		<taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
 				<classpath>
 						<path refid="classpath"/>
@@ -1751,6 +1765,7 @@ TYPICAL TARGET SEQUENCE
 		</jacoco:coverage>
 
     <if>
+    <!-- if there is no exec file (no tests or faulty tests), cannot gen report -->
 			<available file="${jacoco.execfile.path}" property="jacoco.exec.file.found"/>
 			<then>
 				<jacoco:report xmlns:jacoco="antlib:org.jacoco.ant">
@@ -1778,6 +1793,11 @@ TYPICAL TARGET SEQUENCE
 			</fileset>
 			<report format="frames" todir="${testreports.html.dir}" />
 		</junitreport>
+    </then>
+    <else>
+      <echo>The JUnit jar is not in the classpath -- tests cannot execute</echo>
+    </else>
+   </if>
 
   </target>
 
@@ -2218,7 +2238,7 @@ TYPICAL TARGET SEQUENCE
 				<property name="sonar.cobertura.reportPath" value="${coberturareports.xml.dir}/coverage.xml" />
 			</then>
 			<else>
-				<property name="sonar.jacoco.reportPath" value="${bin.dir}/jacoco.exec" />
+				<property name="sonar.jacoco.reportPath" value="${jacoco.execfile.path}" />
 			</else>
 		</if>
     <property name="sonar.junit.reportsPath"  value="${testreports.xml.dir}" />
