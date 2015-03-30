@@ -119,7 +119,8 @@ public class SoapHelper {
     while ( dataRow != null ) {
       Element dataRowElement = resultSetElement.addElement( "DATA-ROW" ); //$NON-NLS-1$
       for ( Object element : dataRow ) {
-        dataRowElement.addElement( "DATA-ITEM" ).addCDATA( element.toString() ); //$NON-NLS-1$
+        dataRowElement.addElement( "DATA-ITEM" ).addCDATA( 
+          ( element != null ) ? element.toString(): "null" ); //$NON-NLS-1$
       }
       dataRow = resultSet.next();
     }
