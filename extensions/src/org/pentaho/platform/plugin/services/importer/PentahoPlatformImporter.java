@@ -29,6 +29,7 @@ import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
@@ -155,6 +156,9 @@ public class PentahoPlatformImporter implements IPlatformImporter {
           // shouldn't happen but just in case
           throw new PlatformImportException( e.getMessage() );
         }
+      }
+      if ( e.getCause() instanceof UnifiedRepositoryAccessDeniedException ) {
+        throw new UnifiedRepositoryAccessDeniedException();
       }
     }
   }
