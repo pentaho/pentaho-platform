@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -232,6 +233,8 @@ public class RepositoryImportResource {
       mondrianCatalogService.reInit( PentahoSessionHolder.getSession() );
     } catch ( PentahoAccessControlException e ) {
       return Response.serverError().entity( e.toString() ).build();
+    } catch( UnifiedRepositoryAccessDeniedException e ) {
+      return Response.status( Response.Status.FORBIDDEN ).build();
     } catch ( Exception e ) {
       return Response.serverError().entity( e.toString() ).build();
     } finally {
