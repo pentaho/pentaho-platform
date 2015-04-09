@@ -25,9 +25,10 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
 import org.pentaho.reporting.engine.classic.core.MasterReport;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
@@ -44,7 +45,7 @@ import org.pentaho.reporting.libraries.resourceloader.ResourceManager;
  */
 public class PRPTImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
-  public PRPTImportHandler( List<MimeType> mimeTypes ) {
+  public PRPTImportHandler( List<IMimeType> mimeTypes ) {
     super( mimeTypes );
   }
 

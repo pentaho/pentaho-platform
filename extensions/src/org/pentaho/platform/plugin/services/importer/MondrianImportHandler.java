@@ -25,31 +25,33 @@ package org.pentaho.platform.plugin.services.importer;
  *
  */
 
-import mondrian.util.Pair;
-
-import org.pentaho.metadata.repository.DomainAlreadyExistsException;
-import org.pentaho.metadata.repository.DomainIdNullException;
-import org.pentaho.metadata.repository.DomainStorageException;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.plugin.action.mondrian.catalog.IAclAwareMondrianCatalogService;
-import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import mondrian.util.Pair;
+
+import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.core.mimetype.MimeType;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IAclAwareMondrianCatalogService;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
+import org.xml.sax.SAXException;
 
 public class MondrianImportHandler implements IPlatformImportHandler {
 
@@ -62,10 +64,10 @@ public class MondrianImportHandler implements IPlatformImportHandler {
   private static final String DATA_SOURCE = "DataSource";
   private static final String PROVIDER = "Provider";
 
-  private List<MimeType> mimeTypes;
+  private List<IMimeType> mimeTypes;
   IMondrianCatalogService mondrianRepositoryImporter;
 
-  public MondrianImportHandler( List<MimeType> mimeTypes, final IMondrianCatalogService mondrianImporter ) {
+  public MondrianImportHandler( List<IMimeType> mimeTypes, final IMondrianCatalogService mondrianImporter ) {
     if ( mondrianImporter == null ) {
       throw new IllegalArgumentException();
     }
@@ -212,7 +214,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
   }
 
   @Override
-  public List<MimeType> getMimeTypes() {
+  public List<IMimeType> getMimeTypes() {
     return mimeTypes;
   }
 }

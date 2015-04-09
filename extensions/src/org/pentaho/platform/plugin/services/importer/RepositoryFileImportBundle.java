@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 

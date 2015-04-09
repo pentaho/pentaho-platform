@@ -17,28 +17,29 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 
 public class SolutionFileImportHelper {
 
-  IPlatformImportMimeResolver mimeResolver;
+  IPlatformMimeResolver mimeResolver;
 
   SolutionFileImportHelper() {
-    mimeResolver = PentahoSystem.get( IPlatformImportMimeResolver.class );
+    mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
   }
 
   public String getMime( String fileName ) {
     return mimeResolver.resolveMimeForFileName( fileName );
   }
 
-  public MimeType getMimeType( String fileName ) {
+  public IMimeType getMimeType( String fileName ) {
     return mimeResolver.resolveMimeTypeForFileName( fileName );
   }
 
   public boolean isInApprovedExtensionList( String fileName ) {
     boolean isInTheApprovedExtensionList = false;
-    MimeType mimeType = getMimeType( fileName );
+    IMimeType mimeType = getMimeType( fileName );
     if ( mimeType != null ) {
       isInTheApprovedExtensionList = ( mimeType.getConverter() != null );
     }
@@ -47,7 +48,7 @@ public class SolutionFileImportHelper {
 
   public boolean isInHiddenList( String fileName ) {
     boolean isInTheHiddenList = false;
-    MimeType mimeType = getMimeType( fileName );
+    IMimeType mimeType = getMimeType( fileName );
     if ( mimeType != null ) {
       isInTheHiddenList = mimeType.isHidden();
     }

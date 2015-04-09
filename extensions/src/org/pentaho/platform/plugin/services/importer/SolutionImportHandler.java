@@ -17,6 +17,20 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,10 +39,11 @@ import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
@@ -42,20 +57,6 @@ import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
-import javax.ws.rs.core.Response;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 public class SolutionImportHandler implements IPlatformImportHandler {
 
   private static final Log log = LogFactory.getLog( SolutionImportHandler.class );
@@ -63,9 +64,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   private static final String sep = ";";
   private Map<String, RepositoryFileImportBundle.Builder> cachedImports;
   private SolutionFileImportHelper solutionHelper;
-  private List<MimeType> mimeTypes;
+  private List<IMimeType> mimeTypes;
 
-  public SolutionImportHandler( List<MimeType> mimeTypes ) {
+  public SolutionImportHandler( List<IMimeType> mimeTypes ) {
     this.mimeTypes = mimeTypes;
     this.solutionHelper = new SolutionFileImportHelper();
   }
@@ -362,7 +363,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   }
 
   @Override
-  public List<MimeType> getMimeTypes() {
+  public List<IMimeType> getMimeTypes() {
     return mimeTypes;
   }
 

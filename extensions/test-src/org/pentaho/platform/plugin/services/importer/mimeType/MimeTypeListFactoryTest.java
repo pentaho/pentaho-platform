@@ -23,6 +23,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.junit.Test;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -40,16 +42,20 @@ public class MimeTypeListFactoryTest {
     MimeTypeListFactory factory =
         new MimeTypeListFactory( "test-res/MimeTypeFactoryTest/ImportHandlerMimeTypeDefinitions.xml" );
 
-    List<MimeType> list1 =
+    List<IMimeType> list1 =
         factory.createMimeTypeList( "org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler" );
     assertNotNull( list1 );
 
-    List<MimeType> list2 = factory.createMimeTypeList( "this.one.is.not.present" );
-    assertNotNull( list2 );
-    assertEquals( 0, list2.size() );
+    list1 = factory.createMimeTypeList( "this.one.is.not.present" );
+    assertNotNull( list1 );
+    assertEquals( 0, list1.size() );
 
-    List<MimeType> list3 = factory.createMimeTypeList( "org.pentaho.platform.plugin.services.importer.SolutionImportHandler" );
-    assertNotNull( list3 );
-    assertTrue( list3.size() > 0 );
+    list1 = factory.createMimeTypeList( "org.pentaho.platform.plugin.services.importer.SolutionImportHandler" );
+    assertNotNull( list1 );
+    assertTrue( list1.size() > 0 );
+    
+    list1 = factory.createMimeTypeList( "com.pentaho.repository.importexport.PDIImportFileHandler" );
+    assertNotNull( list1 );
+    assert ( list1.contains( new MimeType( "application/vnd.pentaho.job", "ktr" ) ) );
   }
 }

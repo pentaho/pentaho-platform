@@ -18,11 +18,13 @@
 package org.pentaho.platform.plugin.services.importer;
 
 import junit.framework.Assert;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 
 import java.io.File;

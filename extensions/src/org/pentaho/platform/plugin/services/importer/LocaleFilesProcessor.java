@@ -17,14 +17,6 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
-import org.pentaho.platform.plugin.services.importexport.ImportSession;
-import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +25,16 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
+
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 /**
  * this class is used to handle .properties files that are XACTION or URL files that contain the metadata used for
@@ -175,7 +177,7 @@ public class LocaleFilesProcessor {
 
   public void processLocaleFiles( IPlatformImporter importer ) throws PlatformImportException {
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
-    IPlatformImportMimeResolver mimeResolver = PentahoSystem.get( IPlatformImportMimeResolver.class );
+    IPlatformMimeResolver mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
     String mimeType = mimeResolver.resolveMimeForFileName( FILE_LOCALE_RESOLVER );
 
     for ( LocaleFileDescriptor localeFile : localeFiles ) {
