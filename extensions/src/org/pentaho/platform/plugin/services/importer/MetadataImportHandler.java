@@ -18,6 +18,11 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,17 +32,13 @@ import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.util.XmiParser;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importexport.PentahoMetadataFileInfo;
 import org.pentaho.platform.plugin.services.metadata.IAclAwarePentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Class Description
@@ -52,11 +53,11 @@ public class MetadataImportHandler implements IPlatformImportHandler {
   // The name of the property used to determine if metadata source was a DSW
   private static final String DSW_SOURCE_PROPERTY = "AGILE_BI_GENERATED_SCHEMA";
 
-  private List<MimeType> mimeTypes;
+  private List<IMimeType> mimeTypes;
 
   IPentahoMetadataDomainRepositoryImporter metadataRepositoryImporter;
 
-  public MetadataImportHandler( List<MimeType> mimeTypes,
+  public MetadataImportHandler( List<IMimeType> mimeTypes,
                                 final IPentahoMetadataDomainRepositoryImporter metadataImporter ) {
     this.mimeTypes = mimeTypes;
     if ( metadataImporter == null ) {
@@ -208,7 +209,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
   }
 
   @Override
-  public List<MimeType> getMimeTypes() {
+  public List<IMimeType> getMimeTypes() {
     return mimeTypes;
   }
 

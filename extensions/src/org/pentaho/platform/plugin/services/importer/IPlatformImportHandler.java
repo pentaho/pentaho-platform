@@ -23,7 +23,8 @@ import java.util.List;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 
 /**
  * Implementations handle importing content into the repository.
@@ -46,5 +47,5 @@ public interface IPlatformImportHandler {
   void importFile( IPlatformImportBundle bundle ) throws PlatformImportException, DomainIdNullException,
     DomainAlreadyExistsException, DomainStorageException, IOException;
 
-  List<MimeType> getMimeTypes();
+  List<IMimeType> getMimeTypes();
 }

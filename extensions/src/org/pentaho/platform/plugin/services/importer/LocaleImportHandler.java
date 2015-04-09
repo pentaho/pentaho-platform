@@ -31,10 +31,11 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.w3c.dom.Document;
@@ -61,7 +62,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   private IUnifiedRepository unifiedRepository;
 
-  public LocaleImportHandler( List<MimeType> mimeTypes, List<String> artifacts ) {
+  public LocaleImportHandler( List<IMimeType> mimeTypes, List<String> artifacts ) {
     super( mimeTypes );
     this.unifiedRepository = PentahoSystem.get( IUnifiedRepository.class );
     this.artifacts = artifacts;

@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.util.logging.Logger;
 

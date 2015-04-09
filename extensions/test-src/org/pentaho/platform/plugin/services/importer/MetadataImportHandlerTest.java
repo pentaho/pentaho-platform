@@ -17,6 +17,13 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -29,19 +36,15 @@ import org.junit.Test;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.util.XmiParser;
+import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
+import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * User: nbaker Date: 6/25/12
@@ -70,10 +73,10 @@ public class MetadataImportHandlerTest {
 
     MicroPlatform microPlatform = new MicroPlatform();
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
-    microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
+    microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
 
-    List<MimeType> mimeList = new ArrayList<MimeType>();
-    mimeList.add( new MimeType( "text/xmi+xml", "xmi" ) );
+    List<IMimeType> mimeList = new ArrayList<IMimeType>();
+    mimeList.add( (IMimeType) new MimeType( "text/xmi+xml", "xmi" ) );
 
     metadataHandler = new MetadataImportHandler( mimeList, metadataImporter );
 

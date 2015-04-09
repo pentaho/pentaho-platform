@@ -13,7 +13,9 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.mimeType.bindings.ImportHandlerDto;
 import org.pentaho.platform.plugin.services.importer.mimeType.bindings.ImportHandlerMimeTypeDefinitionsDto;
@@ -54,14 +56,16 @@ public class MimeTypeListFactory {
     return mimeTypeDefinitions;
   }
 
-  public List<MimeType> createMimeTypeList( String handlerClass ) {
-    List<MimeType> mimeTypeList = new ArrayList<MimeType>();
+  public List<IMimeType> createMimeTypeList( String handlerClass ) {
+    List<IMimeType> mimeTypeList = new ArrayList<IMimeType>();
     for ( ImportHandlerDto importHandler : importHandlerMimeTypeDefinitions.getImportHandler() ) {
       if ( importHandler.getClazz().equals( handlerClass ) ) {
         for ( MimeTypeDefinitionDto mimeTypeDef : importHandler.getMimeTypeDefinitions().getMimeTypeDefinition() ) {
           MimeType mimeType = new MimeType( mimeTypeDef.getMimeType(), mimeTypeDef.getExtension() );
           mimeType.setHidden( mimeTypeDef.isHidden() );
           mimeType.setLocale( mimeTypeDef.isLocale() );
+          mimeType.setVersionEnabled( mimeTypeDef.isVersionEnabled() );
+          mimeType.setVersionCommentEnabled( mimeTypeDef.isVersionCommentEnabled() );
 
           Converter converter = null;
           String converterBeanName = mimeTypeDef.getConverter() != null && !mimeTypeDef.getConverter().isEmpty()

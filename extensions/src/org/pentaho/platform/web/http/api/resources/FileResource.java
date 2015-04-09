@@ -74,6 +74,7 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -81,7 +82,6 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
@@ -126,7 +126,7 @@ public class FileResource extends AbstractJaxRSResource {
   IRepositoryContentConverterHandler converterHandler;
   Map<String, Converter> converters;
 
-  protected NameBaseMimeResolver mimeResolver;
+  protected IPlatformMimeResolver mimeResolver;
 
   public FileResource() {
     fileService = new FileService();
@@ -2023,7 +2023,7 @@ public class FileResource extends AbstractJaxRSResource {
     this.converterHandler = converterHandler;
   }
 
-  public void setMimeResolver( NameBaseMimeResolver mimeResolver ) {
+  public void setMimeResolver( IPlatformMimeResolver mimeResolver ) {
     this.mimeResolver = mimeResolver;
   }
 

@@ -15,9 +15,7 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.plugin.services.importer;
-
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+package org.pentaho.platform.api.repository2.unified;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,7 +75,7 @@ public interface IPlatformImportBundle {
 
   /**
    * mime-type to be used to resolve an IPlatformImportHandler. If not set the IPlatformImporter will attempt to resolve
-   * a mime-type based on the configured IPlatformImportMimeResolver
+   * a mime-type based on the configured IPlatformMimeResolver
    * 
    * @return mime-type
    */

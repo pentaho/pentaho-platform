@@ -37,5 +37,7 @@
 		<attribute name="hidden" type="boolean" default="false" />
 		<attribute name="locale" type="boolean" default="false" />
 		<attribute name="converter" type="string" default="streamConverter" />
+		<attribute name="versionEnabled" type="boolean" default="false" />
+		<attribute name="versionCommentEnabled" type="boolean" default="false" />
 	</complexType>
 </schema>

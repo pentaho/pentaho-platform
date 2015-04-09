@@ -43,11 +43,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
+import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -66,12 +68,12 @@ public class LocaleImportHandlerTest {
     MicroPlatform microPlatform = new MicroPlatform();
 
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
-    microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
+    microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
 
     IRepositoryContentConverterHandler converterHandler =
         new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
 
-    List<MimeType> localeMimeList = new ArrayList<MimeType>();
+    List<IMimeType> localeMimeList = new ArrayList<IMimeType>();
     localeMimeList.add( new MimeType( "text/locale", "locale" ) );
 
     nameResolver.addMimeType( new MimeType( "text/prptMimeType", "prpt" ) );
