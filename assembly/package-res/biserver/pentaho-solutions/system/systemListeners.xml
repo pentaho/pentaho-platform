@@ -11,8 +11,8 @@
   <bean id="systemListenersList" class="java.util.ArrayList">
     <constructor-arg>
       <list>
-        <bean id="kettleSystemListener" class="org.pentaho.platform.plugin.action.kettle.KettleSystemListener" />
         <bean id="osgiListener" class="org.pentaho.platform.osgi.OSGIBoot"/>
+        <bean id="kettleSystemListener" class="org.pentaho.platform.plugin.action.kettle.KettleSystemListener" />
         <bean id="pluginSystemListener" class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" />
         <bean class="org.pentaho.platform.plugin.services.security.userrole.SecuritySystemListener"/>
         <bean id="backingRepositoryLifecycleManagerSystemListener" class="org.pentaho.platform.repository2.unified.BackingRepositoryLifecycleManagerSystemListener"/>
