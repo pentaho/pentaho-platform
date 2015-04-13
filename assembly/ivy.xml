@@ -53,7 +53,8 @@
     <dependency org="ognl" name="ognl" rev="2.6.9" />
     <dependency org="com.ibm.icu" name="icu4j" rev="4_4_1_1"/>
     <dependency org="com.ibm.icu" name="icu4j-charsets" rev="4_4_1_1"/>
-    
+    <dependency org="pentaho" name="pentaho-capability-manager" rev="${project.revision}" />
+
     <!-- WARNING: calling out commons-logging here so we can force version 1.1.1 over 1.1. This is a temporary hack until we get 1.1.1 propogated across all projects -->
     <dependency org="commons-logging" name="commons-logging" rev="1.1.1" />
 
