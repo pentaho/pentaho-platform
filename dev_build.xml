@@ -16,7 +16,7 @@
   <import file="${assembly.dir}/assembly.xml" />
 
   <!-- These are the projects that will be compiled to class files and placed in WEB-INF/classes -->
-  <property name="dev-project.list" value="api,core,repository,scheduler,extensions,user-console" />
+  <property name="dev-project.list" value="api,core,build-utils,repository,scheduler,extensions,user-console" />
 
 
   <target name="dev-rebuild"
