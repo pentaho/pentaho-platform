@@ -383,6 +383,10 @@
     <servlet-name>jaxrsEndpoint-spring</servlet-name>
     <description>JAX-RS endpoint</description>
     <servlet-class>org.pentaho.platform.web.servlet.JAXRSServlet</servlet-class>
+    <init-param>
+      <param-name>com.sun.jersey.config.property.WadlGeneratorConfig</param-name>
+      <param-value>org.pentaho.platform.web.servlet.PentahoWadlGeneratorConfig</param-value>
+    </init-param>
   </servlet>
 
   <servlet>

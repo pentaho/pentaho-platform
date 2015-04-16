@@ -320,4 +320,9 @@ not directly from the PentahoObjectFactory. -->
     </constructor-arg>
   </bean>
 
+  <bean class="org.pentaho.platform.web.servlet.DefaultSpringWadlResourceDocument">
+    <constructor-arg value="classpath:META-INF/wadl/wadlResource.xml"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
 </beans>

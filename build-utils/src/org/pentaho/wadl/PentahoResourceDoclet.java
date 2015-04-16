@@ -58,7 +58,7 @@ public class PentahoResourceDoclet extends ResourceDoclet {
         .append( MessageFormat.format( DEPRECATED_TAG, isDeprecated( methodDoc.annotations() ) ) )
         .append( MessageFormat.format( DOCUMENTATION_TAG, documentation ) );
 
-    System.out.println(); return comment.toString();
+    return comment.toString();
   }
 
   public static boolean start( RootDoc root ) {

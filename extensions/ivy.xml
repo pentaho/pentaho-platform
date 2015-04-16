@@ -68,7 +68,7 @@
 
     <!--  external lib/xml dependencies -->
     <dependency org="jaxen" name="jaxen" rev="1.1.1" transitive="false"/>
-    <dependency org="xerces" name="xercesImpl" rev="2.9.1">
+    <dependency org="xerces" name="xercesImpl" rev="2.9.1" >
       <exclude org="xml-apis" name="xml-apis"/>
     </dependency>
     <dependency org="xerces" name="xercesImpl" rev="2.9.1" conf="test->default">
@@ -130,7 +130,7 @@
     <dependency org="com.sun.jersey" name="jersey-core" rev="1.16" transitive="false"/>
     <dependency org="com.sun.jersey" name="jersey-json" rev="1.16" transitive="false"/>
     <dependency org="com.sun.jersey" name="jersey-client" rev="1.16" transitive="false"/>
-    <dependency org="com.sun.jersey" name="jersey-server" rev="1.16" transitive="false"/>
+    <dependency org="com.sun.jersey" name="jersey-server" rev="1.16" transitive="false" />
     <dependency org="com.sun.jersey" name="jersey-servlet" rev="1.16" transitive="false"/>
 
     <!-- END JAX-WS (Service extension) dependencies -->
@@ -318,6 +318,8 @@
                 changing="true"/>
     <dependency org="${ivy.artifact.group}" name="pentaho-platform-scheduler" rev="${project.revision}" changing="true"
                 conf="default->default"/>
+    <dependency org="${ivy.artifact.group}" name="pentaho-platform-build-utils" rev="${project.revision}"
+                changing="true"/>
 
     <!--  runtime dependencies -->
     <dependency org="annogen" name="annogen" rev="0.1.0" conf="runtime->default"/>
@@ -385,6 +387,8 @@
       <exclude org="avalon-framework" name="avalon-framework"/>
       <exclude org="log4j" name="log4j"/>
     </dependency>
+
+    <dependency org="com.sun.jersey.contribs" name="wadl-resourcedoc-doclet" rev="1.19" transitive="false" />
 
     <dependency org="com.google.guava" name="guava" rev="17.0" conf="test->default"/>
 

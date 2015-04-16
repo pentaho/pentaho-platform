@@ -19,6 +19,7 @@ package org.pentaho.platform.web.servlet;
 
 import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.spi.container.WebApplication;
+import com.sun.jersey.spi.container.servlet.WebConfig;
 import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Map;
 
 /**
  * This should only be used by a plugin in the plugin.spring.xml file to initialize a Jersey. The presence of this
@@ -49,6 +51,8 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
   private static final String APPLICATION_WADL = "application.wadl";
 
   private ApplicationContext applicationContext;
+  
+  public static final ThreadLocal requestThread = new ThreadLocal();
 
   private static final Log logger = LogFactory.getLog( JAXRSPluginServlet.class );
 
@@ -93,6 +97,11 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
                 }
               }
           );
+      if ( originalRequest.getRequestURL() != null ) {
+        requestThread.set( originalRequest.getRequestURL().toString() );
+      } else if ( originalRequest.getRequestURI() != null ) {
+        requestThread.set( originalRequest.getRequestURI().toString() );
+      }
     }
     super.service( request, response );
   }
@@ -111,4 +120,10 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
     super.initiate( rc, wa );
   }
 
+  protected ResourceConfig getDefaultResourceConfig( Map<String, Object> props, WebConfig webConfig ) 
+      throws ServletException{
+    props.put( "com.sun.jersey.config.property.WadlGeneratorConfig", 
+        "org.pentaho.platform.web.servlet.PentahoWadlGeneratorConfig" );
+    return super.getDefaultResourceConfig( props, webConfig );
+  }
 }
