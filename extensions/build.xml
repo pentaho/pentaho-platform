@@ -73,7 +73,7 @@
   <property name="wadl.path" value="${basedir}/wadlExtension.xml" />
 
   <target name="wadl-javadoc" depends="javadoc.init">
-    <javadoc sourcepath="${basedir}/src" access="public" source="6" postProcessGeneratedJavadocs="false" packagenames="*">
+    <javadoc sourcepath="${basedir}/src" access="public" source="6" packagenames="*">
       <classpath id="wadl-lib">
         <fileset dir="${lib.dir}">
           <include name="*.jar" />
