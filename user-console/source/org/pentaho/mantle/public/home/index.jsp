@@ -46,7 +46,15 @@
 
   <!-- We need web context for requirejs and css -->
   <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
+<%
+// For consistency, we're using the same method as PentahoWebContextFilter to get scheme
+if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerCase().startsWith( "https:" ) ) {
+%>
+  <script language='JavaScript' type='text/javascript' src='https://sadmin.brightcove.com/js/BrightcoveExperiences.js'></script>
+<% } else { %>
   <script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>
+<% } %>
+
 
   <!-- Avoid 'console' errors in browsers that lack a console. -->
   <script type="text/javascript">

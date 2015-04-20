@@ -306,6 +306,9 @@
     <dependency org="pentaho" name="pdi-teradata-tpt-plugin-package" rev="${dependency.pdi-teradata-tpt-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
       <artifact name="pdi-teradata-tpt-plugin-package" type="zip"/>
     </dependency>
+    <dependency org="pentaho" name="pdi-baserver-utils" rev="${dependency.pdi-baserver-utils-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+      <artifact name="pdi-baserver-utils" type="zip"/>
+    </dependency>
 
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)

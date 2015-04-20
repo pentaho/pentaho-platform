@@ -17,19 +17,6 @@
 
 package org.pentaho.platform.scheduler2.quartz;
 
-import java.io.Serializable;
-import java.security.Principal;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,6 +55,19 @@ import org.quartz.SchedulerFactory;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
+
+import java.io.Serializable;
+import java.security.Principal;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * A Quartz implementation of {@link IScheduler}
@@ -148,6 +148,10 @@ public class QuartzScheduler implements IScheduler {
 
     logger.debug( "Using quartz scheduler " + quartzScheduler ); //$NON-NLS-1$
     return quartzScheduler;
+  }
+  
+  private void setQuartzScheduler( Scheduler quartzScheduler ) {
+    this.quartzScheduler = quartzScheduler;
   }
 
   /** {@inheritDoc} */
@@ -792,6 +796,7 @@ public class QuartzScheduler implements IScheduler {
     try {
       boolean waitForJobsToComplete = true;
       getQuartzScheduler().shutdown( waitForJobsToComplete );
+      setQuartzScheduler(null);
     } catch ( org.quartz.SchedulerException e ) {
       throw new SchedulerException( e );
     }

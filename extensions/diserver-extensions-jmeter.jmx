@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
+<jmeterTestPlan version="1.2" properties="2.7" jmeter="2.12 r1636949">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DI Server Web Service API Test (extensions)" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -4099,8 +4099,15 @@
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="SessionResource" enabled="true"/>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /session/userWorkspaceDir" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value"></stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
               </elementProp>
               <stringProp name="HTTPSampler.domain"></stringProp>
               <stringProp name="HTTPSampler.port"></stringProp>
@@ -4163,8 +4170,15 @@
               <hashTree/>
             </hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /session/workspaceDirForUser" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value"></stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
               </elementProp>
               <stringProp name="HTTPSampler.domain"></stringProp>
               <stringProp name="HTTPSampler.port"></stringProp>
@@ -6958,8 +6972,15 @@
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="UserSettingsResource" enabled="true"/>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /user-settings/list" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value"></stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
               </elementProp>
               <stringProp name="HTTPSampler.domain"></stringProp>
               <stringProp name="HTTPSampler.port"></stringProp>
@@ -7990,6 +8011,2706 @@
             </hashTree>
           </hashTree>
         </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="SchedulerResource" enabled="true"/>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT DirectoryResource" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+            <stringProp name="HTTPSampler.path">/${appName}/api/repo/dirs/:public:jmeter-test-dir</stringProp>
+            <stringProp name="HTTPSampler.method">PUT</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.implementation">Java</stringProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            <stringProp name="TestPlan.comments">Creates a new folder with the specified name Example: (:public:admin:test). It will create folder public --&gt; admin --&gt; test. If folder already exists then it skips to the next folder to be created.</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="Content-Type" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                </elementProp>
+                <elementProp name="Accept-Language" elementType="Header">
+                  <stringProp name="Header.name">Accept-Language</stringProp>
+                  <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                </elementProp>
+                <elementProp name="Accept" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                </elementProp>
+                <elementProp name="User-Agent" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                </elementProp>
+                <elementProp name="Referer" elementType="Header">
+                  <stringProp name="Header.name">Referer</stringProp>
+                  <stringProp name="Header.value">http://${defHost}:${defPort}/${appName}/Home</stringProp>
+                </elementProp>
+                <elementProp name="DNT" elementType="Header">
+                  <stringProp name="Header.name">DNT</stringProp>
+                  <stringProp name="Header.value">1</stringProp>
+                </elementProp>
+                <elementProp name="Accept-Encoding" elementType="Header">
+                  <stringProp name="Header.name">Accept-Encoding</stringProp>
+                  <stringProp name="Header.value">gzip, deflate</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /repo/files/{pathId}/properties" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+            <stringProp name="HTTPSampler.path">/${appName}/api/repo/files/:public:jmeter-test-dir/properties</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.implementation">Java</stringProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="Content-Type" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                </elementProp>
+                <elementProp name="Accept-Language" elementType="Header">
+                  <stringProp name="Header.name">Accept-Language</stringProp>
+                  <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                </elementProp>
+                <elementProp name="Accept" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                </elementProp>
+                <elementProp name="User-Agent" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                </elementProp>
+                <elementProp name="Referer" elementType="Header">
+                  <stringProp name="Header.name">Referer</stringProp>
+                  <stringProp name="Header.value">http://${defHost}:${defPort}/${appName}/Home</stringProp>
+                </elementProp>
+                <elementProp name="DNT" elementType="Header">
+                  <stringProp name="Header.name">DNT</stringProp>
+                  <stringProp name="Header.value">1</stringProp>
+                </elementProp>
+                <elementProp name="Accept-Encoding" elementType="Header">
+                  <stringProp name="Header.name">Accept-Encoding</stringProp>
+                  <stringProp name="Header.value">gzip, deflate</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="3569038">true</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <XPathExtractor guiclass="XPathExtractorGui" testclass="XPathExtractor" testname="XPath Extractor" enabled="true">
+              <stringProp name="XPathExtractor.default">default</stringProp>
+              <stringProp name="XPathExtractor.refname">TEST_DIR_ID</stringProp>
+              <stringProp name="XPathExtractor.xpathQuery">/repositoryFileDto/id</stringProp>
+              <boolProp name="XPathExtractor.validate">false</boolProp>
+              <boolProp name="XPathExtractor.tolerant">false</boolProp>
+              <boolProp name="XPathExtractor.namespace">false</boolProp>
+            </XPathExtractor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /unifiedRepository/createFile" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos;?&gt;&#xd;
+&lt;S:Envelope xmlns:S=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;&#xd;
+	&lt;S:Body&gt;&#xd;
+		&lt;ns2:createFile xmlns:ns2=&quot;http://jaxws.webservices.unified.repository2.platform.pentaho.org/&quot;&gt;&#xd;
+			&lt;arg0&gt;${TEST_DIR_ID}&lt;/arg0&gt;&#xd;
+			&lt;arg1&gt;&#xd;
+				&lt;aclNode&gt;false&lt;/aclNode&gt;&#xd;
+				&lt;fileSize&gt;0&lt;/fileSize&gt;&#xd;
+				&lt;folder&gt;false&lt;/folder&gt;&#xd;
+				&lt;hidden&gt;false&lt;/hidden&gt;&#xd;
+				&lt;localePropertiesMapEntries&gt;&#xd;
+					&lt;locale&gt;default&lt;/locale&gt;&#xd;
+					&lt;properties&gt;&#xd;
+						&lt;key&gt;file.title&lt;/key&gt;&#xd;
+						&lt;value&gt;test&lt;/value&gt;&#xd;
+					&lt;/properties&gt;&#xd;
+					&lt;properties&gt;&#xd;
+						&lt;key&gt;description&lt;/key&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/properties&gt;&#xd;
+					&lt;properties&gt;&#xd;
+						&lt;key&gt;title&lt;/key&gt;&#xd;
+						&lt;value&gt;test&lt;/value&gt;&#xd;
+					&lt;/properties&gt;&#xd;
+					&lt;properties&gt;&#xd;
+						&lt;key&gt;file.description&lt;/key&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/properties&gt;&#xd;
+				&lt;/localePropertiesMapEntries&gt;&#xd;
+				&lt;locked&gt;false&lt;/locked&gt;&#xd;
+				&lt;name&gt;test.kjb&lt;/name&gt;&#xd;
+				&lt;ownerType&gt;-1&lt;/ownerType&gt;&#xd;
+				&lt;title&gt;test.kjb&lt;/title&gt;&#xd;
+				&lt;versioned&gt;true&lt;/versioned&gt;&#xd;
+			&lt;/arg1&gt;&#xd;
+			&lt;arg2&gt;&#xd;
+				&lt;node&gt;&#xd;
+					&lt;childNodes&gt;&#xd;
+						&lt;childProperties&gt;&#xd;
+							&lt;name&gt;NR_NOTES&lt;/name&gt;&#xd;
+							&lt;type&gt;3&lt;/type&gt;&#xd;
+							&lt;value&gt;0&lt;/value&gt;&#xd;
+						&lt;/childProperties&gt;&#xd;
+						&lt;name&gt;notes&lt;/name&gt;&#xd;
+					&lt;/childNodes&gt;&#xd;
+					&lt;childNodes&gt;&#xd;
+						&lt;childProperties&gt;&#xd;
+							&lt;name&gt;NR_JOB_ENTRY_COPIES&lt;/name&gt;&#xd;
+							&lt;type&gt;3&lt;/type&gt;&#xd;
+							&lt;value&gt;0&lt;/value&gt;&#xd;
+						&lt;/childProperties&gt;&#xd;
+						&lt;name&gt;entries&lt;/name&gt;&#xd;
+					&lt;/childNodes&gt;&#xd;
+					&lt;childNodes&gt;&#xd;
+						&lt;childProperties&gt;&#xd;
+							&lt;name&gt;NR_HOPS&lt;/name&gt;&#xd;
+							&lt;type&gt;3&lt;/type&gt;&#xd;
+							&lt;value&gt;0&lt;/value&gt;&#xd;
+						&lt;/childProperties&gt;&#xd;
+						&lt;name&gt;hops&lt;/name&gt;&#xd;
+					&lt;/childNodes&gt;&#xd;
+					&lt;childNodes&gt;&#xd;
+						&lt;childProperties&gt;&#xd;
+							&lt;name&gt;NR_PARAMETERS&lt;/name&gt;&#xd;
+							&lt;type&gt;3&lt;/type&gt;&#xd;
+							&lt;value&gt;0&lt;/value&gt;&#xd;
+						&lt;/childProperties&gt;&#xd;
+						&lt;name&gt;parameters&lt;/name&gt;&#xd;
+					&lt;/childNodes&gt;&#xd;
+					&lt;childNodes&gt;&#xd;
+						&lt;childNodes&gt;&#xd;
+							&lt;childProperties&gt;&#xd;
+								&lt;name&gt;UniqueConnections&lt;/name&gt;&#xd;
+								&lt;type&gt;4&lt;/type&gt;&#xd;
+								&lt;value&gt;N&lt;/value&gt;&#xd;
+							&lt;/childProperties&gt;&#xd;
+							&lt;name&gt;JobRestart&lt;/name&gt;&#xd;
+						&lt;/childNodes&gt;&#xd;
+						&lt;name&gt;ATTRIBUTE_GROUPS&lt;/name&gt;&#xd;
+					&lt;/childNodes&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED2&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED3&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME10&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;PARAMETER_XML&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED4&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED5&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED0&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED1&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED6&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED7&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED8&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_TIMEOUT_IN_DAYS&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED9&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID11&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ROOT_CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID10&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;PARENT_CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_CONNECTION_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_TABLE_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID13&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOGDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID14&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;DEPDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID15&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;REPLAYDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINTrun_retry_period&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID16&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOG_FIELD&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID17&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;EXECUTING_SERVER&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID18&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;EXECUTING_USER&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID19&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;START_JOB_ENTRY&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOBLOG_TABLE_INTERVAL&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINTsave_parameters&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;Y&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID16&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;COPY_NR&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID10&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ERRORS&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID12&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ENDDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID11&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;STARTDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_SCHEMA_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID11&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ERRORS&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED9&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID10&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_REJECTED&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID13&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;NR_RESULT_ROWS&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID12&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;RESULT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID15&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOG_FIELD&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID14&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;NR_RESULT_FILES&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED4&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED3&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED2&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED1&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED8&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED7&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED6&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED5&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;USE_BATCH_ID&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED0&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINTnamespace_parameter&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;MODIFIED_USER&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;admin&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID20&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CLIENT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;EXTENDED_DESCRIPTION&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_SCHEMA_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;LOG_SIZE_LIMIT&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;USE_LOGFIELD&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CREATED_DATE&lt;/name&gt;&#xd;
+						&lt;type&gt;1&lt;/type&gt;&#xd;
+						&lt;value&gt;1424962623055&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_TIMEOUT_IN_DAYS&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_TABLE_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED16&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;false&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED15&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;false&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED14&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED13&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED12&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED11&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ENABLED10&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED9&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID1&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID0&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_BATCH&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID3&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOGGING_OBJECT_TYPE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID2&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOG_DATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID5&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;OBJECT_COPY&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID4&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;OBJECT_NAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID7&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;FILENAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID6&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;REPOSITORY_DIRECTORY&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;MODIFIED_DATE&lt;/name&gt;&#xd;
+						&lt;type&gt;1&lt;/type&gt;&#xd;
+						&lt;value&gt;1424962729695&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME6&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_UPDATED&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME7&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_INPUT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME8&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_OUTPUT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;TABLE_NAME_LOG&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME9&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_REJECTED&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME7&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;JOB_RUN_START_DATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME2&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;JOBNAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_TABLE_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID8&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;OBJECT_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME8&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOGDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME3&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;STATUS&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ID9&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;OBJECT_REVISION&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME9&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;RESULT_XML&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME4&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_READ&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME5&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_WRITTEN&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME3&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;NAMESPACE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME4&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHECKPOINT_NAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME5&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHECKPOINT_COPYNR&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME0&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_JOB&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME6&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ATTEMPT_NR&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME1&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_VERSION&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_CONNECTION_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED1&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED0&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED3&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED2&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_TIMEOUT_IN_DAYS&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED6&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED7&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED4&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED5&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED8&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED9&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID10&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;PARAMETER_XML&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED20&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;false&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED10&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINTmax_nr_retries&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME11&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ROOT_CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME10&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;PARENT_CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED19&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;false&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED18&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;false&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED17&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;false&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED16&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOBLOG_TABLE_SIZE_LIMIT&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED15&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED14&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED13&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED11&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED0&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED12&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ENABLED10&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED8&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED7&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED6&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;SHARED_FILE&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED5&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED4&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED3&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED2&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ENABLED1&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID6&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_WRITTEN&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME13&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;NR_RESULT_ROWS&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID5&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_READ&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME12&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;RESULT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID4&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;JOBENTRYNAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME15&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOG_FIELD&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID3&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;JOBNAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME14&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;NR_RESULT_FILES&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID9&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_OUTPUT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID8&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_INPUT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME11&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ERRORS&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CREATED_USER&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;-&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID7&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_UPDATED&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME10&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_REJECTED&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID2&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOG_DATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID1&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_ID0&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_BATCH&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_SCHEMA_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED10&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_ENABLED11&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;true&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME16&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;COPY_NR&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_CONNECTION_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;PASS_BATCH_ID&lt;/name&gt;&#xd;
+						&lt;type&gt;0&lt;/type&gt;&#xd;
+						&lt;value&gt;false&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID4&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_READ&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME6&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_WRITTEN&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID5&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_WRITTEN&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME5&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_READ&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID2&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;JOBNAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME4&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;STEPNAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID3&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;STATUS&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME3&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;TRANSNAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID0&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_JOB&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID1&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME9&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_OUTPUT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME8&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_INPUT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME7&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_UPDATED&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME2&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOG_DATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID8&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_OUTPUT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME1&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID9&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_REJECTED&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_ENTRY_LOG_TABLE_FIELD_NAME0&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_BATCH&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID6&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_UPDATED&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_ID7&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LINES_INPUT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_CONNECTION_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINTsave_result_rows&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;Y&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME11&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;STARTDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME12&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ENDDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME10&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ERRORS&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME14&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;DEPDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME13&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOGDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME16&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOG_FIELD&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME15&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;REPLAYDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_STATUS&lt;/name&gt;&#xd;
+						&lt;type&gt;3&lt;/type&gt;&#xd;
+						&lt;value&gt;0&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME18&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;EXECUTING_USER&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME17&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;EXECUTING_SERVER&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_TABLE_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME19&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;START_JOB_ENTRY&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID9&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;RESULT_XML&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID7&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;JOB_RUN_START_DATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID8&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOGDATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID5&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHECKPOINT_COPYNR&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID6&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ATTEMPT_NR&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID3&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;NAMESPACE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID4&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHECKPOINT_NAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID2&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;JOBNAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID1&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_JOB&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_ID0&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_JOB_RUN&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME9&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;OBJECT_REVISION&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME8&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;OBJECT_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINTsave_result_files&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;Y&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_FIELD_NAME20&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CLIENT&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME2&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOG_DATE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_TIMEOUT_IN_DAYS&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME3&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;LOGGING_OBJECT_TYPE&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME0&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_BATCH&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME1&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;CHANNEL_ID&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME6&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;REPOSITORY_DIRECTORY&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME7&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;FILENAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME4&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;OBJECT_NAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHANNEL_LOG_TABLE_FIELD_NAME5&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;OBJECT_COPY&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME1&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_JOB&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME2&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;JOBNAME&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;CHECKPOINT_LOG_TABLE_FIELD_NAME0&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value&gt;ID_JOB_RUN&lt;/value&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;childProperties&gt;&#xd;
+						&lt;name&gt;JOB_LOG_TABLE_SCHEMA_NAME&lt;/name&gt;&#xd;
+						&lt;type&gt;4&lt;/type&gt;&#xd;
+						&lt;value/&gt;&#xd;
+					&lt;/childProperties&gt;&#xd;
+					&lt;name&gt;job&lt;/name&gt;&#xd;
+				&lt;/node&gt;fileId.toString() &#xd;
+			&lt;/arg2&gt;&#xd;
+			&lt;arg3&gt;Checked in&lt;/arg3&gt;&#xd;
+		&lt;/ns2:createFile&gt;&#xd;
+	&lt;/S:Body&gt;&#xd;
+&lt;/S:Envelope&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/webservices/unifiedRepository</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.implementation">Java</stringProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            <stringProp name="TestPlan.comments">Creates a new file with the provided contents</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">text/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">if  (prev.getResponseCode().equals(&quot;500&quot;) == true || prev.getResponseCode().equals(&quot;200&quot;)) {
+    prev.setResponseOK(); 
+}</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+            <XPathExtractor guiclass="XPathExtractorGui" testclass="XPathExtractor" testname="XPath Extractor" enabled="true">
+              <stringProp name="XPathExtractor.default"></stringProp>
+              <stringProp name="XPathExtractor.refname">fileId</stringProp>
+              <stringProp name="XPathExtractor.xpathQuery">/Envelope/Body/createFileResponse/return/id</stringProp>
+              <boolProp name="XPathExtractor.validate">false</boolProp>
+              <boolProp name="XPathExtractor.tolerant">false</boolProp>
+              <boolProp name="XPathExtractor.namespace">false</boolProp>
+            </XPathExtractor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/start" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/start</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-2026200673">RUNNING</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/isScheduleAllowed" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/isScheduleAllowed?id=${fileId}</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="3569038">true</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/blockout/add" enabled="false">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;&#xd;
+&lt;complexJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;&#xd;
+&lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
+&lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/complexJobTrigger&gt;&#xd;
+&lt;inputFile&gt;&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;&lt;/outputFile&gt;&#xd;
+&lt;duration&gt;7740000&lt;/duration&gt;&#xd;
+&lt;timeZone&gt;America/New_York&lt;/timeZone&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/blockout/add</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="92668751">admin</stringProp>
+                <stringProp name="270253399">BlockoutAction</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">vars.put(&quot;jobId&quot;, java.net.URLEncoder.encode(prev.getResponseDataAsString()))</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/blockout/blockoutjobs" enabled="false">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/blockout/blockoutjobs</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="105405">job</stringProp>
+                <stringProp name="101296568">jobId</stringProp>
+                <stringProp name="270253399">BlockoutAction</stringProp>
+                <stringProp name="0"></stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/blockout/blockstatus" enabled="false">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;&#xd;
+&lt;complexJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;&#xd;
+&lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
+&lt;startTime&gt;2014-08-19T10:51:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/complexJobTrigger&gt;&#xd;
+&lt;inputFile&gt;&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;&lt;/outputFile&gt;&#xd;
+&lt;duration&gt;7740000&lt;/duration&gt;&#xd;
+&lt;timeZone&gt;America/New_York&lt;/timeZone&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/blockout/blockstatus</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="1937136426">&quot;partiallyBlocked&quot;:&quot;true&quot;</stringProp>
+                <stringProp name="606849095">&quot;totallyBlocked&quot;:&quot;true&quot;</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/blockout/hasblockouts" enabled="false">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/blockout/hasblockouts</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="3569038">true</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/blockout/shouldFireNow" enabled="false">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/blockout/shouldFireNow</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="3569038">true</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/blockout/update" enabled="false">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;&#xd;
+&lt;complexJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;&#xd;
+&lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
+&lt;startTime&gt;2012-01-12T10:51:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/complexJobTrigger&gt;&#xd;
+&lt;inputFile&gt;&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;&lt;/outputFile&gt;&#xd;
+&lt;duration&gt;7740000&lt;/duration&gt;&#xd;
+&lt;timeZone&gt;America/New_York&lt;/timeZone&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/blockout/update?jobid=${jobId}</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">vars.put(&quot;jobId&quot;, prev.getResponseDataAsString())</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/blockout/willFire" enabled="false">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;&#xd;
+&lt;complexJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;&#xd;
+&lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;6&lt;/daysOfWeek&gt;&#xd;
+&lt;daysOfWeek&gt;7&lt;/daysOfWeek&gt;&#xd;
+&lt;startTime&gt;2014-08-19T23:59:59.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/complexJobTrigger&gt;&#xd;
+&lt;inputFile&gt;&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;&lt;/outputFile&gt;&#xd;
+&lt;duration&gt;7740000&lt;/duration&gt;&#xd;
+&lt;timeZone&gt;America/New_York&lt;/timeZone&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/blockout/willFire</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="3569038">true</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="DELETE /scheduler/removeJob" enabled="false">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${jobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/removeJob</stringProp>
+            <stringProp name="HTTPSampler.method">DELETE</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/canSchedule" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/canSchedule</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="3569038">true</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/generatedContentForSchedule" enabled="false">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/generatedContentForSchedule?lineageId=:public:Steel Wheels:Inventory List (report).prpt</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1829038457">repositoryFileDtoes</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/getContentCleanerJob" enabled="false">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/getContentCleanerJob</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49590">204</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/getJobs" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/getJobs</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="1819046892">&lt;jobs&gt;</stringProp>
+                <stringProp name="58678877">&lt;job&gt;</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/job" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobScheduleRequest&gt;&#xd;
+&lt;jobName&gt;JobName&lt;/jobName&gt;&#xd;
+&lt;simpleJobTrigger&gt;&#xd;
+&lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;&#xd;
+&lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;&#xd;
+&lt;repeatCount&gt;-1&lt;/repeatCount&gt;&#xd;
+&lt;startTime&gt;2014-08-14T11:46:00.000-04:00&lt;/startTime&gt;&#xd;
+&lt;endTime /&gt;&#xd;
+&lt;/simpleJobTrigger&gt;&#xd;
+&lt;inputFile&gt;/public/jmeter-test-dir/test.kjb&lt;/inputFile&gt;&#xd;
+&lt;outputFile&gt;/public/jmeter-test-dir/output&lt;/outputFile&gt;&#xd;
+&lt;jobParameters&gt;&#xd;
+&lt;name&gt;ParameterName&lt;/name&gt;&#xd;
+&lt;type&gt;string&lt;/type&gt;&#xd;
+&lt;stringValue&gt;false&lt;/stringValue&gt;&#xd;
+&lt;/jobParameters&gt;&#xd;
+&lt;/jobScheduleRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/job</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="92668751">admin</stringProp>
+                <stringProp name="226556872">JobName</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">vars.put(&quot;jobId&quot;, java.net.URLEncoder.encode(prev.getResponseDataAsString()))</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">vars.put(&quot;rawJobId&quot;, prev.getResponseDataAsString())</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/jobinfo" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/jobinfo?jobId=${jobId}</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="105405">job</stringProp>
+                <stringProp name="101296568">jobId</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/jobState" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/jobState</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1986416409">NORMAL</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /scheduler/state" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/state</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-2026200673">RUNNING</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/pause" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/pause</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1941992146">PAUSED</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/triggerNow" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/triggerNow</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1986416409">NORMAL</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/pauseJob" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/pauseJob</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1941992146">PAUSED</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/resumeJob" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/resumeJob</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1986416409">NORMAL</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="DELETE /scheduler/removeJob" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;jobRequest&gt;&#xd;
+&lt;jobId&gt;${rawJobId}&lt;/jobId&gt;&#xd;
+&lt;/jobRequest&gt;</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/removeJob</stringProp>
+            <stringProp name="HTTPSampler.method">DELETE</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="1809818688">REMOVED</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /scheduler/shutdown" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/pentaho-di/api/scheduler/shutdown</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1941992146">PAUSED</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /repo/files/deletepermanent" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">${TEST_DIR_ID}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+            <stringProp name="HTTPSampler.path">/${appName}/api/repo/files/delete</stringProp>
+            <stringProp name="HTTPSampler.method">PUT</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.implementation">Java</stringProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="Content-Type" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">text/plain; charset=utf-8</stringProp>
+                </elementProp>
+                <elementProp name="Accept-Language" elementType="Header">
+                  <stringProp name="Header.name">Accept-Language</stringProp>
+                  <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+                </elementProp>
+                <elementProp name="Accept" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                </elementProp>
+                <elementProp name="User-Agent" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0</stringProp>
+                </elementProp>
+                <elementProp name="Referer" elementType="Header">
+                  <stringProp name="Header.name">Referer</stringProp>
+                  <stringProp name="Header.value">http://${defHost}:${defPort}/${appName}/Home</stringProp>
+                </elementProp>
+                <elementProp name="DNT" elementType="Header">
+                  <stringProp name="Header.name">DNT</stringProp>
+                  <stringProp name="Header.value">1</stringProp>
+                </elementProp>
+                <elementProp name="Accept-Encoding" elementType="Header">
+                  <stringProp name="Header.name">Accept-Encoding</stringProp>
+                  <stringProp name="Header.value">gzip, deflate</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Different Users" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -8513,6 +11234,7 @@
             <assertionsResultsToSave>0</assertionsResultsToSave>
             <bytes>true</bytes>
             <url>true</url>
+            <threadCounts>true</threadCounts>
           </value>
         </objProp>
         <stringProp name="filename">D:\TEST_LOG</stringProp>
@@ -8546,6 +11268,7 @@
             <assertionsResultsToSave>0</assertionsResultsToSave>
             <bytes>true</bytes>
             <url>true</url>
+            <threadCounts>true</threadCounts>
           </value>
         </objProp>
         <stringProp name="filename">jmeter_results</stringProp>
@@ -8578,6 +11301,7 @@
             <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
             <assertionsResultsToSave>0</assertionsResultsToSave>
             <bytes>true</bytes>
+            <threadCounts>true</threadCounts>
           </value>
         </objProp>
         <stringProp name="filename"></stringProp>
