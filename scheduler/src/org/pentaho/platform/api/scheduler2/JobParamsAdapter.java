@@ -29,9 +29,11 @@ public class JobParamsAdapter extends XmlAdapter<JobParams, Map<String, Serializ
     ArrayList<JobParam> params = new ArrayList<JobParam>();
     for ( Map.Entry<String, Serializable> entry : v.entrySet() ) {
       JobParam jobParam = new JobParam();
-      jobParam.name = entry.getKey();
-      jobParam.value = entry.getValue().toString();
-      params.add( jobParam );
+      if(entry != null && entry.getKey() != null && entry.getValue() != null) {
+        jobParam.name = entry.getKey();
+        jobParam.value = entry.getValue().toString();
+        params.add( jobParam );
+      }
     }
     JobParams jobParams = new JobParams();
     jobParams.jobParams = params.toArray( new JobParam[0] );
