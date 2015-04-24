@@ -345,7 +345,7 @@ public class QuartzScheduler implements IScheduler {
       }
       if ( origJobDetail.getJobDataMap().containsKey( RESERVEDMAPKEY_UIPASSPARAM ) ) {
         jobParams.put( RESERVEDMAPKEY_UIPASSPARAM, (Serializable) origJobDetail.getJobDataMap().get(
-            RESERVEDMAPKEY_STREAMPROVIDER ) );
+            RESERVEDMAPKEY_UIPASSPARAM ) );
       }
 
       JobDetail jobDetail = createJobDetails( jobKey, jobParams );

@@ -311,7 +311,7 @@ public class SchedulerService {
         || getSession().getName().equals( job.getUserName() ) ) {
       for ( String key : job.getJobParams().keySet() ) {
         Serializable value = job.getJobParams().get( key );
-        if ( value.getClass().isArray() ) {
+        if ( value != null && value.getClass() != null && value.getClass().isArray() ) {
           String[] sa = ( new String[0] ).getClass().cast( value );
           ArrayList<String> list = new ArrayList<String>();
           for ( int i = 0; i < sa.length; i++ ) {
