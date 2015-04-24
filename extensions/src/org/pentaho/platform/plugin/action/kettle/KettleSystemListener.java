@@ -60,10 +60,6 @@ public class KettleSystemListener implements IPentahoSystemListener {
 
     hookInDataSourceProvider();
 
-    // Inform Kettle where the plugins should be loaded
-    System.setProperty( Const.PLUGIN_BASE_FOLDERS_PROP, Const.DEFAULT_PLUGIN_BASE_FOLDERS + "," + //$NON-NLS-1$
-        PentahoSystem.getApplicationContext().getSolutionPath( "system/kettle/plugins" ) ); //$NON-NLS-1$
-
     try {
       KettleSystemListener.environmentInit( session );
     } catch ( Throwable t ) {
