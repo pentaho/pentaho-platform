@@ -151,7 +151,6 @@ public class MondrianCatalogHelperTest {
         "solution:test/charts/steelwheels.mondrian.xml", schema );
   }
 
-
   @Test( expected = MondrianCatalogServiceException.class )
   public void addCatalog_WhenAlreadyExists() throws Exception {
     MondrianCatalog cat = createTestCatalog();
@@ -164,7 +163,6 @@ public class MondrianCatalogHelperTest {
 
     helper.addCatalog( new ByteArrayInputStream( new byte[ 0 ] ), cat, false, null, session );
   }
-
 
   @Test
   public void testAddCatalog() throws Exception {
@@ -243,6 +241,35 @@ public class MondrianCatalogHelperTest {
     doNothing().when( aclHelper ).setAclFor( any( RepositoryFile.class ), any( RepositoryFileAcl.class ) );
     helperSpy.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, true, null, session );
     verify( aclHelper, times( 2 ) ).setAclFor( any( RepositoryFile.class ), any( RepositoryFileAcl.class ) );
+  }
+
+  @Test
+  public void testImportSchemaWithSpaceDoesFlush() throws Exception {
+    String TMP_FILE_PATH = File.separatorChar + "test" + File.separatorChar + "analysis" + File.separatorChar;
+    String uploadDir = PentahoSystem.getApplicationContext().getSolutionPath( TMP_FILE_PATH );
+    File mondrianFile = new File( uploadDir + File.separatorChar + "SuperBacon.mondrian.xml" );
+
+    final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
+    final String sampleDataFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "super bacon";
+    final String metadataPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "metadata";
+
+    stubGetFolder( repo, mondrianFolderPath );
+    stubGetChildren( repo, mondrianFolderPath ); // return no children
+
+    stubGetFileDoesNotExist( repo, sampleDataFolderPath );
+    stubCreateFolder( repo, sampleDataFolderPath );
+
+    stubCreateFile( repo, metadataPath );
+
+    final String olapFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
+    stubGetFolder( repo, olapFolderPath );
+    stubGetChildren( repo, olapFolderPath ); // return no children
+
+    helper.importSchema( mondrianFile, "super bacon", "" );
+
+    // cache should be cleared for this schema only
+    verify( olapService, times( 1 ) ).getConnection( "super bacon",  null );
+    verify( mondrianCacheControl, times( 1 ) ).flushSchema( mondrianSchema );
   }
 
   @Test

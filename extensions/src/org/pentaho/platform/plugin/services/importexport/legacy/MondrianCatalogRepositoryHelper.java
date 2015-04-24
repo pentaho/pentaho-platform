@@ -435,7 +435,7 @@ public class MondrianCatalogRepositoryHelper {
     return values;
   }
 
-  public RepositoryFile getMondrianCatalogFile(String catalogName) {
+  public RepositoryFile getMondrianCatalogFile( String catalogName ) {
     return repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
   }
 
