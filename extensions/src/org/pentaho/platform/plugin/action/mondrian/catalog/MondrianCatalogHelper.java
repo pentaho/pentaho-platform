@@ -18,6 +18,7 @@
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import com.google.common.annotations.VisibleForTesting;
+
 import mondrian.i18n.LocalizingDynamicSchemaProcessor;
 import mondrian.olap.Connection;
 import mondrian.olap.MondrianDef;
@@ -28,6 +29,7 @@ import mondrian.spi.DynamicSchemaProcessor;
 import mondrian.util.ClassResolver;
 import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.DataSources;
+
 import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -82,6 +84,7 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -89,8 +92,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -382,7 +387,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
             .append( "<Catalog name=\"" + encoder.encodeForXML( catalogName ) + "\">\n" ); //$NON-NLS-1$ //$NON-NLS-2$
         datasourcesXML
             .append( "<DataSourceInfo>" + encoder.encodeForXML( datasourceInfo )
-                + "</DataSourceInfo>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
+                + "</DataSourceInfo>\n" ); //$NON-NLS-1$
         datasourcesXML.append(
             "<Definition>" + encoder.encodeForXML( definition ) + "</Definition>\n" ); //$NON-NLS-1$ //$NON-NLS-2$
         datasourcesXML.append( "</Catalog>\n" ); //$NON-NLS-1$
@@ -440,7 +445,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     } catch ( XOMException e ) {
       throw Util.newError( e, Messages.getInstance()
           .getErrorString( "MondrianCatalogHelper.ERROR_0002_FAILED_TO_PARSE_DATASOURCE_CONFIG",
-              dataSourcesConfigString ) ); //$NON-NLS-1$
+              dataSourcesConfigString ) );
     }
   }
 
@@ -607,9 +612,18 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       }
     }
     //compare the catalog names and throw exception if same and NOT ovewrite
-    final boolean catalogExistsWithDifferentDatasource = fileLocationCatalogTest != null
-        && definitionEquals( fileLocationCatalogTest.getDefinition(),
-        "mondrian:/" + catalog.getName() );
+    final boolean catalogExistsWithDifferentDatasource;
+    try {
+      catalogExistsWithDifferentDatasource =
+        fileLocationCatalogTest != null
+        && definitionEquals(
+          fileLocationCatalogTest.getDefinition(),
+          "mondrian:/"
+          + URLEncoder.encode( catalog.getName(), "UTF-8" ) );
+    } catch ( UnsupportedEncodingException e ) {
+      throw new MondrianCatalogServiceException( e );
+    }
+
     if ( catalogExistsWithDifferentDatasource && !overwrite ) {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS" ), //$NON-NLS-1$
