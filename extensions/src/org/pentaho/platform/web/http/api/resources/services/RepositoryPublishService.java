@@ -9,10 +9,7 @@ import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
 import java.io.File;
 import java.io.InputStream;
@@ -66,10 +63,7 @@ public class RepositoryPublishService {
    * @throws PentahoAccessControlException
    */
   protected void validateAccess() throws PentahoAccessControlException {
-    boolean isAdmin =
-      getPolicy().isAllowed( RepositoryReadAction.NAME ) && getPolicy().isAllowed( RepositoryCreateAction.NAME )
-        && ( getPolicy().isAllowed( AdministerSecurityAction.NAME ) || getPolicy().isAllowed( PublishAction.NAME ) );
-    if ( !isAdmin ) {
+    if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
       throw new PentahoAccessControlException( "Access Denied" );
     }
   }
