@@ -83,7 +83,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider"
         scope="singleton"/>
 
-  <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager"
+  <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager"
         scope="singleton"/>
   <bean id="IPluginResourceLoader" class="org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader"
         scope="singleton"/>
