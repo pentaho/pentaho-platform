@@ -27,6 +27,7 @@ import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
 import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,6 +50,7 @@ import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.solution.ContentInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -60,6 +62,7 @@ import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.web.http.api.resources.FileResourceContentGenerator;
 import org.pentaho.platform.web.http.api.resources.RepositoryResource;
@@ -76,6 +79,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+
 import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -84,6 +88,9 @@ import java.util.List;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
 
 @RunWith( SpringJUnit4ClassRunner.class )
@@ -104,6 +111,11 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   private String publicFolderPath;
 
   public RepositoryResourceTest() throws Exception {
+    IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
+    when( mockRepositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
+    when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
+    JcrRepositoryFileUtils.setRepositoryVersionManager( mockRepositoryVersionManager );
+    
     repositoryBase = new DefaultUnifiedRepositoryBase() {
       @Override
       protected String getSolutionPath() {

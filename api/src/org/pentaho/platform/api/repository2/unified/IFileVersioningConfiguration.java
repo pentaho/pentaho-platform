@@ -12,14 +12,29 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+* Copyright (c) 2002-2014 Pentaho Corporation..  All rights reserved.
 */
 package org.pentaho.platform.api.repository2.unified;
 
-public interface IRepositoryVersionManager {
+/**
+ * Represents versioning information about a repository file.
+ * @author tkafalas
+ *
+ */
+public interface IFileVersioningConfiguration {
   
-  boolean isVersioningEnabled( String fullPath );
+  /**
+   * True if new versions should be created when saved.
+   * False if versioning is disabled for this file.
+   * @return true or false
+   */
+  boolean isVersioningEnabled();
 
-  boolean isVersionCommentEnabled( String fullPath );
-  
+  /**
+   * True if the UI should prompt for a version comment when the
+   * file is created/saved.  False if comments are disabled.
+   * @return true or false
+   */
+  boolean isVersionCommentEnabled();
+
 }

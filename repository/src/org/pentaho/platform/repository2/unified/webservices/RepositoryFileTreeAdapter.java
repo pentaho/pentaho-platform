@@ -56,7 +56,7 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
   @Override
   public RepositoryFileTreeDto marshal( final RepositoryFileTree v ) {
     RepositoryFileTreeDto treeDto = new RepositoryFileTreeDto();
-    treeDto.setFile( RepositoryFileAdapter.toFileDto( v.getFile(), membersSet, exclude, includeAcls ) );
+    treeDto.setFile( RepositoryFileAdapter.toFileDto( v, membersSet, exclude, includeAcls ) );
 
     List<RepositoryFileTreeDto> children = null;
     if ( v.getChildren() != null ) {
@@ -81,6 +81,13 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
       }
     }
 
-    return new RepositoryFileTree( RepositoryFileAdapter.toFile( v.file ), children );
+    RepositoryFileTree repositoryFileTree = new RepositoryFileTree( RepositoryFileAdapter.toFile( v.file ), children );
+    if (v.file.getVersioningEnabled() != null) {
+      repositoryFileTree.setVersioningEnabled( v.file.getVersioningEnabled() );
+    }
+    if (v.file.getVersionCommentEnabled() != null) {
+      repositoryFileTree.setVersionCommentEnabled( v.file.getVersionCommentEnabled() );
+    }
+    return repositoryFileTree;
   }
 }

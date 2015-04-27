@@ -19,9 +19,11 @@
 package org.pentaho.platform.repository2.unified;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
@@ -29,6 +31,7 @@ import org.pentaho.platform.api.repository2.unified.data.sample.SampleRepository
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -39,8 +42,9 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Integration test. Tests {@link DefaultUnifiedRepository} and {@link org.pentaho.platform.api.engine.IAuthorizationPolicy IAuthorizationPolicy} fully configured
@@ -61,6 +65,14 @@ import static org.junit.Assert.assertNull;
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
 public class DefaultUnifiedRepositoryVersioningTest extends DefaultUnifiedRepositoryBase {
+  @Before
+  public void setup() {
+    IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
+    when( mockRepositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
+    when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
+    JcrRepositoryFileUtils.setRepositoryVersionManager( mockRepositoryVersionManager );
+  }
+  
   @Test
   public void testCreateVersionedFolder() throws Exception {
     loginAsSysTenantAdmin();

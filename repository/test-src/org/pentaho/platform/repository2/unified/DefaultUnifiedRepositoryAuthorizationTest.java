@@ -18,10 +18,12 @@
 
 package org.pentaho.platform.repository2.unified;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -36,6 +38,7 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -47,6 +50,7 @@ import org.springframework.security.AccessDeniedException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.jcr.security.Privilege;
+
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -56,8 +60,9 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Integration test. Tests {@link DefaultUnifiedRepository} and {@link org.pentaho.platform.api.engine.IAuthorizationPolicy IAuthorizationPolicy} fully configured
@@ -78,6 +83,15 @@ import static org.junit.Assert.assertTrue;
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
 public class DefaultUnifiedRepositoryAuthorizationTest extends DefaultUnifiedRepositoryBase {
+  
+  @Before
+  public void setup() {
+    IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
+    when( mockRepositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
+    when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
+    JcrRepositoryFileUtils.setRepositoryVersionManager( mockRepositoryVersionManager );
+  }
+  
   /**
    * This test method depends on {@code DefaultRepositoryEventHandler} behavior.
    */
