@@ -50,6 +50,9 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
   private final RepositoryFile file;
 
   private final List<RepositoryFileTree> children;
+  
+  private Boolean versioningEnabled;  //Is versioning enabled for this object
+  private Boolean versionCommentEnabled; //Are comments for versions enabled for this object
 
   // ~ Constructors
   // ====================================================================================================
@@ -76,7 +79,7 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
   }
 
   /**
-   * Children can be have one of three values:
+   * Children can have one of three values:
    * <ul>
    * <li>null: children were not fetched; used for operations that support depth</li>
    * <li>empty list: there are no children for this file (i.e. file is not a folder or folder has no children)</li>
@@ -215,6 +218,22 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
     public RepositoryFile getFile() {
       return file;
     }
+  }
+
+  public Boolean getVersioningEnabled() {
+    return versioningEnabled;
+  }
+
+  public void setVersioningEnabled( Boolean versioningEnabled ) {
+    this.versioningEnabled = versioningEnabled;
+  }
+
+  public Boolean getVersionCommentEnabled() {
+    return versionCommentEnabled;
+  }
+
+  public void setVersionCommentEnabled( Boolean versionCommentEnabled ) {
+    this.versionCommentEnabled = versionCommentEnabled;
   }
 
 }

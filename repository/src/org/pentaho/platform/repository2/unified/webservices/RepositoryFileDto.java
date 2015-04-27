@@ -57,6 +57,7 @@ public class RepositoryFileDto implements Serializable {
 
   boolean aclNode;
 
+  //This is the versioned property stored in the repo
   boolean versioned;
 
   String versionId;
@@ -72,6 +73,13 @@ public class RepositoryFileDto implements Serializable {
   String owner;
 
   String ownerTenantPath;
+  
+  //If versioning currently enabled for this file (Will be null if not loaded)
+  Boolean versioningEnabled;
+  
+  //If version Comments are enabled for this file (Will be null if not loaded)
+  Boolean versionCommentEnabled;
+  
 
   /**
    * RepositoryFileSid.Type enum.
@@ -318,8 +326,25 @@ public class RepositoryFileDto implements Serializable {
         + lastModifiedDate + ", locale=" + locale + ", lockDate=" + lockDate + ", lockMessage=" + lockMessage
         + ", lockOwner=" + lockOwner + ", locked=" + locked + ", originalParentFolderPath=" + originalParentFolderPath
         + ", owner=" + owner + ", ownerType=" + ownerType + ", title=" + title + ", localePropertiesMapEntries="
-        + localePropertiesMapEntries + ", versionId=" + versionId + ", versioned=" + versioned + ", hasAcl="
+        + localePropertiesMapEntries + ", versionId=" + versionId + ", versioned=" + versioned + ", versioningEnabled="
+        + versioningEnabled + ", versionCommentEnabled=" + versionCommentEnabled + ", hasAcl="
         + ( repositoryFileAclDto != null ) + "]";
+  }
+
+  public Boolean getVersioningEnabled() {
+    return versioningEnabled;
+  }
+
+  public void setVersioningEnabled( Boolean versioningEnabled ) {
+    this.versioningEnabled = versioningEnabled;
+  }
+
+  public Boolean getVersionCommentEnabled() {
+    return versionCommentEnabled;
+  }
+
+  public void setVersionCommentEnabled( Boolean versionCommentEnabled ) {
+    this.versionCommentEnabled = versionCommentEnabled;
   }
 
 }

@@ -24,6 +24,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
@@ -41,11 +44,13 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -106,6 +111,13 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
 
   // ~ Methods
   // =========================================================================================================
+  @Before
+  public void setup() {
+    IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
+    when( mockRepositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
+    when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
+    JcrRepositoryFileUtils.setRepositoryVersionManager( mockRepositoryVersionManager );
+  }
 
   @Test
   public void testGetFileWithLoadedMaps() throws Exception {

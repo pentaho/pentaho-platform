@@ -57,6 +57,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -95,9 +96,7 @@ public class JcrRepositoryFileUtils {
   private static List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] { '/',
     '\\', '\t', '\r', '\n' } ) );
 
-  // versioning and version comments enabled flags default to true
-  private static boolean versioningEnabled = true;
-  private static boolean versionCommentsEnabled = true;
+  private static IRepositoryVersionManager repositoryVersionManager = null;
 
   /**
    * Try to get parameters from PentahoSystem, otherwise use default
@@ -108,20 +107,6 @@ public class JcrRepositoryFileUtils {
 
     if ( newOverrideReservedChars != null ) {
       reservedChars = newOverrideReservedChars;
-    }
-
-    Boolean systemVersioningEnabled =
-        PentahoSystem.get( Boolean.class, "versioningEnabled", PentahoSessionHolder.getSession() );
-
-    if ( systemVersioningEnabled != null ) {
-      versioningEnabled = systemVersioningEnabled;
-    }
-
-    Boolean systemVersionCommentsEnabled =
-        PentahoSystem.get( Boolean.class, "versionCommentsEnabled", PentahoSessionHolder.getSession() );
-
-    if ( systemVersionCommentsEnabled != null ) {
-      versionCommentsEnabled = systemVersionCommentsEnabled;
     }
   }
 
@@ -915,6 +900,7 @@ public class JcrRepositoryFileUtils {
       final boolean aclOnlyChange ) throws RepositoryException {
     Assert.notNull( node );
     session.save();
+
     /*
      * session.save must be called inside the versionable node block and outside to ensure user changes are made when a
      * file is not versioned.
@@ -951,7 +937,7 @@ public class JcrRepositoryFileUtils {
 
       // if we're not versioning, delete only the previous version to
       // prevent the number of versions from increasing. We still need a versioned node
-      if ( Boolean.FALSE.equals( versioningEnabled ) ) {
+      if ( !getRepositoryVersionManager().isVersioningEnabled( versionableNode.getPath() ) ) {
 
         List<VersionSummary> versionSummaries =
             (List<VersionSummary>) getVersionSummaries( session, pentahoJcrConstants, versionableNode.getIdentifier(),
@@ -1129,24 +1115,6 @@ public class JcrRepositoryFileUtils {
     return toVersionSummary( pentahoJcrConstants, versionHistory, version );
   }
 
-  /**
-   * Send versioning enabled flag
-   * 
-   * @return
-   */
-  public static boolean getVersioningEnabled() {
-    return versioningEnabled;
-  }
-
-  /**
-   * Send version comments enabled flag
-   * 
-   * @return
-   */
-  public static boolean getVersionCommentsEnabled() {
-    return versionCommentsEnabled;
-  }
-
   public static RepositoryFileTree getTree( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper, final String absPath,
       final RepositoryRequest repositoryRequest, IRepositoryAccessVoterManager accessVoterManager )
@@ -1277,7 +1245,7 @@ public class JcrRepositoryFileUtils {
    * This method is called twice by <code>getTreeNode</code>. It's job is to determine whether the current child node
    * should be added to the list of children for the node being processed. It is a separate method simply because it is
    * too much code to appear twice in the above <code>getTreeNode</code> method. It also makes the recursive call back
-   * getTreeByNode to process the next lower level of folder node (it must process the lower levels to know if the
+   * to getTreeByNode to process the next lower level of folder node (it must process the lower levels to know if the
    * folder should be added). Finally, it returns the foundFiltered boolean to let the caller know if a file was found
    * that satisfied the childNodeFilter.
    */
@@ -1502,19 +1470,15 @@ public class JcrRepositoryFileUtils {
         (Node) fileNode, loadMaps, locale ) : null;
   }
 
-  /**
-   * 
-   * @param versioningEnabled
-   */
-  public static void setVersioningEnabled( boolean versioningEnabled ) {
-    JcrRepositoryFileUtils.versioningEnabled = versioningEnabled;
+  public static IRepositoryVersionManager getRepositoryVersionManager() {
+    if ( repositoryVersionManager == null ) {
+      repositoryVersionManager = PentahoSystem.get( IRepositoryVersionManager.class );
+    }
+    return repositoryVersionManager;
   }
-
-  /**
-   * 
-   * @param versionCommentsEnabled
-   */
-  public static void setVersionCommentsEnabled( boolean versionCommentsEnabled ) {
-    JcrRepositoryFileUtils.versionCommentsEnabled = versionCommentsEnabled;
+  
+  //User for unit tests
+  public static void setRepositoryVersionManager( IRepositoryVersionManager repositoryVersionManager ){
+    JcrRepositoryFileUtils.repositoryVersionManager = repositoryVersionManager;
   }
 }

@@ -21,13 +21,17 @@
  ******************************************************************************/
 package org.pentaho.platform.repository2.unified.jcr;
 
-import org.apache.jackrabbit.core.VersionManagerImpl;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -37,15 +41,16 @@ import javax.jcr.Workspace;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionManager;
-import java.util.Calendar;
-import java.util.Date;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import org.apache.jackrabbit.core.VersionManagerImpl;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 /**
  * @author Tatsiana_Kasiankova
@@ -69,11 +74,16 @@ public class JcrRepositoryFileUtilsTest {
   private VersionManager vmanagerMock = mock( VersionManager.class );
   private Workspace workspaceMock = mock( Workspace.class );
   private Session sessionMock = mock( Session.class );
-
+  private PentahoSystem pentahoSystemMock = mock( PentahoSystem.class );
+  private IRepositoryVersionManager repositoryVersionManagerMockTrue = mock( IRepositoryVersionManager.class );
+  private IRepositoryVersionManager repositoryVersionManagerMockFalse = mock( IRepositoryVersionManager.class );
+  
   @Before
   public void setUp() throws UnsupportedRepositoryOperationException, RepositoryException {
     when( workspaceMock.getVersionManager() ).thenReturn( vmanagerMock );
     when( sessionMock.getWorkspace() ).thenReturn( workspaceMock );
+    when( repositoryVersionManagerMockTrue.isVersioningEnabled( anyString() ) ).thenReturn( true );
+    when( repositoryVersionManagerMockFalse.isVersioningEnabled( anyString() ) ).thenReturn( false );
   }
 
   /**
@@ -150,8 +160,8 @@ public class JcrRepositoryFileUtilsTest {
     Node parentNode = mock( Node.class );
     IPentahoSession pentahoSession = mock( IPentahoSession.class );
     when( pentahoSession.getName() ).thenReturn( username );
-
-    JcrRepositoryFileUtils.setVersioningEnabled( Boolean.TRUE );
+    
+    JcrRepositoryFileUtils.setRepositoryVersionManager( repositoryVersionManagerMockTrue );
 
     VersionManagerImpl versionManager = mock( VersionManagerImpl.class );
     when( workspaceMock.getVersionManager() ).thenReturn( versionManager );
@@ -197,7 +207,7 @@ public class JcrRepositoryFileUtilsTest {
     }
 
     // disable versioning
-    JcrRepositoryFileUtils.setVersioningEnabled( Boolean.FALSE );
+    JcrRepositoryFileUtils.setRepositoryVersionManager( repositoryVersionManagerMockFalse );
 
     Node mockNode = mock( Node.class );
     Node parentNode = mock( Node.class );
