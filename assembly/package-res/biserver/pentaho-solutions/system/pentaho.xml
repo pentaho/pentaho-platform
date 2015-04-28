@@ -148,4 +148,5 @@
 
    </file-upload-defaults>
   <default-theme>crystal</default-theme>
+  <session-variables-blacklist></session-variables-blacklist>
 </pentaho-system>
