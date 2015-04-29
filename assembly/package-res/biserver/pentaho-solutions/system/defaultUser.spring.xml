@@ -23,7 +23,6 @@
 	<util:list id="reportAuthor">
 		<value>org.pentaho.security.publish</value>
 		<value>org.pentaho.scheduler.manage</value>
-        <value>org.pentaho.repository.create</value>
 	</util:list>
 
 	<util:list id="businessAnalyst">
