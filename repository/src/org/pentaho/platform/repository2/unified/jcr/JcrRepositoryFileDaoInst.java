@@ -210,7 +210,7 @@ public class JcrRepositoryFileDaoInst {
         findTransformerForWrite( content.getClass() ) );
     session.save();
     JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants, file.getId(),
-        versionMessage, new java.util.Date(), true );
+        versionMessage, file.getCreatedDate() != null ? file.getCreatedDate() : new java.util.Date(), true );
     lockHelper.removeLockTokenFromSessionIfNecessary( session, pentahoJcrConstants, file.getId() );
     return JcrRepositoryFileUtils.nodeIdToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, file
         .getId() );
