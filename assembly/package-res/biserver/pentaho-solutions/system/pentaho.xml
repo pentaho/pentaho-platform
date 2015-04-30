@@ -148,5 +148,5 @@
 
    </file-upload-defaults>
   <default-theme>crystal</default-theme>
-  <session-variables-blacklist></session-variables-blacklist>
+  <session-variables-blacklist>pentaho-session-context,SPRING_SECURITY_CONTEXT,roles,IUserSettingService,PENTAHO_TMP_DELETER</session-variables-blacklist>
 </pentaho-system>
