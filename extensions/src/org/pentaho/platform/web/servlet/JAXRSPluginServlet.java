@@ -38,6 +38,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * This should only be used by a plugin in the plugin.spring.xml file to initialize a Jersey. The presence of this
@@ -49,6 +50,10 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
 
   private static final long serialVersionUID = 457538570048660945L;
   private static final String APPLICATION_WADL = "application.wadl";
+
+  // Matches: application.wadl, application.wadl/xsd0.xsd
+  // Does not match: application.wadl/.xsd, application.wadl/xsd0/xsd0.xsd, application.wadl/a.xml
+  private static final Pattern WADL_PATTERN = Pattern.compile( "(.*)" + APPLICATION_WADL + "(/[A-Za-z0-9_]+(.xsd)+)*" );
 
   private ApplicationContext applicationContext;
   
@@ -75,22 +80,23 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
     // If the request ends with application.wadl, dispatch a Proxied request that rewrites the url to plain
     // 'application.wadl'. This is using a JDK Dynamic Proxy which increases overhead, but these requests should be
     // seldom and don't need to be that performant.
-    if ( request.getPathInfo().endsWith( APPLICATION_WADL ) ) {
+    if ( WADL_PATTERN.matcher( request.getPathInfo() ).find() ) {
       final HttpServletRequest originalRequest = request;
-
+      final String appWadlUrl = request.getPathInfo().substring(
+          request.getPathInfo().indexOf( APPLICATION_WADL ), request.getPathInfo().length() );
       request =
           (HttpServletRequest) Proxy.newProxyInstance( getClass().getClassLoader(),
               new Class[]{HttpServletRequest.class}, new InvocationHandler() {
                 public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
                   if ( method.getName().equals( "getPathInfo" ) ) {
-                    return APPLICATION_WADL;
+                    return appWadlUrl;
                   } else if ( method.getName().equals( "getRequestURL" ) ) {
                     String url = originalRequest.getRequestURL().toString();
                     return new StringBuffer(
-                        url.substring( 0, url.indexOf( originalRequest.getPathInfo() ) ) + "/" + APPLICATION_WADL );
+                        url.substring( 0, url.indexOf( originalRequest.getPathInfo() ) ) + "/" + appWadlUrl );
                   } else if ( method.getName().equals( "getRequestURI" ) ) {
                     String uri = originalRequest.getRequestURI();
-                    return uri.substring( 0, uri.indexOf( originalRequest.getPathInfo() ) ) + "/" + APPLICATION_WADL;
+                    return uri.substring( 0, uri.indexOf( originalRequest.getPathInfo() ) ) + "/" + appWadlUrl;
                   }
                   // We don't care about the Method, delegate out to real Request object.
                   return method.invoke( originalRequest, args );
