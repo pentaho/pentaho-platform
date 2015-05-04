@@ -39,7 +39,7 @@
     <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.3"/>
 
     <dependency org="com.google.guava" name="guava" rev="17.0" conf="default->default"/>
-
+		<dependency org="org.apache.felix" name="org.apache.felix.main" rev="4.2.1"/>
 		<!-- Hibernate and dependencies -->
     	<dependency org="org.hibernate" name="hibernate-core" rev="3.6.9.Final">
       		<!--

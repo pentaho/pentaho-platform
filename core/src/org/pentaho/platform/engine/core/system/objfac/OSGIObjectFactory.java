@@ -15,10 +15,11 @@
  * Copyright 2013 Pentaho Corporation. All rights reserved.
  */
 
-package org.pentaho.platform.osgi;
+package org.pentaho.platform.engine.core.system.objfac;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.pentaho.platform.api.engine.IPentahoInitializer;
@@ -26,14 +27,16 @@ import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.osgi.OSGIUtils;
+import org.pentaho.platform.engine.core.system.osgi.OsgiPentahoObjectReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +48,7 @@ import java.util.Map;
  * <p/>
  * User: nbaker Date: 10/31/13 Time: 11:43 AM
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings( "unchecked" )
 public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   private BundleContext context;
@@ -73,7 +76,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       return null;
     }
 
-    String filter = createFilter( properties );
+    String filter = OSGIUtils.createFilter( properties );
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
       ServiceReference ref;
@@ -140,19 +143,6 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     return getAll( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
-  private String createFilter( Map<String, String> props ) {
-    if ( props == null || props.size() == 0 ) {
-      return null;
-    }
-    StringBuilder sb = new StringBuilder();
-    sb.append( "(" );
-    for ( Map.Entry<String, String> entry : props.entrySet() ) {
-      sb.append( "&(" ).append( entry.getKey() ).append( "=" ).append( entry.getValue() ).append( ")" );
-    }
-    sb.append( ")" );
-    return sb.toString();
-  }
-
   @Override
   public <T> List<T> getAll( Class<T> interfaceClass, IPentahoSession session, Map<String, String> properties )
       throws ObjectFactoryException {
@@ -161,7 +151,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       return null;
     }
 
-    String filter = createFilter( properties );
+    String filter = OSGIUtils.createFilter( properties );
 
     List<T> returnList = new ArrayList<T>();
     try {
@@ -201,16 +191,25 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       return null;
     }
 
-    String filter = createFilter( properties );
+    String filter = OSGIUtils.createFilter( properties );
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
       if ( refs == null || refs.size() == 0 ) {
         log.error( "\n\nOSGI: did not find object: " + interfaceClass.getName() );
         return null;
       }
-      ServiceReference<T> serviceReference = refs.toArray( new ServiceReference[ refs.size() ] )[ 0 ];
 
-      return new OsgiPentahoObjectReference( interfaceClass, serviceReference );
+      ServiceReference[] serviceReferences = refs.toArray( new ServiceReference[ refs.size() ] );
+      Arrays.sort( serviceReferences, new Comparator<ServiceReference>() {
+        @Override public int compare( ServiceReference o1, ServiceReference o2 ) {
+          Integer rank1 = (Integer) o1.getProperty( Constants.SERVICE_RANKING );
+          Integer rank2 = (Integer) o2.getProperty( Constants.SERVICE_RANKING );
+          return Integer.compare( rank1 == null ? 0 : rank1, rank2 == null ? 0 : rank2 );
+        }
+      } );
+      ServiceReference<T> serviceReference = serviceReferences[ 0 ];
+
+      return new OsgiPentahoObjectReference( this.context, interfaceClass, serviceReference );
     } catch ( InvalidSyntaxException e ) {
       e.printStackTrace();
     }
@@ -233,7 +232,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       return Collections.emptyList();
     }
 
-    String filter = createFilter( properties );
+    String filter = OSGIUtils.createFilter( properties );
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
       if ( refs == null || refs.size() == 0 ) {
@@ -243,7 +242,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
       List<IPentahoObjectReference<T>> returnRefs = new ArrayList<IPentahoObjectReference<T>>();
       for ( ServiceReference ref : refs ) {
-        returnRefs.add( new OsgiPentahoObjectReference<T>( interfaceClass, ref ) );
+        returnRefs.add( new OsgiPentahoObjectReference<T>( this.context, interfaceClass, ref ) );
       }
       Collections.sort( returnRefs );
 
@@ -257,68 +256,6 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   @Override
   public String getName() {
     return getClass().getSimpleName();
-  }
-
-  private class OsgiPentahoObjectReference<T> implements IPentahoObjectReference<T> {
-    private Class<T> type;
-    private ServiceReference osgiRef;
-    private Map<String, Object> attributes;
-
-    public OsgiPentahoObjectReference( Class<T> type, ServiceReference ref ) {
-      this.type = type;
-      osgiRef = ref;
-    }
-
-    @Override public Class<?> getObjectClass() {
-      return type;
-    }
-
-    @Override
-    public Map<String, Object> getAttributes() {
-      if ( attributes != null ) {
-        return attributes;
-      }
-      attributes = new HashMap<String, Object>();
-
-      for ( String key : osgiRef.getPropertyKeys() ) {
-        attributes.put( key, osgiRef.getProperty( key ) );
-      }
-      return attributes;
-    }
-
-    @Override
-    public T getObject() {
-      Object service = context.getService( osgiRef );
-
-      if ( service instanceof IPentahoInitializer ) {
-        ( (IPentahoInitializer) service ).init( PentahoSessionHolder.getSession() );
-      }
-      return (T) service;
-    }
-
-    @Override
-    public Integer getRanking() {
-      Object property = osgiRef.getProperty( "service.ranking" );
-      if ( !( property instanceof Integer ) ) {
-        return 0;
-      }
-      return (Integer) property;
-    }
-
-    @Override
-    public int compareTo( IPentahoObjectReference<T> o ) {
-      if ( o == null ) {
-        return 1;
-      }
-      if ( o instanceof OsgiPentahoObjectReference ) {
-        OsgiPentahoObjectReference ref = (OsgiPentahoObjectReference) o;
-        return osgiRef.compareTo( ref.osgiRef );
-      }
-      Integer ourRank = getRanking();
-      Integer theirRanking = o.getRanking();
-      return ourRank.compareTo( theirRanking );
-
-    }
   }
 
   /**

@@ -27,17 +27,13 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.objfac.spring.PublishedBeanRegistry;
-import org.pentaho.platform.engine.core.system.objfac.spring.SpringPentahoObjectReference;
 import org.pentaho.platform.engine.core.system.objfac.spring.SpringScopeSessionHolder;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -87,13 +83,13 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
   }
 
   public <T> T get( Class<T> interfaceClass, IPentahoSession session, Map<String, String> props )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     return retreiveObject( interfaceClass, null, session, props );
   }
 
   @Override
   public <T> List<T> getAll( Class<T> interfaceClass, IPentahoSession curSession, Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     return retreiveObjects( interfaceClass, curSession, properties );
   }
 
@@ -116,8 +112,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       }
     } catch ( Exception e ) {
       String msg =
-        Messages.getInstance()
-          .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
+          Messages.getInstance()
+              .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
       throw new ObjectFactoryException( msg, e );
     }
     return object;
@@ -126,21 +122,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
   protected Object instanceClass( Class<?> interfaceClass, String key ) throws ObjectFactoryException {
     Object object = null;
     try {
-      String[] beanNames = PublishedBeanRegistry.getBeanNamesForType( beanFactory, interfaceClass );
-      if ( beanNames.length > 0 ) {
-
-        List<BeanDefinitionNamePair> beanDefs = new ArrayList<BeanDefinitionNamePair>();
-        for ( String name : beanNames ) {
-          BeanDefinition ref = this.getBeanDefinitionFromFactory( name );
-          beanDefs.add( new BeanDefinitionNamePair( name, ref ) );
-        }
-
-        // sort based on highest priority
-        Collections.sort( beanDefs, this.priorityComparitor );
-
-        object = beanFactory.getType( beanDefs.get( 0 ).name ).newInstance();
-
-      } else if ( key != null ) {
+      if ( key != null ) {
         object = beanFactory.getType( key ).newInstance();
       } else {
         // No published beans by this type, try the interface simplename itself as the key (legacy behavior)
@@ -148,8 +130,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       }
     } catch ( Exception e ) {
       String msg =
-        Messages.getInstance()
-          .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
+          Messages.getInstance()
+              .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_CREATE_OBJECT", key ); //$NON-NLS-1$
       throw new ObjectFactoryException( msg, e );
     }
     return object;
@@ -163,64 +145,27 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
     Object object = null;
     try {
 
-      String[] beanNames = PublishedBeanRegistry.getBeanNamesForType( beanFactory, interfaceClass );
-      if ( beanNames == null || beanNames.length == 0 ) {
-        // No published beans by this type, try the interface simplename itself as the key (legacy behavior)
-        beanNames = new String[] { interfaceClass.getSimpleName() };
-      }
+      String beanName = interfaceClass.getSimpleName();
 
-      List<BeanDefinitionNamePair> beanDefs = new ArrayList<BeanDefinitionNamePair>();
-      for ( String name : beanNames ) {
-        if ( beanFactory.getBeanFactory().containsBean( name ) == false ) {
-          continue;
-        }
-        BeanDefinition ref = this.getBeanDefinitionFromFactory( name );
-        beanDefs.add( new BeanDefinitionNamePair( name, ref ) );
-      }
 
-      if ( beanDefs.size() == 0 ) {
-        return null;
-      }
-
-      // If this request has attributes to filter by, do that now
-      if ( props != null && props.size() > 0 ) {
-
-        Iterator<BeanDefinitionNamePair> iterator = beanDefs.iterator();
-        //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
-        outer:
-        while ( iterator.hasNext() ) {
-          BeanDefinition def = iterator.next().definition;
-          for ( Map.Entry<String, String> prop : props.entrySet() ) {
-            Object attrVal = def.getAttribute( prop.getKey() );
-            if ( attrVal == null || !attrVal.equals( prop.getValue() ) ) {
-              iterator.remove();
-              continue outer;
-            }
-          }
-        }
-
-      }
-
-      // sort based on highest priority
-      Collections.sort( beanDefs, this.priorityComparitor );
-
-      if ( beanDefs.size() == 0 ) {
+      if ( !beanFactory.getBeanFactory().containsBean( beanName ) ) {
         throw new IllegalStateException( "No bean found for given type" );
       }
-      object = beanFactory.getBean( beanDefs.get( 0 ).name );
+
+      object = beanFactory.getBean( beanName );
 
     } catch ( Throwable t ) {
       String msg =
-        Messages.getInstance().getString(
-          "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
-          interfaceClass.getSimpleName() ); //$NON-NLS-1$
+          Messages.getInstance().getString(
+              "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+              interfaceClass.getSimpleName() ); //$NON-NLS-1$
       throw new ObjectFactoryException( msg, t );
     }
 
     // Sanity check
     if ( interfaceClass.isAssignableFrom( object.getClass() ) == false ) {
       throw new IllegalStateException( "Object retrived from Spring not expected type: "
-        + interfaceClass.getSimpleName() );
+          + interfaceClass.getSimpleName() );
     }
 
     return (T) object;
@@ -236,8 +181,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       object = beanFactory.getBean( beanId );
     } catch ( Throwable t ) {
       String msg =
-        Messages.getInstance()
-          .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT", beanId ); //$NON-NLS-1$
+          Messages.getInstance()
+              .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT", beanId ); //$NON-NLS-1$
       throw new ObjectFactoryException( msg, t );
     }
     return object;
@@ -245,11 +190,11 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
   private <T> T
   retreiveObject( Class<T> interfaceClass, String key, IPentahoSession session, Map<String, String> props )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     // cannot access logger here since this object factory provides the logger
     logger
-      .debug( "Attempting to get an instance of [" + interfaceClass.getSimpleName() + "] while in session [" + session
-        + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+        .debug( "Attempting to get an instance of [" + interfaceClass.getSimpleName() + "] while in session [" + session
+            + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
     Object object;
 
@@ -271,12 +216,20 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
         // retrieving it from our internal session map
         logger.debug( "Retrieving object from Pentaho session map (not Spring)." ); //$NON-NLS-1$
 
-        object = session.getAttribute( interfaceClass.getSimpleName() );
+        try {
+          object = session.getAttribute( interfaceClass.getSimpleName() );
 
-        if ( ( object == null ) ) {
-          // our internal session map doesn't have it, let's create it
-          object = instanceClass( interfaceClass, key );
-          session.setAttribute( interfaceClass.getSimpleName(), object );
+          if ( ( object == null ) ) {
+            // our internal session map doesn't have it, let's create it
+            object = instanceClass( interfaceClass, key );
+            session.setAttribute( interfaceClass.getSimpleName(), object );
+          }
+        } catch ( Throwable tt ) {
+          String msg =
+              Messages.getInstance()
+                  .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+                      interfaceClass.getSimpleName() ); //$NON-NLS-1$
+          throw new ObjectFactoryException( msg, tt );
         }
       }
     } else {
@@ -292,7 +245,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
     }
 
     logger
-      .debug( " Got an instance of [" + interfaceClass.getSimpleName() + "]: " + object ); //$NON-NLS-1$ //$NON-NLS-2$
+        .debug( " Got an instance of [" + interfaceClass.getSimpleName() + "]: " + object ); //$NON-NLS-1$ //$NON-NLS-2$
 
     if ( object instanceof IPentahoInitializer ) {
       ( (IPentahoInitializer) object ).init( session );
@@ -301,82 +254,17 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
   }
 
   protected <T> List<T> retreiveObjects( Class<T> type, final IPentahoSession session, Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     // cannot access logger here since this object factory provides the logger
     logger.debug( "Attempting to get an instance of [" + type.getSimpleName() + "] while in session [" + session
-      + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+        + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
-    List<T> objects = new ArrayList<T>();
-
-    if ( session != null && session instanceof StandaloneSession ) {
-      // first ask Spring for the object, if it is session scoped it will fail
-      // since Spring doesn't know about StandaloneSessions
-      try {
-        // Save the session off to support Session and Request scope.
-        SpringScopeSessionHolder.SESSION.set( session );
-        String[] beanNames = PublishedBeanRegistry.getBeanNamesForType( beanFactory, type );
-
-        // Collection BeanDefinition Metadata map
-        List<BeanDefinitionNamePair> beanDefs = new ArrayList<BeanDefinitionNamePair>();
-        for ( String name : beanNames ) {
-          BeanDefinition ref = getBeanDefinitionFromFactory( name );
-          if ( ref != null ) {
-            beanDefs.add( new BeanDefinitionNamePair( name, ref ) );
-          }
-        }
-
-        // If this request has attributes to filter by, do that now
-        if ( properties != null && properties.size() > 0 ) {
-
-          Iterator<BeanDefinitionNamePair> iterator = beanDefs.iterator();
-          //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
-          outer:
-          while ( iterator.hasNext() ) {
-            BeanDefinitionNamePair entry = iterator.next();
-            BeanDefinition def = entry.definition;
-            for ( Map.Entry<String, String> prop : properties.entrySet() ) {
-              Object attrVal = def.getAttribute( prop.getKey() );
-              if ( attrVal == null || !attrVal.equals( prop.getValue() ) ) {
-                iterator.remove();
-                continue outer;
-              }
-            }
-          }
-        }
-
-        // sort based on highest priority
-        Collections.sort( beanDefs, this.priorityComparitor );
-
-        for ( BeanDefinitionNamePair defPair : beanDefs ) {
-          objects.add( (T) beanFactory.getBean( defPair.name ) );
-        }
-
-      } catch ( Throwable t ) {
-        // Spring could not create the object, perhaps due to session scoping, let's try
-        // retrieving it from our internal session map
-        logger.debug( "Retrieving object from Pentaho session map (not Spring)." ); //$NON-NLS-1$
-        Object object = session.getAttribute( type.getSimpleName() );
-
-        if ( ( object == null ) ) {
-          // our internal session map doesn't have it, let's create it
-          object = instanceClass( type.getSimpleName() );
-          session.setAttribute( type.getSimpleName(), object );
-        }
-      }
-    } else {
-      // Spring can handle the object retrieval since we are not dealing with StandaloneSession
-      T object = retrieveViaSpring( type );
-      if ( object != null ) {
-
-        objects.add( object );
-
-        logger.debug( " Got an instance of [" + type.getSimpleName() + "]: " + object ); //$NON-NLS-1$ //$NON-NLS-2$
-
-      }
+    T object = retrieveViaSpring( type );
+    if ( object != null ) {
+      logger.debug( " Got an instance of [" + type.getSimpleName() + "]: " + object ); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    SpringScopeSessionHolder.SESSION.set( null );
 
-    return objects;
+    return Collections.singletonList( object );
   }
 
   /**
@@ -392,11 +280,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
    */
   @Override
   public boolean objectDefined( Class<?> clazz ) {
-    boolean found = PublishedBeanRegistry.getBeanNamesForType( beanFactory, clazz ).length > 0;
-    if ( !found ) {
-      found = beanFactory.containsBean( clazz.getSimpleName() );
-    }
-    return found;
+    return beanFactory.containsBean( clazz.getSimpleName() );
   }
 
   /**
@@ -413,146 +297,29 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> clazz, IPentahoSession curSession )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     return getObjectReference( clazz, curSession, null );
   }
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> clazz, IPentahoSession curSession,
                                                             Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
 
-    // Save the session off to support Session and Request scope.
-    SpringScopeSessionHolder.SESSION.set( curSession );
-
-    String[] beanNames = PublishedBeanRegistry.getBeanNamesForType( beanFactory, clazz );
-    if ( beanNames.length == 0 ) {
-      // No published beans by this type, try the interface simplename itself as the key (legacy behavior)
-      beanNames = new String[] { clazz.getSimpleName() };
-    }
-
-    List<BeanDefinitionNamePair> refs = new ArrayList<BeanDefinitionNamePair>();
-
-    // order references
-    for ( String name : beanNames ) {
-      if ( beanFactory.getBeanFactory().containsBean( name ) == false ) {
-        continue;
-      }
-      BeanDefinition ref = null;
-      try {
-        ref = this.getBeanDefinitionFromFactory( name );
-        refs.add( new BeanDefinitionNamePair( name, ref ) );
-      } catch ( NoSuchBeanDefinitionException nsb ) {
-        // if the factory has the bean, but not the definition, it's likely an alias.
-        String[] aliases = beanFactory.getBeanFactory().getAliases( name );
-        if ( aliases.length > 0 ) {
-          try {
-
-            // first will be the original bean
-            ref = this.getBeanDefinitionFromFactory( aliases[ 0 ] );
-            refs.add( new BeanDefinitionNamePair( aliases[ 0 ], ref ) );
-          } catch ( NoSuchBeanDefinitionException e ) {
-            // If we end up here, then the bean is present in a parent beanFactory and bean definitions are not
-            // available.
-            // we could instanceof ConfigurableListableBeanFactory the parent, but this is a good place to stop.
-            // The
-            // parent applicationContext is likely already added to the AggregateObjectFactory.
-            logger.debug( "Unable to find bean definition for name:" + name
-              + " it likely exists in a parent BeanFactory" );
-          }
-        }
-      }
-    }
-
-    if ( refs.size() == 0 ) {
-      return null;
-    }
-
-    if ( properties != null && properties.size() > 0 ) {
-
-      Iterator<BeanDefinitionNamePair> iterator = refs.iterator();
-      //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
-      outer:
-      while ( iterator.hasNext() ) {
-        BeanDefinitionNamePair entry = iterator.next();
-        BeanDefinition def = entry.definition;
-        for ( Map.Entry<String, String> prop : properties.entrySet() ) {
-          Object attrVal = def.getAttribute( prop.getKey() );
-          if ( attrVal == null || !attrVal.equals( prop.getValue() ) ) {
-            iterator.remove();
-            continue outer;
-          }
-        }
-      }
-    }
-    // check to make sure something make it through filtering
-    if ( refs.size() == 0 ) {
-      return null;
-    }
-
-    Collections.sort( refs, priorityComparitor );
-
-    BeanDefinition def = refs.get( 0 ).definition;
-    String name = refs.get( 0 ).name;
-    SpringScopeSessionHolder.SESSION.set( null );
-    return new SpringPentahoObjectReference<T>( beanFactory, name, clazz, curSession, def );
-
+    return null;
   }
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     return getObjectReferences( interfaceClass, curSession, null );
   }
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession,
                                                                    Map<String, String> properties )
-    throws ObjectFactoryException {
-    String[] beanNames = PublishedBeanRegistry.getBeanNamesForType( beanFactory, interfaceClass );
-    if ( beanNames == null || beanNames.length == 0 ) {
-      return null;
-    }
-    List<IPentahoObjectReference<T>> collection = new ArrayList<IPentahoObjectReference<T>>();
-
-    List<BeanDefinitionNamePair> refs = new ArrayList<BeanDefinitionNamePair>();
-
-    // order references
-    for ( String name : beanNames ) {
-      BeanDefinition ref = this.getBeanDefinitionFromFactory( name );
-      refs.add( new BeanDefinitionNamePair( name, ref ) );
-
-    }
-
-    if ( properties != null && properties.size() > 0 ) {
-
-      Iterator<BeanDefinitionNamePair> iterator = refs.iterator();
-      //CHECKSTYLE IGNORE Indentation FOR NEXT 1 LINES
-      outer:
-      while ( iterator.hasNext() ) {
-        BeanDefinitionNamePair entry = iterator.next();
-        BeanDefinition def = entry.definition;
-        for ( Map.Entry<String, String> prop : properties.entrySet() ) {
-          Object attrVal = def.getAttribute( prop.getKey() );
-          if ( attrVal == null || !attrVal.equals( prop.getValue() ) ) {
-            iterator.remove();
-            continue outer;
-          }
-        }
-      }
-    }
-
-    Collections.sort( refs, priorityComparitor );
-
-    for ( BeanDefinitionNamePair ref : refs ) {
-      BeanDefinition def = ref.definition;
-      String name = ref.name;
-      SpringPentahoObjectReference sRef =
-        new SpringPentahoObjectReference<T>( beanFactory, name, interfaceClass, curSession, def );
-      collection.add( sRef );
-    }
-
-    return collection;
+      throws ObjectFactoryException {
+    return Collections.emptyList();
   }
 
   @Override
@@ -590,7 +357,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
         return val;
       } catch ( NumberFormatException e ) {
         logger
-          .error( "bean of type " + ref.getBeanClassName() + " has an invalid priority value, only numeric allowed" );
+            .error( "bean of type " + ref.getBeanClassName() + " has an invalid priority value, only numeric allowed" );
         // return default
         return DEFAULT_PRIORTIY;
       }

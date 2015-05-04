@@ -66,13 +66,19 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
   @SuppressWarnings( "unchecked" )
   public T getObject() {
     SpringScopeSessionHolder.SESSION.set( session );
-    Object obj = context.getBeanFactory().getBean( name );
-    SpringScopeSessionHolder.SESSION.set( null );
+    ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
+      Object obj = context.getBeanFactory().getBean( name );
+      SpringScopeSessionHolder.SESSION.set( null );
 
-    if ( obj instanceof IPentahoInitializer ) {
-      ( (IPentahoInitializer) obj ).init( session );
+      if ( obj instanceof IPentahoInitializer ) {
+        ( (IPentahoInitializer) obj ).init( session );
+      }
+      return (T) obj;
+    } finally {
+      Thread.currentThread().setContextClassLoader( originalClassLoader );
     }
-    return (T) obj;
   }
 
   @Override

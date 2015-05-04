@@ -30,6 +30,7 @@ import java.util.Map;
  */
 public interface IPentahoObjectReference<T> extends Comparable<IPentahoObjectReference<T>> {
   Map<String, Object> getAttributes();
+  Integer DEFAULT_RANKING = 0;
 
   T getObject();
 

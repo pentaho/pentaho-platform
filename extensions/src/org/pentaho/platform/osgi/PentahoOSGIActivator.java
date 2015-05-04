@@ -1,13 +1,10 @@
 package org.pentaho.platform.osgi;
 
 import org.osgi.framework.BundleContext;
-import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.web.http.context.WebApplicationContext;
+import org.pentaho.platform.engine.core.system.objfac.OSGIObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletContext;
 
 /**
  * Standard OSGI Activator class which is called when the OSGI environment is started. Work to integrate the OSGI
@@ -28,6 +25,7 @@ public class PentahoOSGIActivator {
 
     objectFactory = new OSGIObjectFactory( bundleContext );
     PentahoSystem.registerObjectFactory( objectFactory );
+    PentahoSystem.setBundleContext( bundleContext );
     logger.debug( "OSGIObjectFactory installed" );
 
   }

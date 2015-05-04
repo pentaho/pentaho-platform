@@ -21,7 +21,7 @@ public class PrototypePentahoObjectReference<T> extends AbstractPentahoObjectRef
 
 
   public PrototypePentahoObjectReference( Class<T> type, IObjectCreator<T> creator, Map<String, Object> attributes,
-                                          int priority ) {
+                                          Integer priority ) {
     super( type, attributes, priority );
     this.creator = creator;
   }

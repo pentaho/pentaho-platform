@@ -15,7 +15,7 @@
  * Copyright 2013 Pentaho Corporation. All rights reserved.
  */
 
-package org.pentaho.platform.osgi;
+package org.pentaho.platform.engine.core.system.objfac;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -30,7 +30,6 @@ import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -48,7 +48,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * User: nbaker Date: 1/15/13
  */
 public class AggregateObjectFactory implements IPentahoObjectFactory {
-  protected final Set<IPentahoObjectFactory> factories = Collections.synchronizedSet( new HashSet<IPentahoObjectFactory>() );
+  protected final Set<IPentahoObjectFactory> factories =
+      Collections.synchronizedSet( new HashSet<IPentahoObjectFactory>() );
   protected IPentahoObjectFactory primaryFactory;
   private Logger logger = LoggerFactory.getLogger( AggregateObjectFactory.class );
 
@@ -62,7 +63,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   public void registerObjectFactory( IPentahoObjectFactory fact, boolean primary ) {
     writeLock.lock();
-    try{
+    try {
       factories.add( fact );
     } finally {
       writeLock.unlock();
@@ -124,8 +125,8 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     }
 
     String msg =
-      Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
-        interfaceClass.getSimpleName() );
+        Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+            interfaceClass.getSimpleName() );
     throw new ObjectFactoryException( msg );
 
   }
@@ -137,26 +138,14 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   }
 
   private int computePriority( IPentahoObjectReference ref ) {
-    Map<String, Object> props = ref.getAttributes();
-    if ( props == null ) {
-      return DEFAULT_PRIORTIY;
-    }
-    Object sPri = ref.getAttributes().get( "priority" );
-    if ( sPri == null ) {
-      return DEFAULT_PRIORTIY;
-    }
-    try {
-      return Integer.parseInt( sPri.toString() );
-    } catch ( NumberFormatException e ) {
-      return DEFAULT_PRIORTIY;
-    }
+    return ref.getRanking();
 
   }
 
   @Override
   public boolean objectDefined( String key ) {
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( key ) ) {
           logger.debug( MessageFormat.format( "Object defined for key: {0} in factory: {1}", key, fact.getName() ) );
@@ -178,11 +167,11 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   @Override
   public Class<?> getImplementingClass( String key ) {
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( key ) ) {
           logger.debug( MessageFormat.format( "Found implementing class for key: {0} in factory: {1}", key, fact
-            .getName() ) );
+              .getName() ) );
           return fact.getImplementingClass( key );
         }
       }
@@ -204,12 +193,12 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<T> getAll( Class<T> interfaceClass, IPentahoSession curSession, Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
 
     List<IPentahoObjectReference<T>> referenceList = new ArrayList<IPentahoObjectReference<T>>();
 
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( interfaceClass ) ) {
           List<IPentahoObjectReference<T>> refs = fact.getObjectReferences( interfaceClass, curSession, properties );
@@ -235,12 +224,12 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> clazz, IPentahoSession curSession )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
 
     Set<IPentahoObjectReference<T>> references = new HashSet<IPentahoObjectReference<T>>();
 
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( clazz ) ) {
           IPentahoObjectReference<T> found = fact.getObjectReference( clazz, curSession );
@@ -268,7 +257,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> T get( Class<T> clazz, IPentahoSession session, Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
 
     IPentahoObjectReference<T> highestRef = this.getObjectReference( clazz, session, properties );
 
@@ -276,7 +265,7 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
       return highestRef.getObject();
     }
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( clazz.getSimpleName() ) ) {
           T object = fact.get( clazz, clazz.getSimpleName(), session );
@@ -287,8 +276,8 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
       readLock.unlock();
     }
     String msg =
-      Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
-        clazz.getSimpleName() );
+        Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+            clazz.getSimpleName() );
     throw new ObjectFactoryException( msg );
 
   }
@@ -296,12 +285,12 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   @Override
   public boolean objectDefined( Class<?> clazz ) {
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( clazz ) ) {
 
           logger.debug( MessageFormat.format( "Found object for class: {0} in factory: {1}", clazz.getName(), fact
-            .getName() ) );
+              .getName() ) );
           return true;
         }
       }
@@ -314,16 +303,16 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession,
                                                             Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
 
     Set<IPentahoObjectReference<T>> references = new HashSet<IPentahoObjectReference<T>>();
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( interfaceClass ) ) {
-          IPentahoObjectReference<T> found = fact.getObjectReference( interfaceClass, curSession, properties );
+          List<IPentahoObjectReference<T>> found = fact.getObjectReferences( interfaceClass, curSession, properties );
           if ( found != null ) {
-            references.add( found );
+            references.addAll( found );
           }
         }
       }
@@ -389,19 +378,19 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     return getObjectReferences( interfaceClass, curSession, null );
   }
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession,
                                                                    Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     // Use a set to avoid duplicates
     Set<IPentahoObjectReference<T>> referenceSet = new HashSet<IPentahoObjectReference<T>>();
 
     readLock.lock();
-    try{
+    try {
       for ( IPentahoObjectFactory fact : factories ) {
         if ( fact.objectDefined( interfaceClass ) ) {
           List<IPentahoObjectReference<T>> found = fact.getObjectReferences( interfaceClass, curSession, properties );

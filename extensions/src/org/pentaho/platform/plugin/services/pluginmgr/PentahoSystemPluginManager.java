@@ -533,13 +533,13 @@ public class PentahoSystemPluginManager implements IPluginManager {
       attributes.put( PLUGIN_ID, plugin.getId() );
       attributes.put( CONTENT_TYPE, cgInfo.getType() );
       final IPentahoObjectRegistration referenceHandle = PentahoSystem.registerReference(
-          new PrototypePentahoObjectReference.Builder<IContentGeneratorInfo>( IContentGeneratorInfo.class )
-              .creator( new IObjectCreator<IContentGeneratorInfo>() {
+          new PrototypePentahoObjectReference.Builder<IContentGenerator>( IContentGenerator.class )
+              .creator( new IObjectCreator<IContentGenerator>() {
                 @Override
-                public IContentGeneratorInfo create( IPentahoSession session ) {
-                  return (IContentGeneratorInfo) beanFactory.getBean( cgInfo.getId() );
+                public IContentGenerator create( IPentahoSession session ) {
+                  return (IContentGenerator) beanFactory.getBean( cgInfo.getId() );
                 }
-              } ).attributes( attributes ).build(), IContentGeneratorInfo.class
+              } ).attributes( attributes ).build(), IContentGenerator.class
       );
 
       registerReference( plugin.getId(), referenceHandle );

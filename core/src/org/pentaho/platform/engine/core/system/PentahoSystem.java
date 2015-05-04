@@ -24,6 +24,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.osgi.framework.BundleContext;
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -50,7 +51,7 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
-import org.pentaho.platform.engine.core.system.objfac.RuntimeObjectFactory;
+import org.pentaho.platform.engine.core.system.objfac.OSGIRuntimeObjectFactory;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -132,7 +133,7 @@ public class PentahoSystem {
 
   private static AggregateObjectFactory aggObjectFactory = new AggregateObjectFactory();
 
-  private static RuntimeObjectFactory runtimeObjectFactory;
+  private static OSGIRuntimeObjectFactory runtimeObjectFactory;
 
   private static final Map initializationFailureDetailsMap = Collections.synchronizedMap( new HashMap() );
 
@@ -200,8 +201,12 @@ public class PentahoSystem {
   }
 
   private static void defaultObjectFactory() {
-    runtimeObjectFactory = new RuntimeObjectFactory();
+    runtimeObjectFactory = new OSGIRuntimeObjectFactory();
     aggObjectFactory.registerObjectFactory( PentahoSystem.runtimeObjectFactory );
+  }
+
+  public static void setBundleContext( BundleContext context ){
+    runtimeObjectFactory.setBundleContext( context );
   }
 
   public static boolean init() {
