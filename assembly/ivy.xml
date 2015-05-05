@@ -20,10 +20,10 @@
     <!-- Pentaho -->
     <dependency org="pentaho" name="pentaho-platform-extensions" rev="${project.revision}" changing="true">
 		<exclude org="pentaho-reporting-engine" module="pentaho-reporting-engine-classic-core-test" />
-    </dependency>    
+    </dependency>
     <!-- Pentaho Commons  -->
     <dependency org="pentaho" name="pentaho-database-model"     rev="${dependency.pentaho-database-model.revision}"               changing="true" transitive="false"/>
-    
+
 	<!--  Reporting -->
     <!-- NOTE: this reporting plugin jar will be removed once the reporting plugin is 3.5 plugin compliant -->
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core-platform-plugin" rev="${dependency.pentaho-reporting-plugin.revision}" changing="true">
@@ -36,7 +36,7 @@
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-extensions" rev="${dependency.pentaho-reporting.revision}" changing="true">
        <exclude org="pentaho-reporting-engine" module="pentaho-reporting-engine-classic-core-test" />
     </dependency>
-    
+
     <dependency org="pentaho-library" name="libserializer" rev="${dependency.libserializer.revision}" changing="true" transitive="false" conf="default->default" />
     <!-- Misc -->
     <dependency org="org.owasp.esapi" name="esapi" rev="2.0.1" transitive="false" />
@@ -47,8 +47,8 @@
     <dependency org="org.beanshell" name="bsh" rev="1.3.0" />
     <dependency org="ognl" name="ognl" rev="2.6.9" />
     <dependency org="com.ibm.icu" name="icu4j" rev="54.1.1"/>
-    <dependency org="com.ibm.icu" name="icu4j-charsets" rev="54.1.1"/>
-    
+    <dependency org="com.ibm.icu" name="icu4j-charset" rev="54.1.1"/>
+
     <!-- WARNING: calling out commons-logging here so we can force version 1.1.1 over 1.1. This is a temporary hack until we get 1.1.1 propogated across all projects -->
     <dependency org="commons-logging" name="commons-logging" rev="1.1.1" />
 
@@ -181,7 +181,7 @@
     <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="datasource-libs->default" />
     <dependency org="hsqldb" name="hsqldb" rev="1.8.0" conf="datasource-libs->default" transitive="false"/>
     <dependency org="mysql" name="mysql-connector-java" rev="5.1.17" conf="datasource-libs->default" />
-    <dependency org="com.h2database" name="h2" rev="1.2.131" conf="datasource-libs->default" /> 
+    <dependency org="com.h2database" name="h2" rev="1.2.131" conf="datasource-libs->default" />
 
     <!-- SampleData libs -->
     <dependency org="hsqldb" name="hsqldb" rev="1.8.0" conf="sampledata-libs->default" transitive="false"/>
@@ -219,7 +219,7 @@
     <!-- Platform plugins -->
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core-platform-plugin-package" rev="${dependency.pentaho-reporting-plugin.revision}" transitive="false" changing="true"  conf="plugin->default" />
     <!-- In progrress D-A-v2
-    <dependency org="pentaho" name="pentaho-bi-platform-data-access-api-v2" rev="${dependency.data-access-api-v2.revision}" changing="true" transitive="false" conf="default->default" />	
+    <dependency org="pentaho" name="pentaho-bi-platform-data-access-api-v2" rev="${dependency.data-access-api-v2.revision}" changing="true" transitive="false" conf="default->default" />
     <dependency org="pentaho" name="pentaho-bi-platform-data-access-core-v2" rev="${dependency.data-access-core-v2.revision}" changing="true" transitive="false" conf="default->default" />
     <dependency org="pentaho" name="data-access-v2-plugin" rev="${dependency.data-access-v2-plugin.revision}" changing="true" transitive="false" conf="plugin->default" />
     -->
@@ -227,7 +227,7 @@
     <dependency org="pentaho" name="common-ui" rev="${dependency.common-ui.revision}" changing="true" transitive="false" conf="plugin->default" >
     	<artifact name="common-ui" type="zip" />
     </dependency>
-    
+
     <dependency org="pentaho" name="pentaho-pdi-platform-plugin-package" rev="${dependency.pentaho-pdi-plugin.revision}" changing="true" transitive="false" conf="plugin->default"/>
 
     <dependency org="pentaho" name="pentaho-cdf" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
@@ -252,7 +252,7 @@
     </dependency>
 
 
-     
+
     <dependency org="pentaho" name="pentaho-jpivot-plugin" rev="${dependency.pentaho-jpivot-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
       <artifact name="pentaho-jpivot-plugin" type="zip" /> <!-- download the zip file, not the jar -->
     </dependency>
@@ -337,8 +337,8 @@
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.
     -->
-    
-    <exclude org="org.slf4j" module="slf4j-jcl"      />    
+
+    <exclude org="org.slf4j" module="slf4j-jcl"      />
     <exclude org="javax.servlet"   module="jsp-api" />
     <exclude org="javax.servlet"   module="servlet-api" />
     <exclude org="com.google.gwt"  module="gwt-user" />
