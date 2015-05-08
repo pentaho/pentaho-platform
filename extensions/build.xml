@@ -72,18 +72,36 @@
 
   <property name="wadl.path" value="${basedir}/wadlExtension.xml" />
 
-  <target name="wadl-javadoc" depends="javadoc.init">
-    <javadoc sourcepath="${basedir}/src" access="public" source="6" packagenames="*">
-      <classpath id="wadl-lib">
-        <fileset dir="${lib.dir}">
-          <include name="*.jar" />
-        </fileset>
-      </classpath>
-      <doclet name="org.pentaho.wadl.PentahoResourceDoclet" pathref="wadl-lib" >
-        <param name="-output" value="${wadl.path}"/>
-      </doclet>
-    </javadoc>
+  <target name="wadl-javadoc" depends="install-antcontrib, javadoc.init">
+    <condition property="ant.version.atleast.1.9.2">
+      <antversion atleast="1.9.2" />
+    </condition>
 
+    <path id="wadl-lib">
+      <fileset dir="${lib.dir}">
+        <include name="*.jar" />
+      </fileset>
+    </path>
+
+    <if>
+      <istrue value="${ant.version.atleast.1.9.2}"/>
+      <then>
+        <javadoc sourcepath="${basedir}/src" access="public" postprocessgeneratedjavadocs="false" source="6" packagenames="*">
+          <classpath refid="wadl-lib" />
+          <doclet name="org.pentaho.wadl.PentahoResourceDoclet" pathref="wadl-lib" >
+            <param name="-output" value="${wadl.path}"/>
+          </doclet>
+        </javadoc>
+      </then>
+      <else>
+        <javadoc sourcepath="${basedir}/src" access="public" source="6" packagenames="*">
+          <classpath refid="wadl-lib" />
+          <doclet name="org.pentaho.wadl.PentahoResourceDoclet" pathref="wadl-lib" >
+            <param name="-output" value="${wadl.path}"/>
+          </doclet>
+        </javadoc>
+      </else>
+    </if>
     <move file="${wadl.path}" todir="${bin.dir}/classes/META-INF/wadl"/>
   </target>
 </project>
