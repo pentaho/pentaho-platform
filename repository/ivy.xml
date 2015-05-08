@@ -66,7 +66,12 @@
 		<dependency org="cglib"             name="cglib"        rev="2.2"    transitive="false"/>
 
 		<!-- begin JCR/Jackrabbit -->
-		<dependency org="org.apache.jackrabbit"    	name="jackrabbit-core"            rev="2.4.5" />
+		<dependency org="org.apache.jackrabbit"    	name="jackrabbit-core"            rev="2.10.0" />
+
+    	<dependency org="org.apache.jackrabbit" name="jackrabbit-data" rev="2.10.0" transitive="false">
+      		<artifact name="jackrabbit-data" type="jar"/>
+    	</dependency>
+
 	    <dependency org="org.springframework"      	name="se-jcr"                     rev="0.9" transitive="false" />
 	    <dependency org="javax.jcr"        			name="jcr"                        rev="2.0"        transitive="false"/>
 	    <dependency org="javax.transaction"        	name="jta"                        rev="1.1"        transitive="false"/>
