@@ -41,6 +41,7 @@ public class JAXBContextResolver implements ContextResolver<JAXBContext> {
   public JAXBContextResolver() throws Exception {
     types.add( ArrayList.class );
     types.add( JaxbList.class );
+    types.add( Setting.class );
     arrays.add( "list" );
     arrays.add( "values" );
     JSONConfiguration config =
