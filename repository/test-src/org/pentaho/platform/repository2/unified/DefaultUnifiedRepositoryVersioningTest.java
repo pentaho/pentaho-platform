@@ -18,7 +18,10 @@
 
 package org.pentaho.platform.repository2.unified;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;
@@ -33,6 +36,7 @@ import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
@@ -61,6 +65,18 @@ import static org.junit.Assert.assertNull;
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
 public class DefaultUnifiedRepositoryVersioningTest extends DefaultUnifiedRepositoryBase {
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    DefaultUnifiedRepositoryBase.setUpClass();
+
+    FileUtils.deleteDirectory( new File( "/tmp/repository/jackrabbit-test-TRUNK" ) );
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    DefaultUnifiedRepositoryBase.tearDownClass();
+  }
+
   @Test
   public void testCreateVersionedFolder() throws Exception {
     loginAsSysTenantAdmin();
