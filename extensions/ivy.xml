@@ -362,6 +362,7 @@
 
     <dependency org="com.mockrunner" name="mockrunner-servlet" rev="0.3.7" conf="test->default"/>
     <dependency org="com.mockrunner" name="mockrunner" rev="0.3.1" conf="test->default"/>
+    <dependency org="net.javacrumbs.json-unit" name="json-unit" rev="1.5.5" conf="test->default" />
 
     <!-- Necessary because Pentaho's security tests re-use Spring's Security test classes. -->
     <dependency org="org.springframework.security" name="spring-security-core-tests" rev="2.0.5.RELEASE"

@@ -18,7 +18,28 @@
 
 package org.pentaho.platform.repository2.unified;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+
+import javax.jcr.security.Privilege;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -48,21 +69,6 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadActi
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.jcr.security.Privilege;
-
-import java.io.ByteArrayInputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Integration test. Tests {@link DefaultUnifiedRepository} and {@link org.pentaho.platform.api.engine.IAuthorizationPolicy IAuthorizationPolicy} fully configured
@@ -925,8 +931,21 @@ public class DefaultUnifiedRepositoryAuthorizationTest extends DefaultUnifiedRep
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
 
-    assertEquals( Arrays.asList( new String[] { RepositoryReadAction.NAME, SchedulerAction.NAME,
-      RepositoryCreateAction.NAME } ), roleBindingDao.getBoundLogicalRoleNames( Arrays.asList( AUTHENTICATED_ROLE_NAME, "ceo" ) ) );
+    // List could come back in any order so check elements individually
+    List<String> list = roleBindingDao.getBoundLogicalRoleNames( Arrays.asList( AUTHENTICATED_ROLE_NAME, "ceo" ) );
+    assertEquals( 3, list.size() );
+    findInList( RepositoryReadAction.NAME, list );
+    findInList( SchedulerAction.NAME, list );
+    findInList( RepositoryCreateAction.NAME, list );
+  }
+  
+  private void findInList( String name, List<String> list ){
+    for ( String listName : list ){
+      if (listName.equals(listName)){
+        return;
+      }
+    }
+    fail("One of the 3 roles in the role list did not match");
   }
 
   @Test

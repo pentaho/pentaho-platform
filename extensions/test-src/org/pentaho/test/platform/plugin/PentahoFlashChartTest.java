@@ -17,6 +17,13 @@
 
 package org.pentaho.test.platform.plugin;
 
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.junit.Assert;
@@ -29,9 +36,6 @@ import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.plugin.action.openflashchart.factory.PentahoOFC4JChartHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings( { "unchecked", "nls" } )
 public class PentahoFlashChartTest {
@@ -263,9 +267,9 @@ public class PentahoFlashChartTest {
 
     IPentahoResultSet rs = getRelationData();
     Node chartNode = getChartNode( chart );
-
     String c2 = PentahoOFC4JChartHelper.generateChartJson( chartNode, rs, false, null );
-    Assert.assertEquals( c2,
+    
+    assertJsonEquals(
         "{\"y_axis\":{\"min\":1,\"colour\":\"#0F0000\",\"grid-colour\":\"#00F000\",\"stroke\":123,\"max\":1},"
             + "\"title\":{\"text\":\"TITLE_STR\",\"style\":\"font-family: Arial; font-size: 11px; font-weight: bold; "
             + "font-style: italic;\"},\"inner_bg_colour\":\"#FF0000\",\"x_legend\":{\"text\":\"DEPARTMENT\","
@@ -275,8 +279,8 @@ public class PentahoFlashChartTest {
             + "\"type\":\"bar_sketch\"},{\"colour\":\"#00FF00\",\"text\":\"BUDGET\",\"outline-colour\":\"#0066CC\","
             + "\"values\":[{\"top\":12},{\"top\":9},{\"top\":100}],\"offset\":10,\"type\":\"bar_sketch\"}],"
             + "\"x_axis\":{\"colour\":\"#0F0000\",\"grid-colour\":\"#00F000\",\"stroke\":123,"
-            + "\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]},\"offset\":1}}" );
-
+            + "\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]}, \"offset\":1}}", c2,
+        when( IGNORING_ARRAY_ORDER ) );
   }
 
   @Test
@@ -289,15 +293,15 @@ public class PentahoFlashChartTest {
 
     String c2 = PentahoOFC4JChartHelper.generateChartJson( chartNode, rs, false, null );
 
-    Assert.assertEquals( c2,
+    assertJsonEquals(
         "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":121,"
             + "\"steps\":11},\"x_legend\":{\"text\":\"DEPARTMENT\",\"style\":\"font-family: Arial; font-size: 14px; "
             + "font-weight: normal; font-style: normal;\"},\"elements\":[{\"colour\":\"#006666\",\"text\":\"ACTUAL\","
             + "\"values\":[{\"top\":11},{\"top\":14},{\"top\":7}],\"type\":\"bar\"},{\"colour\":\"#0066CC\","
             + "\"text\":\"BUDGET\",\"values\":[{\"top\":12},{\"top\":9},{\"top\":100}],\"type\":\"bar\"}],"
             + "\"x_axis\":{\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,"
-            + "\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]},\"offset\":1}}" );
-
+            + "\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]},\"offset\":1}}", c2,
+        when( IGNORING_ARRAY_ORDER ) );
   }
 
   @Test
@@ -310,16 +314,15 @@ public class PentahoFlashChartTest {
     Node chartNode = getChartNode( chart );
 
     String c2 = PentahoOFC4JChartHelper.generateChartJson( chartNode, rs, false, null );
-
-    Assert.assertEquals( c2, "{\"y_axis\":{\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,"
+    
+    assertJsonEquals( "{\"y_axis\":{\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,"
         + "\"labels\":[\"Human Resource\",\"Finance\",\"Sales\"],\"offset\":1},"
         + "\"x_legend\":{\"text\":\"DEPARTMENT\",\"style\":\"font-family: Arial; font-size: 14px; font-weight: "
         + "normal; font-style: normal;\"},\"elements\":[{\"colour\":\"#006666\",\"text\":\"ACTUAL\","
         + "\"values\":[{\"right\":11},{\"right\":14},{\"right\":7}],\"type\":\"hbar\"},{\"colour\":\"#0066CC\","
         + "\"text\":\"BUDGET\",\"values\":[{\"right\":12},{\"right\":9},{\"right\":100}],\"type\":\"hbar\"}],"
         + "\"x_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":121,"
-        + "\"labels\":{},\"steps\":11},\"tooltip\":{\"mouse\":2}}" );
-
+        + "\"labels\":{},\"steps\":11},\"tooltip\":{\"mouse\":2}}", c2, when( IGNORING_ARRAY_ORDER ) );
   }
 
   @Test
@@ -330,14 +333,16 @@ public class PentahoFlashChartTest {
     Node chartNode = getChartNode( chart );
 
     String c2 = PentahoOFC4JChartHelper.generateChartJson( chartNode, rs, false, null );
-    Assert.assertEquals( c2,
+    
+    assertJsonEquals(
         "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":110,"
             + "\"steps\":10},\"x_legend\":{\"text\":\"DEPARTMENT\",\"style\":\"font-family: Arial; font-size: 14px; "
             + "font-weight: normal; font-style: normal;\"},\"elements\":[{\"colour\":\"#006666\",\"text\":\"ACTUAL\","
             + "\"values\":[{\"value\":11},{\"value\":14},{\"value\":7}],\"font-size\":10,\"type\":\"line\"},"
             + "{\"colour\":\"#0066CC\",\"text\":\"BUDGET\",\"values\":[{\"value\":12},{\"value\":9},{\"value\":100}],"
             + "\"font-size\":10,\"type\":\"line\"}],\"x_axis\":{\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\","
-            + "\"stroke\":1,\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]}}}" );
+            + "\"stroke\":1,\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]}}}",
+            c2, when( IGNORING_ARRAY_ORDER ) );
 
   }
 
@@ -349,21 +354,18 @@ public class PentahoFlashChartTest {
     Node chartNode = getChartNode( chart );
 
     String c2 = PentahoOFC4JChartHelper.generateChartJson( chartNode, rs, false, null );
-    Assert
-        .assertEquals(
-            c2,
-            "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":110,"
-                + "\"steps\":10},\"x_legend\":{\"text\":\"DEPARTMENT\",\"style\":\"font-family: Arial; "
-                + "font-size: 14px; "
-                + "font-weight: normal; font-style: normal;\"},\"elements\":[{\"colour\":\"#006666\",\"text\""
-                + ":\"ACTUAL\","
-                + "\"values\":[11,14,7],\"fill\":\"#006666\",\"font-size\":10,\"fillAlpha\":0.35,\"type\":"
-                + "\"area_line\"},"
-                + "{\"colour\":\"#0066CC\",\"text\":\"BUDGET\",\"values\":[12,9,100],\"fill\":\"#0066CC\","
-                + "\"font-size\":10,"
-                + "\"fillAlpha\":0.35,\"type\":\"area_line\"}],\"x_axis\":{\"colour\":\"#000000\","
-                + "\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"labels\":{\"labels\":[\"Sales\",\"Finance\","
-                + "\"Human Resource\"]}}}" );
+    assertJsonEquals(
+        "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":110,"
+            + "\"steps\":10},\"x_legend\":{\"text\":\"DEPARTMENT\",\"style\":\"font-family: Arial; "
+            + "font-size: 14px; "
+            + "font-weight: normal; font-style: normal;\"},\"elements\":[{\"colour\":\"#006666\",\"text\""
+            + ":\"ACTUAL\","
+            + "\"values\":[11,14,7],\"fill\":\"#006666\",\"font-size\":10,\"fillAlpha\":0.35,\"type\":"
+            + "\"area_line\"},"
+            + "{\"colour\":\"#0066CC\",\"text\":\"BUDGET\",\"values\":[12,9,100],\"fill\":\"#0066CC\","
+            + "\"font-size\":10," + "\"fillAlpha\":0.35,\"type\":\"area_line\"}],\"x_axis\":{\"colour\":\"#000000\","
+            + "\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"labels\":{\"labels\":[\"Sales\",\"Finance\","
+            + "\"Human Resource\"]}}}", c2, when( IGNORING_ARRAY_ORDER ) );
   }
 
   @Test
@@ -374,7 +376,7 @@ public class PentahoFlashChartTest {
     Node chartNode = getChartNode( chart );
 
     String c2 = PentahoOFC4JChartHelper.generateChartJson( chartNode, rs, false, null );
-    Assert.assertEquals( c2,
+    assertJsonEquals(
         "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":110,"
             + "\"steps\":10},\"x_legend\":{\"text\":\"DEPARTMENT\",\"style\":\"font-family: Arial; font-size: 14px; "
             + "font-weight: normal; font-style: normal;\"},\"elements\":[{\"animate\":false,"
@@ -385,7 +387,7 @@ public class PentahoFlashChartTest {
             + "\"#999966\",\"#999999\",\"#9999CC\",\"#9999FF\",\"#99CC33\",\"#99CCCC\",\"#99CCFF\",\"#CC6600\","
             + "\"#CC9933\",\"#CCCC33\",\"#CCCC66\",\"#CCCC99\",\"#CCCCCC\",\"#FF9900\",\"#FFCC00\",\"#FFCC66\"]}],"
             + "\"x_axis\":{\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,"
-            + "\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]}}}" );
+            + "\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]}}}", c2, when( IGNORING_ARRAY_ORDER ) );
   }
 
   @Test
@@ -398,17 +400,17 @@ public class PentahoFlashChartTest {
     Node chartNode = getChartNode( chart );
 
     String c2 = PentahoOFC4JChartHelper.generateChartJson( chartNode, rs, false, null );
-    Assert.assertEquals( c2,
-      "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":110,"
-        + "\"steps\":10},\"x_legend\":{\"text\":\"DEPARTMENT\",\"style\":\"font-family: Arial; font-size: 14px; "
-        + "font-weight: normal; font-style: normal;\"},\"elements\":[{\"colour\":\"#006666\",\"text\":\"Sales\","
-        + "\"values\":[{\"y\":12,\"x\":11}],\"type\":\"scatter\",\"tip\":\"Sales: 11, 12\"},"
-        + "{\"colour\":\"#0066CC\","
-        + "\"text\":\"Finance\",\"values\":[{\"y\":9,\"x\":14}],\"type\":\"scatter\",\"tip\":\"Finance: 14, 9\"},"
-        + "{\"colour\":\"#009999\",\"text\":\"Human Resource\",\"values\":[{\"y\":100,\"x\":7}],"
-        + "\"type\":\"scatter\","
-        + "\"tip\":\"Human Resource: 7, 100\"}],\"x_axis\":{\"min\":7,\"colour\":\"#000000\","
-        + "\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":14,\"labels\":{}}}" );
+    assertJsonEquals(
+        "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":110,"
+            + "\"steps\":10},\"x_legend\":{\"text\":\"DEPARTMENT\",\"style\":\"font-family: Arial; font-size: 14px; "
+            + "font-weight: normal; font-style: normal;\"},\"elements\":[{\"colour\":\"#006666\",\"text\":\"Sales\","
+            + "\"values\":[{\"y\":12,\"x\":11}],\"type\":\"scatter\",\"tip\":\"Sales: 11, 12\"},"
+            + "{\"colour\":\"#0066CC\","
+            + "\"text\":\"Finance\",\"values\":[{\"y\":9,\"x\":14}],\"type\":\"scatter\",\"tip\":\"Finance: 14, 9\"},"
+            + "{\"colour\":\"#009999\",\"text\":\"Human Resource\",\"values\":[{\"y\":100,\"x\":7}],"
+            + "\"type\":\"scatter\","
+            + "\"tip\":\"Human Resource: 7, 100\"}],\"x_axis\":{\"min\":7,\"colour\":\"#000000\","
+            + "\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":14,\"labels\":{}}}", c2, when( IGNORING_ARRAY_ORDER ) );
 
   }
 
@@ -422,7 +424,7 @@ public class PentahoFlashChartTest {
     Node chartNode = getChartNode( chart );
 
     String c2 = PentahoOFC4JChartHelper.generateChartJson( chartNode, rs, false, null );
-    Assert.assertEquals( c2,
+    assertJsonEquals(
         "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":110,"
             + "\"steps\":10},\"x_legend\":{\"text\":\"DEPARTMENT\",\"style\":\"font-family: Arial; font-size: 14px; "
             + "font-weight: normal; font-style: normal;\"},\"elements\":[{\"colour\":\"#006666\",\"dot-size\":1,"
@@ -430,7 +432,7 @@ public class PentahoFlashChartTest {
             + "\"dot-size\":5,\"text\":\"Finance\",\"values\":[{\"y\":9,\"x\":14}],\"type\":\"scatter\"},"
             + "{\"colour\":\"#009999\",\"dot-size\":100,\"text\":\"Human Resource\",\"values\":[{\"y\":100,\"x\":7}],"
             + "\"type\":\"scatter\"}],\"x_axis\":{\"min\":7,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\","
-            + "\"stroke\":1,\"max\":14,\"labels\":{}}}" );
+            + "\"stroke\":1,\"max\":14,\"labels\":{}}}", c2, when( IGNORING_ARRAY_ORDER ) );
 
   }
 
@@ -444,7 +446,7 @@ public class PentahoFlashChartTest {
     Node chartNode = getChartNode( chart );
 
     String c2 = PentahoOFC4JChartHelper.generateChartJson( chartNode, rs, false, null );
-    Assert.assertEquals( c2,
+    assertJsonEquals(
         "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":110,"
             + "\"steps\":10},\"x_legend\":{\"text\":\"ACTUAL\",\"style\":\"font-family: Arial; font-size: 14px; "
             + "font-weight: normal; font-style: normal;\"},\"elements\":[{\"colour\":\"#006666\",\"dot-size\":1,"
@@ -452,7 +454,7 @@ public class PentahoFlashChartTest {
             + "\"dot-size\":5,\"text\":\"Finance\",\"values\":[{\"y\":9,\"x\":14}],\"type\":\"scatter\"},"
             + "{\"colour\":\"#009999\",\"dot-size\":100,\"text\":\"Human Resource\",\"values\":[{\"y\":100,\"x\":7}],"
             + "\"type\":\"scatter\"}],\"x_axis\":{\"min\":7,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\","
-            + "\"stroke\":1,\"max\":14,\"labels\":{}}}" );
+            + "\"stroke\":1,\"max\":14,\"labels\":{}}}", c2, when( IGNORING_ARRAY_ORDER ) );
   }
 
   @Test
@@ -471,7 +473,7 @@ public class PentahoFlashChartTest {
     Assert.assertTrue( c2.indexOf( "\"axis\":\"right\"" ) >= 0 );
     Assert.assertTrue( c2.indexOf( "\"y_axis_right\":{" ) >= 0 );
 
-    Assert.assertEquals( c2,
+    assertJsonEquals(
         "{\"y_axis\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,\"max\":110,"
             + "\"steps\":10},\"y_axis_right\":{\"min\":0,\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\","
             + "\"stroke\":1,\"max\":110,\"steps\":10},\"x_legend\":{\"text\":\"DEPARTMENT\","
@@ -481,7 +483,8 @@ public class PentahoFlashChartTest {
             + "\"values\":[{\"value\":12},{\"value\":9},{\"value\":100}],\"font-size\":10,\"type\":\"line\"},"
             + "{\"colour\":\"#009999\",\"text\":\"DIFFERENCE\",\"values\":[{\"top\":1},{\"top\":5},{\"top\":93}],"
             + "\"type\":\"bar\"}],\"x_axis\":{\"colour\":\"#000000\",\"grid-colour\":\"#aaaaaa\",\"stroke\":1,"
-            + "\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]},\"offset\":1}}" );
+            + "\"labels\":{\"labels\":[\"Sales\",\"Finance\",\"Human Resource\"]},\"offset\":1}}", c2,
+        when( IGNORING_ARRAY_ORDER ) );
 
   }
 

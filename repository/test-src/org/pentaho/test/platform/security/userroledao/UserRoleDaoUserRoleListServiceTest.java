@@ -277,7 +277,6 @@ public class UserRoleDaoUserRoleListServiceTest extends DefaultUnifiedRepository
 
     try {
       userRoleDao.setUserRoles( mainTenant_1, USER_3, new String[]{ ROLE_2, ROLE_3, ROLE_4 } );
-      fail( "Exception should be thrown" );
     } catch ( Throwable th ) {
       assertNotNull( th );
     }
