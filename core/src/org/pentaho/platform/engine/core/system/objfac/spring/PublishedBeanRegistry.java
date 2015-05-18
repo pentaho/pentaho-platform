@@ -117,4 +117,8 @@ public class PublishedBeanRegistry {
   public static Set<ListableBeanFactory> getRegisteredFactories() {
     return factoryMarkerCache.keySet();
   }
+
+  public static void reset() {
+    factoryMarkerCache.clear();
+  }
 }
