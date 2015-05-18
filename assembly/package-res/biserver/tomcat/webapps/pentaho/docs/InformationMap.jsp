@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
 <%@
         page language="java"
              import="org.pentaho.platform.web.jsp.messages.Messages"%>
