@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 public class RuntimeObjectFactoryTest {
   @Before
   public void setUp() throws Exception {
-
+    PentahoSystem.clearObjectFactory();
   }
 
   @Test
