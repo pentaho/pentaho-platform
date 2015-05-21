@@ -48,14 +48,24 @@ define([
     else {
       return null;
     }
-  },
+  };
 
-    // retrieve i18n map
-      jQuery.i18n.properties({
-        name: 'messages',
-        mode: 'map',
-        language: FileBrowser.urlParam('locale')
-      });
+  var locale = FileBrowser.urlParam('locale');
+  if( !locale ) {
+    // look to see if locale is set on the page in a meta tag
+    var localeMeta = $("meta[name='locale']");
+    if(localeMeta) {
+      locale = localeMeta.attr("content");
+    }
+  }
+
+  // retrieve i18n map
+  jQuery.i18n.properties({
+    name: 'messages',
+    mode: 'map',
+    language: locale
+  });
+
   var renameDialog = new RenameDialog(jQuery.i18n);
   var fileButtons = new FileButtons(jQuery.i18n);
   var folderButtons = new FolderButtons(jQuery.i18n);
