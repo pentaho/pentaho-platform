@@ -17,14 +17,17 @@
 
 <!DOCTYPE html>
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder" %>
+<%@ page import="java.util.Locale" %>
 <%
   String userName = PentahoSessionHolder.getSession().getName();
+  Locale locale = request.getLocale();
 %>
 <html lang="en" class="bootstrap">
 <head>
 <meta charset="utf-8" class="bootstrap">
 <title>Browse Files</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="locale" content="<%=locale.toString()%>">
 
 <!-- Le styles -->
 <link href="css/browser.css" rel="stylesheet">
