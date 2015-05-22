@@ -10,7 +10,6 @@
 
   <!-- We need web context for requirejs and css -->
   <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
-  <script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>
 
   <script type="text/javascript">
     require(["common-ui/util/HandlebarsCompiler",
@@ -42,6 +41,16 @@
 
       }, contextConfig);
     });
+
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    if (SERVER_PROTOCOL === "https") {
+      script.src = 'https://sadmin.brightcove.com/js/BrightcoveExperiences.js';
+    } else {
+      script.src = 'http://admin.brightcove.com/js/BrightcoveExperiences.js';
+    }
+    document.getElementsByTagName('head')[0].appendChild(script);
+
   </script>
 </head>
 
