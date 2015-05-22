@@ -36,6 +36,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import mondrian.olap.MondrianServer;
 import mondrian.olap.Role;
 import mondrian.olap.Util;
@@ -80,10 +82,10 @@ import org.springframework.security.userdetails.UserDetailsService;
  * {@link MondrianCatalogRepositoryHelper} as a backend to
  * store the connection informations and uses {@link DriverManager}
  * to create the connections.
- *
+ * <p/>
  * <p>It will also check for the presence of a {@link IConnectionUserRoleMapper}
  * and change the roles accordingly before creating a connection.
- *
+ * <p/>
  * <p>This implementation is thread safe. It will use a {@link ReadWriteLock}
  * to manage the access to its metadata.
  */
@@ -147,6 +149,7 @@ public class OlapServiceImpl implements IOlapService {
   }
 
   private Boolean isSec = null;
+
   private boolean isSecurityEnabled() {
 
     if ( isSec != null ) {
@@ -337,6 +340,7 @@ public class OlapServiceImpl implements IOlapService {
    * Adds a catalog and its children to the cache.
    * Do not use directly. This must be called with a write lock
    * on the cache.
+   *
    * @param catalogName The name of the catalog to load in cache.
    */
   private void addCatalogToCache( IPentahoSession session, String catalogName ) {
@@ -508,18 +512,34 @@ public class OlapServiceImpl implements IOlapService {
   }
 
   private void flushHostedAndRemote( final IPentahoSession session )
-    throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-    for ( String name : getCatalogNames( session ) ) {
+      throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    flushCatalogs( getHostedCatalogNames( session ), session, true );
+    flushCatalogs( getRemoteCatalogNames( session ), session, false );
+  }
+
+  /**
+   * Flushes all catalogs in the catalogNames collection.  If hosted=true
+   * the method breaks after the first successful schemaCacheFlush, since we
+   * know that all schemas will be flushed by the operation.
+   * For remote we assume that each needs to be flushed separately, since
+   * there are possibly multiple servers.
+   */
+  private void flushCatalogs( Collection<String> catalogNames, IPentahoSession session, boolean hosted ) throws SQLException {
+    for ( String name : catalogNames ) {
       OlapConnection connection = null;
       try {
         connection = getConnection( name, session );
         XmlaHandler.XmlaExtra xmlaExtra = getXmlaExtra( connection );
         if ( xmlaExtra != null ) {
           xmlaExtra.flushSchemaCache( connection );
+          if ( hosted ) {
+            // flushing schema cache for one connection flushes all, no need to continue
+            break;
+          }
         }
       } catch ( Exception e ) {
         LOG.warn(
-          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
+            Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
       } finally {
         if ( connection != null ) {
           connection.close();
@@ -540,17 +560,8 @@ public class OlapServiceImpl implements IOlapService {
     // and tests.
     final List<String> names = new ArrayList<String>();
 
-    for ( String name : getHelper().getHostedCatalogs() ) {
-      if ( hasAccess( name, EnumSet.of( RepositoryFilePermission.READ ), pentahoSession ) ) {
-        names.add( name );
-      }
-    }
-
-    for ( String name : getHelper().getOlap4jServers() ) {
-      if ( hasAccess( name, EnumSet.of( RepositoryFilePermission.READ ), pentahoSession ) ) {
-        names.add( name );
-      }
-    }
+    names.addAll( getHostedCatalogNames( pentahoSession ) );
+    names.addAll( getRemoteCatalogNames( pentahoSession ) );
 
     // Sort it all.
     Collections.sort( names );
@@ -558,9 +569,24 @@ public class OlapServiceImpl implements IOlapService {
     return names;
   }
 
-  public List<IOlapService.Catalog> getCatalogs(
-    IPentahoSession session )
-    throws IOlapServiceException {
+  private Collection<String> getHostedCatalogNames( final IPentahoSession pentahoSession ) {
+    return Collections2.filter( getHelper().getHostedCatalogs(), new Predicate<String>() {
+      @Override public boolean apply( String name ) {
+        return hasAccess( name, EnumSet.of( RepositoryFilePermission.READ ), pentahoSession );
+      }
+    } );
+  }
+
+  private Collection<String> getRemoteCatalogNames( final IPentahoSession pentahoSession ) {
+    return Collections2.filter( getHelper().getOlap4jServers(), new Predicate<String>() {
+      @Override public boolean apply( String name ) {
+        return hasAccess( name, EnumSet.of( RepositoryFilePermission.READ ), pentahoSession );
+      }
+    } );
+  }
+
+
+  public List<IOlapService.Catalog> getCatalogs( IPentahoSession session ) throws IOlapServiceException {
 
     // Make sure the cache is initialized.
     initCache( session );
