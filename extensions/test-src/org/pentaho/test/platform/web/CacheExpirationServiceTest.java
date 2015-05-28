@@ -17,15 +17,20 @@
 
 package org.pentaho.test.platform.web;
 
+import static junit.framework.Assert.assertEquals;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+
+import java.io.IOException;
+import java.util.Date;
+
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.examples.RecursiveElementNameAndTextQualifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.cache.ILastModifiedCacheItem;
 import org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry;
 import org.pentaho.platform.web.servlet.CacheExpirationService;
-
-import java.util.Date;
-
-import static junit.framework.Assert.assertEquals;
+import org.xml.sax.SAXException;
 
 /**
  * User: rfellows Date: 10/25/11 Time: 2:42 PM
@@ -64,7 +69,7 @@ public class CacheExpirationServiceTest {
   }
 
   @Test
-  public void testGetXml_MultipleItems() {
+  public void testGetXml_MultipleItems() throws SAXException, IOException {
     TestCacheItem item = new TestCacheItem( "pentaho_cache_itemKey1" );
     String lm = Long.toString( item.getLastModified() );
 
@@ -76,11 +81,16 @@ public class CacheExpirationServiceTest {
     registry.register( item );
 
     String xml = service.getXml();
-    String expected =
-        "<cache-expiration-items><cache-item><key>pentaho_cache_itemKey1</key><last-modified>" + lm
-            + "</last-modified></cache-item><cache-item><key>pentaho_cache_itemKey2</key><last-modified>" + lm2
-            + "</last-modified></cache-item></cache-expiration-items>";
-    assertEquals( expected, xml );
+    
+    Diff myDiff = new Diff( "<cache-expiration-items><cache-item><key>pentaho_cache_itemKey1</key><last-modified>" + lm
+          + "</last-modified></cache-item><cache-item><key>pentaho_cache_itemKey2</key><last-modified>" + lm2
+          + "</last-modified></cache-item></cache-expiration-items>", xml);
+
+    //This allows the xml elements to be ordered differently and still pass the equality check
+    myDiff.overrideElementQualifier( new RecursiveElementNameAndTextQualifier( ) );
+    assertXMLEqual(
+        "But they are equal when an ElementQualifier controls which test element is compared with each control element",
+        myDiff, true );
 
     assertEquals( 2, registry.getCachedItems().size() );
 

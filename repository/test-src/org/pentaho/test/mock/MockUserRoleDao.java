@@ -344,8 +344,9 @@ public class MockUserRoleDao implements IUserRoleDao {
       IPentahoRole role = getRole( tenant, roleName );
       if ( role != null ) {
         roles.add( role );
+        roleMembers.get( role ).add( user );
       }
-      roleMembers.get( role ).add( user );
+      
     }
   }
 
