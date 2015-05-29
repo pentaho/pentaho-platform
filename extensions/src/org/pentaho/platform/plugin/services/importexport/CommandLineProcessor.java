@@ -28,6 +28,7 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataMultiPart;
+import com.sun.org.apache.xml.internal.security.encryption.EncryptedData;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import org.apache.commons.cli.CommandLine;
@@ -47,6 +48,7 @@ import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedReposi
 import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.di.core.encryption.KettleTwoWayPasswordEncoder;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
@@ -325,6 +327,7 @@ public class CommandLineProcessor {
     String password =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_PASSWORD_KEY" ), Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_PASSWORD_NAME" ), true, false );
+    password = KettleTwoWayPasswordEncoder.decryptPasswordOptionallyEncrypted( password );
     ClientConfig clientConfig = new DefaultClientConfig();
     clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
     client = Client.create( clientConfig );
