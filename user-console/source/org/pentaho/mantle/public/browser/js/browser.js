@@ -125,11 +125,6 @@ define([
     this.redraw(initialPath);
   };
 
-  FileBrowser.updateFile = function (initialFilePath) {
-      var fileJson = JSON.parse(initialFilePath);
-      this.redraw(fileJson.path, fileJson.path + "/" + fileJson.fileName);
-  }
-
   FileBrowser.updateData = function () {
     if (this.fileBrowserModel != null && this.fileBrowserModel.get('fileListModel') != null) {
       this.fileBrowserModel.get('fileListModel').updateData();
@@ -161,9 +156,24 @@ define([
 
   };
 
-  FileBrowser.redraw = function (initialPath, initialFile) {
+  FileBrowser.redraw = function (initialPath) {
     var myself = this;
-      
+	//Why do we create new model? 
+	var _clikedFolder = undefined;
+	var _clickedFile = undefined;
+	var _lastClick = "folder";
+	if ( this.fileBrowserModel ) {
+		_clikedFolder = {
+			obj: this.fileBrowserModel.getFolderClicked(),
+			time: (new Date()).getTime()
+		};
+		_clickedFile = {
+			obj: this.fileBrowserModel.getFileClicked(),
+			time: (new Date()).getTime()
+		};
+		_lastClick = this.fileBrowserModel.getLastClick();
+	}
+	
     myself.fileBrowserModel = new FileBrowserModel({
       spinConfig: spin,
       openFileHandler: myself.openFileHandler,
@@ -171,8 +181,9 @@ define([
       showDescriptions: myself.showDescriptions,
       canDownload: myself.canDownload,
       canPublish: myself.canPublish,
-      startFolder: initialPath,
-      startFile: initialFile
+	  clickedFolder: _clikedFolder,
+      clickedFile: _clickedFile,
+	  lastClick: _lastClick
     });
     myself.FileBrowserView = new FileBrowserView({
       model: myself.fileBrowserModel,
@@ -188,14 +199,15 @@ define([
   };
 
   FileBrowser.openFolder = function (path) {
-    var myself = this;
-
-    if (myself.fileBrowserModel.get('startFolder') == path) {
-      myself.fileBrowserModel.trigger('change:startFolder'); // force onchange
-    }
-    else {
-      myself.fileBrowserModel.set("startFolder", path);
-    }
+    //first select folder
+	var $folder = $("[path='"+path+"']"),
+		$parentFolder = $folder.parent(".folders");
+	while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
+		$parentFolder.show();
+		$parentFolder.parent().addClass("open");
+		$parentFolder = $parentFolder.parent().parent();
+	}
+	$folder.find("> .element .name").trigger("click");
   };
 
   var FileBrowserModel = Backbone.Model.extend({
@@ -216,9 +228,7 @@ define([
       clickedFile: undefined,
 
       lastClick: "folder",
-
       data: undefined,
-
       openFileHandler: undefined,
 
       showHiddenFiles: false,
@@ -227,10 +237,7 @@ define([
       canDownload: false,
       canPublish: false,
 
-      spinConfig: undefined,
-
-      startFolder: "/",
-      startFile: ""
+      spinConfig: undefined
     },
 
     initialize: function () {
@@ -246,20 +253,35 @@ define([
 
       var spinner1 = new Spinner(config),
           spinner2 = new Spinner(config);
-
-      //create two models
+	  
+      var _clickedFolder = undefined;
+	  var _clickedFile = undefined;
+	  if ( foldersTreeModel ) { 
+		 _clickedFolder = {
+			obj: foldersTreeModel.get("clickedFolder"),
+			time: (new Date()).getTime()
+			}
+	  }
+      if ( fileListModel ) { 
+		_clickedFile = {
+			obj: fileListModel.get("clickedFile"),
+			time: (new Date()).getTime()
+			}
+	  }
+	  
+	  //create two models
       foldersTreeModel = new FileBrowserFolderTreeModel({
         spinner: spinner1,
         showHiddenFiles: myself.get("showHiddenFiles"),
         showDescriptions: myself.get("showDescriptions"),
-        startFolder: myself.get("startFolder")
+		clickedFolder: _clickedFolder
       });
       fileListModel = new FileBrowserFileListModel({
         spinner: spinner2,
         openFileHandler: myself.get("openFileHandler"),
         showHiddenFiles: myself.get("showHiddenFiles"),
         showDescriptions: myself.get("showDescriptions"),
-        startFile: myself.get("startFile")
+		clickedFile: _clickedFile
       });
 
       //assign backbone events
@@ -278,20 +300,7 @@ define([
       myself.on("change:showDescriptions", myself.updateDescriptions, myself);
 
       window.top.mantle_addHandler("FavoritesChangedEvent", $.proxy(myself.onFavoritesChanged, myself));
-
-      myself.on("change:startFolder", myself.updateStartFolder, myself);
     },
-
-    updateStartFolder: function () {
-      var myself = this;
-
-      if (myself.get("fileListModel").get("path") == myself.get("startFolder")) {
-        myself.get("fileListModel").trigger("change:path"); // if path is the same, trigger file list refresh
-      }
-
-      myself.get("foldersTreeModel").set("startFolder", myself.get("startFolder"));
-    },
-
     onFavoritesChanged: function () {
       // BISERVER-9127  - Reselect current file
       var that = this;
@@ -437,9 +446,6 @@ define([
 
       showHiddenFiles: false,
       showDescriptions: false,
-
-      startFolder: "/",
-
       sequenceNumber: 0
     },
 
@@ -538,8 +544,7 @@ define([
       showDescriptions: false,
       deletedFiles: "",
 
-      sequenceNumber: 0,
-      startFile: ""
+      sequenceNumber: 0
     },
 
     initialize: function () {
@@ -725,8 +730,6 @@ define([
       //check buttons enabled
       this.model.on("change:clickedFolder", this.checkButtonsEnabled, this);
       this.model.on("change:clickedFile", this.checkButtonsEnabled, this);
-
-
     },
 
     initializeLayout: function () {
@@ -1018,11 +1021,7 @@ define([
 
       myself.model.on("change:runSpinner", myself.manageSpinner, myself);
       myself.model.on("change:data", myself.render, myself);
-
       myself.model.on("change:showDescriptions", this.updateDescriptions, this);
-
-      myself.model.on("change:startFolder", this.setFolder, this);
-
       if (data == undefined) { //update data
         //start spinner
         myself.$el.html(spinner.spin());
@@ -1078,13 +1077,42 @@ define([
       myself.$el.children().each(function () {
         $(this).addClass("first");
       });
-
-      //set initial folder start
-      myself.setFolder();
-
+ 
+	  //open last clicked folder or home folder
+	  var $folder = $("[path='" + window.top.HOME_FOLDER + "']");
+	  if ( FileBrowser.fileBrowserModel.getFolderClicked() != undefined ) {
+		// if folder hidden than save home
+		if ( $("div[id=\"" + FileBrowser.fileBrowserModel.getFolderClicked().attr("id") + "\"]").length != 0 ) {
+			$folder = $("[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']");
+		}
+	  } 
+	  
+	  var $parentFolder = $folder.parent(".folders");
+      while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
+        $parentFolder.show();
+        $parentFolder.parent().addClass("open");
+        $parentFolder = $parentFolder.parent().parent();
+      }
+  	  FileBrowser.fileBrowserModel.set("clickedFolder", {
+						obj: $folder,
+						time: (new Date()).getTime()
+					});
+	  $clickedFile = FileBrowser.fileBrowserModel.getFileClicked();
+	  if ( $clickedFile != undefined && FileBrowser.fileBrowserModel.getLastClick() == "file" )	{		
+			FileBrowser.fileBrowserModel.get("fileListModel").set("clickedFile", {
+				obj: FileBrowser.fileBrowserModel.getFileClicked(),
+				time: (new Date()).getTime()
+			});
+			FileBrowser.fileBrowserModel.updateFileClicked();
+			$folder.addClass("secondarySelected");
+			$folder.removeClass("selected");
+			$clickedFile.addClass("selected");
+	  } else {
+		$folder.addClass("open");
+		$folder.addClass("selected");
+		$folder.find("> .folders").show();
+	  }
       myself.updateDescriptions();
-
-
     },
 
     expandFolder: function (event) {
@@ -1149,27 +1177,7 @@ define([
           $this.attr("title", $this.attr("ext"));
         }
       });
-
-    },
-
-    setFolder: function () {
-      var $folder = $("[path='" + this.model.get("startFolder") + "']");
-      if ($folder.length == 0) {
-        $folder = $("[path='" + window.top.HOME_FOLDER + "']");
-      }
-      var $parentFolder = $folder.parent(".folders");
-
-      while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
-        $parentFolder.show();
-        $parentFolder.parent().addClass("open");
-        $parentFolder = $parentFolder.parent().parent();
-      }
-
-      $folder.find("> .element .title").click();
-      $folder.addClass("open");
-      $folder.find("> .folders").show();
     }
-
   });
 
 
@@ -1187,7 +1195,6 @@ define([
       myself.model.on("change:runSpinner", myself.manageSpinner, myself);
 
       myself.model.on("change:showDescriptions", this.updateDescriptions, this);
-      myself.model.on("change:startFile", this.setFile, this);
     },
 
     render: function () {
@@ -1213,22 +1220,31 @@ define([
         myself.$el.append(templates.emptyFolder({i18n: jQuery.i18n}));
       }
 
-      myself.setFile();
       myself.updateDescriptions();
+	  var fileSelected = false;
+	  if ( myself.model.attributes.clickedFile ){
+		var filelist = myself.$el.children();
+		for (index = 0; index < filelist.length; ++index) {
+			if ( $(myself.$el.children().get(index)).attr("path") == myself.model.attributes.clickedFile.obj.attr("path") ) {
+				$(myself.$el.children().get(index)).addClass("selected");
+				fileSelected = true;
+			}
+		}
+	 }
+	 //could not find file, select folder for file
+	 if (!fileSelected) {
+		var $folder = $(".folder.secondarySelected");
+		$folder.addClass("selected");
+		$folder.removeClass("secondarySelected");
+		FileBrowser.fileBrowserModel.updateFolderLastClick();
+		FileBrowser.FileBrowserView.updateButtonsHeader();
+	}
       setTimeout(function () {
         myself.model.set("runSpinner", false);
       }, 100);
     },
 
-    setFile: function() {
-      var startFilePath = this.model.get("startFile");
-      if (startFilePath.length > 0) {
-        $("[path='" + startFilePath + "']").trigger("click");
-      }
-    },
-
     clickFile: function (event) {
-
       var prevClicked = this.model.get("clickedFile");
       if (this.model.get("anchorPoint")) {
         prevClicked = this.model.get("anchorPoint");
