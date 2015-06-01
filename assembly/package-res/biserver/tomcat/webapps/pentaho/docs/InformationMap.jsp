@@ -141,7 +141,7 @@ body {
   float: left;
 }
 #logo {
-  width: 150px;
+  width: 169px;
   background: transparent;
   float: right;
   text-align: right;
