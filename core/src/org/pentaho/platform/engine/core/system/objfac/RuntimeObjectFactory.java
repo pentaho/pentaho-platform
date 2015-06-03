@@ -331,11 +331,16 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
       }
 
       final Map<String, Object> attributes = next.getAttributes();
+      boolean matches = true;
       for ( Map.Entry<String, String> queryEntry : query.entrySet() ) {
-        if ( attributes.containsKey( queryEntry.getKey() ) && attributes.get( queryEntry.getKey() )
+        if ( !attributes.containsKey( queryEntry.getKey() ) || ! attributes.get( queryEntry.getKey() )
             .equals( queryEntry.getValue() ) ) {
-          returnCollection.add( next );
+          matches = false;
+          break;
         }
+      }
+      if( matches ) {
+        returnCollection.add( next );
       }
     }
 
