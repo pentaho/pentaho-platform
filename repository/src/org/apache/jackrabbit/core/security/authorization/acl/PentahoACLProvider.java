@@ -75,7 +75,7 @@ public class PentahoACLProvider extends ACLProvider {
     }
     super.init( systemSession, conf );
     // original initRootACL should run during super.init call above
-    updateRootAcl( (SessionImpl) systemSession, new ACLEditor( session, this ) );
+    updateRootAcl( (SessionImpl) systemSession, new ACLEditor( session, this, false /* allowUnknownPrincipals */ ) );
     this.initialized = true;
     registerEntryCollectorWithObservationManager( systemSession );
   }
