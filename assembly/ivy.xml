@@ -221,7 +221,7 @@
     <dependency org="org.quartz-scheduler" name="quartz-oracle" rev="1.7.2" />
 
 
-    <dependency org="pentaho" name="pdi-osgi-bridge" rev="${project.revision}" />
+    <dependency org="pentaho" name="pdi-osgi-bridge-core" rev="${project.revision}" />
     <dependency org="pentaho" name="pentaho-osgi-utils-api" rev="${project.revision}" />
 
     <!-- Platform plugins -->
