@@ -19,6 +19,7 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import java.util.Map;
+import java.util.Properties;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -202,8 +203,17 @@ public class PooledDatasourceHelper {
        * ConnectionFactory creates connections on behalf of the pool. Here, we use the DriverManagerConnectionFactory
        * because that essentially uses DriverManager as the source of connections.
        */
-      ConnectionFactory factory =
-          new DriverManagerConnectionFactory( url, databaseConnection.getUsername(), databaseConnection.getPassword() );
+      ConnectionFactory factory = null;
+      if( url.startsWith( "jdbc:mysql:" ) ) {
+        Properties props = new Properties();
+        props.put( "user", databaseConnection.getUsername() );
+        props.put( "password", databaseConnection.getPassword() );
+        props.put( "socketTimeout", "0" );
+        props.put( "connectTimeout", "5000" );
+        factory = new DriverManagerConnectionFactory( url, props );
+      } else {
+        factory = new DriverManagerConnectionFactory( url, databaseConnection.getUsername(), databaseConnection.getPassword() );
+      }
 
       boolean defaultReadOnly =
           attributes.containsKey( IDBDatasourceService.DEFAULT_READ_ONLY ) ? Boolean.parseBoolean( attributes
