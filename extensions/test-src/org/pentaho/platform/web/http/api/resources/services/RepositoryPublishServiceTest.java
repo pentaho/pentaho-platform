@@ -9,6 +9,10 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
 import java.io.InputStream;
 
@@ -17,8 +21,8 @@ import static org.mockito.Mockito.*;
 
 public class RepositoryPublishServiceTest {
 
-  private static RepositoryPublishService repositoryPublishService;
-  private static RepositoryFileImportBundle mockRepositoryFileImportBundle;
+  private RepositoryPublishService repositoryPublishService;
+  private RepositoryFileImportBundle mockRepositoryFileImportBundle;
 
   @Before
   public void setUp() {
@@ -100,5 +104,23 @@ public class RepositoryPublishServiceTest {
     } catch ( InternalError e ) {
       // Expected
     }
+  }
+
+  @Test( expected = PentahoAccessControlException.class )
+  public void prohibitedForAdministerSecurity() throws PentahoAccessControlException {
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( RepositoryReadAction.NAME ) ).thenReturn( true );
+    when( policy.isAllowed( RepositoryCreateAction.NAME ) ).thenReturn( true );
+    when( policy.isAllowed( AdministerSecurityAction.NAME ) ).thenReturn( true );
+    when( policy.isAllowed( PublishAction.NAME ) ).thenReturn( false );
+    repositoryPublishService.validateAccess();
+  }
+
+  @Test
+  public void permittedForPublisher() throws PentahoAccessControlException {
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( PublishAction.NAME ) ).thenReturn( true );
+    doReturn( policy ).when( repositoryPublishService ).getPolicy();
+    repositoryPublishService.validateAccess();
   }
 }

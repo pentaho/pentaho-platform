@@ -40,7 +40,7 @@ public class RootResource extends AbstractJaxRSResource {
   @Facet( name = "Unsupported" )
   public Response doGetDocs() throws URISyntaxException {
     String fqurl = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
-    URI uri = new URI( fqurl + "apidocs/index.html" ); //$NON-NLS-1$
+    URI uri = new URI( fqurl + "docs/InformationMap.jsp" ); //$NON-NLS-1$
     return Response.temporaryRedirect( uri ).build();
   }
 

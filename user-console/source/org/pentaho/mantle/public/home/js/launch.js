@@ -87,10 +87,10 @@ define([
               var host = window.location.host;
               var sampleId = context.config["sample" + (cardIndex + 1) + "_id"].split(",");
 
-              var url = "http://" + host + context.config.sample_url_base + context.config.sample_repo_dir_base + sampleId[0] + sampleId[1];
+              var url = CONTEXT_PATH + context.config.sample_url_base + context.config.sample_repo_dir_base + sampleId[0] + sampleId[1];
               url += "?ts=" + date.getTime();
 
-              var filePropsUrl = "http://" + host + context.config.sample_properties_url_base + context.config.sample_repo_dir_base + sampleId[0] + context.config.sample_properties_url_suffix;
+              var filePropsUrl = CONTEXT_PATH +  context.config.sample_properties_url_base + context.config.sample_repo_dir_base + sampleId[0] + context.config.sample_properties_url_suffix;
               filePropsUrl += "?ts=" + date.getTime();
 
               function error() {

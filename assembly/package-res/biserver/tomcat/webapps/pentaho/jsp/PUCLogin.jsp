@@ -156,7 +156,15 @@
   <div id="login-background">
     <div id="login-logo"></div>
 
-    <div id="login-form-container">
+<% 
+		String cleanedLang = ESAPI.encoder().encodeForHTMLAttribute(request.getLocale().toString());
+		if ( cleanedLang != null ) {
+			if ( cleanedLang.indexOf("_") > 0 ){
+				cleanedLang = cleanedLang.substring( 0, cleanedLang.indexOf("_") );
+			}
+		}
+%>
+    <div id="login-form-container" class="lang_<%=cleanedLang%>">
       <div id="animate-wrapper">
         <h1><%=Messages.getInstance().getString("UI.PUC.LOGIN.TITLE")%></h1>
         <form name="login" id="login" action="j_spring_security_check" method="POST" onkeyup="if(window.event && window.event.keyCode && window.event.keyCode==13){var buttonToClick = document.getElementById('loginbtn'); if(buttonToClick){ buttonToClick.click();}}">

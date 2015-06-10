@@ -32,6 +32,8 @@ define([
       "<param name='@videoPlayer' value='{{videoId}}' />" +
       "<param name='autoStart' value='true' />" +
       "<param name='wmode' value='opaque' />" +
+      "<param name='secureConnections' value='" + ( SERVER_PROTOCOL === 'https' ) + "' />" +
+      "<param name='secureHTMLConnections' value='" + ( SERVER_PROTOCOL === 'https' ) + "' />" +
       "</object>" +
       "<script type='text/javascript'>brightcove.createExperiences();</script>";
 

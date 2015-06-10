@@ -16,19 +16,13 @@
  */
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.jcr.RepositoryException;
-
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.cache.GrowingLRUMap;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.security.authorization.AccessControlModifications;
 import org.codehaus.jackson.map.util.LRUMap;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -36,12 +30,20 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.RepositoryException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * <code>CachingEntryCollector</code> extends <code>PentahoEntryCollector</code> by keeping a cache of ACEs per access
  * controlled nodeId.
- * 
+ * <p/>
  * This class is a copy of the one in trunk of Jackrabbit. Backported here for performance reasons.
- * 
  */
 public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
@@ -49,29 +51,22 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
    * logger instance
    */
   private static final Logger log = LoggerFactory.getLogger( CachingEntryCollector.class );
+  public static final String ENTRY_COLLECTOR = "ENTRY_COLLECTOR";
+  private final ICacheManager cacheManager;
 
-  /**
-   * Cache to look up the list of access control entries defined at a given nodeID (key). The map only contains an entry
-   * if the corresponding Node is access controlled.
-   */
-  private final Map<IPentahoSession, EntryCache> cacheBySession = Collections
-      .synchronizedMap( new LRUMap<IPentahoSession, EntryCache>( 128, 512 ) );
 
   private final Map<IPentahoSession, ConcurrentMap<NodeId, FutureEntries>> futuresBySession = Collections
       .synchronizedMap( new LRUMap<IPentahoSession, ConcurrentMap<NodeId, FutureEntries>>( 128, 512 ) );
 
   /**
    * Create a new instance.
-   * 
-   * @param systemSession
-   *          A system session.
-   * @param rootID
-   *          The id of the root node.
-   * @throws RepositoryException
-   *           If an error occurs.
+   *
+   * @param systemSession A system session.
+   * @param rootID        The id of the root node.
+   * @throws RepositoryException If an error occurs.
    */
   public CachingPentahoEntryCollector( SessionImpl systemSession, NodeId rootID, final Map configuration )
-    throws RepositoryException {
+      throws RepositoryException {
     super( systemSession, rootID, configuration );
 
     // Flush caches of session on logout
@@ -84,23 +79,12 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
       }
     } );
 
-    // Flush all caches when the System is going down.
-    /*
-     * Commenting out the code, since it is causing the ACL to be incorrect at the time of move
-     * PentahoSystem.getApplicationContext().addExitPointHandler( new IPentahoSystemExitPoint() {
-     * 
-     * @Override public void systemExitPoint() { close(); } } );
-     */
+    cacheManager = PentahoSystem.getCacheManager( null ); // not session instanced
   }
 
   private void flushCachesOfSession( IPentahoSession iPentahoSession ) {
 
-    synchronized ( cacheBySession ) {
-      if ( cacheBySession.containsKey( iPentahoSession ) ) {
-        cacheBySession.get( iPentahoSession ).clear();
-        cacheBySession.remove( iPentahoSession );
-      }
-    }
+    cacheManager.removeFromSessionCache( iPentahoSession, ENTRY_COLLECTOR );
 
     synchronized ( futuresBySession ) {
       if ( futuresBySession.containsKey( iPentahoSession ) ) {
@@ -112,14 +96,13 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
   private EntryCache getCache() {
     IPentahoSession session = PentahoSessionHolder.getSession();
-    synchronized ( cacheBySession ) {
-      if ( cacheBySession.containsKey( session ) ) {
-        return cacheBySession.get( session );
-      }
-      EntryCache newCache = new EntryCache();
-      cacheBySession.put( session, newCache );
-      return newCache;
+    EntryCache cache = (EntryCache) cacheManager.getFromSessionCache( session, ENTRY_COLLECTOR );
+    if ( cache == null ) {
+      cache = new EntryCache();
+      cacheManager.putInSessionCache( session, ENTRY_COLLECTOR, cache );
     }
+
+    return cache;
   }
 
   private ConcurrentMap<NodeId, FutureEntries> getFutures() {
@@ -136,15 +119,15 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   protected void close() {
     super.close();
 
-    synchronized ( cacheBySession ) {
-      for ( Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet() ) {
-        entry.getValue().clear();
+    performAgainstAllInCache( new CacheCallable() {
+      @Override public void call( EntryCache cache ) {
+        cache.clear();
       }
-      cacheBySession.clear();
-    }
+    } );
 
     synchronized ( futuresBySession ) {
-      for ( Map.Entry<IPentahoSession, ConcurrentMap<NodeId, FutureEntries>> entry : this.futuresBySession.entrySet() ) {
+      for ( Map.Entry<IPentahoSession, ConcurrentMap<NodeId, FutureEntries>> entry : this.futuresBySession
+          .entrySet() ) {
         entry.getValue().clear();
       }
       futuresBySession.clear();
@@ -152,6 +135,7 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
   }
 
   // -----------------------------------------------------< EntryCollector >---
+
   /**
    * @see EntryCollector#getEntries(org.apache.jackrabbit.core.NodeImpl)
    */
@@ -182,12 +166,10 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
   /**
    * Read the entries defined for the specified node and update the cache accordingly.
-   * 
-   * @param node
-   *          The target node
+   *
+   * @param node The target node
    * @return The list of entries present on the specified node or an empty list.
-   * @throws RepositoryException
-   *           If an error occurs.
+   * @throws RepositoryException If an error occurs.
    */
   private Entries internalUpdateCache( NodeImpl node ) throws RepositoryException {
     Entries entries = super.getEntries( node );
@@ -202,9 +184,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
   /**
    * Update cache for the given node id
-   * 
-   * @param node
-   *          The target node
+   *
+   * @param node The target node
    * @return The list of entries present on the specified node or an empty list.
    * @throws RepositoryException
    */
@@ -252,9 +233,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
   /**
    * Find the next access control ancestor in the hierarchy 'null' indicates that there is no ac-controlled ancestor.
-   * 
-   * @param node
-   *          The target node for which the cache needs to be updated.
+   *
+   * @param node The target node for which the cache needs to be updated.
    * @return The NodeId of the next access controlled ancestor in the hierarchy or null
    */
   private NodeId getNextID( NodeImpl node ) throws RepositoryException {
@@ -279,9 +259,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
   /**
    * Returns {@code true} if the specified {@code nodeId} is the ID of the root node; false otherwise.
-   * 
-   * @param nodeId
-   *          The identifier of the node to be tested.
+   *
+   * @param nodeId The identifier of the node to be tested.
    * @return {@code true} if the given id is the identifier of the root node.
    */
   private boolean isRootId( NodeId nodeId ) {
@@ -290,12 +269,10 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
   /**
    * Evaluates if the given node is access controlled and holds a non-empty rep:policy child node.
-   * 
-   * @param n
-   *          The node to test.
+   *
+   * @param n The node to test.
    * @return true if the specified node is access controlled and holds a non-empty policy child node.
-   * @throws RepositoryException
-   *           If an error occurs.
+   * @throws RepositoryException If an error occurs.
    */
   private static boolean hasEntries( NodeImpl n ) throws RepositoryException {
     if ( ACLProvider.isAccessControlled( n ) ) {
@@ -305,6 +282,31 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
     // no ACL defined here
     return false;
+  }
+
+  /**
+   * Utility SMI
+   */
+  private interface CacheCallable {
+    void call( EntryCache cache );
+  }
+
+  private static final Pattern SESSION_KEY_PATTERN = Pattern.compile( "[^\\t]*\\t(.*)" );
+
+  private void performAgainstAllInCache( CacheCallable callable ) {
+    Set allKeysFromRegionCache = cacheManager.getAllKeysFromRegionCache( ICacheManager.SESSION );
+    for ( Object compositeKey : allKeysFromRegionCache ) {
+      Matcher matcher = SESSION_KEY_PATTERN.matcher( compositeKey.toString() );
+      if ( matcher.matches() ) {
+        String key = matcher.toMatchResult().group( 1 );
+        if ( ENTRY_COLLECTOR.equals( key ) ) {
+          Object fromRegionCache = cacheManager.getFromRegionCache( ICacheManager.SESSION, compositeKey );
+          if ( EntryCache.class.isAssignableFrom( fromRegionCache.getClass() ) ) {
+            callable.call( (EntryCache) fromRegionCache );
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -319,41 +321,47 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
         log.warn( "Cannot process AC modificationMap entry. Keys must be NodeId." );
         continue;
       }
-      NodeId nodeId = (NodeId) key;
+      final NodeId nodeId = (NodeId) key;
       int type = modifications.getType( nodeId );
+
       if ( ( type & POLICY_ADDED ) == POLICY_ADDED ) {
+
         // clear the complete cache since the nextAcNodeId may
         // have changed due to the added ACL.
         log.debug( "Policy added, clearing the cache" );
-        synchronized ( cacheBySession ) {
-          for ( Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet() ) {
-            entry.getValue().clear();
+        performAgainstAllInCache( new CacheCallable() {
+          @Override public void call( EntryCache cache ) {
+            cache.clear();
           }
-        }
+        } );
         break; // no need for further processing.
       } else if ( ( type & POLICY_REMOVED ) == POLICY_REMOVED ) {
+
         // clear the entry and change the entries having a nextID
         // pointing to this node.
-        synchronized ( cacheBySession ) {
-          for ( Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet() ) {
-            entry.getValue().remove( nodeId, true );
+        performAgainstAllInCache( new CacheCallable() {
+          @Override public void call( EntryCache cache ) {
+            cache.remove( nodeId, true );
           }
-        }
+        } );
+
       } else if ( ( type & POLICY_MODIFIED ) == POLICY_MODIFIED ) {
         // simply clear the cache entry -> reload upon next access.
-        synchronized ( cacheBySession ) {
-          for ( Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet() ) {
-            entry.getValue().remove( nodeId, false );
+        performAgainstAllInCache( new CacheCallable() {
+          @Override public void call( EntryCache cache ) {
+            cache.remove( nodeId, false );
           }
-        }
+        } );
+
       } else if ( ( type & MOVE ) == MOVE ) {
         // some sort of move operation that may affect the cache
         log.debug( "Move operation, clearing the cache" );
-        synchronized ( cacheBySession ) {
-          for ( Map.Entry<IPentahoSession, EntryCache> entry : this.cacheBySession.entrySet() ) {
-            entry.getValue().clear();
+
+        performAgainstAllInCache( new CacheCallable() {
+          @Override public void call( EntryCache cache ) {
+            cache.clear();
           }
-        }
+        } );
         break; // no need for further processing.
       }
     }
@@ -402,8 +410,8 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
 
   /**
    * A cache to lookup the ACEs defined on a given (access controlled) node. The internal map uses the ID of the node as
-   * key while the value consists of {@Entries} objects that not only provide the ACEs defined for that node
-   * but also the ID of the next access controlled parent node.
+   * key while the value consists of {@Entries} objects that not only provide the ACEs defined for that node but also
+   * the ID of the next access controlled parent node.
    */
   private class EntryCache {
 

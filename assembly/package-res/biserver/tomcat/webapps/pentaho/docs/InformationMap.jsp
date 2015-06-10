@@ -1,6 +1,4 @@
-<%@
-        page language="java"
-             import="org.pentaho.platform.web.jsp.messages.Messages"%>
+<%@ page language="java" import="org.pentaho.platform.web.jsp.messages.Messages" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -143,7 +141,7 @@ body {
   float: left;
 }
 #logo {
-  width: 150px;
+  width: 169px;
   background: transparent;
   float: right;
   text-align: right;

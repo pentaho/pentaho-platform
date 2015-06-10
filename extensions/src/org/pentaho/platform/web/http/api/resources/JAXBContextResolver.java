@@ -19,6 +19,7 @@ package org.pentaho.platform.web.http.api.resources;
 
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.api.json.JSONJAXBContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
@@ -41,8 +43,10 @@ public class JAXBContextResolver implements ContextResolver<JAXBContext> {
   public JAXBContextResolver() throws Exception {
     types.add( ArrayList.class );
     types.add( JaxbList.class );
+    types.add( Setting.class );
     arrays.add( "list" );
     arrays.add( "values" );
+    arrays.add( "setting" );
     JSONConfiguration config =
         JSONConfiguration.mapped().rootUnwrapping( true ).arrays( arrays.toArray( new String[] {} ) ).build();
     context = new JSONJAXBContext( config, types.toArray( new Class[] {} ) );
