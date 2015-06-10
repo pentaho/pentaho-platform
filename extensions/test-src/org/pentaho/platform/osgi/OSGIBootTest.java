@@ -24,7 +24,7 @@ import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created with IntelliJ IDEA. User: nbaker Date: 11/19/13 Time: 10:48 PM To change this template use File | Settings |
