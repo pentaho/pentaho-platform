@@ -132,6 +132,7 @@ public class OlapServiceImplTest {
     stubRemoteServer();
   }
 
+
   private void stubRemoteServer() {
     final String testServerPath =
       mondrianFolderPath
@@ -149,38 +150,27 @@ public class OlapServiceImplTest {
         + RepositoryFile.SEPARATOR
         + "metadata";
     stubGetFile( repository, remoteMetadataPath );
-    stubGetData(
-      repository,
-      remoteMetadataPath
-        + RepositoryFile.SEPARATOR
-        + "myServer",
-      "server",
-      pathPropertyPair( "/server/name", "myServer" ),
-      pathPropertyPair( "/server/user", "myUser" ),
-      pathPropertyPair( "/server/password", "myPassword" ),
-      pathPropertyPair( "/server/URL", "myUrl" ),
-      pathPropertyPair( "/server/className", "someClass" ) );
+    stubGetData( repository, remoteMetadataPath + RepositoryFile.SEPARATOR + "myServer", "server",
+        pathPropertyPair( "/server/name", "myServer" ), pathPropertyPair( "/server/user", "myUser" ),
+        pathPropertyPair( "/server/password", "myPassword" ), pathPropertyPair( "/server/URL", "myUrl" ),
+        pathPropertyPair( "/server/className", "someClass" ) );
   }
 
   private void stubHostedServer() {
-    stubGetChildren( repository, mondrianFolderPath, "myHostedServer" );
-    final String testServerPath =
-      mondrianFolderPath
-        + RepositoryFile.SEPARATOR
-        + "myHostedServer";
-    stubGetFolder( repository, testServerPath );
-    stubGetChildren( repository, testServerPath, "metadata" );
-    final String metadataPath =
-      testServerPath
-        + RepositoryFile.SEPARATOR
-        + "metadata";
-    stubGetFile( repository, metadataPath );
-    stubGetData(
-      repository,
-      metadataPath,
-      "catalog",
-      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
-      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
+    stubHostedServers( "myHostedServer" );
+  }
+
+  private void stubHostedServers( String... serverNames ) {
+    stubGetChildren( repository, mondrianFolderPath, serverNames );
+    for ( String serverName : serverNames ) {
+      final String testServerPath = mondrianFolderPath + RepositoryFile.SEPARATOR + serverName;
+      stubGetFolder( repository, testServerPath );
+      stubGetChildren( repository, testServerPath, "metadata" );
+      final String metadataPath = testServerPath + RepositoryFile.SEPARATOR + "metadata";
+      stubGetFile( repository, metadataPath );
+      stubGetData( repository, metadataPath, "catalog", pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+          pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
+    }
   }
 
   /**
@@ -205,17 +195,15 @@ public class OlapServiceImplTest {
       true,
       session );
 
-    verify( repository ).createFile(
-      eq( makeIdObject( testFolderPath ) ),
-      argThat( isLikeFile( makeFileObject( metadataPath ) ) ),
-      argThat( hasData(
-        pathPropertyPair( "/catalog/definition", "mondrian:/" + "test-server" ),
-        pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" )
-      ) ), anyString() );
+    verify( repository ).createFile( eq( makeIdObject( testFolderPath ) ),
+        argThat( isLikeFile( makeFileObject( metadataPath ) ) ), argThat(
+            hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + "test-server" ),
+                pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ),
+        anyString() );
 
     verify( repository ).createFile( eq( makeIdObject( testFolderPath ) ),
-      argThat( isLikeFile( makeFileObject( testFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
-      any( IRepositoryFileData.class ), anyString() );
+        argThat( isLikeFile( makeFileObject( testFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
+        any( IRepositoryFileData.class ), anyString() );
   }
 
   /**
@@ -230,27 +218,16 @@ public class OlapServiceImplTest {
     stubCreateFile( repository, metadataPath );
 
 
-    olapService.addOlap4jCatalog(
-      "test-server-2",
-      "class-name",
-      "url",
-      "user",
-      "password",
-      new Properties(),
-      true,
-      session );
+    olapService.addOlap4jCatalog( "test-server-2", "class-name", "url", "user", "password", new Properties(), true,
+        session );
 
     verify( repository ).createFile(
       eq( makeIdObject( testFolderPath ) ),
       argThat(
         isLikeFile( makeFileObject( metadataPath ) ) ),
-      argThat(
-        hasData(
-          pathPropertyPair( "/server/name", "test-server-2" ),
-          pathPropertyPair( "/server/className", "class-name" ),
-          pathPropertyPair( "/server/URL", "url" ),
-          pathPropertyPair( "/server/user", "user" ),
-          pathPropertyPair( "/server/password", "password" ) ) ),
+      argThat( hasData( pathPropertyPair( "/server/name", "test-server-2" ),
+              pathPropertyPair( "/server/className", "class-name" ), pathPropertyPair( "/server/URL", "url" ),
+              pathPropertyPair( "/server/user", "user" ), pathPropertyPair( "/server/password", "password" ) ) ),
       anyString() );
   }
 
@@ -275,17 +252,10 @@ public class OlapServiceImplTest {
       + RepositoryFile.SEPARATOR
       + "metadata";
     stubGetFile( repository, metadataPath );
-    stubGetData(
-      repository,
-      metadataPath
-      + RepositoryFile.SEPARATOR
-      + "myServer",
-      "server",
-      pathPropertyPair( "/server/name", "myServer" ),
-      pathPropertyPair( "/server/user", "myUser" ),
-      pathPropertyPair( "/server/password", "myPassword" ),
-      pathPropertyPair( "/server/URL", "myUrl" ),
-      pathPropertyPair( "/server/className", "someClass" ) );
+    stubGetData( repository, metadataPath + RepositoryFile.SEPARATOR + "myServer", "server",
+        pathPropertyPair( "/server/name", "myServer" ), pathPropertyPair( "/server/user", "myUser" ),
+        pathPropertyPair( "/server/password", "myPassword" ), pathPropertyPair( "/server/URL", "myUrl" ),
+        pathPropertyPair( "/server/className", "someClass" ) );
 
     // Get a list of catalogs.
     final List<String> catalogs =
@@ -294,8 +264,7 @@ public class OlapServiceImplTest {
     assertEquals( 1, catalogs.size() );
     assertEquals( "myServer", catalogs.get( 0 ) );
 
-    verify( repository ).getChildren(
-      eq( makeIdObject( olapFolderPath ) ) );
+    verify( repository ).getChildren( eq( makeIdObject( olapFolderPath ) ) );
 
     // Now check for non-existent catalogs
     try {
@@ -492,17 +461,10 @@ public class OlapServiceImplTest {
       + RepositoryFile.SEPARATOR
       + "metadata";
     stubGetFile( repository, metadataPath );
-    stubGetData(
-      repository,
-      metadataPath
-      + RepositoryFile.SEPARATOR
-      + "myServer",
-      "server",
-      pathPropertyPair( "/server/name", "myServer" ),
-      pathPropertyPair( "/server/user", "myUser" ),
-      pathPropertyPair( "/server/password", "myPassword" ),
-      pathPropertyPair( "/server/URL", "myUrl" ),
-      pathPropertyPair( "/server/className", "someClass" ) );
+    stubGetData( repository, metadataPath + RepositoryFile.SEPARATOR + "myServer", "server",
+        pathPropertyPair( "/server/name", "myServer" ), pathPropertyPair( "/server/user", "myUser" ),
+        pathPropertyPair( "/server/password", "myPassword" ), pathPropertyPair( "/server/URL", "myUrl" ),
+        pathPropertyPair( "/server/className", "someClass" ) );
 
     // Stub the security
     accessMock = new DefaultAccessImpl() {
@@ -644,9 +606,7 @@ public class OlapServiceImplTest {
     }
 
     // Make sure we didn't invoke the delete method.
-    verify( repository, never() ).deleteFile(
-      (RepositoryFile) anyObject(),
-      anyString() );
+    verify( repository, never() ).deleteFile( (RepositoryFile) anyObject(), anyString() );
   }
 
   /**
@@ -671,12 +631,9 @@ public class OlapServiceImplTest {
       + "metadata";
     stubGetFile( repository, metadataPath );
     stubGetFile( repository, testFolderPath + RepositoryFile.SEPARATOR + "schema.xml" );
-    stubGetData(
-      repository,
-      metadataPath,
-      "catalog",
-      pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
-      pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
+    stubGetData( repository, metadataPath, "catalog",
+        pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+        pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
 
     final InputStream is =
       new FileInputStream(
@@ -725,9 +682,8 @@ public class OlapServiceImplTest {
       ) ), anyString() );
 
     verify( repository ).updateFile(
-      argThat( isLikeFile( makeFileObject( testFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
-      any( IRepositoryFileData.class ),
-      anyString() );
+        argThat( isLikeFile( makeFileObject( testFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
+        any( IRepositoryFileData.class ), anyString() );
   }
 
   /**
@@ -752,17 +708,10 @@ public class OlapServiceImplTest {
       + RepositoryFile.SEPARATOR
       + "metadata";
     stubGetFile( repository, metadataPath );
-    stubGetData(
-      repository,
-      metadataPath
-      + RepositoryFile.SEPARATOR
-      + "myServer",
-      "server",
-      pathPropertyPair( "/server/name", "myServer" ),
-      pathPropertyPair( "/server/user", "myUser" ),
-      pathPropertyPair( "/server/password", "myPassword" ),
-      pathPropertyPair( "/server/URL", "myUrl" ),
-      pathPropertyPair( "/server/className", "someClass" ) );
+    stubGetData( repository, metadataPath + RepositoryFile.SEPARATOR + "myServer", "server",
+        pathPropertyPair( "/server/name", "myServer" ), pathPropertyPair( "/server/user", "myUser" ),
+        pathPropertyPair( "/server/password", "myPassword" ), pathPropertyPair( "/server/URL", "myUrl" ),
+        pathPropertyPair( "/server/className", "someClass" ) );
 
     // Try to save it without the overwrite flag. We expect it to fail.
     try {
@@ -788,33 +737,18 @@ public class OlapServiceImplTest {
       (RepositoryFile) anyObject(),
       (IRepositoryFileData) anyObject(),
       anyString() );
-    verify( repository, never() ).createFile(
-      (RepositoryFile) anyObject(),
-      (RepositoryFile) anyObject(),
-      (IRepositoryFileData) anyObject(),
-      anyString() );
+    verify( repository, never() ).createFile( (RepositoryFile) anyObject(), (RepositoryFile) anyObject(),
+        (IRepositoryFileData) anyObject(), anyString() );
 
     // Now do it again.
-    olapService.addOlap4jCatalog(
-      "myServer",
-      "class-name",
-      "url",
-      "user",
-      "password",
-      new Properties(),
-      true,
-      session );
+    olapService.addOlap4jCatalog( "myServer", "class-name", "url", "user", "password", new Properties(), true, session );
 
     verify( repository ).updateFile(
       argThat(
         isLikeFile( makeFileObject( metadataPath ) ) ),
-      argThat(
-        hasData(
-          pathPropertyPair( "/server/name", "myServer" ),
-          pathPropertyPair( "/server/className", "class-name" ),
-          pathPropertyPair( "/server/URL", "url" ),
-          pathPropertyPair( "/server/user", "user" ),
-          pathPropertyPair( "/server/password", "password" ) ) ),
+      argThat( hasData( pathPropertyPair( "/server/name", "myServer" ),
+              pathPropertyPair( "/server/className", "class-name" ), pathPropertyPair( "/server/URL", "url" ),
+              pathPropertyPair( "/server/user", "user" ), pathPropertyPair( "/server/password", "password" ) ) ),
       anyString() );
   }
 
@@ -822,13 +756,23 @@ public class OlapServiceImplTest {
   public void testFlushesAllConnections() throws Exception {
     stubHostedServer();
     final Properties properties = new Properties();
-    properties.put(
-      RolapConnectionProperties.Locale.name(),
-      getLocale().toString() );
+    properties.put( RolapConnectionProperties.Locale.name(), getLocale().toString() );
     OlapConnection conn = mock( OlapConnection.class );
     when( server.getConnection( "Pentaho", "myHostedServer", null, properties ) ).thenReturn( conn );
     olapService.flushAll( session );
     verify( mockXmlaExtra ).flushSchemaCache( conn );
+  }
+
+  @Test
+  public void testFlushStopsAfterFirstHosted() throws Exception {
+    stubHostedServers( "myHostedServer", "myHostedServer2" );
+
+    final Properties properties = new Properties();
+    properties.put( RolapConnectionProperties.Locale.name(), getLocale().toString() );
+    OlapConnection conn = mock( OlapConnection.class );
+    when( server.getConnection( "Pentaho", "myHostedServer", null, properties ) ).thenReturn( conn );
+    olapService.flushAll( session );
+    verify( mockXmlaExtra, times( 1 ) ).flushSchemaCache( conn );
   }
 
   @Test
