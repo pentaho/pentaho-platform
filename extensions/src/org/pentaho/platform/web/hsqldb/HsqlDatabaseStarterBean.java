@@ -20,8 +20,9 @@ package org.pentaho.platform.web.hsqldb;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hsqldb.Server;
-import org.hsqldb.ServerConfiguration;
-import org.hsqldb.ServerConstants;
+import org.hsqldb.server.ServerConfiguration;
+import org.hsqldb.server.ServerConstants;
+import org.hsqldb.server.ServerProperties;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.persist.HsqlProperties;
 import org.pentaho.platform.web.hsqldb.messages.Messages;
@@ -93,12 +94,13 @@ public class HsqlDatabaseStarterBean {
   // Facilitate test cases
   protected HsqlProperties getServerProperties( String[] args ) {
     // From HSQLDB Server.java main method...
-    String propsPath = FileUtil.canonicalOrAbsolutePath( "server" ); //$NON-NLS-1$
-    HsqlProperties fileProps = ServerConfiguration.getPropertiesFromFile( propsPath );
+    String propsPath = FileUtil.getFileUtil().canonicalOrAbsolutePath( "server" ); //$NON-NLS-1$
+    HsqlProperties fileProps = ServerConfiguration.getPropertiesFromFile( ServerConstants.SC_PROTOCOL_HSQL, propsPath, ".properties" );
     HsqlProperties props = fileProps == null ? new HsqlProperties() : fileProps;
     HsqlProperties stringProps = null;
+
     try {
-      stringProps = HsqlProperties.argArrayToProps( args, ServerConstants.SC_KEY_PREFIX );
+      stringProps = HsqlProperties.argArrayToProps( args, "server" );
       props.addProperties( stringProps );
     } catch ( ArrayIndexOutOfBoundsException ex ) {
       logger.error( Messages.getErrorString( "HsqlDatabaseStarterBean.ERROR_0001_INVALID_PARAMETERS" ) ); //$NON-NLS-1$
@@ -264,5 +266,6 @@ public class HsqlDatabaseStarterBean {
   public boolean getAllowPortFailover() {
     return allowFailoverToDefaultPort;
   }
-
+  
 }
+
