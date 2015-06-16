@@ -223,7 +223,7 @@
 
     <dependency org="pentaho" name="pdi-osgi-bridge-core" rev="${project.revision}" />
     <dependency org="pentaho" name="pentaho-osgi-utils-api" rev="${project.revision}" />
-    <dependency org="pentaho" name="pentaho-metaverse-api" rev="${dependency.pentaho-metaverse.revision}"/>
+    <dependency org="pentaho" name="pentaho-metaverse-api" rev="${project.revision}" changing="true" transitive="true"/>
 
     <!-- Platform plugins -->
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core-platform-plugin-package" rev="${dependency.pentaho-reporting-plugin.revision}" transitive="false" changing="true"  conf="plugin->default" />
