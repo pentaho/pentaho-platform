@@ -183,7 +183,7 @@
     <!-- Datasource Libraries -->
     <!-- Define another commons-logging dependency with datasource-libs conf so it's copied into tomcat/lib as well -->
     <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="datasource-libs->default" />
-    <dependency org="hsqldb" name="hsqldb" rev="2.3.2" conf="datasource-libs->default" transitive="false"/>
+    <dependency org="org.hsqldb" name="hsqldb" rev="2.3.2" conf="datasource-libs->default" transitive="false"/>
     <dependency org="mysql" name="mysql-connector-java" rev="5.1.17" conf="datasource-libs->default" />
     <dependency org="com.h2database" name="h2" rev="1.2.131" conf="datasource-libs->default" />
 
