@@ -7,3 +7,4 @@ extensions/test-src/solution/test/tmp/
 build-utils/dist
 build-utils/lib
 build-utils/test-lib
+.settings

@@ -1,4 +1,4 @@
-/*!
+/*
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,27 +12,31 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright 2014 Pentaho Corporation. All rights reserved.
  */
 
-package org.pentaho.platform.plugin.services.importer;
+package org.pentaho.platform.api.monitoring.snmp;
 
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Implementations of this class compute mime-types based on the given IPlatformImportBundle.
+ * Marks a field to be converted to a SNMP VariableBinding for a Trap event.
  * <p/>
- * User: nbaker Date: 6/18/12
+ * Created by nbaker on 9/3/14.
  */
-public interface IPlatformImportMimeResolver {
-  //void addExtensionForMime( String extension, MimeType mimeType );
+@Retention( RetentionPolicy.RUNTIME )
+@Target( { ElementType.FIELD, ElementType.METHOD } )
+public @interface SnmpVariable {
+  enum TYPE { INTEGER, STRING }
 
-  String resolveMimeForBundle( IPlatformImportBundle bundle );
+  String oid() default ""; //So can coexist with old
+  
+  TYPE type();
+  
+  int ordinal() default -1;
 
-  String resolveMimeForFileName( String fileName );
-
-  MimeType resolveMimeTypeForFileName( String fileName );
-
-  void addMimeType( MimeType mimeType );
-
+  Class<? extends IVariableSerializer> serializer() default IVariableSerializer.BasicSerializer.class;
 }

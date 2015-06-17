@@ -16,14 +16,15 @@
  */
 package org.pentaho.platform.plugin.services.importer;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.core.mimetype.MimeType;
 
 public class NameBaseMimeResolverTest {
 
@@ -43,14 +44,14 @@ public class NameBaseMimeResolverTest {
   @Test
   public void testResolveMimeForFileName() {
     String actualMime = resolver.resolveMimeForFileName( "testFile.tmt" );
-    assertThat( actualMime, equalTo( "test/test-mime" ) );
+    assertEquals( actualMime, "test/test-mime" );
   }
 
   @Test
   public void testResolveMimeTypeForFileName() {
     MimeType expectedMimeType = new MimeType( "othertest/other-test-mime", "smt" );
-    MimeType actualMimeType = resolver.resolveMimeTypeForFileName( "test.smt" );
-    assertThat( actualMimeType, equalTo( expectedMimeType ) );
+    IMimeType actualMimeType = resolver.resolveMimeTypeForFileName( "test.smt" );
+    assertEquals( actualMimeType, expectedMimeType );
   }
 
   @Test
@@ -59,7 +60,7 @@ public class NameBaseMimeResolverTest {
     when( bundle.getMimeType() ).thenReturn( "bundle/mime-from-bundle" );
     when( bundle.getName() ).thenReturn( "testFile.smt" );
     String actualMime = resolver.resolveMimeForBundle( bundle );
-    assertThat( actualMime, equalTo( "bundle/mime-from-bundle" ) );
+    assertEquals( actualMime, "bundle/mime-from-bundle" );
   }
 
   @Test
@@ -67,7 +68,7 @@ public class NameBaseMimeResolverTest {
     IPlatformImportBundle bundle = mock( IPlatformImportBundle.class );
     when( bundle.getName() ).thenReturn( "testFile.smt" );
     String actualMime = resolver.resolveMimeForBundle( bundle );
-    assertThat( actualMime, equalTo( "othertest/other-test-mime" ) );
+    assertEquals( actualMime, "othertest/other-test-mime" );
   }
 
 }

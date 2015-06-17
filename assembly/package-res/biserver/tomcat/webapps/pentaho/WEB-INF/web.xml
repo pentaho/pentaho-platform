@@ -197,6 +197,11 @@
   <listener>
     <listener-class>org.pentaho.platform.web.http.context.SpringEnvironmentSetupListener</listener-class>
   </listener>
+
+    <listener>
+        <listener-class>org.apache.felix.http.proxy.ProxyListener</listener-class>
+    </listener>
+
   <!--   enables session and request scoped object creation in Spring -->
   <listener>
     <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
@@ -244,7 +249,7 @@
 	   has been started and is ready, spring has been initialized and all plugins have been loaded -->
   <listener>
     <listener-class>org.pentaho.platform.web.http.context.PentahoSystemReadyListener</listener-class>
-  </listener>	
+  </listener>
 
   <servlet>
     <servlet-name>ViewAction</servlet-name>
@@ -394,9 +399,21 @@
     <servlet-class>org.pentaho.platform.web.servlet.ThemeServlet</servlet-class>
   </servlet>
 
+
+    <servlet>
+        <servlet-name>proxy</servlet-name>
+        <servlet-class>org.apache.felix.http.proxy.ProxyServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
   <!-- insert additional servlets -->
 
   <servlet-mapping>
+        <servlet-name>proxy</servlet-name>
+        <url-pattern>/osgi/*</url-pattern>
+    </servlet-mapping>
+
+	<servlet-mapping>
     <servlet-name>Carte</servlet-name>
     <url-pattern>/kettle/*</url-pattern>
   </servlet-mapping>

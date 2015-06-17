@@ -68,10 +68,10 @@
   
   <ImportHandler class="com.pentaho.repository.importexport.PDIImportFileHandler">
     <MimeTypeDefinitions>
-      <MimeTypeDefinition mimeType="application/vnd.pentaho.job" converter="PDIJobStreamConverter" hidden="true">
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.job" converter="PDIJobStreamConverter" hidden="true" versionEnabled="true" versionCommentEnabled="true">
         <extension>kjb</extension>
       </MimeTypeDefinition>
-      <MimeTypeDefinition mimeType="application/vnd.pentaho.transformation" converter="PDIJobStreamConverter" hidden="true">
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.transformation" converter="PDIJobStreamConverter" hidden="true" versionEnabled="true" versionCommentEnabled="true">
         <extension>ktr</extension>
       </MimeTypeDefinition>
     </MimeTypeDefinitions>

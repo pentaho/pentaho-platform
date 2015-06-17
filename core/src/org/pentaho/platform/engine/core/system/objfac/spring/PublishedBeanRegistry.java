@@ -18,9 +18,11 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,44 +76,6 @@ public class PublishedBeanRegistry {
     beansImplementingType.add( beanName );
   }
 
-  /**
-   * Returns the names of beans registered in the given factory for the specified type
-   *
-   * @param registry
-   * @param type
-   * @return
-   */
-  public static String[] getBeanNamesForType( ListableBeanFactory registry, Class<?> type ) {
-
-    if ( registry == null ) {
-      throw new IllegalArgumentException( "Registry cannot be null" );
-    }
-    if ( type == null ) {
-      throw new IllegalArgumentException( "Type cannot be null" );
-    }
-    if ( registry.containsBean( Const.FACTORY_MARKER ) == false ) {
-      return new String[] { };
-    }
-
-    Map<Class<?>, List<String>> map;
-    // synchronized(registry){
-    if ( factoryMarkerCache.containsKey( registry ) ) {
-      map = classToBeanMap.get( factoryMarkerCache.get( registry ) );
-    } else {
-      map = classToBeanMap.get( registry.getBean( Const.FACTORY_MARKER ) );
-    }
-    // }
-    if ( map == null ) {
-      return new String[] { };
-    }
-
-    List<String> beansImplementingType = map.get( type );
-    if ( beansImplementingType == null ) {
-      return new String[] { };
-    }
-    return beansImplementingType.toArray( new String[ beansImplementingType.size() ] );
-  }
-
   public static void registerFactory( ApplicationContext applicationContext ) {
     Object markerBean = null;
     try {
@@ -126,6 +90,23 @@ public class PublishedBeanRegistry {
       return;
     }
     factoryMarkerCache.put( applicationContext, markerBean );
+
+    ConfigurableApplicationContext listableBeanFactory =
+        (ConfigurableApplicationContext) applicationContext;
+
+    Map<Class<?>, List<String>> classListMap = classToBeanMap.get( markerBean );
+
+    for ( Map.Entry<Class<?>, List<String>> classListEntry : classListMap.entrySet() ) {
+      Class<?> clazz = classListEntry.getKey();
+      for ( String beanName : classListEntry.getValue() ) {
+        PentahoSystem.registerReference(
+            new SpringPentahoObjectReference( listableBeanFactory, beanName, clazz, null,
+                listableBeanFactory.getBeanFactory().getBeanDefinition( beanName ) ) );
+
+      }
+    }
+
+
   }
 
   /**
@@ -135,5 +116,9 @@ public class PublishedBeanRegistry {
    */
   public static Set<ListableBeanFactory> getRegisteredFactories() {
     return factoryMarkerCache.keySet();
+  }
+
+  public static void reset() {
+    factoryMarkerCache.clear();
   }
 }

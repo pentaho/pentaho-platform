@@ -33,14 +33,13 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
 
 
   private final Multimap<Class, IPentahoObjectReference<?>> registry =
-    Multimaps.synchronizedSetMultimap( HashMultimap
-      .<Class, IPentahoObjectReference<?>>create() );
+      Multimaps.synchronizedSetMultimap( HashMultimap
+          .<Class, IPentahoObjectReference<?>>create() );
 
 
   public RuntimeObjectFactory() {
 
   }
-
 
   /**
    * {@inheritDoc}
@@ -50,7 +49,7 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
   public <T> IPentahoObjectRegistration registerObject( T obj ) {
     if ( obj instanceof IPentahoObjectReference ) {
       throw new IllegalArgumentException(
-        "Object cannot be of type: IPentahoObjectRegistration. Call the appropriate registerReference instead" );
+          "Object cannot be of type: IPentahoObjectRegistration. Call the appropriate registerReference instead" );
     }
     return registerReference( new SingletonPentahoObjectReference<T>( (Class<T>) obj.getClass(), obj ), Types.ALL );
 
@@ -73,7 +72,7 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
   public <T> IPentahoObjectRegistration registerObject( T obj, Types types ) {
     if ( obj instanceof IPentahoObjectReference ) {
       throw new IllegalArgumentException(
-        "Object cannot be of type: IPentahoObjectRegistration. Call the appropriate registerReference instead" );
+          "Object cannot be of type: IPentahoObjectRegistration. Call the appropriate registerReference instead" );
     }
     return registerReference( new SingletonPentahoObjectReference<T>( (Class<T>) obj.getClass(), obj ), types );
 
@@ -108,14 +107,14 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
   @Override public <T> IPentahoObjectRegistration registerObject( T obj, Class<?>... classes ) {
     if ( obj instanceof IPentahoObjectReference ) {
       throw new IllegalArgumentException(
-        "Object cannot be of type: IPentahoObjectRegistration. Call the appropriate registerReference instead" );
+          "Object cannot be of type: IPentahoObjectRegistration. Call the appropriate registerReference instead" );
     }
     return registerReference( new SingletonPentahoObjectReference<T>( (Class<T>) obj.getClass(), obj ), classes );
   }
 
   @Override
-  public final <T> IPentahoObjectRegistration registerReference( IPentahoObjectReference<T> reference,
-                                                                 Class<?>... classes ) {
+  public <T> IPentahoObjectRegistration registerReference( IPentahoObjectReference<T> reference,
+                                                           Class<?>... classes ) {
 
     for ( Class<?> aClass : classes ) {
       registry.get( aClass ).add( reference );
@@ -141,10 +140,10 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
    */
   @Override
   public <T> T get( final Class<T> interfaceClass, final String key, final IPentahoSession session )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
 
     IPentahoObjectReference<T> reference = getObjectReference( interfaceClass, session,
-      Collections.singletonMap( "id", key ) );
+        Collections.singletonMap( "id", key ) );
     if ( reference == null ) {
       // not found by ID, check by class itself ( special behavior for this deprecated method )
       reference = getObjectReference( interfaceClass, session, Collections.<String, String>emptyMap() );
@@ -161,7 +160,7 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
    */
   @Override
   public <T> T get( final Class<T> interfaceClass, final IPentahoSession session, final Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
 
     List<IPentahoObjectReference<T>> references = getObjectReferences( interfaceClass, session, properties );
     if ( references.isEmpty() ) {
@@ -214,7 +213,7 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
    */
   @Override
   public <T> List<T> getAll( final Class<T> interfaceClass, final IPentahoSession session )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     return getAll( interfaceClass, session, Collections.<String, String>emptyMap() );
   }
 
@@ -225,7 +224,7 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
   @SuppressWarnings( "unchecked" )
   public <T> List<T> getAll( final Class<T> interfaceClass, final IPentahoSession session,
                              final Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     List<IPentahoObjectReference<T>> retValReferences = getObjectReferences( interfaceClass, session, properties );
     List<T> retVals = new ArrayList<T>();
     for ( IPentahoObjectReference ref : retValReferences ) {
@@ -239,7 +238,7 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
    */
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     return getObjectReference( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
@@ -249,9 +248,9 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession,
                                                             Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     final List<IPentahoObjectReference<T>> objectReferences =
-      getObjectReferences( interfaceClass, curSession, properties );
+        getObjectReferences( interfaceClass, curSession, properties );
     if ( objectReferences.isEmpty() ) {
       return null;
     }
@@ -264,7 +263,7 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
    */
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     return getObjectReferences( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
@@ -275,28 +274,28 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( final Class<T> interfaceClass,
                                                                    final IPentahoSession curSession,
                                                                    final Map<String, String> properties )
-    throws ObjectFactoryException {
+      throws ObjectFactoryException {
     List<IPentahoObjectReference<T>> retValReferences = new ArrayList<IPentahoObjectReference<T>>();
 
     try {
       retValReferences =
-        SessionCapturedOperation.execute( curSession, new Callable<List<IPentahoObjectReference<T>>>() {
-          @SuppressWarnings( "unchecked" )
-          @Override public List<IPentahoObjectReference<T>> call() throws Exception {
+          SessionCapturedOperation.execute( curSession, new Callable<List<IPentahoObjectReference<T>>>() {
+            @SuppressWarnings( "unchecked" )
+            @Override public List<IPentahoObjectReference<T>> call() throws Exception {
 
-            List<IPentahoObjectReference<?>> iPentahoObjectReferences =
-              getReferencesByQuery( interfaceClass, properties );
+              List<IPentahoObjectReference<?>> iPentahoObjectReferences =
+                  getReferencesByQuery( interfaceClass, properties );
 
-            final ArrayList<IPentahoObjectReference<T>> retVals = new ArrayList<IPentahoObjectReference<T>>();
-            if ( !iPentahoObjectReferences.isEmpty() ) {
+              final ArrayList<IPentahoObjectReference<T>> retVals = new ArrayList<IPentahoObjectReference<T>>();
+              if ( !iPentahoObjectReferences.isEmpty() ) {
 
-              for ( IPentahoObjectReference<?> ref : iPentahoObjectReferences ) {
-                retVals.add( (IPentahoObjectReference<T>) ref );
+                for ( IPentahoObjectReference<?> ref : iPentahoObjectReferences ) {
+                  retVals.add( (IPentahoObjectReference<T>) ref );
+                }
               }
+              return retVals;
             }
-            return retVals;
-          }
-        } );
+          } );
     } catch ( Exception e ) {
       e.printStackTrace();
     }
@@ -315,8 +314,8 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
   }
 
 
-  private <T> List<IPentahoObjectReference<?>> getReferencesByQuery( Class<T> type,
-                                                                     Map<String, String> query ) {
+  protected <T> List<IPentahoObjectReference<?>> getReferencesByQuery( Class<T> type,
+                                                                       Map<String, String> query ) {
     Collection<IPentahoObjectReference<?>> iPentahoObjectReferences = registry.get( type );
 
     if ( iPentahoObjectReferences.isEmpty() ) {
@@ -332,11 +331,16 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
       }
 
       final Map<String, Object> attributes = next.getAttributes();
+      boolean matches = true;
       for ( Map.Entry<String, String> queryEntry : query.entrySet() ) {
-        if ( attributes.containsKey( queryEntry.getKey() ) && attributes.get( queryEntry.getKey() )
-          .equals( queryEntry.getValue() ) ) {
-          returnCollection.add( next );
+        if ( !attributes.containsKey( queryEntry.getKey() ) || ! attributes.get( queryEntry.getKey() )
+            .equals( queryEntry.getValue() ) ) {
+          matches = false;
+          break;
         }
+      }
+      if( matches ) {
+        returnCollection.add( next );
       }
     }
 
@@ -394,6 +398,14 @@ public class RuntimeObjectFactory implements IPentahoRegistrableObjectFactory {
 
       this.reference = reference;
       this.publishedClasses = publishedClasses;
+    }
+
+    public IPentahoObjectReference<?> getReference() {
+      return reference;
+    }
+
+    public List<Class<?>> getPublishedClasses() {
+      return publishedClasses;
     }
 
     @Override public void remove() {

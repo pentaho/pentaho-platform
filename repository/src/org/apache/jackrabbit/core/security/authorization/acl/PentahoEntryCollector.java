@@ -18,9 +18,13 @@
 package org.apache.jackrabbit.core.security.authorization.acl;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.jackrabbit.api.JackrabbitWorkspace;
+import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.id.NodeId;
+import org.apache.jackrabbit.core.security.authorization.PrivilegeBits;
+import org.apache.jackrabbit.core.security.authorization.PrivilegeManagerImpl;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -39,8 +43,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.util.Assert;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.security.AccessControlEntry;
-import javax.jcr.security.Privilege;
+import javax.jcr.security.*;
 import javax.jcr.version.VersionHistory;
 import java.security.Principal;
 import java.security.acl.Group;
@@ -149,7 +152,9 @@ public class PentahoEntryCollector extends EntryCollector {
     ACLTemplate acl;
     while ( true ) {
       currentNode = findAccessControlledNode( currentNode );
-      acl = new ACLTemplate( currentNode.getNode( N_POLICY ) );
+      NodeImpl aclNode = currentNode.getNode( N_POLICY ); 
+      String path = aclNode != null ? aclNode.getParent().getPath() : null;
+      acl = new ACLTemplate( aclNode, path, false /* allowUnknownPrincipals */ );
 
       // skip all nodes that are inheriting
       AclMetadata aclMetadata = JcrRepositoryFileAclUtils.getAclMetadata( systemSession, currentNode.getPath(), acl );
@@ -166,7 +171,7 @@ public class PentahoEntryCollector extends EntryCollector {
    * Returns an {@code Entries} for the given node. This is where most of the customization lives.
    */
   @Override
-  protected Entries getEntries( final NodeImpl node ) throws RepositoryException {
+  protected PentahoEntries getEntries( final NodeImpl node ) throws RepositoryException {
     // find nearest node with an ACL that is not inheriting ACEs
     NodeImpl currentNode = node;
     ACLTemplate acl;
@@ -180,7 +185,7 @@ public class PentahoEntryCollector extends EntryCollector {
 
     // find first access-controlled node
     currentNode = findAccessControlledNode( currentNode );
-    acl = new ACLTemplate( currentNode.getNode( N_POLICY ) );
+    acl = new ACLTemplate( currentNode.getNode( N_POLICY ), currentNode.getPath(), false /* allowUnknownPrincipals */ );
 
     // owner comes from the first access-controlled node
     String owner = null;
@@ -192,7 +197,7 @@ public class PentahoEntryCollector extends EntryCollector {
     // find the ACL
     NodeImpl firstAccessControlledNode = currentNode;
     currentNode = findNonInheritingNode( currentNode );
-    acl = new ACLTemplate( currentNode.getNode( N_POLICY ) );
+    acl = new ACLTemplate( currentNode.getNode( N_POLICY ), currentNode.getPath(), false /* allowUnknownPrincipals */ );
 
     // If we're inheriting from another node, check to see if that node has removeChildNodes or addChildNodes
     // permissions. This needs to transform to become addChild removeChild
@@ -222,14 +227,14 @@ public class PentahoEntryCollector extends EntryCollector {
     ACLTemplate ancestorAcl = null;
     if ( firstAccessControlledNode.isSame( currentNode ) && !rootID.equals( currentNode.getNodeId() ) ) {
       NodeImpl ancestorNode = findNonInheritingNode( (NodeImpl) currentNode.getParent() );
-      ancestorAcl = new ACLTemplate( ancestorNode.getNode( N_POLICY ) );
+      ancestorAcl = new ACLTemplate( ancestorNode.getNode( N_POLICY ), ancestorNode.getPath(), false /* allowUnknownPrincipals */ );
     }
 
     // now acl points to the nearest ancestor that is access-controlled and is not inheriting;
     // ancestorAcl points to first ancestor of ACL that is access-controlled and is not inheriting--possibly null
     // owner is an owner string--possibly null
-    return new Entries( new ArrayList<AccessControlEntry>( getAcesIncludingMagicAces( currentNode.getPath(), owner,
-      ancestorAcl, acl ) ), null );
+
+    return new PentahoEntries( getAcesIncludingMagicAces( currentNode.getPath(), owner, ancestorAcl, acl ), null );
   }
 
   /**
@@ -271,7 +276,7 @@ public class PentahoEntryCollector extends EntryCollector {
    * <p/>
    * <p> Modifications to these ACLs are not persisted. </p>
    */
-  protected List<AccessControlEntry> getAcesIncludingMagicAces( final String path, final String owner,
+  protected List<PentahoEntry> getAcesIncludingMagicAces( final String path, final String owner,
                                                                 final ACLTemplate ancestorAcl, final ACLTemplate acl )
     throws RepositoryException {
     if ( PentahoSessionHolder.getSession() == null || PentahoSessionHolder.getSession().getId() == null
@@ -331,8 +336,9 @@ public class PentahoEntryCollector extends EntryCollector {
       }
     }
 
-    List<AccessControlEntry> acEntries = new ArrayList<AccessControlEntry>();
-    acEntries.addAll( acl.getEntries() ); // leaf ACEs go first so ACL metadata ACE stays first
+
+    List acEntries = new ArrayList();
+    acEntries.addAll( buildPentahoEntries( acl ) ); // leaf ACEs go first so ACL metadata ACE stays first
     acEntries.addAll( getRelevantAncestorAces( ancestorAcl ) );
     return acEntries;
   }
@@ -344,55 +350,69 @@ public class PentahoEntryCollector extends EntryCollector {
    * <p> Modifications to this ACL are not persisted. ACEs must be created in the given ACL because the path embedded in
    * the given ACL plays into authorization decisions using parentPrivs. </p>
    */
-  protected List<AccessControlEntry> getRelevantAncestorAces( final ACLTemplate ancestorAcl )
+  protected List<PentahoEntry> getRelevantAncestorAces( final ACLTemplate ancestorAcl )
     throws RepositoryException {
+
     if ( ancestorAcl == null ) {
       return Collections.emptyList();
     }
+
     NodeImpl ancestorNode = (NodeImpl) systemSession.getNode( ancestorAcl.getPath() );
-    Entries fullEntriesIncludingMagicACEs = this.getEntries( ancestorNode );
+    PentahoEntries fullEntriesIncludingMagicACEs = this.getEntries( ancestorNode );
 
-    Privilege addChildNodesPrivilege =
-        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_ADD_CHILD_NODES );
-    Privilege removeChildNodesPrivilege =
-        systemSession.getAccessControlManager().privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
+    JackrabbitAccessControlManager acMgr = ( JackrabbitAccessControlManager ) systemSession.getAccessControlManager();
+    PrivilegeManagerImpl privMrg =
+        ( PrivilegeManagerImpl ) ( (( JackrabbitWorkspace ) systemSession.getWorkspace() ).getPrivilegeManager() );
 
-    for ( AccessControlEntry entry : fullEntriesIncludingMagicACEs.getACEs() ) {
+    Privilege addChildNodesPrivilege = acMgr.privilegeFromName( Privilege.JCR_ADD_CHILD_NODES );
+    PrivilegeBits addChildNodesPrivilegeBits = privMrg.getBits( addChildNodesPrivilege );
+
+    Privilege removeChildNodesPrivilege = acMgr.privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
+    PrivilegeBits removeChildNodesPrivilegeBits = privMrg.getBits( removeChildNodesPrivilege );
+
+    for ( PentahoEntry entry : ( List<PentahoEntry> ) fullEntriesIncludingMagicACEs.getACEs() ) {
+
       List<Privilege> privs = new ArrayList<Privilege>( 2 );
-      Privilege[] expandedPrivileges = JcrRepositoryFileAclUtils.expandPrivileges( entry.getPrivileges(), false );
-      if ( ArrayUtils.contains( expandedPrivileges, addChildNodesPrivilege ) ) {
+
+      if ( entry.getPrivilegeBits().includes( addChildNodesPrivilegeBits ) ) {
         privs.add( addChildNodesPrivilege );
       }
-      if ( ArrayUtils.contains( expandedPrivileges, removeChildNodesPrivilege ) ) {
+      if ( entry.getPrivilegeBits().includes( removeChildNodesPrivilegeBits ) ) {
         privs.add( removeChildNodesPrivilege );
       }
       // remove all physical entries from the ACL. MagicAces will not be present in the ACL Entries, so we check
-      // before
-      // trying to remove
-      if ( ancestorAcl.getEntries().contains( entry ) ) {
-        ancestorAcl.removeAccessControlEntry( entry );
+      // before trying to remove
+      AccessControlEntry[] ancestorACEs = ancestorAcl.getEntries().toArray( new AccessControlEntry[]{} );
+      for( AccessControlEntry ace : ancestorACEs ){
+        PentahoEntry pe = buildPentahoEntry( ancestorNode.getNodeId(), ancestorAcl.getPath(), ace );
+        if ( entry.equals( pe ) ){
+          ancestorAcl.removeAccessControlEntry( ace );
+        }
       }
+
       // remove existing ACE since (1) it doesn't have the privs we're looking for and (2) the following
       // addAccessControlEntry will silently fail to add a new ACE if perms already exist
       if ( !privs.isEmpty() ) {
         // create new ACE with same principal but only privs relevant to child operations
         // clone to new list to allow concurrent modification
         List<AccessControlEntry> entries = new LinkedList<AccessControlEntry>( ancestorAcl.getEntries() );
-        for ( AccessControlEntry accessControlEntry : entries ) {
-          if ( accessControlEntry.getPrincipal().getName().equals( entry.getPrincipal().getName() ) ) {
-            ancestorAcl.removeAccessControlEntry( accessControlEntry );
-          }
+        for ( AccessControlEntry ace : entries ) {
+
+          if ( ace.getPrincipal().getName().equals( entry.getPrincipalName() ) ) {
+            ancestorAcl.removeAccessControlEntry( ace );
         }
-        if ( !ancestorAcl.addAccessControlEntry( entry.getPrincipal() instanceof Group ? new MagicGroup( entry
-            .getPrincipal().getName() ) : new MagicPrincipal( entry.getPrincipal().getName() ), privs
-            .toArray( new Privilege[ privs.size() ] ) ) ) {
-          // we can never fail to add this entry because it means we may be giving more permission than the above
-          // two
+      }
+
+      if ( !ancestorAcl.addAccessControlEntry( entry.isGroupEntry() ?
+              new MagicGroup( entry.getPrincipalName() ) : new MagicPrincipal( entry.getPrincipalName() ),
+          privs.toArray( new Privilege[ privs.size() ] ) ) ) {
+          // we can never fail to add this entry because it means we may be giving more permission than the above two
           throw new RuntimeException();
         }
       }
     }
-    return ancestorAcl.getEntries();
+
+    return buildPentahoEntries( ancestorAcl );
   }
 
   /**
@@ -428,16 +448,23 @@ public class PentahoEntryCollector extends EntryCollector {
    * {@code entries.getNextId()}.
    */
   @Override
-  protected List<AccessControlEntry> collectEntries( NodeImpl node, EntryFilter filter ) throws RepositoryException {
-    LinkedList<AccessControlEntry> userAces = new LinkedList<AccessControlEntry>();
-    LinkedList<AccessControlEntry> groupAces = new LinkedList<AccessControlEntry>();
+  protected List collectEntries( NodeImpl node, EntryFilter filter ) throws RepositoryException {
+    LinkedList userAces = new LinkedList();
+    LinkedList groupAces = new LinkedList();
 
     if ( node == null ) {
       // repository level permissions
       NodeImpl root = (NodeImpl) systemSession.getRootNode();
       if ( ACLProvider.isRepoAccessControlled( root ) ) {
         NodeImpl aclNode = root.getNode( N_REPO_POLICY );
-        filterEntries( filter, new ACLTemplate( aclNode ).getEntries(), userAces, groupAces );
+        String path = aclNode != null ? aclNode.getParent().getPath() : null;
+
+        if( filter instanceof PentahoEntryFilter ){
+          filterEntries( filter, PentahoEntry.readEntries( aclNode, path ), userAces, groupAces );
+        } else {
+          filterEntries( filter, Entry.readEntries( aclNode, path ), userAces, groupAces );
+        }
+
       }
     } else {
       Entries entries = getEntries( node );
@@ -450,7 +477,7 @@ public class PentahoEntryCollector extends EntryCollector {
       }
     }
 
-    List<AccessControlEntry> entries = new ArrayList<AccessControlEntry>( userAces.size() + groupAces.size() );
+    List entries = new ArrayList( userAces.size() + groupAces.size() );
     entries.addAll( userAces );
     entries.addAll( groupAces );
 
@@ -461,8 +488,8 @@ public class PentahoEntryCollector extends EntryCollector {
    * Copied from {@link EntryCollector} since that method was {@code private}.
    */
   @SuppressWarnings( "unchecked" )
-  protected void filterEntries( EntryFilter filter, List<AccessControlEntry> aces,
-                                LinkedList<AccessControlEntry> userAces, LinkedList<AccessControlEntry> groupAces ) {
+  protected void filterEntries( EntryFilter filter, List aces,
+                                LinkedList userAces, LinkedList groupAces ) {
     if ( !aces.isEmpty() && filter != null ) {
       filter.filterEntries( aces, userAces, groupAces );
     }
@@ -486,5 +513,89 @@ public class PentahoEntryCollector extends EntryCollector {
     throws RepositoryException {
     return roleBindingDao.getBoundLogicalRoleNames( systemSession, getRuntimeRoleNames() ).contains(
         logicalRoleName );
+  }
+
+  private static AccessControlList getACList(AccessControlManager acMgr, String path) throws RepositoryException {
+
+    for ( AccessControlPolicyIterator it = acMgr.getApplicablePolicies(path); it.hasNext(); ) {
+      AccessControlPolicy acp = it.nextAccessControlPolicy();
+      if ( acp instanceof AccessControlList ) {
+        return ( AccessControlList ) acp;
+      }
+    }
+    AccessControlPolicy[] acps = acMgr.getPolicies(path);
+    for (int i = 0; i < acps.length; i++) {
+      if ( acps[i] instanceof AccessControlList ) {
+        return (AccessControlList) acps[i] ;
+      }
+    }
+    return null;
+  }
+
+  private List<PentahoEntry> buildPentahoEntries( ACLTemplate acl ) throws RepositoryException{
+
+    List<PentahoEntry> aces = new ArrayList<PentahoEntry>();
+
+    if( acl != null && acl.getEntries() != null && acl.getEntries().size() > 0 ){
+
+      NodeImpl aclNode = ( (NodeImpl) systemSession.getNode( acl.getPath() ) );
+
+      for( AccessControlEntry ace : acl.getEntries() ){
+         aces.add( buildPentahoEntry( aclNode.getNodeId(), acl.getPath(), ace ) );
+      }
+    }
+
+    return aces;
+  }
+
+  private PentahoEntry buildPentahoEntry( NodeId nodeId, String path, AccessControlEntry ace ) throws RepositoryException {
+
+    PentahoEntry entry = null;
+
+    if( ace != null ) {
+
+      Principal principal = ace.getPrincipal();
+      boolean isGroupEntry = principal instanceof Group;
+      PrivilegeBits bits = ( ( ACLTemplate.Entry ) ace ).getPrivilegeBits();
+      boolean isAllow = ( ( ACLTemplate.Entry ) ace ).isAllow();
+
+      entry = new PentahoEntry( nodeId, principal.getName(), isGroupEntry, bits, isAllow, path,
+          ( (ACLTemplate.Entry) ace ).getRestrictions() );
+    }
+
+    return entry;
+  }
+
+  static class PentahoEntries extends Entries {
+
+    private List<PentahoEntry> aces;
+
+    PentahoEntries( List aces, NodeId nextId  ) {
+      super( null, nextId );
+      this.aces = ( List<PentahoEntry> ) aces;
+    }
+
+    PentahoEntries( Entries e  ) {
+      super( e.getACEs(), e.getNextId() );
+      this.aces = new ArrayList<PentahoEntry>();
+    }
+
+    @Override
+    public List getACEs() {
+      return this.aces;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return this.aces == null || this.aces.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append("size = ").append( getACEs() != null ? getACEs().size() : 0 ).append(", ");
+      sb.append( "nextNodeId = " ).append( getNextId() );
+      return sb.toString();
+    }
   }
 }

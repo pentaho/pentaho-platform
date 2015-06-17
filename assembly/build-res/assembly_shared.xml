@@ -97,24 +97,5 @@
   	<ivy-resolve conf="solution" directory="${basedir}/${solution-archives.dir}" />
   </target>
 
-  <!-- - - - - - - - - - - - - - - - - -
-          target: resolve-osgi-core-bundles
-         - - - - - - - - - - - - - - - - - -->
-  <target name="resolve-osgi-core-bundles" depends="install-ivy">
-    <ivy-resolve conf="core-bundle" directory="${core-bundles.dir}" />
-  </target>
 
-  <!-- - - - - - - - - - - - - - - - - -
-          target: resolve-osgi-bundles
-         - - - - - - - - - - - - - - - - - -->
-  <target name="resolve-osgi-bundles" depends="install-ivy">
-    <ivy-resolve conf="bundle" directory="${bundles.dir}" />
-  </target>
-
-  <!-- - - - - - - - - - - - - - - - - -
-          target: resolve-osgi-fragment-bundles
-         - - - - - - - - - - - - - - - - - -->
-  <target name="resolve-osgi-fragment-bundles" depends="install-ivy">
-    <ivy-resolve conf="fragment-bundle" directory="${fragment-bundles.dir}" />
-  </target>
 </project>

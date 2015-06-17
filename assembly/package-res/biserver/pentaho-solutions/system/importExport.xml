@@ -35,9 +35,9 @@
 	<bean id="ITenant" class="org.pentaho.platform.core.mt.Tenant"
 		scope="prototype" />
 
-	<bean id="IPlatformImportMimeResolver" class="org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver" />
+	<bean id="IPlatformMimeResolver" class="org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver" />
 	<!-- For compatibility with Migrators that still use the actual class name	-->
-	<alias name="IPlatformImportMimeResolver" alias="NameBaseMimeResolver"/>
+	<alias name="IPlatformMimeResolver" alias="NameBaseMimeResolver"/>
 
 	<bean id="DefaultExportHandler"
 		class="org.pentaho.platform.plugin.services.importexport.DefaultExportHandler">
@@ -168,6 +168,11 @@
 				
 			</util:list>
 		</constructor-arg>
+	</bean>
+	
+	<bean id="IRepositoryVersionManager" class="org.pentaho.platform.repository2.unified.DefaultRepositoryVersionManager" scope="singleton">
+		<pen:publish as-type="INTERFACES">
+		</pen:publish>
 	</bean>
 </beans>
 

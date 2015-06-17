@@ -28,5 +28,9 @@
 		<dependency org="pentaho" name="pentaho-actionsequence-dom" rev="${dependency.pentaho-actionsequence-dom.revision}"  changing="true"/>
 		<dependency org="pentaho" name="pentaho-xul-core"           rev="${dependency.pentaho-xul.revision}"                 changing="true" transitive="false"/>
 		<dependency org="pentaho" name="pentaho-database-model"     rev="${dependency.pentaho-database-model.revision}"               changing="true" transitive="false"/>
+        
+        	<dependency org="junit" name="junit" rev="4.12" conf="test->default"/>
+        
+        <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
 	</dependencies>
 </ivy-module>

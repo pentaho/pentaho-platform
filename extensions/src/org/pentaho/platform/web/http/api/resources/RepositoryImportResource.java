@@ -17,8 +17,16 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
@@ -26,12 +34,11 @@ import org.apache.log4j.Logger;
 import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
-import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
-import org.pentaho.platform.plugin.services.importer.IPlatformImportMimeResolver;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
@@ -41,16 +48,8 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 
 @Path ( "/repo/files/import" )
 public class RepositoryImportResource {
@@ -206,7 +205,7 @@ public class RepositoryImportResource {
       bundleBuilder.name( fileName );
       IPlatformImportBundle bundle = bundleBuilder.build();
 
-      IPlatformImportMimeResolver mimeResolver = PentahoSystem.get( IPlatformImportMimeResolver.class );
+      IPlatformMimeResolver mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
       String mimeTypeFromFile = mimeResolver.resolveMimeForFileName( fileName );
       if ( mimeTypeFromFile == null ) {
         return Response.ok( "INVALID_MIME_TYPE", MediaType.TEXT_HTML ).build();
@@ -233,8 +232,6 @@ public class RepositoryImportResource {
       mondrianCatalogService.reInit( PentahoSessionHolder.getSession() );
     } catch ( PentahoAccessControlException e ) {
       return Response.serverError().entity( e.toString() ).build();
-    } catch( UnifiedRepositoryAccessDeniedException e ) {
-      return Response.status( Response.Status.FORBIDDEN ).build();
     } catch ( Exception e ) {
       return Response.serverError().entity( e.toString() ).build();
     } finally {

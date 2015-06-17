@@ -73,18 +73,20 @@ import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
+import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.FileVersioningConfiguration;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
@@ -126,7 +128,7 @@ public class FileResource extends AbstractJaxRSResource {
   IRepositoryContentConverterHandler converterHandler;
   Map<String, Converter> converters;
 
-  protected NameBaseMimeResolver mimeResolver;
+  protected IPlatformMimeResolver mimeResolver;
 
   public FileResource() {
     fileService = new FileService();
@@ -1982,7 +1984,40 @@ public class FileResource extends AbstractJaxRSResource {
 
     return schedulerResource.doGetGeneratedContentForSchedule( lineageId );
   }
-
+  
+  /**
+   * This method is used to determine whether versioning should be active for the given path
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/repo/files/:jmeter-test:test_file_1.ktr/versioningConfiguration
+   *  </pre>
+   * </p>
+   *
+   * @param pathId Colon separated path for the repository file.
+   *
+   * @return The Versioning Configuration applicable to the path submitted 
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   * &lt;fileVersioningConfiguration&gt;
+   *   &lt;versionCommentEnabled&gt;true&lt;/versionCommentEnabled&gt;
+   *   &lt;versioningEnabled&gt;true&lt;/versioningEnabled&gt;
+   * &lt;/fileVersioningConfiguration&gt;
+   *  </pre>
+   */
+  @GET
+  @Path ( "{pathId : .+}/versioningConfiguration" )
+  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Successfully returns the versioning configuation" )
+  } )
+  public FileVersioningConfiguration doVersioningConfiguration( @PathParam( "pathId" ) String pathId ) {
+    IRepositoryVersionManager repositoryVersionManager = PentahoSystem.get( IRepositoryVersionManager.class );
+    return new FileVersioningConfiguration(
+        repositoryVersionManager.isVersioningEnabled( FileUtils.idToPath( pathId ) ), repositoryVersionManager
+            .isVersionCommentEnabled( FileUtils.idToPath( pathId ) ) );
+  }
+  
   protected boolean isPathValid( String path ) {
     return fileService.isPathValid( path );
   }
@@ -2023,7 +2058,7 @@ public class FileResource extends AbstractJaxRSResource {
     this.converterHandler = converterHandler;
   }
 
-  public void setMimeResolver( NameBaseMimeResolver mimeResolver ) {
+  public void setMimeResolver( IPlatformMimeResolver mimeResolver ) {
     this.mimeResolver = mimeResolver;
   }
 

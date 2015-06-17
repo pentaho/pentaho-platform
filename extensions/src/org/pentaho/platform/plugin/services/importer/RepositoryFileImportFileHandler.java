@@ -29,7 +29,9 @@ import org.apache.commons.logging.Log;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -37,7 +39,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.plugin.services.messages.Messages;
@@ -54,10 +55,10 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   private static final Messages messages = Messages.getInstance();
   private SolutionFileImportHelper solutionHelper = new SolutionFileImportHelper();
-  private HashMap<String, MimeType> mimeTypeMap = new HashMap<String, MimeType>();
+  private HashMap<String, IMimeType> mimeTypeMap = new HashMap<String, IMimeType>();
 
-  public RepositoryFileImportFileHandler( List<MimeType> mimeTypes ) {
-    for ( MimeType mimeType : mimeTypes ) {
+  public RepositoryFileImportFileHandler( List<IMimeType> mimeTypes ) {
+    for ( IMimeType mimeType : mimeTypes ) {
       this.mimeTypeMap.put( mimeType.getName(), mimeType );
     }
   }
@@ -443,11 +444,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   @Override
-  public List<MimeType> getMimeTypes() {
-    return new ArrayList<MimeType>( mimeTypeMap.values() );
+  public List<IMimeType> getMimeTypes() {
+    return new ArrayList<IMimeType>( mimeTypeMap.values() );
   }
 
-  public Map<String, MimeType> getMimeTypeMap() {
+  public Map<String, IMimeType> getMimeTypeMap() {
     return mimeTypeMap;
   }
 }

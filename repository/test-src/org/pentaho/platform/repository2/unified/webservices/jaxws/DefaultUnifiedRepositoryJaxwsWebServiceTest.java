@@ -19,12 +19,14 @@
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
 import com.sun.xml.ws.developer.JAXWSProperties;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -40,6 +42,7 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -49,6 +52,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
+
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.net.URL;
@@ -57,6 +61,9 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests marshalling, unmarshalling, and {@code UnifiedRepositoryToWebServiceAdapter}. Do not test unified
@@ -89,6 +96,11 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest extends DefaultUnifiedR
   @Before
   public void setUp() throws Exception {
     super.setUp();
+    
+    IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
+    when( mockRepositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
+    when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
+    JcrRepositoryFileUtils.setRepositoryVersionManager( mockRepositoryVersionManager );
 
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
 

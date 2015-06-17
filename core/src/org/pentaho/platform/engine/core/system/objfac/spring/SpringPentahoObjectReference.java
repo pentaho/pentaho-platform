@@ -22,6 +22,7 @@ import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -65,14 +66,21 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
   @Override
   @SuppressWarnings( "unchecked" )
   public T getObject() {
-    SpringScopeSessionHolder.SESSION.set( session );
-    Object obj = context.getBeanFactory().getBean( name );
-    SpringScopeSessionHolder.SESSION.set( null );
+    IPentahoSession sessionToUse = session != null ? session : PentahoSessionHolder.getSession();
+    SpringScopeSessionHolder.SESSION.set( sessionToUse );
+    ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
+      Object obj = context.getBeanFactory().getBean( name );
+      SpringScopeSessionHolder.SESSION.set( null );
 
-    if ( obj instanceof IPentahoInitializer ) {
-      ( (IPentahoInitializer) obj ).init( session );
+      if ( obj instanceof IPentahoInitializer ) {
+        ( (IPentahoInitializer) obj ).init( sessionToUse );
+      }
+      return (T) obj;
+    } finally {
+      Thread.currentThread().setContextClassLoader( originalClassLoader );
     }
-    return (T) obj;
   }
 
   @Override

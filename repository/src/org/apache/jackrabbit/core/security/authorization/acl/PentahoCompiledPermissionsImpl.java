@@ -46,7 +46,6 @@ import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.RepositoryException;
-import javax.jcr.security.AccessControlEntry;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -102,7 +101,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
     // retrieve all ACEs at path or at the direct ancestor of path that
     // apply for the principal names.
     NodeImpl n = ACLProvider.getNode( node, isAcItem );
-    Iterator<AccessControlEntry> entries = entryCollector.collectEntries( n, filter ).iterator();
+    Iterator entries = entryCollector.collectEntries( n, filter ).iterator();
 
     /*
      * Calculate privileges and permissions: Since the ACEs only define privileges on a node and do not allow to
@@ -121,27 +120,46 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
     NodeId nodeId = ( node == null ) ? null : node.getNodeId();
 
     while ( entries.hasNext() ) {
-      ACLTemplate.Entry ace = (ACLTemplate.Entry) entries.next();
+
+      Object ace = entries.next();
+
       /*
        * Determine if the ACE also takes effect on the parent: Some permissions (e.g. add-node or removal) must be
        * determined from privileges defined for the parent. A 'local' entry defined on the target node never
        * effects the parent. For inherited ACEs determine if the ACE matches the parent path.
        */
-      PrivilegeBits entryBits = ace.getPrivilegeBits();
-      boolean isLocal = isExistingNode && ace.isLocal( nodeId );
-      boolean matchesParent = ( !isLocal && ace.matches( parentPath ) );
+
+      PrivilegeBits entryBits = null;
+      boolean isLocal = false;
+      boolean matchesParent = false;
+      boolean isAllow = false;
+
+      if( ace instanceof PentahoEntry ) {
+
+        entryBits = ( ( ( PentahoEntry ) ace ).getPrivilegeBits() );
+        isLocal = isExistingNode && ( ( PentahoEntry ) ace ).isLocal( nodeId );
+        matchesParent = ( !isLocal && ( ( PentahoEntry ) ace ).matches( parentPath ) );
+        isAllow = ( ( PentahoEntry ) ace ).isAllow();
+
+      } else {
+
+        entryBits = ( ( Entry ) ace ).getPrivilegeBits();
+        isLocal = isExistingNode && ( ( Entry ) ace ).isLocal( nodeId );
+        matchesParent = ( !isLocal && ( ( Entry ) ace ).matches( parentPath ) );
+        isAllow = ( ( Entry ) ace ).isAllow();
+      }
 
       // check specific case: "Inherit permissions" may have been unchecked, and node operation permissions may
       // have been granted directly to the item ( thus not requiring having those permissions defined for the parent )
       boolean isLocalAndDoesNotInheritPermissions = isLocal && isValidPentahoNode( node ) && !isEntriesInheriting( node );
       if ( matchesParent || isLocalAndDoesNotInheritPermissions ) {
-        if ( ace.isAllow() ) {
+        if ( isAllow ) {
           parentAllowBits.addDifference( entryBits, parentDenyBits );
         } else {
           parentDenyBits.addDifference( entryBits, parentAllowBits );
         }
       }
-      if ( ace.isAllow() ) {
+      if (isAllow ) {
         allowBits.addDifference( entryBits, denyBits );
         int permissions = PrivilegeRegistry.calculatePermissions( allowBits, parentAllowBits, true, isAcItem );
         allows |= Permission.diff( permissions, denies );
@@ -197,7 +215,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
     }
 
     boolean isAcItem = util.isAcItem( absPath );
-    return buildResult( node, existingNode, isAcItem, new EntryFilterImpl( principalNames, absPath, session ) );
+    return buildResult( node, existingNode, isAcItem, new PentahoEntryFilterImpl( principalNames, absPath, session ) );
   }
 
   @Override
@@ -261,9 +279,9 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
     boolean isAcItem = util.isAcItem( node );
     EntryFilterImpl filter;
     if ( path == null ) {
-      filter = new EntryFilterImpl( principalNames, id, session );
+      filter = new PentahoEntryFilterImpl( principalNames, id, session );
     } else {
-      filter = new EntryFilterImpl( principalNames, path, session );
+      filter = new PentahoEntryFilterImpl( principalNames, path, session );
     }
 
     if ( isAcItem ) {
@@ -276,10 +294,26 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
        * permissions that are required when calculating the complete set of permissions (see special treatment of
        * remove, create or ac-specific permissions).
        */
-      for ( AccessControlEntry accessControlEntry : entryCollector.collectEntries( node, filter ) ) {
-        ACLTemplate.Entry ace = (ACLTemplate.Entry) accessControlEntry;
-        if ( ace.getPrivilegeBits().includesRead() ) {
-          canRead = ace.isAllow();
+
+      for ( Object entry : entryCollector.collectEntries( node, filter ) ) {
+
+        PrivilegeBits privilegeBits = null;
+        boolean isAllow = false;
+
+        if( entry instanceof PentahoEntry ) {
+
+          privilegeBits = ( ( PentahoEntry ) entry ).getPrivilegeBits();
+          isAllow = ( ( PentahoEntry ) entry ).isAllow();
+
+        } else {
+
+          privilegeBits = ( ( Entry ) entry ).getPrivilegeBits();
+          isAllow = ( ( Entry ) entry ).isAllow();
+
+        }
+
+        if ( privilegeBits.includesRead() ) {
+          canRead = isAllow;
           break;
         }
       }
@@ -305,8 +339,10 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
    * Returns stored entriesInheriting flag for given node
    */
   private boolean isEntriesInheriting( final NodeImpl node ) throws RepositoryException {
-   return JcrRepositoryFileAclUtils.getAclMetadata( session, node.getPath(), new ACLTemplate( node.getNode(
-        AccessControlConstants.N_POLICY ) ) ).isEntriesInheriting();
+    NodeImpl aclNode = node.getNode( AccessControlConstants.N_POLICY );
+    String path = aclNode != null ? aclNode.getParent().getPath() : null;
+    return JcrRepositoryFileAclUtils.getAclMetadata( session, node.getPath(),
+        new ACLTemplate( aclNode, path, false /* allowUnknownPrincipals */ ) ).isEntriesInheriting();
   }
 
   private boolean isBelowRootFolder( final NodeImpl node ) throws RepositoryException {

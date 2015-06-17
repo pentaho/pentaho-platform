@@ -27,11 +27,13 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -39,7 +41,7 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 /**
  * Default implementation of IPlatformImporter. This class serves to route import requests to the appropriate
  * IPlatformImportHandler based on the mime-type of the given content. If not supplied the mime-type will be computed by
- * the IPlatformImportMimeResolver.
+ * the IPlatformMimeResolver.
  * <p/>
  * User: nbaker Date: 5/29/12
  */
@@ -49,7 +51,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   private static final Messages messages = Messages.getInstance();
   private Map<String, IPlatformImportHandler> importHandlers;
   private IPlatformImportHandler defaultHandler;
-  private IPlatformImportMimeResolver mimeResolver;
+  private IPlatformMimeResolver mimeResolver;
   private IRepositoryImportLogger repositoryImportLogger;
   private IRepositoryContentConverterHandler repositoryContentConverterHandler;
 
@@ -57,7 +59,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
                                   IRepositoryContentConverterHandler repositoryContentConverterHandler ) {
     this.repositoryContentConverterHandler = repositoryContentConverterHandler;
     importHandlers = new HashMap<String, IPlatformImportHandler>();
-    mimeResolver = PentahoSystem.get( IPlatformImportMimeResolver.class );
+    mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
 
     for ( IPlatformImportHandler platformImportHandler : handlerList ) {
       addHandler( platformImportHandler );
@@ -81,7 +83,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
 
   @Override
   public void addHandler( IPlatformImportHandler platformImportHandler ) {
-    for ( MimeType mimeType : platformImportHandler.getMimeTypes() ) {
+    for ( IMimeType mimeType : platformImportHandler.getMimeTypes() ) {
       this.importHandlers.put( mimeType.getName(), platformImportHandler );
       this.mimeResolver.addMimeType( mimeType );
       for ( String extension : mimeType.getExtensions() ) {

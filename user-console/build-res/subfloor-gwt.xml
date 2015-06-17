@@ -169,6 +169,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           description="Perform GWT Compile">
     <java classname="com.google.gwt.dev.Compiler" fork="true" failonerror="true" maxmemory="${gwt-compile.maxmemory}">
       <classpath refid="codegen.classpath"/>
+      <jvmarg value="-Dgwt.persistentunitcache=${isWindows}"/>
       <jvmarg value="-Xss${gwt-compile.maxstack}"/>
       <arg value="-war" />
       <arg value="${gwt.output.dir}" />

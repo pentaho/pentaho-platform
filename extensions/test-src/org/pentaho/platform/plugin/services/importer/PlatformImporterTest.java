@@ -33,8 +33,11 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.junit.Test;
+import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
-import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
+import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -48,13 +51,13 @@ public class PlatformImporterTest {
   public void testNoMatchingMime() throws Exception {
 
     IPlatformImportHandler mockImportHandler = mock( IPlatformImportHandler.class );
-    when( mockImportHandler.getMimeTypes() ).thenReturn( Collections.<MimeType>emptyList() );
+    when( mockImportHandler.getMimeTypes() ).thenReturn( Collections.<IMimeType>emptyList() );
     List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
     handlers.add( mockImportHandler );
 
     MicroPlatform microPlatform = new MicroPlatform();
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
-    microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
+    microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
 
     PentahoPlatformImporter importer =
         new PentahoPlatformImporter( handlers, new DefaultRepositoryContentConverterHandler(
@@ -89,14 +92,14 @@ public class PlatformImporterTest {
   @Test
   public void testMatchingMimeAndHandler() throws Exception {
 
-    List<MimeType> mimeList = Collections.singletonList( new MimeType( "text/xmi+xml", "xmi" ) );
+    List<IMimeType> mimeList = Collections.singletonList( (IMimeType) new MimeType( "text/xmi+xml", "xmi" ) );
     IPlatformImportHandler mockImportHandler = mock( IPlatformImportHandler.class );
     when( mockImportHandler.getMimeTypes() ).thenReturn( mimeList );
     List<IPlatformImportHandler> handlers = Collections.singletonList( mockImportHandler );
 
     MicroPlatform microPlatform = new MicroPlatform();
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
-    microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
+    microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
 
     // mock logger to prevent npe
     IRepositoryImportLogger importLogger = new Log4JRepositoryImportLogger();
@@ -123,14 +126,14 @@ public class PlatformImporterTest {
   @Test
   public void testUseDefaultHandler() throws Exception {
 
-    List<MimeType> mimeList = Collections.singletonList( new MimeType( "text/html", "html" ) );
+    List<IMimeType> mimeList = Collections.singletonList( (IMimeType) new MimeType( "text/html", "html" ) );
     IPlatformImportHandler mockImportHandler = mock( IPlatformImportHandler.class );
     when( mockImportHandler.getMimeTypes() ).thenReturn( mimeList );
     List<IPlatformImportHandler> handlers = Collections.singletonList( mockImportHandler );
 
     MicroPlatform microPlatform = new MicroPlatform();
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
-    microPlatform.defineInstance( IPlatformImportMimeResolver.class, nameResolver );
+    microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
 
     // mock logger to prevent npe
     IRepositoryImportLogger importLogger = new Log4JRepositoryImportLogger();

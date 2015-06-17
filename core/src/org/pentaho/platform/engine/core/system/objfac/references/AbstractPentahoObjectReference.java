@@ -16,12 +16,12 @@ import java.util.Map;
 public abstract class AbstractPentahoObjectReference<T> implements IPentahoObjectReference<T> {
 
   private final Map<String, Object> attributes;
-  private final int ranking;
+  private final Integer ranking;
   private Class<T> type;
   private Logger logger = LoggerFactory.getLogger( AbstractPentahoObjectReference.class );
 
   protected AbstractPentahoObjectReference( Class<T> type, Map<String, Object> attributes,
-                                            int ranking ) {
+                                            Integer ranking ) {
     if ( type == null ) {
       throw new IllegalArgumentException( "type cannot be null" );
     }
@@ -50,7 +50,22 @@ public abstract class AbstractPentahoObjectReference<T> implements IPentahoObjec
   protected abstract T createObject() throws ObjectFactoryException;
 
   @Override public Integer getRanking() {
-    return ranking;
+    if( ranking != null ){
+      return ranking;
+    }
+    Map<String, Object> props = getAttributes();
+    if ( props == null ) {
+      return DEFAULT_RANKING;
+    }
+    Object sPri = getAttributes().get( "priority" );
+    if ( sPri == null ) {
+      return DEFAULT_RANKING;
+    }
+    try {
+      return Integer.parseInt( sPri.toString() );
+    } catch ( NumberFormatException e ) {
+      return DEFAULT_RANKING;
+    }
   }
 
   @Override public int compareTo( IPentahoObjectReference<T> o ) {

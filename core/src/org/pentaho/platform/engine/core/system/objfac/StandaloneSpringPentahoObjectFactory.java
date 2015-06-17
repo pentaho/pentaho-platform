@@ -26,6 +26,7 @@ import org.springframework.beans.factory.config.Scope;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 
@@ -64,19 +65,14 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
 
     if ( context == null ) {
       // beanFactory = new FileSystemXmlApplicationContext(configFile);
-      File f = new File( configFile );
-      FileSystemResource fsr = new FileSystemResource( f );
-      GenericApplicationContext appCtx = new GenericApplicationContext();
-
+      FileSystemXmlApplicationContext appCtx = new FileSystemXmlApplicationContext( configFile );
       Scope requestScope = new ThreadLocalScope();
       appCtx.getBeanFactory().registerScope( "request", requestScope );
       Scope sessionScope = new ThreadLocalScope();
       appCtx.getBeanFactory().registerScope( "session", sessionScope );
 
-      XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader( appCtx );
-      xmlReader.loadBeanDefinitions( fsr );
-
       beanFactory = appCtx;
+      //appCtx.refresh();
     } else {
       if ( !( context instanceof ConfigurableApplicationContext ) ) {
         String msg =

@@ -14,16 +14,17 @@
  *
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
-package org.pentaho.platform.plugin.services.importer.mimeType;
+package org.pentaho.platform.core.mimetype;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.pentaho.platform.api.repository2.unified.Converter;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.Converter;
 
 /**
  * Hold mime type name and extensions associated with it.
@@ -31,11 +32,13 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author tkafalas
  */
 @XmlRootElement
-public class MimeType implements Comparable<MimeType> {
+public class MimeType implements Comparable<IMimeType>, IMimeType {
   private String name;
   private List<String> extensions = new ArrayList<String>();
   private boolean hidden;
   private boolean locale;
+  private boolean versionEnabled;
+  private boolean versionCommentEnabled;
 
   @XmlTransient
   private Converter converter;
@@ -59,49 +62,113 @@ public class MimeType implements Comparable<MimeType> {
     this( name, Arrays.asList( extensions.split( "," ) ) );
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#setName(java.lang.String)
+   */
+  @Override
   public void setName( String name ) {
     this.name = name;
   }
 
+  @Override
   public List<String> getExtensions() {
     return extensions;
   }
 
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#isHidden()
+   */
+  @Override
   public boolean isHidden() {
     return hidden;
   }
 
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#setHidden(boolean)
+   */
+  @Override
   public void setHidden( boolean hidden ) {
     this.hidden = hidden;
   }
 
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#isLocale()
+   */
+  @Override
   public boolean isLocale() {
     return locale;
   }
 
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#setLocale(boolean)
+   */
+  @Override
   public void setLocale( boolean locale ) {
     this.locale = locale;
   }
 
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#isVersionEnabled()
+   */
+  @Override
+  public boolean isVersionEnabled() {
+    return versionEnabled;
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#setVersionEnabled(boolean)
+   */
+  @Override
+  public void setVersionEnabled( boolean versionEnabled ) {
+    this.versionEnabled = versionEnabled;
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#isVersionCommentEnabled()
+   */
+  @Override
+  public boolean isVersionCommentEnabled() {
+    return versionCommentEnabled;
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#setVersionCommentEnabled(boolean)
+   */
+  @Override
+  public void setVersionCommentEnabled( boolean versionCommentEnabled ) {
+    this.versionCommentEnabled = versionCommentEnabled;
+  }
+
   @XmlTransient
+  @Override
   public Converter getConverter() {
     return converter;
   }
 
+  @Override
   public void setConverter( Converter converter ) {
     this.converter = converter;
   }
 
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#setExtensions(java.util.List)
+   */
+  @Override
   public void setExtensions( List<String> extensions ) {
     for ( String extension : extensions ) {
       this.extensions.add( extension );
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.core.mimetype.IMimeType#toString()
+   */
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append( "name:" ).append( name );
@@ -116,13 +183,17 @@ public class MimeType implements Comparable<MimeType> {
     sb.append( ",hidden:" ).append( hidden );
     sb.append( ",locale:" ).append( locale );
     sb.append( ",converter:" ).append( converter );
+    sb.append( ",versionEnabled:" ).append( versionEnabled );
+    sb.append( ",versionCommentEnabled:" ).append( versionCommentEnabled );
     return sb.toString();
   }
 
-  public int compareTo( MimeType o ) {
-    return name.compareTo( o.name );
+  @Override
+  public int compareTo( IMimeType o ) {
+    return name.compareTo( o.getName() );
   }
 
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -130,6 +201,7 @@ public class MimeType implements Comparable<MimeType> {
     return result;
   }
 
+  @Override
   public boolean equals( Object obj ) {
     if ( this == obj ) {
       return true;
@@ -140,12 +212,12 @@ public class MimeType implements Comparable<MimeType> {
     if ( getClass() != obj.getClass() ) {
       return false;
     }
-    MimeType other = (MimeType) obj;
+    IMimeType other = (IMimeType) obj;
     if ( name == null ) {
-      if ( other.name != null ) {
+      if ( other.getName() != null ) {
         return false;
       }
-    } else if ( !name.equals( other.name ) ) {
+    } else if ( !name.equals( other.getName() ) ) {
       return false;
     }
     return true;

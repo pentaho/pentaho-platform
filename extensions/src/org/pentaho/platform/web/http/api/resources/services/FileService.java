@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
@@ -35,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -45,7 +47,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
@@ -70,10 +71,10 @@ import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValue
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.web.http.api.resources.Setting;
-import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
+import org.pentaho.platform.web.http.api.resources.Setting;
+import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 
@@ -613,7 +614,7 @@ public class FileService {
   public IRepositoryFileData getData( RepositoryFile repositoryFile ) {
     IRepositoryContentConverterHandler converterHandler;
     Map<String, Converter> converters;
-    NameBaseMimeResolver mimeResolver;
+    IPlatformMimeResolver mimeResolver;
 
     IRepositoryFileData repositoryFileData = null;
 
@@ -642,7 +643,7 @@ public class FileService {
       }
 
       // Check the mime type
-      mimeResolver = PentahoSystem.get( NameBaseMimeResolver.class );
+      mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
 
       // fail if we have no mime resolver
       if ( mimeResolver == null ) {

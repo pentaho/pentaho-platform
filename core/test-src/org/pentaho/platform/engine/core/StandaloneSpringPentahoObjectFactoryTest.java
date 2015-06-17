@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.engine.core;
 
+import org.junit.Before;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -38,6 +39,11 @@ import junit.framework.TestCase;
 
 @SuppressWarnings( { "all" } )
 public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
+
+  @Before
+  public void setup(){
+    PentahoSystem.clearObjectFactory();
+  }
 
   public void testInitFromXml() throws Exception {
 
@@ -113,8 +119,9 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
     StandaloneSession session = new StandaloneSession();
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
     factory.init( "test-res/solution/system/pentahoObjects.spring.xml", null );
+    PentahoSystem.registerObjectFactory( factory );
 
-    List<MimeTypeListener> mimes = factory.getAll( MimeTypeListener.class, session );
+    List<MimeTypeListener> mimes = PentahoSystem.getAll( MimeTypeListener.class, session );
 
     assertNotNull( mimes );
 
@@ -129,8 +136,9 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
     StandaloneSession session = new StandaloneSession();
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
     factory.init( "test-res/solution/system/pentahoObjects.spring.xml", null );
+    PentahoSystem.registerObjectFactory( factory );
 
-    IPentahoObjectReference reference = factory.getObjectReference( MimeTypeListener.class, session );
+    IPentahoObjectReference reference = PentahoSystem.getObjectReference( MimeTypeListener.class, session );
 
     assertEquals( "30", reference.getAttributes().get( "priority" ) );
 
@@ -142,26 +150,27 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
     StandaloneSession session = new StandaloneSession();
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
     factory.init( "test-res/solution/system/pentahoObjects.spring.xml", null );
+    PentahoSystem.registerObjectFactory( factory );
 
-    MimeTypeListener obj = factory.get( MimeTypeListener.class, session, Collections.singletonMap( "someKey", "1" ) );
+    MimeTypeListener obj = PentahoSystem.get( MimeTypeListener.class, session, Collections.singletonMap( "someKey", "1" ) );
     assertEquals( "Test Attr1", obj.name );
 
-    obj = factory.get( MimeTypeListener.class, session, Collections.singletonMap( "someKey", "2" ) );
+    obj = PentahoSystem.get( MimeTypeListener.class, session, Collections.singletonMap( "someKey", "2" ) );
     assertEquals( "Test Attr2", obj.name );
 
     // Multiple Attributes
     HashMap<String, String> map = new HashMap<String, String>();
     map.put( "someKey", "3" );
     map.put( "foo", "bar" );
-    obj = factory.get( MimeTypeListener.class, session, map );
+    obj = PentahoSystem.get( MimeTypeListener.class, session, map );
     assertEquals( "Test Attr3", obj.name );
 
     // Not found, will default to
     map = new HashMap<String, String>();
     map.put( "someKey", "3" );
     map.put( "foo", "bang" );
-    obj = factory.get( MimeTypeListener.class, session, map );
-    assertEquals( null, obj.name );
+    obj = PentahoSystem.get( MimeTypeListener.class, session, map );
+    assertEquals( null, obj );
   }
 
   public void testReferenceList() throws Exception {
@@ -173,7 +182,7 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
     factory.init( "test-res/solution/system/pentahoObjects.spring.xml", null );
     PentahoSystem.registerObjectFactory( factory );
 
-    MimeListenerCollection collection = factory.get( MimeListenerCollection.class, session );
+    MimeListenerCollection collection = PentahoSystem.get( MimeListenerCollection.class, session );
     assertNotNull( collection );
 
     assertEquals( 5, collection.getListeners().size() );
@@ -200,8 +209,9 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
 
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
     factory.init( "test-res/solution/system/pentahoObjects.spring.xml", null );
+    PentahoSystem.registerObjectFactory( factory );
 
-    MimeTypeListener obj = factory.get( MimeTypeListener.class, session );
+    MimeTypeListener obj = PentahoSystem.get( MimeTypeListener.class, session );
 
     assertEquals( "Higher Priority MimeTypeListener", obj.name );
   }
@@ -209,17 +219,20 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
   public void testSessionProperties() throws Exception {
 
     StandaloneSession session = new StandaloneSession();
+    PentahoSessionHolder.setSession( session );
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
     factory.init( "test-res/solution/system/pentahoObjects.spring.xml", null );
+    PentahoSystem.registerObjectFactory( factory );
 
-    IContentInfo obj = factory.get( IContentInfo.class, session );
+    IContentInfo obj = PentahoSystem.get( IContentInfo.class, session );
     assertEquals( "Test Session", obj.getTitle() );
 
-    IContentInfo obj_again = factory.get( IContentInfo.class, session );
+    IContentInfo obj_again = PentahoSystem.get( IContentInfo.class, session );
     assertSame( obj_again, obj );
 
     session = new StandaloneSession();
-    IContentInfo obj_newer = factory.get( IContentInfo.class, session );
+    PentahoSessionHolder.setSession( session );
+    IContentInfo obj_newer = PentahoSystem.get( IContentInfo.class, session );
     assertNotSame( obj, obj_newer );
   }
 

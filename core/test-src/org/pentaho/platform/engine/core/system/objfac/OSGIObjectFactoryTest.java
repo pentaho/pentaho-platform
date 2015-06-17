@@ -15,11 +15,13 @@
  * Copyright 2013 Pentaho Corporation. All rights reserved.
  */
 
-package org.pentaho.platform.osgi;
+package org.pentaho.platform.engine.core.system.objfac;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -28,7 +30,6 @@ import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,11 +47,26 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings( "unchecked" )
 public class OSGIObjectFactoryTest {
 
+  private StandaloneSession session;
+  private BundleContext mockContext;
+  private Bundle mockBundle;
+  private OSGIObjectFactory factory;
+
+  @Before
+  public void setup(){
+    session = new StandaloneSession();
+    mockContext = Mockito.mock( BundleContext.class );
+
+    mockBundle = Mockito.mock( Bundle.class );
+
+    when(mockBundle.getState()).thenReturn( Bundle.ACTIVE );
+    when( mockContext.getBundle() ).thenReturn( mockBundle );
+    factory = new OSGIObjectFactory( mockContext );
+  }
+
   @Test
   public void testGet() throws Exception {
 
-    StandaloneSession session = new StandaloneSession();
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
     ServiceReference<String> ref = Mockito.mock( ServiceReference.class );
 
     when( mockContext.getServiceReferences( String.class, null ) ).thenReturn( Collections.singletonList( ref ) );
@@ -59,7 +75,6 @@ public class OSGIObjectFactoryTest {
     when( mockContext.getServiceReferences( java.lang.Integer.class, null ) )
       .thenThrow( new InvalidSyntaxException( "bad", "call" ) );
 
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
     String actual = factory.get( String.class, session );
     Integer missing = factory.get( Integer.class, session );
 
@@ -77,8 +92,6 @@ public class OSGIObjectFactoryTest {
   @Test
   public void testGetWInitializer() throws Exception {
 
-    StandaloneSession session = new StandaloneSession();
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
 
     ServiceReference<IPentahoInitializer> ref = Mockito.mock( ServiceReference.class );
 
@@ -98,7 +111,6 @@ public class OSGIObjectFactoryTest {
 
     assertTrue( "initializer should be rested", initialized.get() == false );
 
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
     IPentahoInitializer actual = factory.get( IPentahoInitializer.class, session );
 
     assertSame( initializer, actual );
@@ -112,7 +124,6 @@ public class OSGIObjectFactoryTest {
 
   @Test
   public void testObjectDefined() throws Exception {
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
     ServiceReference<String> ref = Mockito.mock( ServiceReference.class );
 
     ServiceReference ref2 = Mockito.mock( ServiceReference.class );
@@ -120,7 +131,6 @@ public class OSGIObjectFactoryTest {
     when( mockContext.getServiceReference( String.class ) ).thenReturn( ref );
     when( mockContext.getServiceReference( String.class.getName() ) ).thenReturn( ref2 );
 
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
 
     assertEquals( true, factory.objectDefined( String.class ) );
     assertEquals( false, factory.objectDefined( Integer.class ) );
@@ -145,8 +155,6 @@ public class OSGIObjectFactoryTest {
 
   @Test
   public void testGetImplementingClass() throws Exception {
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
     try {
       factory.getImplementingClass( "java.lang.String" );
       fail( "Should have thrown an exception" );
@@ -160,8 +168,6 @@ public class OSGIObjectFactoryTest {
   @Test
   public void testGetAll() throws Exception {
 
-    StandaloneSession session = new StandaloneSession();
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
     ServiceReference<String> ref = Mockito.mock( ServiceReference.class );
     ServiceReference<String> ref2 = Mockito.mock( ServiceReference.class );
 
@@ -171,7 +177,6 @@ public class OSGIObjectFactoryTest {
     when( mockContext.getService( ref ) ).thenReturn( "SomeString" );
     when( mockContext.getService( ref2 ) ).thenReturn( "SomeString2" );
 
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
     List<String> actual = factory.getAll( String.class, session );
 
 
@@ -194,8 +199,6 @@ public class OSGIObjectFactoryTest {
   @Test
   public void testGetObjectReference() throws Exception {
 
-    StandaloneSession session = new StandaloneSession();
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
     ServiceReference<String> ref = Mockito.mock( ServiceReference.class );
 
     when( mockContext.getServiceReferences( String.class, null ) ).thenReturn( Collections.singletonList( ref ) );
@@ -209,7 +212,6 @@ public class OSGIObjectFactoryTest {
     when( ref.getProperty( "prop1" ) ).thenReturn( "value1" );
     when( ref.getProperty( "prop2" ) ).thenReturn( "value2" );
 
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
     IPentahoObjectReference<String> objectReference = factory.getObjectReference( String.class, session );
 
     assertEquals( "SomeString", objectReference.getObject() );
@@ -226,8 +228,6 @@ public class OSGIObjectFactoryTest {
   @Test
   public void testGetObjectReferenceWithQuery() throws Exception {
 
-    StandaloneSession session = new StandaloneSession();
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
     ServiceReference<String> ref = Mockito.mock( ServiceReference.class );
     ServiceReference<String> ref2 = Mockito.mock( ServiceReference.class );
 
@@ -246,7 +246,6 @@ public class OSGIObjectFactoryTest {
     when( ref2.getProperty( "service.ranking" ) ).thenReturn( null );
 
 
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
     IPentahoObjectReference<String> objectReference =
       factory.getObjectReference( String.class, session, Collections.singletonMap( "name", "foo" ) );
 
@@ -360,9 +359,6 @@ public class OSGIObjectFactoryTest {
   @Test
   public void testGetObjectReferencesWithQuery() throws Exception {
 
-    StandaloneSession session = new StandaloneSession();
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
-
     ServiceReference<String> ref = (ServiceReference<String>) Mockito.mock( ServiceReference.class );
     ServiceReference<String> ref2 = Mockito.mock( ServiceReference.class );
 
@@ -381,7 +377,6 @@ public class OSGIObjectFactoryTest {
     when( ref2.getProperty( "name" ) ).thenReturn( "foo" );
 
 
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
     List<IPentahoObjectReference<String>> objectReferences =
       factory.getObjectReferences( String.class, session, Collections.singletonMap( "name", "foo" ) );
 
@@ -401,15 +396,11 @@ public class OSGIObjectFactoryTest {
 
   @Test
   public void testGetName() throws Exception {
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
     assertEquals( "OSGIObjectFactory", factory.getName() );
   }
 
   @Test
   public void testInit() {
-    BundleContext mockContext = Mockito.mock( BundleContext.class );
-    OSGIObjectFactory factory = new OSGIObjectFactory( mockContext );
     factory.init( null, null );
 
   }

@@ -70,7 +70,7 @@ public class PentahoWebContextFilter implements Filter {
   private static final String CONTEXT = "context"; //$NON-NLS-1$
   private static final String GLOBAL = "global"; //$NON-NLS-1$
   private static final byte[] REQUIRE_JS_CFG_START =
-      "var requireCfg = {waitSeconds: 30, paths: {}, shim: {}};\n".getBytes(); //$NON-NLS-1$
+      "var requireCfg = {waitSeconds: 30, paths: {}, shim: {}, map: {\"*\": {}}, bundles: {}, config: {service: {}}, packages: []};\n".getBytes(); //$NON-NLS-1$
   private static final String REQUIRE_JS = "requirejs"; //$NON-NLS-1$
   // Changed to not do so much work for every request
   private static final ThreadLocal<byte[]> THREAD_LOCAL_CONTEXT_PATH = new ThreadLocal<byte[]>();

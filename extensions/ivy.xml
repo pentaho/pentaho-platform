@@ -78,7 +78,7 @@
 
     <dependency org="dom4j" name="dom4j" rev="1.6.1" transitive="false"/>
     <dependency org="wsdl4j" name="wsdl4j" rev="1.6.2" transitive="false"/>
-    <dependency org="javax.jcr" name="jcr" rev="1.0" transitive="false"/>
+    <dependency org="javax.jcr" name="jcr" rev="2.0" transitive="false"/>
     <dependency org="org.apache.geronimo.specs" name="geronimo-stax-api_1.0_spec" rev="1.0" transitive="false"/>
     <dependency org="org.springframework.security" name="spring-security-core" rev="2.0.5.RELEASE" transitive="false"/>
     <dependency org="org.springframework.ldap" name="spring-ldap-core" rev="1.3.0.RELEASE" transitive="false"/>
@@ -270,6 +270,7 @@
     <dependency org="luciddb" name="LucidDbClient-minimal" rev="0.9.4" conf="default->default" transitive="false"/>
     <dependency org="pentaho" name="pentaho-hadoop-hive-jdbc-shim" rev="${dependency.pentaho-hadoop-hive-jdbc-shim.revision}" changing="true"
                 transitive="false"/>
+    <dependency org="pentaho" name="pdi-dataservice-plugin" rev="${project.revision}" />
 
     <dependency org="net.sf.kosmosfs" name="kfs" rev="0.3" transitive="false"/>
     <dependency org="xmlenc" name="xmlenc" rev="0.52" transitive="false"/>
@@ -334,13 +335,14 @@
                 conf="runtime->default"/>
 
     <!-- OSGI Components -->
-    <!--<dependency org="org.osgi" name="org.osgi.core" rev="4.3.1"/>-->
 
-    <dependency org="org.eclipse.gemini.blueprint" name="gemini-blueprint-core" rev="1.0.2.RELEASE"/>
+    <dependency org="org.apache.karaf" name="org.apache.karaf.main" rev="2.3.5"/>
+    <dependency org="org.apache.karaf.jaas" name="org.apache.karaf.jaas.boot" rev="2.3.5"/>
+    <dependency org="org.apache.karaf.jaas" name="org.apache.karaf.jaas.modules" rev="2.3.5"/>
+    <dependency org="org.apache.felix" name="org.apache.felix.http.proxy" rev="2.3.0"/>
 
-    <!--<dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.2.1"/>-->
     <dependency org="org.apache.felix" name="org.apache.felix.main" rev="4.2.1"/>
-
+    <dependency org="org.apache.felix" name="org.apache.felix.http.base" rev="2.3.0"/>
 
     <!--  testing dependencies -->
     <dependency org="junit" name="junit" rev="4.11" conf="test->default"/>
@@ -360,6 +362,8 @@
 
     <dependency org="com.mockrunner" name="mockrunner-servlet" rev="0.3.7" conf="test->default"/>
     <dependency org="com.mockrunner" name="mockrunner" rev="0.3.1" conf="test->default"/>
+    <dependency org="net.javacrumbs.json-unit" name="json-unit" rev="1.5.5" conf="test->default" />
+    <dependency org="xmlunit" name="xmlunit" rev="1.6" conf="test->default" />
 
     <!-- Necessary because Pentaho's security tests re-use Spring's Security test classes. -->
     <dependency org="org.springframework.security" name="spring-security-core-tests" rev="2.0.5.RELEASE"
@@ -403,5 +407,7 @@
 
     <override org="junit" module="junit" rev="4.4"/>
     <override org="asm" module="asm" rev="3.1"/>
+
+    <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
   </dependencies>
 </ivy-module>

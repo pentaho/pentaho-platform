@@ -2,6 +2,7 @@ package org.pentaho.platform.osgi;
 
 import org.osgi.framework.BundleContext;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.objfac.OSGIObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,13 +13,19 @@ import org.slf4j.LoggerFactory;
 public class PentahoOSGIActivator {
 
   private Logger logger = LoggerFactory.getLogger( getClass() );
-  private OSGIObjectFactory objectFactory;
+  private static OSGIObjectFactory objectFactory;
 
   public void setBundleContext( BundleContext bundleContext ) throws Exception {
     logger.debug( "Registering OSGIObjectFactory" );
 
+    if ( objectFactory != null ) {
+      logger.debug( "De-Registering Previous OSGIObjectFactory" );
+      PentahoSystem.deregisterObjectFactory( objectFactory );
+    }
+
     objectFactory = new OSGIObjectFactory( bundleContext );
     PentahoSystem.registerObjectFactory( objectFactory );
+    PentahoSystem.setBundleContext( bundleContext );
     logger.debug( "OSGIObjectFactory installed" );
 
   }

@@ -140,14 +140,14 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
    * @see EntryCollector#getEntries(org.apache.jackrabbit.core.NodeImpl)
    */
   @Override
-  protected Entries getEntries( NodeImpl node ) throws RepositoryException {
+  protected PentahoEntries getEntries( NodeImpl node ) throws RepositoryException {
     NodeId nodeId = node.getNodeId();
     Entries entries = getCache().get( nodeId );
     if ( entries == null ) {
       // fetch entries and update the cache
       entries = updateCache( node );
     }
-    return entries;
+    return entries instanceof PentahoEntries ? ( PentahoEntries ) entries : new PentahoEntries( entries );
   }
 
   /**

@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.engine.core;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
@@ -40,6 +41,11 @@ import static junit.framework.Assert.assertNotNull;
  * User: nbaker Date: 3/3/13
  */
 public class AggregateObjectFactoryTest {
+
+  @Before
+  public void setup(){
+    PentahoSystem.clearObjectFactory();
+  }
 
   @Test
   public void testByKey() throws Exception {
@@ -72,15 +78,13 @@ public class AggregateObjectFactoryTest {
     StandaloneObjectFactory factory3 = new StandaloneObjectFactory();
     factory3.init( null, null );
     factory3.defineObject( "MimeTypeListener", MimeTypeListener.class.getName(),
-      IPentahoDefinableObjectFactory.Scope.GLOBAL );
+        IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
-    AggregateObjectFactory aggFactory = new AggregateObjectFactory();
+    AggregateObjectFactory aggFactory = (AggregateObjectFactory) PentahoSystem.getObjectFactory();
     aggFactory.registerObjectFactory( factory3 );
-    aggFactory.registerObjectFactory( factory2 );
-    aggFactory.registerObjectFactory( factory );
 
     List<MimeTypeListener> mimes = aggFactory.getAll( MimeTypeListener.class, session );
-    assertEquals( 11, mimes.size() );
+    assertEquals( 6, mimes.size() );
 
   }
 
@@ -132,8 +136,7 @@ public class AggregateObjectFactoryTest {
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
     factory.init( "test-res/solution/system/pentahoObjects.spring.xml", null );
 
-    AggregateObjectFactory aggFactory = new AggregateObjectFactory();
-    aggFactory.registerObjectFactory( factory );
+    AggregateObjectFactory aggFactory = (AggregateObjectFactory) PentahoSystem.getObjectFactory();
 
     MimeTypeListener info =
       aggFactory.get( MimeTypeListener.class, session, Collections.singletonMap( "id", "someID" ) );
@@ -161,7 +164,7 @@ public class AggregateObjectFactoryTest {
     StandaloneSpringPentahoObjectFactory factory2 = new StandaloneSpringPentahoObjectFactory();
     factory2.init( null, context );
 
-    AggregateObjectFactory aggFactory = new AggregateObjectFactory();
+    AggregateObjectFactory aggFactory = (AggregateObjectFactory) PentahoSystem.getObjectFactory();
     aggFactory.registerObjectFactory( factory );
     aggFactory.registerObjectFactory( factory2 );
 
@@ -178,6 +181,8 @@ public class AggregateObjectFactoryTest {
   @Test
   public void testRegisteredButNotPublishingAnythingApplicationContext() throws Exception {
 
+    PublishedBeanRegistry.reset();
+
     StandaloneSession session = new StandaloneSession();
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
 
@@ -187,7 +192,7 @@ public class AggregateObjectFactoryTest {
     // this was causing an exception.
     factory.init( null, context );
 
-    AggregateObjectFactory aggFactory = new AggregateObjectFactory();
+    AggregateObjectFactory aggFactory = (AggregateObjectFactory) PentahoSystem.getObjectFactory();
     aggFactory.registerObjectFactory( factory );
     assertEquals( 0, PublishedBeanRegistry.getRegisteredFactories().size() );
 

@@ -88,3 +88,7 @@
 2013/01/17 23:25:52	Global startup actions	system session	testsolution/testpath/test.xaction	org.pentaho.platform.engine.services.solution.SolutionEngine	system session	instance_start	25229c3e-6127-11e2-bd08-60334b14b37d			0.0
 2013/01/17 23:25:53	Global startup actions	system session	testsolution/testpath/test.xaction	org.pentaho.platform.engine.services.solution.SolutionEngine	system session	instance_start	2540365f-6127-11e2-bd08-60334b14b37d			0.0
 2013/01/17 23:25:53	Global startup actions	system session	testsolution/testpath/test.xaction	org.pentaho.platform.engine.services.solution.SolutionEngine	system session	instance_start	25565670-6127-11e2-bd08-60334b14b37d			0.0
+2015/06/03 11:53:52	empty action sequence test	system	test1.xaction	org.pentaho.platform.engine.services.solution.SolutionEngine	system	instance_start	bb3f4511-0a08-11e5-a39b-7eee3a8b2b77			0.0
+2015/06/03 11:53:52	empty action sequence test	bb3f4511-0a08-11e5-a39b-7eee3a8b2b77		org.pentaho.platform.engine.services.runtime.RuntimeContext	system	action_sequence_start	start			0.0
+2015/06/03 11:53:52	empty action sequence test	bb3f4511-0a08-11e5-a39b-7eee3a8b2b77		org.pentaho.platform.engine.services.runtime.RuntimeContext	system	action_sequence_end	end			0.0
+2015/06/03 11:53:52	empty action sequence test	system	test1.xaction	org.pentaho.platform.engine.services.solution.SolutionEngine	system	instance_end	bb3f4511-0a08-11e5-a39b-7eee3a8b2b77			0.04100000113248825
