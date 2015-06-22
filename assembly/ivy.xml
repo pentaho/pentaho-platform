@@ -312,6 +312,24 @@
       <artifact name="pdi-platform-utils-plugin" type="zip"/>
     </dependency>
 
+    <!-- Karaf Dependencies -->
+    <dependency org="org.apache.karaf" name="org.apache.karaf.main" rev="3.0.3"  transitive="false"/>
+    <dependency org="org.apache.karaf.management" name="org.apache.karaf.management.boot" rev="3.0.3"  transitive="false"/>
+    <dependency org="org.apache.karaf.jaas" name="org.apache.karaf.jaas.boot" rev="2.4.2"  transitive="false"/>
+    <dependency org="org.apache.karaf.jaas" name="org.apache.karaf.jaas.modules" rev="2.4.2"  transitive="false"/>
+
+    <dependency org="org.apache.felix" name="org.apache.felix.main" rev="4.2.1"  transitive="false"/>
+    <dependency org="org.apache.felix" name="org.apache.felix.http.api" rev="2.3.0"  transitive="false"/>
+    <dependency org="org.apache.felix" name="org.apache.felix.http.base" rev="2.3.0"  transitive="false"/>
+    <dependency org="org.apache.felix" name="org.apache.felix.http.proxy" rev="2.3.0"  transitive="false"/>
+    
+    <dependency org="org.apache.felix" name="org.apache.felix.fileinstall" rev="3.4.2"  transitive="false"/>
+	<dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.4.1"  transitive="false"/>    
+
+	<dependency org="org.osgi" name="org.osgi.compendium" rev="5.0.0"  transitive="false"/>
+	<dependency org="org.osgi" name="org.osgi.core" rev="4.3.0"  transitive="false"/>
+	
+	
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.
@@ -337,6 +355,5 @@
     <conflict org="pentaho" module="pentaho-metadata" rev="${dependency.pentaho-metadata.revision}" />
     <conflict org="pentaho-reporting" rev="3.8-SNAPSHOT" />
 
-  </dependencies>
-
+</dependencies>
 </ivy-module>
