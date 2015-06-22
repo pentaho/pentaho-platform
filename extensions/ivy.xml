@@ -337,9 +337,9 @@
 
     <!-- OSGI Components -->
 
-    <dependency org="org.apache.karaf" name="org.apache.karaf.main" rev="2.3.5"/>
-    <dependency org="org.apache.karaf.jaas" name="org.apache.karaf.jaas.boot" rev="2.3.5"/>
-    <dependency org="org.apache.karaf.jaas" name="org.apache.karaf.jaas.modules" rev="2.3.5"/>
+    <dependency org="org.apache.karaf" name="org.apache.karaf.main" rev="3.0.3"/>
+    <dependency org="org.apache.karaf.jaas" name="org.apache.karaf.jaas.boot" rev="2.4.2"/>
+    <dependency org="org.apache.karaf.jaas" name="org.apache.karaf.jaas.modules" rev="2.4.2"/>
     <dependency org="org.apache.felix" name="org.apache.felix.http.proxy" rev="2.3.0"/>
 
     <dependency org="org.apache.felix" name="org.apache.felix.main" rev="4.2.1"/>
