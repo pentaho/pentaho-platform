@@ -58,6 +58,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
   <property name="js.build.file" value="build-res/javascript.build.js"/>
+  
+  <property name="js.build.failonerror" value="true" description="Fail the build if r.js build fails"/>
+  
   <property name="js.script.package.dest" value="${stage.dir}/${package.root.dir}/scripts"/>
 
   <property name="css.build.file" value="build-res/css.build.js"/>
@@ -73,7 +76,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <property name="js.karma.config" value="config/karma.conf.js"/>
   <property name="js.karma.ci.config" value="config/karma.ci.conf.js"/>
   <property name="js.node.node_modules.dir" value="node_modules"/>
-
+  
+  <property name="js.karma.failonerror" value="true" description="Fail the build if a JS test fails"/>
+  
   <property environment="env"/>
 
   <target name="js.clean"
@@ -103,7 +108,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </not>
       <then>
         <ivy:resolve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true"/>
-        <ivy:retrieve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true" pattern="build-res/[artifact].[ext]"/>
+        <ivy:retrieve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true"
+                      pattern="build-res/[artifact].[ext]"/>
         <unzip src="build-res/pentaho-js-build.zip" dest="build-res"/>
       </then>
     </if>
@@ -174,7 +180,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <if>
       <equals arg1="true" arg2="${node-is-available}"/>
       <then>
-        <exec command="node">
+        <exec command="node" failonerror="${js.build.failonerror}">
           <arg value="build-res/pentaho-js-build/r.js"/>
           <arg value="-o"/>
           <arg value="${js.build.file}"/>
@@ -185,12 +191,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <java classname="org.mozilla.javascript.tools.shell.Main"
               fork="true"
               classpathref="build.classpath"
-              args="build-res/pentaho-js-build/r.js -o ${js.build.file} optimize=${js.build.optimizer}">
+              args="build-res/pentaho-js-build/r.js -o ${js.build.file} optimize=${js.build.optimizer}"
+              failonerror="${js.build.failonerror}">
         </java>
       </else>
     </if>
-
-
   </target>
 
   <target name="dist-js">
@@ -339,7 +344,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                   <fail>Run 'npm install -g karma-cli' [adds karma.cmd to the command line]</fail>
                 </then>
               </if>
-              <exec executable="karma.cmd">
+              <exec executable="karma.cmd" failonerror="${js.karma.failonerror}">
                 <arg value="start"/>
                 <arg value="${js.karma.ci.config}"/>
                 <!-- if we are running via ant, then assume we must 'single-run' -->
@@ -347,7 +352,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
               </exec>
             </then>
             <else>
-              <exec executable="node_modules/karma/bin/karma">
+              <exec executable="node_modules/karma/bin/karma" failonerror="${js.karma.failonerror}">
                 <arg value="start"/>
                 <arg value="${js.karma.ci.config}"/>
                 <!-- if we are running via ant, then assume we must 'single-run' -->
