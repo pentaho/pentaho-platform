@@ -65,6 +65,8 @@ public class KarafBoot implements IPentahoSystemListener {
       System.setProperty( "karaf.startLocalConsole", "false" );
       System.setProperty( "karaf.startRemoteShell", "true" );
       System.setProperty( "karaf.lock", "false" );
+      System.setProperty( "karaf.etc", root + "/etc"  );
+      System.setProperty( "felix.fileinstall.dir", "osgi-plugins" ); // Default is '' which results in serious performance hit
 
       // Tell others like the pdi-osgi-bridge that there's already a karaf instance running so they don't start
       // their own.
