@@ -196,54 +196,65 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
         .debug( "Attempting to get an instance of [" + interfaceClass.getSimpleName() + "] while in session [" + session
             + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
+    // Set the Thread Context Classloader to that of the classloader who loaded this class.
+    ClassLoader originalClassLoader = null;
     Object object;
+    
+    try {
+      originalClassLoader = Thread.currentThread().getContextClassLoader();
+      Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
 
-    if ( session != null && session instanceof StandaloneSession ) {
-      // first ask Spring for the object, if it is session scoped it will fail
-      // since Spring doesn't know about StandaloneSessions
+      if ( session != null && session instanceof StandaloneSession ) {
+        // first ask Spring for the object, if it is session scoped it will fail
+        // since Spring doesn't know about StandaloneSessions
 
-      // Save the session off to support Session and Request scope.
-      SpringScopeSessionHolder.SESSION.set( session );
-      try {
+        // Save the session off to support Session and Request scope.
+        SpringScopeSessionHolder.SESSION.set( session );
+        try {
+          if ( key != null ) { // if they want it by id, look for it that way first
+            object = retrieveViaSpring( key );
+          } else {
+            object = retrieveViaSpring( interfaceClass, props );
+          }
+
+        } catch ( Throwable t ) {
+          // Spring could not create the object, perhaps due to session scoping, let's try
+          // retrieving it from our internal session map
+          logger.debug( "Retrieving object from Pentaho session map (not Spring)." ); //$NON-NLS-1$
+
+          try {
+            object = session.getAttribute( interfaceClass.getSimpleName() );
+
+            if ( ( object == null ) ) {
+              // our internal session map doesn't have it, let's create it
+              object = instanceClass( interfaceClass, key );
+              session.setAttribute( interfaceClass.getSimpleName(), object );
+            }
+          } catch ( Throwable tt ) {
+            String msg =
+                Messages.getInstance().getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
+                    interfaceClass.getSimpleName() ); //$NON-NLS-1$
+            throw new ObjectFactoryException( msg, tt );
+          }
+        }
+      } else {
+        // be sure to clear out any session held.
+        SpringScopeSessionHolder.SESSION.set( null );
+        // Spring can handle the object retrieval since we are not dealing with StandaloneSession
+
         if ( key != null ) { // if they want it by id, look for it that way first
           object = retrieveViaSpring( key );
         } else {
           object = retrieveViaSpring( interfaceClass, props );
         }
-
-      } catch ( Throwable t ) {
-        // Spring could not create the object, perhaps due to session scoping, let's try
-        // retrieving it from our internal session map
-        logger.debug( "Retrieving object from Pentaho session map (not Spring)." ); //$NON-NLS-1$
-
-        try {
-          object = session.getAttribute( interfaceClass.getSimpleName() );
-
-          if ( ( object == null ) ) {
-            // our internal session map doesn't have it, let's create it
-            object = instanceClass( interfaceClass, key );
-            session.setAttribute( interfaceClass.getSimpleName(), object );
-          }
-        } catch ( Throwable tt ) {
-          String msg =
-              Messages.getInstance()
-                  .getString( "AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT",
-                      interfaceClass.getSimpleName() ); //$NON-NLS-1$
-          throw new ObjectFactoryException( msg, tt );
-        }
       }
-    } else {
-      // be sure to clear out any session held.
-      SpringScopeSessionHolder.SESSION.set( null );
-      // Spring can handle the object retrieval since we are not dealing with StandaloneSession
 
-      if ( key != null ) { // if they want it by id, look for it that way first
-        object = retrieveViaSpring( key );
-      } else {
-        object = retrieveViaSpring( interfaceClass, props );
+    } finally {
+      if ( originalClassLoader != null ) {
+        Thread.currentThread().setContextClassLoader( originalClassLoader );
       }
     }
-
+    
     logger
         .debug( " Got an instance of [" + interfaceClass.getSimpleName() + "]: " + object ); //$NON-NLS-1$ //$NON-NLS-2$
 
