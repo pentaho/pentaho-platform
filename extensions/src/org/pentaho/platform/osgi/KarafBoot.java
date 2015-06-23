@@ -19,7 +19,7 @@ package org.pentaho.platform.osgi;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.main.Main;
-import org.apache.tika.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
