@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.di.core.encryption.KettleTwoWayPasswordEncoder;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -325,6 +326,7 @@ public class CommandLineProcessor {
     String password =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_PASSWORD_KEY" ), Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_PASSWORD_NAME" ), true, false );
+    password = KettleTwoWayPasswordEncoder.decryptPasswordOptionallyEncrypted( password ); 
     ClientConfig clientConfig = new DefaultClientConfig();
     clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
     client = Client.create( clientConfig );
