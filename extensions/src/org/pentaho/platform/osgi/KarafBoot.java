@@ -55,7 +55,7 @@ public class KarafBoot implements IPentahoSystemListener {
   @Override public boolean startup( IPentahoSession session ) {
     try {
       String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
-      String root = solutionRootPath + "/system/karaf";
+      String root = new File(solutionRootPath + "/system/karaf").getAbsolutePath();
 
       System.setProperty( "karaf.home", root );
       System.setProperty( "karaf.base", root );
@@ -66,7 +66,7 @@ public class KarafBoot implements IPentahoSystemListener {
       System.setProperty( "karaf.startRemoteShell", "true" );
       System.setProperty( "karaf.lock", "false" );
       System.setProperty( "karaf.etc", root + "/etc"  );
-      System.setProperty( "felix.fileinstall.dir", "osgi-plugins" ); // Default is '' which results in serious performance hit
+      System.setProperty( "felix.fileinstall.dir", root + "/etc"); // Default is '' which results in serious performance hit
 
       // Tell others like the pdi-osgi-bridge that there's already a karaf instance running so they don't start
       // their own.
