@@ -65,6 +65,30 @@ public class SessionResource extends AbstractJaxRSResource {
   public String doGetCurrentUserDir() {
     return getUserHomeFolderPath( getSession().getName() ) + "/workspace";
   }
+  
+  /**
+   * Returns the current user's user name.
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/session/userName
+   * </p>
+   *
+   * @return String object containing the workspace folder path.
+   *
+   * <p><b>Example Response:</b></p>
+   *  <pre function="syntax.xml">
+   *    suzy
+   *  </pre>
+   */
+  @GET
+  @Path ( "/userName" )
+  @Produces ( TEXT_PLAIN )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Returns the current user name" )
+  } )
+  public String doGetCurrentUser() {
+    return getSession().getName();
+  }
 
   /**
    * Returns the workspace folder path for the selected user.
