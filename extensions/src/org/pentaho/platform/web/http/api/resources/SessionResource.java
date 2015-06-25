@@ -73,7 +73,7 @@ public class SessionResource extends AbstractJaxRSResource {
    *    GET pentaho/api/session/userName
    * </p>
    *
-   * @return String object containing the workspace folder path.
+   * @return String object The current user name.
    *
    * <p><b>Example Response:</b></p>
    *  <pre function="syntax.xml">
