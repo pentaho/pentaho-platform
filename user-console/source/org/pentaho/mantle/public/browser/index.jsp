@@ -249,7 +249,7 @@
         else if (paramJson.eventSubType == "RefreshBrowsePerspectiveEvent") {
           //Clear the Browse Perspective cache
           window.top.mantle_isBrowseRepoDirty = true;
-          FileBrowser.update(window.top.HOME_FOLDER); // refresh folder list
+          FileBrowser.update(window.top.HOME_FOLDER, paramJson.booleanParam); // refresh folder list
         }
         else if (paramJson.eventSubType == "RefreshFolderEvent") {
           FileBrowser.update(paramJson.stringParam); // refresh specified folder
