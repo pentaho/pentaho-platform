@@ -121,8 +121,8 @@ define([
     this.openFileHandler = handler;
   };
 
-  FileBrowser.update = function (initialPath) {
-    this.redraw(initialPath);
+  FileBrowser.update = function (initialPath, showDescriptions) {
+    this.redraw(initialPath, showDescriptions);
   };
 
   FileBrowser.updateData = function () {
@@ -156,7 +156,7 @@ define([
 
   };
 
-  FileBrowser.redraw = function (initialPath) {
+  FileBrowser.redraw = function (initialPath, _showDescriptions) {
     var myself = this;
 	//Why do we create new model? 
 	var _clikedFolder = undefined;
@@ -178,7 +178,7 @@ define([
       spinConfig: spin,
       openFileHandler: myself.openFileHandler,
       showHiddenFiles: myself.showHiddenFiles,
-      showDescriptions: myself.showDescriptions,
+      showDescriptions: _showDescriptions,
       canDownload: myself.canDownload,
       canPublish: myself.canPublish,
 	  clickedFolder: _clikedFolder,
@@ -811,13 +811,13 @@ define([
       $folderBrowserContainer.find($(".header")).detach();
 
       var folderClicked = this.model.getFolderClicked();
-
       var obj = {
         folderBreadcrumb: folderClicked != undefined ? folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined,
         i18n: jQuery.i18n,
         refreshHandler: function () {
           if (window.top.mantle_fireEvent) {
-            window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent"});
+            window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent",
+                                                         "booleanParam": FileBrowser.fileBrowserModel.get("showDescriptions") });
           }
         }
       };
