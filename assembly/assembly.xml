@@ -278,7 +278,7 @@
 		    <copy todir="${prep.pentaho.war.lib.dir}">
 		      <fileset dir="${lib.dir}">
 		        <include name="*.jar" />
-		        <exclude name="servlet-api-*.jar" />
+		        <exclude name="*servlet-api-*.jar" />
 		        <exclude name="gwt-user-*.jar" />
 		        <exclude name="mysql-connector-*.jar" />
 		        <exclude name="*-sources.jar" />
@@ -312,7 +312,7 @@
     <copy todir="${prep.pentaho.war.lib.dir}">
       <fileset dir="${lib.dir}">
         <include name="*.jar" />
-        <exclude name="servlet-api-*.jar" />
+        <exclude name="*servlet-api-*.jar" />
         <exclude name="gwt-user-*.jar" />
         <exclude name="mysql-connector-*.jar" />
         <exclude name="postgres*.jar" />

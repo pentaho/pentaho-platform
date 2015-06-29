@@ -22,14 +22,14 @@
   <target name="remove-servlet-api" depends="test-servlet-api-exists" if="servlet-api-exists">
     <echo message="WARNING: servlet-api-*.jar is in the lib directory! Removing..." />
     <delete failonerror="true">
-      <fileset dir="${lib.dir}" includes="**/servlet-api-*.jar" />
+      <fileset dir="${lib.dir}" includes="**/*servlet-api-*.jar" />
     </delete>
   </target>
 
   <target name="test-servlet-api-exists">
     <pathconvert property="servlet-api-exists" setonempty="false" pathsep=" ">
       <path>
-        <fileset dir="${lib.dir}" includes="servlet-api-*.jar" />
+        <fileset dir="${lib.dir}" includes="*servlet-api-*.jar" />
       </path>
     </pathconvert>
   </target>
