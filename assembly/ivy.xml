@@ -327,7 +327,6 @@
 	<dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.4.1"  transitive="false"/>    
 
 	<dependency org="org.osgi" name="org.osgi.compendium" rev="5.0.0"  transitive="false"/>
-	<dependency org="org.osgi" name="org.osgi.core" rev="4.3.0"  transitive="false"/>
 	
 	
     <!--
