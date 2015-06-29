@@ -108,7 +108,7 @@
 
     <dependency org="oro" name="oro" rev="2.0.8"/>
     <dependency org="org.tuckey" name="urlrewrite" rev="3.2.0"/>
-    <dependency org="javax.servlet" name="servlet-api" rev="2.4"/>
+    <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1"/>
 
 
     <!-- START JAX-WS (Service extension) dependencies.  You can comment these out if you are not deploying
