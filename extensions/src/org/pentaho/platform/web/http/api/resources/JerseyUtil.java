@@ -28,15 +28,16 @@ public class JerseyUtil {
 
   public static HttpServletRequest correctPostRequest( final MultivaluedMap<String, String> formParams,
       HttpServletRequest httpServletRequest ) {
-    final HashMap<String, Object> formParamsHashMap = new HashMap<String, Object>();
+    final HashMap<String, String[]> formParamsHashMap = new HashMap<String, String[]>();
 
     for ( String key : formParams.keySet() ) {
       Object value = formParams.get( key );
       if ( value instanceof List ) {
-        Object[] valueArray = ( (List<?>) value ).toArray();
+        List<?> list = (List<?>) value;
+        String[] valueArray = list.toArray( new String[ list.size() ] );
         formParamsHashMap.put( key, valueArray );
       } else {
-        formParamsHashMap.put( key, value );
+        formParamsHashMap.put( key, new String[]{ value.toString() });
       }
     }
     
@@ -44,15 +45,15 @@ public class JerseyUtil {
     for ( Object key : mapParams.keySet() ) {
       Object value = mapParams.get( key );
       if ( value instanceof List ) {
-        formParamsHashMap.put( (String) key, ( (List<?>) value ).toArray() );
+        List<?> list = (List<?>) value;
+        formParamsHashMap.put( (String) key, list.toArray( new String[ list.size() ] ) );
       } else {
-        formParamsHashMap.put( (String) key, value );
+        formParamsHashMap.put( (String) key, new String[]{ value.toString() } );
       }
     }
 
     HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper( httpServletRequest ) {
-      @Override
-      public Map<String, Object> getParameterMap() {
+      @Override public Map<String, String[]> getParameterMap() {
         return formParamsHashMap;
       }
 
