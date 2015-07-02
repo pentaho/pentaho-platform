@@ -1219,20 +1219,20 @@ public class FileService {
 
     for ( RepositoryFileTreeDto rft : tree.getChildren() ) {
       sortByLocaleTitle( collator, rft );
-      Collections.sort( tree.getChildren(), new Comparator<RepositoryFileTreeDto>() {
-        @Override
-        public int compare( RepositoryFileTreeDto repositoryFileTree, RepositoryFileTreeDto repositoryFileTree2 ) {
-          String title1 = repositoryFileTree.getFile().getTitle();
-          String title2 = repositoryFileTree2.getFile().getTitle();
-
-          if ( collator.compare( title1, title2 ) == 0 ) {
-            return title1.compareTo( title2 ); // use lexical order if equals ignore case
-          }
-
-          return collator.compare( title1, title2 );
-        }
-      } );
     }
+    Collections.sort( tree.getChildren(), new Comparator<RepositoryFileTreeDto>() {
+      @Override
+      public int compare( RepositoryFileTreeDto repositoryFileTree, RepositoryFileTreeDto repositoryFileTree2 ) {
+        String title1 = repositoryFileTree.getFile().getTitle();
+        String title2 = repositoryFileTree2.getFile().getTitle();
+
+        if ( collator.compare( title1, title2 ) == 0 ) {
+          return title1.compareTo( title2 ); // use lexical order if equals ignore case
+        }
+
+        return collator.compare( title1, title2 );
+      }
+    } );
   }
 
   /**
@@ -1584,21 +1584,19 @@ public class FileService {
       return;
     }
 
-    for ( RepositoryFileDto rft : repositoryFileDtoList ) {
-      Collections.sort( repositoryFileDtoList, new Comparator<RepositoryFileDto>() {
-        @Override
-        public int compare( RepositoryFileDto repositoryFile, RepositoryFileDto repositoryFile2 ) {
-          String title1 = repositoryFile.getTitle();
-          String title2 = repositoryFile2.getTitle();
+    Collections.sort( repositoryFileDtoList, new Comparator<RepositoryFileDto>() {
+      @Override
+      public int compare( RepositoryFileDto repositoryFile, RepositoryFileDto repositoryFile2 ) {
+        String title1 = repositoryFile.getTitle();
+        String title2 = repositoryFile2.getTitle();
 
-          if ( collator.compare( title1, title2 ) == 0 ) {
-            return title1.compareTo( title2 ); // use lexical order if equals ignore case
-          }
-
-          return collator.compare( title1, title2 );
+        if ( collator.compare( title1, title2 ) == 0 ) {
+          return title1.compareTo( title2 ); // use lexical order if equals ignore case
         }
-      } );
-    }
+
+        return collator.compare( title1, title2 );
+      }
+    } );
   }
 
   protected RepositoryRequest getRepositoryRequest( RepositoryFileDto repositoryFileDto, Boolean showHidden,
