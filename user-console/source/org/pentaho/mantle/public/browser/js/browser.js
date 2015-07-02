@@ -158,7 +158,6 @@ define([
 
   FileBrowser.redraw = function (initialPath, _showDescriptions) {
     var myself = this;
-	//Why do we create new model? 
 	var _clikedFolder = undefined;
 	var _clickedFile = undefined;
 	var _lastClick = "folder";
@@ -181,6 +180,7 @@ define([
       showDescriptions: _showDescriptions,
       canDownload: myself.canDownload,
       canPublish: myself.canPublish,
+	  startFolder: initialPath,
 	  clickedFolder: _clikedFolder,
       clickedFile: _clickedFile,
 	  lastClick: _lastClick
@@ -226,7 +226,7 @@ define([
 
       clickedFolder: undefined,
       clickedFile: undefined,
-
+      startFolder: window.top.HOME_FOLDER,
       lastClick: "folder",
       data: undefined,
       openFileHandler: undefined,
@@ -274,6 +274,7 @@ define([
         spinner: spinner1,
         showHiddenFiles: myself.get("showHiddenFiles"),
         showDescriptions: myself.get("showDescriptions"),
+		startFolder: myself.get("startFolder"),
 		clickedFolder: _clickedFolder
       });
       fileListModel = new FileBrowserFileListModel({
@@ -1079,10 +1080,10 @@ define([
       });
  
 	  //open last clicked folder or home folder
-	  var $folder = $("[path='" + window.top.HOME_FOLDER + "']");
+	  var $folder = $("[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']");
 	  if ( FileBrowser.fileBrowserModel.getFolderClicked() != undefined ) {
 		// if folder hidden than save home
-		if ( $("div[id=\"" + FileBrowser.fileBrowserModel.getFolderClicked().attr("id") + "\"]").length != 0 ) {
+		if ( $("div[path=\"" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "\"]").length != 0 ) {
 			$folder = $("[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']");
 		}
 	  } 
