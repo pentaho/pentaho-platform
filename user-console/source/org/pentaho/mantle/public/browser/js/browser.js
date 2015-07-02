@@ -110,7 +110,8 @@ define([
   }
 
   FileBrowser.updateShowDescriptions = function (value) {
-    this.fileBrowserModel.set("showDescriptions", value);
+	this.setShowDescriptions(value);
+	this.fileBrowserModel.set("showDescriptions", value);
   };
 
   FileBrowser.setContainer = function ($container) {
@@ -1234,10 +1235,12 @@ define([
 	 //could not find file, select folder for file
 	 if (!fileSelected) {
 		var $folder = $(".folder.secondarySelected");
-		$folder.addClass("selected");
-		$folder.removeClass("secondarySelected");
-		FileBrowser.fileBrowserModel.updateFolderLastClick();
-		FileBrowser.FileBrowserView.updateButtonsHeader();
+		if ($folder.length > 0) {
+			$folder.addClass("selected");
+			$folder.removeClass("secondarySelected");
+			FileBrowser.fileBrowserModel.updateFolderLastClick();
+			FileBrowser.FileBrowserView.updateButtonsHeader();
+		}
 	}
       setTimeout(function () {
         myself.model.set("runSpinner", false);
