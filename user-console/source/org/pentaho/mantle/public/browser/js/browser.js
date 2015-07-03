@@ -173,7 +173,10 @@ define([
 		};
 		_lastClick = this.fileBrowserModel.getLastClick();
 	}
-	
+	//if we have not new parameter, than save previous 
+	if ( _showDescriptions == undefined ) {
+		_showDescriptions = myself.showDescriptions;
+	}
     myself.fileBrowserModel = new FileBrowserModel({
       spinConfig: spin,
       openFileHandler: myself.openFileHandler,
