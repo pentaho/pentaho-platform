@@ -19,7 +19,7 @@ package org.pentaho.platform.web.servlet;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mortbay.jetty.webapp.WebAppClassLoader;
+import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 import org.springframework.core.io.ClassPathResource;
 
