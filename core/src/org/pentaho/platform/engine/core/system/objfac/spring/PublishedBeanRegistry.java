@@ -18,11 +18,16 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
+import org.pentaho.platform.api.engine.IPentahoObjectReference;
+import org.pentaho.platform.api.engine.IPentahoObjectRegistration;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.ContextClosedEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,10 +45,13 @@ import java.util.WeakHashMap;
 public class PublishedBeanRegistry {
 
   private static Map<Object, Map<Class<?>, List<String>>> classToBeanMap = Collections
-    .synchronizedMap( new WeakHashMap<Object, Map<Class<?>, List<String>>>() );
+      .synchronizedMap( new WeakHashMap<Object, Map<Class<?>, List<String>>>() );
 
   private static Map<ListableBeanFactory, Object> factoryMarkerCache = Collections
-    .synchronizedMap( new WeakHashMap<ListableBeanFactory, Object>() );
+      .synchronizedMap( new WeakHashMap<ListableBeanFactory, Object>() );
+
+  private static Map<ListableBeanFactory, List<IPentahoObjectRegistration>> handleRegistry =
+      Collections.synchronizedMap( new WeakHashMap<ListableBeanFactory, List<IPentahoObjectRegistration>>() );
 
   /**
    * Register a bean for the given class. The factoryMarker is a UUID associated with the originating BeanFactory
@@ -91,21 +99,34 @@ public class PublishedBeanRegistry {
     }
     factoryMarkerCache.put( applicationContext, markerBean );
 
-    ConfigurableApplicationContext listableBeanFactory =
+    final ConfigurableApplicationContext listableBeanFactory =
         (ConfigurableApplicationContext) applicationContext;
 
+    List<IPentahoObjectRegistration> registrationList = new ArrayList<>();
+    handleRegistry.put( listableBeanFactory, registrationList );
     Map<Class<?>, List<String>> classListMap = classToBeanMap.get( markerBean );
 
     for ( Map.Entry<Class<?>, List<String>> classListEntry : classListMap.entrySet() ) {
       Class<?> clazz = classListEntry.getKey();
       for ( String beanName : classListEntry.getValue() ) {
-        PentahoSystem.registerReference(
+        IPentahoObjectRegistration iPentahoObjectRegistration = PentahoSystem.registerReference(
             new SpringPentahoObjectReference( listableBeanFactory, beanName, clazz, null,
                 listableBeanFactory.getBeanFactory().getBeanDefinition( beanName ) ) );
+
+        registrationList.add( iPentahoObjectRegistration );
 
       }
     }
 
+    listableBeanFactory.addApplicationListener( new ApplicationListener() {
+      @Override public void onApplicationEvent( ApplicationEvent applicationEvent ) {
+        if ( applicationEvent instanceof ContextClosedEvent ) {
+          for ( IPentahoObjectRegistration iPentahoObjectRegistration : handleRegistry.get( listableBeanFactory ) ) {
+            iPentahoObjectRegistration.remove();
+          }
+        }
+      }
+    } );
 
   }
 
