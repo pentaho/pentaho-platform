@@ -94,7 +94,7 @@
         </javadoc>
       </then>
       <else>
-        <javadoc sourcepath="${basedir}/src" access="public" source="6" packagenames="*">
+        <javadoc sourcepath="${basedir}/src" access="public" source="6" packagenames="*" useexternalfile="yes">
           <classpath refid="wadl-lib" />
           <doclet name="org.pentaho.wadl.PentahoResourceDoclet" pathref="wadl-lib" >
             <param name="-output" value="${wadl.path}"/>
