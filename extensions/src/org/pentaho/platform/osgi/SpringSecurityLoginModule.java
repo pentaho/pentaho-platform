@@ -153,11 +153,16 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
         // Throws an exception on failure.
         authentication = getAuthenticationManager().authenticate( token );
         if ( authentication != null && !authentication.isAuthenticated() ) {
-          throw new IllegalStateException("Got a bad authentication");
+          throw new IllegalStateException( "Got a bad authentication" );
+        }
+        if ( authentication == null ) {
+          throw new IllegalStateException( "Not Authenticated" );
         }
       } catch (Exception e) {
+        e.printStackTrace();
         session.destroy();
         PentahoSessionHolder.removeSession();
+        throw new LoginException( e.getMessage() );
       }
     }
 

@@ -85,8 +85,10 @@ public class SpringSecurityLoginModuleTest {
       .thenReturn( false );
     when( authentication.getAuthorities() ).thenReturn( authorities );
     when( authentication.getName() ).thenReturn( "joe" );
+    when( authentication.isAuthenticated() ).thenReturn( true );
     when( authentication2.getAuthorities() ).thenReturn( authorities2 );
     when( authentication2.getName() ).thenReturn( "pat" );
+    when( authentication2.isAuthenticated() ).thenReturn( true );
     when( authenticationManager.authenticate( argThat( new AuthenticationManagerMatcher( "joe" ) ) ) ).thenReturn(
       authentication );
     when( authenticationManager.authenticate( argThat( new AuthenticationManagerMatcher( "pat" ) ) ) ).thenReturn(
@@ -126,7 +128,7 @@ public class SpringSecurityLoginModuleTest {
     try {
       loginModule.login();
       fail( "Should have thrown a UsernameNotFoundException exception" );
-    } catch ( UsernameNotFoundException ex ) {
+    } catch ( LoginException ex ) {
 
     }
 
@@ -169,8 +171,10 @@ public class SpringSecurityLoginModuleTest {
       .thenReturn( false );
     when( authentication.getAuthorities() ).thenReturn( authorities );
     when( authentication.getName() ).thenReturn( "joe" );
+    when( authentication.isAuthenticated() ).thenReturn( true );
     when( authentication2.getAuthorities() ).thenReturn( authorities2 );
     when( authentication2.getName() ).thenReturn( "pat" );
+    when( authentication2.isAuthenticated() ).thenReturn( true );
     when( authenticationManager.authenticate( argThat( new AuthenticationManagerMatcher( "joe" ) ) ) ).thenReturn(
       authentication );
     when( authenticationManager.authenticate( argThat( new AuthenticationManagerMatcher( "pat" ) ) ) ).thenReturn(
