@@ -52,7 +52,11 @@ public class LocaleNtdProvider implements NodeTypeDefinitionProvider {
 
     // create node definitions for each available locale
     for ( Locale locale : Locale.getAvailableLocales() ) {
-      t.getNodeDefinitionTemplates().add( getLocaleNode( ntMgr, locale.toString() ) );
+      // There seems to be issue with JRE 8 where is return available locale and the first one is empty string. jackrabbit does not like this
+      // In JRE 7 we did not have any empty string
+      if(locale != null && locale.toString() != null && locale.toString().length() > 0) {
+        t.getNodeDefinitionTemplates().add( getLocaleNode( ntMgr, locale.toString() ) );
+      }
     }
 
     return t;
