@@ -209,6 +209,10 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     IRepositoryVersionManager repositoryVersionManager;
     try {
       repositoryVersionManager = JcrRepositoryFileUtils.getRepositoryVersionManager();
+      // Not found, must be in Spoon
+      if ( repositoryVersionManager == null ) {
+        return f;
+      }
     } catch ( NoClassDefFoundError ex ) {
       //If this class is not available then we are running this method from Spoon
       //and do not need to populate the versioning flags.  They are populated to
