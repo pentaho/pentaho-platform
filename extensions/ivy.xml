@@ -271,7 +271,7 @@
     <dependency org="luciddb" name="LucidDbClient-minimal" rev="0.9.4" conf="default->default" transitive="false"/>
     <dependency org="pentaho" name="pentaho-hadoop-hive-jdbc-shim" rev="${dependency.pentaho-hadoop-hive-jdbc-shim.revision}" changing="true"
                 transitive="false"/>
-    <dependency org="pentaho" name="pdi-dataservice-plugin" rev="${project.revision}" />
+    <dependency org="pentaho" name="pdi-dataservice-client-plugin" rev="${project.revision}" />
 
     <dependency org="net.sf.kosmosfs" name="kfs" rev="0.3" transitive="false"/>
     <dependency org="xmlenc" name="xmlenc" rev="0.52" transitive="false"/>
