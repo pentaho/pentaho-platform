@@ -97,14 +97,14 @@
     <dependency org="org.hibernate"     name="hibernate-validator"  rev="4.2.0.Final" transitive="false"/>
     <dependency org="javax.validation"  name="validation-api"   rev="1.0.0.GA"  transitive="false"/>
 
-    <dependency org="org.apache.axis2" name="axis2-adb" rev="1.4.1" transitive="false"/>
-    <dependency org="org.apache.axis2" name="axis2-codegen" rev="1.4.1" transitive="false"/>
-    <dependency org="org.apache.axis2" name="axis2-java2wsdl" rev="1.4.1" transitive="false"/>
-    <dependency org="org.apache.axis2" name="axis2-kernel" rev="1.4.1" transitive="false"/>
-
-    <dependency org="org.apache.ws.commons.axiom" name="axiom-api" rev="1.2.7" transitive="false"/>
-    <dependency org="org.apache.ws.commons.axiom" name="axiom-dom" rev="1.2.7" transitive="false"/>
-    <dependency org="org.apache.ws.commons.axiom" name="axiom-impl" rev="1.2.7" transitive="false"/>
+    <dependency org="org.apache.axis2" name="axis2-adb" rev="1.5" transitive="false"/>
+    <dependency org="org.apache.axis2" name="axis2-codegen" rev="1.5" transitive="false"/>
+    <dependency org="org.apache.axis2" name="axis2-java2wsdl" rev="1.5" transitive="false"/>
+    <dependency org="org.apache.axis2" name="axis2-kernel" rev="1.5" transitive="false"/>
+    <dependency org="org.apache.axis2" name="axis2-transport-http" rev="1.5" transitive="false"/>
+    <dependency org="org.apache.ws.commons.axiom" name="axiom-api" rev="1.2.8" transitive="false"/>
+    <dependency org="org.apache.ws.commons.axiom" name="axiom-dom" rev="1.2.8" transitive="false"/>
+    <dependency org="org.apache.ws.commons.axiom" name="axiom-impl" rev="1.2.8" transitive="false"/>
 
     <dependency org="oro" name="oro" rev="2.0.8"/>
     <dependency org="org.tuckey" name="urlrewrite" rev="3.2.0"/>
@@ -325,7 +325,6 @@
 
     <!--  runtime dependencies -->
     <dependency org="annogen" name="annogen" rev="0.1.0" conf="runtime->default"/>
-    <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="3.1" conf="runtime->default"/>
     <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.0-beta3" transitive="false"
                 conf="runtime->default"/>
     <!-- rev 2.0.4 would be better -->
