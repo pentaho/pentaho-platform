@@ -50,7 +50,7 @@ public class MondrianVfs implements FileProvider {
   }
 
   MondrianSchemaAnnotator getAnnotator() {
-    return PentahoSystem.get( MondrianSchemaAnnotator.class, "InlineModeling", PentahoSessionHolder.getSession() );
+    return PentahoSystem.get( MondrianSchemaAnnotator.class, "inlineModeling", PentahoSessionHolder.getSession() );
   }
 
   FileObject getCatalogFileObject( final String catalog, final String fileName ) {
