@@ -22,8 +22,9 @@ package org.pentaho.platform.plugin.services.metadata;
  */
 public interface IModelAnnotationsAwareMetadataDomainRepositoryImporter {
 
-  public static final String PROPERTY_NAME_ANNOTATIONS = "annotations";
+  public static final String PROPERTY_NAME_ANNOTATIONS = "annotations-xml";
 
-  void storeAnnotations( String domainId, String annotationsXml );
+  String loadAnnotationsXml( String domainId );
 
+  void storeAnnotationsXml( String domainId, String annotationsXml );
 }

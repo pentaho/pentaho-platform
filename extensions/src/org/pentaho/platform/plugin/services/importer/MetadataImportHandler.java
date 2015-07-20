@@ -34,8 +34,6 @@ import org.pentaho.platform.plugin.services.importexport.PentahoMetadataFileInfo
 import org.pentaho.platform.plugin.services.metadata.IAclAwarePentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.plugin.services.metadata.IModelAnnotationsAwareMetadataDomainRepositoryImporter;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
-import org.pentaho.platform.plugin.services.metadata.PentahoMetadataDomainRepository;
-import org.pentaho.platform.plugin.services.metadata.PentahoModelAnnotationsAwareMetadataDomainRepository;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 
@@ -115,20 +113,17 @@ public class MetadataImportHandler implements IPlatformImportHandler {
         metadataRepositoryImporter.storeDomain( inputStream, domainId, bundle.overwriteInRepository() );
       }
 
-      if ( metadataRepositoryImporter instanceof PentahoMetadataDomainRepository ) {
+      if ( metadataRepositoryImporter instanceof IModelAnnotationsAwareMetadataDomainRepositoryImporter ) {
         // Store annotations xml with the domain if it exists
         final String annotationsXml =
             (String) bundle.getProperty(
                 IModelAnnotationsAwareMetadataDomainRepositoryImporter.PROPERTY_NAME_ANNOTATIONS );
         if ( StringUtils.isNotBlank( annotationsXml ) ) {
-
-          // Wrap metadataRepositoryImporter instance to an IModelAnnotationsAwareMetadataDomainRepositoryImporter
-          IModelAnnotationsAwareMetadataDomainRepositoryImporter importer =
-              new PentahoModelAnnotationsAwareMetadataDomainRepository(
-                  (PentahoMetadataDomainRepository) metadataRepositoryImporter );
-
           // Save annotations
-          importer.storeAnnotations( domainId, annotationsXml );
+          IModelAnnotationsAwareMetadataDomainRepositoryImporter
+              importer =
+              (IModelAnnotationsAwareMetadataDomainRepositoryImporter) metadataRepositoryImporter;
+          importer.storeAnnotationsXml( domainId, annotationsXml );
         }
       }
 

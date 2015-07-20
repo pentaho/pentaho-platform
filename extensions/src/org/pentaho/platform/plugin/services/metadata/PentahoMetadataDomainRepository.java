@@ -31,6 +31,7 @@ import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.util.LocalizationUtil;
 import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -40,7 +41,6 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
-import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 
 import java.io.BufferedReader;
@@ -73,6 +73,7 @@ import java.util.UUID;
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class PentahoMetadataDomainRepository implements IMetadataDomainRepository,
+    IModelAnnotationsAwareMetadataDomainRepositoryImporter,
     IAclAwarePentahoMetadataDomainRepositoryImporter, IPentahoMetadataDomainRepositoryExporter {
   // The logger for this class
   private static final Log logger = LogFactory.getLog( PentahoMetadataDomainRepository.class );
@@ -748,5 +749,48 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       metaMapStore.put( repository, metaMap );
     }
     return metaMap;
+  }
+
+  @Override
+  public String loadAnnotationsXml( String domainId ) {
+
+    if ( StringUtils.isBlank( domainId ) ) {
+      return null; // exit early
+    }
+
+    final RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
+    if ( domainFile != null ) {
+      Map<String, Serializable> metadataMap = getRepository().getFileMetadata( domainFile.getId() );
+      if ( metadataMap != null ) {
+        Serializable s = metadataMap.get( PROPERTY_NAME_ANNOTATIONS );
+        if ( s != null && s instanceof String ) {
+          return (String) s; // Return model annotations xml
+        }
+      }
+    }
+
+    return null;
+  }
+
+  @Override
+  public void storeAnnotationsXml( String domainId, String annotationsXml ) {
+
+    if ( StringUtils.isBlank( domainId ) || StringUtils.isBlank( annotationsXml ) ) {
+      return; // exit early
+    }
+
+    final RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
+    if ( domainFile != null ) {
+      Map<String, Serializable> metadataMap = getRepository().getFileMetadata( domainFile.getId() );
+      if ( metadataMap == null ) {
+        metadataMap = new HashMap<String, Serializable>();
+      }
+
+      // Add or override annotations xml
+      metadataMap.put( PROPERTY_NAME_ANNOTATIONS, annotationsXml );
+
+      // Update metadata map
+      getRepository().setFileMetadata( domainFile.getId(), metadataMap );
+    }
   }
 }

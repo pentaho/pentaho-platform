@@ -21,10 +21,20 @@ package org.pentaho.platform.plugin.services.metadata;
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.model.concept.types.LocaleType;
@@ -34,30 +44,28 @@ import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.util.LocalizationUtil;
 import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import org.mockito.Mockito;
-
-import static org.mockito.Mockito.*;
 
 /**
  * Class Description
@@ -618,6 +626,70 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   public void testSetXmiParser() throws Exception {
     domainRepositorySpy.setXmiParser( null );
     domainRepositorySpy.setXmiParser( new XmiParser() );
+  }
+
+  @Test
+  public void testStoreAnnotationsXml() throws Exception {
+
+    String domainId = "test.xmi";
+    String annotationsXml = "<annotations/>";
+
+    domainRepositorySpy.storeAnnotationsXml( null, null );
+    verify( domainRepositorySpy, times( 0 ) ).getRepository(); // nothing happened, skipped
+
+    domainRepositorySpy.storeAnnotationsXml( null, annotationsXml );
+    verify( domainRepositorySpy, times( 0 ) ).getRepository(); // nothing happened, skipped
+
+    domainRepositorySpy.storeAnnotationsXml( domainId, null );
+    verify( domainRepositorySpy, times( 0 ) ).getRepository(); // nothing happened, skipped
+
+    doReturn( null ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
+    domainRepositorySpy.storeAnnotationsXml( domainId, annotationsXml );
+    verify( domainRepositorySpy, times( 0 ) ).getRepository(); // nothing happened, skipped
+
+    IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    RepositoryFile file = mock( RepositoryFile.class );
+    doReturn( domainId ).when( file ).getId();
+
+    doReturn( file ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
+    doReturn( repository ).when( domainRepositorySpy ).getRepository();
+    domainRepositorySpy.storeAnnotationsXml( domainId, annotationsXml );
+    verify( domainRepositorySpy, times( 2 ) ).getRepository();
+
+    Map<String, Serializable> metadataMap = new HashMap<String, Serializable>();
+    metadataMap.put( IModelAnnotationsAwareMetadataDomainRepositoryImporter.PROPERTY_NAME_ANNOTATIONS, annotationsXml );
+    domainRepositorySpy.storeAnnotationsXml( domainId, annotationsXml );
+    verify( repository, times( 2 ) )
+        .setFileMetadata( domainId, metadataMap );
+  }
+
+  @Test
+  public void testLoadAnnotationsXml() throws Exception {
+
+    String domainId = "test.xmi";
+    String annotationsXml = "<annotations/>";
+
+    assertNull( domainRepositorySpy.loadAnnotationsXml( null ) );
+    assertNull( domainRepositorySpy.loadAnnotationsXml( "" ) );
+
+    doReturn( null ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
+    assertNull( domainRepositorySpy.loadAnnotationsXml( domainId ) );
+
+    IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    doReturn( null ).when( repository ).getFileMetadata( domainId );
+    RepositoryFile file = mock( RepositoryFile.class );
+    doReturn( domainId ).when( file ).getId();
+
+    doReturn( file ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
+    doReturn( repository ).when( domainRepositorySpy ).getRepository();
+    assertNull( domainRepositorySpy.loadAnnotationsXml( domainId ) );
+
+    Map<String, Serializable> metadataMap = new HashMap<String, Serializable>();
+    doReturn( metadataMap ).when( repository ).getFileMetadata( domainId );
+    assertNull( domainRepositorySpy.loadAnnotationsXml( domainId ) );
+
+    metadataMap.put( IModelAnnotationsAwareMetadataDomainRepositoryImporter.PROPERTY_NAME_ANNOTATIONS, annotationsXml );
+    assertEquals( annotationsXml, domainRepositorySpy.loadAnnotationsXml( domainId ) ); // found it
   }
 
   private InputStream toInputStream( final Properties newProperties ) {
