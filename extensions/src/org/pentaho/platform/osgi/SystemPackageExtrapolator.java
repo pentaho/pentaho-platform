@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Properties;
@@ -36,7 +37,7 @@ public class SystemPackageExtrapolator {
       URL[] urLs = ( (URLClassLoader) classLoader ).getURLs();
       for ( URL url : urLs ) {
         try {
-          String fileName = url.getFile();
+          String fileName = URLDecoder.decode(url.getFile());
           File file = new File( fileName );
           if ( !file.exists() || file.isDirectory() ) {
             continue;
