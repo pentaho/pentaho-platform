@@ -23,9 +23,14 @@ import mondrian.olap.Schema;
 import mondrian.olap.Util.PropertyList;
 import mondrian.spi.DynamicSchemaProcessor;
 import org.apache.commons.io.IOUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.olap4j.OlapConnection;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
@@ -35,8 +40,10 @@ import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.MondrianSchemaAnnotator;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -48,13 +55,16 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.cache.CacheManager;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.plugin.UserRoleMapperTest.TestUserRoleListService;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -117,6 +127,15 @@ public class MondrianCatalogHelperTest {
     booter.define( IUserRoleListService.class, TestUserRoleListService.class, Scope.GLOBAL );
     booter.defineInstance( IUnifiedRepository.class, repo );
     booter.defineInstance( IOlapService.class, olapService );
+    booter.defineInstance(
+        "inlineModeling",
+        new MondrianSchemaAnnotator() {
+          @Override
+          public InputStream getInputStream(
+              final InputStream schemaInputStream, final InputStream annotationsInputStream ) {
+            return schemaInputStream;
+          }
+      } );
     booter.setSettingsProvider( new SystemSettings() );
     booter.start();
 
@@ -338,12 +357,15 @@ public class MondrianCatalogHelperTest {
     final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
     final String steelWheelsMetadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
     final String steelWheelsSchemaPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
+    final String steelWheelsAnnotationsPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "annotations.xml";
     stubGetFile( repo, steelWheelsMetadataPath );
     stubGetData( repo, steelWheelsMetadataPath, "catalog", pathPropertyPair( "/catalog/definition",
         "mondrian:/SteelWheels" ), pathPropertyPair( "/catalog/datasourceInfo",
         "Provider=mondrian;DataSource=SteelWheels;" ) );
     stubGetFile( repo, steelWheelsSchemaPath );
     stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
+    stubGetFile( repo, steelWheelsAnnotationsPath );
+    stubGetData( repo, steelWheelsAnnotationsPath, "<annotations></annotations>" );
 
     IPentahoSession session = new StandaloneSession( "admin" );
 
@@ -357,6 +379,19 @@ public class MondrianCatalogHelperTest {
     doReturn( true ).when( testCatalogs[ 0 ] ).isJndi();
     doReturn( false ).when( testCatalogs[ 1 ] ).isJndi();
     doReturn( asList( testCatalogs ) ).when( helper ).getCatalogs( session );
+    Answer<String> answer = new Answer<String>() {
+      @Override public String answer( final InvocationOnMock invocation ) throws Throwable {
+        try {
+          return (String) invocation.callRealMethod();
+        } catch ( Exception throwable ) {
+          if ( throwable.getCause() instanceof ClassCastException ) {
+            fail( "should not get ClassCastException here " );
+          }
+          throw throwable;
+        }
+      }
+    };
+    doAnswer( answer ).when( helper ).docAtUrlToString( any( String.class ), any( IPentahoSession.class ) );
 
     List<MondrianCatalog> cats = helper.listCatalogs( session, true );
     assertEquals( 1, cats.size() );
