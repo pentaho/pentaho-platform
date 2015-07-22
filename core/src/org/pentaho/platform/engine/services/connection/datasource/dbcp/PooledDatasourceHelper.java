@@ -19,7 +19,6 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import java.util.Map;
-import java.util.Properties;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -28,7 +27,6 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.AbandonedConfig;
 import org.apache.commons.dbcp.AbandonedObjectPool;
 import org.apache.commons.dbcp.ConnectionFactory;
-import org.apache.commons.dbcp.DriverManagerConnectionFactory;
 import org.apache.commons.dbcp.PoolableConnectionFactory;
 import org.apache.commons.dbcp.PoolingDataSource;
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +45,7 @@ import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.services.connection.datasource.dbcp.impl.DefaultConnectionFactoryProvider;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.logging.Logger;
@@ -199,21 +198,7 @@ public class PooledDatasourceHelper {
             .get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) );
       }
 
-      /*
-       * ConnectionFactory creates connections on behalf of the pool. Here, we use the DriverManagerConnectionFactory
-       * because that essentially uses DriverManager as the source of connections.
-       */
-      ConnectionFactory factory = null;
-      if( url.startsWith( "jdbc:mysql:" ) ) {
-        Properties props = new Properties();
-        props.put( "user", databaseConnection.getUsername() );
-        props.put( "password", databaseConnection.getPassword() );
-        props.put( "socketTimeout", "0" );
-        props.put( "connectTimeout", "5000" );
-        factory = new DriverManagerConnectionFactory( url, props );
-      } else {
-        factory = new DriverManagerConnectionFactory( url, databaseConnection.getUsername(), databaseConnection.getPassword() );
-      }
+      ConnectionFactory factory = lookupForConnectionFactoryProvider().create( databaseConnection, dialect, url );
 
       boolean defaultReadOnly =
           attributes.containsKey( IDBDatasourceService.DEFAULT_READ_ONLY ) ? Boolean.parseBoolean( attributes
@@ -299,6 +284,18 @@ public class PooledDatasourceHelper {
     } catch ( Exception e ) {
       throw new DBDatasourceServiceException( e );
     }
+  }
+
+  private static IConnectionFactoryProvider lookupForConnectionFactoryProvider() {
+    IConnectionFactoryProvider provider =
+      PentahoSystem.get( IConnectionFactoryProvider.class );
+    if ( provider == null ) {
+      DefaultConnectionFactoryProvider defaultProvider =
+        new DefaultConnectionFactoryProvider();
+      PentahoSystem.registerObject( defaultProvider );
+      provider = defaultProvider;
+    }
+    return provider;
   }
 
   public static DataSource convert( IDatabaseConnection databaseConnection ) throws DBDatasourceServiceException {
