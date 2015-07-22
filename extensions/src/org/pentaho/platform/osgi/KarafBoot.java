@@ -17,9 +17,15 @@
 
 package org.pentaho.platform.osgi;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.karaf.main.Main;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.UUID;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.karaf.main.Main;
+import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -27,19 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import java.util.Vector;
 
 /**
  * This Pentaho SystemListener starts the Embedded Karaf framework to support OSGI in the platform.
@@ -80,9 +73,10 @@ public class KarafBoot implements IPentahoSystemListener {
       System.setProperty( "log4j.ignoreTCL", "true" );
 
       expandSystemPackages( root + "/etc/custom.properties");
-
-
-
+      
+      //Setup karaf instance configuration
+      KarafInstance karafInstance = new KarafInstance( root );
+      
       // Wrap the startup of Karaf in a child thread which has explicitly set a bogus authentication. This is
       // work-around and issue with Karaf inheriting the Authenticaiton set on the main system thread due to the
       // InheritableThreadLocal backing the SecurityContext. By setting a fake authentication, calls to the
