@@ -18,12 +18,8 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.model.Domain;
@@ -36,9 +32,15 @@ import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importexport.PentahoMetadataFileInfo;
 import org.pentaho.platform.plugin.services.metadata.IAclAwarePentahoMetadataDomainRepositoryImporter;
+import org.pentaho.platform.plugin.services.metadata.IModelAnnotationsAwareMetadataDomainRepositoryImporter;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Class Description
@@ -110,6 +112,21 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       } else {
         metadataRepositoryImporter.storeDomain( inputStream, domainId, bundle.overwriteInRepository() );
       }
+
+      if ( metadataRepositoryImporter instanceof IModelAnnotationsAwareMetadataDomainRepositoryImporter ) {
+        // Store annotations xml with the domain if it exists
+        final String annotationsXml =
+            (String) bundle.getProperty(
+                IModelAnnotationsAwareMetadataDomainRepositoryImporter.PROPERTY_NAME_ANNOTATIONS );
+        if ( StringUtils.isNotBlank( annotationsXml ) ) {
+          // Save annotations
+          IModelAnnotationsAwareMetadataDomainRepositoryImporter
+              importer =
+              (IModelAnnotationsAwareMetadataDomainRepositoryImporter) metadataRepositoryImporter;
+          importer.storeAnnotationsXml( domainId, annotationsXml );
+        }
+      }
+
       return domainId;
     } catch ( DomainIdNullException dine ) {
       throw new PlatformImportException( dine.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, dine );
