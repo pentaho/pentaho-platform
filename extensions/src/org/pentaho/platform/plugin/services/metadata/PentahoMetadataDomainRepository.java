@@ -300,7 +300,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   @Override
   public boolean hasAccessFor( String domainId ) {
-    return getAclHelper().canAccess( getMetadataRepositoryFile( domainId ), EnumSet.of( RepositoryFilePermission.READ ) );
+    return getAclHelper().canAccess( getMetadataRepositoryFile( domainId ),
+        EnumSet.of( RepositoryFilePermission.READ ) );
   }
 
   /*
@@ -786,11 +787,56 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         metadataMap = new HashMap<String, Serializable>();
       }
 
-      // Add or override annotations xml
-      metadataMap.put( PROPERTY_NAME_ANNOTATIONS, annotationsXml );
+      RepositoryFile annotationsFile = null;
+      if ( metadataMap.containsKey( "annotations-ref" ) ) {
+        String annotationFileId = (String) metadataMap.get( "annotations-ref" );
+        if ( StringUtils.isNotBlank( annotationFileId ) ) {
+          try {
+            // Look for existing annotations file
+            annotationsFile = getRepository().getFileById( annotationFileId );
+          }
+          finally {
+            // Create new file if existing reference isn't found. if found, update
+            annotationsFile = createOrUpdateAnnotatationsXml( annotationsFile, annotationsXml );
+          }
+        }
+      }
+      else{
+        annotationsFile = createOrUpdateAnnotatationsXml( annotationsFile, annotationsXml );
+      }
+
+      // Update reference in domain file
+      if ( annotationsFile != null ) {
+        metadataMap.put( "annotations-ref", annotationsFile.getId() );
+      }
 
       // Update metadata map
       getRepository().setFileMetadata( domainFile.getId(), metadataMap );
     }
+  }
+
+  public RepositoryFile createOrUpdateAnnotatationsXml( RepositoryFile annotationsFile, String annotationsXml ) {
+
+    RepositoryFile file = null;
+    try {
+      ByteArrayInputStream in = new ByteArrayInputStream( annotationsXml.getBytes( DEFAULT_ENCODING ) );
+      final SimpleRepositoryFileData data =
+          new SimpleRepositoryFileData( in, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
+      if ( annotationsFile == null ) {
+        // Generate a "unique" filename
+        final String filename = UUID.randomUUID().toString();
+
+        // Create the new file
+        file =
+            repository
+                .createFile( getMetadataDir().getId(), new RepositoryFile.Builder( filename ).build(), data, null );
+      } else {
+        file = repository.updateFile( annotationsFile, data, null );
+      }
+    } catch ( Exception e ) {
+      logger.warn( "Unable to save annotations xml", e );
+    }
+
+    return file;
   }
 }
