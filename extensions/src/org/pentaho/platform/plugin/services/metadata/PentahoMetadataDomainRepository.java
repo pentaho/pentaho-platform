@@ -762,11 +762,11 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
     try {
       final RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
-      String annotationFileId = domainFile.getId() + ANNOTATIONS_FILE_ID_POSTFIX;
+      final RepositoryFile annotationFile = getRepository().getFile( resolveAnnotationsFilePath( domainFile ) );
 
       // Load referenced annotations xml repo file
-      SimpleRepositoryFileData data = getRepository().getDataForRead( annotationFileId,
-          SimpleRepositoryFileData.class );
+      SimpleRepositoryFileData
+          data = getRepository().getDataForRead( annotationFile.getId(), SimpleRepositoryFileData.class );
       return IOUtils.toString( data.getInputStream() ); // return as String
     } catch ( Exception e ) {
       getLogger().warn( "Unable to load annotations xml file for domain: " + domainId );
@@ -795,7 +795,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
     RepositoryFile annotationsFile = null;
     try {
-      annotationsFile = getRepository().getFileById( domainFile.getId() + ANNOTATIONS_FILE_ID_POSTFIX );
+      annotationsFile = getRepository().getFile( resolveAnnotationsFilePath( domainFile ) );
     } catch ( Exception e ) {
       getLogger().warn( "Unable to find annotations xml file for: " + domainFile.getId() );
     }
@@ -827,6 +827,14 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     } catch ( Exception e ) {
       getLogger().warn( "Unable to save annotations xml", e );
     }
+  }
+
+  protected String resolveAnnotationsFilePath( final RepositoryFile domainFile ) {
+
+    if ( getMetadataDir() != null && domainFile != null ) {
+      return getMetadataDir().getPath() + "/" + domainFile.getId() + ANNOTATIONS_FILE_ID_POSTFIX;
+    }
+    return null;
   }
 
   protected Log getLogger() {

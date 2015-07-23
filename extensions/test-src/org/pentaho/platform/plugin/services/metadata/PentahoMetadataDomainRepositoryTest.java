@@ -730,8 +730,10 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertNull( domainRepositorySpy.getAnnotationsXmlFile( domainFile ) );
 
     // Found
-    doReturn( domainFile ).when( repository ).getFileById(
-        domainFileId + IModelAnnotationsAwareMetadataDomainRepositoryImporter.ANNOTATIONS_FILE_ID_POSTFIX );
+    String annotationsFilePath =
+        "/etc/metadata/" + domainFileId
+            + IModelAnnotationsAwareMetadataDomainRepositoryImporter.ANNOTATIONS_FILE_ID_POSTFIX;
+    doReturn( domainFile ).when( repository ).getFile( annotationsFilePath );
     assertNotNull( domainRepositorySpy.getAnnotationsXmlFile( domainFile ) );
 
     // Error
@@ -758,22 +760,39 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     IUnifiedRepository repository = mock( IUnifiedRepository.class );
     doReturn( repository ).when( domainRepositorySpy ).getRepository();
 
-    RepositoryFile file = mock( RepositoryFile.class );
-    doReturn( file ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
-    doReturn( domainFileId ).when( file ).getId();
-
     // Success
     RepositoryFile domainFile = mock( RepositoryFile.class );
+    doReturn( domainFile ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
     doReturn( domainFileId ).when( domainFile ).getId();
+
+    RepositoryFile annotationsFile = mock( RepositoryFile.class );
+    doReturn( annotationsFile ).when( repository ).getFile( "/etc/metadata/" + annotationsId );
+    doReturn( annotationsId ).when( annotationsFile ).getId();
+
     SimpleRepositoryFileData data = mock( SimpleRepositoryFileData.class );
     doReturn( data ).when( repository ).getDataForRead( annotationsId, SimpleRepositoryFileData.class );
     doReturn( IOUtils.toInputStream( annotationsXml ) ).when( data ).getInputStream();
+
     assertEquals( annotationsXml, domainRepositorySpy.loadAnnotationsXml( domainId ) );
 
     // Error
     doThrow( new RuntimeException() ).when( data ).getInputStream();
     domainRepositorySpy.loadAnnotationsXml( domainId );
     verify( logger, times( 1 ) ).warn( "Unable to load annotations xml file for domain: test.xmi" );
+  }
+
+  @Test
+  public void testResolveAnnotationsFilePath() {
+
+    assertNull( domainRepositorySpy.resolveAnnotationsFilePath( null ) );
+
+    String domainFileId = "00000000";
+    String annotationsId =
+        domainFileId + IModelAnnotationsAwareMetadataDomainRepositoryImporter.ANNOTATIONS_FILE_ID_POSTFIX;
+
+    RepositoryFile domainFile = mock( RepositoryFile.class );
+    doReturn( domainFileId ).when( domainFile ).getId();
+    assertEquals( "/etc/metadata/" + annotationsId, domainRepositorySpy.resolveAnnotationsFilePath( domainFile ) );
   }
 
   private InputStream toInputStream( final Properties newProperties ) {
