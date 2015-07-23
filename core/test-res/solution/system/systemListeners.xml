@@ -10,7 +10,7 @@ You can intialize any listeners properties, as shown in the QuartzSystemListener
 VersionCheckSystemListener.
 -->
 
-<beans>
+<beans default-lazy-init="true">
 	<bean id="systemListenersList" class="java.util.ArrayList">
 		<constructor-arg>
 			<list>

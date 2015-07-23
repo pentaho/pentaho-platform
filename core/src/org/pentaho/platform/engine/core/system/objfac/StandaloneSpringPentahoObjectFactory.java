@@ -20,6 +20,7 @@ package org.pentaho.platform.engine.core.system.objfac;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.messages.Messages;
+import org.pentaho.platform.engine.core.system.objfac.spring.PentahoBeanScopeValidatorPostProcessor;
 import org.pentaho.platform.engine.core.system.objfac.spring.SpringScopeSessionHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;
@@ -66,6 +67,7 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
     if ( context == null ) {
       // beanFactory = new FileSystemXmlApplicationContext(configFile);
       FileSystemXmlApplicationContext appCtx = new FileSystemXmlApplicationContext( configFile );
+      appCtx.addBeanFactoryPostProcessor( new PentahoBeanScopeValidatorPostProcessor() );
       Scope requestScope = new ThreadLocalScope();
       appCtx.getBeanFactory().registerScope( "request", requestScope );
       Scope sessionScope = new ThreadLocalScope();
@@ -145,5 +147,10 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
       return SpringScopeSessionHolder.SESSION.get().getId();
     }
 
+    @Override
+    public Object resolveContextualObject( String arg0 ) {
+      // TODO Auto-generated method stub
+      return null;
+    }
   }
 }

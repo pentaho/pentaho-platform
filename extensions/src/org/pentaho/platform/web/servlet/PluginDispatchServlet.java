@@ -177,16 +177,16 @@ public class PluginDispatchServlet implements Servlet {
 
     for ( Map.Entry<String, ListableBeanFactory> pluginBeanFactoryEntry : pluginBeanFactoryMap.entrySet() ) {
 
-      Map<String, Object> beans =
+      Map<String, Servlet> beans =
         BeanFactoryUtils.beansOfTypeIncludingAncestors( pluginBeanFactoryEntry.getValue(),
-          Servlet.class, true, true );
+            Servlet.class, true, true );
 
       if ( logger.isDebugEnabled() ) {
         logger.debug(
           "found " + beans.size() + " servlets in " + pluginBeanFactoryEntry.getKey() ); //$NON-NLS-1$//$NON-NLS-2$
       }
 
-      for ( Map.Entry<String, Object> beanEntry : beans.entrySet() ) {
+      for ( Map.Entry<String, Servlet> beanEntry : beans.entrySet() ) {
         Servlet pluginServlet = (Servlet) beanEntry.getValue();
         String servletId = beanEntry.getKey();
 

@@ -18,15 +18,18 @@
 
 package org.pentaho.platform.engine.security.event;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.Ordered;
+import org.springframework.core.task.SyncTaskExecutor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * {@link ApplicationEventMulticaster} that will respect values returned by {@link ApplicationListener}s that are
@@ -42,6 +45,17 @@ import java.util.List;
  * @author mlowery
  */
 public class OrderedApplicationEventMulticaster extends SimpleApplicationEventMulticaster {
+
+  private Executor defaultExecutor = new SyncTaskExecutor(); // default Executor
+
+  public OrderedApplicationEventMulticaster(){
+    setTaskExecutor( defaultExecutor );
+  }
+
+  public OrderedApplicationEventMulticaster( BeanFactory beanFactory ) {
+    super( beanFactory );
+    setTaskExecutor( defaultExecutor );
+  }
 
   @SuppressWarnings( "unchecked" )
   @Override
