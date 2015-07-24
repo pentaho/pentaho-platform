@@ -78,6 +78,10 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
   @Override public boolean canAccess( final RepositoryFile repositoryFile,
                                       final EnumSet<RepositoryFilePermission> permissions ) {
 
+    if(repositoryFile == null) {
+      return false;
+    }
+      
     // First check to see if there is an ACL node, this call is done as "system"
     boolean hasAclNode = hasAclNode( repositoryFile );
 
