@@ -754,31 +754,22 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   }
 
   @Override
-  public String loadAnnotationsXml( String domainId ) {
+  public String loadAnnotationsXml( final String domainId ) {
 
     if ( StringUtils.isBlank( domainId ) ) {
       return null; // exit early
     }
 
-    final RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
-    if ( domainFile != null ) {
-      Map<String, Serializable> metadataMap = getRepository().getFileMetadata( domainFile.getId() );
-      if ( metadataMap != null ) {
-        Serializable s = metadataMap.get( PROPERTY_NAME_ANNOTATIONS_REF );
-        if ( s != null && ( s instanceof String ) && StringUtils.isNotBlank( s.toString() ) ) {
-          String annotationFileId = (String) s;
-          try {
-            // Load referenced annotations xml repo file
-            SimpleRepositoryFileData data = getRepository().getDataForRead( annotationFileId,
-                SimpleRepositoryFileData.class );
-            if ( data != null ) {
-              return IOUtils.toString( data.getInputStream() ); // return as String
-            }
-          } catch ( Exception e ) {
-            getLogger().warn( "Unable to load referenced annotations xml file: " + annotationFileId, e );
-          }
-        }
-      }
+    try {
+      final RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
+      final RepositoryFile annotationFile = getRepository().getFile( resolveAnnotationsFilePath( domainFile ) );
+
+      // Load referenced annotations xml repo file
+      SimpleRepositoryFileData
+          data = getRepository().getDataForRead( annotationFile.getId(), SimpleRepositoryFileData.class );
+      return IOUtils.toString( data.getInputStream() ); // return as String
+    } catch ( Exception e ) {
+      getLogger().warn( "Unable to load annotations xml file for domain: " + domainId );
     }
 
     return null;
@@ -791,64 +782,59 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       return; // exit early
     }
 
-    final RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
-    if ( domainFile != null ) {
-      Map<String, Serializable> metadataMap = getRepository().getFileMetadata( domainFile.getId() );
-      if ( metadataMap == null ) {
-        metadataMap = new HashMap<String, Serializable>();
-      }
-
-      RepositoryFile annotationsFile = null;
-      if ( metadataMap.containsKey( PROPERTY_NAME_ANNOTATIONS_REF ) ) {
-        String annotationFileId = (String) metadataMap.get( PROPERTY_NAME_ANNOTATIONS_REF );
-        if ( StringUtils.isNotBlank( annotationFileId ) ) {
-          try {
-            // Look for referenced annotations file
-            annotationsFile = getRepository().getFileById( annotationFileId );
-          } catch ( Exception e ) {
-            getLogger().warn( "Unable to find referenced annotations xml file: " + annotationFileId );
-          } finally {
-            // Create new file if existing reference isn't found. if found, update
-            annotationsFile = createOrUpdateAnnotationsXml( annotationsFile, annotationsXml );
-          }
-        }
-      } else {
-        annotationsFile = createOrUpdateAnnotationsXml( annotationsFile, annotationsXml );
-      }
-
-      // Update reference in domain file
-      if ( annotationsFile != null ) {
-        metadataMap.put( PROPERTY_NAME_ANNOTATIONS_REF, annotationsFile.getId() );
-      }
-
-      // Update metadata map
-      getRepository().setFileMetadata( domainFile.getId(), metadataMap );
-    }
+    RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
+    RepositoryFile annotationsFile = getAnnotationsXmlFile( domainFile );
+    createOrUpdateAnnotationsXml( domainFile, annotationsFile, annotationsXml );
   }
 
-  public RepositoryFile createOrUpdateAnnotationsXml( RepositoryFile annotationsFile, String annotationsXml ) {
+  public RepositoryFile getAnnotationsXmlFile( final RepositoryFile domainFile ) {
 
-    RepositoryFile file = null;
+    if ( domainFile == null ) {
+      return null; // exit early
+    }
+
+    RepositoryFile annotationsFile = null;
+    try {
+      annotationsFile = getRepository().getFile( resolveAnnotationsFilePath( domainFile ) );
+    } catch ( Exception e ) {
+      getLogger().warn( "Unable to find annotations xml file for: " + domainFile.getId() );
+    }
+
+    return annotationsFile;
+  }
+
+  public void createOrUpdateAnnotationsXml( final RepositoryFile domainFile, final RepositoryFile annotationsFile,
+      final String annotationsXml ) {
+
+    if ( domainFile == null ) {
+      return; // exit early
+    }
+
     try {
       ByteArrayInputStream in = new ByteArrayInputStream( annotationsXml.getBytes( DEFAULT_ENCODING ) );
       final SimpleRepositoryFileData data =
           new SimpleRepositoryFileData( in, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
       if ( annotationsFile == null ) {
-        // Generate a "unique" filename
-        final String filename = UUID.randomUUID().toString();
+        // Generate a filename based on the domainId
+        final String filename = domainFile.getId() + ANNOTATIONS_FILE_ID_POSTFIX;
 
         // Create the new file
-        file =
-            getRepository()
-                .createFile( getMetadataDir().getId(), new RepositoryFile.Builder( filename ).build(), data, null );
+        getRepository()
+            .createFile( getMetadataDir().getId(), new RepositoryFile.Builder( filename ).build(), data, null );
       } else {
-        file = getRepository().updateFile( annotationsFile, data, null );
+        getRepository().updateFile( annotationsFile, data, null );
       }
     } catch ( Exception e ) {
       getLogger().warn( "Unable to save annotations xml", e );
     }
+  }
 
-    return file;
+  protected String resolveAnnotationsFilePath( final RepositoryFile domainFile ) {
+
+    if ( getMetadataDir() != null && domainFile != null ) {
+      return getMetadataDir().getPath() + "/" + domainFile.getId() + ANNOTATIONS_FILE_ID_POSTFIX;
+    }
+    return null;
   }
 
   protected Log getLogger() {
