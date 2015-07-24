@@ -48,7 +48,8 @@ import java.util.Set;
  */
 public class SessionCachingMetadataDomainRepository implements IMetadataDomainRepository,
     org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter, ILogoutListener,
-    IAclAwarePentahoMetadataDomainRepositoryImporter {
+    IAclAwarePentahoMetadataDomainRepositoryImporter,
+    IModelAnnotationsAwareMetadataDomainRepositoryImporter {
 
   private static final Log logger = LogFactory.getLog( SessionCachingMetadataDomainRepository.class );
 
@@ -473,6 +474,21 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     if ( delegate instanceof IPentahoMetadataDomainRepositoryImporter ) {
       ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).addLocalizationFile( domainId, locale,
           inputStream, overwrite );
+    }
+  }
+
+  @Override public String loadAnnotationsXml( String domainId ) {
+    if ( delegate instanceof IModelAnnotationsAwareMetadataDomainRepositoryImporter ) {
+      return ( (IModelAnnotationsAwareMetadataDomainRepositoryImporter) delegate ).loadAnnotationsXml( domainId );
+    }
+
+    return null;
+  }
+
+  @Override public void storeAnnotationsXml( String domainId, String annotationsXml ) {
+    if ( delegate instanceof IModelAnnotationsAwareMetadataDomainRepositoryImporter ) {
+      ( (IModelAnnotationsAwareMetadataDomainRepositoryImporter) delegate )
+          .storeAnnotationsXml( domainId, annotationsXml );
     }
   }
 }
