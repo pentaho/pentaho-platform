@@ -1,6 +1,6 @@
 package org.pentaho.platform.web.http.filters;
 
-import org.drools.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
