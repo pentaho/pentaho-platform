@@ -26,7 +26,7 @@ public class SystemPackageExtrapolator {
 
   public Properties expandProperties( Properties properties ) {
 
-    ClassLoader classLoader = getClass().getClassLoader();
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     Set<String> packages = new HashSet<String>();
 

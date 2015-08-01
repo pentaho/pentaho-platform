@@ -48,7 +48,7 @@ public class KarafBoot implements IPentahoSystemListener {
   @Override public boolean startup( IPentahoSession session ) {
     try {
       String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
-      String root = new File(solutionRootPath + "/system/karaf").getAbsolutePath();
+      String root = new File(solutionRootPath + "/system/karaf").toURI().getPath();
 
       System.setProperty( "karaf.home", root );
       System.setProperty( "karaf.base", root );
@@ -67,7 +67,8 @@ public class KarafBoot implements IPentahoSystemListener {
 
 
       // set the location of the log4j config file, since OSGI won't pick up the one in webapp
-      System.setProperty( "log4j.configuration", "file:" + solutionRootPath + "/system/osgi/log4j.xml" );
+      
+      System.setProperty( "log4j.configuration", new File(solutionRootPath + "/system/osgi/log4j.xml").toURI().toString() );
       // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
       // same one used when instatiating appenders.
       System.setProperty( "log4j.ignoreTCL", "true" );
