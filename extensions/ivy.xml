@@ -155,6 +155,8 @@
                 changing="true"/>
 
     <!--  Pentaho Reporting Library -->
+    <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-core-platform-plugin"
+                rev="${dependency.pentaho-reporting.revision}" changing="true"/>
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-core"
                 rev="${dependency.pentaho-reporting.revision}" changing="true"/>
     <dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions"
