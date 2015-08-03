@@ -17,15 +17,29 @@
 
 package org.pentaho.test.platform.plugin.services.metadata;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.platform.plugin.services.metadata.PentahoMetadataDomainRepository;
+import org.pentaho.platform.plugin.services.metadata.PentahoMetadataDomainRepositoryTest;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-
+import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.metadata.model.Domain;
+import org.pentaho.metadata.model.concept.types.LocaleType;
+import org.pentaho.metadata.util.XmiParser;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import java.io.File;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Purpose: Tests the import of localization files that exist in the solution folders where metadata.xmi files may
@@ -45,15 +59,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class SolutionFolderTest {
 
+  private final String STEEL_WHEELS = "metadata";	
   private String SOLUTION_PATH;
-
   // Legacy solution path and file name
   private String BI_DEVELOPERS_FOLDER_NAME = "bi-developers";
-  private String LEGACY_XMI_FILENAME = "metadata.xmi";
+  private String LEGACY_XMI_FILENAME = "steel-wheels.xmi";
   private String XMI_FILENAME_EXTENSION = ".xmi";
   private String BI_DEVELOPERS_FULL_PATH;
   private File biDevelopersSolutionFolder;
-
   // localeTestUtil
   LocaleTestUtil localeTestUtil = null;
 
@@ -68,19 +81,17 @@ public class SolutionFolderTest {
    */
   @Before
   public void init() {
-
     // create solution paths
     SOLUTION_PATH = System.getProperty( "java.io.tmpdir" );
     BI_DEVELOPERS_FULL_PATH = SOLUTION_PATH + "/" + BI_DEVELOPERS_FOLDER_NAME;
+    //BI_DEVELOPERS_FULL_PATH = SOLUTION_PATH + BI_DEVELOPERS_FOLDER_NAME;
     biDevelopersSolutionFolder = new File( BI_DEVELOPERS_FULL_PATH );
     if ( !biDevelopersSolutionFolder.exists() ) {
       biDevelopersSolutionFolder.delete();
       biDevelopersSolutionFolder.mkdir();
     }
-
     // utility to make this testing a bit easier
     localeTestUtil = new LocaleTestUtil();
-
     // create a platform
     MicroPlatform mp = new MicroPlatform( SOLUTION_PATH );
     try {
@@ -93,263 +104,116 @@ public class SolutionFolderTest {
   @Test
   public void dummyTest() {
     assertTrue( true );
-  }
-
-  // @Test
-  // public void testLocaleParseNoPath() {
-  //
-  // String filename = "mymodel_en_US.properties";
-  // String prefix = "mymodel";
-  //
-  // MetadataDomainRepositoryTestWrapper metadataDomainRepository = new MetadataDomainRepositoryTestWrapper();
-  // try {
-  // String locale = metadataDomainRepository.getLocaleFromPropertyFilename(filename, prefix);
-  // assertEquals("en_US", locale);
-  // }
-  // catch (DomainStorageException dse) {
-  // fail(dse.getMessage());
-  // }
-  // }
-
-  // @Test
-  // public void testLocaleParseWithPath() {
-  //
-  // String filename = "/resources/metadata/mymodel_en_US.properties";
-  // String prefix = "mymodel";
-  //
-  // MetadataDomainRepositoryTestWrapper metadataDomainRepository = new MetadataDomainRepositoryTestWrapper();
-  // try {
-  // String locale = metadataDomainRepository.getLocaleFromPropertyFilename(filename, prefix);
-  // assertEquals("en_US", locale);
-  // }
-  // catch (DomainStorageException dse) {
-  // fail(dse.getMessage());
-  // }
-  // }
+  } 
 
   /**
    * Tests MetadataDomainRepository.getLocalePropertyFilenames() where one xmi resource and no property file exists in
    * the metadata folder.
    */
-  // @Test
-  // public void testNoLocaleFileDiscovery() {
-  //
-  // // create the metadata.xmi file.
-  // File metadataXmiFile=null;
-  // MetadataDomainRepositoryTestWrapper metadataDomainRepository = new MetadataDomainRepositoryTestWrapper();
-  // try {
-  // metadataXmiFile = localeTestUtil.createFile(BI_DEVELOPERS_FULL_PATH, XMI_FILENAME_EXTENSION);
-  // ISolutionFile[] localizationFiles = metadataDomainRepository.getLocalePropertyFiles(BI_DEVELOPERS_FOLDER_NAME+"/" +
-  // XMI_FILENAME_EXTENSION);
-  // assertEquals(0, localizationFiles.length);
-  // }
-  // catch (IOException ioe) {
-  // fail(ioe.getMessage());
-  // }
-  // catch (DomainStorageException dse) {
-  // dse.printStackTrace();
-  // fail(dse.getMessage());
-  // }
-  // finally {
-  // if (metadataXmiFile != null) {
-  // metadataXmiFile.delete();
-  // }
-  // }
-  // }
-
+  @Test
+  public void testNoLocaleFileDiscovery() { 	  
+	  PentahoMetadataDomainRepository domainRepository;	  	  
+	  IUnifiedRepository repository = new FileSystemBackedUnifiedRepository();
+	  repository = new FileSystemBackedUnifiedRepository(BI_DEVELOPERS_FULL_PATH);	  
+	  domainRepository = new PentahoMetadataDomainRepository(repository);	  
+	  File metadataXmiFile=null;
+	  try {
+		  metadataXmiFile = localeTestUtil.createFile(BI_DEVELOPERS_FULL_PATH, XMI_FILENAME_EXTENSION);
+		  Map<String, InputStream> localizationFiles = domainRepository.getDomainFilesData("metadata");
+		  assertEquals(0, localizationFiles.size());
+	  }
+	  catch (IOException ioe) {
+		  fail(ioe.getMessage());
+	  } catch (Exception e) {
+		  e.printStackTrace();
+	  }
+	  finally {
+		  if (metadataXmiFile != null) {
+			  metadataXmiFile.delete();
+		  }
+	  }
+  }
+  
   /**
    * Tests MetadataDomainRepository.getLocalePropertyFilenames() when one xmi resource is in the meta data folder with
    * one property file.
+   * Update: Test Domain.getLocaleCodes() when we added the new locale on existing domain.
    */
-  // @Test
-  // public void testOneLocaleFileDiscovery() {
-  //
-  // // create files
-  // File en_us_properties = null;
-  // File xmiMeta_xml = null;
-  //
-  // // discover the localization files
-  // MetadataDomainRepositoryTestWrapper metadataDomainRepository = new MetadataDomainRepositoryTestWrapper();
-  // try {
-  //
-  // // create files
-  // xmiMeta_xml = localeTestUtil.createFile(BI_DEVELOPERS_FULL_PATH, LEGACY_XMI_FILENAME);
-  // en_us_properties = localeTestUtil.createPropertiesFile("EN_US", BI_DEVELOPERS_FULL_PATH,
-  // LEGACY_XMI_FILENAME.substring(0, LEGACY_XMI_FILENAME.indexOf('.')));
-  //
-  // // get a list of locale property files
-  // ISolutionFile[] localizationFileNames =
-  // metadataDomainRepository.getLocalePropertyFiles(BI_DEVELOPERS_FOLDER_NAME+"/" + LEGACY_XMI_FILENAME);
-  //
-  // // we expect a list of one file - the one we just created
-  // assertNotNull(localizationFileNames);
-  // assertEquals(localizationFileNames.length , 1);
-  // assertEquals(localizationFileNames[0].getFileName(), en_us_properties.getName());
-  //
-  // // metadataDomainRepository.importLocalizations("metadata", BI_DEVELOPERS_FOLDER_NAME+"/" +
-  // MetadataDomainRepository.LEGACY_XMI_FILENAME);
-  //
-  // }
-  // catch (IOException ioe) {
-  // fail(ioe.getMessage());
-  // }
-  // catch (DomainStorageException dse) {
-  // fail(dse.getMessage());
-  // }
-  // finally {
-  // if (en_us_properties != null) { en_us_properties.delete(); }
-  // if (xmiMeta_xml !=null) { xmiMeta_xml.delete(); }
-  // }
-  // }
-
-  /**
-   * Tests MetadataDomainRepository.getLocalePropertyFilenames() when one xmi file and several property file exists in
-   * the metadata folder.
-   */
-  // @Test
-  // public void testMultiLocaleFileDiscovery() {
-  //
-  // // create files
-  // File xmiMeta_xml = null;
-  // File en_us_properties = null;
-  // File en_gb_properties = null;
-  // File no_bok_properties = null;
-  //
-  // // discover the localization files
-  // MetadataDomainRepositoryTestWrapper metadataDomainRepository = new MetadataDomainRepositoryTestWrapper();
-  // try {
-  //
-  // // create files
-  // xmiMeta_xml = localeTestUtil.createFile(BI_DEVELOPERS_FULL_PATH, LEGACY_XMI_FILENAME);
-  // en_us_properties = localeTestUtil.createPropertiesFile("EN_US", BI_DEVELOPERS_FULL_PATH,
-  // LEGACY_XMI_FILENAME.substring(0, LEGACY_XMI_FILENAME.indexOf('.')));
-  // en_gb_properties = localeTestUtil.createPropertiesFile("EN_GB", BI_DEVELOPERS_FULL_PATH,
-  // LEGACY_XMI_FILENAME.substring(0, LEGACY_XMI_FILENAME.indexOf('.')));
-  // no_bok_properties = localeTestUtil.createPropertiesFile("NO_BOK", BI_DEVELOPERS_FULL_PATH,
-  // LEGACY_XMI_FILENAME.substring(0, LEGACY_XMI_FILENAME.indexOf('.')));
-  //
-  // // get the list of property files to import
-  // ISolutionFile[] localizationFiles = metadataDomainRepository.getLocalePropertyFiles(BI_DEVELOPERS_FOLDER_NAME + "/"
-  // + LEGACY_XMI_FILENAME);
-  //
-  // // test the localization filenames for correctness
-  // ArrayList<String> solutionFileNames = new ArrayList<String>();
-  // for(ISolutionFile solutionFile: localizationFiles) {
-  // solutionFileNames.add(solutionFile.getFileName());
-  // }
-  // assertNotNull(localizationFiles);
-  // assertEquals(3, localizationFiles.length);
-  // assertTrue(solutionFileNames.contains(en_us_properties.getName()));
-  // assertTrue(solutionFileNames.contains(en_gb_properties.getName()));
-  // assertTrue(solutionFileNames.contains(no_bok_properties.getName()));
-  // }
-  // catch (IOException ioe) {
-  // fail(ioe.getMessage());
-  // }
-  // catch (DomainStorageException dse) {
-  // fail(dse.getMessage());
-  // }
-  // finally {
-  // if(en_us_properties != null) { en_us_properties.delete(); }
-  // if(en_gb_properties != null) { en_gb_properties.delete(); }
-  // if(no_bok_properties != null) { no_bok_properties.delete(); }
-  // xmiMeta_xml.delete();
-  // }
-  // }
-
-  @After
-  public void cleanup() {
-    if ( biDevelopersSolutionFolder != null ) {
-      biDevelopersSolutionFolder.delete();
+   @Test 
+   public void testOneLocaleFileDiscovery() {	
+	   try {
+		   final Domain steelWheels = loadDomain( STEEL_WHEELS, "./" + LEGACY_XMI_FILENAME );   
+		   //get a list of locale codes
+		   final int initialLocaleSize = steelWheels.getLocaleCodes().length;
+		   // add new locale
+		   steelWheels.addLocale(new LocaleType("en_US", "Test locale"));
+		   int localizationNewSize = steelWheels.getLocaleCodes().length;
+		   // we expect a the size of previous list + 1
+		   assertNotNull(localizationNewSize);
+		   assertEquals(localizationNewSize , initialLocaleSize + 1);   
+	   }
+	   catch (IOException ioe) {
+		   fail(ioe.getMessage());
+	   }
+	   catch (DomainStorageException dse) {
+		   fail(dse.getMessage());
+	   }
+	   catch (Exception e)	{
+		   e.printStackTrace();
+	   }
+   }
+  
+   /**
+    * Tests MetadataDomainRepository.getLocalePropertyFilenames() when one xmi file and several property file exists in
+    * the metadata folder.
+    * Update: Get locales with use Domain.getLocaleCodes()
+    */
+    @Test
+    public void testMultiLocaleFileDiscovery() { 
+    	try {
+    		Domain steelWheels = loadDomain( STEEL_WHEELS, "./" + LEGACY_XMI_FILENAME );
+	    	// get count of current locales
+    		final int previousLocaleSize = steelWheels.getLocaleCodes().length;
+    		// add new locales
+    		steelWheels.addLocale(new LocaleType("EN_US", LEGACY_XMI_FILENAME.substring(0, LEGACY_XMI_FILENAME.indexOf('.'))));
+    		steelWheels.addLocale(new LocaleType("EN_GB", LEGACY_XMI_FILENAME.substring(0, LEGACY_XMI_FILENAME.indexOf('.'))));
+    		steelWheels.addLocale(new LocaleType("NO_BOK", LEGACY_XMI_FILENAME.substring(0, LEGACY_XMI_FILENAME.indexOf('.'))));
+    		// get the list of codes to import
+    		String[] localizationFiles = steelWheels.getLocaleCodes();
+    		// test the localization filenames for correctness
+    		ArrayList<String> solutionFileNames = new ArrayList<String>();
+    		for(String solutionFile: localizationFiles) {
+    			solutionFileNames.add(solutionFile);
+    		}
+    		assertNotNull(localizationFiles);
+    		assertEquals(previousLocaleSize + 3, localizationFiles.length);
+    		assertTrue(solutionFileNames.contains("EN_US"));
+    		assertTrue(solutionFileNames.contains("EN_GB"));
+    		assertTrue(solutionFileNames.contains("NO_BOK"));
+    	}
+    	catch (IOException ioe) {
+    		fail(ioe.getMessage());
+    	}
+    	catch (DomainStorageException dse) {
+    		fail(dse.getMessage());
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
     }
-  }
 
-  // @Test
-  // public void testImportLocalizationEmptyPropertyFile() {
-  // // create files
-  // File en_us_properties = null;
-  // File xmiMeta_xml = null;
-  // Domain domain = new Domain();
-  //
-  // // discover the localization files
-  // MetadataDomainRepositoryTestWrapper metadataDomainRepository = new MetadataDomainRepositoryTestWrapper();
-  // try {
-  //
-  // // create files
-  // xmiMeta_xml = localeTestUtil.createFile(BI_DEVELOPERS_FULL_PATH, LEGACY_XMI_FILENAME);
-  // en_us_properties = localeTestUtil.createPropertiesFile("EN_US", BI_DEVELOPERS_FULL_PATH,
-  // LEGACY_XMI_FILENAME.substring(0, LEGACY_XMI_FILENAME.indexOf('.')));
-  //
-  // // get a list of locale property files
-  // ISolutionFile[] localizationFileNames =
-  // metadataDomainRepository.getLocalePropertyFiles(BI_DEVELOPERS_FOLDER_NAME+"/" + LEGACY_XMI_FILENAME);
-  //
-  // // we expect a list of one file - the one we just created
-  // assertNotNull(localizationFileNames);
-  // assertEquals(localizationFileNames.length , 1);
-  // assertEquals(localizationFileNames[0].getFileName(), en_us_properties.getName());
-  //
-  // metadataDomainRepository.importLocalizations(domain, BI_DEVELOPERS_FOLDER_NAME+"/" + LEGACY_XMI_FILENAME);
-  //
-  // }
-  // catch (IOException ioe) {
-  // fail(ioe.getMessage());
-  // }
-  // catch (DomainStorageException dse) {
-  // assertTrue(dse.getMessage().contains("The property file metadata_EN_US.properties contains no properties"));
-  // }
-  // finally {
-  // if (en_us_properties != null) { en_us_properties.delete(); }
-  // if (xmiMeta_xml !=null) { xmiMeta_xml.delete(); }
-  // }
-  // }
+    @After
+    public void cleanup() {
+    	if ( biDevelopersSolutionFolder != null ) {
+    		biDevelopersSolutionFolder.delete();
+    	}
+    }
 
-  // @Test
-  // public void testImportPropertyFile() {
-  // // create files
-  // File en_us_properties = null;
-  // File xmiMeta_xml = null;
-  // Domain domain = new Domain();
-  // LocaleType localeType = new LocaleType();
-  //
-  //
-  // // discover the localization files
-  // MetadataDomainRepositoryTestWrapper metadataDomainRepository = new MetadataDomainRepositoryTestWrapper();
-  // try {
-  //
-  // // create files
-  // xmiMeta_xml = localeTestUtil.createFile(BI_DEVELOPERS_FULL_PATH, LEGACY_XMI_FILENAME);
-  // en_us_properties = localeTestUtil.createPropertiesFile("EN_US", BI_DEVELOPERS_FULL_PATH,
-  // LEGACY_XMI_FILENAME.substring(0, LEGACY_XMI_FILENAME.indexOf('.')), true);
-  //
-  // // get a list of locale property files
-  // ISolutionFile[] localizationFileNames =
-  // metadataDomainRepository.getLocalePropertyFiles(BI_DEVELOPERS_FOLDER_NAME+"/" + LEGACY_XMI_FILENAME);
-  //
-  // // we expect a list of one file - the one we just created
-  // assertNotNull(localizationFileNames);
-  // assertEquals(localizationFileNames.length , 1);
-  // assertEquals(localizationFileNames[0].getFileName(), en_us_properties.getName());
-  //
-  // localeType.setCode("en_US");
-  // ArrayList<LocaleType> localeTypes = new ArrayList<LocaleType>();
-  // localeTypes.add(localeType);
-  // domain.setLocales(localeTypes);
-  //
-  // // missing something in domain setup that is causing a null pointer exception.
-  //
-  // metadataDomainRepository.importLocalizations(domain, BI_DEVELOPERS_FOLDER_NAME+"/" + LEGACY_XMI_FILENAME);
-  //
-  // }
-  // catch (IOException ioe) {
-  // fail(ioe.getMessage());
-  // }
-  // catch (DomainStorageException dse) {
-  // fail(dse.getMessage());
-  // }
-  // finally {
-  // if (en_us_properties != null) { en_us_properties.delete(); }
-  // if (xmiMeta_xml !=null) { xmiMeta_xml.delete(); }
-  // }
-  // }
+   private static final Domain loadDomain( final String domainId, final String domainFile ) throws Exception {
+	    final InputStream in = PentahoMetadataDomainRepositoryTest.class.getResourceAsStream( domainFile );
+	    final XmiParser parser = new XmiParser();
+	    final Domain domain = parser.parseXmi( in );
+	    domain.setId( domainId );
+	    IOUtils.closeQuietly( in );
+	    return domain;
+   }
 }
