@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <report name="SampleDynamicColumn" orientation="landscape" pageformat="LETTER" leftmargin="10" rightmargin="10" topmargin="10" bottommargin="10">
   <parser-config/>
+
   <reportheader fontname="SansSerif" fontsize="11" fontstyle="bold">
     <message-field height="18" alignment="center" width="100%" x="0%" y="0">Region: $(region)</message-field>
   </reportheader>
@@ -27,12 +27,12 @@
   <items color="#000000" fontname="SansSerif" fontsize="9" fontstyle="bold">
     <rectangle name="rowBandingElement" color="#E0E0E0" draw="false" fill="true" height="11" x="0%" width="100%" y="0"/>
     <string-field name="COLUMN1Element" fieldname="COLUMN1" vertical-alignment="middle" alignment="left" width="50%" x="0%" y="0" height="11"/>
-    <number-field name="ACTUALElement" fieldname="ACTUAL" vertical-alignment="middle" alignment="right" width="50%" x="50%" y="0" height="11"/>
+    <number-field name="ACTUALElement" fieldname="COLUMN2" vertical-alignment="middle" alignment="right" width="50%" x="50%" y="0" height="11"/>
   </items>
   <functions>
     <property-ref name="columnTitle"/>
     <property-ref name="region"/>
-    <function name="backgroundTrigger" class="org.pentaho.jfreereport.functions.ElementVisibilitySwitchFunction">
+    <function name="backgroundTrigger" class="org.pentaho.reporting.engine.classic.core.function.RowBandingFunction">
       <properties>
         <property name="element">rowBandingElement</property>
         <property name="numberOfElements">1</property>
@@ -56,8 +56,9 @@
     </expression>
     <expression class="org.jfree.report.function.ItemSumFunction" name="Summary_ACTUALExpression">
       <properties>
-        <property name="field">ACTUAL</property>
+        <property name="field">ACTUALElement</property>
       </properties>
     </expression>
   </functions>
+
 </report>

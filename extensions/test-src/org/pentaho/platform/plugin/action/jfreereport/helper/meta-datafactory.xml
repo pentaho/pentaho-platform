@@ -1,0 +1,11 @@
+<meta-data xmlns="http://reporting.pentaho.org/namespaces/engine/classic/metadata/1.0">
+
+  <data-factory name="org.pentaho.platform.plugin.action.jfreereport.helper.PentahoDataFactory"
+                bundle-name="org.pentaho.reporting.engine.classic.core.metadata.messages"
+                hidden="false" expert="true"/>
+
+  <data-factory name="org.pentaho.platform.plugin.action.jfreereport.helper.PentahoTableDataFactory"
+                bundle-name="org.pentaho.reporting.engine.classic.core.metadata.messages"
+                hidden="false" expert="true"/>
+
+</meta-data>

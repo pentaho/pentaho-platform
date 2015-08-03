@@ -17,12 +17,29 @@
 
 package org.pentaho.test.platform.plugin;
 
+import static org.apache.commons.lang.StringUtils.EMPTY;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.pentaho.commons.connection.DataUtilities;
 import org.pentaho.commons.connection.IPentahoMetaData;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.memory.MemoryMetaData;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.platform.api.engine.AuditException;
+import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.InvalidParameterException;
@@ -41,24 +58,8 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.SimpleRuntimeRepository;
 import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.JVMParameterProvider;
+import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
 import org.pentaho.test.platform.engine.core.BaseTest;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-//import java.text.SimpleDateFormat;
-//import org.pentaho.platform.api.engine.IActionParameter;
 
 @SuppressWarnings( "nls" )
 public class MultipleComponentTest extends BaseTest {
@@ -67,49 +68,46 @@ public class MultipleComponentTest extends BaseTest {
    * This Test Case runs multiple small action sequences which improve test coverage.
    */
 
-  private static final String HW_TEST_NAME = "MultipleComponentTest_HelloWorld_"; //$NON-NLS-1$
+  private static final String HW_TEST_NAME = "MultipleComponentTest_HelloWorld_";
 
-  private static final String HW_TEST_EXTN = ".txt"; //$NON-NLS-1$
+  private static final String HW_TEST_EXTN = ".txt";
 
-  private static final String RC_TEST_NAME = "MultipleComponentTest_ReportCharts_"; //$NON-NLS-1$
+  private static final String RC_TEST_NAME = "MultipleComponentTest_ReportCharts_";
 
-  //  private static final String RC_TEST_EXTN = ".html"; //$NON-NLS-1$
-  //
-  //  private static final String DS_TEST_NAME = "MultipleComponentTest_DynamicSQL_"; //$NON-NLS-1$
-  //
-  //  private static final String DS_TEST_EXTN = ".html"; //$NON-NLS-1$
+  private static final String RC_TEST_EXTN = ".html";
+
+  private static final String DS_TEST_NAME = "MultipleComponentTest_DynamicSQL_";
+
+  private static final String DS_TEST_EXTN = ".html";
 
   private ByteArrayOutputStream lastStream;
 
   private static final String SOLUTION_PATH = "test-src/solution";
 
+  @Override
+  public void setUp() {
+    super.setUp();
+    // For correct process jfree reports are needed:
+    // 1. ClassicEngineBoot.getInstance().start();
+    // 2. classic-engine.properties in test-src;
+    // 3. meta-datafactory.xml in org.pentaho.platform.plugin.action.jfreereport.helper
+    if ( !ClassicEngineBoot.getInstance().isBootInProgress() ) {
+      ClassicEngineBoot.getInstance().start();
+    }
+  }
+
+  @Override
+  public void tearDown() {
+    super.tearDown();
+  }
+
   public String getSolutionPath() {
     return SOLUTION_PATH;
   }
 
-  public Map getRequiredListeners() {
-    Map listeners = super.getRequiredListeners();
-    listeners.put( "jfree-report", "jfree-report" ); //$NON-NLS-1$ //$NON-NLS-2$
-    return listeners;
-  }
-
-  public void startTest() {
-    super.startTest();
-  }
-
-  public void finishTest() {
-    super.finishTest();
-  }
-
-  public String getBaseUrl() {
-    return "http://localhost:9876/pentaho/"; //$NON-NLS-1$
-  }
-
   protected OutputStream getOutputStream( String testName, String extension ) {
-    //
     // The reportchart reports are huge (>500k). So, for these, write the
     // output to a file (in test/tmp). Otherwise, use a ByteArrayOutputStream
-    //
     if ( testName.indexOf( RC_TEST_NAME ) >= 0 ) {
       return super.getOutputStream( testName, extension );
     } else {
@@ -119,24 +117,13 @@ public class MultipleComponentTest extends BaseTest {
   }
 
   protected InputStream getInputStreamFromOutput( String testName, String extension ) {
-
-    //
     // Either read from the file for the report charts, or just
     // return the byte array output stream wrapped as an input stream.
-    //
     if ( testName.indexOf( RC_TEST_NAME ) >= 0 ) {
       return super.getInputStreamFromOutput( testName, extension );
     } else {
       return new ByteArrayInputStream( lastStream.toByteArray() );
     }
-  }
-
-  public void setUp() {
-    super.setUp();
-  }
-
-  public void tearDown() {
-    super.tearDown();
   }
 
   public IOutputHandler getOutputHandler( OutputStream stream ) {
@@ -160,36 +147,20 @@ public class MultipleComponentTest extends BaseTest {
     return MemoryResultSet.createFromArrays( columnHeaders, row );
   }
 
-  @SuppressWarnings( "unused" )
-  private IPentahoResultSet getResultSetFromList() {
-    List columnHeadersList = new ArrayList();
-    columnHeadersList.add( "COL1" ); //$NON-NLS-1$
-    columnHeadersList.add( "COL2" ); //$NON-NLS-1$
-    columnHeadersList.add( "COL3" ); //$NON-NLS-1$
-    List rowList = new ArrayList();
-    rowList.add( "VAL1" ); //$NON-NLS-1$
-    rowList.add( "VAL2" ); //$NON-NLS-1$
-    rowList.add( "VAL3" ); //$NON-NLS-1$
-
-    return MemoryResultSet.createFromLists( columnHeadersList, rowList );
-  }
-
   private IPentahoResultSet getResultSet2() {
     Object[][] columnHeaders = new Object[][] { { "COL1", "COL2", "COL3" } }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    List columnHeadersList = new ArrayList();
+    List<String> columnHeadersList = new ArrayList<String>();
     columnHeadersList.add( "COL1" ); //$NON-NLS-1$
     columnHeadersList.add( "COL2" ); //$NON-NLS-1$
     columnHeadersList.add( "COL3" ); //$NON-NLS-1$
     MemoryMetaData md2 = new MemoryMetaData( columnHeaders, null );
-    //    emd.getAttribute(1, 1, "COL1"); //$NON-NLS-1$
-    // emd.setBusinessColumns(columnHeadersList);
     MemoryResultSet rs = new MemoryResultSet( md2 );
     rs.addRow( new Object[] { "DATA1", "DATA2", new Date() } ); //$NON-NLS-1$ //$NON-NLS-2$
     return rs;
   }
 
   private IPentahoResultSet getResultSet3() {
-    List columnHeadersList = new ArrayList();
+    List<String> columnHeadersList = new ArrayList<String>();
     columnHeadersList.add( "COL1" ); //$NON-NLS-1$
     columnHeadersList.add( "COL2" ); //$NON-NLS-1$
     columnHeadersList.add( "COL3" ); //$NON-NLS-1$
@@ -205,7 +176,7 @@ public class MultipleComponentTest extends BaseTest {
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
     IRuntimeContext context = run( "/test/platform/HelloWorld.xaction", parameterProvider, testName, HW_TEST_EXTN ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
-        Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() ); //$NON-NLS-1$
+      Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() ); //$NON-NLS-1$
 
     InputStream is = this.getInputStreamFromOutput( testName, HW_TEST_EXTN );
     assertNotNull( is ); // Did the test execute properly...
@@ -215,19 +186,31 @@ public class MultipleComponentTest extends BaseTest {
     finishTest();
   }
 
-  /*
-   * public void testCrosstab() { startTest(); IRuntimeContext context = run("test", "rules", "CrossTabTest.xaction");
-   * //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ assertEquals(
-   * Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS,
-   * context.getStatus()); //$NON-NLS-1$ IActionParameter rtn = context.getOutputParameter("rule-result"); //$NON-NLS-1$
-   * assertNotNull(rtn); IPentahoResultSet resultset = (IPentahoResultSet) rtn.getValue();
-   * assertEquals(resultset.getRowCount(), 7); Object[][] colHeaders = resultset.getMetaData().getColumnHeaders();
-   * assertEquals(colHeaders[0][0], "DEPARTMENT"); //$NON-NLS-1$ assertEquals(colHeaders[0][1], "Central"); //$NON-NLS-1$
-   * assertEquals(colHeaders[0][2], "Western"); //$NON-NLS-1$ assertEquals(colHeaders[0][3], "Southern"); //$NON-NLS-1$
-   * assertEquals(colHeaders[0][4], "Eastern"); //$NON-NLS-1$
-   * 
-   * finishTest(); }
-   */
+  public void testCrosstab() {
+    startTest();
+    IRuntimeContext context = run( "/test/rules/CrossTabTest.xaction" );
+    assertEquals( Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ),
+      IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    IActionParameter rtn = context.getOutputParameter( "rule-result" );
+    assertNotNull( rtn );
+    IPentahoResultSet resultset = null;
+    try {
+      resultset = (IPentahoResultSet) rtn.getValue();
+      assertEquals( resultset.getRowCount(), 7 );
+      Object[][] colHeaders = resultset.getMetaData().getColumnHeaders();
+      assertEquals( colHeaders[0][0], "DEPARTMENT" );
+      assertEquals( colHeaders[0][1], "Central" );
+      assertEquals( colHeaders[0][2], "Western" );
+      assertEquals( colHeaders[0][3], "Southern" );
+      assertEquals( colHeaders[0][4], "Eastern" );
+    } finally {
+      if ( resultset != null ) {
+        resultset.close();
+        resultset.closeConnection();
+      }
+      finishTest();
+    }
+  }
 
   public void testMiscExceptionClasses() {
     // Making sure we create an instance of all the Pentaho
@@ -253,106 +236,178 @@ public class MultipleComponentTest extends BaseTest {
     finishTest();
   }
 
-  /*
-   * public void testReportCharts() { startTest(); SimpleParameterProvider parameterProvider = new
-   * SimpleParameterProvider(); parameterProvider.setParameter("chart_type", "multipie"); //$NON-NLS-1$ //$NON-NLS-2$
-   * parameterProvider.setParameter("output-type", "html"); //$NON-NLS-1$ //$NON-NLS-2$ long curTime =
-   * System.currentTimeMillis(); String testName = RC_TEST_NAME + "multipie_" + curTime; //$NON-NLS-1$ IRuntimeContext
-   * context = run( "test", "reporting/JFreeReportChartTypes", "JFreeReport_Chart_ChartTypes.xaction",
-   * parameterProvider, testName, RC_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ assertEquals(
-   * Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS,
-   * context.getStatus()); //$NON-NLS-1$ InputStream is = this.getInputStreamFromOutput(testName, RC_TEST_EXTN);
-   * assertNotNull(is); try { is.close(); } catch (Exception ignored) { }
-   * 
-   * parameterProvider.setParameter("chart_type", "line"); //$NON-NLS-1$ //$NON-NLS-2$ testName = RC_TEST_NAME + "line_"
-   * + curTime; //$NON-NLS-1$ context = run( "test", "reporting/JFreeReportChartTypes",
-   * "JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName, RC_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ assertEquals( Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"),
-   * IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$ is =
-   * this.getInputStreamFromOutput(testName, RC_TEST_EXTN); assertNotNull(is); try { is.close(); } catch (Exception
-   * ignored) { }
-   * 
-   * parameterProvider.setParameter("chart_type", "area"); //$NON-NLS-1$ //$NON-NLS-2$ testName = RC_TEST_NAME + "area_"
-   * + curTime; //$NON-NLS-1$ context = run( "test", "reporting/JFreeReportChartTypes",
-   * "JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName, RC_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ assertEquals( Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"),
-   * IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$ is =
-   * this.getInputStreamFromOutput(testName, RC_TEST_EXTN); assertNotNull(is); try { is.close(); } catch (Exception
-   * ignored) { }
-   * 
-   * parameterProvider.setParameter("chart_type", "stackedarea"); //$NON-NLS-1$ //$NON-NLS-2$ testName = RC_TEST_NAME +
-   * "stackedarea_" + curTime; //$NON-NLS-1$ context = run( "test", "reporting/JFreeReportChartTypes",
-   * "JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName, RC_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ assertEquals( Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"),
-   * IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$ is =
-   * this.getInputStreamFromOutput(testName, RC_TEST_EXTN); assertNotNull(is); try { is.close(); } catch (Exception
-   * ignored) { }
-   * 
-   * parameterProvider.setParameter("chart_type", "bar"); //$NON-NLS-1$ //$NON-NLS-2$ testName = RC_TEST_NAME + "bar_" +
-   * curTime; //$NON-NLS-1$ context = run( "test", "reporting/JFreeReportChartTypes",
-   * "JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName, RC_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ assertEquals( Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"),
-   * IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$ is =
-   * this.getInputStreamFromOutput(testName, RC_TEST_EXTN); assertNotNull(is); try { is.close(); } catch (Exception
-   * ignored) { }
-   * 
-   * parameterProvider.setParameter("chart_type", "stackedbar"); //$NON-NLS-1$ //$NON-NLS-2$ testName = RC_TEST_NAME +
-   * "stackedbar_" + curTime; //$NON-NLS-1$ context = run( "test", "reporting/JFreeReportChartTypes",
-   * "JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName, RC_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ assertEquals( Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"),
-   * IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$ is =
-   * this.getInputStreamFromOutput(testName, RC_TEST_EXTN); assertNotNull(is); try { is.close(); } catch (Exception
-   * ignored) { }
-   * 
-   * parameterProvider.setParameter("chart_type", "stackedbarpercentages"); //$NON-NLS-1$ //$NON-NLS-2$ testName =
-   * RC_TEST_NAME + "stackedbarpercentages_" + curTime; //$NON-NLS-1$ context = run( "test",
-   * "reporting/JFreeReportChartTypes", "JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName,
-   * RC_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ assertEquals(
-   * Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS,
-   * context.getStatus()); //$NON-NLS-1$ is = this.getInputStreamFromOutput(testName, RC_TEST_EXTN); assertNotNull(is);
-   * try { is.close(); } catch (Exception ignored) { }
-   * 
-   * parameterProvider.setParameter("chart_type", "pie"); //$NON-NLS-1$ //$NON-NLS-2$ testName = RC_TEST_NAME + "pie_" +
-   * curTime; //$NON-NLS-1$ context = run( "test", "reporting/JFreeReportChartTypes",
-   * "JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName, RC_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ assertEquals( Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"),
-   * IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$ is =
-   * this.getInputStreamFromOutput(testName, RC_TEST_EXTN); assertNotNull(is); try { is.close(); } catch (Exception
-   * ignored) { }
-   * 
-   * finishTest(); }
-   */
+  public void testReportCharts() {
+    SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
+    parameterProvider.setParameter( "chart_type", "multipie" );
+    parameterProvider.setParameter( "output-type", "html" );
+    long curTime = System.currentTimeMillis();
+    String testName = RC_TEST_NAME + "multipie_" + curTime;
+    IRuntimeContext context =
+      run( "/test/reporting/JFreeReportChartTypes/JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName,
+        RC_TEST_EXTN );
+    assertEquals( IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    InputStream is = this.getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
 
-  /*
-   * public void testDynamicSQLAndSecureFilter() { startTest(); SimpleParameterProvider parameterProvider = new
-   * SimpleParameterProvider(); // Add no parameters yet for first run String testName = DS_TEST_NAME +
-   * "parameterResponse_" + System.currentTimeMillis(); //$NON-NLS-1$ IRuntimeContext context = run( "test",
-   * "reporting", "DynamicSQLSample.xaction", parameterProvider, testName, DS_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$
-   * //$NON-NLS-3$ assertEquals( Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"),
-   * IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$ // Should have created a Feedback html
-   * page in the output. InputStream is = this.getInputStreamFromOutput(testName, RC_TEST_EXTN); assertNotNull(is);
-   * String feedbackHTML = FileHelper.getStringFromInputStream(is); assertNotNull(feedbackHTML); // Make sure it's
-   * feedback HTML we have...
-   * assertTrue(feedbackHTML.indexOf("Use this form to supply the parameters required for this content") > 0);
-   * //$NON-NLS-1$ assertTrue(feedbackHTML.indexOf("Select: Department or Position") > 0); //$NON-NLS-1$ // OK - now,
-   * supply all the parameters and re-run. parameterProvider.setParameter("deptorposn", "department"); //$NON-NLS-1$
-   * //$NON-NLS-2$ parameterProvider.setParameter("type", "html"); //$NON-NLS-1$ //$NON-NLS-2$
-   * parameterProvider.setParameter("region", "Central"); //$NON-NLS-1$ //$NON-NLS-2$ testName = DS_TEST_NAME + "report_"
-   * + System.currentTimeMillis(); //$NON-NLS-1$ context = run("test", "reporting", "DynamicSQLSample.xaction",
-   * parameterProvider, testName, DS_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-   * assertEquals(context.getStatus(), IRuntimeContext.RUNTIME_STATUS_SUCCESS); // Should have created a report html
-   * page in the output. is = this.getInputStreamFromOutput(testName, RC_TEST_EXTN); assertNotNull(is); String
-   * reportHTML = FileHelper.getStringFromInputStream(is); assertNotNull(reportHTML); // Insure it has information
-   * assertTrue(reportHTML.indexOf("Professional Services") > 0); //$NON-NLS-1$
-   * assertTrue(reportHTML.indexOf("20,068,039") > 0); //$NON-NLS-1$ finishTest(); }
-   */
+    parameterProvider.setParameter( "chart_type", "line" );
+    testName = RC_TEST_NAME + "line_" + curTime;
+    context =
+      run( "/test/reporting/JFreeReportChartTypes/JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName,
+        RC_TEST_EXTN );
+    assertEquals( Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ),
+      IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    is = this.getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
 
+    parameterProvider.setParameter( "chart_type", "area" );
+    testName = RC_TEST_NAME + "area_" + curTime;
+    context =
+      run( "/test/reporting/JFreeReportChartTypes/JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName,
+        RC_TEST_EXTN );
+    assertEquals( Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ),
+      IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    is = this.getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
+
+    parameterProvider.setParameter( "chart_type", "stackedarea" );
+    testName = RC_TEST_NAME + "stackedarea_" + curTime;
+    context =
+      run( "/test/reporting/JFreeReportChartTypes/JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName,
+        RC_TEST_EXTN );
+    assertEquals( Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ),
+      IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    is = this.getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
+
+    parameterProvider.setParameter( "chart_type", "bar" );
+    testName = RC_TEST_NAME + "bar_" + curTime;
+    context =
+      run( "/test/reporting/JFreeReportChartTypes/JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName,
+        RC_TEST_EXTN );
+    assertEquals( Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ),
+      IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    is = this.getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
+
+    parameterProvider.setParameter( "chart_type", "stackedbar" );
+    testName = RC_TEST_NAME + "stackedbar_" + curTime;
+    context =
+      run( "/test/reporting/JFreeReportChartTypes/JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName,
+        RC_TEST_EXTN );
+    assertEquals( Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ),
+      IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    is = this.getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
+
+    parameterProvider.setParameter( "chart_type", "stackedbarpercentages" );
+    testName = RC_TEST_NAME + "stackedbarpercentages_" + curTime;
+    context =
+      run( "/test/reporting/JFreeReportChartTypes/JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName,
+        RC_TEST_EXTN );
+    assertEquals( Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ),
+      IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    is = this.getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
+
+    parameterProvider.setParameter( "chart_type", "pie" );
+    testName = RC_TEST_NAME + "pie_" + curTime;
+    context =
+      run( "/test/reporting/JFreeReportChartTypes/JFreeReport_Chart_ChartTypes.xaction", parameterProvider, testName,
+        RC_TEST_EXTN );
+    assertEquals( Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ),
+      IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    is = this.getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
+  }
+
+  public void testDynamicSQLAndSecureFilter() {
+    startTest();
+    SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
+    // Add no parameters yet for first run
+    String testName = DS_TEST_NAME + "parameterResponse_" + System.currentTimeMillis();
+    IRuntimeContext context =
+      run( "/test/reporting/DynamicSQLSample.xaction", parameterProvider, testName, DS_TEST_EXTN );
+    assertEquals( Messages.getInstance().getString( "BaseTest.USER_RUNNING_ACTION_SEQUENCE" ),
+      IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+    // Should have created a Feedback html page in the output.
+    InputStream is = getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    String feedbackHTML = FileHelper.getStringFromInputStream( is );
+    assertNotNull( feedbackHTML ); // Make sure it's feedback HTML we have...
+    assertTrue( feedbackHTML.contains( "Department or Position" ) );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
+    finishTest();
+  }
+
+  public void testDynamicSQLAndSecureFilterParam() {
+    startTest();
+    SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
+    parameterProvider.setParameter( "deptorposn", "department" );
+    parameterProvider.setParameter( "type", "html" );
+    parameterProvider.setParameter( "region", "Central" );
+    String testName = DS_TEST_NAME + "report_" + System.currentTimeMillis();
+
+    IRuntimeContext context =
+      run( "test/reporting/DynamicSQLSample.xaction", parameterProvider, testName, DS_TEST_EXTN );
+    assertEquals( IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+
+    // Should have created a report html page in the output.
+    InputStream is = getInputStreamFromOutput( testName, RC_TEST_EXTN );
+    assertNotNull( is );
+    String reportHTML = FileHelper.getStringFromInputStream( is );
+    assertNotNull( reportHTML );
+    // Insure it has information
+    assertTrue( reportHTML.contains( "Professional Services" ) );
+    assertTrue( reportHTML.contains( "20,068,039" ) );
+    try {
+      is.close();
+    } catch ( Exception ignored ) {
+    }
+    finishTest();
+  }
+
+  @SuppressWarnings( "rawtypes" )
   public void testSimpleRuntime() {
     // The simple runtime is used by the standalone distribution.
     // This provides some simple tests to exercise the code...
     startTest();
     StandaloneSession session =
-        new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) ); //$NON-NLS-1$
+      new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) ); //$NON-NLS-1$
     IRuntimeRepository srr = new SimpleRuntimeRepository();
     srr.setSession( session );
     IRuntimeElement ele1 = srr.loadElementById( "instanceid", null ); //$NON-NLS-1$
@@ -390,7 +445,7 @@ public class MultipleComponentTest extends BaseTest {
     ele3.setDateProperty( "junkDT", tstDT ); //$NON-NLS-1$
     Date dt = ele3.getDateProperty( "junkDT" ); //$NON-NLS-1$
     assertEquals( tstDT, dt );
-    List l = new ArrayList();
+    List<String> l = new ArrayList<String>();
     l.add( "one" ); //$NON-NLS-1$
     l.add( "two" ); //$NON-NLS-1$
     ele1.setListProperty( "SOMELIST", l ); //$NON-NLS-1$
@@ -399,7 +454,7 @@ public class MultipleComponentTest extends BaseTest {
     ele2.setLongProperty( "SOMELONG", aLong ); //$NON-NLS-1$
     assertEquals( ele2.getLongProperty( "SOMELONG", null ), aLong ); //$NON-NLS-1$
     assertEquals( ele2.getLongProperty( "SOMELONG", 5 ), 5 ); //$NON-NLS-1$
-    Map mapProperty = new HashMap();
+    Map<String, String> mapProperty = new HashMap<String, String>();
     mapProperty.put( "mapKey", "mapValue" ); //$NON-NLS-1$ //$NON-NLS-2$
     ele3.setMapProperty( "SOMEMAP", mapProperty ); //$NON-NLS-1$
     assertEquals( ele3.getMapProperty( "SOMEMAP" ), mapProperty ); //$NON-NLS-1$
@@ -431,48 +486,81 @@ public class MultipleComponentTest extends BaseTest {
 
   public void testDataUtility() {
     startTest();
-    IPentahoResultSet rs = getResultSet();
-    String xmlString = DataUtilities.getXMLString( rs );
-    assertTrue( xmlString.indexOf( "DATA2" ) > 0 ); //$NON-NLS-1$
-    finishTest();
+    IPentahoResultSet rs = null;
+    try {
+      rs = getResultSet();
+      String xmlString = DataUtilities.getXMLString( rs );
+      assertTrue( xmlString.indexOf( "DATA2" ) > 0 ); //$NON-NLS-1$
+    } finally {
+      if ( rs != null ) {
+        rs.close();
+        rs.closeConnection();
+      }
+      finishTest();
+    }
   }
 
   public void testDataUtility1() {
     startTest();
-    IPentahoResultSet rs1 = getResultSetFromArray();
-    String xmlString1 = DataUtilities.getXMLString( rs1 );
-    assertTrue( xmlString1.indexOf( "VAL1" ) > 0 ); //$NON-NLS-1$
-    finishTest();
+    IPentahoResultSet rs1 = null;
+    try {
+      rs1 = getResultSetFromArray();
+      String xmlString1 = DataUtilities.getXMLString( rs1 );
+      assertTrue( xmlString1.indexOf( "VAL1" ) > 0 ); //$NON-NLS-1$
+    } finally {
+      if ( rs1 != null ) {
+        rs1.close();
+        rs1.closeConnection();
+      }
+      finishTest();
+    }
   }
 
   public void testDataUtility3() {
     startTest();
-    IPentahoResultSet rs3 = getResultSet2();
-    String xmlString3 = DataUtilities.getXMLString( rs3 );
-    assertTrue( xmlString3.indexOf( "DATA2" ) > 0 ); //$NON-NLS-1$
-
-    finishTest();
+    IPentahoResultSet rs3 = null;
+    try {
+      rs3 = getResultSet2();
+      String xmlString3 = DataUtilities.getXMLString( rs3 );
+      assertTrue( xmlString3.indexOf( "DATA2" ) > 0 ); //$NON-NLS-1$
+    } finally {
+      if ( rs3 != null ) {
+        rs3.close();
+        rs3.closeConnection();
+      }
+      finishTest();
+    }
   }
 
   public void testDataUtility4() {
     startTest();
-    IPentahoResultSet rs4 = getResultSet3();
-    String xmlString4 = DataUtilities.getXMLString( rs4 );
-    assertTrue( xmlString4.indexOf( "DATA2" ) > 0 ); //$NON-NLS-1$   
-    finishTest();
+    IPentahoResultSet rs4 = null;
+    try {
+      rs4 = getResultSet3();
+      String xmlString4 = DataUtilities.getXMLString( rs4 );
+      assertTrue( xmlString4.indexOf( "DATA2" ) > 0 ); //$NON-NLS-1$   
+    } finally {
+      if ( rs4 != null ) {
+        rs4.close();
+        rs4.closeConnection();
+      }
+      finishTest();
+    }
   }
 
+  @SuppressWarnings( "rawtypes" )
   public void testJVMParameterProvider() {
     startTest();
     System.setProperty( "teststring", "test string" ); //$NON-NLS-1$//$NON-NLS-2$
     System.setProperty( "testlong", "32" ); //$NON-NLS-1$//$NON-NLS-2$
     System.setProperty( "testdecimal", "66.6" ); //$NON-NLS-1$//$NON-NLS-2$
     Date someDate = new Date();
-    System.setProperty( "testdate", DateFormat.getInstance().format( someDate ) ); //$NON-NLS-1$
+    String formattedDate = DateFormat.getInstance().format( someDate );
+    System.setProperty( "testdate", formattedDate ); //$NON-NLS-1$
 
     JVMParameterProvider provider = new JVMParameterProvider();
-
-    //  assertEquals(someDate, provider.getDateParameter("testdate", null) ); //$NON-NLS-1$
+    Date dateFromProvider = provider.getDateParameter( "testdate", null );
+    assertEquals( formattedDate, DateFormat.getInstance().format( dateFromProvider ) ); //$NON-NLS-1$
     assertEquals( someDate, provider.getDateParameter( "bogus", someDate ) ); //$NON-NLS-1$
     assertEquals( 32, provider.getLongParameter( "testlong", 0 ) ); //$NON-NLS-1$
     assertEquals( "test string", provider.getStringParameter( "teststring", null ) ); //$NON-NLS-1$ //$NON-NLS-2$ 
@@ -510,27 +598,15 @@ public class MultipleComponentTest extends BaseTest {
     finishTest();
   }
 
-  /*
-   * public void testUIUtil() { List messages = new ArrayList(); messages.add("Error Message One"); //$NON-NLS-1$
-   * messages.add("Error Message Two"); //$NON-NLS-1$
-   * messages.add("Error: This is the first error Error: message - MultipleComponentTest"); //$NON-NLS-1$ StringBuffer
-   * messageBuffer = new StringBuffer(); UIUtil.formatErrorMessage("text/html", "Error Test", messages, messageBuffer);
-   * //$NON-NLS-1$ //$NON-NLS-2$ String result = messageBuffer.toString();
-   * assertTrue(result.indexOf("Error Message Two")>=0); //$NON-NLS-1$ String msg = UIUtil.getFirstError(messages);
-   * assertTrue(msg.indexOf("MultipleComponentTest")>=0); //$NON-NLS-1$ IPentahoResultSet rs = getResultSet();
-   * StringBuffer formattedRs = new StringBuffer(); UIUtil.formatResultSetAsHTMLRows(rs, formattedRs);
-   * System.out.println(formattedRs.toString()); assertTrue(formattedRs.indexOf("<th>COL3</th>")>=0); //$NON-NLS-1$ }
-   */
-
+  @SuppressWarnings( "rawtypes" )
   public void testPathBasedSystemSettings() {
-
     PathBasedSystemSettings settings = new PathBasedSystemSettings();
-    String cfgPathKey = settings.getSystemSetting( PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY, "" ); //$NON-NLS-1$
+    String cfgPathKey = settings.getSystemSetting( PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY, EMPTY ); //$NON-NLS-1$
     List list = settings.getSystemSettings( PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY );
     for ( int i = 0; i < list.size(); i++ ) {
       System.out.println( "System Settings" + ( i + 1 ) + list.get( i ) ); //$NON-NLS-1$
     }
-    System.setProperty( PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY, "" ); //$NON-NLS-1$
+    System.setProperty( PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY, EMPTY ); //$NON-NLS-1$
     settings.getSystemSetting( "c:/code", PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY, null ); //$NON-NLS-1$
     System.setProperty( PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY, cfgPathKey );
     assertTrue( true );
@@ -540,14 +616,19 @@ public class MultipleComponentTest extends BaseTest {
     MultipleComponentTest test = new MultipleComponentTest();
     try {
       test.setUp();
-      /*
-                    * test.testHelloWorldComponent(); // test.testCrosstab(); test.testMiscExceptionClasses(); //
-                    * test.testReportCharts(); // test.testDynamicSQLAndSecureFilter(); test.testPivotViewComponent();
-                    * test.testSimpleRuntime(); test.testDataUtility(); test.testDataUtility1();
-                    * test.testDataUtility2(); test.testDataUtility3(); test.testDataUtility4();
-                    * test.testJVMParameterProvider(); test.testJVMParameterProviderDifferentPath();
-                    * test.testJVMParameterProviderDifferentPath2(); test.testUIUtil();
-                    */
+      test.testHelloWorldComponent();
+      test.testCrosstab();
+      test.testMiscExceptionClasses();
+      test.testReportCharts();
+      test.testDynamicSQLAndSecureFilter();
+      test.testSimpleRuntime();
+      test.testDataUtility();
+      test.testDataUtility1();
+      test.testDataUtility3();
+      test.testDataUtility4();
+      test.testJVMParameterProvider();
+      test.testJVMParameterProviderDifferentPath();
+      test.testJVMParameterProviderDifferentPath2();
       test.testPathBasedSystemSettings();
     } finally {
       test.tearDown();

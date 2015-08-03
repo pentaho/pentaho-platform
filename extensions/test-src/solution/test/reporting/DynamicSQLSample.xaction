@@ -130,9 +130,9 @@
       <component-definition> 
         <script><![CDATA[
          query = "select " + deptorposn;
-         query += " as column1, sum(actual) from QUADRANT_ACTUALS where region={PREPARE:region} group by ";
-         query += deptorposn + " order by actual desc";]]></script> 
-      </component-definition> 
+         query += " as column1, sum(actual) as column2 from QUADRANT_ACTUALS where region={PREPARE:region} group by ";
+         query += "column1 order by column2 desc";]]></script> 
+      </component-definition>
     </action-definition>
   
     <action-definition> 
