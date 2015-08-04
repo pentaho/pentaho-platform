@@ -623,13 +623,16 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   public void closeOtherTabs( PentahoTab exceptThisTab ) {
-    // remove from 0 -> me
-    while ( exceptThisTab != getTab( 0 ) ) {
-      closeTab( getTab( 0 ), true );
+    int tabCount = getTabCount();
+    List<PentahoTab> tabs = new ArrayList<PentahoTab>( tabCount - 1 );
+    for ( int i = 0; i < tabCount; i++ ) {
+      PentahoTab tabItem = getTab( i );
+      if ( exceptThisTab != tabItem ) {
+        tabs.add( tabItem );
+      }
     }
-    // remove from END -> me
-    while ( exceptThisTab != getTab( getTabCount() - 1 ) ) {
-      closeTab( getTab( getTabCount() - 1 ), true );
+    for ( PentahoTab tab : tabs ) {
+      closeTab( tab, true );
     }
     selectTab( exceptThisTab );
   }
