@@ -12,7 +12,7 @@ cd tomcat\bin
 set CATALINA_HOME=%~dp0tomcat
 
 SET BITS=64
-SET DI_HOME=%~dp0pentaho-solutions\system\kettle
+SET DI_HOME="%~dp0pentaho-solutions\system\kettle"
 
 for /f %%a in ('echo %PROCESSOR_ARCHITECTURE% ^| "%SystemRoot%\system32\find" /c "64"') do if not "%%a"=="1" SET BITS=32
 IF "%BITS%" == "64" (

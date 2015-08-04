@@ -10,7 +10,7 @@ call set-pentaho-env.bat "%~dp0jre"
 
 cd tomcat\bin
 set CATALINA_HOME=%~dp0tomcat
-SET DI_HOME=%~dp0pentaho-solutions\system\kettle
+SET DI_HOME="%~dp0pentaho-solutions\system\kettle"
 
 set CATALINA_OPTS=-Xms1024m -Xmx2048m -XX:MaxPermSize=256m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -DDI_HOME=%DI_HOME%
 
