@@ -13,7 +13,7 @@
 package org.pentaho.platform.repository.solution.filebased;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.MondrianSchemaAnnotator;
 

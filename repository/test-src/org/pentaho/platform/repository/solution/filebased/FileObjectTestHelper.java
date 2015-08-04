@@ -14,10 +14,10 @@ package org.pentaho.platform.repository.solution.filebased;
 
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.vfs.FileContent;
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileContent;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

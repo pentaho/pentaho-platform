@@ -12,8 +12,8 @@
  */
 package org.pentaho.platform.repository.solution.filebased;
 
-import org.apache.commons.vfs.FileContent;
-import org.apache.commons.vfs.util.RandomAccessMode;
+import org.apache.commons.vfs2.FileContent;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;

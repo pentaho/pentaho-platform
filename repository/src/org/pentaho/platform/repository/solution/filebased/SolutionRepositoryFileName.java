@@ -18,9 +18,9 @@
 
 package org.pentaho.platform.repository.solution.filebased;
 
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileType;
-import org.apache.commons.vfs.provider.AbstractFileName;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.provider.AbstractFileName;
 
 public class SolutionRepositoryFileName extends AbstractFileName {
 
@@ -28,12 +28,10 @@ public class SolutionRepositoryFileName extends AbstractFileName {
     super( "solution", absPath, type );
   }
 
-  @Override
-  protected void appendRootUri( final StringBuffer arg0, final boolean arg1 ) {
-    // TODO Auto-generated method stub
+  @Override protected void appendRootUri( StringBuilder stringBuilder, boolean b ) {
 
   }
-
+  
   @Override
   public FileName createName( final String absPath, final FileType fileType ) {
 

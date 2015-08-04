@@ -18,12 +18,12 @@
 
 package org.pentaho.platform.repository.solution.filebased;
 
-import org.apache.commons.vfs.FileContent;
-import org.apache.commons.vfs.FileContentInfo;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.RandomAccessContent;
-import org.apache.commons.vfs.util.RandomAccessMode;
+import org.apache.commons.vfs2.FileContent;
+import org.apache.commons.vfs2.FileContentInfo;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.RandomAccessContent;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 
 import java.io.InputStream;
 import java.io.OutputStream;
