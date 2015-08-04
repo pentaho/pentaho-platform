@@ -23,7 +23,7 @@
       <id>manual</id>
       
       <properties>
-        <dependency.pentaho.oss-licenses.version>${RELEASE_VERSION}</dependency.pentaho.oss-licenses.version>
+        <dependency.pentaho.oss-licenses.version>5.3.0.4-364</dependency.pentaho.oss-licenses.version>
       </properties>
       
       <build>
