@@ -98,7 +98,8 @@ public class PluginManagerNotConfiguredTest extends BaseTest {
     initOk = true;
   }
 
-  private ApplicationContext getSpringApplicationContext() {
+  @Override
+  protected ApplicationContext getSpringApplicationContext() {
 
     String[] fns =
     {
