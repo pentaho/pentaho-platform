@@ -25,6 +25,8 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 
@@ -39,6 +41,7 @@ public class ApplicationContextPentahoSystemRegisterer implements ApplicationCon
 
   @Override
   public void setApplicationContext( ApplicationContext applicationContext ) throws BeansException {
+    safeAddBeanScopePostProcessors( applicationContext );
     StandaloneSpringPentahoObjectFactory objFact = StandaloneSpringPentahoObjectFactory.getInstance(
       applicationContext );
 
@@ -55,5 +58,23 @@ public class ApplicationContextPentahoSystemRegisterer implements ApplicationCon
   @Override
   public int getOrder() {
     return Ordered.HIGHEST_PRECEDENCE;
+  }
+
+  protected void safeAddBeanScopePostProcessors( ApplicationContext appCtx ) {
+
+    if( appCtx != null && appCtx instanceof AbstractApplicationContext ) {
+
+      boolean beanScopePostProcessorExists = false;
+
+      for( BeanFactoryPostProcessor bfpp : ( ( AbstractApplicationContext ) appCtx ).getBeanFactoryPostProcessors() ) {
+        beanScopePostProcessorExists |= ( bfpp != null && bfpp instanceof PentahoBeanScopeValidatorPostProcessor );
+      }
+
+      if( !beanScopePostProcessorExists ){
+
+        ( ( AbstractApplicationContext ) appCtx ).addBeanFactoryPostProcessor(
+            new PentahoBeanScopeValidatorPostProcessor() );
+      }
+    }
   }
 }

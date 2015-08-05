@@ -20,8 +20,8 @@
 		<dependency org="commons-lang"        name="commons-lang"     rev="2.4"   transitive="false"/>
 		<dependency org="dom4j"               name="dom4j"            rev="1.6.1" transitive="false"/>
 
-		<dependency org="org.springframework.security"   name="spring-security-core"      rev="2.0.5.RELEASE" transitive="false"/>
-		<dependency org="org.springframework"            name="spring-beans"              rev="2.5.6"         transitive="false"/>
+		<dependency org="org.springframework.security"   name="spring-security-core"      rev="${dependency.spring.security.revision}" transitive="false"/>
+		<dependency org="org.springframework"            name="spring-beans"              rev="${dependency.spring.framework.revision}"         transitive="false"/>
 
 		<!--  internal dependencies -->
 		<dependency org="pentaho" name="pentaho-connections"        rev="${dependency.pentaho-connections.revision}"         changing="true"/>

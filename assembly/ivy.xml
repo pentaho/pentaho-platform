@@ -330,13 +330,6 @@
 
 	<dependency org="org.osgi" name="org.osgi.compendium" rev="5.0.0"  transitive="false"/>
 	
-	<!-- This is a internal build artifact to resolve spring-beans issue using JRE8 -->
-	<dependency org="pentaho" name="pentaho-spring-core" rev="2.5.6" transitive="false"/>
-	<dependency org="pentaho" name="pentaho-spring" rev="2.5.6" transitive="false"/>
-	
-    <exclude org="org.springframework" module="spring-core"/> 
-    <exclude org="org.springframework" module="spring"/> 
-	
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.

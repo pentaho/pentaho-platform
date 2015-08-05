@@ -56,6 +56,7 @@ import org.pentaho.platform.api.engine.ServiceInitializationException;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.objfac.spring.PentahoBeanScopeValidatorPostProcessor;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.references.PrototypePentahoObjectReference;
 import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
@@ -671,6 +672,8 @@ public class PentahoSystemPluginManager implements IPluginManager {
         beanFactory.getBeanFactory().setParentBeanFactory( nativeBeanFactory );
       }
     }
+
+    beanFactory.addBeanFactoryPostProcessor( new PentahoBeanScopeValidatorPostProcessor() );
 
     //
     // Register any beans defined via the pluginProvider

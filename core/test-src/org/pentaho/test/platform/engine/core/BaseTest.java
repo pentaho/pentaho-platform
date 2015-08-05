@@ -134,7 +134,7 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
     assertTrue( Messages.getInstance().getString( "BaseTest.ERROR_0001_FAILED_INITIALIZATION" ), initOk ); //$NON-NLS-1$
   }
 
-  private ApplicationContext getSpringApplicationContext() {
+  protected ApplicationContext getSpringApplicationContext() {
     // todo
     String[] fns =
         {

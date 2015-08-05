@@ -23,6 +23,7 @@ import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.objfac.spring.PentahoBeanScopeValidatorPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.FileSystemResource;
@@ -144,6 +145,7 @@ public class JAXRSServlet extends SpringServlet {
         PentahoSystem.getApplicationContext()
             .getSolutionPath( "system" + File.separator + "pentahoServices.spring.xml" ); //$NON-NLS-1$ //$NON-NLS-2$
     wac.setConfigLocations( new String[] { springFile } );
+    wac.addBeanFactoryPostProcessor( new PentahoBeanScopeValidatorPostProcessor() );
     wac.refresh();
 
     return wac;
