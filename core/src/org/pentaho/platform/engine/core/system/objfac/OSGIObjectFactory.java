@@ -86,7 +86,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
         ref = context.getServiceReference( "" + interfaceClass.getName() );
       }
       if ( ref == null ) {
-        log.error( "\n\nOSGI: did not find object: " + interfaceClass.getName() );
+        log.info( "\n\nOSGI: did not find object: " + interfaceClass.getName() );
         return null;
       }
       Object obj = context.getService( ref );
@@ -195,7 +195,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
       if ( refs == null || refs.size() == 0 ) {
-        log.error( "\n\nOSGI: did not find object: " + interfaceClass.getName() );
+        log.info( "\n\nOSGI: did not find object: " + interfaceClass.getName() );
         return null;
       }
 
@@ -236,7 +236,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
       if ( refs == null || refs.size() == 0 ) {
-        log.error( "OSGI: did not find object: " + interfaceClass.getName() );
+        log.info( "OSGI: did not find object: " + interfaceClass.getName() );
         return Collections.emptyList();
       }
 
