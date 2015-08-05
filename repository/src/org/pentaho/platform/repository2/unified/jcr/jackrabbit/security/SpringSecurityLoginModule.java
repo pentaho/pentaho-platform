@@ -27,6 +27,7 @@ import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.messages
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.ProviderNotFoundException;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import javax.jcr.Credentials;
@@ -62,6 +63,18 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
   private static final String KEY_PRE_AUTHENTICATION_TOKENS = "preAuthenticationTokens"; //$NON-NLS-1$
 
   private static final String PRE_AUTHENTICATION_TOKEN_SEPARATOR = ","; //$NON-NLS-1$
+
+  /**
+   * When there's no AuthenticationManager available in PentahoSystem, this one will be returned.
+   * It's sole purpose is to throw an Exception whenever an Authentication attempt is made so a
+   * NPE doesn't occur.
+   */
+  protected static final AuthenticationManager NULL_AUTHENTICATION_MANAGER = new AuthenticationManager() {
+    @Override public org.springframework.security.Authentication authenticate(
+        org.springframework.security.Authentication authentication ) throws AuthenticationException {
+      throw new ProviderNotFoundException( "Authentication Manager not present in PentahoSystem." );
+    }
+  };
 
   // ~ Instance fields
   // =================================================================================================
@@ -104,16 +117,18 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
       logger.debug( "preAuthenticationTokens=" + preAuthenticationTokens ); //$NON-NLS-1$
     }
 
-    authenticationManager = getAuthenticationManager( callbackHandler, session, options );
   }
 
   // Static caching as this class is instanced over and over
   protected static AuthenticationManager authManager = null;
 
-  protected AuthenticationManager getAuthenticationManager( final CallbackHandler callbackHandler,
-      final Session session, final Map options ) {
+
+  protected AuthenticationManager getAuthenticationManager(  ) {
     if ( authManager == null && PentahoSystem.getInitializedOK() ) {
       authManager = PentahoSystem.get( AuthenticationManager.class );
+    }
+    if( authManager == null ){
+      return NULL_AUTHENTICATION_MANAGER;
     }
     return authManager;
   }
@@ -150,7 +165,7 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
         authenticated = true;
       } else {
         // delegate to Spring Security
-        authenticationManager.authenticate( token );
+        getAuthenticationManager().authenticate( token );
         authenticated = true;
       }
     } catch ( AuthenticationException e ) {
