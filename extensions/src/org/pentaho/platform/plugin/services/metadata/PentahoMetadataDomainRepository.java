@@ -75,8 +75,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class PentahoMetadataDomainRepository implements IMetadataDomainRepository,
-    IModelAnnotationsAwareMetadataDomainRepositoryImporter,
-    IAclAwarePentahoMetadataDomainRepositoryImporter, IPentahoMetadataDomainRepositoryExporter {
+  IModelAnnotationsAwareMetadataDomainRepositoryImporter,
+  IAclAwarePentahoMetadataDomainRepositoryImporter, IPentahoMetadataDomainRepositoryExporter {
   // The logger for this class
   private static final Log logger = LogFactory.getLog( PentahoMetadataDomainRepository.class );
 
@@ -84,7 +84,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   private static final Messages messages = Messages.getInstance();
 
   private static final Map<IUnifiedRepository, PentahoMetadataInformationMap> metaMapStore =
-      new HashMap<IUnifiedRepository, PentahoMetadataInformationMap>();
+    new HashMap<IUnifiedRepository, PentahoMetadataInformationMap>();
 
   // The type of repository file (domain, locale)
   private static final String PROPERTY_NAME_TYPE = "file-type";
@@ -103,6 +103,9 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   // The default mime-type for the Pentaho Domain files
   private static final String DOMAIN_MIME_TYPE = "text/xml";
+
+  // caching immutable object
+  private static final EnumSet<RepositoryFilePermission> READ = EnumSet.of( RepositoryFilePermission.READ );
 
   // The default mime-type for locale files
   private static final String LOCALE_MIME_TYPE = "text/plain";
@@ -129,8 +132,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   /**
    * Creates an instance of this class providing the {@link IUnifiedRepository} repository backend.
    *
-   * @param repository
-   *          the {@link IUnifiedRepository} in which data will be stored / retrieved
+   * @param repository the {@link IUnifiedRepository} in which data will be stored / retrieved
    */
   public PentahoMetadataDomainRepository( final IUnifiedRepository repository ) {
     this( repository, null, null, null );
@@ -139,52 +141,47 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   /**
    * Helper constructor used for setting other objects in this class
    *
-   * @param repository
-   *          the {@link IUnifiedRepository} in which data will be stored / retrieved
-   * @param repositoryUtils
-   *          utility class for working inside the repository </br>(NOTE: {@code null} is acceptable and will create a
-   *          default instance)
-   * @param xmiParser
-   *          the parser class for serializing / de-serializing Domain objects </br>(NOTE: {@code null} is acceptable
-   *          and will create a default instance)
-   * @param localizationUtil
-   *          the object used to add locale bundles into a Pentaho Metadata Domain object </br>(NOTE: {@code null} is
-   *          acceptable and will create a default instance)
+   * @param repository       the {@link IUnifiedRepository} in which data will be stored / retrieved
+   * @param repositoryUtils  utility class for working inside the repository </br>(NOTE: {@code null} is acceptable and
+   *                         will create a default instance)
+   * @param xmiParser        the parser class for serializing / de-serializing Domain objects </br>(NOTE: {@code null}
+   *                         is acceptable and will create a default instance)
+   * @param localizationUtil the object used to add locale bundles into a Pentaho Metadata Domain object </br>(NOTE:
+   *                         {@code null} is acceptable and will create a default instance)
    */
   protected PentahoMetadataDomainRepository( final IUnifiedRepository repository,
-      final RepositoryUtils repositoryUtils, final XmiParser xmiParser, final LocalizationUtil localizationUtil ) {
+                                             final RepositoryUtils repositoryUtils, final XmiParser xmiParser,
+                                             final LocalizationUtil localizationUtil ) {
     if ( null == repository ) {
       throw new IllegalArgumentException();
     }
     this.metadataMapping = getMetadataMapping( repository );
     setRepository( repository );
-    setRepositoryUtils(repositoryUtils);
-    setLocalizationUtil(localizationUtil);
-    setXmiParser(xmiParser);
+    setRepositoryUtils( repositoryUtils );
+    setLocalizationUtil( localizationUtil );
+    setXmiParser( xmiParser );
     this.lock = new ReentrantReadWriteLock();
   }
 
   /**
    * Store a domain to the repository. The domain should persist between JVM restarts.
    *
-   * @param domain
-   *          domain object to store
-   * @param overwrite
-   *          if true, overwrite existing domain
-   * @throws DomainIdNullException
-   *           if domain id is null or empty
-   * @throws DomainAlreadyExistsException
-   *           if a domain with the same Domain ID already exists in the repository and {@code overwrite == false}
-   * @throws DomainStorageException
-   *           if there is a problem storing the domain
+   * @param domain    domain object to store
+   * @param overwrite if true, overwrite existing domain
+   * @throws DomainIdNullException        if domain id is null or empty
+   * @throws DomainAlreadyExistsException if a domain with the same Domain ID already exists in the repository and
+   *                                      {@code overwrite == false}
+   * @throws DomainStorageException       if there is a problem storing the domain
    */
   @Override
   public void storeDomain( final Domain domain, final boolean overwrite ) throws DomainIdNullException,
-      DomainAlreadyExistsException, DomainStorageException {
-    logger.debug( "storeDomain(domain(id=" + ( domain != null ? domain.getId() : "" ) + ", " + overwrite + ")" );
+    DomainAlreadyExistsException, DomainStorageException {
+    if ( logger.isDebugEnabled() ) {
+      logger.debug( "storeDomain(domain(id=" + ( domain != null ? domain.getId() : "" ) + ", " + overwrite + ")" );
+    }
     if ( null == domain || StringUtils.isEmpty( domain.getId() ) ) {
       throw new DomainIdNullException( messages
-          .getErrorString( "PentahoMetadataDomainRepository.ERROR_0001_DOMAIN_ID_NULL" ) );
+        .getErrorString( "PentahoMetadataDomainRepository.ERROR_0001_DOMAIN_ID_NULL" ) );
     }
 
     String xmi = "";
@@ -201,8 +198,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       throw dae;
     } catch ( Exception e ) {
       final String errorMessage =
-          messages.getErrorString( "PentahoMetadataDomainRepository.ERROR_0003_ERROR_STORING_DOMAIN", domain.getId(), e
-              .getLocalizedMessage() );
+        messages.getErrorString( "PentahoMetadataDomainRepository.ERROR_0003_ERROR_STORING_DOMAIN", domain.getId(), e
+          .getLocalizedMessage() );
       logger.error( errorMessage, e );
       throw new DomainStorageException( xmi + errorMessage, e );
     }
@@ -217,13 +214,13 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    */
   @Override
   public void storeDomain( final InputStream inputStream, final String domainId, final boolean overwrite )
-      throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
+    throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
     storeDomain( inputStream, domainId, overwrite, null );
   }
 
   @Override
   public void storeDomain( InputStream inputStream, String domainId, boolean overwrite, RepositoryFileAcl acl )
-      throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
+    throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
     if ( logger.isDebugEnabled() ) {
       logger.debug( String.format( "storeDomain(inputStream, %s, %s, %s)", domainId, overwrite, acl ) );
     }
@@ -232,35 +229,40 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
     if ( StringUtils.isEmpty( domainId ) ) {
       throw new DomainIdNullException( messages
-          .getErrorString( "PentahoMetadataDomainRepository.ERROR_0001_DOMAIN_ID_NULL" ) );
+        .getErrorString( "PentahoMetadataDomainRepository.ERROR_0001_DOMAIN_ID_NULL" ) );
     }
 
     // Check to see if the domain already exists
     final RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
     if ( !overwrite && domainFile != null ) {
       final String errorString =
-          messages.getErrorString( "PentahoMetadataDomainRepository.ERROR_0002_DOMAIN_ALREADY_EXISTS", domainId );
+        messages.getErrorString( "PentahoMetadataDomainRepository.ERROR_0002_DOMAIN_ALREADY_EXISTS", domainId );
       logger.error( errorString );
       throw new DomainAlreadyExistsException( errorString );
     }
 
     // Check if this is valid xml
-    InputStream inputStream2 = null;
-    String xmi = null;
+    InputStream inputStream2;
+    String xmi;
     try {
       // try to see if the xmi can be parsed (ie, check if it's valid xmi)
       // first, convert our input stream to a string
-      BufferedReader reader = new BufferedReader( new InputStreamReader( inputStream, DEFAULT_ENCODING ) );
       StringBuilder stringBuilder = new StringBuilder();
-      while ( ( xmi = reader.readLine() ) != null ) {
-        stringBuilder.append( xmi );
+      BufferedReader reader = new BufferedReader( new InputStreamReader( inputStream, DEFAULT_ENCODING ) );
+      try {
+        while ( ( xmi = reader.readLine() ) != null ) {
+          stringBuilder.append( xmi );
+        }
+      } finally {
+        inputStream.close();
       }
-      inputStream.close();
       xmi = stringBuilder.toString();
       // now, try to see if the xmi can be parsed (ie, check if it's valid xmi)
-      Domain domain = xmiParser.parseXmi( new java.io.ByteArrayInputStream( xmi.getBytes( DEFAULT_ENCODING ) ) );
+      byte[] xmiBytes = xmi.getBytes( DEFAULT_ENCODING );
+      inputStream2 = new java.io.ByteArrayInputStream( xmiBytes );
+      xmiParser.parseXmi( inputStream2 );
       // xmi is valid. Create a new inputstream for the actual import action.
-      inputStream2 = new java.io.ByteArrayInputStream( xmi.getBytes( DEFAULT_ENCODING ) );
+      inputStream2.reset();
     } catch ( Exception ex ) {
       logger.error( ex.getMessage() );
       // throw new
@@ -272,7 +274,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
 
     final SimpleRepositoryFileData data =
-        new SimpleRepositoryFileData( inputStream2, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
+      new SimpleRepositoryFileData( inputStream2, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
     final RepositoryFile newDomainFile;
     if ( domainFile == null ) {
       newDomainFile = createUniqueFile( domainId, null, data );
@@ -305,8 +307,17 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   @Override
   public boolean hasAccessFor( String domainId ) {
-    return getAclHelper().canAccess( getMetadataRepositoryFile( domainId ),
-        EnumSet.of( RepositoryFilePermission.READ ) );
+    return getAclHelper().canAccess( getMetadataRepositoryFile( domainId ), READ );
+  }
+
+  /**
+   * This method can be called to avoid useless obtaining of repository file if the file has already been loaded
+   *
+   * @param repositoryFile repository file
+   * @return delegates the call to <code>getAclHelper().canAccess()</code>
+   */
+  private boolean hasAccessFor( RepositoryFile repositoryFile ) {
+    return getAclHelper().canAccess( repositoryFile, READ );
   }
 
   /*
@@ -314,9 +325,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    * file and multiple .properties files.
    */
   public Map<String, InputStream> getDomainFilesData( final String domainId ) {
-    Map<String, InputStream> values = new HashMap<String, InputStream>();
     Set<RepositoryFile> metadataFiles;
-
     lock.readLock().lock();
     try {
       metadataFiles = metadataMapping.getFiles( domainId );
@@ -324,6 +333,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       lock.readLock().unlock();
     }
 
+    Map<String, InputStream> values = new HashMap<String, InputStream>( metadataFiles.size() );
     for ( RepositoryFile repoFile : metadataFiles ) {
       RepositoryFileInputStream is;
       try {
@@ -332,7 +342,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         return null; // This pretty much ensures an exception will be thrown later and passed to the client
       }
       String fileName = repoFile.getName().endsWith( ".properties" ) ? repoFile.getName()
-          : domainId + ( domainId.endsWith( ".xmi" ) ? "" : ".xmi" );
+        : domainId + ( domainId.endsWith( ".xmi" ) ? "" : ".xmi" );
       values.put( fileName, is );
     }
     return values;
@@ -342,13 +352,15 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    * retrieve a domain from the repo. This does lazy loading of the repo, so it calls reloadDomains() if not already
    * loaded.
    *
-   * @param domainId
-   *          domain to get from the repository
+   * @param domainId domain to get from the repository
    * @return domain object
    */
   @Override
   public Domain getDomain( final String domainId ) {
-    logger.debug( "getDomain(" + domainId + ")" );
+    if ( logger.isDebugEnabled() ) {
+      logger.debug( "getDomain(" + domainId + ")" );
+    }
+
     if ( StringUtils.isEmpty( domainId ) ) {
       throw new IllegalArgumentException( messages.getErrorString(
         "PentahoMetadataDomainRepository.ERROR_0004_DOMAIN_ID_INVALID", domainId ) );
@@ -358,7 +370,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       // Load the domain file
       final RepositoryFile file = getMetadataRepositoryFile( domainId );
       if ( file != null ) {
-        if ( hasAccessFor( domainId ) ) {
+        if ( hasAccessFor( file ) ) {
           SimpleRepositoryFileData data = repository.getDataForRead( file.getId(), SimpleRepositoryFileData.class );
           if ( data != null ) {
             domain = xmiParser.parseXmi( data.getStream() );
@@ -369,18 +381,18 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
             logger.debug( "loaded I18N bundles" );
           } else {
             throw new UnifiedRepositoryException( messages.getErrorString(
-                "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN", domainId, "data not found" ) );
+              "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN", domainId, "data not found" ) );
           }
         } else {
           throw new PentahoAccessControlException( messages.getErrorString(
-              "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN", domainId, "access denied" ) );
+            "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN", domainId, "access denied" ) );
         }
       }
     } catch ( Exception e ) {
       if ( !( e instanceof UnifiedRepositoryException || e instanceof PentahoAccessControlException ) ) {
         throw new UnifiedRepositoryException( messages.getErrorString(
-            "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN",
-            domainId, e.getLocalizedMessage() ), e );
+          "PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN",
+          domainId, e.getLocalizedMessage() ), e );
       }
     }
 
@@ -397,11 +409,11 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   public Set<String> getDomainIds() {
     logger.debug( "getDomainIds()" );
     internalReloadDomains();
-    final Set<String> domainIds = new HashSet<String>();
 
     lock.readLock().lock();
     try {
       Collection<String> domains = metadataMapping.getDomainIds();
+      Set<String> domainIds = new HashSet<String>( domains.size() );
       for ( String domain : domains ) {
         if ( hasAccessFor( domain ) ) {
           domainIds.add( domain );
@@ -420,10 +432,13 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    */
   @Override
   public void removeDomain( final String domainId ) {
-    logger.debug( "removeDomain(" + domainId + ")" );
+    if ( logger.isDebugEnabled() ) {
+      logger.debug( "removeDomain(" + domainId + ")" );
+    }
+
     if ( StringUtils.isEmpty( domainId ) ) {
       throw new IllegalArgumentException( messages.getErrorString(
-          "PentahoMetadataDomainRepository.ERROR_0004_DOMAIN_ID_INVALID", domainId ) );
+        "PentahoMetadataDomainRepository.ERROR_0004_DOMAIN_ID_INVALID", domainId ) );
     }
 
     // Get the metadata domain file
@@ -460,15 +475,18 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    */
   @Override
   public void removeModel( final String domainId, final String modelId ) throws DomainIdNullException,
-      DomainStorageException {
-    logger.debug( "removeModel(" + domainId + ", " + modelId + ")" );
+    DomainStorageException {
+    if ( logger.isDebugEnabled() ) {
+      logger.debug( "removeModel(" + domainId + ", " + modelId + ")" );
+    }
+
     if ( StringUtils.isEmpty( domainId ) ) {
       throw new IllegalArgumentException( messages.getErrorString(
-          "PentahoMetadataDomainRepository.ERROR_0004_DOMAIN_ID_INVALID", domainId ) );
+        "PentahoMetadataDomainRepository.ERROR_0004_DOMAIN_ID_INVALID", domainId ) );
     }
     if ( StringUtils.isEmpty( modelId ) ) {
       throw new IllegalArgumentException( messages
-          .getErrorString( "PentahoMetadataDomainRepository.ERROR_0006_MODEL_ID_INVALID" ) );
+        .getErrorString( "PentahoMetadataDomainRepository.ERROR_0006_MODEL_ID_INVALID" ) );
     }
 
     // Get the domain and remove the model
@@ -516,14 +534,18 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
       // Reload the metadata about the metadata (that was fun to say)
       final List<RepositoryFile> children = repository.getChildren( getMetadataDir().getId(), "*" );
-      logger.trace( "\tFound " + children.size() + " files in the repository" );
+      if ( logger.isTraceEnabled() ) {
+        logger.trace( "\tFound " + children.size() + " files in the repository" );
+      }
       for ( final RepositoryFile child : children ) {
         if ( getAclHelper().canAccess( child, EnumSet.of( RepositoryFilePermission.READ ) ) ) {
           // Get the metadata for this file
           final Map<String, Serializable> fileMetadata = repository.getFileMetadata( child.getId() );
           if ( fileMetadata == null || StringUtils.isEmpty( (String) fileMetadata.get( PROPERTY_NAME_DOMAIN_ID ) ) ) {
-            logger.warn( messages.getString( "PentahoMetadataDomainRepository.WARN_0001_FILE_WITHOUT_METADATA", child
+            if ( logger.isWarnEnabled() ) {
+              logger.warn( messages.getString( "PentahoMetadataDomainRepository.WARN_0001_FILE_WITHOUT_METADATA", child
                 .getName() ) );
+            }
             continue;
           }
           final String domainId = (String) fileMetadata.get( PROPERTY_NAME_DOMAIN_ID );
@@ -573,15 +595,12 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   /**
    * Adds a set of properties as a locale properties file for the specified Domain ID
    *
-   * @param domainId
-   *          the domain ID for which this properties file will be added
-   * @param locale
-   *          the locale for which this properties file will be added
-   * @param properties
-   *          the properties to be added
+   * @param domainId   the domain ID for which this properties file will be added
+   * @param locale     the locale for which this properties file will be added
+   * @param properties the properties to be added
    */
   public void addLocalizationFile( final String domainId, final String locale, final Properties properties )
-      throws DomainStorageException {
+    throws DomainStorageException {
     // This is safe since ByteArray streams don't have to be closed
     if ( null != properties ) {
       try {
@@ -590,19 +609,21 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         addLocalizationFile( domainId, locale, new ByteArrayInputStream( out.toString().getBytes() ), true );
       } catch ( IOException e ) {
         throw new DomainStorageException( messages.getErrorString(
-            "PentahoMetadataDomainRepository.ERROR_0008_ERROR_IN_REPOSITORY", e.getLocalizedMessage() ), e );
+          "PentahoMetadataDomainRepository.ERROR_0008_ERROR_IN_REPOSITORY", e.getLocalizedMessage() ), e );
       }
     }
   }
 
   @Override
   public void addLocalizationFile( final String domainId, final String locale, final InputStream inputStream,
-      final boolean overwrite ) throws DomainStorageException {
-    logger.debug( "addLocalizationFile(" + domainId + ", " + locale + ", inputStream)" );
+                                   final boolean overwrite ) throws DomainStorageException {
+    if ( logger.isDebugEnabled() ) {
+      logger.debug( "addLocalizationFile(" + domainId + ", " + locale + ", inputStream)" );
+    }
     if ( null != inputStream ) {
       if ( StringUtils.isEmpty( domainId ) || StringUtils.isEmpty( locale ) ) {
         throw new IllegalArgumentException( messages.getErrorString(
-            "PentahoMetadataDomainRepository.ERROR_0004_DOMAIN_ID_INVALID", domainId ) );
+          "PentahoMetadataDomainRepository.ERROR_0004_DOMAIN_ID_INVALID", domainId ) );
       }
 
       lock.writeLock().lock();
@@ -611,11 +632,11 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         final RepositoryFile localeFile = metadataMapping.getLocaleFile( domainId, locale );
         if ( !overwrite && localeFile != null ) {
           throw new DomainStorageException( messages.getErrorString(
-              "PentahoMetadataDomainRepository.ERROR_0009_LOCALE_ALREADY_EXISTS", domainId, locale ), null );
+            "PentahoMetadataDomainRepository.ERROR_0009_LOCALE_ALREADY_EXISTS", domainId, locale ), null );
         }
 
         final SimpleRepositoryFileData data =
-            new SimpleRepositoryFileData( inputStream, DEFAULT_ENCODING, LOCALE_MIME_TYPE );
+          new SimpleRepositoryFileData( inputStream, DEFAULT_ENCODING, LOCALE_MIME_TYPE );
         if ( localeFile == null ) {
           final RepositoryFile newLocaleFile = createUniqueFile( domainId, locale, data );
           metadataMapping.addLocale( domainId, locale, newLocaleFile );
@@ -641,7 +662,9 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       for ( final String locale : localeFiles.keySet() ) {
         final RepositoryFile localeFile = localeFiles.get( locale );
         final Properties properties = loadProperties( localeFile );
-        logger.trace( "\tLoading properties [" + domain + " : " + locale + "]" );
+        if ( logger.isTraceEnabled() ) {
+          logger.trace( "\tLoading properties [" + domain + " : " + locale + "]" );
+        }
         localizationUtil.importLocalizedProperties( domain, properties, locale );
       }
     }
@@ -651,39 +674,38 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     try {
       Properties properties = null;
       final SimpleRepositoryFileData bundleData =
-          repository.getDataForRead( bundle.getId(), SimpleRepositoryFileData.class );
+        repository.getDataForRead( bundle.getId(), SimpleRepositoryFileData.class );
       if ( bundleData != null ) {
         properties = new Properties();
         properties.load( bundleData.getStream() );
       } else {
-        logger.warn( "Could not load properties from repository file: " + bundle.getName() );
+        if ( logger.isWarnEnabled() ) {
+          logger.warn( "Could not load properties from repository file: " + bundle.getName() );
+        }
       }
       return properties;
     } catch ( IOException e ) {
       throw new UnifiedRepositoryException( messages.getErrorString(
-          "PentahoMetadataDomainRepository.ERROR_0008_ERROR_IN_REPOSITORY", e.getLocalizedMessage() ), e );
+        "PentahoMetadataDomainRepository.ERROR_0008_ERROR_IN_REPOSITORY", e.getLocalizedMessage() ), e );
     }
   }
 
   /**
    * Creates a new repository file (with the supplied data) and applies the proper metadata to this file.
    *
-   * @param domainId
-   *          the Domain id associated with this file
-   * @param locale
-   *          the locale associated with this file (or null for a domain file)
-   * @param data
-   *          the data to put in the file
+   * @param domainId the Domain id associated with this file
+   * @param locale   the locale associated with this file (or null for a domain file)
+   * @param data     the data to put in the file
    * @return the repository file created
    */
   protected RepositoryFile createUniqueFile( final String domainId, final String locale,
-      final SimpleRepositoryFileData data ) {
+                                             final SimpleRepositoryFileData data ) {
     // Generate a "unique" filename
     final String filename = UUID.randomUUID().toString();
 
     // Create the new file
     final RepositoryFile file =
-        repository.createFile( getMetadataDir().getId(), new RepositoryFile.Builder( filename ).build(), data, null );
+      repository.createFile( getMetadataDir().getId(), new RepositoryFile.Builder( filename ).build(), data, null );
 
     // Add metadata to the file
     final Map<String, Serializable> metadataMap = new HashMap<String, Serializable>();
@@ -738,8 +760,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     try {
       final Map<String, Serializable> fileMetadata = repository.getFileMetadata( file.getId() );
       return "[type=" + fileMetadata.get( PROPERTY_NAME_TYPE ) + " : domain="
-          + fileMetadata.get( PROPERTY_NAME_DOMAIN_ID ) + " : locale=" + fileMetadata.get( PROPERTY_NAME_LOCALE )
-          + " : filename=" + file.getName() + "]";
+        + fileMetadata.get( PROPERTY_NAME_DOMAIN_ID ) + " : locale=" + fileMetadata.get( PROPERTY_NAME_LOCALE )
+        + " : filename=" + file.getName() + "]";
     } catch ( Throwable ignore ) {
       //ignore
     }
@@ -777,8 +799,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   /**
    * Returns the MatadataInformationMap for the specified IUnifiedRepository
    *
-   * @param repository
-   *          the repository for which a map is specified
+   * @param repository the repository for which a map is specified
    * @return the MatadataInformationMap for the repository
    */
   private static synchronized PentahoMetadataInformationMap getMetadataMapping( final IUnifiedRepository repository ) {
@@ -803,7 +824,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
       // Load referenced annotations xml repo file
       SimpleRepositoryFileData
-          data = getRepository().getDataForRead( annotationFile.getId(), SimpleRepositoryFileData.class );
+        data = getRepository().getDataForRead( annotationFile.getId(), SimpleRepositoryFileData.class );
       return IOUtils.toString( data.getInputStream() ); // return as String
     } catch ( Exception e ) {
       getLogger().warn( "Unable to load annotations xml file for domain: " + domainId );
@@ -841,7 +862,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   }
 
   public void createOrUpdateAnnotationsXml( final RepositoryFile domainFile, final RepositoryFile annotationsFile,
-      final String annotationsXml ) {
+                                            final String annotationsXml ) {
 
     if ( domainFile == null ) {
       return; // exit early
@@ -850,14 +871,14 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     try {
       ByteArrayInputStream in = new ByteArrayInputStream( annotationsXml.getBytes( DEFAULT_ENCODING ) );
       final SimpleRepositoryFileData data =
-          new SimpleRepositoryFileData( in, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
+        new SimpleRepositoryFileData( in, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
       if ( annotationsFile == null ) {
         // Generate a filename based on the domainId
         final String filename = domainFile.getId() + ANNOTATIONS_FILE_ID_POSTFIX;
 
         // Create the new file
         getRepository()
-            .createFile( getMetadataDir().getId(), new RepositoryFile.Builder( filename ).build(), data, null );
+          .createFile( getMetadataDir().getId(), new RepositoryFile.Builder( filename ).build(), data, null );
       } else {
         getRepository().updateFile( annotationsFile, data, null );
       }
