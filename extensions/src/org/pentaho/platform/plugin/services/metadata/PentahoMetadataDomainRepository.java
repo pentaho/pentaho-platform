@@ -104,11 +104,11 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   // The default mime-type for the Pentaho Domain files
   private static final String DOMAIN_MIME_TYPE = "text/xml";
 
-  // caching immutable object
-  private static final EnumSet<RepositoryFilePermission> READ = EnumSet.of( RepositoryFilePermission.READ );
-
   // The default mime-type for locale files
   private static final String LOCALE_MIME_TYPE = "text/plain";
+
+  // caching immutable object
+  private static final EnumSet<RepositoryFilePermission> READ = EnumSet.of( RepositoryFilePermission.READ );
 
   // The repository used to store / retrieve objects
   private IUnifiedRepository repository;
@@ -128,6 +128,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   private IAclNodeHelper aclHelper;
 
   private final ReentrantReadWriteLock lock;
+  private boolean needToReload;
 
   /**
    * Creates an instance of this class providing the {@link IUnifiedRepository} repository backend.
@@ -161,6 +162,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     setLocalizationUtil( localizationUtil );
     setXmiParser( xmiParser );
     this.lock = new ReentrantReadWriteLock();
+    this.needToReload = true;
   }
 
   /**
@@ -408,7 +410,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   @Override
   public Set<String> getDomainIds() {
     logger.debug( "getDomainIds()" );
-    internalReloadDomains();
+    reloadDomainsIfNeeded();
 
     lock.readLock().lock();
     try {
@@ -538,7 +540,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         logger.trace( "\tFound " + children.size() + " files in the repository" );
       }
       for ( final RepositoryFile child : children ) {
-        if ( getAclHelper().canAccess( child, EnumSet.of( RepositoryFilePermission.READ ) ) ) {
+        if ( getAclHelper().canAccess( child, READ ) ) {
           // Get the metadata for this file
           final Map<String, Serializable> fileMetadata = repository.getFileMetadata( child.getId() );
           if ( fileMetadata == null || StringUtils.isEmpty( (String) fileMetadata.get( PROPERTY_NAME_DOMAIN_ID ) ) ) {
@@ -563,6 +565,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
           }
         }
       }
+
+      needToReload = false;
     } finally {
       lock.writeLock().unlock();
     }
@@ -785,7 +789,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       try {
         domainFile = metadataMapping.getDomainFile( domainId );
         if ( domainFile == null ) {
-          reloadDomains();
+          reloadDomainsIfNeeded();
           domainFile = metadataMapping.getDomainFile( domainId );
         }
       } finally {
@@ -794,6 +798,17 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
 
     return domainFile;
+  }
+
+  private void reloadDomainsIfNeeded() {
+    lock.writeLock().lock();
+    try {
+      if ( needToReload ) {
+        internalReloadDomains();
+      }
+    } finally {
+      lock.writeLock().unlock();
+    }
   }
 
   /**
