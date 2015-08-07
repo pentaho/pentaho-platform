@@ -25,7 +25,6 @@ import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.karaf.main.Main;
-import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -75,8 +74,12 @@ public class KarafBoot implements IPentahoSystemListener {
 
       expandSystemPackages( root + "/etc/custom.properties");
       
-      //Setup karaf instance configuration
+      // Setup karaf instance configuration
       KarafInstance karafInstance = new KarafInstance( root );
+      new KarafInstancePortFactory( root + "/etc/KarafPorts.csv" ).process();
+      
+      //Define any additional karaf instance properties here using karafInstance.registerProperty
+      karafInstance.start();
       
       // Wrap the startup of Karaf in a child thread which has explicitly set a bogus authentication. This is
       // work-around and issue with Karaf inheriting the Authenticaiton set on the main system thread due to the
