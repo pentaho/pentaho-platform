@@ -32,27 +32,28 @@ import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.osgi.KarafInstance;
 import org.pentaho.platform.settings.ServerPortDto;
 import org.pentaho.platform.settings.ServerPortRegistry;
-import org.pentaho.platform.settings.ServerPortService;
-import org.pentaho.platform.settings.ServerPortServiceDto;
+import org.pentaho.platform.settings.Service;
+import org.pentaho.platform.settings.ServiceDto;
 
 /**
  * This service provides methods related to karaf instances
  *
  * @author tkafalas
  */
-@Path( "/port" )
-public class PortResource extends AbstractJaxRSResource {
+@Path( "/service" )
+public class ServiceResource extends AbstractJaxRSResource {
 
-  public PortResource() {
+  public ServiceResource() {
 
   }
 
   /**
-   * Returns information about ports set on the platform
+   * Returns information about services set on the platform.  Currently services contain port settings
+   * but is expected to be expanded to other settings.
    *
    * <p>
    * <b>Example Request:</b><br />
-   * GET pentaho/api/port/assignment
+   * GET pentaho/api/service/assignment
    * </p>
    *
    *
@@ -63,10 +64,10 @@ public class PortResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully sent result." ),
     @ResponseCode( code = 500, condition = "Failed to get data." ) } )
-  public List<ServerPortServiceDto> doGetPortAssignment() {
-    ArrayList<ServerPortServiceDto> list = new ArrayList<ServerPortServiceDto>();
-    for ( ServerPortService service : ServerPortRegistry.getServices() ) {
-      list.add( new ServerPortServiceDto(service));
+  public List<ServiceDto> doGetPortAssignment() {
+    ArrayList<ServiceDto> list = new ArrayList<ServiceDto>();
+    for ( Service service : ServerPortRegistry.getServices() ) {
+      list.add( new ServiceDto(service));
     }
     return list;
   }

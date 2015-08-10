@@ -38,7 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.settings.PortAssigner;
 import org.pentaho.platform.settings.ServerPort;
 import org.pentaho.platform.settings.ServerPortRegistry;
-import org.pentaho.platform.settings.ServerPortService;
+import org.pentaho.platform.settings.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -242,7 +242,7 @@ public class KarafInstance {
     ServerPortRegistry.addPort( instancePort );
   }
 
-  public void registerService( ServerPortService service ) {
+  public void registerService( Service service ) {
     ServerPortRegistry.addService( service );
   }
 

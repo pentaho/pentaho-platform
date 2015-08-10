@@ -8,7 +8,7 @@ public class ServerPortRegistryTest {
   @Test
   public void addPortTest() {
     ServerPortRegistry.clear();
-    ServerPortService service = new ServerPortService( "foo", "foo description" );
+    Service service = new Service( "foo", "foo description" );
     ServerPortRegistry.addService( service );
 
     ServerPort serverPort1 = new ServerPort( "id1", "description", 60001, 60005, "foo" ); // fully specified
@@ -33,17 +33,17 @@ public class ServerPortRegistryTest {
   @Test
   public void addServiceTest() {
     ServerPortRegistry.clear();
-    ServerPortService service = new ServerPortService( "foo", "foo description" );
+    Service service = new Service( "foo", "foo description" );
     ServerPortRegistry.addService( service );
 
-    ServerPortService readService = ServerPortRegistry.getService( "foo" );
+    Service readService = ServerPortRegistry.getService( "foo" );
     assertEquals( service.getServiceDescription(), readService.getServiceDescription() );
   }
 
   @Test
   public void removePortTest() {
     ServerPortRegistry.clear();
-    ServerPortService service = new ServerPortService( "foo", "foo description" );
+    Service service = new Service( "foo", "foo description" );
     ServerPortRegistry.addService( service );
     ServerPort serverPort1 = new ServerPort( "id1", "description", 60001, 60005, "foo" );
     ServerPort serverPort2 = new ServerPort( "id2", "description", 60101, 60105, "foo" );

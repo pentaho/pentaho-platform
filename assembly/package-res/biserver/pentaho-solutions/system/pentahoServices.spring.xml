@@ -148,5 +148,5 @@
   </bean>
 
   <bean class="org.pentaho.platform.web.http.api.resources.PasswordResource" scope="request"/>
-  <bean class="org.pentaho.platform.web.http.api.resources.PortResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.ServiceResource" scope="request"/>
 </beans>

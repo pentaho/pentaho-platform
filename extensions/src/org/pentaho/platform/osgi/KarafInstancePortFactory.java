@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.settings.ServerPortService;
+import org.pentaho.platform.settings.Service;
 
 public class KarafInstancePortFactory {
   final static String delimiter = ",";
@@ -67,7 +67,7 @@ public class KarafInstancePortFactory {
                 if ( fields.length < 2 ){
                   throw new IllegalStateException( getErrorPrefix() + "Port definition lines must contain 2 fields" );
                 }
-                ServerPortService service = new ServerPortService( fields[1], fields[2]);
+                Service service = new Service( fields[1], fields[2]);
                 karafInstance.registerService( service );
                 break;
               default:
