@@ -21,8 +21,6 @@ import com.sun.jersey.api.NotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
-import org.codehaus.enunciate.jaxrs.ResponseCode;
-import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -38,18 +36,15 @@ import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -71,7 +66,6 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = null;
   private ITenantManager tenantManager = null;
-  private final UserRoleDaoService userRoleDaoService;
   private ArrayList<String> systemRoles;
   private String adminRole;
 
@@ -82,16 +76,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public UserRoleDaoResource() {
     this( PentahoSystem.get( IRoleAuthorizationPolicyRoleBindingDao.class ), PentahoSystem.get( ITenantManager.class ),
         PentahoSystem.get( ArrayList.class, "singleTenantSystemAuthorities", PentahoSessionHolder.getSession() ),
-        PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() ), new UserRoleDaoService() );
+        PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() ) );
   }
 
   public UserRoleDaoResource( final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao,
                               final ITenantManager tenantMgr, final ArrayList<String> systemRoles, final String adminRole ) {
-    this( roleBindingDao, tenantMgr, systemRoles, adminRole, new UserRoleDaoService() );
-  }
 
-  public UserRoleDaoResource( final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao,
-                              final ITenantManager tenantMgr, final ArrayList<String> systemRoles, final String adminRole, UserRoleDaoService  service ) {
     if ( roleBindingDao == null ) {
       throw new IllegalArgumentException();
     }
@@ -100,41 +90,30 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     this.tenantManager = tenantMgr;
     this.systemRoles = systemRoles;
     this.adminRole = adminRole;
-    this.userRoleDaoService = service;
+
   }
 
   /**
-   * Returns the list of users in the platform's repository.
+   * Returns the list of users in the platform's repository
    *
-   * <p><b>Example Request:</b><br />
-   * GET pentaho/api/userroledao/users
-   * </p>
-   *
-   * @return list of users in the
-   *
-   * <p><b>Example Response:</b>
-   * <pre function="syntax.xml">
-   *  <userList>
-   *    <users>suzy</users>
-   *    <users>pat</users>
-   *    <users>tiffany</users>
-   *    <users>admin</users>
-   *  </userList>
-   * </pre>
+   * @return list of users in the platform
+   * @throws Exception
    */
   @GET
   @Path ( "/users" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes( {
-      @ResponseCode ( code = 200, condition = "Successfully returned the list of users" ),
-      @ResponseCode ( code = 500, condition = "An error occurred in the platform while trying to access the list of users." )
-  } )
-  public UserListWrapper getUsers() throws WebApplicationException {
-    try {
-      return userRoleDaoService.getUsers();
-    } catch ( Exception e ) {
-      logger.warn( e.getMessage(), e );
-      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+  @Facet( name = "Unsupported" )
+  public UserListWrapper getUsers() throws Exception {
+    if ( canAdminister() ) {
+      try {
+        IUserRoleDao roleDao =
+            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        return new UserListWrapper( roleDao.getUsers() );
+      } catch ( Throwable t ) {
+        throw new WebApplicationException( t );
+      }
+    } else {
+      throw new WebApplicationException( new Throwable() );
     }
   }
 
