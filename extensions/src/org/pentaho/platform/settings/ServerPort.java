@@ -104,6 +104,7 @@ public class ServerPort {
   }
 
   /**
+   * THIS IS A TEST - DO NOT PROCESS PULL REQUEST
    * Assigns a port number from the range defined. If no port number is available from the defined range an arbitrary
    * free port will be assigned.  It is illegal to assign a port number if the ServerPort has not been registered with
    * the {@link ServerPortRegistry}.
