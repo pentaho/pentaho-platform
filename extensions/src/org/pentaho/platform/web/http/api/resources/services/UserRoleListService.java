@@ -44,11 +44,7 @@ public class UserRoleListService {
   private Comparator<String> userComparator;
 
   public String doGetRolesForUser( String user ) throws Exception {
-    if ( canAdminister() ) {
       return getRolesForUser( user );
-    } else {
-      throw new UnauthorizedException();
-    }
   }
 
   public String doGetUsersInRole( String role ) throws Exception {

@@ -50,17 +50,9 @@ public class UserRoleListServiceTest {
 
   @Test
   public void testDoGetRolesForUser() throws Exception {
-    doReturn( true ).when( userRoleListService ).canAdminister();
     doReturn( "admin, guest" ).when( userRoleListService ).getRolesForUser( "Administrator" );
     String roles = userRoleListService.doGetRolesForUser( "Administrator" );
     assertTrue( roles.length() > 0 );
-
-    try {
-      doReturn( false ).when( userRoleListService ).canAdminister();
-      userRoleListService.doGetRolesForUser( "unauthorized" );
-    } catch ( Exception e ) {
-      assertTrue( e instanceof UserRoleListService.UnauthorizedException );
-    }
   }
 
   @Test
