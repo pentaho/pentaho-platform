@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class ServerPortRegistry {
   static ServerPortRegistry instance = new ServerPortRegistry();
   private static ConcurrentHashMap<String, ServerPort> serverPorts;
-  private static ConcurrentHashMap<String, ServerPortService> services;
+  private static ConcurrentHashMap<String, Service> services;
   private static Logger logger = LoggerFactory.getLogger( ServerPortRegistry.class );
 
   private ServerPortRegistry() {
@@ -58,11 +58,11 @@ public class ServerPortRegistry {
     String serviceName = serverPort.getServiceName();
 
     // add to service
-    ServerPortService service = services.get( serviceName );
+    Service service = services.get( serviceName );
     if ( service == null ) {
       logger.warn( "Server Port added with no service.  Adding service without description" );
       // add the service (with no description) on the fly rather than throw an exception
-      service = new ServerPortService( serverPort.getServiceName(), "Unknown Description" );
+      service = new Service( serverPort.getServiceName(), "Unknown Description" );
       services.put( serviceName, service );
     }
     Set<ServerPort> servicePorts = service.getServerPorts();
@@ -71,25 +71,25 @@ public class ServerPortRegistry {
 
   /**
    * Adds a {@link ServicePortService} to the {@link ServerPortRegistry}. ServerPorts can be grouped by
-   * ServerPortService
+   * Service
    * 
    * @param service
-   *          The ServerPortService to register. Once registered, ServerPorts can be associated with this
-   *          ServerPortService.
+   *          The Service to register. Once registered, ServerPorts can be associated with this
+   *          Service.
    */
-  public static void addService( ServerPortService service ) {
+  public static void addService( Service service ) {
     if ( !services.contains( service.getServiceName() ) ) {
       services.put( service.getServiceName(), service );
     }
   }
 
   /**
-   * Removes a port from the ServerPortRegistry and any ServerPortService it belongs to.
+   * Removes a port from the ServerPortRegistry and any Service it belongs to.
    * 
    * @param serverPort
    */
   public static void removePort( ServerPort serverPort ) {
-    ServerPortService service = services.get( serverPort.getServiceName() );
+    Service service = services.get( serverPort.getServiceName() );
     service.getServerPorts().remove( serverPort );
     serverPorts.remove( serverPort.getId() );
   }
@@ -99,16 +99,16 @@ public class ServerPortRegistry {
    */
   public static void clear() {
     serverPorts = new ConcurrentHashMap<String, ServerPort>();
-    services = new ConcurrentHashMap<String, ServerPortService>();
+    services = new ConcurrentHashMap<String, Service>();
   }
 
   /**
-   * Returns the {@link ServerPortService} associated with the given service name or null, if none exist.
+   * Returns the {@link Service} associated with the given service name or null, if none exist.
    * 
    * @param serviceName
    *          The service name.
    */
-  public static ServerPortService getService( String serviceName ) {
+  public static Service getService( String serviceName ) {
     return services.get( serviceName );
   }
 
@@ -123,10 +123,10 @@ public class ServerPortRegistry {
   }
 
   /**
-   * Returns all registered {@link ServerPortService}s.
+   * Returns all registered {@link Service}s.
    */
-  public static Set<ServerPortService> getServices() {
-    return new HashSet<ServerPortService>( services.values() );
+  public static Set<Service> getServices() {
+    return new HashSet<Service>( services.values() );
   }
 
   /**

@@ -16,39 +16,38 @@
  */
 package org.pentaho.platform.settings;
 
-import java.util.Set;
+import java.util.HashSet;
 
-import org.eclipse.jetty.util.ConcurrentHashSet;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * This serves to group {@link ServerPort} objects under an arbitrary name. It also allows a user friendly description
- * of the service category to be supplied. Some web services will provide information on ServerPorts grouped by the
- * {@link ServerPortService} they are under. To fully activate the ServerPortService it must be registered with
- * {@link ServerPortRegistry#addService(ServerPortService)}
- * 
- * @author tkafalas
- *
- */
-public class ServerPortService {
-
+@XmlRootElement( name = "Service" )
+@XmlAccessorType( XmlAccessType.PROPERTY )
+public class ServiceDto {
+  private static final long serialVersionUID = 0;
   private String serviceName;
   private String serviceDescription;
-  private ConcurrentHashSet<ServerPort> serverPorts = new ConcurrentHashSet<ServerPort>();
+  private HashSet<ServerPortDto> serverPorts = new HashSet<ServerPortDto>();
 
-  public ServerPortService( String serviceName, String serviceDescription ) {
-    this.serviceName = serviceName;
-    this.serviceDescription = serviceDescription;
+  public ServiceDto() {
+
   }
 
-  void add( ServerPort serverPort ) {
-    if ( serverPort.getServiceName() != serviceName ) {
-      throw new IllegalStateException( "Attempt to add a port with a different service name" );
+  public ServiceDto( Service service ) {
+    this.serviceName = service.getServiceName();
+    this.serviceDescription = service.getServiceDescription();
+    for ( ServerPort serverPort : service.getServerPorts() ) {
+      this.serverPorts.add( new ServerPortDto( serverPort ) );
     }
-    serverPorts.add( serverPort );
   }
 
-  Set<ServerPort> getServerPorts() {
-    return serverPorts;
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  public void setServiceName( String serviceName ) {
+    this.serviceName = serviceName;
   }
 
   public String getServiceDescription() {
@@ -59,8 +58,12 @@ public class ServerPortService {
     this.serviceDescription = serviceDescription;
   }
 
-  public String getServiceName() {
-    return serviceName;
+  public HashSet<ServerPortDto> getServerPorts() {
+    return serverPorts;
+  }
+
+  public void setServerPorts( HashSet<ServerPortDto> serverPorts ) {
+    this.serverPorts = serverPorts;
   }
 
 }

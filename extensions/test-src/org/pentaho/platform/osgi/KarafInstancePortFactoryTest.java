@@ -29,7 +29,7 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.pentaho.platform.settings.ServerPortService;
+import org.pentaho.platform.settings.Service;
 
 /**
  * 
@@ -75,7 +75,7 @@ public class KarafInstancePortFactoryTest {
   @Test
   public void processTest() throws FileNotFoundException, IOException {
     ArgumentCaptor<KarafInstancePort> portCaptor = ArgumentCaptor.forClass( KarafInstancePort.class );
-    ArgumentCaptor<ServerPortService> serviceCaptor = ArgumentCaptor.forClass( ServerPortService.class );
+    ArgumentCaptor<Service> serviceCaptor = ArgumentCaptor.forClass( Service.class );
 
     KarafInstancePortFactory importer = new KarafInstancePortFactory( "./test-res/KarafInstanceTest/PropertyTest.csv" );
     importer.process();
@@ -96,7 +96,7 @@ public class KarafInstancePortFactoryTest {
       }
     }
 
-    for ( ServerPortService service : serviceCaptor.getAllValues() ) {
+    for ( Service service : serviceCaptor.getAllValues() ) {
       switch ( service.getServiceName() ) {
         case "FOO":
           assertEquals("service description", service.getServiceDescription() );
