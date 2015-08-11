@@ -20,6 +20,7 @@ package org.pentaho.platform.web.http.api.resources;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 
 import javax.ws.rs.WebApplicationException;
@@ -33,10 +34,12 @@ import static org.junit.Assert.*;
 public class UserRoleListResourceTest {
 
   UserRoleListResource userRoleListResource;
+  UserRoleListResource notASpyResource;
 
   @Before
   public void setup() {
     userRoleListResource = spy( new UserRoleListResource() );
+    notASpyResource = new UserRoleListResource();
     userRoleListResource.userRoleListService = mock( UserRoleListService.class );
   }
 
@@ -113,6 +116,47 @@ public class UserRoleListResourceTest {
     assertEquals( mockWrapper, testWrapper );
 
     verify( userRoleListResource, times( 1 ) ).getUsers();
+  }
+
+  @Test
+  public void testDeleteUser() {
+    String users = "user1\tuser2\tuser3\t";
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    notASpyResource.userRoleListService = mockService;
+
+    Response response = notASpyResource.deleteUser( users );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+  }
+
+  @Test
+  public void testDeleteUserUnauthorizedException() throws UserRoleListService.UnauthorizedException {
+    String users = "user1\tuser2\tuser3\t";
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    notASpyResource.userRoleListService = mockService;
+
+    doThrow( new UnauthorizedException() ).when( mockService ).deleteUsers( anyString() );
+
+    try {
+      Response response = notASpyResource.deleteUser( users );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.UNAUTHORIZED.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testDeleteUserUncategorizedUserRoleDaoException() throws UserRoleListService.UnauthorizedException {
+    String users = "user1\tuser2\tuser3\t";
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    notASpyResource.userRoleListService = mockService;
+
+    doThrow( new UncategorizedUserRoleDaoException( "expectedTestException" ) ).when( mockService )
+      .deleteUsers( anyString() );
+
+    try {
+      Response response = notASpyResource.deleteUser( users );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
+    }
   }
 
   @Test
