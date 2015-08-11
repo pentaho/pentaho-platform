@@ -17,20 +17,20 @@
 
 package org.pentaho.platform.osgi;
 
-import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.settings.Service;
+import org.yaml.snakeyaml.Yaml;
 
 public class KarafInstancePortFactory {
-  final static String delimiter = ",";
   protected static KarafInstance karafInstance;
   private String importFilePath;
-  int lineNumber;
 
   public KarafInstancePortFactory( String importFilePath ) {
     this.importFilePath = importFilePath;
@@ -39,81 +39,37 @@ public class KarafInstancePortFactory {
     }
   }
 
-  @SuppressWarnings( "resource" )
-  public void process() throws FileNotFoundException, IOException {
+  @SuppressWarnings( "unchecked" )
+  public void process() throws FileNotFoundException {
 
-    BufferedReader br = null;
-    String line = "";
-    String[] fields;
-    lineNumber = 0;
-
+    InputStream input = null;
     try {
+      input = new FileInputStream( new File( importFilePath ) );
 
-      br = new BufferedReader( new FileReader( importFilePath ) );
-      while ( ( line = br.readLine() ) != null ) {
-        try {
-          lineNumber++;
-          if ( !line.startsWith( "#" ) && line.trim().length() > 1 ) {
-            fields = parseLine( line );
-            switch ( fields[0] ) {
-              case "port":
-                if ( fields.length < 6 ){
-                  throw new IllegalStateException( getErrorPrefix() + "Port definition lines must contain 6 fields" );
-                }
-                karafInstance.registerPort( new KarafInstancePort( fields[1], fields[2], fields[3], Integer
-                    .valueOf( fields[4] ), Integer.valueOf( fields[5] ), fields[6] ) );
-                break;
-              case "service":
-                if ( fields.length < 2 ){
-                  throw new IllegalStateException( getErrorPrefix() + "Port definition lines must contain 2 fields" );
-                }
-                Service service = new Service( fields[1], fields[2]);
-                karafInstance.registerService( service );
-                break;
-              default:
-                throw new IllegalStateException( getErrorPrefix() + "First field of line did not contain a valid record type");
-            }
-          }
-        } catch ( Exception e ) {
-          throw new IllegalStateException( getErrorPrefix() );
-        }
+      Yaml yaml = new Yaml();
+      Map<String, Object> map = (Map<String, Object>) yaml.load( input );
+      List<Map<String, Object>> serviceList = (List<Map<String, Object>>) map.get( "Service" );
+      for ( Map<String, Object> serviceMap : serviceList ) {
+        Service service =
+            new Service( serviceMap.get( "serviceName" ).toString(), serviceMap.get( "serviceDescription" ).toString() );
+        karafInstance.registerService( service );
+      }
 
+      List<Map<String, Object>> portList = (List<Map<String, Object>>) map.get( "ServerPort" );
+      for ( Map<String, Object> portMap : portList ) {
+        KarafInstancePort karafPort =
+            new KarafInstancePort( portMap.get( "id" ).toString(), portMap.get( "property" ).toString(), portMap.get(
+                "friendlyName" ).toString(), (Integer) portMap.get( "startPort" ), (Integer) portMap.get( "endPort" ),
+                portMap.get( "serviceName" ).toString() );
+        karafInstance.registerPort( karafPort );
       }
 
     } catch ( FileNotFoundException e ) {
-      throw new FileNotFoundException( "File " + importFilePath + " does not exist.  Could not determine karaf port assignment" );
-    } catch ( IOException e ) {
-      throw new IOException( "File " + importFilePath + " could not be read.  Could not determine karaf port assignment" );
+      throw new FileNotFoundException( "File " + importFilePath
+          + " does not exist.  Could not determine karaf port assignment" );
     } finally {
-      IOUtils.closeQuietly( br );
+      IOUtils.closeQuietly( input );
     }
   }
 
-  protected String[] parseLine( String line ) {
-    String[] fields = line.split( delimiter );
-    // Search for quoted delimeter and collapse the array if found
-    for ( int i = 0; i < fields.length; i++ ) {
-      if ( fields[i] == null ) {
-        break;
-      }
-      if ( fields[i].startsWith( "\"" ) ) {
-        while ( !StringUtils.right( fields[i].trim(), 1 ).equals( "\"" ) && i < fields.length - 2 ) {
-          fields[i] = fields[i] + "," + fields[i + 1];
-          for ( int j = i + 1; j < fields.length - 1; j++ ) {
-            fields[j] = fields[j + 1];
-            fields[j + 1] = null;
-          }
-        }
-      }
-      fields[i] = fields[i].trim();
-      if ( fields[i].startsWith( "\"" ) && fields[i].endsWith( "\"" ) ) {
-        fields[i] = fields[i].substring( 1, fields[i].length() - 1 );
-      }
-    }
-    return fields;
-  }
-
-  private String getErrorPrefix() {
-    return "Badly formated file: " + importFilePath + " line: " + lineNumber;
-  }
 }
