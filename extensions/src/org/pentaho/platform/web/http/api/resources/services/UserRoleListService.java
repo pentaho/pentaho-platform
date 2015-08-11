@@ -19,6 +19,10 @@ package org.pentaho.platform.web.http.api.resources.services;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
@@ -30,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class UserRoleListService {
 
@@ -62,6 +67,26 @@ public class UserRoleListService {
       Collections.sort( allUsers, userComparator );
     }
     return new UserListWrapper( allUsers );
+  }
+
+  public void deleteUsers( String userNames ) throws UnauthorizedException, UncategorizedUserRoleDaoException {
+    if ( canAdminister() ) {
+      try {
+        IUserRoleDao roleDao =
+          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
+        while ( tokenizer.hasMoreTokens() ) {
+          IPentahoUser user = roleDao.getUser( null, tokenizer.nextToken() );
+          if ( user != null ) {
+            roleDao.deleteUser( user );
+          }
+        }
+      } catch ( UncategorizedUserRoleDaoException e ) {
+        throw new UncategorizedUserRoleDaoException( e.getLocalizedMessage() );
+      }
+    } else {
+      throw new UnauthorizedException();
+    }
   }
 
   public RoleListWrapper getRoles() {

@@ -19,10 +19,13 @@ package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.WILDCARD;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import java.util.ArrayList;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -33,6 +36,7 @@ import javax.ws.rs.core.Response;
 
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.DefaultRoleComparator;
@@ -152,6 +156,36 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   } )
   public UserListWrapper getUsers() throws Exception {
     return userRoleListService.getUsers();
+  }
+
+  /**
+   * Delete user(s) from the platform using a query parameter that takes a list of tab separated user names.
+   *
+   *<p><b>Example Request:</b><br />
+   *  DELETE  pentaho/api/userrolelist/users?userNames=user1%09user2%09
+   * </p>
+   *
+   * @param userNames (list of tab (\t) separated user names)
+   *
+   * @return Response object containing the status code of the operation
+   */
+  @DELETE
+  @Path ( "/users" )
+  @Consumes( { WILDCARD } )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
+    @ResponseCode ( code = 403, condition = "A non administrative user is trying to access this endpoint." ),
+    @ResponseCode ( code = 500, condition = "The server ran into an error while attempting to access the repository, server logs should be checked for errors." )
+  } )
+  public Response deleteUser( @QueryParam( "userNames" ) String userNames ) {
+    try {
+      userRoleListService.deleteUsers( userNames );
+    } catch ( UnauthorizedException e ) {
+      throw new WebApplicationException( Response.Status.UNAUTHORIZED );
+    } catch ( UncategorizedUserRoleDaoException e ) {
+      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+    }
+    return Response.ok().build();
   }
 
   /**
