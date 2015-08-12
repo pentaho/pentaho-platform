@@ -9,11 +9,14 @@ import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.IPluginProvider;
+import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.IServiceManager;
 import org.pentaho.platform.api.engine.ISolutionEngine;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.config.SystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
@@ -46,7 +49,9 @@ public class PentahoSystemPluginManagerTest extends DefaultPluginManagerTest {
   public void init0() {
     microPlatform = new MicroPlatform( solutionPath );
     microPlatform.define( ISolutionEngine.class, SolutionEngine.class );
+    microPlatform.define( ISystemConfig.class, SystemConfig.class );
     microPlatform.define( IPluginProvider.class, SystemPathXmlPluginProvider.class );
+    microPlatform.define( IPluginResourceLoader.class, PluginResourceLoader.class );
     microPlatform
         .define( IServiceManager.class, DefaultServiceManager.class, IPentahoDefinableObjectFactory.Scope.GLOBAL );
     microPlatform.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class,
@@ -62,6 +67,27 @@ public class PentahoSystemPluginManagerTest extends DefaultPluginManagerTest {
   @Override
   public String getSolutionPath() {
     return solutionPath;
+  }
+
+  @Test
+  public void testPluginSettings() throws Exception{
+    init0();
+    microPlatform.start();
+
+    PluginMessageLogger.clear();
+    pluginManager.reload();
+
+    // Valid plugin and property
+    Object setting = pluginManager.getPluginSetting( "Plugin 1", "settings/test-property", "ABCD" );
+    assertEquals( "1234", setting.toString() );
+
+    // Valid plugin but missing property. Return Default
+    setting = pluginManager.getPluginSetting( "Plugin 1", "settings/missing-property", "5432" );
+    assertEquals("5432", setting.toString() );
+
+    // Invalid plugin. Return default
+    setting = pluginManager.getPluginSetting( "Non-Existant Plugin", "settings/test-property", "ABCD" );
+    assertEquals("ABCD", setting.toString() );
   }
 
   @Test
