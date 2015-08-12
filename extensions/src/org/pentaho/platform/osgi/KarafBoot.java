@@ -76,7 +76,7 @@ public class KarafBoot implements IPentahoSystemListener {
       
       // Setup karaf instance configuration
       KarafInstance karafInstance = new KarafInstance( root );
-      new KarafInstancePortFactory( root + "/etc/KarafPorts.csv" ).process();
+      new KarafInstancePortFactory( root + "/etc/KarafPorts.yaml" ).process();
       
       //Define any additional karaf instance properties here using karafInstance.registerProperty
       karafInstance.start();

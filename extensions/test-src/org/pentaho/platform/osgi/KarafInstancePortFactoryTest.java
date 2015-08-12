@@ -19,17 +19,24 @@ package org.pentaho.platform.osgi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.pentaho.platform.settings.Service;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * 
@@ -45,61 +52,59 @@ public class KarafInstancePortFactoryTest {
   }
 
   @Test
-  public void parseLineTest() throws Exception {
-    KarafInstancePortFactory importer =
-        new KarafInstancePortFactory( "./test-res/KarafInstanceTest/KarafPorts.csv" );
-
-    String[] fields;
-    fields = importer.parseLine( "property,id,  property.name, friendly name" );
-    assertEquals( "property", fields[0] );
-    assertEquals( "id", fields[1] );
-    assertEquals( "property.name", fields[2] );
-    assertEquals( "friendly name", fields[3] );
-
-    fields = importer.parseLine( "\"property\",\"id\",\"property.name\",\"friendly,name,with,commas\"" );
-    assertEquals( "property", fields[0] );
-    assertEquals( "id", fields[1] );
-    assertEquals( "property.name", fields[2] );
-    assertEquals( "friendly,name,with,commas", fields[3] );
-    assertEquals( null, fields[4] );
-    assertEquals( null, fields[5] );
-    assertEquals( null, fields[6] );
-
-  }
-
-  /**
-   * File Contains<p>
-   * <code>service,FOO,service description <p>
-   *  port,"ZILCH_PORT","org.pentaho.zilch","Zilch Port", 61111, 61112</code>
-   **/
-  @Test
   public void processTest() throws FileNotFoundException, IOException {
     ArgumentCaptor<KarafInstancePort> portCaptor = ArgumentCaptor.forClass( KarafInstancePort.class );
     ArgumentCaptor<Service> serviceCaptor = ArgumentCaptor.forClass( Service.class );
 
-    KarafInstancePortFactory importer = new KarafInstancePortFactory( "./test-res/KarafInstanceTest/PropertyTest.csv" );
+    KarafInstancePortFactory importer = new KarafInstancePortFactory( "./test-res/KarafInstanceTest/KarafPorts.yaml" );
     importer.process();
-    verify( mockInstance, times( 1 ) ).registerPort( portCaptor.capture() );
-    verify( mockInstance, times( 1 ) ).registerService( serviceCaptor.capture() );
+    verify( mockInstance, times( 2 ) ).registerService( serviceCaptor.capture() );
+    verify( mockInstance, times( 4 ) ).registerPort( portCaptor.capture() );
 
+    boolean port1, port2, port3, port4;
+    port1 = port2 = port3 = port4 = false;
     for ( KarafInstancePort prop : portCaptor.getAllValues() ) {
-      switch ( prop.getId() ) { //So we can expand test to multiple records
-        case "ZILCH_PORT":
-          assertEquals( "org.pentaho.zilch", prop.getPropertyName() );
-          assertEquals( "Zilch Port", prop.getFriendlyName() );
+      switch ( prop.getId() ) {
+        case "KARAF_PORT":
+          port1 = true;
+          assertEquals( "karaf.port", prop.getPropertyName() );
+          assertEquals( "Karaf Port", prop.getFriendlyName() );
           KarafInstancePort portProp = (KarafInstancePort) prop;
-          assertEquals( new Integer( 61111 ), portProp.getStartPort() );
-          assertEquals( new Integer( 61112 ), portProp.getEndPort() );
+          assertEquals( new Integer( 8801 ), portProp.getStartPort() );
+          assertEquals( new Integer( 8899 ), portProp.getEndPort() );
+          assertEquals( "karaf", prop.getServiceName() );
           break;
+
+        case "OSGI_SERVICE_PORT":
+          port2 = true;
+          break;
+
+        case "RMI_SERVER_PORT":
+          port3 = true;
+          break;
+
+        case "RMI_REGISTRY_PORT":
+          port4 = true;
+          break;
+
         default:
           fail( "Registered Unknown ID " + prop.getId() );
       }
     }
 
+    // All 4 records came in?
+    assertTrue( "All port records did not come in", port1 && port2 && port3 && port4 );
+
+    boolean service1, service2;
+    service1 = service2 = false;
     for ( Service service : serviceCaptor.getAllValues() ) {
       switch ( service.getServiceName() ) {
-        case "FOO":
-          assertEquals("service description", service.getServiceDescription() );
+        case "karaf":
+          service1 = true;
+          assertEquals( "Karaf service ports", service.getServiceDescription() );
+          break;
+        case "rmi":
+          service2 = true;
           break;
 
         default:
@@ -107,5 +112,7 @@ public class KarafInstancePortFactoryTest {
 
       }
     }
+
+    assertTrue( "All service records did not come in", service1 && service2 );
   }
 }

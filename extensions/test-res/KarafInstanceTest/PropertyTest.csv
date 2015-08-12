@@ -1,6 +1,0 @@
-#serviceName
-service,FOO,service description
-
-#Karaf Port Assignment
-#"port", Id, propertyName, freiendlyName, startPort, endPort
-port,"ZILCH_PORT", "org.pentaho.zilch","Zilch Port", 61111, 61112,FOO
