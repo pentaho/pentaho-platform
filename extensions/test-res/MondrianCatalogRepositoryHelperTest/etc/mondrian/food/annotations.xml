@@ -1,0 +1,46 @@
+<annotations>
+  <annotation>
+    <name>aaaaaaaa-8caf-471e-ab0b-15abfb77d260</name>
+    <field/>
+    <type>UPDATE_MEASURE</type>
+    <properties>
+      <property>
+        <name>measure</name>
+        <value>[Measures].[PRICEEACH]</value>
+      </property>
+      <property>
+        <name>name</name>
+        <value>Price Each</value>
+      </property>
+      <property>
+        <name>format</name>
+        <value>##.##</value>
+      </property>
+    </properties>
+  </annotation>
+  <annotation>
+    <name>bbbbbbbb-5b83-4494-8c0d-4ea0f1423ab8</name>
+    <field/>
+    <type>UPDATE_MEASURE</type>
+    <properties>
+      <property>
+        <name>measure</name>
+        <value>[Measures].[Quantity ordered]</value>
+      </property>
+      <property>
+        <name>name</name>
+        <value>Quantity Ordered</value>
+      </property>
+      <property>
+        <name>aggregationType</name>
+        <value>AVERAGE</value>
+      </property>
+      <property>
+        <name>format</name>
+        <value>#</value>
+      </property>
+    </properties>
+  </annotation>
+  <sharedDimension>N</sharedDimension>
+  <description/>
+</annotations>
