@@ -163,8 +163,12 @@ public class ActionAdapterQuartzJob implements Job {
     params.remove( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS );
     params.remove( QuartzScheduler.RESERVEDMAPKEY_ACTIONID );
     params.remove( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER );
-    final IBackgroundExecutionStreamProvider streamProvider =
-        (IBackgroundExecutionStreamProvider) params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    Object objsp = params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    IBackgroundExecutionStreamProvider sp = null;
+    if ( objsp != null && IBackgroundExecutionStreamProvider.class.isAssignableFrom( objsp.getClass() ) ) {
+      sp = (IBackgroundExecutionStreamProvider) objsp;
+    }
+    final IBackgroundExecutionStreamProvider streamProvider = sp;
     params.remove( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
     params.remove( QuartzScheduler.RESERVEDMAPKEY_UIPASSPARAM );
     // The scheduled_fire_time is useful only to the blockoutAction see PDI-10171
