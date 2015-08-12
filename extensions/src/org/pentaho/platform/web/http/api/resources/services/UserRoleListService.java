@@ -18,10 +18,15 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -33,7 +38,9 @@ import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 public class UserRoleListService {
@@ -82,6 +89,47 @@ public class UserRoleListService {
           }
         }
       } catch ( UncategorizedUserRoleDaoException e ) {
+        throw new UncategorizedUserRoleDaoException( e.getLocalizedMessage() );
+      }
+    } else {
+      throw new UnauthorizedException();
+    }
+  }
+
+  private ITenant getTenant() {
+    ITenant tenant = null;
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    String tenantPath = (String) session.getAttribute( IPentahoSession.TENANT_ID_KEY );
+    if ( tenantPath != null ) {
+      tenant = new Tenant( tenantPath, true );
+    }
+
+    return tenant;
+  }
+
+  public void assignRoleToUser( String userName, String roleNames )
+    throws UnauthorizedException, UncategorizedUserRoleDaoException, NotFoundException {
+    if ( canAdminister() ) {
+      IUserRoleDao roleDao =
+        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+      ITenant tenant = getTenant();
+
+      StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
+      Set<String> assignedRoles = new HashSet<String>();
+      //Build a set of roles the userName already has
+      for ( IPentahoRole pentahoRole : roleDao.getUserRoles( tenant, userName ) ) {
+        assignedRoles.add( pentahoRole.getName() );
+      }
+      //Add the roles we passed in to the set of roles
+      while ( tokenizer.hasMoreTokens() ) {
+        assignedRoles.add( tokenizer.nextToken() );
+      }
+      try {
+        //Apply the total list of roles to the user
+        roleDao.setUserRoles( tenant, userName, assignedRoles.toArray( new String[assignedRoles.size()] ) );
+      } catch ( NotFoundException e ) {
+        throw new NotFoundException( e.getLocalizedMessage() );
+      } catch( UncategorizedUserRoleDaoException e ) {
         throw new UncategorizedUserRoleDaoException( e.getLocalizedMessage() );
       }
     } else {
@@ -171,6 +219,6 @@ public class UserRoleListService {
     return this.extraRoles;
   }
 
-  public class UnauthorizedException extends Exception {
+  public static class UnauthorizedException extends Exception {
   }
 }
