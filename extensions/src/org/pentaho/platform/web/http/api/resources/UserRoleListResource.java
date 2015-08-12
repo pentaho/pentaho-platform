@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -36,6 +37,7 @@ import javax.ws.rs.core.Response;
 
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -181,11 +183,38 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     try {
       userRoleListService.deleteUsers( userNames );
     } catch ( UnauthorizedException e ) {
-      throw new WebApplicationException( Response.Status.UNAUTHORIZED );
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
     } catch ( UncategorizedUserRoleDaoException e ) {
       throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
     }
     return Response.ok().build();
+  }
+
+  /**
+   * Appends existing roles to an existing user passed to the system through query parameters.
+   *
+   * <p><b>Example Request:</b><br />
+   *  PUT  pentaho/api/userrolelist/assignRoleToUser?userNames=admin&roleNames=role1%09role2%09
+   * </p>
+   *
+   * @param userName   The username that the list of roles will be appended to
+   * @param roleNames  Rolenames must be associated to existing roles in a tab (\t) seperated list
+   *
+   * @return Response object containing the status code of the operation
+   */
+  @PUT
+  @Path ( "/assignRoleToUser" )
+  public Response assignRoleToUser( @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
+    try {
+      userRoleListService.assignRoleToUser( userName, roleNames );
+      return Response.ok().build();
+    } catch ( UnauthorizedException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
+    } catch ( UncategorizedUserRoleDaoException e ) {
+      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+    } catch ( NotFoundException e ) {
+      throw new WebApplicationException( Response.Status.NOT_FOUND  );
+    }
   }
 
   /**
