@@ -25,10 +25,9 @@ import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.Ordered;
 import org.springframework.core.task.SyncTaskExecutor;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -46,6 +45,20 @@ import java.util.concurrent.Executor;
  */
 public class OrderedApplicationEventMulticaster extends SimpleApplicationEventMulticaster {
 
+  private final Comparator<ApplicationListener> comparator = new Comparator<ApplicationListener>() {
+    public int compare( final ApplicationListener o1, final ApplicationListener o2 ) {
+      if ( o1 instanceof Ordered && o2 instanceof Ordered ) {
+        return Integer.compare( ( (Ordered) o1 ).getOrder(), ( (Ordered) o2 ).getOrder() );
+      } else if ( o1 instanceof Ordered ) {
+        return -1;
+      } else if ( o2 instanceof Ordered ) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  };
+
   private Executor defaultExecutor = new SyncTaskExecutor(); // default Executor
 
   public OrderedApplicationEventMulticaster(){
@@ -60,22 +73,12 @@ public class OrderedApplicationEventMulticaster extends SimpleApplicationEventMu
   @SuppressWarnings( "unchecked" )
   @Override
   public void multicastEvent( final ApplicationEvent event ) {
-    List<ApplicationListener> listeners = new ArrayList<ApplicationListener>( getApplicationListeners() );
+    Collection<ApplicationListener> applicationListeners = getApplicationListeners();
+    ApplicationListener[] listeners =
+      applicationListeners.toArray( new ApplicationListener[ applicationListeners.size() ] );
 
     // sort listeners
-    Collections.sort( listeners, new Comparator<ApplicationListener>() {
-      public int compare( final ApplicationListener o1, final ApplicationListener o2 ) {
-        if ( o1 instanceof Ordered && o2 instanceof Ordered ) {
-          return new Integer( ( (Ordered) o1 ).getOrder() ).compareTo( new Integer( ( (Ordered) o2 ).getOrder() ) );
-        } else if ( o1 instanceof Ordered ) {
-          return -1;
-        } else if ( o2 instanceof Ordered ) {
-          return 1;
-        } else {
-          return 0;
-        }
-      }
-    } );
+    Arrays.sort( listeners, comparator );
 
     // iterate over sorted listeners
     for ( final ApplicationListener listener : listeners ) {

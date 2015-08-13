@@ -63,10 +63,11 @@ public class UserSettingService implements IUserSettingService {
     Serializable id = repository.getFile( homePath ).getId();
 
     Map<String, Serializable> fileMetadata = repository.getFileMetadata( id );
-    Map<String, Serializable> finalMetadata = new HashMap<String, Serializable>();
-    for ( String key : fileMetadata.keySet() ) {
+    Map<String, Serializable> finalMetadata = new HashMap<String, Serializable>( fileMetadata.size() );
+    for ( Map.Entry<String, Serializable> entry : fileMetadata.entrySet() ) {
+      String key = entry.getKey();
       if ( !key.startsWith( SETTING_PREFIX ) ) {
-        finalMetadata.put( key, fileMetadata.get( key ) );
+        finalMetadata.put( key, entry.getValue() );
       }
     }
     repository.setFileMetadata( id, finalMetadata );
@@ -75,6 +76,17 @@ public class UserSettingService implements IUserSettingService {
   // ////////////////////////////////////////////////////////////////////////////////////////////////
   // USER SETTINGS METHODS
   // ////////////////////////////////////////////////////////////////////////////////////////////////
+
+  private static UserSetting createSetting( String name, Serializable value ) {
+    return createSetting( name, value.toString() );
+  }
+
+  private static UserSetting createSetting( String name, String value ) {
+    UserSetting setting = new UserSetting();
+    setting.setSettingName( name );
+    setting.setSettingValue( value );
+    return setting;
+  }
 
   public List<IUserSetting> getUserSettings() {
     // get the global settings and the user settings
@@ -85,11 +97,10 @@ public class UserSettingService implements IUserSettingService {
     Serializable tenantHomeId = repository.getFile( tentantHomePath ).getId();
     Map<String, Serializable> tenantMetadata = repository.getFileMetadata( tenantHomeId );
 
-    for ( String key : tenantMetadata.keySet() ) {
+    for ( Map.Entry<String, Serializable> entry : tenantMetadata.entrySet() ) {
+      String key = entry.getKey();
       if ( key.startsWith( SETTING_PREFIX ) ) {
-        UserSetting setting = new UserSetting();
-        setting.setSettingName( key.substring( SETTING_PREFIX.length() ) );
-        setting.setSettingValue( tenantMetadata.get( key ).toString() );
+        UserSetting setting = createSetting( key.substring( SETTING_PREFIX.length() ), entry.getValue() );
         userSettings.add( setting );
       }
     }
@@ -98,11 +109,10 @@ public class UserSettingService implements IUserSettingService {
     Serializable userHomeId = repository.getFile( homePath ).getId();
     Map<String, Serializable> userMetadata = repository.getFileMetadata( userHomeId );
 
-    for ( String key : userMetadata.keySet() ) {
+    for ( Map.Entry<String, Serializable> entry : userMetadata.entrySet() ) {
+      String key = entry.getKey();
       if ( key.startsWith( SETTING_PREFIX ) ) {
-        UserSetting setting = new UserSetting();
-        setting.setSettingName( key.substring( SETTING_PREFIX.length() ) );
-        setting.setSettingValue( userMetadata.get( key ).toString() );
+        UserSetting setting = createSetting( key.substring( SETTING_PREFIX.length() ), entry.getValue() );
         // see if a global setting exists which will be overridden
         if ( userSettings.contains( setting ) ) {
           userSettings.remove( setting );
@@ -123,13 +133,12 @@ public class UserSettingService implements IUserSettingService {
         Serializable userHomeId = repository.getFile( homePath ).getId();
         Map<String, Serializable> userMetadata = repository.getFileMetadata( userHomeId );
 
-        for ( String key : userMetadata.keySet() ) {
+        for ( Map.Entry<String, Serializable> entry : userMetadata.entrySet() ) {
+          String key = entry.getKey();
           if ( key.startsWith( SETTING_PREFIX ) ) {
-            UserSetting setting = new UserSetting();
-            setting.setSettingName( key.substring( SETTING_PREFIX.length() ) );
-            setting.setSettingValue( userMetadata.get( key ).toString() );
-            if ( setting.getSettingName().equals( settingName ) ) {
-              return setting;
+            String settingFromKey = key.substring( SETTING_PREFIX.length() );
+            if ( settingFromKey.equals( settingName ) ) {
+              return createSetting( settingFromKey, entry.getValue() );
             }
           }
         }
@@ -138,13 +147,12 @@ public class UserSettingService implements IUserSettingService {
         Serializable tenantHomeId = repository.getFile( tentantHomePath ).getId();
         Map<String, Serializable> tenantMetadata = repository.getFileMetadata( tenantHomeId );
 
-        for ( String key : tenantMetadata.keySet() ) {
+        for ( Map.Entry<String, Serializable> entry : tenantMetadata.entrySet() ) {
+          String key = entry.getKey();
           if ( key.startsWith( SETTING_PREFIX ) ) {
-            UserSetting setting = new UserSetting();
-            setting.setSettingName( key.substring( SETTING_PREFIX.length() ) );
-            setting.setSettingValue( tenantMetadata.get( key ).toString() );
-            if ( setting.getSettingName().equals( settingName ) ) {
-              return setting;
+            String settingFromKey = key.substring( SETTING_PREFIX.length() );
+            if ( settingFromKey.equals( settingName ) ) {
+              return createSetting( settingFromKey, entry.getValue() );
             }
           }
         }
@@ -154,10 +162,7 @@ public class UserSettingService implements IUserSettingService {
         // we'll see *many* errors in the logs which are not helpful
       }
     }
-    UserSetting defaultSetting = new UserSetting();
-    defaultSetting.setSettingName( settingName );
-    defaultSetting.setSettingValue( defaultValue );
-    return defaultSetting;
+    return createSetting( settingName, defaultValue );
   }
 
   public void setUserSetting( String settingName, String settingValue ) {
@@ -170,9 +175,6 @@ public class UserSettingService implements IUserSettingService {
       final Serializable id = repository.getFile( homePath ).getId();
 
       final Map<String, Serializable> fileMetadata = repository.getFileMetadata( id );
-      if ( fileMetadata.containsKey( SETTING_PREFIX + settingName ) ) {
-        fileMetadata.remove( SETTING_PREFIX + settingName );
-      }
       fileMetadata.put( SETTING_PREFIX + settingName, settingValue );
       try {
         SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
@@ -183,8 +185,10 @@ public class UserSettingService implements IUserSettingService {
           }
         } );
       } catch ( Exception e ) {
-        log.debug( "Error storing user setting for user: " + name + ", setting: " + settingName + ", value: "
+        if ( log.isDebugEnabled() ) {
+          log.debug( "Error storing user setting for user: " + name + ", setting: " + settingName + ", value: "
             + settingValue, e );
+        }
         log.error( "Error storing user setting", e );
       }
     }
@@ -199,32 +203,26 @@ public class UserSettingService implements IUserSettingService {
     Serializable tenantHomeId = repository.getFile( tentantHomePath ).getId();
     Map<String, Serializable> tenantMetadata = repository.getFileMetadata( tenantHomeId );
 
-    if ( tenantMetadata.containsKey( SETTING_PREFIX + settingName ) ) {
-      UserSetting setting = new UserSetting();
-      setting.setSettingName( settingName );
-      setting.setSettingValue( tenantMetadata.get( SETTING_PREFIX + settingName ).toString() );
-      return setting;
+    String key = SETTING_PREFIX + settingName;
+    Serializable value = tenantMetadata.get( key );
+    if ( value != null ) {
+      return createSetting( settingName, value.toString() );
     }
 
-    UserSetting defaultSetting = new UserSetting();
-    defaultSetting.setSettingName( settingName );
-    defaultSetting.setSettingValue( defaultValue );
-    return defaultSetting;
+    return createSetting( settingName, defaultValue );
   }
 
   public List<IUserSetting> getGlobalUserSettings() {
-    List<IUserSetting> userSettings = new ArrayList<IUserSetting>();
 
     String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
     Serializable tenantHomeId = repository.getFile( tentantHomePath ).getId();
     Map<String, Serializable> tenantMetadata = repository.getFileMetadata( tenantHomeId );
 
-    for ( String key : tenantMetadata.keySet() ) {
+    List<IUserSetting> userSettings = new ArrayList<IUserSetting>( tenantMetadata.size() );
+    for ( Map.Entry<String, Serializable> entry : tenantMetadata.entrySet() ) {
+      String key = entry.getKey();
       if ( key.startsWith( SETTING_PREFIX ) ) {
-        UserSetting setting = new UserSetting();
-        setting.setSettingName( key.substring( SETTING_PREFIX.length() ) );
-        setting.setSettingValue( tenantMetadata.get( key ).toString() );
-        userSettings.add( setting );
+        userSettings.add( createSetting( key.substring( SETTING_PREFIX.length() ), entry.getValue() ) );
       }
     }
     return userSettings;
@@ -235,9 +233,6 @@ public class UserSettingService implements IUserSettingService {
       String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
       Serializable tenantHomeId = repository.getFile( tentantHomePath ).getId();
       Map<String, Serializable> tenantMetadata = repository.getFileMetadata( tenantHomeId );
-      if ( tenantMetadata.containsKey( SETTING_PREFIX + settingName ) ) {
-        tenantMetadata.remove( SETTING_PREFIX + settingName );
-      }
       tenantMetadata.put( SETTING_PREFIX + settingName, settingValue );
       repository.setFileMetadata( tenantHomeId, tenantMetadata );
     }

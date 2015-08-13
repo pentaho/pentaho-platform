@@ -85,12 +85,12 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
   }
 
   protected List<String> getRuntimeRoleNames() {
-    List<String> runtimeRoles = new ArrayList<String>();
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Assert.state( authentication != null );
     GrantedAuthority[] authorities = authentication.getAuthorities();
-    for ( int i = 0; i < authorities.length; i++ ) {
-      runtimeRoles.add( authorities[i].getAuthority() );
+    List<String> runtimeRoles = new ArrayList<String>( authorities.length );
+    for ( GrantedAuthority authority : authorities ) {
+      runtimeRoles.add( authority.getAuthority() );
     }
     return runtimeRoles;
   }

@@ -191,10 +191,12 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
   private <T> T
   retreiveObject( Class<T> interfaceClass, String key, IPentahoSession session, Map<String, String> props )
       throws ObjectFactoryException {
-    // cannot access logger here since this object factory provides the logger
-    logger
+    if ( logger.isDebugEnabled() ) {
+      // cannot access logger here since this object factory provides the logger
+      logger
         .debug( "Attempting to get an instance of [" + interfaceClass.getSimpleName() + "] while in session [" + session
-            + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+          + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+    }
 
     // Set the Thread Context Classloader to that of the classloader who loaded this class.
     ClassLoader originalClassLoader = null;
@@ -204,7 +206,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       originalClassLoader = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
 
-      if ( session != null && session instanceof StandaloneSession ) {
+      if ( session instanceof StandaloneSession ) {
         // first ask Spring for the object, if it is session scoped it will fail
         // since Spring doesn't know about StandaloneSessions
 
@@ -254,9 +256,11 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
         Thread.currentThread().setContextClassLoader( originalClassLoader );
       }
     }
-    
-    logger
+
+    if ( logger.isDebugEnabled() ) {
+      logger
         .debug( " Got an instance of [" + interfaceClass.getSimpleName() + "]: " + object ); //$NON-NLS-1$ //$NON-NLS-2$
+    }
 
     if ( object instanceof IPentahoInitializer ) {
       ( (IPentahoInitializer) object ).init( session );
@@ -266,12 +270,14 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
   protected <T> List<T> retreiveObjects( Class<T> type, final IPentahoSession session, Map<String, String> properties )
       throws ObjectFactoryException {
-    // cannot access logger here since this object factory provides the logger
-    logger.debug( "Attempting to get an instance of [" + type.getSimpleName() + "] while in session [" + session
+    if ( logger.isDebugEnabled() ) {
+      // cannot access logger here since this object factory provides the logger
+      logger.debug( "Attempting to get an instance of [" + type.getSimpleName() + "] while in session [" + session
         + "]" ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+    }
 
     T object = retrieveViaSpring( type );
-    if ( object != null ) {
+    if ( object != null && logger.isDebugEnabled() ) {
       logger.debug( " Got an instance of [" + type.getSimpleName() + "]: " + object ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
