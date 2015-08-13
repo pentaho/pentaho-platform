@@ -89,10 +89,6 @@ public class ActionSequenceParameterUiContentGenerator extends SimpleContentGene
 
   @SuppressWarnings ( "unchecked" )
   private IParameterProvider getRequestParameters() {
-    if ( this.requestParameters != null ) {
-      return this.requestParameters;
-    }
-
     if ( this.parameterProviders == null ) {
       return new SimpleParameterProvider();
     }
@@ -110,9 +106,6 @@ public class ActionSequenceParameterUiContentGenerator extends SimpleContentGene
 
   @SuppressWarnings ( "unchecked" )
   public IParameterProvider getPathParameters() {
-    if ( this.pathParameters != null ) {
-      return this.pathParameters;
-    }
 
     IParameterProvider pathParams = this.parameterProviders.get( "path" ); //$NON-NLS-1$
     SimpleParameterSetter parameters = new SimpleParameterSetter();
