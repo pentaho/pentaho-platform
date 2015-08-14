@@ -194,19 +194,47 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * Appends existing roles to an existing user passed to the system through query parameters.
    *
    * <p><b>Example Request:</b><br />
-   *  PUT  pentaho/api/userrolelist/assignRoleToUser?userNames=admin&roleNames=role1%09role2%09
+   *  PUT  pentaho/api/userrolelist/assignRolesToUser?userName=admin&roleNames=Business%20User%09Power%20User%09
    * </p>
    *
-   * @param userName   The username that the list of roles will be appended to
-   * @param roleNames  Rolenames must be associated to existing roles in a tab (\t) seperated list
+   * @param userName   The username that the list of roles will be associated with
+   * @param roleNames  Rolenames must be associated to existing roles in a tab (\t) separated list
    *
    * @return Response object containing the status code of the operation
    */
   @PUT
-  @Path ( "/assignRoleToUser" )
-  public Response assignRoleToUser( @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
+  @Path ( "/assignRolesToUser" )
+  public Response assignRolesToUser( @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
     try {
-      userRoleListService.assignRoleToUser( userName, roleNames );
+      userRoleListService.assignRolesToUser( userName, roleNames );
+      return Response.ok().build();
+    } catch ( UnauthorizedException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
+    } catch ( UncategorizedUserRoleDaoException e ) {
+      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+    } catch ( NotFoundException e ) {
+      throw new WebApplicationException( Response.Status.NOT_FOUND  );
+    }
+  }
+
+  /**
+   * Removes selected roles from an existing user passed to the system through query parameters.
+   *
+   * <p><b>Example Request:</b><br />
+   *  PUT  pentaho/api/userrolelist/assignRolesToUser?userName=admin&roleNames=Business%20User%09Power%20User%09
+   * </p>
+   *
+   * @param userName   The username that the list of roles will be removed from
+   * @param roleNames  Rolenames must be associated to existing roles in a tab (\t) separated list
+   *
+   * @return Response object containing the status code of the operation
+   */
+  @PUT
+  @Path ( "/removeRolesFromUser" )
+  @Consumes ( { WILDCARD } )
+  public Response removeRolesFromUser( @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
+    try {
+      userRoleListService.removeRolesFromUser( userName, roleNames );
       return Response.ok().build();
     } catch ( UnauthorizedException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );

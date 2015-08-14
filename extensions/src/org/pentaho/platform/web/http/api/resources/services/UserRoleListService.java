@@ -107,7 +107,7 @@ public class UserRoleListService {
     return tenant;
   }
 
-  public void assignRoleToUser( String userName, String roleNames )
+  public void assignRolesToUser( String userName, String roleNames )
     throws UnauthorizedException, UncategorizedUserRoleDaoException, NotFoundException {
     if ( canAdminister() ) {
       IUserRoleDao roleDao =
@@ -132,6 +132,29 @@ public class UserRoleListService {
       } catch( UncategorizedUserRoleDaoException e ) {
         throw new UncategorizedUserRoleDaoException( e.getLocalizedMessage() );
       }
+    } else {
+      throw new UnauthorizedException();
+    }
+  }
+
+  public void removeRolesFromUser( String userName, String roleNames )
+    throws UnauthorizedException, NotFoundException, UncategorizedUserRoleDaoException {
+    if ( canAdminister() ) {
+      IUserRoleDao roleDao =
+        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+      ITenant tenant = getTenant();
+
+      StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
+      Set<String> assignedRoles = new HashSet<String>();
+      //Get list of roles associated with a specific user
+      for ( IPentahoRole pentahoRole : roleDao.getUserRoles( tenant, userName ) ) {
+        assignedRoles.add( pentahoRole.getName() );
+      }
+      //Remove the roles selected by the user
+      while ( tokenizer.hasMoreTokens() ) {
+        assignedRoles.remove( tokenizer.nextToken() );
+      }
+      roleDao.setUserRoles( tenant, userName, assignedRoles.toArray( new String[ assignedRoles.size() ] ) );
     } else {
       throw new UnauthorizedException();
     }

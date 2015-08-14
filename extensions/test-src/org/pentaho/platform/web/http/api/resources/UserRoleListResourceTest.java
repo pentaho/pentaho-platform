@@ -161,7 +161,7 @@ public class UserRoleListResourceTest {
   }
 
   @Test
-  public void testAssignRoleToUser() {
+  public void testAssignRolesToUser() {
     String user = "testUser1";
     String roles = "testRole1";
     UserRoleListService mockService = mock( UserRoleListService.class );
@@ -172,14 +172,14 @@ public class UserRoleListResourceTest {
   }
 
   @Test
-  public void testAssignRoleToUserUnauthorizedException() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRolesToUserUnauthorizedException() throws UserRoleListService.UnauthorizedException {
     String user = "testUser1";
     String roles = "testRole1";
     UserRoleListService mockService = mock( UserRoleListService.class );
     notASpyResource.userRoleListService = mockService;
 
-    doThrow( new UnauthorizedException() ).when( mockService )
-      .assignRoleToUser( anyString(), anyString() );
+    doThrow( new UserRoleListService.UnauthorizedException() ).when( mockService )
+      .assignRolesToUser( anyString(), anyString() );
 
     try {
       notASpyResource.assignRoleToUser( user, roles );
@@ -189,14 +189,14 @@ public class UserRoleListResourceTest {
   }
 
   @Test
-  public void testAssignRoleToUserUncategorizedUserRoleDaoException() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRolesToUserUncategorizedUserRoleDaoException() throws UserRoleListService.UnauthorizedException {
     String user = "testUser1";
     String roles = "testRole1";
     UserRoleListService mockService = mock( UserRoleListService.class );
     notASpyResource.userRoleListService = mockService;
 
     doThrow( new UncategorizedUserRoleDaoException( "expectedTestException" ) ).when( mockService )
-      .assignRoleToUser( anyString(), anyString() );
+      .assignRolesToUser( anyString(), anyString() );
 
     try {
       notASpyResource.assignRoleToUser( user, roles );
@@ -206,17 +206,79 @@ public class UserRoleListResourceTest {
   }
 
   @Test
-  public void testAssignRoleToUserNotFoundException() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRolesToUserNotFoundException() throws UserRoleListService.UnauthorizedException {
     String user = "testUser1";
     String roles = "testRole1";
     UserRoleListService mockService = mock( UserRoleListService.class );
     notASpyResource.userRoleListService = mockService;
 
     doThrow( new NotFoundException( "expectedTestException" ) ).when( mockService )
-      .assignRoleToUser( anyString(), anyString() );
+      .assignRolesToUser( anyString(), anyString() );
 
     try {
       notASpyResource.assignRoleToUser( user, roles );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testRemoveRolesFromUser() {
+    String user = "testUser1";
+    String roles = "testRole1";
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    notASpyResource.userRoleListService = mockService;
+
+    Response response = notASpyResource.removeRolesFromUser( user, roles );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+  }
+
+  @Test
+  public void testRemoveRolesFromUserUnauthorizedException() throws UserRoleListService.UnauthorizedException {
+    String user = "testUser1";
+    String roles = "testRole1";
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    notASpyResource.userRoleListService = mockService;
+
+    doThrow( new UserRoleListService.UnauthorizedException() ).when( mockService )
+      .removeRolesFromUser( anyString(), anyString() );
+
+    try {
+      notASpyResource.removeRolesFromUser( user, roles );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testRemoveRolesFromUserUncategorizedUserRoleDaoException() throws UserRoleListService.UnauthorizedException {
+    String user = "testUser1";
+    String roles = "testRole1";
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    notASpyResource.userRoleListService = mockService;
+
+    doThrow( new UncategorizedUserRoleDaoException( "expectedTestException" ) ).when( mockService )
+      .removeRolesFromUser( anyString(), anyString() );
+
+    try {
+      notASpyResource.removeRolesFromUser( user, roles );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testRemoveRolesFromUserNotFoundException() throws UserRoleListService.UnauthorizedException {
+    String user = "testUser1";
+    String roles = "testRole1";
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    notASpyResource.userRoleListService = mockService;
+
+    doThrow( new NotFoundException( "expectedTestException" ) ).when( mockService )
+      .removeRolesFromUser( anyString(), anyString() );
+
+    try {
+      notASpyResource.removeRolesFromUser( user, roles );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus() );
     }
