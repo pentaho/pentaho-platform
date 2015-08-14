@@ -24,19 +24,27 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.DefaultRoleComparator;
 import org.pentaho.platform.engine.security.DefaultUsernameComparator;
@@ -111,6 +119,96 @@ public class UserRoleListServiceTest {
 
     UserListWrapper usersWrapper = userRoleListServiceSpy.getUsers();
     assertTrue( usersWrapper.getUsers().size() == 3 );
+  }
+
+  @Test
+  public void testAssignRoleToUser() throws UserRoleListService.UnauthorizedException {
+    String userName = "testUser";
+    String roleNames = "Power User\tBusiness User\t";
+
+    //Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    //Create session that will generate tenant
+    IPentahoSession session = mock( IPentahoSession.class );
+    when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( "testTenantPath" );
+    PentahoSessionHolder.setSession( session );
+
+    IPentahoRole ceoRole = mock( IPentahoRole.class );
+    when( ceoRole.getName() ).thenReturn( "ceo" );
+    IPentahoRole ctoRole = mock( IPentahoRole.class );
+    when( ctoRole.getName() ).thenReturn( "cto" );
+    List<IPentahoRole> roleList = new ArrayList<>();
+    roleList.add( ceoRole );
+    roleList.add( ctoRole );
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenReturn( roleList );
+    PentahoSystem.registerObject( roleDao );
+
+    userRoleListService.assignRoleToUser( userName, roleNames );
+    verify( roleDao ).setUserRoles( any( ITenant.class ), anyString(),
+      argThat( new UnorderedArrayMatcher( new String[] { "ceo", "cto", "Power User", "Business User" } ) ) );
+  }
+
+  @Test( expected = UserRoleListService.UnauthorizedException.class )
+  public void testAssignRoleToUserUnauthorizedException() throws UserRoleListService.UnauthorizedException {
+    String userName = "testUser";
+    String roleNames = "Power User\tBusiness User\t";
+
+    //canAdminister should return false
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    PentahoSystem.registerObject( policy );
+
+    userRoleListService.assignRoleToUser( userName, roleNames );
+  }
+
+  @Test( expected = NotFoundException.class )
+  public void testAssignRoleToUserNotFoundException() throws UserRoleListService.UnauthorizedException {
+    String userName = "testUser";
+    String roleNames = "Power User\tBusiness User\t";
+
+    //Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    //Create session that will generate tenant
+    IPentahoSession session = mock( IPentahoSession.class );
+    when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( "testTenantPath" );
+    PentahoSessionHolder.setSession( session );
+
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenThrow(
+      new NotFoundException( "expectedTestException" ) );
+    PentahoSystem.registerObject( roleDao );
+
+    userRoleListService.assignRoleToUser( userName, roleNames );
+  }
+
+  @Test( expected = UncategorizedUserRoleDaoException.class )
+  public void testAssignRoleToUserUncategorizedUserRoleDaoException() throws UserRoleListService.UnauthorizedException {
+    String userName = "testUser";
+    String roleNames = "Power User\tBusiness User\t";
+
+    //Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    //Create session that will generate tenant
+    IPentahoSession session = mock( IPentahoSession.class );
+    when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( "testTenantPath" );
+    PentahoSessionHolder.setSession( session );
+
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenThrow(
+      new UncategorizedUserRoleDaoException( "expectedTestException" ) );
+    PentahoSystem.registerObject( roleDao );
+
+    userRoleListService.assignRoleToUser( userName, roleNames );
   }
 
   @Test
@@ -255,5 +353,19 @@ public class UserRoleListServiceTest {
 
     assertEquals( 4, roleListWrapper.getRoles().size() );
     assertEquals( extraRoles, roleListWrapper.getRoles() );
+  }
+
+  private class UnorderedArrayMatcher extends ArgumentMatcher<String[]> {
+    private Set<String> correctValues;
+
+    UnorderedArrayMatcher( String[] expected ) {
+      correctValues = new HashSet<>( Arrays.asList( expected ) );
+    }
+
+    @Override public boolean matches( Object argument ) {
+      String[] arguments = (String[]) argument;
+      Set<String> returnedValues = new HashSet<>( Arrays.asList( arguments ) );
+      return returnedValues.equals( correctValues );
+    }
   }
 }
