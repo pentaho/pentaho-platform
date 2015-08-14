@@ -122,7 +122,7 @@ public class UserRoleListServiceTest {
   }
 
   @Test
-  public void testAssignRoleToUser() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRolesToUser() throws UserRoleListService.UnauthorizedException {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
@@ -147,13 +147,13 @@ public class UserRoleListServiceTest {
     when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenReturn( roleList );
     PentahoSystem.registerObject( roleDao );
 
-    userRoleListService.assignRoleToUser( userName, roleNames );
+    userRoleListService.assignRolesToUser( userName, roleNames );
     verify( roleDao ).setUserRoles( any( ITenant.class ), anyString(),
       argThat( new UnorderedArrayMatcher( new String[] { "ceo", "cto", "Power User", "Business User" } ) ) );
   }
 
   @Test( expected = UserRoleListService.UnauthorizedException.class )
-  public void testAssignRoleToUserUnauthorizedException() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRolesToUserUnauthorizedException() throws UserRoleListService.UnauthorizedException {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
@@ -162,11 +162,11 @@ public class UserRoleListServiceTest {
     when( policy.isAllowed( anyString() ) ).thenReturn( false );
     PentahoSystem.registerObject( policy );
 
-    userRoleListService.assignRoleToUser( userName, roleNames );
+    userRoleListService.assignRolesToUser( userName, roleNames );
   }
 
   @Test( expected = NotFoundException.class )
-  public void testAssignRoleToUserNotFoundException() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRolesToUserNotFoundException() throws UserRoleListService.UnauthorizedException {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
@@ -185,11 +185,11 @@ public class UserRoleListServiceTest {
       new NotFoundException( "expectedTestException" ) );
     PentahoSystem.registerObject( roleDao );
 
-    userRoleListService.assignRoleToUser( userName, roleNames );
+    userRoleListService.assignRolesToUser( userName, roleNames );
   }
 
   @Test( expected = UncategorizedUserRoleDaoException.class )
-  public void testAssignRoleToUserUncategorizedUserRoleDaoException() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRolesToUserUncategorizedUserRoleDaoException() throws UserRoleListService.UnauthorizedException {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
@@ -208,7 +208,104 @@ public class UserRoleListServiceTest {
       new UncategorizedUserRoleDaoException( "expectedTestException" ) );
     PentahoSystem.registerObject( roleDao );
 
-    userRoleListService.assignRoleToUser( userName, roleNames );
+    userRoleListService.assignRolesToUser( userName, roleNames );
+  }
+
+  @Test
+  public void testRemoveRolesFromUser() throws UserRoleListService.UnauthorizedException {
+    String userName = "testUser";
+    String roleNames = "Power User\tBusiness User\t";
+
+    //Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    //Create session that will generate tenant
+    IPentahoSession session = mock( IPentahoSession.class );
+    when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( "testTenantPath" );
+    PentahoSessionHolder.setSession( session );
+
+    IPentahoRole ceoRole = mock( IPentahoRole.class );
+    when( ceoRole.getName() ).thenReturn( "ceo" );
+    IPentahoRole ctoRole = mock( IPentahoRole.class );
+    when( ctoRole.getName() ).thenReturn( "cto" );
+    IPentahoRole powerUserRole = mock( IPentahoRole.class );
+    when( powerUserRole.getName() ).thenReturn( "Power User" );
+    IPentahoRole businessUserRole = mock( IPentahoRole.class );
+    when( businessUserRole.getName() ).thenReturn( "Business User" );
+    List<IPentahoRole> roleList = new ArrayList<>();
+    roleList.add( ceoRole );
+    roleList.add( ctoRole );
+    roleList.add( powerUserRole );
+    roleList.add( businessUserRole );
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenReturn( roleList );
+    PentahoSystem.registerObject( roleDao );
+
+    userRoleListService.removeRolesFromUser( userName, roleNames );
+    verify( roleDao ).setUserRoles( any( ITenant.class ), anyString(),
+      argThat( new UnorderedArrayMatcher( new String[] { "ceo", "cto" } ) ) );
+  }
+
+  @Test( expected = UserRoleListService.UnauthorizedException.class )
+  public void testRemoveRolesFromUserUnauthorizedException() throws UserRoleListService.UnauthorizedException {
+    String userName = "testUser";
+    String roleNames = "Power User\tBusiness User\t";
+
+    //canAdminister should return false
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    PentahoSystem.registerObject( policy );
+
+    userRoleListService.removeRolesFromUser( userName, roleNames );
+  }
+
+  @Test( expected = NotFoundException.class )
+  public void testRemoveRolesFromUserNotFoundException() throws UserRoleListService.UnauthorizedException {
+    String userName = "testUser";
+    String roleNames = "Power User\tBusiness User\t";
+
+    //Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    //Create session that will generate tenant
+    IPentahoSession session = mock( IPentahoSession.class );
+    when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( "testTenantPath" );
+    PentahoSessionHolder.setSession( session );
+
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenThrow(
+      new NotFoundException( "expectedTestException" ) );
+    PentahoSystem.registerObject( roleDao );
+
+    userRoleListService.removeRolesFromUser( userName, roleNames );
+  }
+
+  @Test( expected = UncategorizedUserRoleDaoException.class )
+  public void testRemoveRolesFromUserUncategorizedUserRoleDaoException()
+    throws UserRoleListService.UnauthorizedException {
+    String userName = "testUser";
+    String roleNames = "Power User\tBusiness User\t";
+
+    //Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    //Create session that will generate tenant
+    IPentahoSession session = mock( IPentahoSession.class );
+    when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( "testTenantPath" );
+    PentahoSessionHolder.setSession( session );
+
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenThrow(
+      new UncategorizedUserRoleDaoException( "expectedTestException" ) );
+    PentahoSystem.registerObject( roleDao );
+
+    userRoleListService.removeRolesFromUser( userName, roleNames );
   }
 
   @Test
