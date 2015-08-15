@@ -167,7 +167,7 @@ public class UserRoleListResourceTest {
     UserRoleListService mockService = mock( UserRoleListService.class );
     notASpyResource.userRoleListService = mockService;
 
-    Response response = notASpyResource.assignRoleToUser( user, roles );
+    Response response = notASpyResource.assignRolesToUser( user, roles );
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
   }
 
@@ -182,7 +182,7 @@ public class UserRoleListResourceTest {
       .assignRolesToUser( anyString(), anyString() );
 
     try {
-      notASpyResource.assignRoleToUser( user, roles );
+      notASpyResource.assignRolesToUser( user, roles );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }
@@ -199,7 +199,7 @@ public class UserRoleListResourceTest {
       .assignRolesToUser( anyString(), anyString() );
 
     try {
-      notASpyResource.assignRoleToUser( user, roles );
+      notASpyResource.assignRolesToUser( user, roles );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
     }
@@ -216,7 +216,7 @@ public class UserRoleListResourceTest {
       .assignRolesToUser( anyString(), anyString() );
 
     try {
-      notASpyResource.assignRoleToUser( user, roles );
+      notASpyResource.assignRolesToUser( user, roles );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus() );
     }
