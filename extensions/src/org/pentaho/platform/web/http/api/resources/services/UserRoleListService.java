@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
@@ -33,6 +34,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
+import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 import java.util.ArrayList;
@@ -74,6 +76,34 @@ public class UserRoleListService {
       Collections.sort( allUsers, userComparator );
     }
     return new UserListWrapper( allUsers );
+  }
+
+  private boolean containsReservedChars( String username ) {
+    StringBuffer reservedChars = new FileService().doGetReservedChars();
+    return StringUtils.containsAny( username, reservedChars );
+  }
+
+  private boolean userValid( User user ) {
+    String name = user.getUserName();
+    String pass = user.getPassword();
+    
+    boolean nameValid = ( name != null && name.length() > 0 && !containsReservedChars( name ) );
+    boolean passValid = ( pass != null && pass.length() > 0 );
+    return nameValid && passValid;
+  }
+
+  public void createUser( User user ) throws UnauthorizedException, Exception {
+    if ( userValid( user ) ) {
+      if ( canAdminister() ) {
+        IUserRoleDao roleDao =
+            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        roleDao.createUser( null, user.getUserName(), user.getPassword(), "", new String[0] );
+      } else {
+        throw new UnauthorizedException();
+      }
+    } else {
+      throw new ValidationFailedException();
+    }
   }
 
   public void deleteUsers( String userNames ) throws UnauthorizedException, UncategorizedUserRoleDaoException {
@@ -244,4 +274,8 @@ public class UserRoleListService {
 
   public static class UnauthorizedException extends Exception {
   }
+  
+  public static class ValidationFailedException extends Exception {
+  }
+
 }
