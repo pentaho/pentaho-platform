@@ -289,11 +289,12 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     domainRepositorySpy.removeDomain( STEEL_WHEELS );
     domainRepositorySpy.removeDomain( SAMPLE_DOMAIN_ID );
 
+    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ), eq( EnumSet.of(
+      RepositoryFilePermission.READ ) ) );
+
     final MockDomain originalDomain = new MockDomain( SAMPLE_DOMAIN_ID );
     domainRepositorySpy.storeDomain( originalDomain, false );
 
-    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ), eq( EnumSet.of(
-        RepositoryFilePermission.READ ) ) );
     final Domain testDomain1 = domainRepositorySpy.getDomain( SAMPLE_DOMAIN_ID );
 
     assertNotNull( testDomain1 );
@@ -433,9 +434,9 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     domainRepositorySpy.removeDomain( STEEL_WHEELS );
     domainRepositorySpy.removeDomain( SAMPLE_DOMAIN_ID );
 
-    domainRepositorySpy.storeDomain( new MockDomain( SAMPLE_DOMAIN_ID ), true );
     doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
-        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+      eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    domainRepositorySpy.storeDomain( new MockDomain( SAMPLE_DOMAIN_ID ), true );
     final Set<String> domainIds1 = domainRepositorySpy.getDomainIds();
 
     assertNotNull( domainIds1 );
