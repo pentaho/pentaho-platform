@@ -174,5 +174,11 @@
 		<pen:publish as-type="INTERFACES">
 		</pen:publish>
 	</bean>
+	
+	<bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+		<constructor-arg value="server"/>
+		<constructor-arg value="server.properties"/>
+		<pen:publish as-type="INTERFACES"/>
+	</bean>
 </beans>
 

@@ -51,7 +51,7 @@ public class HsqldbStartupListener implements ServletContextListener {
     for ( int i = 0; i < dbEntries.length; i++ ) {
       String[] entry = dbEntries[i].split( "@" ); //$NON-NLS-1$
       if ( ( entry.length != 2 ) || ( StringUtils.isEmpty( entry[0] ) ) || ( StringUtils.isEmpty( entry[1] ) ) ) {
-        logger.equals( Messages.getErrorString( "HsqlDatabaseStartupListener.ERROR_0001_HSQLDB_ENTRY_MALFORMED" ) ); //$NON-NLS-1$
+        logger.error( Messages.getErrorString( "HsqlDatabaseStartupListener.ERROR_0001_HSQLDB_ENTRY_MALFORMED" ) ); //$NON-NLS-1$
         continue;
       }
       map.put( entry[0], entry[1] );

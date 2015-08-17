@@ -17,48 +17,57 @@
 
 package org.pentaho.platform.web.http.context;
 
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.engine.IApplicationContext;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
-import org.pentaho.platform.api.util.IVersionHelper;
-import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.logging.Logger;
-import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
-import org.pentaho.platform.web.http.messages.Messages;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.engine.IApplicationContext;
+import org.pentaho.platform.api.engine.IConfiguration;
+import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.api.util.IVersionHelper;
+import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
+import org.pentaho.platform.web.http.messages.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SolutionContextListener implements ServletContextListener {
 
   protected static String solutionPath;
 
   protected static String contextPath;
-
+  
   private static final String DEFAULT_SPRING_CONFIG_FILE_NAME = "pentahoObjects.spring.xml"; //$NON-NLS-1$
+
+  private ServletContext context;
+  
+  Logger logger = LoggerFactory.getLogger( getClass() );
 
   public void contextInitialized( final ServletContextEvent event ) {
 
-    ServletContext context = event.getServletContext();
+    context = event.getServletContext();
 
-    String encoding = context.getInitParameter( "encoding" ); //$NON-NLS-1$
+    String encoding = getServerParameter( "encoding" ); //$NON-NLS-1$
     if ( encoding != null ) {
       LocaleHelper.setSystemEncoding( encoding );
     }
 
-    String textDirection = context.getInitParameter( "text-direction" ); //$NON-NLS-1$
+    String textDirection = getServerParameter( "text-direction" ); //$NON-NLS-1$
     if ( textDirection != null ) {
       LocaleHelper.setTextDirection( textDirection );
     }
 
-    String localeLanguage = context.getInitParameter( "locale-language" ); //$NON-NLS-1$
-    String localeCountry = context.getInitParameter( "locale-country" ); //$NON-NLS-1$
+    String localeLanguage = getServerParameter( "locale-language" ); //$NON-NLS-1$
+    String localeCountry = getServerParameter( "locale-country" ); //$NON-NLS-1$
     boolean localeSet = false;
     if ( ( localeLanguage != null )
       && !"".equals( localeLanguage ) && ( localeCountry != null ) && !""
@@ -80,19 +89,17 @@ public class SolutionContextListener implements ServletContextListener {
     }
     LocaleHelper.setDefaultLocale( LocaleHelper.getLocale() );
     // log everything that goes on here
-    Logger.info( SolutionContextListener.class.getName(), Messages.getInstance().getString(
-      "SolutionContextListener.INFO_INITIALIZING" ) ); //$NON-NLS-1$
-    Logger.info( SolutionContextListener.class.getName(), Messages.getInstance().getString(
-      "SolutionContextListener.INFO_SERVLET_CONTEXT" ) + context ); //$NON-NLS-1$
+    logger.info( Messages.getInstance().getString( "SolutionContextListener.INFO_INITIALIZING" ) ); //$NON-NLS-1$
+    logger.info( Messages.getInstance().getString( "SolutionContextListener.INFO_SERVLET_CONTEXT", context ) ); //$NON-NLS-1$
     SolutionContextListener.contextPath = context.getRealPath( "" ); //$NON-NLS-1$
-    Logger.info( SolutionContextListener.class.getName(), Messages.getInstance().getString(
-      "SolutionContextListener.INFO_CONTEXT_PATH" ) + SolutionContextListener.contextPath ); //$NON-NLS-1$
+    logger
+        .info(
+            Messages.getInstance().getString( "SolutionContextListener.INFO_CONTEXT_PATH", SolutionContextListener.contextPath ) ); //$NON-NLS-1$
 
     SolutionContextListener.solutionPath = PentahoHttpSessionHelper.getSolutionPath( context );
     if ( StringUtils.isEmpty( SolutionContextListener.solutionPath ) ) {
-      String errorMsg =
-        Messages.getInstance().getErrorString( "SolutionContextListener.ERROR_0001_NO_ROOT_PATH" ); //$NON-NLS-1$
-      Logger.error( getClass().getName(), errorMsg );
+      String errorMsg = Messages.getInstance().getErrorString( "SolutionContextListener.ERROR_0001_NO_ROOT_PATH" ); //$NON-NLS-1$
+      logger.error( errorMsg );
       /*
        * Since we couldn't find solution repository path there is no point in going forward and the user should know
        * that a major config setting was not found. So we are throwing in a RunTimeException with the requisite message.
@@ -100,13 +107,10 @@ public class SolutionContextListener implements ServletContextListener {
       throw new RuntimeException( errorMsg );
     }
 
-    Logger
-      .info(
-        getClass().getName(),
-        Messages.getInstance().getString( "SolutionContextListener.INFO_ROOT_PATH" )
-          + SolutionContextListener.solutionPath ); //$NON-NLS-1$
+    logger.info( Messages.getInstance().getString( "SolutionContextListener.INFO_ROOT_PATH",
+        SolutionContextListener.solutionPath ) ); //$NON-NLS-1$
 
-    String fullyQualifiedServerUrl = context.getInitParameter( "fully-qualified-server-url" ); //$NON-NLS-1$
+    String fullyQualifiedServerUrl = getServerParameter( "fully-qualified-server-url" ); //$NON-NLS-1$
     if ( fullyQualifiedServerUrl == null ) {
       // assume this is a demo installation
       // TODO: Create a servlet that's loaded on startup to set this value
@@ -118,14 +122,25 @@ public class SolutionContextListener implements ServletContextListener {
         .getRealPath( "" ), context ); //$NON-NLS-1$
 
     /*
-     * Copy out all the initParameter values from the servlet context and put them in the application context.
+     * Copy out all the Server.properties from to the application context
      */
     Properties props = new Properties();
+    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    IConfiguration config = systemConfig.getConfiguration( "server" );
+    try {
+      props.putAll( config.getProperties() );
+    } catch ( IOException e ) {
+      logger.error( "Could not find/read the server.properties file." );
+    }
+        
+    /*
+     * Copy out all the initParameter values from the servlet context and put them in the application context.
+     */
     Enumeration<?> initParmNames = context.getInitParameterNames();
     String initParmName;
     while ( initParmNames.hasMoreElements() ) {
       initParmName = (String) initParmNames.nextElement();
-      props.setProperty( initParmName, context.getInitParameter( initParmName ) );
+      props.setProperty( initParmName, getServerParameter( initParmName , true ) );
     }
     ( (WebApplicationContext) applicationContext ).setProperties( props );
 
@@ -161,8 +176,8 @@ public class SolutionContextListener implements ServletContextListener {
   private void setObjectFactory( final ServletContext context ) {
 
     final String SYSTEM_FOLDER = "/system"; //$NON-NLS-1$
-    String pentahoObjectFactoryClassName = context.getInitParameter( "pentahoObjectFactory" ); //$NON-NLS-1$
-    String pentahoObjectFactoryConfigFile = context.getInitParameter( "pentahoObjectFactoryCfgFile" ); //$NON-NLS-1$
+    String pentahoObjectFactoryClassName = getServerParameter( "pentahoObjectFactory" ); //$NON-NLS-1$
+    String pentahoObjectFactoryConfigFile = getServerParameter( "pentahoObjectFactoryCfgFile" ); //$NON-NLS-1$
 
     // if web.xml doesnt specify a config file, use the default path.
     if ( StringUtils.isEmpty( pentahoObjectFactoryConfigFile ) ) {
@@ -199,7 +214,7 @@ public class SolutionContextListener implements ServletContextListener {
   private void setSystemCfgFile( final ServletContext context ) {
     String jvmSpecifiedSysCfgPath = System.getProperty( PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY );
     if ( StringUtils.isBlank( jvmSpecifiedSysCfgPath ) ) {
-      String webSpecifiedSysCfgPath = context.getInitParameter( "pentaho-system-cfg" ); //$NON-NLS-1$
+      String webSpecifiedSysCfgPath = getServerParameter( "pentaho-system-cfg" ); //$NON-NLS-1$
       if ( StringUtils.isNotBlank( webSpecifiedSysCfgPath ) ) {
         System.setProperty( PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY, webSpecifiedSysCfgPath );
       }
@@ -245,7 +260,25 @@ public class SolutionContextListener implements ServletContextListener {
       LocaleHelper.setLocale( Locale.getDefault() );
     }
     // log everything that goes on here
-    Logger.info( SolutionContextListener.class.getName(), Messages.getInstance().getString(
+    logger.info( Messages.getInstance().getString(
       "SolutionContextListener.INFO_SYSTEM_EXITING" ) ); //$NON-NLS-1$
+  }
+  
+  private String getServerParameter( String paramName ) {
+    return getServerParameter( paramName, false );
+  }
+  
+  private String getServerParameter( String paramName, boolean suppressWarning ) {
+    String result = context.getInitParameter( paramName );
+    if ( result == null ) {
+      ISystemConfig config = PentahoSystem.get( ISystemConfig.class );
+      result = config.getProperty( "server." + paramName );
+    } else {
+      if ( !suppressWarning ) {
+        logger.warn( Messages.getInstance().getString(
+            "SolutionContextListener.WARN_WEB_XML_PARAM_DEPRECATED", paramName, result ) ); //$NON-NLS-1$
+      }
+    }
+    return result;
   }
 }

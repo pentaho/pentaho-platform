@@ -10,32 +10,12 @@
     <param-value></param-value>
   </context-param>
 
-  <!--
-    <context-param> <param-name>pentaho-system-cfg</param-name>
-  -->
-  <!--  This context parameter is being deprecated. We don't use this any more. We have added a new context parameter called fully-qualified-server-url -->
-  <context-param>
-    <param-name>base-url</param-name>
-    <param-value></param-value>
-  </context-param>
-
   <!--  FullyQualifiedServerUrl is used only in the case of offline content generation and whenever something need to talk back to the server -->
   <context-param>
     <param-name>fully-qualified-server-url</param-name>
     <param-value>http://localhost:8080/pentaho/</param-value>
   </context-param>
 
-  <context-param>
-    <param-name>locale-language</param-name>
-    <!-- for example 'fr' for French, 'de' for German, da for danish -->
-    <param-value></param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>locale-country</param-name>
-    <!-- for example 'FR' for France, 'CA' for Canada -->
-    <param-value></param-value>
-  </context-param>
   <context-param>
     <param-name>contextClass</param-name>
     <param-value>org.pentaho.platform.web.http.context.PentahoSolutionSpringApplicationContext</param-value>
@@ -47,28 +27,6 @@
     <!-- Instead of adding files here, add them as imports to pentaho-spring-beans.xml. -->
     <param-value>pentaho-spring-beans.xml</param-value>
   </context-param>
-
-  <context-param>
-    <param-name>pentahoObjectFactory</param-name>
-    <param-value>org.pentaho.platform.web.http.context.WebSpringPentahoObjectFactory</param-value>
-  </context-param>
-
-  <!--
-    This defaults to UTF-8. Uncomment this section and change the value
-    for other encodings. Also change the URIEncoding in Tomcat's
-    server.xml.
-  -->
-  <context-param>
-    <param-name>encoding</param-name>
-    <param-value>UTF-8</param-value>
-  </context-param>
-
-  <!--
-    this defaults to LTR (left to right), uncomment this section and
-    change the value for other text directions <context-param>
-    <param-name>text-direction</param-name> <param-value>RTL</param-value>
-    </context-param>
-  -->
 
   <!-- [BEGIN HSQLDB DATABASES] -->
   <context-param>
