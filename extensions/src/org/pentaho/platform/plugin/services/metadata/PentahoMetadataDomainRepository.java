@@ -52,6 +52,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -412,19 +413,20 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     logger.debug( "getDomainIds()" );
     reloadDomainsIfNeeded();
 
+    Collection<String> domains;
     lock.readLock().lock();
     try {
-      Collection<String> domains = metadataMapping.getDomainIds();
-      Set<String> domainIds = new HashSet<String>( domains.size() );
-      for ( String domain : domains ) {
-        if ( hasAccessFor( domain ) ) {
-          domainIds.add( domain );
-        }
-      }
-      return domainIds;
+      domains = new ArrayList<String>( metadataMapping.getDomainIds() );
     } finally {
       lock.readLock().unlock();
     }
+    Set<String> domainIds = new HashSet<String>( domains.size() );
+    for ( String domain : domains ) {
+      if ( hasAccessFor( domain ) ) {
+        domainIds.add( domain );
+      }
+    }
+    return domainIds;
   }
 
   /**
