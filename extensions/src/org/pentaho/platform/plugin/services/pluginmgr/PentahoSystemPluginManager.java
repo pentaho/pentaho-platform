@@ -509,6 +509,10 @@ public class PentahoSystemPluginManager implements IPluginManager {
 
 
     InputStream stream = resLoader.getResourceAsStream( loader, "settings.xml" );
+    if( stream == null ){
+      // No settings.xml is fine
+      return;
+    }
     Properties properties = new Properties();
     try {
       Document docFromStream = XmlDom4JHelper.getDocFromStream( stream );
