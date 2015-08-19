@@ -78,15 +78,15 @@ public class PentahoSystemPluginManagerTest extends DefaultPluginManagerTest {
     pluginManager.reload();
 
     // Valid plugin and property
-    Object setting = pluginManager.getPluginSetting( "Plugin 1", "settings/test-property", "ABCD" );
+    Object setting = pluginManager.getPluginSetting( "Plugin 1", "test-property", "1234" );
     assertEquals( "1234", setting.toString() );
 
     // Valid plugin but missing property. Return Default
-    setting = pluginManager.getPluginSetting( "Plugin 1", "settings/missing-property", "5432" );
+    setting = pluginManager.getPluginSetting( "Plugin 1", "missing-property", "5432" );
     assertEquals("5432", setting.toString() );
 
     // Invalid plugin. Return default
-    setting = pluginManager.getPluginSetting( "Non-Existant Plugin", "settings/test-property", "ABCD" );
+    setting = pluginManager.getPluginSetting( "Non-Existant Plugin", "test-property", "ABCD" );
     assertEquals("ABCD", setting.toString() );
   }
 
