@@ -18,16 +18,7 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
-import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
-import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
-import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
-import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
@@ -38,10 +29,7 @@ import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 public class UserRoleListService {
 
@@ -56,7 +44,11 @@ public class UserRoleListService {
   private Comparator<String> userComparator;
 
   public String doGetRolesForUser( String user ) throws Exception {
+    if ( canAdminister() ) {
       return getRolesForUser( user );
+    } else {
+      throw new UnauthorizedException();
+    }
   }
 
   public String doGetUsersInRole( String role ) throws Exception {
@@ -74,90 +66,6 @@ public class UserRoleListService {
       Collections.sort( allUsers, userComparator );
     }
     return new UserListWrapper( allUsers );
-  }
-
-  public void deleteUsers( String userNames ) throws UnauthorizedException, UncategorizedUserRoleDaoException {
-    if ( canAdminister() ) {
-      try {
-        IUserRoleDao roleDao =
-          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-        StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
-        while ( tokenizer.hasMoreTokens() ) {
-          IPentahoUser user = roleDao.getUser( null, tokenizer.nextToken() );
-          if ( user != null ) {
-            roleDao.deleteUser( user );
-          }
-        }
-      } catch ( UncategorizedUserRoleDaoException e ) {
-        throw new UncategorizedUserRoleDaoException( e.getLocalizedMessage() );
-      }
-    } else {
-      throw new UnauthorizedException();
-    }
-  }
-
-  private ITenant getTenant() {
-    ITenant tenant = null;
-    IPentahoSession session = PentahoSessionHolder.getSession();
-    String tenantPath = (String) session.getAttribute( IPentahoSession.TENANT_ID_KEY );
-    if ( tenantPath != null ) {
-      tenant = new Tenant( tenantPath, true );
-    }
-
-    return tenant;
-  }
-
-  public void assignRolesToUser( String userName, String roleNames )
-    throws UnauthorizedException, UncategorizedUserRoleDaoException, NotFoundException {
-    if ( canAdminister() ) {
-      IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-      ITenant tenant = getTenant();
-
-      StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
-      Set<String> assignedRoles = new HashSet<String>();
-      //Build a set of roles the userName already has
-      for ( IPentahoRole pentahoRole : roleDao.getUserRoles( tenant, userName ) ) {
-        assignedRoles.add( pentahoRole.getName() );
-      }
-      //Add the roles we passed in to the set of roles
-      while ( tokenizer.hasMoreTokens() ) {
-        assignedRoles.add( tokenizer.nextToken() );
-      }
-      try {
-        //Apply the total list of roles to the user
-        roleDao.setUserRoles( tenant, userName, assignedRoles.toArray( new String[assignedRoles.size()] ) );
-      } catch ( NotFoundException e ) {
-        throw new NotFoundException( e.getLocalizedMessage() );
-      } catch( UncategorizedUserRoleDaoException e ) {
-        throw new UncategorizedUserRoleDaoException( e.getLocalizedMessage() );
-      }
-    } else {
-      throw new UnauthorizedException();
-    }
-  }
-
-  public void removeRolesFromUser( String userName, String roleNames )
-    throws UnauthorizedException, NotFoundException, UncategorizedUserRoleDaoException {
-    if ( canAdminister() ) {
-      IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-      ITenant tenant = getTenant();
-
-      StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
-      Set<String> assignedRoles = new HashSet<String>();
-      //Get list of roles associated with a specific user
-      for ( IPentahoRole pentahoRole : roleDao.getUserRoles( tenant, userName ) ) {
-        assignedRoles.add( pentahoRole.getName() );
-      }
-      //Remove the roles selected by the user
-      while ( tokenizer.hasMoreTokens() ) {
-        assignedRoles.remove( tokenizer.nextToken() );
-      }
-      roleDao.setUserRoles( tenant, userName, assignedRoles.toArray( new String[ assignedRoles.size() ] ) );
-    } else {
-      throw new UnauthorizedException();
-    }
   }
 
   public RoleListWrapper getRoles() {
@@ -204,7 +112,7 @@ public class UserRoleListService {
   protected boolean canAdminister() {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
-        && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
+      && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
   }
 
   public IUserRoleListService getUserRoleListService() {
@@ -242,6 +150,6 @@ public class UserRoleListService {
     return this.extraRoles;
   }
 
-  public static class UnauthorizedException extends Exception {
+  public class UnauthorizedException extends Exception {
   }
 }
