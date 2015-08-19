@@ -20,7 +20,9 @@ package org.pentaho.platform.web.http.api.resources.services;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,12 +47,15 @@ import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.DefaultRoleComparator;
 import org.pentaho.platform.engine.security.DefaultUsernameComparator;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
+import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
+import org.pentaho.platform.web.http.api.resources.services.UserRoleListService.ValidationFailedException;
 
 public class UserRoleListServiceTest {
 
@@ -119,6 +125,42 @@ public class UserRoleListServiceTest {
 
     UserListWrapper usersWrapper = userRoleListServiceSpy.getUsers();
     assertTrue( usersWrapper.getUsers().size() == 3 );
+  }
+  
+  private boolean validationFailed( UserRoleListService service, User user ) {
+    try {
+      service.createUser( user );
+    } catch ( ValidationFailedException e ) {
+      return true;
+    } catch ( Exception e ) {
+      return false;
+    }
+    return false;
+  }
+
+  @Test
+  public void testCreateUserValidation() {
+    List<String> reservedChars = Arrays.asList( "/,\\,\t,\r,\n".split( "," ) );
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    doReturn( reservedChars ).when( repo ).getReservedChars();
+    PentahoSystem.registerObject( repo );
+
+    UserRoleListService service = new UserRoleListService() {
+      protected boolean canAdminister() {
+        return true;
+      }
+    };
+
+    Assert.assertTrue( validationFailed( service, new User( "\\", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "/www", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "\tqwer", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "\rqwer", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "qwer\n", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "normalName", "" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( null, "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "name", null ) ) );
+    Assert.assertFalse( validationFailed( service, new User( "normalName", "pass" ) ) );
   }
 
   @Test

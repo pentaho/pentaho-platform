@@ -17,20 +17,27 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
-import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
-import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
+import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
+import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
+import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
+import org.pentaho.platform.web.http.api.resources.services.UserRoleListService.ValidationFailedException;
+
 
 public class UserRoleListResourceTest {
 
@@ -117,6 +124,55 @@ public class UserRoleListResourceTest {
     assertEquals( mockWrapper, testWrapper );
 
     verify( userRoleListResource, times( 1 ) ).getUsers();
+  }
+  
+  @Test
+  public void testCreateUser() throws Exception {
+    notASpyResource.userRoleListService = mock( UserRoleListService.class );
+    Response response = notASpyResource.createUser( new User( "name", "password" ) );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+  }
+
+  @Test
+  public void testCreateUserUnauthorizedException() throws Exception {
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    doThrow( new UnauthorizedException() ).when( mockService ).createUser( any( User.class ) );
+    notASpyResource.userRoleListService = mockService;
+    try {
+      notASpyResource.createUser( new User( "not", "admin" ) );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
+      return;
+    }
+    Assert.fail();
+  }
+
+  @Test
+  public void testCreateUserValidationFailed() throws Exception {
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    doThrow( new ValidationFailedException() ).when( mockService ).createUser( any( User.class ) );
+    notASpyResource.userRoleListService = mockService;
+    try {
+      notASpyResource.createUser( new User( "\\/validation", "failed" ) );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
+      return;
+    }
+    Assert.fail();
+  }
+
+  @Test
+  public void testCreateUserDuplicate() throws Exception {
+    UserRoleListService mockService = mock( UserRoleListService.class );
+    doThrow( new AlreadyExistsException( "message" ) ).when( mockService ).createUser( any( User.class ) );
+    notASpyResource.userRoleListService = mockService;
+    try {
+      notASpyResource.createUser( new User( "user", "duplicate" ) );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
+      return;
+    }
+    Assert.fail();
   }
 
   @Test

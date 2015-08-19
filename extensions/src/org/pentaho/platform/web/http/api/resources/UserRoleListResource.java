@@ -28,6 +28,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -158,6 +159,32 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   } )
   public UserListWrapper getUsers() throws Exception {
     return userRoleListService.getUsers();
+  }
+  
+  /**
+   * Create new user with specified name and password 
+   * 
+   * @param user object with name and password
+   * 
+   * @return Response object containing the status code of the operation
+   */
+  @POST
+  @Path( "/user" )
+  @Consumes( { WILDCARD } )
+  @StatusCodes( { 
+    @ResponseCode( code = 200, condition = "Successfully created new user." ), 
+    @ResponseCode( code = 403, condition = "A non administrative user is trying to access this endpoint." ), 
+    @ResponseCode( code = 500, condition = "Unable to create User objects." ) 
+  } )
+  public Response createUser( User user ) {
+    try {
+      userRoleListService.createUser( user );
+    } catch ( UnauthorizedException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
+    } catch ( Exception e ) {
+      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+    }
+    return Response.ok().build();
   }
 
   /**
