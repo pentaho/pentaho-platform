@@ -3,15 +3,23 @@ package org.pentaho.platform.engine.core.system.objfac;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceFactory;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoObjectRegistration;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.osgi.OSGIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by nbaker on 4/27/15.
  */
 public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
+  public static final String REFERENCE_CLASS = "reference_class";
   private BundleContext bundleContext;
   private AtomicBoolean osgiInitialized = new AtomicBoolean( false );
   private List<OSGIPentahoObjectRegistration> deferredRegistrations = new ArrayList<OSGIPentahoObjectRegistration>();
@@ -70,6 +79,9 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
     List<ServiceRegistration<?>> registrations = new ArrayList<ServiceRegistration<?>>();
     for ( Class<?> aClass : classes ) {
       try {
+
+        // When OSGI R6 is released we can use the PrototypeServiceFactory. Until then we can't support factory
+        // references.
         ServiceFactory<Object> factory = new ServiceFactory<Object>() {
           @Override public Object getService( Bundle bundle, ServiceRegistration<Object> serviceRegistration ) {
             return reference.getObject();
@@ -86,6 +98,15 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
         ServiceRegistration<?> serviceRegistration =
             bundleContext.registerService( aClass.getName(), factory, hashtable );
         registrations.add( serviceRegistration );
+
+        // Publish it as an IPentahoObjectReference as well
+        Hashtable<String, Object> referenceHashTable = new Hashtable<>( hashtable );
+        referenceHashTable.put( REFERENCE_CLASS, aClass.getName() );
+        serviceRegistration =
+            bundleContext.registerService( IPentahoObjectReference.class.getName(), reference,
+                referenceHashTable );
+        registrations.add( serviceRegistration );
+
       } catch ( ClassCastException e ) {
         logger.error( "Error Retriving object from OSGI, Class is not as expected", e );
       }
@@ -108,6 +129,18 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
     if ( this.bundleContext == null || !osgiInitialized.get() ) {
       return super.objectDefined( clazz );
     }
+    // Look for IPentahoObjectReference first
+    try {
+      Collection<ServiceReference<IPentahoObjectReference>> serviceReferences = this.bundleContext
+          .getServiceReferences( IPentahoObjectReference.class,
+              ( "(" + REFERENCE_CLASS + "=" + clazz.getName() + ")" ) );
+      if ( serviceReferences != null && serviceReferences.size() > 0 ) {
+        return true;
+      }
+    } catch ( InvalidSyntaxException e ) {
+      throw new IllegalStateException( "Error finding reference in OSGI" );
+    }
+    // try by the classname
     return this.bundleContext.getServiceReference( clazz ) != null;
   }
 
@@ -116,8 +149,28 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
     if ( this.bundleContext == null || !osgiInitialized.get() ) {
       return super.getReferencesByQuery( type, query );
     }
-    // If OSGI has been booted, then queries are satisfied by the OsgiObjectFactory not this one.
-    return Collections.emptyList();
+
+    try {
+      Map<String, String> props = new HashMap<String, String>( );
+      if( query != null ){
+        props.putAll( query );
+      }
+      props.put( REFERENCE_CLASS, type.getName() );
+      Collection<ServiceReference<IPentahoObjectReference>> serviceReferences = this.bundleContext
+          .getServiceReferences( IPentahoObjectReference.class, OSGIUtils.createFilter( props ) );
+
+      List<IPentahoObjectReference<?>> returnList = new ArrayList<>();
+
+      for ( ServiceReference<IPentahoObjectReference> ref : serviceReferences ) {
+        IPentahoObjectReference obj = bundleContext.getService( ref );
+        returnList.add( obj );
+      }
+      return returnList;
+
+    } catch ( InvalidSyntaxException e ) {
+      logger.error( "Error retrieving from OSGI", e );
+      return Collections.emptyList();
+    }
   }
 
   private class OSGIPentahoObjectRegistration implements IPentahoObjectRegistration {

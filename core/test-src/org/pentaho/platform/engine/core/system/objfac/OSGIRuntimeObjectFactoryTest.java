@@ -82,9 +82,13 @@ public class OSGIRuntimeObjectFactoryTest {
     assertEquals( "Testing", s );
     assertTrue( objectFactory.objectDefined( String.class ) );
     ServiceRegistration registration = mock( ServiceRegistration.class );
+    ServiceRegistration registration2 = mock( ServiceRegistration.class );
     ServiceReference mockRef = mock( ServiceReference.class );
 
-    when(bundleContext.registerService( anyString(), anyObject(), any( Dictionary.class ))).thenReturn( registration );
+    when(bundleContext.registerService( eq(String.class.getName()), anyObject(), any( Dictionary.class ))).thenReturn(
+        registration );
+    when(bundleContext.registerService( eq(IPentahoObjectReference.class.getName()), anyObject(), any( Dictionary.class ))).thenReturn( registration2 );
+
     objectFactory.setBundleContext( bundleContext );
     when( bundleContext.getServiceReference( String.class )).thenReturn( mockRef );
     assertTrue( objectFactory.objectDefined( String.class ) );
