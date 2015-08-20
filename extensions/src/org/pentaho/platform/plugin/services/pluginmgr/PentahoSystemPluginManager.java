@@ -109,6 +109,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
   private static final String METAPROVIDER_KEY_PREFIX = "METAPROVIDER-";
   public static final String CONTENT_TYPE = "content-type";
   public static final String PLUGIN_ID = "plugin-id";
+  public static final String SETTINGS_PREFIX = "settings/";
 
   private final Multimap<String, IPentahoObjectRegistration> handleRegistry =
       Multimaps.synchronizedMultimap( ArrayListMultimap
@@ -1025,7 +1026,24 @@ public class PentahoSystemPluginManager implements IPluginManager {
     final IConfiguration pluginConfig = systemConfig.getConfiguration( pluginId );
     if ( pluginConfig != null ) {
       try {
-        return pluginConfig.getProperties().getProperty( key, defaultValue );
+        // key can be the plain setting name or "settings/" + key. The old system was flexible in this regard so we need
+        // to be as well
+        if( pluginConfig.getProperties().containsKey( key ) ){
+          return pluginConfig.getProperties().getProperty( key );
+        }
+        if( key.startsWith( SETTINGS_PREFIX ) ){
+          return defaultValue;
+        }
+
+        // try it with settings on the front
+        String compositeKey = SETTINGS_PREFIX + key;
+        if( pluginConfig.getProperties().containsKey( compositeKey ) ){
+          return pluginConfig.getProperties().getProperty( compositeKey );
+        }
+
+        // fall-down to the default
+        return defaultValue;
+
       } catch ( IOException e ) {
         logger.error( "unable to access plugin settings", e );
       }
