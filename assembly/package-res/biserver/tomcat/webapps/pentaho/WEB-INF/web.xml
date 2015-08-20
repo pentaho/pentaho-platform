@@ -10,12 +10,6 @@
     <param-value></param-value>
   </context-param>
 
-  <!--  FullyQualifiedServerUrl is used only in the case of offline content generation and whenever something need to talk back to the server -->
-  <context-param>
-    <param-name>fully-qualified-server-url</param-name>
-    <param-value>http://localhost:8080/pentaho/</param-value>
-  </context-param>
-
   <context-param>
     <param-name>contextClass</param-name>
     <param-value>org.pentaho.platform.web.http.context.PentahoSolutionSpringApplicationContext</param-value>
