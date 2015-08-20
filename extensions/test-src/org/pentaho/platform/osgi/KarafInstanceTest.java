@@ -64,7 +64,7 @@ public class KarafInstanceTest {
     
     //Now start up the instance
     KarafInstance instance = new KarafInstance( TEST_CACHE_FOLDER );
-    new KarafInstancePortFactory( "./test-res/KarafInstanceTest/KarafPorts.csv" ).process();
+    new KarafInstancePortFactory( "./test-res/KarafInstanceTest/KarafPorts.yaml" ).process();
     instance.start();
 
     assertEquals( expectedInstanceNumber, instance.getInstanceNumber() );
