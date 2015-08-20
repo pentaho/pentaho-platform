@@ -53,6 +53,8 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.Isolation;
 
 public class PooledDatasourceHelper {
+  private static final int DEFAULT_MAX_IDLE_CONN_VALUE = 2;
+  private static final int DEFAULT_MAX_IDLE_VALUE = 5;
 
   public static PoolingDataSource setupPooledDataSource( IDatabaseConnection databaseConnection )
     throws DBDatasourceServiceException {
@@ -122,6 +124,8 @@ public class PooledDatasourceHelper {
               : GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
       int minIdleConnection = !StringUtil.isEmpty( minIdleConn ) ? Integer.parseInt( minIdleConn ) : -1;
       int maxIdleConnection = !StringUtil.isEmpty( maxdleConn ) ? Integer.parseInt( maxdleConn ) : -1;
+      // do it only if a user knowingly changed the default value
+      boolean forcePrepopulating = ( maxIdleConnection != DEFAULT_MAX_IDLE_CONN_VALUE );
 
       // setting properties according to user specifications
       Map<String, String> attributes = databaseConnection.getConnectionPoolingProperties();
@@ -141,6 +145,7 @@ public class PooledDatasourceHelper {
       if ( attributes.containsKey( IDBDatasourceService.MAX_IDLE_KEY )
           && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_IDLE_KEY ) ) ) {
         maxIdleConnection = Integer.parseInt( attributes.get( IDBDatasourceService.MAX_IDLE_KEY ) );
+        forcePrepopulating = ( maxIdleConnection != DEFAULT_MAX_IDLE_VALUE );
       }
       if ( attributes.containsKey( IDBDatasourceService.QUERY_KEY ) ) {
         validQuery = attributes.get( IDBDatasourceService.QUERY_KEY );
@@ -267,8 +272,10 @@ public class PooledDatasourceHelper {
           + maxIdleConnection + "max idle" + "with " + waitTime + "wait time"//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
           + " idle connections." ); //$NON-NLS-1$
 
-      for ( int i = 0; i < maxIdleConnection; ++i ) {
-        pool.addObject();
+      if ( forcePrepopulating ) {
+        for ( int i = 0; i < maxIdleConnection; ++i ) {
+          pool.addObject();
+        }
       }
       Logger.debug( PooledDatasourceHelper.class, "Pool now has " + pool.getNumActive() + " active/"
           + pool.getNumIdle() + " idle connections." ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
