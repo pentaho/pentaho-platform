@@ -136,6 +136,7 @@
 	  <test-while-idle>false</test-while-idle>
 	  <test-on-borrow>true</test-on-borrow>
 	  <test-on-return>false</test-on-return>
+	  <pre-populate-pool>false</pre-populate-pool>
    </dbcp-defaults>
    <file-upload-defaults>
    		<relative-path>/system/metadata/csvfiles/</relative-path>

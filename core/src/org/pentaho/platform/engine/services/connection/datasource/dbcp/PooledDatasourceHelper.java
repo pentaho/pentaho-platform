@@ -45,6 +45,7 @@ import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
@@ -277,8 +278,15 @@ public class PooledDatasourceHelper {
           + maxIdleConnection + "max idle" + "with " + waitTime + "wait time"//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
           + " idle connections." ); //$NON-NLS-1$
 
-      for ( int i = 0; i < maxIdleConnection; ++i ) {
-        pool.addObject();
+      String prePopulatePoolStr = PentahoSystem.getSystemSetting( "dbcp-defaults/pre-populate-pool", null );
+      if ( Boolean.parseBoolean( prePopulatePoolStr ) ) {
+        for ( int i = 0; i < maxIdleConnection; ++i ) {
+          pool.addObject();
+        }
+        if ( Logger.getLogLevel() <= ILogger.DEBUG ) {
+          Logger.debug( PooledDatasourceHelper.class,
+            "Pool has been pre-populated with " + maxIdleConnection + " connections" );
+        }
       }
       Logger.debug( PooledDatasourceHelper.class, "Pool now has " + pool.getNumActive() + " active/"
           + pool.getNumIdle() + " idle connections." ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
