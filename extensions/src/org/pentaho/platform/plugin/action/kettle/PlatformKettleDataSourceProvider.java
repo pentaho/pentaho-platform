@@ -20,13 +20,16 @@ package org.pentaho.platform.plugin.action.kettle;
 import org.pentaho.di.core.database.DataSourceNamingException;
 import org.pentaho.di.core.database.DataSourceProviderFactory;
 import org.pentaho.di.core.database.DataSourceProviderInterface;
+import org.pentaho.di.core.database.ExtendedDSProviderInterface;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
+import org.pentaho.platform.api.data.IDBJndiDatasourceService;
+import org.pentaho.platform.api.data.IDBPooledDatasourceService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.sql.DataSource;
 
-public class PlatformKettleDataSourceProvider implements DataSourceProviderInterface {
+public class PlatformKettleDataSourceProvider implements ExtendedDSProviderInterface {
 
   protected static final PlatformKettleDataSourceProvider instance = new PlatformKettleDataSourceProvider();
 
@@ -40,11 +43,12 @@ public class PlatformKettleDataSourceProvider implements DataSourceProviderInter
 
   protected static void hookupProvider() {
     DataSourceProviderFactory.setDataSourceProviderInterface( instance );
+    DataSourceProviderFactory.setExtendedDataSourceProviderInterface( instance );
   }
 
-  public DataSource getNamedDataSource( String dataSourceName ) throws DataSourceNamingException {
+  protected DataSource getNamedDataSourceFromService( Class<? extends IDBDatasourceService> dataSourceServiceInterface, String dataSourceName ) throws DataSourceNamingException {
     IDBDatasourceService datasourceService =
-        (IDBDatasourceService) PentahoSystem.get( IDBDatasourceService.class, null );
+        (IDBDatasourceService) PentahoSystem.get( dataSourceServiceInterface, null );
     if ( datasourceService != null ) {
       try {
         return datasourceService.getDataSource( dataSourceName );
@@ -53,6 +57,22 @@ public class PlatformKettleDataSourceProvider implements DataSourceProviderInter
       }
     }
     return null;
+  }
+
+  public DataSource getNamedDataSource( String dataSourceName ) throws DataSourceNamingException {
+    return getNamedDataSourceFromService( IDBDatasourceService.class, dataSourceName );
+  }
+
+  @Override
+  public DataSource getNSNamesDataSource( String dataSourceName, int namespace ) throws DataSourceNamingException {
+    switch ( namespace ) {
+      case ExtendedDSProviderInterface.NS_JNDI_NAME:
+        return getNamedDataSourceFromService( IDBJndiDatasourceService.class, dataSourceName );
+      case ExtendedDSProviderInterface.NS_DATASOURCE_NAME:
+        return getNamedDataSourceFromService( IDBPooledDatasourceService.class, dataSourceName );
+      default:
+        throw new DataSourceNamingException( "Unknown datasource namespace: " + dataSourceName + ", " + namespace );
+    }
   }
 
 }

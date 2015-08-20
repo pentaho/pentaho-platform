@@ -20,11 +20,12 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
+import org.pentaho.platform.api.data.IDBJndiDatasourceService;
 import org.pentaho.platform.engine.services.messages.Messages;
 
 import javax.sql.DataSource;
 
-public class JndiDatasourceService extends BaseDatasourceService {
+public class JndiDatasourceService extends BaseDatasourceService  implements IDBJndiDatasourceService {
 
   @Override
   protected DataSource retrieve( String dsName ) throws DBDatasourceServiceException {
