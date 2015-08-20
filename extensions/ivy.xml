@@ -348,6 +348,7 @@
 
     <dependency org="org.apache.felix" name="org.apache.felix.main" rev="4.2.1"/>
     <dependency org="org.apache.felix" name="org.apache.felix.http.base" rev="2.3.0"/>
+    <dependency org="pentaho" name="pentaho-proxy-factory" rev="${project.revision}"/>
 
     <!--  testing dependencies -->
     <dependency org="junit" name="junit" rev="4.11" conf="test->default"/>
