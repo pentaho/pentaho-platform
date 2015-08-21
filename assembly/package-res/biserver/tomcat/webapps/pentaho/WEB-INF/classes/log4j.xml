@@ -107,6 +107,14 @@
 		name="org.pentaho.platform.web.http.context">
 		<priority value="WARN" />
 	</category>
+	
+   <category name="org.pentaho.di.osgi">
+      <priority value="ERROR"/>
+   </category>	
+   
+   <category name="org.pentaho.di.monitor">
+      <priority value="ERROR"/>
+   </category>	
    
    <!-- =========================== -->
    <!-- Repository Import Log Level -->
