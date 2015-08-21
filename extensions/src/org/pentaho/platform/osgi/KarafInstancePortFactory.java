@@ -67,6 +67,9 @@ public class KarafInstancePortFactory {
     } catch ( FileNotFoundException e ) {
       throw new FileNotFoundException( "File " + importFilePath
           + " does not exist.  Could not determine karaf port assignment" );
+    } catch (Exception e ) {
+      throw new RuntimeException("Could not parse file " + importFilePath
+          + ".", e);
     } finally {
       IOUtils.closeQuietly( input );
     }
