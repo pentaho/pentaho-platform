@@ -28,7 +28,6 @@ import org.osgi.framework.BundleContext;
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
-import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IContentOutputHandler;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.ILogoutListener;
@@ -44,7 +43,6 @@ import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISessionStartupAction;
 import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PentahoSystemException;
@@ -65,7 +63,6 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -75,7 +72,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 
@@ -88,7 +84,6 @@ public class PentahoSystem {
   public static final boolean ignored = false; // used to suppress compiler
   private static final String securityContextHolderStrategy =
       "org.pentaho.platform.engine.security.PentahoSecurityContextHolderStrategy";
-  public static final String JAVA_SYSTEM_PROPERTIES = "java-system-properties";
 
   public static int loggingLevel = ILogger.ERROR;
 
@@ -210,7 +205,7 @@ public class PentahoSystem {
     aggObjectFactory.registerObjectFactory( PentahoSystem.runtimeObjectFactory );
   }
 
-  public static void setBundleContext( BundleContext context ) {
+  public static void setBundleContext( BundleContext context ){
     runtimeObjectFactory.setBundleContext( context );
   }
 
@@ -232,7 +227,7 @@ public class PentahoSystem {
       // tests call init more than once without an intervening shutdown().
       try {
         throw new IllegalStateException( "'Init' method was run twice without 'shutdown'" );
-      } catch ( IllegalStateException e ) {
+      } catch( IllegalStateException e ) {
         Logger.error( PentahoSystem.class,
             "PentahoSystem was already initialized when init() called again without a preceding shutdown(). "
                 + "This is likely in error", e );
@@ -280,11 +275,6 @@ public class PentahoSystem {
         PentahoSystem.ACLFileExtensionList.add( extn );
       }
     }
-
-    if ( debug ) {
-      Logger.debug( PentahoSystem.class, "Set Java System Properties" ); //$NON-NLS-1$
-    }
-    PentahoSystem.setSystemProperties();
 
     if ( debug ) {
       Logger.debug( PentahoSystem.class, "Initialize XML Factories" ); //$NON-NLS-1$
@@ -501,9 +491,7 @@ public class PentahoSystem {
     if ( PentahoSystem.systemSettingsService != null ) {
       String xpathToXMLFactoryNodes = "xml-factories/factory-impl"; //$NON-NLS-1$
       List nds = PentahoSystem.systemSettingsService.getSystemSettings( xpathToXMLFactoryNodes );
-      if ( null != nds && !nds.isEmpty() ) {
-        Logger.warn( PentahoSystem.class.getName(), Messages.getInstance()
-            .getErrorString( "PentahoSystem.WARN_XML_FACTORIES_LOCATION_CHANGED", JAVA_SYSTEM_PROPERTIES ) ); //$NON-NLS-1$
+      if ( null != nds ) {
         for ( Iterator it = nds.iterator(); it.hasNext(); ) {
           Node nd = (Node) it.next();
           Node nameAttr = nd.selectSingleNode( "@name" ); //$NON-NLS-1$
@@ -513,27 +501,11 @@ public class PentahoSystem {
             String impl = implAttr.getText();
             System.setProperty( name, impl );
           } else {
-            Logger.error( PentahoSystem.class.getName(), Messages.getInstance()
-                .getErrorString( "PentahoSystem.ERROR_0025_LOAD_XML_FACTORY_PROPERTIES_FAILED", //$NON-NLS-1$
-                    xpathToXMLFactoryNodes ) );
+            Logger.error( PentahoSystem.class.getName(), Messages.getInstance().getErrorString(
+                "PentahoSystem.ERROR_0025_LOAD_XML_FACTORY_PROPERTIES_FAILED", //$NON-NLS-1$
+                xpathToXMLFactoryNodes ) );
           }
         }
-      }
-    }
-  }
-
-  private static void setSystemProperties() {
-    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
-    final IConfiguration configuration = systemConfig.getConfiguration( JAVA_SYSTEM_PROPERTIES );
-    if ( configuration != null ) {
-      try {
-        final Properties systemSettingsProperties = configuration.getProperties();
-        for ( String propName : systemSettingsProperties.stringPropertyNames() ) {
-          System.setProperty( propName, systemSettingsProperties.getProperty( propName ) );
-        }
-      } catch ( IOException e ) {
-        Logger.warn( PentahoSystem.class.getName(), Messages.getInstance()
-            .getErrorString( "PentahoSystem.WARN_SYSTEM_PROPERTIES_READ_FAIL", JAVA_SYSTEM_PROPERTIES ) ); //$NON-NLS-1$
       }
     }
   }
@@ -662,7 +634,7 @@ public class PentahoSystem {
    * the thread local in PentahoSessionHolder in order for you to be able to access session-bound objects.
    */
   public static <T> T
-      get( Class<T> interfaceClass, final IPentahoSession session, final Map<String, String> properties ) {
+    get( Class<T> interfaceClass, final IPentahoSession session, final Map<String, String> properties ) {
     try {
       if ( !aggObjectFactory.objectDefined( interfaceClass ) ) {
         // this may not be a failure case, but we should log a warning in case the object is truly required

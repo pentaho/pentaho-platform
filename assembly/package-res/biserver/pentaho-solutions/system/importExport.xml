@@ -180,11 +180,5 @@
 		<constructor-arg value="server.properties"/>
 		<pen:publish as-type="INTERFACES"/>
 	</bean>
-
-  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
-    <constructor-arg value="java-system-properties"/>
-    <constructor-arg value="java-system-properties.properties"/>
-    <pen:publish as-type="INTERFACES"/>
-  </bean>
 </beans>
 
