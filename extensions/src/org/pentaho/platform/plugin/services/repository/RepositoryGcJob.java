@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.scheduler2.gc;
+package org.pentaho.platform.plugin.services.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

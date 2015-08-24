@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.scheduler2.gc;
+package org.pentaho.platform.plugin.services.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +39,7 @@ import java.util.List;
  * This is a 5.4-only class. To use it, update <tt>systemListeners.xml</tt> by adding the following section:
  * <pre>
   &lt;bean id="repositoryCleanerSystemListener"
-        class="org.pentaho.platform.scheduler2.gc.RepositoryCleanerSystemListener"&gt;
+        class="org.pentaho.platform.plugin.services.repository.RepositoryCleanerSystemListener"&gt;
     &lt;property name="gcEnabled" value="true"/&gt;
     &lt;property name="execute" value="now"/&gt;
   &lt;/bean&gt;
