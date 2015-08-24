@@ -65,7 +65,12 @@ public abstract class AbstractJFreeChartComponent extends AbstractChartComponent
 
   protected AbstractJFreeChartComponent( final IPentahoUrlFactory urlFactory, final List messages ) {
     super( urlFactory, messages );
-    jcrHelper = new ActionSequenceJCRHelper( getSession() );
+    if( getSession() != null ) {
+      jcrHelper = new ActionSequenceJCRHelper( getSession() );
+    } else {
+      jcrHelper = new ActionSequenceJCRHelper( );  
+    }
+    
     AbstractChartComponent.logger = LogFactory.getLog( this.getClass() );
   }
 

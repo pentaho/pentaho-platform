@@ -11,23 +11,5 @@ PentahoSystem which is initialized after Spring
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
   default-lazy-init="false">
   
-  <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
-
-  <bean id="IUnifiedRepository" class="org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository" scope="session" />
-  <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
-  <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
-  <bean id="ICacheManager" class="org.pentaho.platform.plugin.services.cache.CacheManager" scope="singleton" />
-  <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session" />
-  <bean id="IConditionalExecution" class="org.pentaho.platform.plugin.condition.javascript.ConditionalExecution" scope="prototype" />
-  <bean id="IScheduler" class="org.pentaho.platform.scheduler.QuartzScheduler" scope="session" />
-  <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.SimpleRuntimeRepository" scope="session" />
-  <bean id="IMessageFormatter" class="org.pentaho.platform.engine.services.MessageFormatter" scope="singleton" />
-    
-    <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
-       not directly from the PentahoObjectFactory. -->
-  <bean id="connection-SQL" class="org.pentaho.platform.plugin.services.connections.sql.SQLConnection" scope="prototype" />
-  <bean id="connection-MDX" class="org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection" scope="prototype" />
-  <bean id="connection-XML" class="org.pentaho.platform.plugin.services.connections.xquery.XQConnection" scope="prototype" />
-  <bean id="connection-HQL" class="org.pentaho.platform.plugin.services.connections.hql.HQLConnection" scope="prototype" />
   
 </beans>
