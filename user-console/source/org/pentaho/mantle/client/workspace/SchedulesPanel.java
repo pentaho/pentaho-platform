@@ -19,13 +19,6 @@ package org.pentaho.mantle.client.workspace;
 
 import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -41,7 +34,16 @@ import org.pentaho.mantle.client.images.ImageUtil;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.mantle.client.ui.column.HtmlColumn;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -64,7 +66,6 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.AbstractHeaderOrFooterBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
@@ -350,33 +351,28 @@ public class SchedulesPanel extends SimplePanel {
     };
     nameColumn.setSortable( true );
 
-    TextColumn<JsJob> resourceColumn = new TextColumn<JsJob>() {
-      public String getValue( JsJob job ) {
-        if ( job.getFullResourceName().contains( "." ) ) {
-          return job.getFullResourceName().substring( 0, job.getFullResourceName().lastIndexOf( "." ) );
-        } else {
-          return job.getFullResourceName();
-        }
+    HtmlColumn<JsJob> resourceColumn = new HtmlColumn<JsJob>() {
+      @Override
+      public String getStringValue( JsJob job ) {
+        String name = job.getFullResourceName().split( "\\." )[0];
+        return name.replaceAll( "/", "/<wbr/>" );
       }
     };
     resourceColumn.setSortable( true );
 
-    Column<JsJob, SafeHtml> outputPathColumn = new Column<JsJob, SafeHtml>( new ClickableSafeHtmlCell() ) {
+    HtmlColumn<JsJob> outputPathColumn = new HtmlColumn<JsJob>( new ClickableSafeHtmlCell() ) {
       @Override
-      public SafeHtml getValue( JsJob jsJob ) {
+      public String getStringValue( JsJob jsJob ) {
         try {
           String outputPath = jsJob.getOutputPath();
           if ( StringUtils.isEmpty( outputPath ) ) {
-            return new SafeHtmlBuilder().appendHtmlConstant( "-" ).toSafeHtml();
+            return "-";
           } else {
-            return new SafeHtmlBuilder().appendHtmlConstant(
-                "<span class='workspace-resource-link' title='"
-                    + new SafeHtmlBuilder().appendEscaped( outputPath ).toSafeHtml().asString() + "'>" + outputPath
-                    + "</span>"
-            ).toSafeHtml();
+            outputPath = new SafeHtmlBuilder().appendEscaped( outputPath ).toSafeHtml().asString();
+            return MessageFormat.format( "<span class=''workspace-resource-link'' title=''{0}''>{0}</span>", outputPath );
           }
         } catch ( Throwable t ) {
-          return new SafeHtmlBuilder().appendHtmlConstant( "-" ).toSafeHtml();
+          return "-";
         }
       }
     };
