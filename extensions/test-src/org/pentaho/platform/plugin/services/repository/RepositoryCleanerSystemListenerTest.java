@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.scheduler2.gc;
+package org.pentaho.platform.plugin.services.repository;
 
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +26,7 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.scheduler2.gc.RepositoryCleanerSystemListener.Frequency;
+import org.pentaho.platform.plugin.services.repository.RepositoryCleanerSystemListener.Frequency;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import java.util.Collections;
