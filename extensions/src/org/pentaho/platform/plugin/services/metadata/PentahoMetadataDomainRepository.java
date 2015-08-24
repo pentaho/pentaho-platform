@@ -452,7 +452,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       domainFiles = metadataMapping.getFiles( domainId );
       metadataMapping.deleteDomain( domainId );
     } finally {
-      lock.writeLock().lock();
+      lock.writeLock().unlock();
     }
 
     // it no node exists, nothing would happen
