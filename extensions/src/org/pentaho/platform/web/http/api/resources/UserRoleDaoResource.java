@@ -625,54 +625,127 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of logical roles in the platform
+   * Retrieve the list of roles in the platform and the mapping the have to operation permissions, along with a list of operation permissions.
+   * The logical role name mapping is determined by the locale. If the locale, is empty, the system will use the default local of "en".
    *
-   * @param locale (locale)
-   * @return
+   * <p><b>Example Request:</b><br />
+   *  GET  pentaho/api/userroledao/logicalRoleMap?locale=en
+   * </p>
+   *
+   * @param locale The locale paramter is optional and determines the localized role name for a physical permission in the system roles map.
+   * @return SystemRolesMap A role mapping for the current system. Each assignment contains the immutable flag,
+   * roles for immutable assignments cannot be edited. This is useful for roles like administrator, who should never lose the administrative privledge.
+   * Logical roles in the assignment are the physical permissions currently mapped to the role. The role name is the name of the role that can be assigned to users.
+   * The system roles map also includes a list of all physical permissions in the system along with their localized role name. The localized role name is based on the local passed into the call, defaulting to "en".
+   * These are the physical permissions that can be used to create roles.
+   *
+   *<p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   *  &lt;systemRolesMap&gt;
+   *  &lt;assignments&gt;
+   *  &lt;immutable&gt;false&lt;/immutable&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.scheduler.manage&lt;/logicalRoles&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.security.publish&lt;/logicalRoles&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.repository.create&lt;/logicalRoles&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.repository.execute&lt;/logicalRoles&gt;
+   *  &lt;roleName&gt;Power User&lt;/roleName&gt;
+   *  &lt;/assignments&gt;
+   *  &lt;assignments&gt;
+   *  &lt;immutable&gt;true&lt;/immutable&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.repository.execute&lt;/logicalRoles&gt;
+   *  &lt;logicalRoles&gt;
+   *    org.pentaho.platform.dataaccess.datasource.security.manage
+   *  &lt;/logicalRoles&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.repository.read&lt;/logicalRoles&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.repository.create&lt;/logicalRoles&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.scheduler.manage&lt;/logicalRoles&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.security.administerSecurity&lt;/logicalRoles&gt;
+   *  &lt;logicalRoles&gt;org.pentaho.security.publish&lt;/logicalRoles&gt;
+   *  &lt;roleName&gt;Administrator&lt;/roleName&gt;
+   *  &lt;/assignments&gt;
+   *  &lt;localizedRoleNames&gt;
+   *  &lt;localizedName&gt;Administer Security&lt;/localizedName&gt;
+   *  &lt;roleName&gt;org.pentaho.security.administerSecurity&lt;/roleName&gt;
+   *  &lt;/localizedRoleNames&gt;
+   *  &lt;localizedRoleNames&gt;
+   *  &lt;localizedName&gt;Schedule Content&lt;/localizedName&gt;
+   *  &lt;roleName&gt;org.pentaho.scheduler.manage&lt;/roleName&gt;
+   *  &lt;/localizedRoleNames&gt;
+   *  &lt;localizedRoleNames&gt;
+   *  &lt;localizedName&gt;Read Content&lt;/localizedName&gt;
+   *  &lt;roleName&gt;org.pentaho.repository.read&lt;/roleName&gt;
+   *  &lt;/localizedRoleNames&gt;
+   *  &lt;localizedRoleNames&gt;
+   *  &lt;localizedName&gt;Publish Content&lt;/localizedName&gt;
+   *  &lt;roleName&gt;org.pentaho.security.publish&lt;/roleName&gt;
+   *  &lt;/localizedRoleNames&gt;
+   *  &lt;localizedRoleNames&gt;
+   *  &lt;localizedName&gt;Create Content&lt;/localizedName&gt;
+   *  &lt;roleName&gt;org.pentaho.repository.create&lt;/roleName&gt;
+   *  &lt;/localizedRoleNames&gt;
+   *  &lt;localizedRoleNames&gt;
+   *  &lt;localizedName&gt;Execute&lt;/localizedName&gt;
+   *  &lt;roleName&gt;org.pentaho.repository.execute&lt;/roleName&gt;
+   *  &lt;/localizedRoleNames&gt;
+   *  &lt;localizedRoleNames&gt;
+   *  &lt;localizedName&gt;Manage Data Sources&lt;/localizedName&gt;
+   *  &lt;roleName&gt;
+   *  org.pentaho.platform.dataaccess.datasource.security.manage
+   *  &lt;/roleName&gt;
+   *  &lt;/localizedRoleNames&gt;
+   *  &lt;/systemRolesMap&gt;
+   * </pre>
    */
   @GET
   @Path ( "/logicalRoleMap" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @Facet ( name = "Unsupported" )
+  @StatusCodes ( {
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" )
+  } )
   public SystemRolesMap getRoleBindingStruct( @QueryParam ( "locale" ) String locale ) {
-    if ( canAdminister() ) {
-      try {
-        RoleBindingStruct roleBindingStruct = roleBindingDao.getRoleBindingStruct( locale );
-        SystemRolesMap systemRolesMap = new SystemRolesMap();
-        for ( Map.Entry<String, String> localalizeNameEntry : roleBindingStruct.logicalRoleNameMap.entrySet() ) {
-          systemRolesMap.getLocalizedRoleNames().add(
-              new LocalizedLogicalRoleName( localalizeNameEntry.getKey(), localalizeNameEntry.getValue() ) );
-        }
-        for ( Map.Entry<String, List<String>> logicalRoleAssignments : roleBindingStruct.bindingMap.entrySet() ) {
-          systemRolesMap.getAssignments().add(
-              new LogicalRoleAssignment( logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue()
-                  , roleBindingStruct.immutableRoles.contains( logicalRoleAssignments.getKey() ) )
-          );
-        }
-        return systemRolesMap;
-      } catch ( Throwable t ) {
-        throw new WebApplicationException( t );
-      }
-    } else {
-      throw new WebApplicationException( new Throwable() );
+    try {
+      return userRoleDaoService.getRoleBindingStruct( locale );
+    } catch ( Exception e ) {
+     throw new WebApplicationException( Response.Status.FORBIDDEN );
     }
   }
 
   /**
-   * Associate a particular runtime role to list of logical role in the repository
+   * Associate a particular role to a list of physical permissions available in the system. Setting the physical permissions to the roles is a way to add and delete permissions from the role.
+   * The role will have the set of permissions passed into any permissions it had before that are not on this list will be deleted. Any permissions on this list that were not previously assigned will now be assigned.
    *
-   * @param roleAssignments (logical to runtime role assignments)
-   * @return
+   *<p><b>Example Request:</b><br />
+   *  PUT /pentaho/api/userroledao/roleAssignments
+   *</p>
+   * <pre function="syntax.xml">
+   *   &lt;assignments&gt;
+   *   &lt;roleName&gt;Report Author&lt;/roleName&gt;
+   *   &lt;logicalRoles&gt;org.pentaho.scheduler.manage&lt;/logicalRoles&gt;
+   *   &lt;logicalRoles&gt;org.pentaho.repository.read&lt;/logicalRoles&gt;
+   *   &lt;logicalRoles&gt;org.pentaho.security.publish&lt;/logicalRoles&gt;
+   *   &lt;logicalRoles&gt;org.pentaho.repository.create&lt;/logicalRoles&gt;
+   *   &lt;logicalRoles&gt;org.pentaho.repository.execute&lt;/logicalRoles&gt;
+   *   &lt;/assignments&gt;
+   * </pre>
+   *
+   * @param roleAssignments Built from the Request payload, an example of the role assignments exists in the example request.
+   *
+   * @return Response code determining the success of the operation.
    */
   @PUT
   @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
   @Path ( "/roleAssignments" )
-  @Facet ( name = "Unsupported" )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Successfully applied the logical role assignment." ),
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" )
+  } )
   public Response setLogicalRoles( LogicalRoleAssignments roleAssignments ) {
-    for ( LogicalRoleAssignment roleAssignment : roleAssignments.getAssignments() ) {
-      roleBindingDao.setRoleBindings( roleAssignment.getRoleName(), roleAssignment.getLogicalRoles() );
+    try {
+      userRoleDaoService.setLogicalRoles( roleAssignments );
+      return Response.ok().build();
+    } catch ( SecurityException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
     }
-    return Response.ok().build();
   }
 
   private ITenant getTenant( String tenantId ) throws NotFoundException {

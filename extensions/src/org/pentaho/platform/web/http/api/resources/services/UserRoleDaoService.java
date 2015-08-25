@@ -18,30 +18,36 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.LocalizedLogicalRoleName;
+import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignment;
+import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignments;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
+import org.pentaho.platform.web.http.api.resources.SystemRolesMap;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 public class UserRoleDaoService {
   private IUserRoleDao roleDao;
   private IAuthorizationPolicy policy;
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
 
   public UserListWrapper getUsers() throws Exception {
     return new UserListWrapper( getRoleDao().getUsers() );
@@ -134,9 +140,47 @@ public class UserRoleDaoService {
     }
   }
 
+  public SystemRolesMap getRoleBindingStruct( String locale ) throws SecurityException {
+    if ( canAdminister() ) {
+      RoleBindingStruct roleBindingStruct = getRoleBindingDao().getRoleBindingStruct( locale );
+      SystemRolesMap systemRolesMap = new SystemRolesMap();
+      for ( Map.Entry<String, String> localalizeNameEntry : roleBindingStruct.logicalRoleNameMap.entrySet() ) {
+        systemRolesMap.getLocalizedRoleNames().add(
+          new LocalizedLogicalRoleName( localalizeNameEntry.getKey(), localalizeNameEntry.getValue() ) );
+      }
+      for ( Map.Entry<String, List<String>> logicalRoleAssignments : roleBindingStruct.bindingMap.entrySet() ) {
+        systemRolesMap.getAssignments().add(
+          new LogicalRoleAssignment( logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue()
+            , roleBindingStruct.immutableRoles.contains( logicalRoleAssignments.getKey() ) )
+        );
+      }
+      return systemRolesMap;
+    } else {
+      throw new SecurityException();
+    }
+  }
+
+  public void setLogicalRoles( LogicalRoleAssignments roleAssignments ) throws SecurityException {
+    if ( canAdminister() ) {
+      for ( LogicalRoleAssignment roleAssignment : roleAssignments.getAssignments() ) {
+        getRoleBindingDao().setRoleBindings( roleAssignment.getRoleName(), roleAssignment.getLogicalRoles() );
+      }
+    } else {
+      throw new SecurityException();
+    }
+  }
+
   private boolean canAdminister() {
     return getPolicy().isAllowed( RepositoryReadAction.NAME ) && getPolicy().isAllowed( RepositoryCreateAction.NAME )
       && ( getPolicy().isAllowed( AdministerSecurityAction.NAME ) );
+  }
+
+  private IRoleAuthorizationPolicyRoleBindingDao getRoleBindingDao() {
+    if ( roleBindingDao == null ) {
+      roleBindingDao = PentahoSystem.get( IRoleAuthorizationPolicyRoleBindingDao.class );
+    }
+
+    return roleBindingDao;
   }
 
   private IAuthorizationPolicy getPolicy() {
