@@ -326,7 +326,9 @@
 	<dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.4.1"  transitive="false"/>    
 
 	<dependency org="org.osgi" name="org.osgi.compendium" rev="5.0.0"  transitive="false"/>
-	
+
+    <dependency org="pentaho" name="pentaho-proxy-factory" rev="${project.revision}"/>
+
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.
