@@ -216,8 +216,8 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     // create final list of impls
     List<T> entryList = new ArrayList<T>();
     for ( IPentahoObjectReference<T> ref : referenceList ) {
-      if(!entryList.contains( ref.getObject() ) ) {
-        entryList.add( ref.getObject() );  
+      if ( !entryList.contains( ref.getObject() ) ) {
+        entryList.add( ref.getObject() );
       }
     }
 
