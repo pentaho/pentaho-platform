@@ -33,9 +33,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class UserRoleDaoResourceTest {
   private UserRoleDaoResource userRoleResource;
@@ -321,6 +319,45 @@ public class UserRoleDaoResourceTest {
       userRoleResource.deleteRoles( roles );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testGetRoleBindingStruct() {
+    String locale = "en";
+
+    SystemRolesMap systemRoles = mock( SystemRolesMap.class );
+    when( userRoleService.getRoleBindingStruct( anyString() ) ).thenReturn( systemRoles );
+
+    assertEquals( systemRoles, userRoleResource.getRoleBindingStruct( locale ) );
+  }
+
+  @Test
+  public void testGetRoleBindingStructSecurityException() {
+    String locale = "en";
+
+    when( userRoleService.getRoleBindingStruct( anyString() ) ).thenThrow( new SecurityException() );
+    try {
+      userRoleResource.getRoleBindingStruct( locale );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testSetLogicalRoles() {
+    LogicalRoleAssignments logicalRoles = mock(LogicalRoleAssignments.class);
+    userRoleResource.setLogicalRoles( logicalRoles );
+    verify( userRoleService ).setLogicalRoles( logicalRoles );
+  }
+
+  @Test
+  public void testSetLogicalRolesSecurityException() {
+    LogicalRoleAssignments logicalRoles = mock(LogicalRoleAssignments.class);
+    try {
+      userRoleResource.setLogicalRoles( logicalRoles );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }
   }
 }

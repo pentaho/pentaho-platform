@@ -31,13 +31,20 @@ import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRol
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
+import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignment;
+import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignments;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
+import org.pentaho.platform.web.http.api.resources.SystemRolesMap;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -422,10 +429,85 @@ public class UserRoleDaoServiceTest {
     PentahoSystem.registerObject( policy );
 
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getRole( any( ITenant.class ), anyString() ) ).thenThrow( new UncategorizedUserRoleDaoException( "expectedTestException" ) );
+    when( roleDao.getRole( any( ITenant.class ), anyString() ) ).thenThrow(
+      new UncategorizedUserRoleDaoException( "expectedTestException" ) );
     PentahoSystem.registerObject( roleDao );
 
     userRoleService.deleteRoles( roles );
+  }
+
+  @Test
+  public void testSetLogicalRoles() {
+    String roleName = "testRole";
+    ArrayList<String> roleList = new ArrayList<>();
+    roleList.add( "org.pentaho.repository.read" );
+    roleList.add( "org.pentaho.repository.create" );
+    LogicalRoleAssignment roleAssignment = mock( LogicalRoleAssignment.class );
+    when( roleAssignment.getRoleName() ).thenReturn( roleName );
+    when( roleAssignment.getLogicalRoles() ).thenReturn( roleList );
+    ArrayList<LogicalRoleAssignment> roles = new ArrayList<LogicalRoleAssignment>();
+    roles.add( roleAssignment );
+
+    LogicalRoleAssignments roleAssignments = mock( LogicalRoleAssignments.class );
+    when( roleAssignments.getAssignments() ).thenReturn( roles );
+
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
+    PentahoSystem.registerObject( roleBindingDao );
+
+    userRoleService.setLogicalRoles( roleAssignments );
+    verify( roleBindingDao ).setRoleBindings( roleName, roleList );
+  }
+
+  @Test( expected = SecurityException.class )
+  public void testSetLogicalRolesSecurityException() {
+    LogicalRoleAssignments roleAssignments = mock( LogicalRoleAssignments.class );
+
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    PentahoSystem.registerObject( policy );
+
+    userRoleService.setLogicalRoles( roleAssignments );
+  }
+
+  @Test
+  public void testGetRoleBindingStruct() {
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    Map<String, String> localizedNameEntry = new HashMap<>();
+    localizedNameEntry.put( "testEntry", "testValue" );
+
+    Map<String, List<String>> testBindingMap = new HashMap<>();
+    testBindingMap.put( "testBinding", new ArrayList<String>() );
+
+    RoleBindingStruct roleBindingStruct = mock( RoleBindingStruct.class );
+    roleBindingStruct.logicalRoleNameMap = localizedNameEntry;
+    roleBindingStruct.bindingMap = testBindingMap;
+    roleBindingStruct.immutableRoles = new HashSet<String>();
+
+    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
+    when( roleBindingDao.getRoleBindingStruct( anyString() ) ).thenReturn( roleBindingStruct );
+    PentahoSystem.registerObject( roleBindingDao );
+
+    SystemRolesMap validateMap = userRoleService.getRoleBindingStruct( "en" );
+
+    assert ( 1 == validateMap.getLocalizedRoleNames().size() );
+    assertEquals( "testEntry", validateMap.getLocalizedRoleNames().get( 0 ).getRoleName() );
+    assertEquals( "testValue", validateMap.getLocalizedRoleNames().get( 0 ).getLocalizedName() );
+  }
+
+  @Test(expected = SecurityException.class)
+  public void testGetRoleBindingStructSecurityException() {
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    PentahoSystem.registerObject( policy );
+
+    userRoleService.getRoleBindingStruct( "en" );
   }
 
   private class UnorderedArrayMatcher extends ArgumentMatcher<String[]> {
