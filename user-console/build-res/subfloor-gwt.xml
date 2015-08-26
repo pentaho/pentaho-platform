@@ -26,11 +26,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ============================================================================-->
 <!--===========================================================================
     == SUBFLOOR-GWT ==
-    
+
     $Rev: 107 $
     $Date: 2010-08-30 11:50:20 -0400 (Mon, 30 Aug 2010) $
     Project Home: http://code.google.com/p/subfloor/
-    
+
     Provides default targets for building GWT applications.
     ============================================================================-->
 <project name="subfloor-gwt" basedir="." default="default" xmlns:ivy="antlib:org.apache.ivy.ant">
@@ -58,7 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- override this in build.properties to change the copyright -->
   <property name="pentaho-copyright" value="This program is free software; you can redistribute it and/or modify it under the${line.separator}terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software ${line.separator}Foundation.${line.separator}${line.separator}You should have received a copy of the GNU Lesser General Public License along with this ${line.separator}program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html ${line.separator}or from the Free Software Foundation, Inc., ${line.separator}51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.${line.separator}${line.separator}This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;${line.separator}without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.${line.separator}See the GNU Lesser General Public License for more details.${line.separator}${line.separator}Copyright 2011 Pentaho Corporation.  All rights reserved.${line.separator}"/>
-  
+
   <!-- setup the classpath used for gwt-compile -->
   <path id="codegen.classpath">
     <fileset dir="${codegenlib.dir}">
@@ -68,7 +68,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <pathelement path="${src.dir}" />
   </path>
 
-  <!-- override the compile classpath so client source 
+  <!-- override the compile classpath so client source
     can be compiled with javac (even though strictly speaking, this is
     not necessary, it is helpful because it will fish out errors much quicker
     than waiting until gwt-compile -->
@@ -84,7 +84,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </fileset>
   </path>
 
-	
+
   <!-- Setup the classpath used for testing -->
   <path id="test.classpath">
     <pathelement path="${testclasses.dir}" />
@@ -101,11 +101,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <include name="**/*.jar" />
     </fileset>
   </path>
-	
-	
+
+
   <!--=======================================================================
       init (override)
-      
+
       ====================================================================-->
   <target name="init" depends="subfloor.init">
     <mkdir dir="${codegenlib.dir}" />
@@ -113,7 +113,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!--=======================================================================
       clean (override)
-      
+
       Removes all the files generated from the build process.
       ====================================================================-->
   <target name="clean" depends="subfloor.clean"
@@ -123,7 +123,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!--=======================================================================
       clean-jars (override)
-      
+
       Removes all the libraries that have been downloaded for this project
       using the ivy dependencies.
       ====================================================================-->
@@ -131,7 +131,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!--=======================================================================
       clean-codegen
-      
+
       Removes all the codegen libraries that have been downloaded for this project
       using the ivy dependencies.
       ====================================================================-->
@@ -141,7 +141,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!--=======================================================================
       resolve (override)
-      
+
       Override to include resolution of IVY codegen and runtime configurations
       ====================================================================-->
   <target name="resolve" depends="resolve-codegen,resolve-runtime,subfloor.resolve" description="Resolves all IVY configurations"/>
@@ -149,7 +149,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!--=======================================================================
       resolve-codgen (override)
-      
+
       Override to use OS-specific IVY configurations
       ====================================================================-->
   <target name="resolve-codegen" depends="resolve-init">
@@ -160,7 +160,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!--=======================================================================
       gwt-compile
-      
+
       Performs GWT Compile which generates JavaScript
       ====================================================================-->
   <target name="gwt-compile"
@@ -187,13 +187,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <replaceregexp match="^^" replace="&lt;!--${pentaho-copyright}--&gt;${line.separator}">
       <fileset dir="${gwt.output.dir}" includes="**/*.cache.html" />
     </replaceregexp>
-    
+
   </target>
 
 
   <!--=======================================================================
       gwt-compile.check
-      
+
       Detects changes in source since the last gwt-compile and sets a flag
       so gwt-compile can skip when nothing has changed
       ====================================================================-->
@@ -205,7 +205,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!--=======================================================================
       assemble (override)
-      
+
       Overriden to force gwt javascript compilation
       ====================================================================-->
   <target name="assemble" depends="gwt-compile,assemble.init,assemble.copy-libs">
@@ -216,15 +216,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </fileset>
     </copy>
   </target>
-	
-	
+
+
     <!--=======================================================================
       install-pentaho-ant-tasks
 
       Fetches and installs Pentaho Ant tasks
     ====================================================================-->
     <target name="install-pentaho-ant-tasks" depends="install-ivy">
-        <taskdef-with-ivy task-name="validate-gwt-compile" classname="org.pentaho.anttasks.GwtBuildValidator" organisation="pentaho" module="pentaho-ant-tasks" revision="1.2-SNAPSHOT" />
+        <taskdef-with-ivy task-name="validate-gwt-compile" classname="org.pentaho.anttasks.GwtBuildValidator" organisation="pentaho" module="pentaho-ant-tasks" revision="1.2" />
     </target>
 
     <!--=======================================================================
@@ -235,6 +235,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <target name="gwt-compile.validate" depends="install-pentaho-ant-tasks, gwt-compile">
         <validate-gwt-compile stagePath="${gwt.output.dir}" whitelistFilePath="${basedir}/package-res/plugin.spring.xml" quickScan="true" debug="false" />
     </target>
-	
+
 
 </project>

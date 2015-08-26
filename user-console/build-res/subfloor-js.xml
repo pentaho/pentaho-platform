@@ -58,9 +58,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
   <property name="js.build.file" value="build-res/javascript.build.js"/>
-  
+
   <property name="js.build.failonerror" value="true" description="Fail the build if r.js build fails"/>
-  
+
   <property name="js.script.package.dest" value="${stage.dir}/${package.root.dir}/scripts"/>
 
   <property name="css.build.file" value="build-res/css.build.js"/>
@@ -76,9 +76,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <property name="js.karma.config" value="config/karma.conf.js"/>
   <property name="js.karma.ci.config" value="config/karma.ci.conf.js"/>
   <property name="js.node.node_modules.dir" value="node_modules"/>
-  
+
   <property name="js.karma.failonerror" value="true" description="Fail the build if a JS test fails"/>
-  
+
+  <!-- List of comma-separated paths to jsdoc configuration files -->
+  <property name="jsdoc.json" value=""/>
+
   <property environment="env"/>
 
   <target name="js.clean"
@@ -145,6 +148,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <echo message="var requireCfg={paths: {}, shim: {}, map: {&quot;*&quot;: {}}, bundles: {}, config: {service: {}}, packages: []};"
               file="build-res/requireCfg-raw.js" append="false"/>
         <concat destfile="build-res/requireCfg-raw.js" append="true" force="yes">
+          <file file="build-res/context.js"/>
+        </concat>
+        <concat destfile="build-res/requireCfg-raw.js" append="true" force="yes">
           <fileset dir="${js.module.script.agg.dir}" casesensitive="yes">
             <include name="*/*-require-js-cfg.js"/>
           </fileset>
@@ -175,8 +181,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <mkdir dir="${js.build.output.dir}"/>
 
     <property environment="env"/>
-    <property name="node-is-available" value="false"/>
-    <available file="node" filepath="${env.PATH}" property="node-is-available"/>
+    <if>
+      <isset property="isWindows"/>
+      <then>
+        <property name="node-is-available" value="false"/>
+        <available file="node.exe" filepath="${env.PATH}" property="node-is-available"/>
+      </then>
+      <else>
+        <property name="node-is-available" value="false"/>
+        <available file="node" filepath="${env.PATH}" property="node-is-available"/>
+      </else>
+    </if>
 
     <if>
       <equals arg1="true" arg2="${node-is-available}"/>
@@ -212,6 +227,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <zipfileset dir="bin/js-source" includes="**/*"/>
     </zip>
   </target>
+
+
+  <target name="js.install-nojar">
+    <antcall target="maven-install-js-source">
+      <param name="publish.groupId" value="${ivy.artifact.group}"/>
+      <param name="publish.artifactId" value="${ivy.artifact.id}"/>
+      <param name="publish.version" value="${project.revision}"/>
+      <param name="publish.file" value="${dist.dir}/${ivy.artifact.id}-${project.revision}-js.zip"/>
+    </antcall>
+  </target>
+
 
   <target name="js.publish-nojar">
     <antcall target="maven-publish-js-source">
@@ -267,6 +293,46 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </sequential>
   </target>
 
+  <target name="maven-install-js-source" depends="install-antcontrib">
+    <sequential>
+      <fail message="No file found at: ${publish.file}">
+        <condition>
+          <not>
+            <available file="${publish.file}"/>
+          </not>
+        </condition>
+      </fail>
+      <if>
+        <isset property="isWindows"/>
+        <then>
+          <exec executable="cmd" failonerror="true">
+            <arg value="/c"/>
+            <arg value="mvn.bat"/>
+            <arg value="install:install-file"/>
+            <arg value="-DgroupId=${publish.groupId}"/>
+            <arg value="-DartifactId=${publish.artifactId}"/>
+            <arg value="-Dversion=${publish.version}"/>
+            <arg value="-DgeneratePom=true"/>
+            <arg value="-Dpackaging=zip"/>
+            <arg value="-Dclassifier=js"/>
+            <arg value="-Dfile=${publish.file}"/>
+          </exec>
+        </then>
+        <else>
+          <exec executable="mvn" failonerror="true">
+            <arg value="install:install-file"/>
+            <arg value="-DgroupId=${publish.groupId}"/>
+            <arg value="-DartifactId=${publish.artifactId}"/>
+            <arg value="-Dversion=${publish.version}"/>
+            <arg value="-DgeneratePom=true"/>
+            <arg value="-Dpackaging=zip"/>
+            <arg value="-Dclassifier=js"/>
+            <arg value="-Dfile=${publish.file}"/>
+          </exec>
+        </else>
+      </if>
+    </sequential>
+  </target>
 
   <target name="package-js-output">
     <copy todir="${js.script.package.dest}" overwrite="true">
@@ -405,4 +471,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   </target>
 
+  <!-- Property to check if the jsdoc command is available for windows -->
+  <available file="jsdoc.cmd" filepath="${env.Path}" property="jsdoc-for-windows-is-available"/>
+
+	<!-- Top-level JS Documentation target for default template output -->
+  <target name="doc-js">
+    <antcall target="doc-many-js" />
+  </target>
+
+  <!-- Target that calls the documentation using the list of configurations for jsdocs -->
+  <target name="doc-many-js" depends="install-antcontrib, npm-install">
+    <if>
+      <not>
+        <equals arg1="${jsdoc.json}" arg2=""/>
+      </not>
+      <then>
+	      <mkdir dir="doc-jsdoc" />
+	      <foreach param="jsdoc-one.json" list="${jsdoc.json}" target="doc-one-js" />
+	      <zip destfile="${dist.dir}/doc-js-${project.revision}.zip" basedir="${basedir}/doc-js" />
+	    </then>
+  	</if>
+  </target>
+
+  <!-- Target to execute jsdoc -->
+  <target name="doc-one-js">
+    <if>
+      <available file="${jsdoc-one.json}" />
+      <then>
+        <!-- The jsdoc configuration file exists. Check if jsdoc is installed. -->
+        <if>
+          <isset property="isWindows" />
+          <then>
+            <if>
+              <not>
+                <isset property="jsdoc-for-windows-is-available"/>
+              </not>
+              <then>
+                <fail>Run 'npm -g install jsdoc'</fail>
+              </then>
+            </if>
+            <exec executable="jsdoc.cmd" failonerror="true">
+              <arg line='-c "${jsdoc-one.json}"' />
+            </exec>
+          </then>
+          <else>
+            <exec executable="node_modules/jsdoc/jsdoc.js" failonerror="true">
+                <arg line='-c "${jsdoc-one.json}"' />
+            </exec>
+          </else>
+        </if>
+      </then>
+      <else>
+        <fail>There is no jsdoc configuration file available at ${jsdoc-one.json}.</fail>
+      </else>
+    </if>
+  </target>
 </project>
