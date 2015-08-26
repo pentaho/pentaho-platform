@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.main.Main;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
@@ -44,10 +45,37 @@ public class KarafBoot implements IPentahoSystemListener {
   private static boolean initialized;
   public static final String ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA = "org.osgi.framework.system.packages.extra";
 
+  private static final String SYSTEM_PROP_OSX_APP_ROOT_DIR = "osx.app.root.dir";
+
+  private static final String KARAF_DIR = "/system/karaf";
+
   @Override public boolean startup( IPentahoSession session ) {
+
     try {
       String solutionRootPath = PentahoSystem.getApplicationContext().getSolutionRootPath();
-      String root = new File(solutionRootPath + "/system/karaf").toURI().getPath();
+
+      File karafDir = new File( solutionRootPath + KARAF_DIR );
+
+      if( !karafDir.exists() ) {
+
+        logger.warn( "Karaf not found in standard dir of '" + ( solutionRootPath + KARAF_DIR ) + "' " );
+
+        String osxAppRootDir = System.getProperty( SYSTEM_PROP_OSX_APP_ROOT_DIR );
+
+        if ( !StringUtils.isEmpty( osxAppRootDir )  ) {
+
+          logger.warn( "Given that the system property '" + SYSTEM_PROP_OSX_APP_ROOT_DIR + "' is set, we are in "
+              + "a OSX .app context; we'll try looking for Karaf in the app's root dir '" + osxAppRootDir + "' " );
+
+          File osxAppKarafDir = new File( osxAppRootDir + KARAF_DIR );
+
+          if ( osxAppKarafDir.exists() ) {
+            karafDir = osxAppKarafDir; // karaf found in the app's root dir
+          }
+        }
+      }
+
+      String root = karafDir.toURI().getPath();
 
       System.setProperty( "karaf.home", root );
       System.setProperty( "karaf.base", root );
