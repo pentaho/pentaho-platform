@@ -155,7 +155,7 @@
           unless="tomcat.available"
           description="Fetches tomcat from apache">
     <mkdir dir="${subfloor.tmp.dir}" />
-    <get src="http://nexus.pentaho.org/content/groups/omni/org.apache.tomcat/tomcat-windows-x64/${tomcat.version}/tomcat-windows-x64-${tomcat.version}.zip"
+    <get src="http://nexus.pentaho.org/content/groups/omni/org/apache/tomcat/tomcat-windows-x64/${tomcat.version}/tomcat-windows-x64-${tomcat.version}.zip"
          dest="${subfloor.tmp.dir}/apache-tomcat-${tomcat.version}-windows-x64.zip"
          usetimestamp="true" />
 	<unzip src="${subfloor.tmp.dir}/apache-tomcat-${tomcat.version}-windows-x64.zip" dest="${tomcat.dir}/.."/>
