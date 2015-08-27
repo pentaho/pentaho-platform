@@ -96,6 +96,14 @@ public class RepositoryCleanerSystemListenerTest {
 
 
   @Test
+  public void returnsTrue_EvenGetsExceptions() throws Exception {
+    when( scheduler.getJobs( any( IJobFilter.class ) ) ).thenThrow( new SchedulerException( "test exception" ) );
+    prepareMp();
+    assertTrue( "The listener should not return false to let the system continue working", listener.startup( null ) );
+  }
+
+
+  @Test
   public void removesJobs_WhenDisabled() throws Exception {
     final String jobId = "jobId";
     Job job = new Job();
@@ -150,7 +158,7 @@ public class RepositoryCleanerSystemListenerTest {
     prepareMp();
     listener.setExecute( execute );
 
-    assertFalse( listener.startup( null ) );
+    listener.startup( null );
     verifyJobHaveNotCreated();
   }
 

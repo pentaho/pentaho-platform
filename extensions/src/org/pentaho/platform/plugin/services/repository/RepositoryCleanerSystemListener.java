@@ -119,19 +119,19 @@ public class RepositoryCleanerSystemListener implements IPentahoSystemListener, 
       List<Job> jobs = scheduler.getJobs( this );
       if ( gcEnabled ) {
         if ( jobs.isEmpty() ) {
-          return scheduleJob( scheduler );
+          scheduleJob( scheduler );
         } else {
-          return rescheduleIfNecessary( scheduler, jobs );
+          rescheduleIfNecessary( scheduler, jobs );
         }
       } else {
         if ( !jobs.isEmpty() ) {
-          return unscheduleJob( scheduler, jobs );
+          unscheduleJob( scheduler, jobs );
         }
       }
     } catch ( SchedulerException e ) {
       logger.error( "Scheduler error", e );
     }
-    return false;
+    return true;
   }
 
   private JobTrigger findJobTrigger() {
@@ -149,20 +149,18 @@ public class RepositoryCleanerSystemListener implements IPentahoSystemListener, 
     return frequency.createTrigger();
   }
 
-  private boolean scheduleJob( IScheduler scheduler ) throws SchedulerException {
+  private void scheduleJob( IScheduler scheduler ) throws SchedulerException {
     JobTrigger trigger = findJobTrigger();
     if ( trigger != null ) {
       logger.info( "Creating new job with trigger: " + trigger );
       scheduler.createJob( RepositoryGcJob.JOB_NAME, RepositoryGcJob.class, null, trigger );
-      return true;
     }
-    return false;
   }
 
-  private boolean rescheduleIfNecessary( IScheduler scheduler, List<Job> jobs ) throws SchedulerException {
+  private void rescheduleIfNecessary( IScheduler scheduler, List<Job> jobs ) throws SchedulerException {
     JobTrigger trigger = findJobTrigger();
     if ( trigger == null ) {
-      return false;
+      return;
     }
 
     List<Job> matched = new ArrayList<Job>( jobs.size() );
@@ -181,15 +179,13 @@ public class RepositoryCleanerSystemListener implements IPentahoSystemListener, 
       logger.info( "Need to re-schedule job" );
       scheduleJob( scheduler );
     }
-    return true;
   }
 
-  private boolean unscheduleJob( IScheduler scheduler, List<Job> jobs ) throws SchedulerException {
+  private void unscheduleJob( IScheduler scheduler, List<Job> jobs ) throws SchedulerException {
     for ( Job job : jobs ) {
       logger.info( "Removing job with id: " + job.getJobId() );
       scheduler.removeJob( job.getJobId() );
     }
-    return true;
   }
 
 
