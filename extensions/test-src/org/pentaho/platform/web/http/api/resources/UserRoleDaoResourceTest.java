@@ -17,8 +17,10 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
@@ -360,4 +362,50 @@ public class UserRoleDaoResourceTest {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }
   }
+  
+  @Test
+  public void testCreateUser() throws Exception {
+    Response response = userRoleResource.createUserPublicApi( new User( "name", "password" ) );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+  }
+
+  @Test
+  public void testCreateUserUnauthorizedException() throws Exception {
+    UserRoleDaoService mockService = mock( UserRoleDaoService.class );
+    doThrow( new SecurityException() ).when( mockService ).createUser( any( User.class ) );
+    UserRoleDaoResource resource =
+        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+    try {
+      resource.createUserPublicApi( new User( "not", "admin" ) );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testCreateUserValidationFailed() throws Exception {
+    UserRoleDaoService mockService = mock( UserRoleDaoService.class );
+    doThrow( new UserRoleDaoService.ValidationFailedException() ).when( mockService ).createUser( any( User.class ) );
+    UserRoleDaoResource resource =
+        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+    try {
+      resource.createUserPublicApi( new User( "\\/validation", "failed" ) );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testCreateUserDuplicate() throws Exception {
+    UserRoleDaoService mockService = mock( UserRoleDaoService.class );
+    doThrow( new AlreadyExistsException( "message" ) ).when( mockService ).createUser( any( User.class ) );
+    UserRoleDaoResource resource =
+        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+    try {
+      resource.createUserPublicApi( new User( "user", "duplicate" ) );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
 }
