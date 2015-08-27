@@ -554,7 +554,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Delete user(s) from the platform using a query parameter that takes a list of tab separated user names.
    *
    *<p><b>Example Request:</b><br />
-   *  DELETE  pentaho/api/userroledao/deleteUsers?userNames=user1%09user2%09
+   *  PUT pentaho/api/userroledao/deleteUsers?userNames=user1%09user2%09
    * </p>
    *
    * @param userNames (list of tab (\t) separated user names)
@@ -718,6 +718,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *  PUT /pentaho/api/userroledao/roleAssignments
    *</p>
    * <pre function="syntax.xml">
+   *   &lt;systemRolesMap&gt;
    *   &lt;assignments&gt;
    *   &lt;roleName&gt;Report Author&lt;/roleName&gt;
    *   &lt;logicalRoles&gt;org.pentaho.scheduler.manage&lt;/logicalRoles&gt;
@@ -726,6 +727,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *   &lt;logicalRoles&gt;org.pentaho.repository.create&lt;/logicalRoles&gt;
    *   &lt;logicalRoles&gt;org.pentaho.repository.execute&lt;/logicalRoles&gt;
    *   &lt;/assignments&gt;
+   *   &lt;/systemRolesMap&gt;
    * </pre>
    *
    * @param roleAssignments Built from the Request payload, an example of the role assignments exists in the example request.
