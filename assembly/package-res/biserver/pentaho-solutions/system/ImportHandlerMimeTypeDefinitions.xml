@@ -14,9 +14,6 @@
       <MimeTypeDefinition mimeType="application/vnd.pentaho.dashboard">
         <extension>xdash</extension>
       </MimeTypeDefinition>
-      <MimeTypeDefinition mimeType="application/vnd.pentaho.kettle-transformation">
-        <extension>ktr</extension>
-      </MimeTypeDefinition>
       <MimeTypeDefinition mimeType="application/vnd.pentaho.schedule">
         <extension>qtz</extension>
       </MimeTypeDefinition>
@@ -56,7 +53,6 @@
         <extension>jrxml</extension>
         <extension>kcs</extension>
         <extension>kdb</extension>
-		<extension>kjb</extension>
         <extension>kps</extension>
         <extension>ksl</extension>
         <extension>report</extension>
@@ -74,6 +70,17 @@
     <MimeTypeDefinitions>
       <MimeTypeDefinition mimeType="application/vnd.pentaho.solution-repository">
         <extension>zip</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+  
+  <ImportHandler class="com.pentaho.repository.importexport.PDIImportFileHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.job" converter="PDIJobStreamConverter" hidden="true" versionEnabled="true" versionCommentEnabled="true">
+        <extension>kjb</extension>
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.transformation" converter="PDITransformationStreamConverter" hidden="true" versionEnabled="true" versionCommentEnabled="true">
+        <extension>ktr</extension>
       </MimeTypeDefinition>
     </MimeTypeDefinitions>
   </ImportHandler>
