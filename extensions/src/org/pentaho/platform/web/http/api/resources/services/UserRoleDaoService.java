@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -24,6 +25,7 @@ import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -36,6 +38,8 @@ import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignment;
 import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignments;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.SystemRolesMap;
+import org.pentaho.platform.web.http.api.resources.UnauthorizedException;
+import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 import java.util.HashSet;
@@ -111,6 +115,34 @@ public class UserRoleDaoService {
     }
   }
 
+  private boolean containsReservedChars( String username ) {
+    StringBuffer reservedChars = new FileService().doGetReservedChars();
+    return StringUtils.containsAny( username, reservedChars );
+  }
+
+  private boolean userValid( User user ) {
+    String name = user.getUserName();
+    String pass = user.getPassword();
+
+    boolean nameValid = ( name != null && name.length() > 0 && !containsReservedChars( name ) );
+    boolean passValid = ( pass != null && pass.length() > 0 );
+    return nameValid && passValid;
+  }
+
+  public void createUser( User user ) throws UnauthorizedException, Exception {
+    if ( canAdminister() ) {
+      if ( userValid( user ) ) {
+        IUserRoleDao roleDao =
+            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        roleDao.createUser( null, user.getUserName(), user.getPassword(), "", new String[0] );
+      } else {
+        throw new ValidationFailedException();
+      }
+    } else {
+      throw new SecurityException();
+    }
+  }
+  
   public void deleteUsers( String userNames )
     throws NotFoundException, UncategorizedUserRoleDaoException, SecurityException {
     if ( canAdminister() ) {
@@ -198,4 +230,8 @@ public class UserRoleDaoService {
 
     return roleDao;
   }
+  
+  public static class ValidationFailedException extends Exception {
+  }
+  
 }

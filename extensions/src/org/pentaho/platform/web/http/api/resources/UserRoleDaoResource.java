@@ -35,13 +35,13 @@ import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -500,6 +500,40 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       logger.warn( e.getMessage(), e );
     }
     roleDao.createUser( getTenant( tenantPath ), userName, password, "", new String[0] );
+    return Response.ok().build();
+  }
+  
+  /**
+   * Create new user with specified name and password
+   *
+   * <p>
+   * <b>Example Request:</b><br />
+   * POST pentaho/api/userroledao/user with JSON {"userName": "name", "password": "password"}
+   * </p>
+   *
+   * @param user object with name and password
+   * 
+   * @return Response object containing the status code of the operation
+   */
+  @POST
+  @Path( "/user" )
+  @Consumes( { WILDCARD } )
+  @StatusCodes( { 
+    @ResponseCode( code = 200, condition = "Successfully created new user." ), 
+    @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
+    @ResponseCode( code = 403, condition = "A non administrative user is trying to access this endpoint." ), 
+    @ResponseCode( code = 500, condition = "Unable to create User objects." ) 
+  } )
+  public Response createUserPublicApi( User user ) {
+    try {
+      userRoleDaoService.createUser( user );
+    } catch ( SecurityException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
+    } catch ( UserRoleDaoService.ValidationFailedException e ) {
+      throw new WebApplicationException( Response.Status.BAD_REQUEST );
+    } catch ( Exception e ) {
+      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+    }
     return Response.ok().build();
   }
 

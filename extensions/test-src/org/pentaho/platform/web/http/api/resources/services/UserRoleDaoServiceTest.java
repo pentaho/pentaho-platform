@@ -18,6 +18,7 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -29,6 +30,7 @@ import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -37,6 +39,7 @@ import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignment;
 import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignments;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.SystemRolesMap;
+import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 import java.util.ArrayList;
@@ -522,5 +525,41 @@ public class UserRoleDaoServiceTest {
       Set < String > returnedValues = new HashSet<>( Arrays.asList( arguments ) );
       return returnedValues.equals( correctValues );
     }
+  }
+  
+  private boolean validationFailed( UserRoleDaoService service, User user ) {
+    try {
+      service.createUser( user );
+    } catch ( UserRoleDaoService.ValidationFailedException e ) {
+      return true;
+    } catch ( Exception e ) {
+      return false;
+    }
+    return false;
+  }
+
+  @Test
+  public void testCreateUserValidation() {
+    List<String> reservedChars = Arrays.asList( "/,\\,\t,\r,\n".split( "," ) );
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    doReturn( reservedChars ).when( repo ).getReservedChars();
+    PentahoSystem.registerObject( repo );
+    UserRoleDaoService service = new UserRoleDaoService();
+
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+    
+    Assert.assertTrue( validationFailed( service, new User( "\\", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "/www", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "\tqwer", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "\rqwer", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "qwer\n", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "normalName", "" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "", "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( null, "pass" ) ) );
+    Assert.assertTrue( validationFailed( service, new User( "name", null ) ) );
+    Assert.assertFalse( validationFailed( service, new User( "normalName", "pass" ) ) );
   }
 }
