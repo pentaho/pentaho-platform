@@ -1,20 +1,21 @@
 package org.pentaho.platform.plugin.services.exporter;
 
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
-import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.web.http.api.resources.ComplexJobTriggerProxy;
+import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,6 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   private static final Logger log = LoggerFactory.getLogger( PentahoPlatformExporter.class );
 
   public static final String ROOT = "/";
-  private RepositoryFile rootLocation;
   private File exportFile;
   private ZipOutputStream zos;
 
@@ -109,46 +109,28 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     exportManifest.addMetadata( null );
   }
 
-  private void exportSchedules() {
+  protected void exportSchedules() {
     log.debug( "export schedules" );
     try {
       List<Job> jobs = getScheduler().getJobs( null );
       for ( Job job : jobs ) {
-        JobScheduleRequest scheduleRequest = createJobScheduleRequest( job );
-        exportManifest.addSchedule( scheduleRequest );
+        if ( job.getJobName().equals( EmbeddedVersionCheckSystemListener.VERSION_CHECK_JOBNAME ) ) {
+          // don't bother exporting the Version Checker schedule, it gets created automatically on server start
+          // if it doesn't exist and fails if you try to import it due to a null ActionClass
+          continue;
+        }
+        try {
+          JobScheduleRequest scheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
+          exportManifest.addSchedule( scheduleRequest );
+        } catch ( IllegalArgumentException e ) {
+          log.warn( e.getMessage(), e );
+        }
       }
     } catch ( SchedulerException e ) {
-      log.debug( "Error exporting schedules", e );
+      log.error( Messages.getInstance().getString( "PentahoPlatformExporter.ERROR_EXPORTING_JOBS" ), e );
     }
   }
 
-  protected JobScheduleRequest createJobScheduleRequest( Job job ) {
-    ComplexJobTriggerConverter converter = new ComplexJobTriggerConverter();
-    JobScheduleRequest schedule = new JobScheduleRequest();
-    schedule.setJobName( job.getJobName() );
-    if ( job.getJobTrigger() instanceof SimpleJobTrigger ) {
-      SimpleJobTrigger jobTrigger = (SimpleJobTrigger) job.getJobTrigger();
-      schedule.setSimpleJobTrigger( jobTrigger );
-
-    } else if ( job.getJobTrigger() instanceof ComplexJobTrigger ) {
-//      ComplexJobTrigger jobTrigger = (ComplexJobTrigger) job.getJobTrigger();
-//      converter.setJobTrigger( jobTrigger );
-//      ComplexJobTriggerProxy proxy = converter.convertToComplexJobTriggerProxy();
-//      schedule.setComplexJobTrigger( proxy );
-      ComplexJobTrigger jobTrigger = (ComplexJobTrigger) job.getJobTrigger();
-      CronJobTrigger cron = new CronJobTrigger();
-      cron.setCronString( jobTrigger.getCronString() );
-      schedule.setCronJobTrigger( cron );
-    } else if ( job.getJobTrigger() instanceof CronJobTrigger ) {
-      CronJobTrigger jobTrigger = (CronJobTrigger) job.getJobTrigger();
-      schedule.setCronJobTrigger( jobTrigger );
-
-    } else {
-      // don't know what this is, can't export it
-
-    }
-    return schedule;
-  }
 
   private void exportUsersAndRoles() {
     log.debug( "export users & roles" );
@@ -197,4 +179,5 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   public void setScheduler( IScheduler scheduler ) {
     this.scheduler = scheduler;
   }
+
 }
