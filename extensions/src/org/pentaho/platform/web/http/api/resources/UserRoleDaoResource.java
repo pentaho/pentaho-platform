@@ -109,7 +109,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * GET pentaho/api/userroledao/users
    * </p>
    *
-   * @return list of users in the platform.
+   * @return List of users in the platform.
    *
    * <p><b>Example Response:</b>
    * <pre function="syntax.xml">
@@ -125,7 +125,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path ( "/users" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes( {
-      @ResponseCode ( code = 200, condition = "Successfully returned the list of users" ),
+      @ResponseCode ( code = 200, condition = "Successfully returned the list of users." ),
       @ResponseCode ( code = 500, condition = "An error occurred in the platform while trying to access the list of users." )
   } )
   public UserListWrapper getUsers() throws WebApplicationException {
@@ -144,9 +144,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *    GET pentaho/api/userroledao/userRoles?userName=suzy
    * </p>
    *
-   * @param user The username to get the roles for
+   * @param user The username to get the roles for.
    *
-   * @return A list containing the roles for the given user.
+   * @return List containing the roles for the given user.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -169,7 +169,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Returns the list of roles in the platform's repository
+   * Returns the list of roles in the platform's repository.
    *
    * <p><b>Example Request:</b><br />
    *    GET pentaho/api/userroledao/roles
@@ -198,7 +198,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieves list of users for the selected role. The role must be a valid role in the system. Must have administrative privledges to access this.
+   * Retrieves list of users for the selected role. The role must be a valid role in the system. Must have administrative privileges to access this.
    *
    * <p><b>Example Request:</b><br />
    *   GET pentaho/api/userroledao/roleMembers?roleName=Power%20User
@@ -206,7 +206,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *
    * @param roleName The role name to get the list of users associated with it.
    *
-   * @return list of users for the selected role
+   * @return List of users for the selected role.
    *
    *<p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -218,7 +218,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of Users." ),
-    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" ),
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "The system was not able to return the list of users." )
   } )
   public UserListWrapper getRoleMembers( @QueryParam ( "roleName" ) String roleName ) throws Exception {
@@ -233,7 +233,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Appends existing roles to an existing user passed to the system through query parameters.
-   * This endpoint is only available to users with administrative privileges
+   * This endpoint is only available to users with administrative privileges.
    * <p/>
    * <p><b>Example Request:</b><br /> PUT  pentaho/api/userroledao/assignRoleToUser?userName=admin&roleNames=power%20user%09cto%09
    * </p>
@@ -246,7 +246,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path( "/assignRoleToUser" )
   @Consumes( { WILDCARD } )
   @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully appened the roles to the user." ),
+    @ResponseCode ( code = 200, condition = "Successfully append the roles to the user." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
   } )
@@ -266,23 +266,23 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Removes selected roles from an existing user passed to the system through query parameters.
-   * This endpoint is only available to users with administrative privileges
+   * This endpoint is only available to users with administrative privileges.
    *
    * <p><b>Example Request:</b><br />
    *  PUT  pentaho/api/userroledao/removeRoleFromUser?userName=admin&roleNames=Business%20User%09Power%20User%09
    * </p>
    *
-   * @param userName   The username that the list of roles will be removed from
-   * @param roleNames  Rolenames must be associated to existing roles in a tab (\t) separated list
+   * @param userName   The username that the list of roles will be removed from.
+   * @param roleNames  Rolenames must be associated to existing roles in a tab (\t) separated list.
    *
-   * @return Response object containing the status code of the operation
+   * @return Response object containing the status code of the operation.
    */
   @PUT
   @Path( "/removeRoleFromUser" )
   @Consumes( { WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully removed the roles from the user." ),
-    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" ),
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
   } )
   public Response removeRolesFromUser( @QueryParam( "userName" ) String userName,
@@ -556,7 +556,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Delete role(s) from the platform. Must have administrative privledges.
+   * Delete role(s) from the platform. Must have administrative privileges.
    *
    * <p><b>Example Request:</b><br />
    *  PUT  pentaho/api/userroledao/deleteRoles?roleNames=role1%09
@@ -591,7 +591,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *  PUT pentaho/api/userroledao/deleteUsers?userNames=user1%09user2%09
    * </p>
    *
-   * @param userNames (list of tab (\t) separated user names)
+   * @param userNames (List of tab (\t) separated user names)
    *
    * @return Response object containing the status code of the operation
    */
