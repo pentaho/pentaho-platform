@@ -47,6 +47,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
@@ -1490,7 +1491,8 @@ public class FileService {
   }
 
   protected BaseExportProcessor getDownloadExportProcessor( String path, boolean requiresZip, boolean withManifest ) {
-    return requiresZip ? new ZipExportProcessor( path, getRepository(), withManifest ) : new SimpleExportProcessor( path, getRepository() );
+    return new PentahoPlatformExporter( getRepository() );
+//    return requiresZip ? new ZipExportProcessor( path, getRepository(), withManifest ) : new SimpleExportProcessor( path, getRepository() );
   }
 
   protected ExportHandler getDownloadExportHandler() {
