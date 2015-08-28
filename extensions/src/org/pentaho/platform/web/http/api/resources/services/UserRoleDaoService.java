@@ -28,6 +28,8 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.repository2.userroledao.jackrabbit.security.DefaultPentahoPasswordEncoder;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -47,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
 
 public class UserRoleDaoService {
   private IUserRoleDao roleDao;
@@ -142,7 +145,44 @@ public class UserRoleDaoService {
       throw new SecurityException();
     }
   }
-  
+
+  private boolean inputValid( String userName, String newPass, String oldPass ) {
+    boolean userNameValid = ( userName != null && userName.length() > 0 );
+    boolean newPassValid = ( newPass != null && newPass.length() > 0 );
+    boolean oldPassValid = ( oldPass != null && oldPass.length() > 0 );
+    return userNameValid && newPassValid && oldPassValid;
+  }
+
+  private boolean credentialValid( IPentahoUser pentahoUser, String oldPass ) {
+    if ( pentahoUser != null ) {
+      DefaultPentahoPasswordEncoder encoder = new DefaultPentahoPasswordEncoder();
+      return encoder.isPasswordValid( pentahoUser.getPassword(), oldPass, null );
+    }
+    return false;
+  }
+
+  public void changeUserPassword( final String userName, final String newPass, String oldPass ) throws Exception {
+    if ( inputValid( userName, newPass, oldPass ) ) {
+      final IUserRoleDao roleDao =
+          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+      IPentahoUser pentahoUser = roleDao.getUser( null, userName );
+
+      if ( credentialValid( pentahoUser, oldPass ) ) {
+        SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            roleDao.setPassword( null, userName, newPass );
+            return null;
+          }
+        } );
+      } else {
+        throw new SecurityException();
+      }
+    } else {
+      throw new ValidationFailedException();
+    }
+  }
+
   public void deleteUsers( String userNames )
     throws NotFoundException, UncategorizedUserRoleDaoException, SecurityException {
     if ( canAdminister() ) {

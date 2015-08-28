@@ -39,6 +39,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
+import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService.ValidationFailedException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -54,8 +55,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -533,6 +532,44 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       throw new WebApplicationException( Response.Status.BAD_REQUEST );
     } catch ( Exception e ) {
       throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+    }
+    return Response.ok().build();
+  }
+    
+  /**
+   * Change password for existing user
+   * 
+   * <p>
+   * <b>Example Request:</b><br />
+   * PUT pentaho/api/userroledao/user?userName=user&newPassword=new-pass&oldPassword=old-pass
+   * </p>
+   * 
+   * @param user name
+   * @param new password
+   * @param old Password
+   * 
+   * @return Response object containing the status code of the operation
+   */
+  @PUT
+  @Path( "/user" )
+  @StatusCodes( { 
+    @ResponseCode( code = 200, condition = "Successfully changed password." ), 
+    @ResponseCode( code = 400, condition = "Provided data has invalid format." ), 
+    @ResponseCode( code = 403, condition = "Provided user name or password is wrong." ), 
+    @ResponseCode( code = 412, condition = "An error occurred in the platform." )
+  } )
+  public Response changeUserPassword( @QueryParam( "userName" ) String userName,
+      @QueryParam( "newPassword" ) String newPass, @QueryParam( "oldPassword" ) String oldPass) {
+    try {
+      userRoleDaoService.changeUserPassword( userName, newPass, oldPass );
+    } catch ( ValidationFailedException e ) {
+      throw new WebApplicationException( Response.Status.BAD_REQUEST );
+    } catch ( SecurityException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
+    } catch ( Exception e ) {
+      // TODO: INTERNAL_SERVER_ERROR(500) returns (FORBIDDEN)403 error instead for unknown reason. I used
+      // PRECONDITION_FAILED
+      throw new WebApplicationException( Response.Status.PRECONDITION_FAILED );
     }
     return Response.ok().build();
   }
