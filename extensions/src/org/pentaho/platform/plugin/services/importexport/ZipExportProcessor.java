@@ -77,15 +77,15 @@ import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 public class ZipExportProcessor extends BaseExportProcessor {
   private static final Log log = LogFactory.getLog( ZipExportProcessor.class );
 
-  private String path;
+  protected String path;
 
-  private ExportManifest exportManifest;
+  protected ExportManifest exportManifest;
 
   IUnifiedRepository unifiedRepository;
 
-  private boolean withManifest = true;
+  protected boolean withManifest = true;
 
-  private List<String> localeExportList;
+  protected List<String> localeExportList;
 
   /**
    * Encapsulates the logic of registering import handlers, generating the manifest, and performing the export
@@ -268,7 +268,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param filePath
    * @return
    */
-  private String getZipEntryName( RepositoryFile repositoryFile, String filePath ) {
+  protected String getZipEntryName( RepositoryFile repositoryFile, String filePath ) {
     String result = "";
 
     // if we are at the root, get substring differently
@@ -415,5 +415,9 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   public void setLocaleExportList( List<String> localeExportList ) {
     this.localeExportList = localeExportList;
+  }
+
+  public ExportManifest getExportManifest() {
+    return exportManifest;
   }
 }
