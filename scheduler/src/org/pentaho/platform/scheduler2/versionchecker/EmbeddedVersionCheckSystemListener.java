@@ -44,7 +44,7 @@ public class EmbeddedVersionCheckSystemListener implements IPentahoSystemListene
    */
   private static final Log logger = LogFactory.getLog( EmbeddedVersionCheckSystemListener.class );
 
-  private static final String VERSION_CHECK_JOBNAME = "PentahoSystemVersionCheck"; //$NON-NLS-1$
+  public static final String VERSION_CHECK_JOBNAME = "PentahoSystemVersionCheck"; //$NON-NLS-1$
   private static int MIN_CHECK_INTERVAL = 43200;
   private static int DEFAULT_CHECK_INTERVAL = 86400;
 

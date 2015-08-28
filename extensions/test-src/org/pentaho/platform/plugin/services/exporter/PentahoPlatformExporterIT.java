@@ -1,6 +1,5 @@
 package org.pentaho.platform.plugin.services.exporter;
 
-import com.sun.jersey.test.framework.WebAppDescriptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -22,13 +21,10 @@ import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.TestAuthorizationPolicy;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
-import javax.ws.rs.core.UriBuilder;
 import java.io.File;
 import java.io.Serializable;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Locale;
 

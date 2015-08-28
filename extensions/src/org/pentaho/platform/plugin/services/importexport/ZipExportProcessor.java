@@ -107,7 +107,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
     this.exportManifest = new ExportManifest();
 
     // set created by and create date in manifest information
-    IPentahoSession session = PentahoSessionHolder.getSession();
+    IPentahoSession session = getSession();
 
     Date todaysDate = new Date();
     SimpleDateFormat dateFormat = new SimpleDateFormat( EXPORT_INFO_DATE_FORMAT );
@@ -117,6 +117,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
     exportManifest.getManifestInformation().setExportDate(
         dateFormat.format( todaysDate ) + " " + timeFormat.format( todaysDate ) );
     exportManifest.getManifestInformation().setManifestVersion( "2" );
+  }
+
+  protected IPentahoSession getSession() {
+    return PentahoSessionHolder.getSession();
   }
 
   /**
