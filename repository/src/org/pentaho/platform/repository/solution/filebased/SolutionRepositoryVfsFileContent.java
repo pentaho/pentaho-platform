@@ -25,6 +25,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.util.RandomAccessMode;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.Certificate;
@@ -139,6 +140,22 @@ public class SolutionRepositoryVfsFileContent implements FileContent {
   public boolean isOpen() {
     // not needed for our usage
     return isOpen;
+  }
+
+  @Override public long write( FileContent output ) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public long write( FileObject file ) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public long write( OutputStream output ) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public long write( OutputStream output, int bufferSize ) throws IOException {
+    throw new UnsupportedOperationException();
   }
 
 }

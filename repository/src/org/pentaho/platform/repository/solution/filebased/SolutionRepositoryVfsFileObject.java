@@ -25,6 +25,7 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -158,6 +159,10 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     return null;
   }
 
+  @Override public String getPublicURIString() {
+    throw new UnsupportedOperationException();
+  }
+
   public FileSystem getFileSystem() {
     // not needed for our usage
     return null;
@@ -185,6 +190,18 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     return null;
   }
 
+  @Override public boolean setExecutable( boolean executable, boolean ownerOnly ) throws FileSystemException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public boolean setReadable( boolean readable, boolean ownerOnly ) throws FileSystemException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public boolean setWritable( boolean writable, boolean ownerOnly ) throws FileSystemException {
+    throw new UnsupportedOperationException();
+  }
+
   public FileObject resolveFile( final String arg0 ) throws FileSystemException {
     // not needed for our usage
     return null;
@@ -207,6 +224,10 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   public int delete( final FileSelector arg0 ) throws FileSystemException {
     // not needed for our usage
     return 0;
+  }
+
+  @Override public int deleteAll() throws FileSystemException {
+    throw new UnsupportedOperationException();
   }
 
   public void createFolder() throws FileSystemException {
@@ -258,6 +279,18 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     return ( content != null ) && content.isOpen();
   }
 
+  @Override public boolean isExecutable() throws FileSystemException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public boolean isFile() throws FileSystemException {
+    return getType().equals( FileType.FILE );
+  }
+
+  @Override public boolean isFolder() throws FileSystemException {
+    throw new UnsupportedOperationException();
+  }
+
   public FileOperations getFileOperations() throws FileSystemException {
     // not needed for our usage
     return null;
@@ -301,5 +334,13 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   @VisibleForTesting
   public static void setTestAclHelper( IAclNodeHelper helper ){
     testAclHelper = helper;
+  }
+
+  @Override public int compareTo( FileObject file ) {
+    return file == null ? 1 : this.getName().getURI().compareTo( file.getName().getURI() );
+  }
+
+  @Override public Iterator<FileObject> iterator() {
+    throw new UnsupportedOperationException();
   }
 }
