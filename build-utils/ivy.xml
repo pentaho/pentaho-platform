@@ -19,6 +19,6 @@
     <dependency org="com.sun.jersey" name="jersey-server" rev="1.16" transitive="false" conf="default, test->default"/>
     <dependency org="com.sun.jersey.contribs" name="wadl-resourcedoc-doclet" rev="1.19" transitive="false" conf="default, test->default" />
 
-    <dependency org="junit" name="junit" rev="4.11" conf="test->default"/>
+    <dependency org="junit" name="junit" rev="4.12" conf="test->default"/>
   </dependencies>
 </ivy-module>

@@ -80,7 +80,7 @@
         </dependency>
 
         <!--  Testing dependencies -->
-        <dependency org="junit"          name="junit"          rev="4.4" conf="test->default" />
+        <dependency org="junit"          name="junit"          rev="4.12" conf="test->default" />
 
     </dependencies>    
 </ivy-module>

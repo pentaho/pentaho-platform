@@ -351,7 +351,7 @@
     <dependency org="org.apache.felix" name="org.apache.felix.http.base" rev="2.3.0"/>
 
     <!--  testing dependencies -->
-    <dependency org="junit" name="junit" rev="4.11" conf="test->default"/>
+    <dependency org="junit" name="junit" rev="4.12" conf="test->default"/>
     <dependency org="com.dumbster" name="dumbster" rev="1.6.0" conf="test->default"/>
 
     <dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default"/>
@@ -411,7 +411,7 @@
     <!-- CM-241 -->
     <exclude org="cglib" module="cglib"/>
 
-    <override org="junit" module="junit" rev="4.4"/>
+    <override org="junit" module="junit" rev="4.12"/>
     <override org="asm" module="asm" rev="3.1"/>
 
     <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
