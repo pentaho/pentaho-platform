@@ -19,6 +19,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.util.RandomAccessMode;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.Certificate;
@@ -105,5 +106,21 @@ public class DecoratedFileContent implements FileContent {
 
   @Override public boolean isOpen() {
     return fileContent.isOpen();
+  }
+
+  @Override public long write( FileContent fileContent ) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public long write( FileObject fileObject ) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public long write( OutputStream outputStream ) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public long write( OutputStream outputStream, int i ) throws IOException {
+    throw new UnsupportedOperationException();
   }
 }
