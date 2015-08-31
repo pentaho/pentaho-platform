@@ -22,6 +22,8 @@ import org.pentaho.di.core.database.DataSourceProviderFactory;
 import org.pentaho.di.core.database.DataSourceProviderInterface;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
+import org.pentaho.platform.api.data.IJndiDatasourceService;
+import org.pentaho.platform.api.data.IPooledDatasourceService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.sql.DataSource;
@@ -42,12 +44,16 @@ public class PlatformKettleDataSourceProvider implements DataSourceProviderInter
     DataSourceProviderFactory.setDataSourceProviderInterface( instance );
   }
 
-  public DataSource getNamedDataSource( String dataSourceName ) throws DataSourceNamingException {
-    IDBDatasourceService datasourceService =
-        (IDBDatasourceService) PentahoSystem.get( IDBDatasourceService.class, null );
-    if ( datasourceService != null ) {
+  protected <T extends IDBDatasourceService> DataSource getNamedDataSourceFromService(
+    Class<T> dataSourceServiceInterface, String dataSourceName ) throws DataSourceNamingException {
+    T datasourceService = PentahoSystem.get( dataSourceServiceInterface, null );
+
+    IDBDatasourceService service =
+      ( datasourceService == null ) ? PentahoSystem.get( IDBDatasourceService.class, null ) : datasourceService;
+
+    if ( service != null ) {
       try {
-        return datasourceService.getDataSource( dataSourceName );
+        return service.getDataSource( dataSourceName );
       } catch ( DBDatasourceServiceException ex ) {
         throw new DataSourceNamingException( ex );
       }
@@ -55,4 +61,22 @@ public class PlatformKettleDataSourceProvider implements DataSourceProviderInter
     return null;
   }
 
+  public DataSource getNamedDataSource( String dataSourceName ) throws DataSourceNamingException {
+    return getNamedDataSourceFromService( IDBDatasourceService.class, dataSourceName );
+  }
+
+  @Override
+  public DataSource getNamedDataSource( String dataSourceName, DataSourceProviderInterface.DatasourceType type )
+    throws DataSourceNamingException {
+    if ( type != null ) {
+      switch( type ) {
+        case JNDI:
+          return getNamedDataSourceFromService( IJndiDatasourceService.class, dataSourceName );
+        case POOLED:
+          return getNamedDataSourceFromService( IPooledDatasourceService.class, dataSourceName );
+      }
+    }
+    throw new DataSourceNamingException(
+      String.format( "Unknown data source type [%s] for named data source [%s]", type, dataSourceName ) );
+  }
 }

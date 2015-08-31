@@ -19,6 +19,8 @@ package org.pentaho.platform.plugin.boot;
 
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.platform.api.data.IDBDatasourceService;
+import org.pentaho.platform.api.data.IPooledDatasourceService;
+import org.pentaho.platform.api.data.IJndiDatasourceService;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -29,8 +31,10 @@ import org.pentaho.platform.api.engine.IServiceManager;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
+import org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService;
+import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener;
 import org.pentaho.platform.plugin.action.kettle.KettleSystemListener;
@@ -112,6 +116,8 @@ public class PentahoBoot extends PentahoSystemBoot {
     IPentahoObjectFactory objectFactory = getFactory();
     if ( objectFactory instanceof IPentahoDefinableObjectFactory ) {
       define( IDBDatasourceService.class, PooledOrJndiDatasourceService.class, Scope.LOCAL );
+      define( IPooledDatasourceService.class, PooledDatasourceService.class, Scope.LOCAL );
+      define( IJndiDatasourceService.class, JndiDatasourceService.class, Scope.LOCAL );
     }
     addLifecycleListener( new PooledDatasourceSystemListener() );
   }

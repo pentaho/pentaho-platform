@@ -20,10 +20,11 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IPooledDatasourceService;
 
 import javax.sql.DataSource;
 
-public class PooledDatasourceService extends NonPooledDatasourceService {
+public class PooledDatasourceService extends NonPooledDatasourceService implements IPooledDatasourceService {
 
   @Override
   public String getDSBoundName( final String dsName ) throws DBDatasourceServiceException {
