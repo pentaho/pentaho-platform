@@ -17,6 +17,15 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
+
 import org.apache.commons.lang3.StringUtils;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -40,16 +49,8 @@ import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignment;
 import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignments;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.SystemRolesMap;
-import org.pentaho.platform.web.http.api.resources.UnauthorizedException;
 import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
 
 public class UserRoleDaoService {
   private IUserRoleDao roleDao;
@@ -132,12 +133,20 @@ public class UserRoleDaoService {
     return nameValid && passValid;
   }
 
-  public void createUser( User user ) throws UnauthorizedException, Exception {
+  private String decode( String toDecode ) {
+    try {
+      return URLDecoder.decode( toDecode.replace( "+", "%2B" ), "UTF-8" );
+    } catch ( UnsupportedEncodingException e ) {
+      return toDecode;
+    }
+  }
+
+  public void createUser( User user ) throws Exception {
     if ( canAdminister() ) {
       if ( userValid( user ) ) {
         IUserRoleDao roleDao =
             PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-        roleDao.createUser( null, user.getUserName(), user.getPassword(), "", new String[0] );
+        roleDao.createUser( null, decode( user.getUserName() ), decode( user.getPassword() ), "", new String[0] );
       } else {
         throw new ValidationFailedException();
       }
