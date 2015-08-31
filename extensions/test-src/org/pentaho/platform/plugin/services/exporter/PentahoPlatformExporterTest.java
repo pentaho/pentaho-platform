@@ -2,8 +2,11 @@ package org.pentaho.platform.plugin.services.exporter;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
@@ -112,5 +115,25 @@ public class PentahoPlatformExporterTest {
     assertEquals( "test1", exporter.getExportManifest().getMetadataList().get( 0 ).getDomainId() );
     assertEquals( PentahoPlatformExporter.METADATA_PATH_IN_ZIP + "test1.xmi",
       exporter.getExportManifest().getMetadataList().get( 0 ).getFile() );
+  }
+
+  @Test
+  public void testExportDatasources() throws Exception {
+
+    IDatasourceMgmtService svc = mock( IDatasourceMgmtService.class );
+    exporter.setDatasourceMgmtService( svc );
+
+    List<IDatabaseConnection> datasources = new ArrayList<>();
+    IDatabaseConnection conn = mock( DatabaseConnection.class );
+    IDatabaseConnection icon = mock( IDatabaseConnection.class );
+    datasources.add( conn );
+    datasources.add( icon );
+
+    when( svc.getDatasources() ).thenReturn( datasources );
+
+    exporter.exportDatasources();
+
+    assertEquals( 1, exporter.getExportManifest().getDatasourceList().size() );
+    assertEquals( conn, exporter.getExportManifest().getDatasourceList().get( 0 ) );
   }
 }
