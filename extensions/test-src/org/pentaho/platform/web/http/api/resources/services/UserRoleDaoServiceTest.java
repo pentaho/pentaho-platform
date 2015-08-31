@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -33,6 +34,7 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.web.http.api.resources.LogicalRoleAssignment;
@@ -561,5 +563,55 @@ public class UserRoleDaoServiceTest {
     Assert.assertTrue( validationFailed( service, new User( null, "pass" ) ) );
     Assert.assertTrue( validationFailed( service, new User( "name", null ) ) );
     Assert.assertFalse( validationFailed( service, new User( "normalName", "pass" ) ) );
+  }
+
+  private boolean isValidationFailedThrew( String name, String pass, String oldPass ) throws Exception {
+    try {
+      userRoleService.changeUserPassword( name, pass, oldPass );
+    } catch ( UserRoleDaoService.ValidationFailedException ex ) {
+      return true;
+    }
+    return false;
+  }
+
+  @Test
+  public void testChangePassInvalidInput() throws Exception {
+    Assert.assertTrue( isValidationFailedThrew( null, "newpass", "oldpass" ) );
+    Assert.assertTrue( isValidationFailedThrew( null, "newpass", "oldpass" ) );
+    Assert.assertTrue( isValidationFailedThrew( "", "newpass", "oldpass" ) );
+    Assert.assertTrue( isValidationFailedThrew( "name", null, "oldpass" ) );
+    Assert.assertTrue( isValidationFailedThrew( "name", "", "oldpass" ) );
+    Assert.assertTrue( isValidationFailedThrew( "name", "newpass", null ) );
+    Assert.assertTrue( isValidationFailedThrew( "name", "newpass", "" ) );
+  }
+
+  @Test
+  public void testChangePassSuccess() throws Exception {
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    IPentahoUser pentahoUser = mock( IPentahoUser.class );
+    doReturn( "old pass" ).when( pentahoUser ).getPassword();
+    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
+    PentahoSystem.registerObject( roleDao );
+
+    SecurityHelper.setMockInstance( mock( ISecurityHelper.class ) );
+    userRoleService.changeUserPassword( "name", "newpass", "old pass" );
+  }
+
+  @Test( expected = SecurityException.class )
+  public void testChangePassWrongName() throws Exception {
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    doReturn( null ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
+    PentahoSystem.registerObject( roleDao );
+    userRoleService.changeUserPassword( "name", "newpass", "old pass" );
+  }
+
+  @Test( expected = SecurityException.class )
+  public void testChangePassWrongPass() throws Exception {
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    IPentahoUser pentahoUser = mock( IPentahoUser.class );
+    doReturn( "wrong old pass" ).when( pentahoUser ).getPassword();
+    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
+    PentahoSystem.registerObject( roleDao );
+    userRoleService.changeUserPassword( "name", "newpass", "old pass" );
   }
 }

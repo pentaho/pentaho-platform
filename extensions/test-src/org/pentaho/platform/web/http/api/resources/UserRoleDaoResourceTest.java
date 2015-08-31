@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
@@ -408,4 +407,46 @@ public class UserRoleDaoResourceTest {
     }
   }
 
+  private void changePassException( Exception ex, int expectedStatus, String name, String newPass, String oldPass )
+    throws Exception {
+    UserRoleDaoService mockService = mock( UserRoleDaoService.class );
+    doThrow( ex ).when( mockService ).changeUserPassword( anyString(), anyString(), anyString() );
+    UserRoleDaoResource resource =
+        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+    try {
+      resource.changeUserPassword( name, newPass, oldPass );
+    } catch ( WebApplicationException exception ) {
+      assertEquals( expectedStatus, exception.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testChangePasswordSuccess() throws Exception {
+    Response response = userRoleResource.changeUserPassword( "name", "newPass", "oldPass" );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+  }
+
+  @Test
+  public void testChangePasswordWrongName() throws Exception {
+    changePassException( new SecurityException(), Response.Status.FORBIDDEN.getStatusCode(), "wrong_name",
+        "newPass", "oldPass" );
+  }
+
+  @Test
+  public void testChangePasswordWrongPass() throws Exception {
+    changePassException( new SecurityException(), Response.Status.FORBIDDEN.getStatusCode(), "name",
+        "wrong_newPass", "oldPass" );
+  }
+
+  @Test
+  public void testChangePasswordInvalidInput() throws Exception {
+    changePassException( new UserRoleDaoService.ValidationFailedException(), Response.Status.BAD_REQUEST
+        .getStatusCode(), null, null, "oldPass" );
+  }
+  
+  @Test
+  public void testChangePasswordInternalError() throws Exception {
+    changePassException( new Exception(), Response.Status.PRECONDITION_FAILED
+        .getStatusCode(), null, null, "oldPass" );
+  }
 }
