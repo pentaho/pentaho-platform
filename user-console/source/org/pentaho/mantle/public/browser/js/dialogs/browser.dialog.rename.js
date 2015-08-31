@@ -67,6 +67,8 @@ define([
         return;
       }
 
+      name = name.replace(/^\s+|\s+$/gm,''); // trim
+      
       prevName = Encoder.encodeRepositoryPath( prevName);
       // Update the path
       var prevPath = this.get("path");
@@ -296,7 +298,7 @@ define([
         var renameField = this.$dialog.find("#rename-field")
             .val(me.model.get("name"))
             .bind("keyup", function () {
-              var val = renameField.val();
+              var val = renameField.val().replace(/^\s+|\s+$/gm,''); // get val and trim it;
               okButton.prop("disabled", val == me.model.get("name") || val.length == 0);
             });
       };
