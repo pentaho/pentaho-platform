@@ -1,18 +1,15 @@
 package org.pentaho.platform.plugin.services.exporter;
 
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
@@ -49,11 +46,11 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
    *
    * @throws ExportException indicates an error in import processing
    */
+  @Override
   public File performExport( RepositoryFile exportRepositoryFile ) throws ExportException, IOException {
 
-    if ( exportRepositoryFile == null ) {
-      exportRepositoryFile = getUnifiedRepository().getFile( ROOT );
-    }
+    // always export root
+    exportRepositoryFile = getUnifiedRepository().getFile( ROOT );
 
     // create temp file
     exportFile = File.createTempFile( EXPORT_TEMP_FILENAME_PREFIX, EXPORT_TEMP_FILENAME_EXT );
@@ -61,7 +58,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
     zos = new ZipOutputStream( new FileOutputStream( exportFile ) );
 
-//    exportFileContent( exportRepositoryFile );
+    exportFileContent( exportRepositoryFile );
     exportDatasources();
     exportMondrianSchemas();
     exportMetadataModels();
