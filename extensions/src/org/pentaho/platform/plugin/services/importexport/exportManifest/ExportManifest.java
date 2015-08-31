@@ -19,8 +19,11 @@
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.plugin.services.importexport.RoleExport;
+import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestEntityDto;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
@@ -57,6 +60,8 @@ public class ExportManifest {
   private List<ExportManifestMondrian> mondrianList = new ArrayList<ExportManifestMondrian>();
   private List<JobScheduleRequest> scheduleList = new ArrayList<JobScheduleRequest>();
   private List<DatabaseConnection> datasourceList = new ArrayList<DatabaseConnection>();
+  private List<UserExport> userExports = new ArrayList<UserExport>();
+  private List<RoleExport> roleExports = new ArrayList<RoleExport>();
 
   public ExportManifest() {
     this.exportManifestEntities = new HashMap<String, ExportManifestEntity>();
@@ -75,6 +80,8 @@ public class ExportManifest {
     this.metadataList = exportManifestDto.getExportManifestMetadata();
     this.scheduleList = exportManifestDto.getExportManifestSchedule();
     this.datasourceList = exportManifestDto.getExportManifestDatasource();
+    this.userExports = exportManifestDto.getExportManifestUser();
+    this.roleExports = exportManifestDto.getExportManifestRole();
   }
 
   /**
@@ -129,7 +136,7 @@ public class ExportManifest {
     final JAXBContext jaxbContext = JAXBContext.newInstance( ExportManifestDto.class );
     Marshaller marshaller = getMarshaller();
     marshaller.marshal( new JAXBElement<ExportManifestDto>( new QName( "http://www.pentaho.com/schema/",
-        "ExportManifest" ), ExportManifestDto.class, getExportManifestDto() ), outputStream );
+      "ExportManifest" ), ExportManifestDto.class, getExportManifestDto() ), outputStream );
   }
 
   public String toXmlString() throws JAXBException {
@@ -177,6 +184,8 @@ public class ExportManifest {
     rawExportManifest.getExportManifestMondrian().addAll( this.mondrianList );
     rawExportManifest.getExportManifestSchedule().addAll( this.scheduleList );
     rawExportManifest.getExportManifestDatasource().addAll( this.datasourceList );
+    rawExportManifest.getExportManifestUser().addAll( this.getUserExports() );
+    rawExportManifest.getExportManifestRole().addAll( this.getRoleExports() );
 
     return rawExportManifest;
   }
@@ -253,5 +262,21 @@ public class ExportManifest {
 
   public List<DatabaseConnection> getDatasourceList() {
     return datasourceList;
+  }
+
+  public List<UserExport> getUserExports() {
+    return userExports;
+  }
+
+  public void addUserExport( UserExport userExport ) {
+    this.userExports.add( userExport );
+  }
+
+  public List<RoleExport> getRoleExports() {
+    return roleExports;
+  }
+
+  public void addRoleExport( RoleExport roleExport ) {
+    this.roleExports.add( roleExport );
   }
 }

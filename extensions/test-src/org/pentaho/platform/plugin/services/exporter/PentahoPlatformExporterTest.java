@@ -1,12 +1,19 @@
 package org.pentaho.platform.plugin.services.exporter;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+import org.mockito.ArgumentCaptor;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
@@ -14,8 +21,15 @@ import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.RoleExport;
+import org.pentaho.platform.plugin.services.importexport.UserExport;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
+import org.pentaho.platform.security.userroledao.PentahoRole;
+import org.pentaho.platform.security.userroledao.PentahoUser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,6 +45,7 @@ import static org.mockito.Mockito.*;
 
 public class PentahoPlatformExporterTest {
 
+  PentahoPlatformExporter exporterSpy;
   PentahoPlatformExporter exporter;
   IUnifiedRepository repo;
   IScheduler scheduler;
@@ -42,9 +57,15 @@ public class PentahoPlatformExporterTest {
     scheduler = mock( IScheduler.class );
     session = mock( IPentahoSession.class );
     PentahoSessionHolder.setSession( session );
-    exporter = spy( new PentahoPlatformExporter( repo ) );
-    exporter.setScheduler( scheduler );
+    exporterSpy = spy( new PentahoPlatformExporter( repo ) );
+    exporterSpy.setScheduler( scheduler );
     doReturn( "session name" ).when( session ).getName();
+  exporter = new PentahoPlatformExporter( repo );
+  }
+
+  @After
+  public void tearDown() {
+    PentahoSystem.clearObjectFactory();
   }
 
   @Test
@@ -67,19 +88,64 @@ public class PentahoPlatformExporterTest {
     when( job3.getJobName() ).thenReturn( "job 3" );
     when( job3.getJobTrigger() ).thenReturn( unknownTrigger );
 
-    exporter.exportSchedules();
+    exporterSpy.exportSchedules();
 
     verify( scheduler ).getJobs( null );
-    assertEquals( 1, exporter.getExportManifest().getScheduleList().size() );
+    assertEquals( 1, exporterSpy.getExportManifest().getScheduleList().size() );
   }
   @Test
   public void testExportSchedules_SchedulereThrowsException() throws Exception {
     when( scheduler.getJobs( null ) ).thenThrow( new SchedulerException( "bad" ) );
 
-    exporter.exportSchedules();
+    exporterSpy.exportSchedules();
 
     verify( scheduler ).getJobs( null );
-    assertEquals( 0, exporter.getExportManifest().getScheduleList().size() );
+    assertEquals( 0, exporterSpy.getExportManifest().getScheduleList().size() );
+  }
+
+  @Test
+  public void testExportUsersAndRoles() {
+    IUserRoleDao mockDao = mock( IUserRoleDao.class );
+    PentahoSystem.registerObject( mockDao );
+
+    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
+    PentahoSystem.registerObject( roleBindingDao );
+
+    String tenantPath = "path";
+    when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( tenantPath );
+
+    List<IPentahoUser> userList = new ArrayList<IPentahoUser>();
+    IPentahoUser user = new PentahoUser( "testUser" );
+    IPentahoRole role = new PentahoRole( "testRole" );
+    userList.add( user );
+    when( mockDao.getUsers( any( ITenant.class ) ) ).thenReturn( userList );
+
+    List<IPentahoRole> roleList = new ArrayList<IPentahoRole>();
+    roleList.add( role );
+    when( mockDao.getRoles() ).thenReturn( roleList );
+
+    Map<String, List<String>> map = new HashMap<String, List<String>>();
+    List<String> permissions = new ArrayList<String>();
+    permissions.add( "read" );
+    map.put( "testRole", permissions );
+    RoleBindingStruct struct = mock( RoleBindingStruct.class );
+    struct.bindingMap = map;
+    when( roleBindingDao.getRoleBindingStruct( anyString() ) ).thenReturn( struct );
+
+    ArgumentCaptor<UserExport> userCaptor = ArgumentCaptor.forClass( UserExport.class );
+    ArgumentCaptor<RoleExport> roleCaptor = ArgumentCaptor.forClass( RoleExport.class );
+    ExportManifest manifest = mock( ExportManifest.class );
+    exporter.setExportManifest( manifest );
+
+    exporter.exportUsersAndRoles();
+
+    verify( manifest ).addUserExport( userCaptor.capture() );
+    verify( manifest ).addRoleExport( roleCaptor.capture() );
+
+    UserExport userExport = userCaptor.getValue();
+    assertEquals( "testUser", userExport.getUsername() );
+    RoleExport roleExport = roleCaptor.getValue();
+    assertEquals( "testRole", roleExport.getRolename() );
   }
 
   @Test
