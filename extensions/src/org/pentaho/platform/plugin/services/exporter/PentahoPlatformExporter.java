@@ -1,7 +1,11 @@
 package org.pentaho.platform.plugin.services.exporter;
 
 import org.apache.commons.io.IOUtils;
+import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
+import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
+import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.IScheduler;
@@ -48,6 +52,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
   private IScheduler scheduler;
   private IMetadataDomainRepository metadataDomainRepository;
+  private IDatasourceMgmtService datasourceMgmtService;
 
   public PentahoPlatformExporter( IUnifiedRepository repository ) {
     super( ROOT, repository, true );
@@ -105,9 +110,19 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     return exportFile;
   }
 
-  private void exportDatasources() {
+  protected void exportDatasources() {
     log.debug( "export datasources" );
-    exportManifest.addDatasource( null );
+    // get all connection to export
+    try {
+      List<IDatabaseConnection> datasources = getDatasourceMgmtService().getDatasources();
+      for ( IDatabaseConnection datasource : datasources ) {
+        if ( datasource instanceof DatabaseConnection ) {
+          exportManifest.addDatasource( (DatabaseConnection) datasource );
+        }
+      }
+    } catch ( DatasourceMgmtServiceException e ) {
+      log.warn( e.getMessage(), e );
+    }
   }
 
   protected void exportMetadataModels() {
@@ -243,5 +258,16 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
   public void setMetadataDomainRepository( IMetadataDomainRepository metadataDomainRepository ) {
     this.metadataDomainRepository = metadataDomainRepository;
+  }
+
+  public IDatasourceMgmtService getDatasourceMgmtService() {
+    if ( datasourceMgmtService == null ) {
+      datasourceMgmtService = PentahoSystem.get( IDatasourceMgmtService.class, PentahoSessionHolder.getSession() );
+    }
+    return datasourceMgmtService;
+  }
+
+  public void setDatasourceMgmtService( IDatasourceMgmtService datasourceMgmtService ) {
+    this.datasourceMgmtService = datasourceMgmtService;
   }
 }
