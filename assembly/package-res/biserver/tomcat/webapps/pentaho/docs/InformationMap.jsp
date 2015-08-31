@@ -9,6 +9,13 @@
 
 $('document').ready(function(){
 
+   var docBase = "https://help.pentaho.com/Documentation/6.0/";
+
+   window.loadDocURL = function(docId) {
+       window.location = docBase + docId;
+       return false;
+   }
+
    // Toggle display panel w/ animation
    $('.title_bar').click(function(){
        $(this).find('span').toggleClass('open');
@@ -276,7 +283,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
     <div id="banner">
       <table width="700" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td rowspan="2" class="bannerimage"><img src="pdf_icon.png" width="80" height="80" /></td>
+          <td rowspan="2" class="bannerimage"><img src="doc_icon.png" width="56" height="74" /></td>
           <td><%=Messages.getInstance().getString("UI.PUC.DOCS.HEADER")%></td>
         </tr>
         <tr>
@@ -294,13 +301,13 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
       <p class="title_bar"><span class="open"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN")%></span></p>
       <div id="plan" class="panel" style="display:">      
         <ul>
-          <li> <a href="" class="article"></a> <a href="components.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN.COMPONENTS")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0D0/050');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN.COMPONENTS")%></a><br />
             <div id="Components" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN.COMPONENTS.DESC")%></div>
           </li>
-          <li> <a href="" class="article"></a> <a href="workflows.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN.WORKFLOWS")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0D0/1A0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN.WORKFLOWS")%></a><br />
             <div id="PentahoUserConsoleGuideU" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN.WORKFLOWS.DESC")%></div>
           </li>
-          <li> <a href="" class="article"></a> <a href="supported_components.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN.SUPPORTED_COMPONENTS")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0D0/160');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN.SUPPORTED_COMPONENTS")%></a><br />
             <div id="SupportMatrix" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.MAKE_A_PLAN.SUPPORTED_COMPONENTS.DESC")%></div>
        </li>
         </ul>
@@ -310,16 +317,16 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
       <p class="title_bar"><span><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL")%></span></p>
       <div id="install" class="panel">
         <ul>
-            <li> <a href="" class="article"></a> <a href="install_ziptar.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.ZIPTAR")%></a><br />
+            <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0F0/0K0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.ZIPTAR")%></a><br />
             <div id="BAArchiveInstallation" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.ZIPTAR.DESC")%></div>
           </li>
-          <li> <a href="" class="article"></a> <a href="install_client.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.CLIENT")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0F0/0M0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.CLIENT")%></a><br />
             <div id="BATools" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.CLIENT.DESC")%></div>
           </li>
-            <li> <a href="" class="article"></a> <a href="install_pdi.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.PDI")%></a><br />
+            <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0F0/0L0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.PDI")%></a><br />
             <div id="DIArchiveInstallation" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.PDI.DESC")%></div>
           </li>          
-          <li> <a href="" class="article"></a> <a href="install_client_pdi.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.CLIENT_PDI")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0F0/0N0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.CLIENT_PDI")%></a><br />
             <div id="DITools" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.INSTALL.CLIENT_PDI.DESC")%></div>
           </li>
         </ul>
@@ -329,10 +336,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
       <p class="title_bar"><span><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.CONFIGURE")%></span></p>
       <div id="configure" class="panel">
         <ul>
-          <li> <a href="" class="article"></a> <a href="config_ba_server.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.CONFIGURE.BA_SERVER")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0H0/060');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.CONFIGURE.BA_SERVER")%></a><br />
             <div id="ConfigBA" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.CONFIGURE.BA_SERVER.DESC")%></div>
           </li>
-          <li> <a href="" class="article"></a> <a href="config_pdi_server.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.CONFIGURE.PDI_SERVER")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0H0/070');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.CONFIGURE.PDI_SERVER")%></a><br />
             <div id="ConfigDI" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.CONFIGURE.PDI_SERVER.DESC")%></div>
           </li>
         </ul>
@@ -342,17 +349,14 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
       <p class="title_bar"><span><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS")%></span></p>
       <div id="evaluation" class="panel">
         <ul>
-          <li> <a href="" class="article"></a> <a href="getting_started_with_pentaho.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.PENTAHO")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0J0/0D0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.PENTAHO")%></a><br />
             <div id="GettingStartedwithBISuite" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.PENTAHO.DESC")%></div>
           </li>
-          <li><a href="" class="article"></a> <a href="getting_started_with_prd.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.PRD")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0J0/0E0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.PRD")%></a><br />
             <div id="GettingStartedwithPRD" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.PRD.DESC")%></div>
           </li>
-          <li> <a href="" class="article"></a> <a href="getting_started_with_pdi.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.PDI")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0J0/0C0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.PDI")%></a><br />
             <div id="GettingStartedwithPDI" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.PDI.DESC")%></div>
-          </li>
-          <li> <a href="" class="article"></a> <a href="getting_started_with_instaview.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.INSTAVIEW")%></a><br />
-            <div id="GettingStartedwithPDIInstaview" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUTORIALS.INSTAVIEW.DESC")%></div>
           </li>
         </ul>
       </div> 
@@ -361,20 +365,20 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
       <p class="title_bar"><span><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS")%></span></p>
       <div id="user" class="panel">
         <ul>
-          <li><a href="" class="article"></a> <a href="getting_started_with_data_models.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.DATA_MODELS")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0L0/0A0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.DATA_MODELS")%></a><br />
             <div id="PentahoDataSourceWizard" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.DATA_MODELS.DESC")%></div>
           </li>
-          <li><a href="" class="article"></a> <a href="puc_user_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.PUC")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0L0/120');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.PUC")%></a><br />
             <div id="PentahoUserConsole" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.PUC.DESC")%></div>
           </li>
-          <li> <a href="" class="article"></a> <a href="report_designer_user_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.REPORTS")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0L0/130');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.REPORTS")%></a><br />
             <div id="ReportDesignerUser" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.REPORTS.DESC")%></div>
           </li>
-          <li> <a href="" class="article"></a> <a href="pdi_user_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.PDI")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0L0/0Y0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.PDI")%></a><br />
             <div id="PDIUser" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.PDI.DESC")%>
             </div>
           </li>
-          <li> <a href="" class="article"></a> <a href="bigdata_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.BIG_DATA")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0L0/040');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.BIG_DATA")%></a><br />
             <div id="Bigdata" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.BUILD_SOLUTIONS.BIG_DATA_DESC")%></div>
           </li>
         </ul>
@@ -384,13 +388,13 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
       <p class="title_bar"><span><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS")%></span></p>
       <div id="modeling" class="panel">
         <ul>
-          <li> <a href="" class="article"></a> <a href="pme_user_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS.RELATIONAL")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0N0/110');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS.RELATIONAL")%></a><br />
             <div id="MetadataEditor" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS.RELATIONAL.DESC")%></div>
           </li>
-          <li> <a href="" class="article"></a> <a href="analysis_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS.ANALYSIS")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0N0/020');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS.ANALYSIS")%></a><br />
             <div id="Analysis" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS.ANALYSIS.DESC")%></div>
           </li>
-          <li> <a href="" class="article"></a> <a href="aggregation_designer_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS.AGGREGATION_DESIGNER")%></a><br />
+          <li> <a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0N0/010');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS.AGGREGATION_DESIGNER")%></a><br />
             <div id="AggregationDesignerUser" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DATA_MODELS.AGGREGATION_DESIGNER.DESC")%></div>
           </li>     
         </ul>
@@ -400,19 +404,19 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
       <p class="title_bar"><span><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE")%></span></p>
       <div id="admin" class="panel">
         <ul>
-          <li><a href="" class="article"></a> <a href="admin_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.ADMIN")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0P0/000');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.ADMIN")%></a><br />
             <div id="BISuiteAdminGuide" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.ADMIN.DESC")%></div>
           </li>
-          <li><a href="" class="article"></a> <a href="security_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.SECURITY")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0P0/150');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.SECURITY")%></a><br />
             <div id="BISuiteSecurityGuide" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.SECURITY.DESC")%><span class="pdf_link"></span></div>
           </li>
-          <li><a href="" class="article"></a> <a href="performance_tuning_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.PERFORMANCE")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0P0/100');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.PERFORMANCE")%></a><br />
             <div id="BISuitePerformanceTuningGuide" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.PERFORMANCE.DESC")%></div>
           </li>          
-          <li><a href="" class="article"></a> <a href="troubleshooting_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.TROUBLESHOOT")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0P0/170');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.TROUBLESHOOT")%></a><br />
             <div id="BISuiteTroubleshootingGuide" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.TROUBLESHOOT.DESC")%></div>
           </li>
-          <li><a href="" class="article"></a> <a href="pdi_admin_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.PDI_ADMIN")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0P0/0U0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.PDI_ADMIN")%></a><br />
             <div id="PDIAdministratorsGuide" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.TUNE.PDI_ADMIN.DESC")%></div>
           </li>
         </ul>
@@ -422,27 +426,22 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
       <p class="title_bar"><span><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP")%></span></p>
       <div id="dev" class="panel">
         <ul>
-          <li><a href="" class="article"></a> <a href="dashboard_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.DASHBOARDS")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0R0/120');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.DASHBOARDS")%></a><br />
             <div id="CreatingPentahoDashboards" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.DASHBOARDS.DESC")%></div>
           </li>
-          <li><a href="" class="article"></a> <a href="customizing_pentaho_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.CUSTOMIZING")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0R0/090');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.CUSTOMIZING")%></a><br />
             <div id="CustomizingtheBISuite" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.CUSTOMIZING.DESC")%></div>
           </li>        
-          <li><a href="" class="article"></a> <a href="integrating_biserver.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.INTEGRATING")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0R0/0Q0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.INTEGRATING")%></a><br />
             <div id="IntegratingtheBIServer" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.INTEGRATING.DESC")%></div>
           </li>          
-          <li><a href="" class="article"></a> <a href="reporting_embedders_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.REPORTING_EMBED")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0R0/140');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.REPORTING_EMBED")%></a><br />
             <div id="IntegratingtheBIServer" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.REPORTING_EMBED.DESC")%></div>
           </li>          
-          <li><a href="" class="article"></a> <a href="pdi_embed_extend_guide.pdf" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.PDI_EMBED_EXTEND")%></a><br />
+          <li><a href="" class="article"></a> <a href="#" onclick="return loadDocURL('0R0/0V0');" target="_blank"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.PDI_EMBED_EXTEND")%></a><br />
             <div id="ExtendingAndEmbeddingPDI" class="disc"><%=Messages.getInstance().getString("UI.PUC.DOCS.CONTENTS.DEVELOP.PDI_EMBED_EXTEND.DESC")%></div>
           </li>
         </ul>
-      </div>
-
-      <!-- Footer --> 
-      <div id="footer">
-          <%=Messages.getInstance().getString("UI.PUC.DOCS.FOOTER", "<a href=\"http://get.adobe.com/reader/\" target=\"_blank\">"+Messages.getInstance().getString("UI.PUC.DOCS.FOOTER.ADOBE_SITE")+"</a>")%>
       </div>
     </div>
   </div>
