@@ -430,4 +430,8 @@ public class ZipExportProcessor extends BaseExportProcessor {
   public ExportManifest getExportManifest() {
     return exportManifest;
   }
+
+  public void setExportManifest( ExportManifest exportManifest ) {
+    this.exportManifest = exportManifest;
+  }
 }
