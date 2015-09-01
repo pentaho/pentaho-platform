@@ -101,7 +101,21 @@ public class UserRoleDaoService {
       while ( tokenizer.hasMoreTokens() ) {
         assignedRoles.remove( tokenizer.nextToken() );
       }
-      getRoleDao().setUserRoles( tenant, userName, assignedRoles.toArray( new String[ assignedRoles.size() ] ) );
+      getRoleDao().setUserRoles( tenant, userName, assignedRoles.toArray( new String[assignedRoles.size()] ) );
+    } else {
+      throw new SecurityException();
+    }
+  }
+
+  public void createRole( String roleName ) throws Exception {
+    if ( canAdminister() ) {
+      if ( strNotEmpty( roleName ) ) {
+        IUserRoleDao roleDao =
+            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        roleDao.createRole( null, roleName, "", new String[0] );
+      } else {
+        throw new ValidationFailedException();
+      }
     } else {
       throw new SecurityException();
     }
@@ -124,12 +138,16 @@ public class UserRoleDaoService {
     return StringUtils.containsAny( username, reservedChars );
   }
 
+  private boolean strNotEmpty( String str ) {
+    return str != null && str.length() > 0;
+  }
+
   private boolean userValid( User user ) {
     String name = user.getUserName();
     String pass = user.getPassword();
 
-    boolean nameValid = ( name != null && name.length() > 0 && !containsReservedChars( name ) );
-    boolean passValid = ( pass != null && pass.length() > 0 );
+    boolean nameValid = strNotEmpty( name ) && !containsReservedChars( name );
+    boolean passValid = strNotEmpty( pass );
     return nameValid && passValid;
   }
 

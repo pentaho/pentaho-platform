@@ -549,19 +549,37 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Create a new role with the provided information
+   * 
+   * <p>
+   * <b>Example Request:</b><br />
+   * PUT pentaho/api/userroledao/createRole?roleName=rName
+   * </p>
    *
-   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param roleName   (name of the new role)
-   * @return
+   * @param roleName
+   *          (name of the new role)
+   * @return Response containing the result of the operation.
    */
   @PUT
-  @Path ( "/createRole" )
-  @Consumes ( { WILDCARD } )
-  @Facet ( name = "Unsupported" )
-  public Response createRole( @QueryParam ( "tenant" ) String tenantPath, @QueryParam ( "roleName" ) String roleName ) {
-    IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-    roleDao.createRole( getTenant( tenantPath ), roleName, "", new String[ 0 ] );
+  @Path( "/createRole" )
+  @Consumes( { WILDCARD } )
+  @StatusCodes( { 
+    @ResponseCode( code = 200, condition = "Successfully created new role." ), 
+    @ResponseCode( code = 400, condition = "Provided data has invalid format." ), 
+    @ResponseCode( code = 403, condition = "A non administrative user is trying to access this endpoint." ), 
+    @ResponseCode( code = 412, condition = "Unable to create role objects." ) 
+  } )
+  public Response createRole( @QueryParam( "roleName" ) String roleName) {
+    try {
+      userRoleDaoService.createRole( roleName );
+    } catch ( SecurityException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
+    } catch ( UserRoleDaoService.ValidationFailedException e ) {
+      throw new WebApplicationException( Response.Status.BAD_REQUEST );
+    } catch ( Exception e ) {
+      // TODO: INTERNAL_SERVER_ERROR(500) returns (FORBIDDEN)403 error instead for unknown reason. To avoid it use
+      // PRECONDITION_FAILED
+      throw new WebApplicationException( Response.Status.PRECONDITION_FAILED );
+    }
     return Response.ok().build();
   }
 
