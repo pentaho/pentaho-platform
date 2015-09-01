@@ -150,7 +150,6 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
       return super.getReferencesByQuery( type, query );
     }
     return Collections.emptyList();
-    }
   }
 
   private class OSGIPentahoObjectRegistration implements IPentahoObjectRegistration {
