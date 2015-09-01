@@ -36,7 +36,7 @@
 		<dependency org="log4j"                  name="log4j"              rev="1.2.17"  transitive="false"/>
 		<dependency org="cglib"                  name="cglib-nodep"        rev="2.2"     transitive="false"/>
     <dependency org="com.google.guava" name="guava" rev="17.0" conf="default->default"/>
-		
+
     	<!-- jersey -->
     	<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.16"/>
     	<dependency org="com.sun.jersey.contribs" name="jersey-apache-client" rev="1.16" transitive="false"/>
@@ -47,8 +47,8 @@
     	<dependency org="com.sun.jersey" name="jersey-client" rev="1.16"  transitive="false"/>
     	<dependency org="com.sun.jersey" name="jersey-server" rev="1.16"  transitive="false"/>
     	<dependency org="com.sun.jersey" name="jersey-servlet" rev="1.16" transitive="false"/>
-    	
-		
+
+
 		<!-- metro -->
 		<dependency org="org.glassfish.metro" name="webservices-api" rev="2.1" transitive="false"/>
 		<dependency org="org.glassfish.metro" name="webservices-rt" rev="2.1" transitive="false"/>
@@ -70,7 +70,7 @@
 		<dependency org="org.apache.jackrabbit"    	name="jackrabbit-core"            rev="2.10.0" >
 			<exclude name="concurrent" />
 		</dependency>
-		<dependency org="pentaho" name="pentaho-concurrent" rev="1.0-SNAPSHOT"/>
+		<dependency org="pentaho" name="pentaho-concurrent" rev="${dependency.pentaho-concurrent.revision}"/>
 
     	<dependency org="org.apache.jackrabbit" name="jackrabbit-data" rev="2.10.0" transitive="false">
       		<artifact name="jackrabbit-data" type="jar"/>
@@ -147,9 +147,9 @@
     <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" force="true" conf="test->default"/>
     <dependency org="javax.servlet" name="jstl" rev="1.2" force="true" conf="test->default"/>
     <dependency org="org.springframework" name="spring-webmvc" rev="${dependency.spring.framework.revision}" force="true" conf="test->default"/>
-    
-    
-    
+
+
+
 		<dependency org="simple-jndi"          	name="simple-jndi"   rev="0.11.3"  conf="test->default"/>
 	    <dependency org="org.quartz-scheduler" 	name="quartz"        rev="1.7.2"   conf="test->default"/>
 	    <dependency org="org.hamcrest"          name="hamcrest-core"  rev="1.1"   conf="test->default"/>
@@ -158,7 +158,7 @@
 		<dependency org="org.jmock" 			name="jmock-junit4" rev="2.5.1" conf="test->default"/>
 	    <dependency org="org.jmock" 			name="jmock-legacy" rev="2.5.1" conf="test->default" />
 	    <dependency org="com.sun.jersey" 		name="jersey-test-framework" rev="1.8" conf="test->default"/>
-	    
+
         <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
 	</dependencies>
 </ivy-module>
