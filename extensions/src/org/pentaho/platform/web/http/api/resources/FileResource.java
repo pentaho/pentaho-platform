@@ -54,6 +54,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -83,6 +84,7 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
@@ -142,6 +144,45 @@ public class FileResource extends AbstractJaxRSResource {
 
   public static String idToPath( String pathId ) {
     return FileUtils.idToPath( pathId );
+  }
+
+  /**
+   * Performs a system back up of the Pentaho system. This includes content, schedules, users, roles, datasources, and the metastore.
+   *
+   * <p><b>Example Request:</b><br />
+   *    PUT pentaho/api/repo/files/backup
+   * </p>
+   *
+   * @param userAgent       A string representing the type of browser to use.  Currently only applicable if contains 'FireFox' as FireFox
+   *                        requires a header with encoding information (UTF-8) and a quoted filename, otherwise encoding information is not
+   *                        supplied and the filename is not quoted.
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *      Encrypted file stream
+   *    </pre>
+   */
+  @GET
+  @Path ( "/backup" )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Successfully exported the existing Pentaho System" ),
+    @ResponseCode ( code = 403, condition = "User does not have administrative permissions"),
+    @ResponseCode ( code = 500, condition = "Failure to complete the export." )
+  } )
+  public Response systemBackup( @HeaderParam ( "user-agent" ) String userAgent ) {
+    FileService.DownloadFileWrapper wrapper = null;
+    try{
+      wrapper = fileService.systemBackup( userAgent );
+      return buildZipOkResponse( wrapper );
+    } catch( IOException e ) {
+      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+    } catch( ExportException e ) {
+      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+    } catch( SecurityException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
+    }
   }
 
   /**

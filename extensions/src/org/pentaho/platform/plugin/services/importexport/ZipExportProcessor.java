@@ -39,23 +39,6 @@ package org.pentaho.platform.plugin.services.importexport;
  * Time: 4:41 PM
  */
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -71,21 +54,39 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportMa
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipOutputStream;
+
 /**
  *
  */
 public class ZipExportProcessor extends BaseExportProcessor {
   private static final Log log = LogFactory.getLog( ZipExportProcessor.class );
 
-  private String path;
+  protected String path;
 
-  private ExportManifest exportManifest;
+  protected ExportManifest exportManifest;
 
   IUnifiedRepository unifiedRepository;
 
-  private boolean withManifest = true;
+  protected boolean withManifest = true;
 
-  private List<String> localeExportList;
+  protected List<String> localeExportList;
 
   /**
    * Encapsulates the logic of registering import handlers, generating the manifest, and performing the export
@@ -107,7 +108,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
     this.exportManifest = new ExportManifest();
 
     // set created by and create date in manifest information
-    IPentahoSession session = PentahoSessionHolder.getSession();
+    IPentahoSession session = getSession();
 
     Date todaysDate = new Date();
     SimpleDateFormat dateFormat = new SimpleDateFormat( EXPORT_INFO_DATE_FORMAT );
@@ -117,6 +118,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
     exportManifest.getManifestInformation().setExportDate(
         dateFormat.format( todaysDate ) + " " + timeFormat.format( todaysDate ) );
     exportManifest.getManifestInformation().setManifestVersion( "2" );
+  }
+
+  protected IPentahoSession getSession() {
+    return PentahoSessionHolder.getSession();
   }
 
   /**
@@ -254,7 +259,12 @@ public class ZipExportProcessor extends BaseExportProcessor {
           }
           exportDirectory( repositoryFile, outputStream, filePath );
         } else {
-          exportFile( repositoryFile, outputStream, filePath );
+          try {
+            exportFile( repositoryFile, outputStream, filePath );
+          } catch ( ZipException e ) {
+            // possible duplicate entry, log it and continue on with the other files in the directory
+            log.debug( e.getMessage(), e );
+          }
         }
       }
     }
@@ -268,7 +278,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param filePath
    * @return
    */
-  private String getZipEntryName( RepositoryFile repositoryFile, String filePath ) {
+  protected String getZipEntryName( RepositoryFile repositoryFile, String filePath ) {
     String result = "";
 
     // if we are at the root, get substring differently
@@ -415,5 +425,13 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   public void setLocaleExportList( List<String> localeExportList ) {
     this.localeExportList = localeExportList;
+  }
+
+  public ExportManifest getExportManifest() {
+    return exportManifest;
+  }
+
+  public void setExportManifest( ExportManifest exportManifest ) {
+    this.exportManifest = exportManifest;
   }
 }
