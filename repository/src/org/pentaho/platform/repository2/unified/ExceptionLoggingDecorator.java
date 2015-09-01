@@ -510,7 +510,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
 
       // no converter; throw general exception
       throw new UnifiedRepositoryException( Messages.getInstance().getString(
-          "ExceptionLoggingDecorator.generalException", message, refNum ) ); //$NON-NLS-1$
+          "ExceptionLoggingDecorator.generalException", message, refNum ), e ); //$NON-NLS-1$
 
     }
   }
