@@ -37,6 +37,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -508,13 +509,54 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     }
     return Response.ok().build();
   }
-      
+
+  @XmlRootElement
+  static class ChangePasswordUser {
+
+    private String userName;
+    private String newPassword;
+    private String oldPassword;
+
+    public ChangePasswordUser() {
+    }
+
+    public ChangePasswordUser( String pUserName, String pNewPassword, String pOldPassword ) {
+      userName = pUserName;
+      newPassword = pNewPassword;
+      oldPassword = pOldPassword;
+    }
+
+    public String getUserName() {
+      return userName;
+    }
+
+    public void setUserName( String userName ) {
+      this.userName = userName;
+    }
+
+    public String getNewPassword() {
+      return newPassword;
+    }
+
+    public void setNewPassword( String newPassword ) {
+      this.newPassword = newPassword;
+    }
+
+    public String getOldPassword() {
+      return oldPassword;
+    }
+
+    public void setOldPassword( String oldPassword ) {
+      this.oldPassword = oldPassword;
+    }
+  }
+
   /**
    * Change password for existing user
    * 
    * <p>
    * <b>Example Request:</b><br />
-   * PUT pentaho/api/userroledao/user?userName=user&newPassword=new-pass&oldPassword=old-pass
+   * PUT pentaho/api/userroledao/user with JSON {"userName": "name", "newPassword": "new", "oldPassword" : "old"} 
    * </p>
    * 
    * @param user name
@@ -531,10 +573,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     @ResponseCode( code = 403, condition = "Provided user name or password is wrong." ), 
     @ResponseCode( code = 412, condition = "An error occurred in the platform." )
   } )
-  public Response changeUserPassword( @QueryParam( "userName" ) String userName,
-      @QueryParam( "newPassword" ) String newPass, @QueryParam( "oldPassword" ) String oldPass) {
+  public Response changeUserPassword( ChangePasswordUser user ) {
     try {
-      userRoleDaoService.changeUserPassword( userName, newPass, oldPass );
+      userRoleDaoService.changeUserPassword( user.getUserName(), user.getNewPassword(), user.getOldPassword() );
     } catch ( ValidationFailedException e ) {
       throw new WebApplicationException( Response.Status.BAD_REQUEST );
     } catch ( SecurityException e ) {
