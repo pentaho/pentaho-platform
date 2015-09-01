@@ -165,29 +165,29 @@ public class PentahoPlatformExporterTest {
     domainIds.add( "test1" );
 
     when( mdr.getDomainIds() ).thenReturn( domainIds );
-    exporter.setMetadataDomainRepository( mdr );
-    exporter.zos = mock( ZipOutputStream.class );
+    exporterSpy.setMetadataDomainRepository( mdr );
+    exporterSpy.zos = mock( ZipOutputStream.class );
 
     Map<String, InputStream> inputMap = new HashMap<>();
     InputStream is = mock( InputStream.class );
     when( is.read( any( (new byte[]{}).getClass() ) ) ).thenReturn( -1 );
     inputMap.put( "test1", is );
 
-    doReturn( inputMap ).when( exporter ).getDomainFilesData( "test1" );
+    doReturn( inputMap ).when( exporterSpy ).getDomainFilesData( "test1" );
 
-    exporter.exportMetadataModels();
-    assertEquals( 1, exporter.getExportManifest().getMetadataList().size() );
+    exporterSpy.exportMetadataModels();
+    assertEquals( 1, exporterSpy.getExportManifest().getMetadataList().size() );
 
-    assertEquals( "test1", exporter.getExportManifest().getMetadataList().get( 0 ).getDomainId() );
+    assertEquals( "test1", exporterSpy.getExportManifest().getMetadataList().get( 0 ).getDomainId() );
     assertEquals( PentahoPlatformExporter.METADATA_PATH_IN_ZIP + "test1.xmi",
-      exporter.getExportManifest().getMetadataList().get( 0 ).getFile() );
+      exporterSpy.getExportManifest().getMetadataList().get( 0 ).getFile() );
   }
 
   @Test
   public void testExportDatasources() throws Exception {
 
     IDatasourceMgmtService svc = mock( IDatasourceMgmtService.class );
-    exporter.setDatasourceMgmtService( svc );
+    exporterSpy.setDatasourceMgmtService( svc );
 
     List<IDatabaseConnection> datasources = new ArrayList<>();
     IDatabaseConnection conn = mock( DatabaseConnection.class );
@@ -197,9 +197,9 @@ public class PentahoPlatformExporterTest {
 
     when( svc.getDatasources() ).thenReturn( datasources );
 
-    exporter.exportDatasources();
+    exporterSpy.exportDatasources();
 
-    assertEquals( 1, exporter.getExportManifest().getDatasourceList().size() );
-    assertEquals( conn, exporter.getExportManifest().getDatasourceList().get( 0 ) );
+    assertEquals( 1, exporterSpy.getExportManifest().getDatasourceList().size() );
+    assertEquals( conn, exporterSpy.getExportManifest().getDatasourceList().get( 0 ) );
   }
 }
