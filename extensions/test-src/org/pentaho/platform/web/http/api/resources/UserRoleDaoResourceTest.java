@@ -364,7 +364,7 @@ public class UserRoleDaoResourceTest {
   
   @Test
   public void testCreateUser() throws Exception {
-    Response response = userRoleResource.createUserPublicApi( new User( "name", "password" ) );
+    Response response = userRoleResource.createUser( new User( "name", "password" ) );
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
   }
 
@@ -375,7 +375,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoResource resource =
         new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
-      resource.createUserPublicApi( new User( "not", "admin" ) );
+      resource.createUser( new User( "not", "admin" ) );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }
@@ -388,7 +388,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoResource resource =
         new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
-      resource.createUserPublicApi( new User( "\\/validation", "failed" ) );
+      resource.createUser( new User( "\\/validation", "failed" ) );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus() );
     }
@@ -401,9 +401,9 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoResource resource =
         new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
-      resource.createUserPublicApi( new User( "user", "duplicate" ) );
+      resource.createUser( new User( "user", "duplicate" ) );
     } catch ( WebApplicationException e ) {
-      assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
+      assertEquals( Response.Status.PRECONDITION_FAILED.getStatusCode(), e.getResponse().getStatus() );
     }
   }
 

@@ -17,7 +17,27 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import com.sun.jersey.api.NotFoundException;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
@@ -41,25 +61,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadActi
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService.ValidationFailedException;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
-
-import javax.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import static javax.ws.rs.core.MediaType.*;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import com.sun.jersey.api.NotFoundException;
 
 /**
  * UserRoleDao manage pentaho security user and roles in the platform.
@@ -471,59 +473,28 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Create a new user with provided information.
-   *
-   * @param tenantPath (tenant path where the user exist, null of empty string assumes default tenant)
-   * @param user       (user information <code> User </code>)
-   * @return
-   */
-  @PUT
-  @Path ( "/createUser" )
-  @Consumes ( { WILDCARD } )
-  @Facet ( name = "Unsupported" )
-  public Response createUser( @QueryParam ( "tenant" ) String tenantPath, User user ) {
-    IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-    String userName = user.getUserName();
-    String password = user.getPassword();
-    try {
-      userName = URLDecoder.decode( userName.replace( "+", "%2B" ), "UTF-8" );
-    } catch ( UnsupportedEncodingException e ) {
-      userName = user.getUserName();
-      logger.warn( e.getMessage(), e );
-    }
-    try {
-      password = URLDecoder.decode( password.replace( "+", "%2B" ), "UTF-8" );
-    } catch ( UnsupportedEncodingException e ) {
-      password = user.getPassword();
-      logger.warn( e.getMessage(), e );
-    }
-    roleDao.createUser( getTenant( tenantPath ), userName, password, "", new String[0] );
-    return Response.ok().build();
-  }
-  
-  /**
    * Create new user with specified name and password
    *
    * <p>
    * <b>Example Request:</b><br />
-   * POST pentaho/api/userroledao/user with JSON {"userName": "name", "password": "password"}
+   * PUT pentaho/api/userroledao/createUser with JSON {"userName": "name", "password": "password"}
    * </p>
    *
-   * @param user object with name and password
+   * @param user
+   *          object with name and password
    * 
    * @return Response object containing the status code of the operation
    */
-  @POST
-  @Path( "/user" )
+  @PUT
+  @Path( "/createUser" )
   @Consumes( { WILDCARD } )
   @StatusCodes( { 
     @ResponseCode( code = 200, condition = "Successfully created new user." ), 
-    @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
+    @ResponseCode( code = 400, condition = "Provided data has invalid format." ), 
     @ResponseCode( code = 403, condition = "A non administrative user is trying to access this endpoint." ), 
-    @ResponseCode( code = 500, condition = "Unable to create User objects." ) 
+    @ResponseCode( code = 412, condition = "Unable to create User objects." ) 
   } )
-  public Response createUserPublicApi( User user ) {
+  public Response createUser( User user ) {
     try {
       userRoleDaoService.createUser( user );
     } catch ( SecurityException e ) {
@@ -531,11 +502,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     } catch ( UserRoleDaoService.ValidationFailedException e ) {
       throw new WebApplicationException( Response.Status.BAD_REQUEST );
     } catch ( Exception e ) {
-      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+      // TODO: INTERNAL_SERVER_ERROR(500) returns (FORBIDDEN)403 error instead for unknown reason. To avoid it use
+      // PRECONDITION_FAILED
+      throw new WebApplicationException( Response.Status.PRECONDITION_FAILED );
     }
     return Response.ok().build();
   }
-    
+      
   /**
    * Change password for existing user
    * 
