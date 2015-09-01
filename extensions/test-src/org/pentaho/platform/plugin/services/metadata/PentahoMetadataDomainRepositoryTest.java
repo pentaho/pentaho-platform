@@ -488,6 +488,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertNull( domainRepositorySpy.getDomain( STEEL_WHEELS ) );
     domainRepositorySpy.removeDomain( STEEL_WHEELS );
     assertEquals( originalFileCount, repository.getChildren( folder.getId() ).size() );
+    verify( domainRepositorySpy.getAclHelper(), never() ).removeAclFor( null );
   }
 
   @Test

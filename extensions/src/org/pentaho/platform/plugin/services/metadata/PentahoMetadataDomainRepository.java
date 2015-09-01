@@ -444,17 +444,21 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
 
     // Get the metadata domain file
+    RepositoryFile domainFile;
     Set<RepositoryFile> domainFiles;
     lock.writeLock().lock();
     try {
       domainFiles = metadataMapping.getFiles( domainId );
+      domainFile = metadataMapping.getDomainFile( domainId );
       metadataMapping.deleteDomain( domainId );
     } finally {
       lock.writeLock().unlock();
     }
 
-    // it no node exists, nothing would happen
-    getAclHelper().removeAclFor( getMetadataRepositoryFile( domainId ) );
+    if ( domainFile != null ) {
+      // it no node exists, nothing would happen
+      getAclHelper().removeAclFor( domainFile );
+    }
 
     for ( final RepositoryFile file : domainFiles ) {
       if ( logger.isTraceEnabled() ) {
