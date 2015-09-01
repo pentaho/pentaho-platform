@@ -17,12 +17,7 @@
 
 package org.pentaho.platform.osgi;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.UUID;
-
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.main.Main;
@@ -33,6 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.UUID;
 
 /**
  * This Pentaho SystemListener starts the Embedded Karaf framework to support OSGI in the platform.
@@ -56,7 +58,7 @@ public class KarafBoot implements IPentahoSystemListener {
 
       File karafDir = new File( solutionRootPath + KARAF_DIR );
 
-      if( !karafDir.exists() ) {
+      if ( !karafDir.exists() ) {
 
         logger.warn( "Karaf not found in standard dir of '" + ( solutionRootPath + KARAF_DIR ) + "' " );
 
@@ -77,6 +79,16 @@ public class KarafBoot implements IPentahoSystemListener {
 
       String root = karafDir.toURI().getPath();
 
+      if ( karafDir.exists() ) {
+        // This test will let us know whether we need to make our own copy of Karaf before starting (happens in PMR)
+        if ( !canOpenConfigPropertiesForEdit( root ) ) {
+          String newDir = new File( karafDir.getParentFile().getParentFile(), karafDir.getName() + "-copy" ).toURI().getPath();
+          File destDir = new File( newDir );
+          FileUtils.copyDirectory( karafDir, destDir );
+          root = newDir;
+        }
+      }
+
       System.setProperty( "karaf.home", root );
       System.setProperty( "karaf.base", root );
       System.setProperty( "karaf.data", root + "/data" );
@@ -86,7 +98,7 @@ public class KarafBoot implements IPentahoSystemListener {
       System.setProperty( "karaf.startRemoteShell", "true" );
       System.setProperty( "karaf.lock", "false" );
       System.setProperty( "karaf.etc", root + "/etc"  );
-      System.setProperty( "felix.fileinstall.dir", root + "/etc"); // Default is '' which results in serious performance hit
+      System.setProperty( "felix.fileinstall.dir", root + "/etc" ); // Default is '' which results in serious performance hit
 
       // Tell others like the pdi-osgi-bridge that there's already a karaf instance running so they don't start
       // their own.
@@ -94,21 +106,21 @@ public class KarafBoot implements IPentahoSystemListener {
 
 
       // set the location of the log4j config file, since OSGI won't pick up the one in webapp
-      
-      System.setProperty( "log4j.configuration", new File(solutionRootPath + "/system/osgi/log4j.xml").toURI().toString() );
+      System.setProperty( "log4j.configuration",
+        new File( solutionRootPath + "/system/osgi/log4j.xml" ).toURI().toString() );
       // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
       // same one used when instatiating appenders.
       System.setProperty( "log4j.ignoreTCL", "true" );
 
-      expandSystemPackages( root + "/etc/custom.properties");
-      
+      expandSystemPackages( root + "/etc/custom.properties" );
+
       // Setup karaf instance configuration
       KarafInstance karafInstance = new KarafInstance( root );
       new KarafInstancePortFactory( root + "/etc/KarafPorts.yaml" ).process();
-      
+
       //Define any additional karaf instance properties here using karafInstance.registerProperty
       karafInstance.start();
-      
+
       // Wrap the startup of Karaf in a child thread which has explicitly set a bogus authentication. This is
       // work-around and issue with Karaf inheriting the Authenticaiton set on the main system thread due to the
       // InheritableThreadLocal backing the SecurityContext. By setting a fake authentication, calls to the
@@ -138,11 +150,30 @@ public class KarafBoot implements IPentahoSystemListener {
     return main != null;
   }
 
+  boolean canOpenConfigPropertiesForEdit( String directory ) {
+    String testFile = directory + "/etc/config.properties";
+    FileOutputStream fileOutputStream = null;
+    try {
+      fileOutputStream = new FileOutputStream( testFile, true );
+    } catch ( IOException e ) {
+      return false;
+    } finally {
+      if ( fileOutputStream != null ) {
+        try {
+          fileOutputStream.close();
+        } catch ( IOException e ) {
+          // Ignore
+        }
+      }
+    }
+    return true;
+  }
+
   void expandSystemPackages( String s ) {
 
     File customFile = new File( s );
-    if( !customFile.exists() ){
-      logger.warn( "No custom.properties file for in karaf distribution.");
+    if ( !customFile.exists() ) {
+      logger.warn( "No custom.properties file for in karaf distribution." );
       return;
     }
     Properties properties = new Properties();
