@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
@@ -99,6 +100,33 @@ public class FileService {
 
   protected SessionResource sessionResource;
 
+  private PentahoPlatformExporter backupExporter;
+
+  public DownloadFileWrapper systemBackup( String userAgent ) throws IOException, ExportException {
+    if ( doCanAdminister() ) {
+      String originalFileName, quotedFileName, encodedFileName;
+      originalFileName = "SystemBackup.zip";
+      encodedFileName = makeEncodedFileName( originalFileName );
+      quotedFileName = makeQuotedFileName( originalFileName );
+      StreamingOutput streamingOutput = getBackupStream();
+      final String attachment = makeAttachment( userAgent, encodedFileName, quotedFileName );
+
+      return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
+    } else {
+      throw new SecurityException();
+    }
+  }
+
+  private StreamingOutput getBackupStream() throws IOException, ExportException {
+    File zipFile = getBackupExporter().performExport();
+    final FileInputStream inputStream = new FileInputStream( zipFile );
+
+    return new StreamingOutput() {
+      public void write( OutputStream output ) throws IOException {
+        IOUtils.copy( inputStream, output );
+      }
+    };
+    }
   /**
    * Moves the list of files to the user's trash folder
    * <p/>
@@ -335,8 +363,8 @@ public class FileService {
     boolean requiresZip = repositoryFile.isFolder() || withManifest;
     BaseExportProcessor exportProcessor = getDownloadExportProcessor( path, requiresZip, withManifest );
     originalFileName = requiresZip ? repositoryFile.getName() + ".zip" : repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
-    encodedFileName = URLEncoder.encode( originalFileName, "UTF-8" ).replaceAll( "\\+", "%20" );
-    String quotedFileName = "\"" + originalFileName + "\"";
+    encodedFileName = makeEncodedFileName( originalFileName );
+    String quotedFileName = makeQuotedFileName( originalFileName );
 
     // add export handlers for each expected file type
     exportProcessor.addExportHandler( getDownloadExportHandler() );
@@ -344,6 +372,20 @@ public class FileService {
     // copy streaming output
     StreamingOutput streamingOutput = getDownloadStream( repositoryFile, exportProcessor );
 
+    final String attachment = makeAttachment( userAgent, encodedFileName, quotedFileName );
+
+    return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
+  }
+
+  private String makeEncodedFileName( String originalFile ) throws UnsupportedEncodingException {
+    return URLEncoder.encode( originalFile, "UTF-8" ).replaceAll( "\\+", "%20" );
+  }
+
+  private String makeQuotedFileName( String OriginalFile ) {
+    return "\"" + OriginalFile + "\"";
+  }
+
+  private String makeAttachment( String userAgent, String encodedFileName, String quotedFileName ) {
     final String attachment;
     if ( userAgent.contains( "Firefox" ) ) {
       // special content-disposition for firefox browser to support utf8-encoded symbols in filename
@@ -352,7 +394,7 @@ public class FileService {
       attachment = "attachment; filename=" + quotedFileName;
     }
 
-    return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
+    return attachment;
   }
 
   /**
@@ -1124,7 +1166,7 @@ public class FileService {
    *
    * @return <code>boolean</code>
    */
-  public boolean doCanAdminister() throws Exception {
+  public boolean doCanAdminister() {
     boolean status = false;
     try {
       status = getPolicy().isAllowed( RepositoryReadAction.NAME )
@@ -1491,8 +1533,7 @@ public class FileService {
   }
 
   protected BaseExportProcessor getDownloadExportProcessor( String path, boolean requiresZip, boolean withManifest ) {
-    return new PentahoPlatformExporter( getRepository() );
-//    return requiresZip ? new ZipExportProcessor( path, getRepository(), withManifest ) : new SimpleExportProcessor( path, getRepository() );
+    return requiresZip ? new ZipExportProcessor( path, getRepository(), withManifest ) : new SimpleExportProcessor( path, getRepository() );
   }
 
   protected ExportHandler getDownloadExportHandler() {
@@ -1612,6 +1653,14 @@ public class FileService {
     Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
     collator.setStrength( strength ); // ignore case
     return collator;
+  }
+
+  private PentahoPlatformExporter getBackupExporter() {
+    if( backupExporter == null ) {
+      backupExporter = new PentahoPlatformExporter( getRepository() );
+    }
+
+    return backupExporter;
   }
 
   protected String decode( String folder ) {

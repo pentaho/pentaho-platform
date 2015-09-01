@@ -74,6 +74,10 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     addExportHandler( new DefaultExportHandler() );
   }
 
+  public File performExport() throws ExportException, IOException {
+    return this.performExport( null );
+  }
+
   /**
    * Performs the export process, returns a zip File object
    *
@@ -91,7 +95,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
     zos = new ZipOutputStream( new FileOutputStream( exportFile ) );
 
-//    exportFileContent( exportRepositoryFile );
+    exportFileContent( exportRepositoryFile );
     exportDatasources();
     exportMondrianSchemas();
     exportMetadataModels();
