@@ -449,4 +449,37 @@ public class UserRoleDaoResourceTest {
     changePassException( new Exception(), Response.Status.PRECONDITION_FAILED
         .getStatusCode(), null, null, "oldPass" );
   }
+  
+  @Test
+  public void testCreateRole() throws Exception {
+    Response response = userRoleResource.createRole( "newRole" );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+  }
+
+  @Test
+  public void testCreateRoleSecurityException() throws Exception {
+    UserRoleDaoService mockService = mock( UserRoleDaoService.class );
+    doThrow( new SecurityException() ).when( mockService ).createRole( anyString() );
+    UserRoleDaoResource resource =
+        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+    try {
+      resource.createRole( "anyRoleName" );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
+  @Test
+  public void testCreateRoleEmptyName() throws Exception {
+    UserRoleDaoService mockService = mock( UserRoleDaoService.class );
+    doThrow( new UserRoleDaoService.ValidationFailedException() ).when( mockService ).createRole( anyString() );
+    UserRoleDaoResource resource =
+        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+    try {
+      resource.createRole( "" );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
+
 }

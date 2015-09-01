@@ -614,4 +614,25 @@ public class UserRoleDaoServiceTest {
     PentahoSystem.registerObject( roleDao );
     userRoleService.changeUserPassword( "name", "newpass", "old pass" );
   }
+
+  @Test( expected = UserRoleDaoService.ValidationFailedException.class )
+  public void testCreateRoleEmptyName() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    userRoleService.createRole( "" );
+  }
+
+  @Test( expected = UserRoleDaoService.ValidationFailedException.class )
+  public void testCreateRoleNullName() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    userRoleService.createRole( null );
+  }
+
 }
