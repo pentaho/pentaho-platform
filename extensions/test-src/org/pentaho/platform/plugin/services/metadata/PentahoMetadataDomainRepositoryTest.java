@@ -26,17 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.model.concept.types.LocaleType;
@@ -67,6 +56,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Class Description
@@ -282,7 +273,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     }
 
     doReturn( false ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ), eq( EnumSet.of(
-        RepositoryFilePermission.READ ) ) );
+      RepositoryFilePermission.READ ) ) );
     assertNull( domainRepositorySpy.getDomain( "doesn't exist" ) );
     doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
     domainRepositorySpy.removeDomain( "steel-wheels_test" );
@@ -498,6 +489,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertNull( domainRepositorySpy.getDomain( STEEL_WHEELS ) );
     domainRepositorySpy.removeDomain( STEEL_WHEELS );
     assertEquals( originalFileCount, repository.getChildren( folder.getId() ).size() );
+    verify( domainRepositorySpy.getAclHelper(), never() ).removeAclFor( null );
   }
 
   @Test
