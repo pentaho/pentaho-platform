@@ -4,27 +4,31 @@ import org.apache.commons.io.IOUtils;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
-import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
-import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
+import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
@@ -61,6 +65,8 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   private IScheduler scheduler;
   private IMetadataDomainRepository metadataDomainRepository;
   private IDatasourceMgmtService datasourceMgmtService;
+  private IMondrianCatalogService mondrianCatalogService;
+  private MondrianCatalogRepositoryHelper mondrianCatalogRepositoryHelper;
 
   public PentahoPlatformExporter( IUnifiedRepository repository ) {
     super( ROOT, repository, true );
@@ -100,7 +106,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
       // pass output stream to manifest class for writing
       try {
-        exportManifest.toXml( zos );
+        getExportManifest().toXml( zos );
       } catch ( Exception e ) {
         // todo: add to messages.properties
         log.error( "Error generating export XML" );
@@ -125,7 +131,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
       List<IDatabaseConnection> datasources = getDatasourceMgmtService().getDatasources();
       for ( IDatabaseConnection datasource : datasources ) {
         if ( datasource instanceof DatabaseConnection ) {
-          exportManifest.addDatasource( (DatabaseConnection) datasource );
+          getExportManifest().addDatasource( (DatabaseConnection) datasource );
         }
       }
     } catch ( DatasourceMgmtServiceException e ) {
@@ -152,15 +158,15 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
         ZipEntry zipEntry = new ZipEntry( new ZipEntry( ExportFileNameEncoder.encodeZipPathName( path ) ) );
         InputStream inputStream = domainFilesData.get( fileName );
 
-        // add the info to the exportManifest
-        ExportManifestMetadata metadata = new ExportManifestMetadata();
-        metadata.setDomainId( domainId );
-        metadata.setFile( path );
-        exportManifest.addMetadata( metadata );
-
         try {
           zos.putNextEntry( zipEntry );
           IOUtils.copy( inputStream, zos );
+
+          // add the info to the exportManifest
+          ExportManifestMetadata metadata = new ExportManifestMetadata();
+          metadata.setDomainId( domainId );
+          metadata.setFile( path );
+          getExportManifest().addMetadata( metadata );
 
         } catch ( IOException e ) {
           log.warn( e.getMessage(), e );
@@ -176,9 +182,60 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     }
   }
 
-  private void exportMondrianSchemas() {
+  protected void exportMondrianSchemas() {
     log.debug( "export mondrian schemas" );
-    exportManifest.addMondrian( null );
+
+    // Get the mondrian catalogs available in the repo
+    List<MondrianCatalog> catalogs = getMondrianCatalogService().listCatalogs( getSession(), false );
+    for ( MondrianCatalog catalog : catalogs ) {
+
+      // get the files for this catalog
+      Map<String, InputStream> files = getMondrianCatalogRepositoryHelper().getModrianSchemaFiles( catalog.getName() );
+
+      for ( String fileName : files.keySet() ) {
+        // write the file to the zip
+        String path = ANALYSIS_PATH_IN_ZIP + catalog.getName() + "/" + fileName;
+        ZipEntry zipEntry = new ZipEntry( new ZipEntry( ExportFileNameEncoder.encodeZipPathName( path ) ) );
+        InputStream inputStream = files.get( fileName );
+        try {
+          zos.putNextEntry( zipEntry );
+          IOUtils.copy( inputStream, zos );
+          ExportManifestMondrian mondrian = new ExportManifestMondrian();
+          mondrian.setCatalogName( catalog.getName() );
+          boolean xmlaEnabled = parseXmlaEnabled( catalog.getDataSourceInfo() );
+          mondrian.setXmlaEnabled( xmlaEnabled );
+          mondrian.setFile( path );
+          Parameters mondrianParameters = new Parameters();
+          mondrianParameters.put( "Provider", "mondrian" );
+          mondrianParameters.put( "DataSource", catalog.getJndi() );
+          mondrianParameters.put( "EnableXmla", Boolean.toString( xmlaEnabled ) );
+          mondrian.setParameters( mondrianParameters );
+          getExportManifest().addMondrian( mondrian );
+
+        } catch ( IOException e ) {
+          log.warn( e.getMessage(), e );
+        } finally {
+          IOUtils.closeQuietly( inputStream );
+          try {
+            zos.closeEntry();
+          } catch ( IOException e ) {
+            // can't close the entry of input stream
+          }
+        }
+      }
+    }
+  }
+
+  protected boolean parseXmlaEnabled( String dataSourceInfo ) {
+    String key = "EnableXmla=";
+    int pos = dataSourceInfo.indexOf( key );
+    if ( pos == -1 ) {
+      // if not specified, assume false
+      return false;
+    }
+    int end = dataSourceInfo.indexOf( ";", pos ) > -1 ? dataSourceInfo.indexOf( ";", pos ) : dataSourceInfo.length();
+    String xmlaEnabled = dataSourceInfo.substring( pos + key.length(), end );
+    return xmlaEnabled == null ? false : Boolean.parseBoolean( xmlaEnabled.replace( "\"", "" ) );
   }
 
   protected void exportSchedules() {
@@ -193,7 +250,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
         }
         try {
           JobScheduleRequest scheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
-          exportManifest.addSchedule( scheduleRequest );
+          getExportManifest().addSchedule( scheduleRequest );
         } catch ( IllegalArgumentException e ) {
           log.warn( e.getMessage(), e );
         }
@@ -252,7 +309,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     }
 
     if ( exportRepositoryFile.isFolder() ) { // Handle recursive export
-      exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
+      getExportManifest().getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
 
       // don't zip root folder without name
       if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
@@ -262,7 +319,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
       exportDirectory( exportRepositoryFile, zos, filePath );
 
     } else {
-      exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
+      getExportManifest().getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
       exportFile( exportRepositoryFile, zos, filePath );
     }
   }
@@ -284,8 +341,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
   public IMetadataDomainRepository getMetadataDomainRepository() {
     if ( metadataDomainRepository == null ) {
-      metadataDomainRepository = PentahoSystem.get( IMetadataDomainRepository.class,
-        PentahoSessionHolder.getSession() );
+      metadataDomainRepository = PentahoSystem.get( IMetadataDomainRepository.class, getSession() );
     }
     return metadataDomainRepository;
   }
@@ -296,12 +352,36 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
   public IDatasourceMgmtService getDatasourceMgmtService() {
     if ( datasourceMgmtService == null ) {
-      datasourceMgmtService = PentahoSystem.get( IDatasourceMgmtService.class, PentahoSessionHolder.getSession() );
+      datasourceMgmtService = PentahoSystem.get( IDatasourceMgmtService.class, getSession() );
     }
     return datasourceMgmtService;
   }
 
   public void setDatasourceMgmtService( IDatasourceMgmtService datasourceMgmtService ) {
     this.datasourceMgmtService = datasourceMgmtService;
+  }
+
+  public MondrianCatalogRepositoryHelper getMondrianCatalogRepositoryHelper() {
+    if ( this.mondrianCatalogRepositoryHelper == null ) {
+      mondrianCatalogRepositoryHelper = new MondrianCatalogRepositoryHelper( getUnifiedRepository() );
+    }
+    return mondrianCatalogRepositoryHelper;
+  }
+
+  public void setMondrianCatalogRepositoryHelper(
+    MondrianCatalogRepositoryHelper mondrianCatalogRepositoryHelper ) {
+    this.mondrianCatalogRepositoryHelper = mondrianCatalogRepositoryHelper;
+  }
+
+  public IMondrianCatalogService getMondrianCatalogService() {
+    if ( mondrianCatalogService == null ) {
+      mondrianCatalogService = PentahoSystem.get( IMondrianCatalogService.class, getSession() );
+    }
+    return mondrianCatalogService;
+  }
+
+  public void setMondrianCatalogService(
+    IMondrianCatalogService mondrianCatalogService ) {
+    this.mondrianCatalogService = mondrianCatalogService;
   }
 }

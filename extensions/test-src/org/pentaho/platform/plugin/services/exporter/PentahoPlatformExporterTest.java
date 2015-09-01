@@ -22,9 +22,13 @@ import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
@@ -38,9 +42,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class PentahoPlatformExporterTest {
@@ -50,17 +57,28 @@ public class PentahoPlatformExporterTest {
   IUnifiedRepository repo;
   IScheduler scheduler;
   IPentahoSession session;
+  IMondrianCatalogService mondrianCatalogService;
+  MondrianCatalogRepositoryHelper mondrianCatalogRepositoryHelper;
+
+  ExportManifest exportManifest;
 
   @Before
   public void setUp() throws Exception {
     repo = mock( IUnifiedRepository.class );
     scheduler = mock( IScheduler.class );
     session = mock( IPentahoSession.class );
+    mondrianCatalogService = mock( IMondrianCatalogService.class );
+    mondrianCatalogRepositoryHelper = mock( MondrianCatalogRepositoryHelper.class );
+    exportManifest = spy( new ExportManifest() );
+
     PentahoSessionHolder.setSession( session );
     exporterSpy = spy( new PentahoPlatformExporter( repo ) );
     exporterSpy.setScheduler( scheduler );
+    exporterSpy.setExportManifest( exportManifest );
+
     doReturn( "session name" ).when( session ).getName();
-  exporter = new PentahoPlatformExporter( repo );
+    exporter = new PentahoPlatformExporter( repo );
+
   }
 
   @After
@@ -180,7 +198,7 @@ public class PentahoPlatformExporterTest {
 
     assertEquals( "test1", exporterSpy.getExportManifest().getMetadataList().get( 0 ).getDomainId() );
     assertEquals( PentahoPlatformExporter.METADATA_PATH_IN_ZIP + "test1.xmi",
-      exporterSpy.getExportManifest().getMetadataList().get( 0 ).getFile() );
+    exporterSpy.getExportManifest().getMetadataList().get( 0 ).getFile() );
   }
 
   @Test
@@ -201,5 +219,57 @@ public class PentahoPlatformExporterTest {
 
     assertEquals( 1, exporterSpy.getExportManifest().getDatasourceList().size() );
     assertEquals( conn, exporterSpy.getExportManifest().getDatasourceList().get( 0 ) );
+  }
+
+  @Test
+  public void testParseXmlaEnabled() throws Exception {
+    String dsInfo = "DataSource=SampleData;Provider=mondrian;EnableXmla=\"false\"";
+    assertFalse( exporterSpy.parseXmlaEnabled( dsInfo ) );
+
+    dsInfo = "DataSource=SampleData;Provider=mondrian;EnableXmla=\"true\"";
+    assertTrue( exporterSpy.parseXmlaEnabled( dsInfo ) );
+
+    dsInfo = "DataSource=SampleData;Provider=mondrian";
+    assertFalse( exporterSpy.parseXmlaEnabled( dsInfo ) );
+
+    dsInfo = "DataSource=SampleData;EnableXmla=\"true\";Provider=mondrian";
+    assertTrue( exporterSpy.parseXmlaEnabled( dsInfo ) );
+  }
+
+  @Test
+  public void testExportMondrianSchemas_noCatalogs() throws Exception {
+    PentahoSystem.registerObject( mondrianCatalogService );
+    exporterSpy.setMondrianCatalogRepositoryHelper( mondrianCatalogRepositoryHelper );
+
+    exporterSpy.exportMondrianSchemas();
+
+    verify( exportManifest, never() ).addMondrian( any( ExportManifestMondrian.class ) );
+    verify( mondrianCatalogRepositoryHelper, never() ).getModrianSchemaFiles( anyString() );
+  }
+
+  @Test
+  public void testExportMondrianSchemas() throws Exception {
+    PentahoSystem.registerObject( mondrianCatalogService );
+    exporterSpy.setMondrianCatalogRepositoryHelper( mondrianCatalogRepositoryHelper );
+
+    List<MondrianCatalog> catalogs = new ArrayList<>();
+    MondrianCatalog catalog = new MondrianCatalog( "test", "EnableXmla=\"true\"", null, null );
+    catalogs.add( catalog );
+    when( mondrianCatalogService.listCatalogs( any( IPentahoSession.class ), anyBoolean() ) ).thenReturn( catalogs );
+    Map<String, InputStream> inputMap = new HashMap<>();
+    InputStream is = mock( InputStream.class );
+    when( is.read( any( (new byte[]{}).getClass() ) ) ).thenReturn( -1 );
+    inputMap.put( "test", is );
+
+    when( mondrianCatalogRepositoryHelper.getModrianSchemaFiles( "test" ) ).thenReturn( inputMap );
+    exporterSpy.zos = mock( ZipOutputStream.class );
+
+    exporterSpy.exportMondrianSchemas();
+
+    verify( exportManifest ).addMondrian( any( ExportManifestMondrian.class ) );
+    verify( mondrianCatalogRepositoryHelper ).getModrianSchemaFiles( anyString() );
+    assertEquals( "test", exportManifest.getMondrianList().get( 0 ).getCatalogName() );
+    assertTrue( exportManifest.getMondrianList().get( 0 ).isXmlaEnabled() );
+    verify( exporterSpy.zos ).putNextEntry( any( ZipEntry.class ) );
   }
 }
