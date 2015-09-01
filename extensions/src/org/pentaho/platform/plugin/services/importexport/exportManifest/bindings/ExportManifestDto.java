@@ -26,6 +26,8 @@
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
 import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.platform.plugin.services.importexport.RoleExport;
+import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -78,7 +80,7 @@ import java.util.List;
  */
 @XmlAccessorType ( XmlAccessType.FIELD )
 @XmlType ( name = "ExportManifestDto", propOrder = { "exportManifestInformation", "exportManifestMondrian",
-    "exportManifestMetadata", "exportManifestSchedule", "exportManifestDatasource", "exportManifestEntity" } )
+    "exportManifestMetadata", "exportManifestSchedule", "exportManifestDatasource", "exportManifestEntity", "exportManifestUser", "exportManifestRole" } )
 public class ExportManifestDto {
 
   @XmlElement ( name = "ExportManifestInformation", required = true )
@@ -93,6 +95,10 @@ public class ExportManifestDto {
   protected List<DatabaseConnection> exportManifestDatasource;
   @XmlElement ( name = "ExportManifestEntity" )
   protected List<ExportManifestEntityDto> exportManifestEntity;
+  @XmlElement ( name = "ExportManifestUser" )
+  protected List<UserExport> exportManifestUser;
+  @XmlElement ( name = "ExportManifestRole" )
+  protected List<RoleExport> exportManifestRole;
 
   /**
    * Gets the value of the exportManifestInformation property.
@@ -136,6 +142,20 @@ public class ExportManifestDto {
       exportManifestMondrian = new ArrayList<ExportManifestMondrian>();
     }
     return this.exportManifestMondrian;
+  }
+
+  public List<UserExport> getExportManifestUser() {
+    if ( exportManifestUser == null ) {
+      exportManifestUser = new ArrayList<UserExport>();
+    }
+    return this.exportManifestUser;
+  }
+
+  public List<RoleExport> getExportManifestRole() {
+    if ( exportManifestRole == null ) {
+      exportManifestRole = new ArrayList<RoleExport>();
+    }
+    return this.exportManifestRole;
   }
 
   /**

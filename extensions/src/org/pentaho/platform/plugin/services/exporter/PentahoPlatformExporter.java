@@ -6,6 +6,10 @@ import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.IScheduler;
@@ -13,15 +17,19 @@ import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
+import org.pentaho.platform.plugin.services.importexport.RoleExport;
+import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,8 +204,34 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   }
 
 
-  private void exportUsersAndRoles() {
+  protected void exportUsersAndRoles() {
     log.debug( "export users & roles" );
+
+    IUserRoleDao roleDao = PentahoSystem.get( IUserRoleDao.class );
+    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(
+      IRoleAuthorizationPolicyRoleBindingDao.class );
+    ITenant tenant = TenantUtils.getCurrentTenant();
+
+    //User Export
+    List<IPentahoUser> userList = roleDao.getUsers( tenant );
+    for ( IPentahoUser user : userList ) {
+      UserExport userExport = new UserExport();
+      userExport.setUsername( user.getUsername() );
+      for ( IPentahoRole role : roleDao.getUserRoles( tenant, user.getUsername() ) ) {
+        userExport.setRole( role.getName() );
+      }
+
+      this.getExportManifest().addUserExport( userExport );
+    }
+
+    //RoleExport
+    List<IPentahoRole> roles = roleDao.getRoles();
+    for ( IPentahoRole role : roles ) {
+      RoleExport roleExport = new RoleExport();
+      roleExport.setRolename( role.getName() );
+      roleExport.setPermission( roleBindingDao.getRoleBindingStruct( null ).bindingMap.get( role.getName() ) );
+      this.getExportManifest().addRoleExport( roleExport );
+    }
   }
 
   private void exportMetastore() {
