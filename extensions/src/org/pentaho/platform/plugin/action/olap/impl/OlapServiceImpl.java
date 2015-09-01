@@ -513,8 +513,8 @@ public class OlapServiceImpl implements IOlapService {
 
   private void flushHostedAndRemote( final IPentahoSession session )
       throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-    flushCatalogs( getHostedCatalogNames( session ), session, true );
-    flushCatalogs( getRemoteCatalogNames( session ), session, false );
+    flushCatalogs( getHostedCatalogNames( session ), session );
+    flushCatalogs( getRemoteCatalogNames( session ), session );
   }
 
   /**
@@ -524,7 +524,7 @@ public class OlapServiceImpl implements IOlapService {
    * For remote we assume that each needs to be flushed separately, since
    * there are possibly multiple servers.
    */
-  private void flushCatalogs( Collection<String> catalogNames, IPentahoSession session, boolean hosted ) throws SQLException {
+  private void flushCatalogs( Collection<String> catalogNames, IPentahoSession session ) throws SQLException {
     for ( String name : catalogNames ) {
       OlapConnection connection = null;
       try {
@@ -532,10 +532,6 @@ public class OlapServiceImpl implements IOlapService {
         XmlaHandler.XmlaExtra xmlaExtra = getXmlaExtra( connection );
         if ( xmlaExtra != null ) {
           xmlaExtra.flushSchemaCache( connection );
-          if ( hosted ) {
-            // flushing schema cache for one connection flushes all, no need to continue
-            break;
-          }
         }
       } catch ( Exception e ) {
         LOG.warn(
