@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   private BundleContext context;
   Logger log = LoggerFactory.getLogger( OSGIObjectFactory.class );
+  public static final String REFERENCE_CLASS = "reference_class";
 
   public OSGIObjectFactory( final BundleContext context ) {
     this.context = context;
@@ -74,6 +76,27 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       throws ObjectFactoryException {
     if ( isBundleContextValid() == false ) {
       return null;
+    }
+
+
+    try {
+      Map<String, String> props = new HashMap<String, String>( );
+      if( properties != null ){
+        props.putAll( properties);
+      }
+      props.put( REFERENCE_CLASS, interfaceClass.getName() );
+      Collection<ServiceReference<IPentahoObjectReference>> serviceReferences = this.context
+          .getServiceReferences( IPentahoObjectReference.class, OSGIUtils.createFilter( props ) );
+
+      List<IPentahoObjectReference<?>> returnList = new ArrayList<>();
+
+      if( serviceReferences != null && serviceReferences.size() > 0 ){
+        IPentahoObjectReference<T> obj = context.getService( serviceReferences.iterator().next() );
+        return obj.getObject();
+      }
+
+    } catch ( InvalidSyntaxException e ) {
+      log.debug( "Error retrieving from OSGI as ServiceReference, will try as bare type", e );
     }
 
     String filter = OSGIUtils.createFilter( properties );

@@ -18,7 +18,9 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
+import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -26,6 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 
@@ -76,10 +81,86 @@ public class BeanBuilder implements FactoryBean {
         }
 
       } else {
-        Class cls = getClass().getClassLoader().loadClass( type.trim() );
+        final Class cls = getClass().getClassLoader().loadClass( type.trim() );
         resolvingBean.set( this );
-        Object val = PentahoSystem.get( cls, PentahoSessionHolder.getSession(), attributes );
+        Object val = null;
+        IPentahoObjectReference objectReference =
+            PentahoSystem.getObjectFactory().getObjectReference( cls, PentahoSessionHolder.getSession(),
+                attributes );
+        if( objectReference != null ){
+          val = objectReference.getObject();
+        }
         resolvingBean.set( null );
+        if( val == null ){
+          log.debug( "No object was found to satisfy pen:bean request [" + type + " : " + attributes + "]" );
+
+          int dampeningTimeout = -1;
+          ISystemConfig iSystemConfig = PentahoSystem.get( ISystemConfig.class );
+          if( iSystemConfig != null ){
+            String property = iSystemConfig.getProperty( "system.dampening-timeout" );
+            if( property != null){
+              dampeningTimeout = Integer.valueOf( property );
+            }
+          }
+          final int f_dampeningTimeout = dampeningTimeout;
+          // send back a proxy
+          if( cls.isInterface() && dampeningTimeout > -1 ){
+            log.debug( "Request bean which wasn't found is interface-based. Instantiating a Proxy dampener" );
+
+            val = Proxy.newProxyInstance( cls.getClassLoader(), new Class[] { cls }, new InvocationHandler() {
+              String lock = "lock";
+              Object target;
+              Thread watcher;
+              boolean dead = false;
+
+              private void startWatcherThread( final int millis ){
+
+                watcher = new Thread( new Runnable() {
+                  @Override public void run() {
+                    int countdown = millis;
+                    while( countdown > 0 ){
+                      IPentahoObjectReference objectReference;
+                      try {
+                        objectReference =
+                            PentahoSystem.getObjectFactory().getObjectReference( cls, PentahoSessionHolder.getSession(),
+                                attributes );
+                        if( objectReference != null ){
+                          target = objectReference.getObject();
+                        }
+                      } catch ( ObjectFactoryException e ) {
+                        log.debug( "Error fetching from PentahoSystem", e );
+                      }
+
+                      if( target != null ){
+                        synchronized ( lock ) {
+                          lock.notifyAll();
+                        }
+                        return;
+                      }
+                      countdown -= 100;
+                    }
+                    dead = true;
+                  }
+                });
+                watcher.start();
+              }
+              @Override public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
+                if( target == null ) {
+                  synchronized ( lock ){
+                    if( watcher == null && !dead ){
+                      startWatcherThread( f_dampeningTimeout );
+                      lock.wait( f_dampeningTimeout );
+                    }
+                  }
+                }
+                if( target == null ) {
+                  throw new IllegalStateException( "Target of Bean was never resolved: " + cls.getName() );
+                }
+                return method.invoke( target, args );
+              }
+            } );
+          }
+        }
         return val;
       }
     } catch ( ClassNotFoundException e ) {

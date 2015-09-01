@@ -149,27 +149,7 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
     if ( this.bundleContext == null || !osgiInitialized.get() ) {
       return super.getReferencesByQuery( type, query );
     }
-
-    try {
-      Map<String, String> props = new HashMap<String, String>( );
-      if( query != null ){
-        props.putAll( query );
-      }
-      props.put( REFERENCE_CLASS, type.getName() );
-      Collection<ServiceReference<IPentahoObjectReference>> serviceReferences = this.bundleContext
-          .getServiceReferences( IPentahoObjectReference.class, OSGIUtils.createFilter( props ) );
-
-      List<IPentahoObjectReference<?>> returnList = new ArrayList<>();
-
-      for ( ServiceReference<IPentahoObjectReference> ref : serviceReferences ) {
-        IPentahoObjectReference obj = bundleContext.getService( ref );
-        returnList.add( obj );
-      }
-      return returnList;
-
-    } catch ( InvalidSyntaxException e ) {
-      logger.error( "Error retrieving from OSGI", e );
-      return Collections.emptyList();
+    return Collections.emptyList();
     }
   }
 
