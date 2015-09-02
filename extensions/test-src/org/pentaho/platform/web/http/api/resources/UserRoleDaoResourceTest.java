@@ -17,6 +17,19 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
@@ -26,15 +39,8 @@ import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.web.http.api.resources.UserRoleDaoResource.ChangePasswordUser;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 public class UserRoleDaoResourceTest {
   private UserRoleDaoResource userRoleResource;
@@ -414,7 +420,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoResource resource =
         new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
-      resource.changeUserPassword( name, newPass, oldPass );
+      resource.changeUserPassword( new ChangePasswordUser( name, newPass, oldPass ) );
     } catch ( WebApplicationException exception ) {
       assertEquals( expectedStatus, exception.getResponse().getStatus() );
     }
@@ -422,7 +428,7 @@ public class UserRoleDaoResourceTest {
 
   @Test
   public void testChangePasswordSuccess() throws Exception {
-    Response response = userRoleResource.changeUserPassword( "name", "newPass", "oldPass" );
+    Response response = userRoleResource.changeUserPassword( new ChangePasswordUser( "name", "newPass", "oldPass" ) );
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
   }
 
