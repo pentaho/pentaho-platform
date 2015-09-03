@@ -65,7 +65,7 @@ import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService.V
 import com.sun.jersey.api.NotFoundException;
 
 /**
- * UserRoleDao manage pentaho security user and roles in the platform.
+ * UserRoleDao manages Pentaho Security user and roles in the BA platform.
  */
 @Path ( "/userroledao/" )
 public class UserRoleDaoResource extends AbstractJaxRSResource {
@@ -159,7 +159,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path ( "/userRoles" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully retrieved the list of Role objects." ),
+    @ResponseCode ( code = 200, condition = "Successfully retrieved the list of roles." ),
     @ResponseCode ( code = 500, condition = "Invalid user parameter." )
   } )
   public RoleListWrapper getRolesForUser( @QueryParam( "userName" ) String user ) throws Exception {
@@ -188,7 +188,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path( "/roles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully retrieved the list of Roles." ),
+    @ResponseCode ( code = 200, condition = "Successfully retrieved the list of roles." ),
     @ResponseCode ( code = 500, condition = "The system was not able to return the list of roles." )
   } )
   public RoleListWrapper getRoles() throws Exception {
@@ -493,7 +493,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     @ResponseCode( code = 200, condition = "Successfully created new user." ), 
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ), 
     @ResponseCode( code = 403, condition = "A non administrative user is trying to access this endpoint." ), 
-    @ResponseCode( code = 412, condition = "Unable to create User objects." ) 
+    @ResponseCode( code = 412, condition = "Unable to create user." )
   } )
   public Response createUser( User user ) {
     try {
@@ -639,7 +639,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes( { WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully deleted the list of roles." ),
-    @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method" ),
+    @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 500, condition = "The system was unable to delete the roles passed in." )
   } )
   public Response deleteRoles( @QueryParam( "roleNames" ) String roleNames ) {
@@ -728,16 +728,16 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieve the list of roles in the platform and the mapping the have to operation permissions, along with a list of operation permissions.
-   * The logical role name mapping is determined by the locale. If the locale, is empty, the system will use the default local of "en".
+   * Retrieves the list of roles in the platform and the mapping for operation permissions, along with a list of operation permissions.
+   * The logical role name mapping is determined by the locale. If the locale is empty, the system will use the default locale of "en".
    *
    * <p><b>Example Request:</b><br />
    *  GET  pentaho/api/userroledao/logicalRoleMap?locale=en
    * </p>
    *
    * @param locale The locale paramter is optional and determines the localized role name for a physical permission in the system roles map.
-   * @return SystemRolesMap A role mapping for the current system. Each assignment contains the immutable flag,
-   * roles for immutable assignments cannot be edited. This is useful for roles like administrator, who should never lose the administrative privledge.
+   * @return A role mapping for the current system. Each assignment contains the immutable flag and
+   * roles for immutable assignments cannot be edited. This is useful for roles such as administrator, who should never lose the administrative priviledge.
    * Logical roles in the assignment are the physical permissions currently mapped to the role. The role name is the name of the role that can be assigned to users.
    * The system roles map also includes a list of all physical permissions in the system along with their localized role name. The localized role name is based on the local passed into the call, defaulting to "en".
    * These are the physical permissions that can be used to create roles.
@@ -815,7 +815,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Associate a particular role to a list of physical permissions available in the system. Setting the physical permissions to the roles is a way to add and delete permissions from the role.
-   * The role will have the set of permissions passed into any permissions it had before that are not on this list will be deleted. Any permissions on this list that were not previously assigned will now be assigned.
+   * Any permissions the role had before that are not on this list will be deleted. Any permissions on this list that were not previously assigned will now be assigned.
    *
    *<p><b>Example Request:</b><br />
    *  PUT /pentaho/api/userroledao/roleAssignments
