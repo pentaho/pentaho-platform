@@ -49,6 +49,9 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter;
+import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
+import org.pentaho.platform.plugin.services.importer.PlatformImportException;
+import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
@@ -112,6 +115,27 @@ public class FileService {
       final String attachment = makeAttachment( userAgent, encodedFileName, quotedFileName );
 
       return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
+    } else {
+      throw new SecurityException();
+    }
+  }
+
+  public void systemRestore( final InputStream fileUpload ) throws PlatformImportException, SecurityException {
+    if ( doCanAdminister() ) {
+      RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
+      bundleBuilder.input( fileUpload );
+      bundleBuilder.charSet( "UTF-8" );
+      bundleBuilder.hidden( true );
+      bundleBuilder.path( "/" );
+      bundleBuilder.overwriteFile( true );
+      bundleBuilder.name( "SystemBackup.zip" );
+      bundleBuilder.applyAclSettings( true );
+      bundleBuilder.overwriteAclSettings( false );
+      bundleBuilder.retainOwnership( true );
+      bundleBuilder.preserveDsw( true );
+
+      IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
+      importer.importFile( bundleBuilder.build() );
     } else {
       throw new SecurityException();
     }

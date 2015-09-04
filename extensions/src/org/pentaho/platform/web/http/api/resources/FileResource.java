@@ -59,6 +59,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,6 +85,7 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
@@ -151,7 +153,7 @@ public class FileResource extends AbstractJaxRSResource {
    * Performs a system back up of the Pentaho system. This includes content, schedules, users, roles, datasources, and the metastore.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT pentaho/api/repo/files/backup
+   *    GET pentaho/api/repo/files/backup
    * </p>
    *
    * @param userAgent       A string representing the type of browser to use.  Currently only applicable if contains 'FireFox' as FireFox
@@ -186,6 +188,34 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
+  /**
+   * Performs a system restore of the Pentaho system. This includes content, schedules, users, roles, datasources, and
+   * the metastore.
+   * <p/>
+   * <p><b>Example Request:</b><br /> POST pentaho/api/repo/files/systemRestore </p>
+   *
+   * @param fileUpload The zip file generated using the backup endpoint, used to do a full system restore.
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   */
+  @POST
+  @Path( "/systemRestore" )
+  @Consumes( MediaType.MULTIPART_FORM_DATA )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully imported the Pentaho System" ),
+    @ResponseCode( code = 403, condition = "User does not have administrative permissions" ),
+    @ResponseCode( code = 500, condition = "Failure to complete the import." )
+  } )
+  public Response systemRestore( @FormDataParam( "fileUpload" ) InputStream fileUpload ) {
+    try {
+      fileService.systemRestore( fileUpload );
+      return Response.ok().build();
+    } catch ( PlatformImportException e ) {
+      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+    } catch ( SecurityException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
+    }
+  }
+  
   /**
    * Move a list of files to the user's trash folder.
    *

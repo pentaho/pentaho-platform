@@ -103,8 +103,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         String domainId = exportManifestMetadata.getDomainId();
         boolean overWriteInRepository = true;
         RepositoryFileImportBundle.Builder bundleBuilder =
-            new RepositoryFileImportBundle.Builder().charSet( "UTF-8" ).hidden( false ).overwriteFile(
-                overWriteInRepository ).mime( "text/xmi+xml" ).withParam( "domain-id", domainId );
+            new RepositoryFileImportBundle.Builder().charSet( "UTF-8" )
+              .hidden( false )
+              // let the parent bundle control whether or not to preserve DSW settings
+              .preserveDsw( bundle.isPreserveDsw() )
+              .overwriteFile( overWriteInRepository )
+              .mime( "text/xmi+xml" )
+              .withParam( "domain-id", domainId );
 
         cachedImports.put( exportManifestMetadata.getFile(), bundleBuilder );
 
