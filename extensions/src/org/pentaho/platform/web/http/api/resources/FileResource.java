@@ -87,6 +87,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.FileVersioningConfiguration;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
@@ -1863,6 +1864,8 @@ public class FileResource extends AbstractJaxRSResource {
   } )
   public Response doRename( @PathParam ( "pathId" ) String pathId, @QueryParam ( "newName" ) String newName ) {
     try {
+      JcrRepositoryFileUtils.checkName(newName);
+
       boolean success = fileService.doRename( pathId, newName );
       if ( success ) {
         return buildOkResponse();
