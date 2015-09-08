@@ -96,7 +96,7 @@ public class CommandLineProcessor {
   private IUnifiedRepository repository;
 
   private static enum RequestType {
-    HELP, IMPORT, EXPORT, REST
+    HELP, IMPORT, EXPORT, REST, BACKUP, RESTORE
   }
 
   private static enum DatasourceType {
@@ -173,6 +173,16 @@ public class CommandLineProcessor {
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_REST_NAME" ), false, Messages.getInstance()
         .getString( "CommandLineProcessor.INFO_OPTION_REST_DESCRIPTION" ) );
 
+    //backup
+    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_BACKUP_KEY" ), Messages
+      .getInstance().getString( "CommandLineProcessor.INFO_OPTION_BACKUP_NAME" ), false, Messages.getInstance()
+      .getString( "CommandLineProcessor.INFO_OPTION_BACKUP_DESCRIPTION" ) );
+
+    //restore
+    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESTORE_KEY" ), Messages
+      .getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESTORE_NAME" ), false, Messages.getInstance()
+      .getString( "CommandLineProcessor.INFO_OPTION_RESTORE_DESCRIPTION" ) );
+
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_SERVICE_KEY" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_SERVICE_NAME" ), true, Messages.getInstance()
         .getString( "CommandLineProcessor.INFO_OPTION_SERVICE_DESCRIPTION" ) );
@@ -243,6 +253,12 @@ public class CommandLineProcessor {
           break;
         case REST:
           commandLineProcessor.performREST();
+          break;
+        case BACKUP:
+          commandLineProcessor.performBackup();
+          break;
+        case RESTORE:
+          //commandLineProcessor.performREST();
           break;
       }
     } catch ( ParseException parseException ) {
@@ -374,6 +390,10 @@ public class CommandLineProcessor {
           || commandLine.hasOption( Messages.getInstance().
             getString( "CommandLineProcessor.INFO_OPTION_REST_KEY" ) ) ) {
         requestType = RequestType.REST;
+      } else if( commandLine.hasOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_BACKUP_KEY" ) ) ) {
+          requestType = RequestType.BACKUP;
+      } else if( commandLine.hasOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESTORE_KEY" ) ) ) {
+        requestType = RequestType.RESTORE;
       } else {
         final boolean importRequest =
             commandLine.hasOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_IMPORT_KEY" ) );
@@ -689,6 +709,49 @@ public class CommandLineProcessor {
         part.cleanup();
         in.close();
       }
+    }
+  }
+
+  /**
+   * REST Service Backup
+   *
+   * @throws ParseException
+   *           --backup --url=http://localhost:8080/pentaho --username=admin --password=password
+   *           --logfile=c:/temp/steel-wheels.log --file-path=c:/temp/backup.zip
+   * @throws java.io.IOException
+   */
+  private void performBackup() throws ParseException, InitializationException, IOException {
+    String contextURL =
+      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
+        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
+    String logFile =
+      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_KEY" ), Messages
+        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_NAME" ), false, true );
+    String backupURL = contextURL + "/api/repo/files/backup";
+
+    initRestService();
+    WebResource resource = client.resource( backupURL );
+
+    // Response response
+    Builder builder = resource.type( MediaType.MULTIPART_FORM_DATA ).accept( MediaType.TEXT_HTML_TYPE );
+    ClientResponse response = builder.get( ClientResponse.class );
+    if ( response != null && response.getStatus() == 200 ) {
+      String filename =
+        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
+          .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
+      final InputStream input = response.getEntityInputStream();
+      createZipFile( filename, input );
+      input.close();
+      String message = Messages.getInstance().getString( "CommandLineProcessor.INFO_EXPORT_COMPLETED" ).concat( "\n" );
+      message += Messages.getInstance().getString( "CommandLineProcessor.INFO_RESPONSE_STATUS", response.getStatus() );
+      message += "\n";
+      message += Messages.getInstance().getString( "CommandLineProcessor.INFO_EXPORT_WRITTEN_TO", filename );
+      if ( logFile != null && !"".equals( logFile ) ) {
+        System.out.println( message );
+        writeFile( message, logFile );
+      }
+    } else {
+      System.out.println( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" ) );
     }
   }
 
