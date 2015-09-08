@@ -77,7 +77,6 @@ public class SaveCommand extends AbstractCommand {
       public void onSuccess( RepositoryFileTree tree ) {
 
         retrieveCachedValues( navigatorPerspective.getContentTabPanel().getCurrentFrame() );
-
         if ( isSaveAs || name == null ) {
           String fileDir = "";
           if ( path != null && !StringUtils.isEmpty( path ) ) {
@@ -144,6 +143,7 @@ public class SaveCommand extends AbstractCommand {
                       true );
                     Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
                     FileChooserDialog.setIsDirty( Boolean.TRUE );
+                    persistFileInfoInFrame();
                   }
 
                   public void cancelPressed() {
