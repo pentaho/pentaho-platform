@@ -30,7 +30,7 @@ public class FileExistsExceptionConverter implements ExceptionConverter {
       final String refNum ) {
     RepositoryFileDaoFileExistsException re = (RepositoryFileDaoFileExistsException) exception;
     return new UnifiedRepositoryFileExistsException( Messages.getInstance().getString(
-        "ExceptionLoggingDecorator.fileExistsException", activityMessage, re.getFile().getPath(), refNum ) ); //$NON-NLS-1$
+        "ExceptionLoggingDecorator.fileExistsException", activityMessage, re.getFile().getPath(), refNum ), exception );
 
   }
 

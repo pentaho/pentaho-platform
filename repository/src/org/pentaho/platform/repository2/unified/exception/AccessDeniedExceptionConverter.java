@@ -29,7 +29,7 @@ public class AccessDeniedExceptionConverter implements ExceptionConverter {
   public UnifiedRepositoryException convertException( final Exception exception, final String activityMessage,
       final String refNum ) {
     return new UnifiedRepositoryAccessDeniedException( Messages.getInstance().getString(
-        "ExceptionLoggingDecorator.accessDeniedException", activityMessage, refNum ) ); //$NON-NLS-1$
+        "ExceptionLoggingDecorator.accessDeniedException", activityMessage, refNum ), exception );
   }
 
 }

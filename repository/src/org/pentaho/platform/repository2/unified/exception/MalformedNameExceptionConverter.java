@@ -30,7 +30,7 @@ public class MalformedNameExceptionConverter implements ExceptionConverter {
       final String refNum ) {
     RepositoryFileDaoMalformedNameException me = (RepositoryFileDaoMalformedNameException) exception;
     return new UnifiedRepositoryMalformedNameException( Messages.getInstance().getString(
-        "ExceptionLoggingDecorator.malformedNameException", activityMessage, me.getName(), refNum ) ); //$NON-NLS-1$
+        "ExceptionLoggingDecorator.malformedNameException", activityMessage, me.getName(), refNum ), exception );
 
   }
 

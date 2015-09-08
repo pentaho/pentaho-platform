@@ -193,7 +193,7 @@
     This bean serves as a proxy for the real IUnifiedRepository. It uses spring aop to add transaction management
     and method level security on top of the real IUnifiedRepository implementation.
   -->
-  <bean id="unifiedRepository" class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="unifiedRepositoryProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target" ref="unifiedRepositoryTarget"/>
     <property name="interceptorNames">
       <list>
@@ -201,6 +201,29 @@
         <idref local="unifiedRepositoryMethodInterceptor"/>
       </list>
     </property>
+  </bean>
+
+  <!-- 
+    This bean is used by spring aop to add exception logging to the real unified repository implementation.
+  -->
+  <bean id="unifiedRepository" class="org.pentaho.platform.repository2.unified.ExceptionLoggingDecorator">
+    <constructor-arg ref="unifiedRepositoryProxy"/>
+    <constructor-arg>
+      <util:map>
+        <entry key="org.springframework.security.AccessDeniedException">
+          <bean class="org.pentaho.platform.repository2.unified.exception.AccessDeniedExceptionConverter" />
+        </entry>
+        <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoFileExistsException">
+          <bean class="org.pentaho.platform.repository2.unified.exception.FileExistsExceptionConverter" />
+        </entry>
+        <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoReferentialIntegrityException">
+          <bean class="org.pentaho.platform.repository2.unified.exception.ReferentialIntegrityExceptionConverter" />
+        </entry>
+        <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException">
+          <bean class="org.pentaho.platform.repository2.unified.exception.MalformedNameExceptionConverter" />
+        </entry>
+      </util:map>
+    </constructor-arg>
   </bean>
 
 

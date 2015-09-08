@@ -32,13 +32,14 @@ public class ReferentialIntegrityExceptionConverter implements ExceptionConverte
 
   @Override
   public UnifiedRepositoryException convertException( final Exception exception, final String activityMessage,
-      final String refNum ) {
+                                                      final String refNum ) {
     RepositoryFileDaoReferentialIntegrityException re = (RepositoryFileDaoReferentialIntegrityException) exception;
     return new UnifiedRepositoryReferentialIntegrityException(
         Messages
             .getInstance()
             .getString(
-                "ExceptionLoggingDecorator.referentialIntegrityException", activityMessage, re.getTarget().getPath(), getReferrerPaths( re.getReferrers() ), refNum ) ); //$NON-NLS-1$
+                "ExceptionLoggingDecorator.referentialIntegrityException", activityMessage, re.getTarget().getPath(),
+                getReferrerPaths( re.getReferrers() ), refNum ), exception ); //$NON-NLS-1$
   }
 
   private List<String> getReferrerPaths( final Set<RepositoryFile> referrers ) {
