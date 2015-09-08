@@ -172,9 +172,8 @@ public class AuditConnection {
 
   public Connection getAuditConnection() throws SQLException {
     SQLException sqlEx = null;
-    int[] sleepTime = { 0, 200, 500, 2000 };
-    for ( int i = 0; i <= 3; i++ ) {
-      waitFor( sleepTime[i] );
+    int[] sleepTime = { 200, 500, 2000 };
+    for ( int aSleepTime : sleepTime ) {
       try {
         Connection con = getConnection();
         try {
@@ -186,9 +185,10 @@ public class AuditConnection {
       } catch ( SQLException ex ) {
         sqlEx = ex;
         AuditConnection.logger.warn( Messages.getInstance().getErrorString(
-            "AuditConnection.WARN_0001_CONNECTION_ATTEMPT_FAILED", "" //$NON-NLS-1$ //$NON-NLS-2$
-                + sleepTime[i] ) );
+          "AuditConnection.WARN_0001_CONNECTION_ATTEMPT_FAILED", "" //$NON-NLS-1$ //$NON-NLS-2$
+            + aSleepTime ) );
       }
+      waitFor( aSleepTime );
     }
     throw new SQLException( Messages.getInstance().getErrorString( "AUDSQLENT.ERROR_0001_INVALID_CONNECTION" ), sqlEx ); //$NON-NLS-1$
   }

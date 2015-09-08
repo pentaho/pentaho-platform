@@ -45,6 +45,7 @@ import javax.jcr.security.Privilege;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -139,14 +140,13 @@ public class JcrRepositoryFileAclUtils {
    */
   public static Privilege[] expandPrivileges( final Privilege[] privileges, final boolean expandNonStandardOnly ) {
     // find all aggregate privileges and expand
-    Set<Privilege> expandedPrivileges = new HashSet<Privilege>();
-    expandedPrivileges.addAll( Arrays.asList( privileges ) );
+    Set<Privilege> expandedPrivileges = new HashSet<Privilege>( Arrays.asList( privileges ) );
     while ( true ) {
       boolean foundAggregatePrivilege = false;
-      Set<Privilege> iterable = new HashSet<Privilege>( expandedPrivileges );
+      List<Privilege> iterable = new ArrayList<Privilege>( expandedPrivileges );
       for ( Privilege privilege : iterable ) {
         // expand impl custom privileges (e.g. rep:write) but keep aggregates like jcr:write intact
-        if ( !expandNonStandardOnly || expandNonStandardOnly && !privilege.getName().startsWith( "jcr:" ) ) { //$NON-NLS-1$
+        if ( !expandNonStandardOnly || !privilege.getName().startsWith( "jcr:" ) ) { //$NON-NLS-1$
           if ( privilege.isAggregate() ) {
             expandedPrivileges.remove( privilege );
             expandedPrivileges.addAll( Arrays.asList( privilege.getAggregatePrivileges() ) );

@@ -105,7 +105,7 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
       // convert it to match the Privilege.JCR_* string constants
       String extendedPrivilegeName = privilege.getName();
       String privilegeName = privilege.getName();
-      int colonIndex = privilegeName.indexOf( ":" ); //$NON-NLS-1$
+      int colonIndex = privilegeName.indexOf( ':' ); //$NON-NLS-1$
       if ( colonIndex > -1 ) {
         String namespaceUri = session.getNamespaceURI( privilegeName.substring( 0, colonIndex ) );
         extendedPrivilegeName = "{" + namespaceUri + "}" + privilegeName.substring( colonIndex + 1 ); //$NON-NLS-1$ //$NON-NLS-2$
