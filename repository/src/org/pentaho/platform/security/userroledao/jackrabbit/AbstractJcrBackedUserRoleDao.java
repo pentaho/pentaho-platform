@@ -45,7 +45,7 @@ import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentials;
 import org.apache.jackrabbit.core.security.principal.PrincipalImpl;
-import org.apache.jackrabbit.core.security.user.UserManagerImpl;
+import org.apache.jackrabbit.core.security.user.PentahoUserManagerImpl;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
@@ -114,7 +114,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
   List<String> extraRoles;
 
-  HashMap<String, UserManagerImpl> userMgrMap = new HashMap<String, UserManagerImpl>();
+  HashMap<String, PentahoUserManagerImpl> userMgrMap = new HashMap<String, PentahoUserManagerImpl>();
 
   private LRUMap userCache = new LRUMap( 4096 );
 
@@ -625,13 +625,13 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
             : tenant ) ? convertToPentahoRole( jackrabbitGroup ) : null;
   }
 
-  private UserManagerImpl getUserManager( ITenant theTenant, Session session ) throws RepositoryException {
+  private PentahoUserManagerImpl getUserManager( ITenant theTenant, Session session ) throws RepositoryException {
     Properties tenantProperties = new Properties();
-    tenantProperties.put( UserManagerImpl.PARAM_USERS_PATH, UserManagerImpl.USERS_PATH
+    tenantProperties.put( PentahoUserManagerImpl.PARAM_USERS_PATH, PentahoUserManagerImpl.USERS_PATH
         + theTenant.getRootFolderAbsolutePath() );
-    tenantProperties.put( UserManagerImpl.PARAM_GROUPS_PATH, UserManagerImpl.GROUPS_PATH
+    tenantProperties.put( PentahoUserManagerImpl.PARAM_GROUPS_PATH, PentahoUserManagerImpl.GROUPS_PATH
         + theTenant.getRootFolderAbsolutePath() );
-    return new UserManagerImpl( (SessionImpl) session, session.getUserID(), tenantProperties );
+    return new PentahoUserManagerImpl( (SessionImpl) session, session.getUserID(), tenantProperties );
   }
 
   public IPentahoUser getUser( Session session, final ITenant tenant, final String name ) throws RepositoryException {
