@@ -111,6 +111,7 @@ public class PentahoPlatformExporterTest {
     verify( scheduler ).getJobs( null );
     assertEquals( 1, exporterSpy.getExportManifest().getScheduleList().size() );
   }
+
   @Test
   public void testExportSchedules_SchedulereThrowsException() throws Exception {
     when( scheduler.getJobs( null ) ).thenThrow( new SchedulerException( "bad" ) );
@@ -188,7 +189,7 @@ public class PentahoPlatformExporterTest {
 
     Map<String, InputStream> inputMap = new HashMap<>();
     InputStream is = mock( InputStream.class );
-    when( is.read( any( (new byte[]{}).getClass() ) ) ).thenReturn( -1 );
+    when( is.read( any( ( new byte[] {} ).getClass() ) ) ).thenReturn( -1 );
     inputMap.put( "test1", is );
 
     doReturn( inputMap ).when( exporterSpy ).getDomainFilesData( "test1" );
@@ -198,7 +199,7 @@ public class PentahoPlatformExporterTest {
 
     assertEquals( "test1", exporterSpy.getExportManifest().getMetadataList().get( 0 ).getDomainId() );
     assertEquals( PentahoPlatformExporter.METADATA_PATH_IN_ZIP + "test1.xmi",
-    exporterSpy.getExportManifest().getMetadataList().get( 0 ).getFile() );
+      exporterSpy.getExportManifest().getMetadataList().get( 0 ).getFile() );
   }
 
   @Test
@@ -258,7 +259,7 @@ public class PentahoPlatformExporterTest {
     when( mondrianCatalogService.listCatalogs( any( IPentahoSession.class ), anyBoolean() ) ).thenReturn( catalogs );
     Map<String, InputStream> inputMap = new HashMap<>();
     InputStream is = mock( InputStream.class );
-    when( is.read( any( (new byte[]{}).getClass() ) ) ).thenReturn( -1 );
+    when( is.read( any( ( new byte[] {} ).getClass() ) ) ).thenReturn( -1 );
     inputMap.put( "test", is );
 
     when( mondrianCatalogRepositoryHelper.getModrianSchemaFiles( "test" ) ).thenReturn( inputMap );

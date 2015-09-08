@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType( XmlAccessType.FIELD )
-@XmlType( name = "UserExport", propOrder = { "username", "roles" } )
+@XmlType( name = "UserExport", propOrder = { "username", "roles", "password" } )
 public class UserExport {
   @XmlElement( name="username" )
   String username;
   @XmlElement( name="roles" )
   List<String> roles = new ArrayList<String>();
+  @XmlElement( name="password" )
+  String password;
 
   public String getUsername() {
     return username;
@@ -29,5 +31,13 @@ public class UserExport {
 
   public void setRole( String role ) {
     this.roles.add( role );
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword( String password ) {
+    this.password = password;
   }
 }

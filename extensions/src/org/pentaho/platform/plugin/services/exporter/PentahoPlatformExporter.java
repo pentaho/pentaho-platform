@@ -3,7 +3,9 @@ package org.pentaho.platform.plugin.services.exporter;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.di.metastore.MetaStoreConst;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
+import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -264,7 +266,6 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     }
   }
 
-
   protected void exportUsersAndRoles() {
     log.debug( "export users & roles" );
 
@@ -278,6 +279,8 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     for ( IPentahoUser user : userList ) {
       UserExport userExport = new UserExport();
       userExport.setUsername( user.getUsername() );
+      userExport.setPassword( user.getPassword() );
+
       for ( IPentahoRole role : roleDao.getUserRoles( tenant, user.getUsername() ) ) {
         userExport.setRole( role.getName() );
       }
@@ -295,8 +298,18 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     }
   }
 
-  private void exportMetastore() {
+  protected void exportMetastore() {
     log.debug( "export the metastore" );
+    try {
+
+      IMetaStore metaStore = PentahoSystem.get( IMetaStore.class );
+      // or
+      metaStore = MetaStoreConst.openLocalPentahoMetaStore();
+      // or
+      // TODO: the real way to get this guy for the platform
+    } catch ( Exception e ) {
+      log.warn( "Can't find the metastore" );
+    }
   }
 
   protected void exportFileContent( RepositoryFile exportRepositoryFile ) throws IOException, ExportException {

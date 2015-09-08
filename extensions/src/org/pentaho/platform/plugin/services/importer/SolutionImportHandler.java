@@ -17,6 +17,42 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
+import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
+import org.pentaho.platform.plugin.services.importexport.RoleExport;
+import org.pentaho.platform.plugin.services.importexport.UserExport;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.pentaho.platform.web.http.api.resources.SchedulerResource;
+
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,34 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.database.model.IDatabaseConnection;
-import org.pentaho.metadata.repository.DomainAlreadyExistsException;
-import org.pentaho.metadata.repository.DomainIdNullException;
-import org.pentaho.metadata.repository.DomainStorageException;
-import org.pentaho.platform.api.mimetype.IMimeType;
-import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
-import org.pentaho.platform.plugin.services.importexport.ImportSession;
-import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
-import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository.messages.Messages;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
-import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -97,6 +105,12 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     }
     // Process Metadata
     if ( manifest != null ) {
+
+      // import the users
+      Map<String, List<String>> roleToUserMap = importUsers( manifest.getUserExports() );
+      // import the roles
+      importRoles( manifest.getRoleExports(), roleToUserMap );
+
       List<ExportManifestMetadata> metadataList = manifest.getMetadataList();
       for ( ExportManifestMetadata exportManifestMetadata : metadataList ) {
 
@@ -269,10 +283,86 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           }
         }
       }
-
     }
     // Process locale files.
     localeFilesProcessor.processLocaleFiles( importer );
+  }
+
+  /**
+   * Imports UserExport objects into the platform as users.
+   * @param users
+   * @return A map of role names to list of users in that role
+   */
+  protected Map<String, List<String>> importUsers( List<UserExport> users ) {
+    Map<String, List<String>> roleToUserMap = new HashMap<>();
+    IUserRoleDao roleDao = PentahoSystem.get( IUserRoleDao.class );
+    ITenant tenant = new Tenant( "/pentaho/" + TenantUtils.getDefaultTenant(), true );
+    if ( users != null && roleDao != null ) {
+      for ( UserExport user : users ) {
+        String password = user.getPassword();
+        log.debug( "Importing user: " + user.getUsername() );
+
+        // map the user to the roles he/she is in
+        for ( String role : user.getRoles() ) {
+          List<String> userList;
+          if ( !roleToUserMap.containsKey( role ) ) {
+            userList = new ArrayList<>();
+            roleToUserMap.put( role, userList );
+          } else {
+            userList = roleToUserMap.get( role );
+          }
+          userList.add( user.getUsername() );
+        }
+
+        String[] userRoles = user.getRoles().toArray( new String[] {} );
+        try {
+          roleDao.createUser( tenant, user.getUsername(), password, null, userRoles );
+        } catch ( AlreadyExistsException e ) {
+          // it's ok if the user already exists, it is probably a default user
+          log.info( Messages.getInstance().getString( "USER.Already.Exists", user.getUsername() ) );
+
+          try {
+            // set the roles, maybe they changed
+            roleDao.setUserRoles( tenant, user.getUsername(), userRoles );
+
+            // set the password just in case it changed
+            roleDao.setPassword( tenant, user.getUsername(), password );
+          } catch ( Exception ex ) {
+            // couldn't set the roles or password either
+            log.debug( "Failed to set roles or password for existing user on import", ex );
+          }
+        } catch ( Exception e ) {
+          log.error( Messages.getInstance().getString( "ERROR.CreatingUser", user.getUsername() ) );
+        }
+      }
+    }
+    return roleToUserMap;
+  }
+
+  protected void importRoles( List<RoleExport> roles, Map<String, List<String>> roleToUserMap ) {
+    IUserRoleDao roleDao = PentahoSystem.get( IUserRoleDao.class );
+    ITenant tenant = new Tenant( "/pentaho/" + TenantUtils.getDefaultTenant(), true );
+    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(
+      IRoleAuthorizationPolicyRoleBindingDao.class );
+
+    if ( roles != null ) {
+      for ( RoleExport role : roles ) {
+        log.debug( "Importing role: " + role.getRolename() );
+        try {
+          List<String> users = roleToUserMap.get( role.getRolename() );
+          String[] userarray = users == null ? new String[] {} : users.toArray( new String[] {} );
+          IPentahoRole role1 = roleDao.createRole( tenant, role.getRolename(), null, userarray );
+        } catch ( AlreadyExistsException e ) {
+          // it's ok if the role already exists, it is probably a default role
+          log.info( Messages.getInstance().getString( "ROLE.Already.Exists", role.getRolename() ) );
+        }
+        try {
+          roleBindingDao.setRoleBindings( tenant, role.getRolename(), role.getPermissions() );
+        } catch ( Exception e ) {
+          log.info( Messages.getInstance().getString( "ERROR.SettingRolePermissions", role.getRolename() ), e );
+        }
+      }
+    }
   }
 
   /**
@@ -383,4 +473,5 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   public Response createSchedulerJob( SchedulerResource scheduler, JobScheduleRequest jobRequest ) throws IOException {
     return scheduler != null ? scheduler.createJob( jobRequest ) : null;
   }
+
 }
