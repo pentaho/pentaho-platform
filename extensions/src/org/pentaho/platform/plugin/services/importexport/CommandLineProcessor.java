@@ -58,6 +58,7 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -258,7 +259,7 @@ public class CommandLineProcessor {
           commandLineProcessor.performBackup();
           break;
         case RESTORE:
-          //commandLineProcessor.performREST();
+          commandLineProcessor.performRestore();
           break;
       }
     } catch ( ParseException parseException ) {
@@ -630,13 +631,13 @@ public class CommandLineProcessor {
   private void performImport() throws ParseException, IOException {
     String contextURL =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_Key" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
+          .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
     String filePath =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
+          .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
     String resourceType =
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_KEY" ),
-            Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_NAME" ), false, true );
+          Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_NAME" ), false, true );
     // We are importing datasources
     if ( resourceType != null && resourceType.equals( ResourceType.DATASOURCE.name() ) ) {
       performDatasourceImport();
@@ -754,6 +755,58 @@ public class CommandLineProcessor {
       System.out.println( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" ) );
     }
   }
+
+  /**
+   * REST Service Restore
+   *
+   * @throws ParseException
+   *           --restore --url=http://localhost:8080/pentaho --username=admin --password=password
+   *           --logfile=c:/temp/steel-wheels.log --file-path=c:/temp/backup.zip
+   * @throws java.io.IOException
+   */
+  private void performRestore() throws ParseException, IOException {
+    String contextURL =
+      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_Key" ), Messages
+        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
+    String filePath =
+      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
+        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
+
+    String logFile =
+      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_KEY" ), Messages
+        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_NAME" ), false, true );
+
+    String importURL = contextURL + "/api/repo/files/systemRestore";
+    File fileIS = new File( filePath );
+    InputStream in = new FileInputStream( fileIS );
+    FormDataMultiPart part = new FormDataMultiPart().field( "fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE );
+    try {
+      initRestService();
+      WebResource resource = client.resource( importURL );
+
+      // Response response
+      ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
+      if ( response != null ) {
+        String message = response.getEntity( String.class );
+        System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
+          message ) );
+        if ( logFile != null && !"".equals( logFile ) ) {
+          writeFile( message, logFile );
+        }
+        response.close();
+      }
+    } catch ( Exception e ) {
+      System.err.println( e.getMessage() );
+      log.error( e.getMessage() );
+      writeFile( e.getMessage(), logFile );
+    } finally {
+      // close input stream and cleanup the jersey resources
+      client.destroy();
+      part.cleanup();
+      in.close();
+    }
+  }
+
 
   /**
    * REST Service Export
