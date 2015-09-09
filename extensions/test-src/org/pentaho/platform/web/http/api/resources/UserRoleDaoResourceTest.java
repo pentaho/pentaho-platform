@@ -39,7 +39,6 @@ import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.web.http.api.resources.UserRoleDaoResource.ChangePasswordUser;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 
 public class UserRoleDaoResourceTest {

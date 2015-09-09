@@ -37,7 +37,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -508,47 +507,6 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       throw new WebApplicationException( Response.Status.PRECONDITION_FAILED );
     }
     return Response.ok().build();
-  }
-
-  @XmlRootElement
-  static class ChangePasswordUser {
-
-    private String userName;
-    private String newPassword;
-    private String oldPassword;
-
-    public ChangePasswordUser() {
-    }
-
-    public ChangePasswordUser( String pUserName, String pNewPassword, String pOldPassword ) {
-      userName = pUserName;
-      newPassword = pNewPassword;
-      oldPassword = pOldPassword;
-    }
-
-    public String getUserName() {
-      return userName;
-    }
-
-    public void setUserName( String userName ) {
-      this.userName = userName;
-    }
-
-    public String getNewPassword() {
-      return newPassword;
-    }
-
-    public void setNewPassword( String newPassword ) {
-      this.newPassword = newPassword;
-    }
-
-    public String getOldPassword() {
-      return oldPassword;
-    }
-
-    public void setOldPassword( String oldPassword ) {
-      this.oldPassword = oldPassword;
-    }
   }
 
   /**
