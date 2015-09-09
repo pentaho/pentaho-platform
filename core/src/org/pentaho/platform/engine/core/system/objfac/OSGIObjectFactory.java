@@ -78,7 +78,6 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       return null;
     }
 
-
     try {
       Map<String, String> props = new HashMap<String, String>( );
       if( properties != null ){
@@ -87,8 +86,6 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       props.put( REFERENCE_CLASS, interfaceClass.getName() );
       Collection<ServiceReference<IPentahoObjectReference>> serviceReferences = this.context
           .getServiceReferences( IPentahoObjectReference.class, OSGIUtils.createFilter( props ) );
-
-      List<IPentahoObjectReference<?>> returnList = new ArrayList<>();
 
       if( serviceReferences != null && serviceReferences.size() > 0 ){
         IPentahoObjectReference<T> obj = context.getService( serviceReferences.iterator().next() );
@@ -143,12 +140,11 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       throw new IllegalStateException( "Class is null" );
     }
 
-    if ( isBundleContextValid() == false ) {
+    try {
+      return getObjectReference( clazz, null ) != null;
+    } catch (ObjectFactoryException e) {
       return false;
     }
-
-    ServiceReference ref = context.getServiceReference( clazz );
-    return ref != null;
   }
 
   @Override
@@ -174,9 +170,26 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       return null;
     }
 
-    String filter = OSGIUtils.createFilter( properties );
-
     List<T> returnList = new ArrayList<T>();
+
+    // make sure we check by reference first
+    if( properties == null || !properties.containsKey(REFERENCE_CLASS) ) {
+      Map<String, String> props = new HashMap<String, String>();
+      if (properties != null) {
+        props.putAll(properties);
+      }
+      props.put(REFERENCE_CLASS, interfaceClass.getName());
+      List<IPentahoObjectReference> all = getAll(IPentahoObjectReference.class, session, props);
+      if( all != null ){
+        for (IPentahoObjectReference iPentahoObjectReference : all) {
+          returnList.add((T) iPentahoObjectReference.getObject());
+        }
+      }
+    }
+
+
+    String filter = OSGIUtils.createFilter(properties);
+
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
       if ( refs == null || refs.size() == 0 ) {
@@ -202,7 +215,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession )
       throws ObjectFactoryException {
-    return getObjectReference( interfaceClass, curSession, Collections.<String, String>emptyMap() );
+    return getObjectReference(interfaceClass, curSession, Collections.<String, String>emptyMap());
   }
 
   @Override
@@ -212,6 +225,20 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
     if ( isBundleContextValid() == false ) {
       return null;
+    }
+
+
+    // make sure we check by reference first
+    if( properties == null || !properties.containsKey(REFERENCE_CLASS) ) {
+      Map<String, String> props = new HashMap<String, String>();
+      if (properties != null) {
+        props.putAll(properties);
+      }
+      props.put(REFERENCE_CLASS, interfaceClass.getName());
+      IPentahoObjectReference<IPentahoObjectReference> objectReference = getObjectReference(IPentahoObjectReference.class, curSession, props);
+      if( objectReference != null ){
+        return objectReference.getObject();
+      }
     }
 
     String filter = OSGIUtils.createFilter( properties );
@@ -255,15 +282,29 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       return Collections.emptyList();
     }
 
-    String filter = OSGIUtils.createFilter( properties );
+    List<IPentahoObjectReference<T>> returnRefs = new ArrayList<IPentahoObjectReference<T>>();
+
+    // make sure we check by reference first
+    if( properties == null || !properties.containsKey(REFERENCE_CLASS) ) {
+      Map<String, String> props = new HashMap<>();
+      if (properties != null) {
+        props.putAll(properties);
+      }
+      props.put(REFERENCE_CLASS, interfaceClass.getName());
+      List<IPentahoObjectReference<IPentahoObjectReference>> objectReferences = getObjectReferences(IPentahoObjectReference.class, curSession, props);
+      for (IPentahoObjectReference<IPentahoObjectReference> objectReference : objectReferences) {
+        returnRefs.add(objectReference.getObject());
+      }
+    }
+
+    String filter = OSGIUtils.createFilter(properties);
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
       if ( refs == null || refs.size() == 0 ) {
         log.info( "OSGI: did not find object: " + interfaceClass.getName() );
-        return Collections.emptyList();
+        return returnRefs;
       }
 
-      List<IPentahoObjectReference<T>> returnRefs = new ArrayList<IPentahoObjectReference<T>>();
       for ( ServiceReference ref : refs ) {
         returnRefs.add( new OsgiPentahoObjectReference<T>( this.context, interfaceClass, ref ) );
       }

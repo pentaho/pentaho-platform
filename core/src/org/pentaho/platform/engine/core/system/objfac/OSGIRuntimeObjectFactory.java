@@ -12,6 +12,7 @@ import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoObjectRegistration;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
 import org.pentaho.platform.engine.core.system.osgi.OSGIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,32 +82,35 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
       try {
 
         // When OSGI R6 is released we can use the PrototypeServiceFactory. Until then we can't support factory
-        // references.
-        ServiceFactory<Object> factory = new ServiceFactory<Object>() {
-          @Override public Object getService( Bundle bundle, ServiceRegistration<Object> serviceRegistration ) {
-            return reference.getObject();
-          }
+        // references unless the IPentahoObjectReference is a Singleton scope
+        if( reference instanceof SingletonPentahoObjectReference ) {
+          ServiceFactory<Object> factory = new ServiceFactory<Object>() {
+            @Override
+            public Object getService(Bundle bundle, ServiceRegistration<Object> serviceRegistration) {
+              return reference.getObject();
+            }
 
-          @Override
-          public void ungetService( Bundle bundle, ServiceRegistration<Object> serviceRegistration, Object o ) {
+            @Override
+            public void ungetService(Bundle bundle, ServiceRegistration<Object> serviceRegistration, Object o) {
 
+            }
+          };
+          if (hashtable.containsKey("priority")) {
+            hashtable.put(Constants.SERVICE_RANKING, hashtable.get("priority"));
           }
-        };
-        if ( hashtable.containsKey( "priority" ) ) {
-          hashtable.put( Constants.SERVICE_RANKING, hashtable.get( "priority" ) );
+          ServiceRegistration<?> serviceRegistration =
+                  bundleContext.registerService(aClass.getName(), factory, hashtable);
+          registrations.add(serviceRegistration);
+        } else {
+
+          // Publish it as an IPentahoObjectReference instead
+          Hashtable<String, Object> referenceHashTable = new Hashtable<>(hashtable);
+          referenceHashTable.put(REFERENCE_CLASS, aClass.getName());
+          ServiceRegistration<?> serviceRegistration =
+                  bundleContext.registerService(IPentahoObjectReference.class.getName(), reference,
+                          referenceHashTable);
+          registrations.add(serviceRegistration);
         }
-        ServiceRegistration<?> serviceRegistration =
-            bundleContext.registerService( aClass.getName(), factory, hashtable );
-        registrations.add( serviceRegistration );
-
-        // Publish it as an IPentahoObjectReference as well
-        Hashtable<String, Object> referenceHashTable = new Hashtable<>( hashtable );
-        referenceHashTable.put( REFERENCE_CLASS, aClass.getName() );
-        serviceRegistration =
-            bundleContext.registerService( IPentahoObjectReference.class.getName(), reference,
-                referenceHashTable );
-        registrations.add( serviceRegistration );
-
       } catch ( ClassCastException e ) {
         logger.error( "Error Retriving object from OSGI, Class is not as expected", e );
       }
