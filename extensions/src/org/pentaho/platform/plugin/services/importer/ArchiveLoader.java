@@ -83,6 +83,7 @@ public class ArchiveLoader {
     bundleBuilder.applyAclSettings( true );
     bundleBuilder.overwriteAclSettings( false );
     bundleBuilder.retainOwnership( true );
+    bundleBuilder.preserveDsw( true );
     return bundleBuilder.build();
   }
 
