@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+
+
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/ccp-crystal.css">
+  <link rel="stylesheet" href="css/owl.carousel.css">
+  <link rel="stylesheet" href="css/dropdown.css">
+
+
+
+  <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+</head>
+
+<body class="sub">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="ccp-header">
+          <div class="row">
+            <div class="col-xs-11">
+              <div id="dl-menu" class="dl-menuwrapper pull-left">
+                <button class="dl-trigger">Open Menu</button>
+                <h2>Documentation</h2>
+                <ul class="dl-menu">
+                  <li>
+                    <a href="index.html" class="home">Home</a>
+                    <a href="#" target="_blank" class="documentation">Documentation</a>
+                    <a href="ccp_sub-forums.html" class="forums">Forums</a>
+                    <a href="ccp_sub-mailing-lists.html" class="mailing-lists">Mailing List</a>
+                    <a href="ccp_sub-blogs.html" class="blogs">Blogs</a>
+                    <a href="ccp_sub-marketplace.html" class="marketplace">Marketplace</a>
+                    <a href="ccp_sub-report-bug.html" class="report-bug">Report a Bug</a>
+                    <a href="ccp_sub-get-the-source.html" class="get-the-source">Get the Source</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-xs-1">
+              <div class="close-nav-menu">
+                <a href="index.html" class="close-btn"></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="sub-page-sub-header">
+              <div class="row">
+                <div class="col-xs-10 text-left">
+                  <p>
+                    Documentation and information for the Pentaho Analytics Suite.
+                  </p>
+                </div>
+                <div class="col-xs-2">
+                <a href="#" class="live-chat-btn" onclick="CCP.liveChat()">Live Chat</a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <a href="https://help.pentaho.com/Documentation" target="_blank" class="sub-menu-btn">
+          <div class="sub-menu-item">Documentation</div>
+        </a>
+        <a href="http://wiki.pentaho.com/display/COM/Community+Wiki+Home" target="_blank" class="sub-menu-btn">
+          <div class="sub-menu-item">Wiki</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="footer">
+        <div class="col-xs-3">
+          <div class="footer-social">
+            <div class="content pull-left">
+              <a class="footer-social-item gplus" href="https://www.plus.google.com/+Pentahocorporation/posts" target="_blank"></a>
+              <a class="footer-social-item twitter" href="http://www.twitter.com/Pentaho" target="_blank"></a>
+              <a class="footer-social-item facebook" href="http://www.facebook.com/pentaho" target="_blank"></a>
+              <a class="footer-social-item linkedin" href="http://www.linkedin.com/company/pentaho" target="_blank"></a>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-5 footer-links">
+          <span class="footer-label">Sites:</span>
+          <ul class="footer-links">
+            <li>
+              <a href="http://www.pentaho.com/blog" target="_blank">Blog</a>
+            </li>
+            <li>
+              <a href="http://community.pentaho.com/" target="_blank">Community</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-xs-4">
+          <a href="http://www.pentaho.com/testdrive" target="_blank" class="try-pentaho-btn pull-right">Try Enterprise Edition</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="../../../../content/common-ui/resources/web/jquery/jquery-1.9.1.min.js" charset="utf-8"></script>
+  <script src="../../../../plugin/pentaho-cdf/api/resources/js/compressed/lib/modernizr/modernizr-2.8.3.js" charset="utf-8"></script>
+  <script src="js/vendor/jquery.dlmenu.js" charset="utf-8"></script>
+  <script src="js/vendor/owl.carousel.min.js" charset="utf-8"></script>
+  <script src="js/vendor/bootstrap.min.js" charset="utf-8"></script>
+
+  <script>
+    $(document).ready(function() {
+      $('#dl-menu').dlmenu();
+
+      // sets the menu item correspondent to the current page to active
+      var a = document.location.href.match(/[^\/]+$/)[0];
+      var pagename = a.substring(a.indexOf('-') + 1, a.indexOf('.'));
+      $("ul.dl-menu li a." + pagename).addClass("active");
+
+
+    });
+  </script>
+
+</body>
+
+</html>
