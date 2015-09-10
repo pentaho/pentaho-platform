@@ -46,6 +46,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="catalogName" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="xmlaEnabled" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="parameters" type="{http://www.pentaho.com/schema/}Parameters" minOccurs="0"/>
+ *         &lt;element name="annotationsFile" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *       &lt;attribute name="file" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
@@ -56,7 +57,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType( XmlAccessType.FIELD )
-@XmlType( name = "ExportManifestMondrian", propOrder = { "catalogName", "xmlaEnabled", "parameters" } )
+@XmlType( name = "ExportManifestMondrian", propOrder = { "catalogName", "xmlaEnabled", "parameters", "annotationsFile" } )
 public class ExportManifestMondrian {
 
   @XmlElement( required = true )
@@ -66,6 +67,8 @@ public class ExportManifestMondrian {
   protected org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters parameters;
   @XmlAttribute( name = "file" )
   protected String file;
+  @XmlElement( required = false )
+  protected String annotationsFile;
 
   /**
    * Gets the value of the catalogName property.
@@ -148,4 +151,20 @@ public class ExportManifestMondrian {
     this.file = value;
   }
 
+  /**
+   * Gets the value of the annotationsFile property.
+   * @return possible object is {@link String }
+   */
+  public String getAnnotationsFile() {
+    return annotationsFile;
+  }
+
+  /**
+   * Sets the value of the annotationsFile property
+   * @param annotationsFile
+   *          allowed object is {@link String }
+   */
+  public void setAnnotationsFile( String annotationsFile ) {
+    this.annotationsFile = annotationsFile;
+  }
 }
