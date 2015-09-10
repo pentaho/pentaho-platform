@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.7" jmeter="2.12 r1636949">
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="BI Server Web Service API Test (extensions)" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -22343,13 +22343,13 @@ return(filename);
 &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;&#xd;
 &lt;complexJobTrigger&gt;&#xd;
 &lt;uiPassParam&gt;DAILY&lt;/uiPassParam&gt;&#xd;
+&lt;daysOfWeek&gt;0&lt;/daysOfWeek&gt;&#xd;
 &lt;daysOfWeek&gt;1&lt;/daysOfWeek&gt;&#xd;
 &lt;daysOfWeek&gt;2&lt;/daysOfWeek&gt;&#xd;
 &lt;daysOfWeek&gt;3&lt;/daysOfWeek&gt;&#xd;
 &lt;daysOfWeek&gt;4&lt;/daysOfWeek&gt;&#xd;
 &lt;daysOfWeek&gt;5&lt;/daysOfWeek&gt;&#xd;
 &lt;daysOfWeek&gt;6&lt;/daysOfWeek&gt;&#xd;
-&lt;daysOfWeek&gt;7&lt;/daysOfWeek&gt;&#xd;
 &lt;startTime&gt;2014-08-19T23:59:59.000-04:00&lt;/startTime&gt;&#xd;
 &lt;endTime /&gt;&#xd;
 &lt;/complexJobTrigger&gt;&#xd;

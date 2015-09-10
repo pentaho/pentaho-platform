@@ -74,6 +74,7 @@ public class SchedulerResourceUtil {
       ComplexJobTrigger complexJobTrigger = new ComplexJobTrigger();
       complexJobTrigger.setStartTime( proxyTrigger.getStartTime() );
       complexJobTrigger.setEndTime( proxyTrigger.getEndTime() );
+      complexJobTrigger.setDuration( scheduleRequest.getDuration() );
 
       if ( proxyTrigger.getDaysOfWeek().length > 0 ) {
         if ( proxyTrigger.getWeeksOfMonth().length > 0 ) {
@@ -132,6 +133,7 @@ public class SchedulerResourceUtil {
         ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger( cronString );
         complexJobTrigger.setStartTime( scheduleRequest.getCronJobTrigger().getStartTime() );
         complexJobTrigger.setEndTime( scheduleRequest.getCronJobTrigger().getEndTime() );
+        complexJobTrigger.setDuration( scheduleRequest.getCronJobTrigger().getDuration() );
         complexJobTrigger.setUiPassParam( scheduleRequest.getCronJobTrigger().getUiPassParam() );
         jobTrigger = complexJobTrigger;
       } else {

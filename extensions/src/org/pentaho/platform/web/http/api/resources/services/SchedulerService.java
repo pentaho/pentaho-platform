@@ -380,6 +380,7 @@ public class SchedulerService {
   }
 
   public BlockStatusProxy getBlockStatus( JobScheduleRequest jobScheduleRequest ) throws SchedulerException {
+    updateStartDateForTimeZone( jobScheduleRequest );
     IJobTrigger trigger = convertScheduleRequestToJobTrigger( jobScheduleRequest );
     Boolean totallyBlocked = false;
     Boolean partiallyBlocked = getBlockoutManager().isPartiallyBlocked( trigger );
