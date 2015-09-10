@@ -21,5 +21,5 @@ setPentahoEnv "$DIR/jre"
 DI_HOME=$DIR/pentaho-solutions/system/kettle
 
 cd "$DIR/tomcat/bin"
-CATALINA_OPTS="-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -DDI_HOME=$DI_HOME"
+CATALINA_OPTS="-Xms2048m -Xmx6144m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -DDI_HOME=$DI_HOME"
 env CATALINA_OPTS="$CATALINA_OPTS" JAVA_HOME="$_PENTAHO_JAVA_HOME" CATALINA_PID="/var/run/pentaho/[[[linuxPackage.name]]].pid" ./startup.sh

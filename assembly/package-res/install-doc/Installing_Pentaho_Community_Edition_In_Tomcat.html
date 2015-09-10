@@ -42,7 +42,7 @@ scale up to your environment and usage needs.</p>
 <li>Edit your ~/.bashrc file with a text editor.
 If you are not using BASH as your default shell, edit your command shell's configuration file instead.
 The export statement in the next step should not need to change depending on your shell.</li>
-<li>Add this line in a convenient place: export CATALINA_OPTS="-Xms128m -Xmx512m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000".
+<li>Add this line in a convenient place: export CATALINA_OPTS="-Xms2048m -Xmx6144m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000".
 On Ubuntu Linux, you can alternatively add this line to /etc/environment instead of ~/.bashrc.</li>
 <li>You must log out and log back into the operating system for the change to take effect.</li>
 Your Tomcat environment is now properly configured for the BI Server.
@@ -53,7 +53,7 @@ Your Tomcat environment is now properly configured for the BI Server.
 CATALINA_OPTS that specifies resource and timing settings.
 <ol> 
 <li>Open the startup.bat and past the line below at a convenient location.</li>
-set CATALINA_OPTS=-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
+set CATALINA_OPTS=-Xms2048m -Xmx6144m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
 </p>
 </ol>
 
