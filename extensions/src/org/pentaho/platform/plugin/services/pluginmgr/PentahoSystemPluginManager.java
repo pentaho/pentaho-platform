@@ -521,7 +521,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
         Element ele = (Element) element;
         String name = ele.getName();
         String value = ele.getText();
-        properties.put( "settings/" + name, value );
+        properties.put( name, value );
       }
     } catch ( DocumentException | IOException e ) {
       logger.error( "Error parsing settings.xml for plugin: "+ plugin.getId(), e );
