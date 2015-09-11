@@ -80,7 +80,8 @@ import java.util.List;
  */
 @XmlAccessorType ( XmlAccessType.FIELD )
 @XmlType ( name = "ExportManifestDto", propOrder = { "exportManifestInformation", "exportManifestMondrian",
-    "exportManifestMetadata", "exportManifestSchedule", "exportManifestDatasource", "exportManifestEntity", "exportManifestUser", "exportManifestRole" } )
+  "exportManifestMetadata", "exportManifestSchedule", "exportManifestDatasource", "exportManifestEntity",
+  "exportManifestUser", "exportManifestRole", "exportManifestMetaStore" } )
 public class ExportManifestDto {
 
   @XmlElement ( name = "ExportManifestInformation", required = true )
@@ -99,6 +100,8 @@ public class ExportManifestDto {
   protected List<UserExport> exportManifestUser;
   @XmlElement ( name = "ExportManifestRole" )
   protected List<RoleExport> exportManifestRole;
+  @XmlElement ( name = "ExportManifestMetaStore", required = false)
+  protected ExportManifestMetaStore exportManifestMetaStore;
 
   /**
    * Gets the value of the exportManifestInformation property.
@@ -377,4 +380,20 @@ public class ExportManifestDto {
 
   }
 
+  /**
+   * Gets the metastore, if present
+   * @return possible object is {@link ExportManifestMetaStore}
+   */
+  public ExportManifestMetaStore getExportManifestMetaStore() {
+    return exportManifestMetaStore;
+  }
+
+  /**
+   * sets the metastore
+   * @param exportManifestMetaStore allowed object is {@link ExportManifestMetaStore}
+   */
+  public void setExportManifestMetaStore(
+    ExportManifestMetaStore exportManifestMetaStore ) {
+    this.exportManifestMetaStore = exportManifestMetaStore;
+  }
 }
