@@ -126,11 +126,15 @@ public class SolutionContextListener implements ServletContextListener {
      */
     Properties props = new Properties();
     ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
-    IConfiguration config = systemConfig.getConfiguration( "server" );
-    try {
-      props.putAll( config.getProperties() );
-    } catch ( IOException e ) {
-      logger.error( "Could not find/read the server.properties file." );
+    if ( systemConfig != null ) {
+      IConfiguration config = systemConfig.getConfiguration( "server" );
+      if ( config != null ) {
+        try {
+          props.putAll( config.getProperties() );
+        } catch ( IOException e ) {
+          logger.error( "Could not find/read the server.properties file." );
+        }
+      }
     }
         
     /*
