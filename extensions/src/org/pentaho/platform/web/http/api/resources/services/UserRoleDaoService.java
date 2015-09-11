@@ -194,14 +194,8 @@ public class UserRoleDaoService {
           PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
       IPentahoUser pentahoUser = roleDao.getUser( null, userName );
 
-      if ( credentialValid( pentahoUser, oldPass ) ) {
-        SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            roleDao.setPassword( null, userName, newPass );
-            return null;
-          }
-        } );
+      if ( credentialValid( pentahoUser, oldPass ) && canAdminister() ) {
+        roleDao.setPassword( null, userName, newPass );
       } else {
         throw new SecurityException();
       }
