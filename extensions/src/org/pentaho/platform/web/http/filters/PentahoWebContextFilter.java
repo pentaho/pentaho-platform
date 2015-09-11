@@ -147,6 +147,9 @@ public class PentahoWebContextFilter implements Filter {
         // setup the RequireJS config object for plugins to extend
         out.write( REQUIRE_JS_CFG_START );
 
+        // variable for js style object - needed for external resources
+        out.write( "var link;\n".getBytes() );
+
         // Let all plugins contribute to the RequireJS config
         printResourcesForContext( REQUIRE_JS, out, httpRequest, false );
 
@@ -315,7 +318,12 @@ public class PentahoWebContextFilter implements Filter {
           out.write( ( "document.write(\"<script language='javascript' type='text/javascript' src='\"+CONTEXT_PATH + \"" + res.trim() + reqStr + "'></scr\"+\"ipt>\");\n" //$NON-NLS-1$ //$NON-NLS-2$
             ).getBytes() );
         } else if ( res.endsWith( CSS ) ) {
-          out.write( ( "document.write(\"<link rel='stylesheet' type='text/css' href='\"+CONTEXT_PATH + \"" + res.trim() + reqStr + "'/>\");\n" //$NON-NLS-1$ //$NON-NLS-2$
+          // need to add style to the top - to give it less priority above theme styles
+          out.write( ( "link = document.createElement('link');\n"
+              + "link.rel = 'stylesheet';\n"
+              + "link.type = 'text/css';\n"
+              + "link.href = CONTEXT_PATH + \"" + res.trim() + reqStr + "\";\n"
+              + "document.head.insertBefore(link, document.head.childNodes[0]);\n" //$NON-NLS-1$ //$NON-NLS-2$
             ).getBytes() );
         }
       }
