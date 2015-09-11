@@ -1,5 +1,6 @@
 package org.pentaho.platform.plugin.services.exporter;
 
+import com.pentaho.repository.importexport.PDIImportUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,6 +8,7 @@ import org.junit.Test;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
+import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.mockito.ArgumentCaptor;
@@ -27,6 +29,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
@@ -35,6 +38,7 @@ import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.userroledao.PentahoRole;
 import org.pentaho.platform.security.userroledao.PentahoUser;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,7 +82,6 @@ public class PentahoPlatformExporterTest {
 
     doReturn( "session name" ).when( session ).getName();
     exporter = new PentahoPlatformExporter( repo );
-
   }
 
   @After
@@ -272,5 +275,18 @@ public class PentahoPlatformExporterTest {
     assertEquals( "test", exportManifest.getMondrianList().get( 0 ).getCatalogName() );
     assertTrue( exportManifest.getMondrianList().get( 0 ).isXmlaEnabled() );
     verify( exporterSpy.zos ).putNextEntry( any( ZipEntry.class ) );
+  }
+
+  @Test
+  public void testExportMetaStore() throws Exception {
+    exporterSpy.zos = mock( ZipOutputStream.class );
+    IMetaStore metastore = mock( IMetaStore.class );
+    exporterSpy.setRepoMetaStore( metastore );
+    ExportManifest manifest = mock( ExportManifest.class );
+    exporterSpy.setExportManifest( manifest );
+
+    exporterSpy.exportMetastore();
+    verify( exporterSpy.zos ).putNextEntry( any( ZipEntry.class ) );
+    verify( manifest ).setMetaStore( any( ExportManifestMetaStore.class ) );
   }
 }

@@ -79,6 +79,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   private IDatasourceMgmtService datasourceMgmtService;
   private IMondrianCatalogService mondrianCatalogService;
   private MondrianCatalogRepositoryHelper mondrianCatalogRepositoryHelper;
+  private IMetaStore metastore;
 
   public PentahoPlatformExporter( IUnifiedRepository repository ) {
     super( ROOT, repository, true );
@@ -325,14 +326,12 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     }
   }
 
-  protected void exportMetastore() {
+  protected void exportMetastore() throws IOException {
     log.debug( "export the metastore" );
     try {
-
-      IMetaStore metaStore = PDIImportUtil.connectToRepository( null ).getMetaStore();
       Path tempDirectory = Files.createTempDirectory( METASTORE );
       IMetaStore xmlMetaStore = new XmlMetaStore( tempDirectory.toString() );
-      MetaStoreUtil.copy( metaStore, xmlMetaStore );
+      MetaStoreUtil.copy( getRepoMetaStore(), xmlMetaStore );
 
       File zippedMetastore = Files.createTempFile( METASTORE, EXPORT_TEMP_FILENAME_EXT ).toFile();
       ZipOutputStream zipOutputStream = new ZipOutputStream( new FileOutputStream( zippedMetastore ) );
@@ -355,10 +354,10 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
       // add an ExportManifest entry for the metastore.
       ExportManifestMetaStore exportManifestMetaStore = new ExportManifestMetaStore( zipFileLocation,
-        metaStore.getName(),
-        metaStore.getDescription() );
+        getRepoMetaStore().getName(),
+        getRepoMetaStore().getDescription() );
 
-      exportManifest.setMetaStore( exportManifestMetaStore );
+      getExportManifest().setMetaStore( exportManifestMetaStore );
 
       zippedMetastore.deleteOnExit();
       tempDirectory.toFile().deleteOnExit();
@@ -367,6 +366,22 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
       log.error( Messages.getInstance().getString( "PentahoPlatformExporter.ERROR.ExportingMetaStore" ) );
       log.debug( Messages.getInstance().getString( "PentahoPlatformExporter.ERROR.ExportingMetaStore" ), e );
     }
+  }
+
+  protected IMetaStore getRepoMetaStore() {
+    if ( metastore == null ) {
+      try {
+        metastore = PDIImportUtil.connectToRepository( null ).getMetaStore();
+      } catch ( KettleException e ) {
+        // can't get the metastore to import into
+        log.debug( "Can't get the metastore to import into" );
+      }
+    }
+    return metastore;
+  }
+
+  protected void setRepoMetaStore( IMetaStore metastore ) {
+    this.metastore = metastore;
   }
 
   protected void zipFolder( File file, ZipOutputStream zos, String pathPrefixToRemove ) {
