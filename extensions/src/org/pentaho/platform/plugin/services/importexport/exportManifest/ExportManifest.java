@@ -19,13 +19,13 @@
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import org.pentaho.database.model.DatabaseConnection;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestEntityDto;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
@@ -36,7 +36,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.OutputStream;
@@ -62,6 +61,7 @@ public class ExportManifest {
   private List<DatabaseConnection> datasourceList = new ArrayList<DatabaseConnection>();
   private List<UserExport> userExports = new ArrayList<UserExport>();
   private List<RoleExport> roleExports = new ArrayList<RoleExport>();
+  private ExportManifestMetaStore metaStore;
 
   public ExportManifest() {
     this.exportManifestEntities = new HashMap<String, ExportManifestEntity>();
@@ -82,6 +82,7 @@ public class ExportManifest {
     this.datasourceList = exportManifestDto.getExportManifestDatasource();
     this.userExports = exportManifestDto.getExportManifestUser();
     this.roleExports = exportManifestDto.getExportManifestRole();
+    setMetaStore( exportManifestDto.getExportManifestMetaStore() );
   }
 
   /**
@@ -186,6 +187,7 @@ public class ExportManifest {
     rawExportManifest.getExportManifestDatasource().addAll( this.datasourceList );
     rawExportManifest.getExportManifestUser().addAll( this.getUserExports() );
     rawExportManifest.getExportManifestRole().addAll( this.getRoleExports() );
+    rawExportManifest.setExportManifestMetaStore( this.getMetaStore() );
 
     return rawExportManifest;
   }
@@ -278,5 +280,13 @@ public class ExportManifest {
 
   public void addRoleExport( RoleExport roleExport ) {
     this.roleExports.add( roleExport );
+  }
+
+  public void setMetaStore( ExportManifestMetaStore metaStore ) {
+    this.metaStore = metaStore;
+  }
+
+  public ExportManifestMetaStore getMetaStore() {
+    return metaStore;
   }
 }

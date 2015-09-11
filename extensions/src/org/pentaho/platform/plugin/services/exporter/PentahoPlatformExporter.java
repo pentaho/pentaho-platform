@@ -1,11 +1,15 @@
 package org.pentaho.platform.plugin.services.exporter;
 
+import com.pentaho.repository.importexport.PDIImportUtil;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
-import org.pentaho.di.metastore.MetaStoreConst;
+import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metastore.api.IMetaStore;
+import org.pentaho.metastore.api.exceptions.MetaStoreException;
+import org.pentaho.metastore.stores.xml.XmlMetaStore;
+import org.pentaho.metastore.util.MetaStoreUtil;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -28,6 +32,7 @@ import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
@@ -42,10 +47,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,6 +69,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   public static final String METADATA_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "metadata/";
   public static final String ANALYSIS_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "analysis/";
   public static final String CONNECTIONS_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "connections/";
+  public static final String METASTORE = "metastore";
 
   private File exportFile;
   protected ZipOutputStream zos;
@@ -320,13 +329,75 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     log.debug( "export the metastore" );
     try {
 
-      IMetaStore metaStore = PentahoSystem.get( IMetaStore.class );
-      // or
-      metaStore = MetaStoreConst.openLocalPentahoMetaStore();
-      // or
-      // TODO: the real way to get this guy for the platform
+      IMetaStore metaStore = PDIImportUtil.connectToRepository( null ).getMetaStore();
+      Path tempDirectory = Files.createTempDirectory( METASTORE );
+      IMetaStore xmlMetaStore = new XmlMetaStore( tempDirectory.toString() );
+      MetaStoreUtil.copy( metaStore, xmlMetaStore );
+
+      File zippedMetastore = Files.createTempFile( METASTORE, EXPORT_TEMP_FILENAME_EXT ).toFile();
+      ZipOutputStream zipOutputStream = new ZipOutputStream( new FileOutputStream( zippedMetastore ) );
+      zipFolder( tempDirectory.toFile(), zipOutputStream, tempDirectory.toString() );
+      zipOutputStream.close();
+
+      // now that we have the zipped content of an xml metastore, we need to write that to the export bundle
+      FileInputStream zis = new FileInputStream( zippedMetastore );
+      String zipFileLocation = METASTORE + EXPORT_TEMP_FILENAME_EXT;
+      ZipEntry metastoreZipFileZipEntry = new ZipEntry( zipFileLocation );
+      zos.putNextEntry( metastoreZipFileZipEntry );
+      try {
+        IOUtils.copy( zis, zos );
+      } catch ( IOException e ) {
+        throw e;
+      } finally {
+        zis.close();
+        zos.closeEntry();
+      }
+
+      // add an ExportManifest entry for the metastore.
+      ExportManifestMetaStore exportManifestMetaStore = new ExportManifestMetaStore( zipFileLocation,
+        metaStore.getName(),
+        metaStore.getDescription() );
+
+      exportManifest.setMetaStore( exportManifestMetaStore );
+
+      zippedMetastore.deleteOnExit();
+      tempDirectory.toFile().deleteOnExit();
+
     } catch ( Exception e ) {
-      log.warn( "Can't find the metastore" );
+      log.error( Messages.getInstance().getString( "PentahoPlatformExporter.ERROR.ExportingMetaStore" ) );
+      log.debug( Messages.getInstance().getString( "PentahoPlatformExporter.ERROR.ExportingMetaStore" ), e );
+    }
+  }
+
+  protected void zipFolder( File file, ZipOutputStream zos, String pathPrefixToRemove ) {
+    if ( file.isDirectory() ) {
+      File[] listFiles = file.listFiles();
+      for ( File listFile : listFiles ) {
+        if ( listFile.isDirectory() ) {
+          zipFolder( listFile, zos, pathPrefixToRemove );
+        } else {
+          if ( !pathPrefixToRemove.endsWith( "/" ) ) {
+            pathPrefixToRemove += "/";
+          }
+          String path = listFile.getPath().replace( pathPrefixToRemove, "" );
+          ZipEntry entry = new ZipEntry( path );
+          FileInputStream fis = null;
+          try {
+            zos.putNextEntry( entry );
+            fis = new FileInputStream( listFile );
+            IOUtils.copy( fis, zos );
+          } catch ( IOException e ) {
+            e.printStackTrace();
+          } finally {
+            try {
+              zos.closeEntry();
+            } catch ( IOException e ) {
+              e.printStackTrace();
+            }
+            IOUtils.closeQuietly( fis );
+          }
+        }
+      }
     }
   }
 
