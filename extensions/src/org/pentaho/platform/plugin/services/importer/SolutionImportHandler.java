@@ -46,6 +46,7 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportMa
 import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -142,7 +143,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
         RepositoryFileImportBundle.Builder bundleBuilder =
             new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( false ).name( catName ).overwriteFile(
-                true ).mime( "application/vnd.pentaho.mondrian+xml" )
+              true ).mime( "application/vnd.pentaho.mondrian+xml" )
                 .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
         // definitely
         // named wrong
@@ -153,6 +154,21 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         bundleBuilder.withParam( "EnableXmla", xmlaEnabled );
 
         cachedImports.put( exportManifestMondrian.getFile(), bundleBuilder );
+
+        String annotationsFile = exportManifestMondrian.getAnnotationsFile();
+        if ( annotationsFile != null ) {
+          RepositoryFileImportBundle.Builder annotationsBundle = new RepositoryFileImportBundle.Builder()
+            .path( MondrianCatalogRepositoryHelper.ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catName )
+            .name( "annotations.xml" )
+            .charSet( "UTF_8" )
+            .overwriteFile( true )
+            .mime( "text/xml" )
+            .hidden( false )
+            .overwriteFile( true )
+            .withParam( "domain-id", catName );
+          cachedImports.put( annotationsFile, annotationsBundle );
+
+        }
       }
     }
 

@@ -13,25 +13,6 @@
 
 package org.pentaho.platform.plugin.services.importexport.legacy;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Callable;
-
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
@@ -52,9 +33,26 @@ import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
-import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.ANNOTATIONS_XML;
-import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.ANNOTATOR_KEY;
-import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.SCHEMA_XML;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+
+import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.*;
 
 public class MondrianCatalogRepositoryHelper {
 
@@ -108,7 +106,17 @@ public class MondrianCatalogRepositoryHelper {
         new StreamConverter().convert(
             repoFileBundle.getInputStream(), repoFileBundle.getCharset(), repoFileBundle.getMimeType() );
     if ( schema == null ) {
-      repository.createFile( catalog.getId(), repoFileBundle.getFile(), data, null );
+      RepositoryFile schemaFile = repository.createFile( catalog.getId(), repoFileBundle.getFile(), data, null );
+      if ( schemaFile != null ) {
+        // make sure the folder is not set to hidden if the schema is not hidden
+        RepositoryFile catalogFolder =
+          repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
+        if ( catalogFolder.isHidden() != schemaFile.isHidden() ) {
+          RepositoryFile unhiddenFolder =
+            ( new RepositoryFile.Builder( catalogFolder ) ).hidden( schemaFile.isHidden() ).build();
+          repository.updateFolder( unhiddenFolder, "" );
+        }
+      }
     } else {
       repository.updateFile( schema, data, null );
     }

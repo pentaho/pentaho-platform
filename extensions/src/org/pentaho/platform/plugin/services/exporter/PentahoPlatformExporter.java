@@ -33,6 +33,7 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter;
+import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -198,15 +199,26 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
       // get the files for this catalog
       Map<String, InputStream> files = getMondrianCatalogRepositoryHelper().getModrianSchemaFiles( catalog.getName() );
 
+      ExportManifestMondrian mondrian = new ExportManifestMondrian();
       for ( String fileName : files.keySet() ) {
+
         // write the file to the zip
         String path = ANALYSIS_PATH_IN_ZIP + catalog.getName() + "/" + fileName;
         ZipEntry zipEntry = new ZipEntry( new ZipEntry( ExportFileNameEncoder.encodeZipPathName( path ) ) );
         InputStream inputStream = files.get( fileName );
-        try {
-          zos.putNextEntry( zipEntry );
-          IOUtils.copy( inputStream, zos );
-          ExportManifestMondrian mondrian = new ExportManifestMondrian();
+
+        // ignore *.annotated.xml files, they are not needed
+        if ( fileName.equals( "schema.annotated.xml" ) ) {
+          // these types of files only exist for contextual export of a data source (from the UI) to later be imported in.
+          // However, in the case of backup/restore we don't need these since we'll be using the annotations.xml file along
+          // with the original schema xml file to re-generate the model properly
+          continue;
+        } else if ( MondrianVfs.ANNOTATIONS_XML.equals( fileName ) ) {
+          // annotations.xml should be written to the zip file and referenced in the export manifest entry for the
+          // related mondrian model
+          mondrian.setAnnotationsFile( path );
+        } else {
+          // must be a true mondrian model
           mondrian.setCatalogName( catalog.getName() );
           boolean xmlaEnabled = parseXmlaEnabled( catalog.getDataSourceInfo() );
           mondrian.setXmlaEnabled( xmlaEnabled );
@@ -216,8 +228,11 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
           mondrianParameters.put( "DataSource", catalog.getJndi() );
           mondrianParameters.put( "EnableXmla", Boolean.toString( xmlaEnabled ) );
           mondrian.setParameters( mondrianParameters );
-          getExportManifest().addMondrian( mondrian );
+        }
 
+        try {
+          zos.putNextEntry( zipEntry );
+          IOUtils.copy( inputStream, zos );
         } catch ( IOException e ) {
           log.warn( e.getMessage(), e );
         } finally {
@@ -228,6 +243,9 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
             // can't close the entry of input stream
           }
         }
+      }
+      if ( mondrian.getCatalogName() != null && mondrian.getFile() != null ) {
+        getExportManifest().addMondrian( mondrian );
       }
     }
   }
