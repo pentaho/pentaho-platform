@@ -1,21 +1,19 @@
 package org.pentaho.platform.plugin.services.exporter;
 
-import com.pentaho.repository.importexport.PDIImportUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
+import org.mockito.ArgumentCaptor;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
-import org.mockito.ArgumentCaptor;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
@@ -38,7 +36,6 @@ import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.userroledao.PentahoRole;
 import org.pentaho.platform.security.userroledao.PentahoUser;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,9 +46,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class PentahoPlatformExporterTest {

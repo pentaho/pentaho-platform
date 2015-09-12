@@ -1,13 +1,11 @@
 package org.pentaho.platform.plugin.services.exporter;
 
-import com.pentaho.repository.importexport.PDIImportUtil;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metastore.api.IMetaStore;
-import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import org.pentaho.metastore.stores.xml.XmlMetaStore;
 import org.pentaho.metastore.util.MetaStoreUtil;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -371,7 +369,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   protected IMetaStore getRepoMetaStore() {
     if ( metastore == null ) {
       try {
-        metastore = PDIImportUtil.connectToRepository( null ).getMetaStore();
+        metastore = MetaStoreExportUtil.connectToRepository( null ).getMetaStore();
       } catch ( KettleException e ) {
         // can't get the metastore to import into
         log.debug( "Can't get the metastore to import into" );
