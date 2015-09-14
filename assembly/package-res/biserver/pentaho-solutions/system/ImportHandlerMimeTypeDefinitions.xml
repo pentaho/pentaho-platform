@@ -123,6 +123,14 @@
         <extension>prpt</extension>
       </MimeTypeDefinition>
     </MimeTypeDefinitions>
-  </ImportHandler> 
-  
+  </ImportHandler>
+
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.MetaStoreImportHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.metastore">
+        <extension>mzip</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+
 </tns:ImportHandlerMimeTypeDefinitions>

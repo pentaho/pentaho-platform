@@ -44,6 +44,7 @@ import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
@@ -71,7 +72,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   private static final Log log = LogFactory.getLog( SolutionImportHandler.class );
 
   private static final String sep = ";";
-  private Map<String, RepositoryFileImportBundle.Builder> cachedImports;
+  protected Map<String, RepositoryFileImportBundle.Builder> cachedImports;
   private SolutionFileImportHelper solutionHelper;
   private List<IMimeType> mimeTypes;
 
@@ -171,6 +172,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         }
       }
     }
+
+    importMetaStore( manifest );
 
     for ( IRepositoryFileBundle file : importSource.getFiles() ) {
       String fileName = file.getFile().getName();
@@ -302,6 +305,24 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     }
     // Process locale files.
     localeFilesProcessor.processLocaleFiles( importer );
+  }
+
+  protected void importMetaStore( ExportManifest manifest ) {
+    // get the metastore
+    ExportManifestMetaStore manifestMetaStore = manifest.getMetaStore();
+    if ( manifestMetaStore != null ) {
+      // get the zipped metastore from the export bundle
+      RepositoryFileImportBundle.Builder bundleBuilder =
+        new RepositoryFileImportBundle.Builder()
+          .path( manifestMetaStore.getFile() )
+          .name( manifestMetaStore.getName() )
+          .withParam( "description", manifestMetaStore.getDescription() )
+          .charSet( "UTF-8" )
+          .mime( "application/vnd.pentaho.metastore" );
+
+      cachedImports.put( manifestMetaStore.getFile(), bundleBuilder );
+    }
+
   }
 
   /**

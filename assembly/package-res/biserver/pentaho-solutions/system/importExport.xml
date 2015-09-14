@@ -196,6 +196,14 @@
 					<property name="defaultAclHandler" ref="defaultAclHandler" />
 				</bean>
 
+				<bean class="org.pentaho.platform.plugin.services.importer.MetaStoreImportHandler">
+					<constructor-arg>
+						<bean factory-bean="MimeTypeListFactory" factory-method="createMimeTypeList" >
+							<constructor-arg value="org.pentaho.platform.plugin.services.importer.MetaStoreImportHandler"/>
+						</bean>
+					</constructor-arg>
+				</bean>
+
 			</util:list>
 		</constructor-arg>
 	</bean>

@@ -10,6 +10,8 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -180,7 +183,8 @@ public class SolutionImportHandlerTest {
     importHandler.importRoles( roles, roleToUserMap );
 
     verify( userRoleDao ).createRole( any( ITenant.class ), eq( roleName ), anyString(), any( userStrings.getClass() ) );
-    verify( roleAuthorizationPolicyRoleBindingDao ).setRoleBindings( any( ITenant.class ), eq( roleName ), eq( permissions ) );
+    verify( roleAuthorizationPolicyRoleBindingDao ).setRoleBindings( any( ITenant.class ), eq( roleName ),
+      eq( permissions ) );
   }
 
   @Test
@@ -214,6 +218,31 @@ public class SolutionImportHandlerTest {
     verify( roleAuthorizationPolicyRoleBindingDao ).setRoleBindings( any( ITenant.class ), eq( roleName ), eq(
       permissions ) );
 
+  }
+
+  @Test
+  public void testImportMetaStore() throws Exception {
+    ExportManifest manifest = spy( new ExportManifest() );
+    String path = "/path/to/file.zip";
+    ExportManifestMetaStore manifestMetaStore = new ExportManifestMetaStore( path,
+      "metastore",
+      "description of the metastore" );
+    importHandler.cachedImports = new HashMap<String, RepositoryFileImportBundle.Builder>();
+
+    when( manifest.getMetaStore() ).thenReturn( manifestMetaStore );
+
+    importHandler.importMetaStore( manifest );
+    assertEquals( 1, importHandler.cachedImports.size() );
+    assertTrue( importHandler.cachedImports.get( path ) != null );
+  }
+
+  @Test
+  public void testImportMetaStore_nullMetastoreManifest() throws Exception {
+    ExportManifest manifest = spy( new ExportManifest() );
+
+    importHandler.cachedImports = new HashMap<String, RepositoryFileImportBundle.Builder>();
+    importHandler.importMetaStore( manifest );
+    assertEquals( 0, importHandler.cachedImports.size() );
   }
 
   @After
