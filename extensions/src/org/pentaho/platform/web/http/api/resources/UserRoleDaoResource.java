@@ -22,8 +22,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -647,41 +645,18 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * Update the password of a selected user
    *
    * @param user (user information <code> User </code>)
-   * @return
+   * @return response object containing the status code of the operation
    */
   @PUT
-  @Path ( "/updatePassword" )
-  @Consumes ( { WILDCARD } )
-  @Facet ( name = "Unsupported" )
+  @Path( "/updatePassword" )
+  @Consumes( { WILDCARD } )
+  @Facet( name = "Unsupported" )
   public Response updatePassword( User user ) {
-    if ( canAdminister() ) {
-      try {
-        IUserRoleDao roleDao =
-            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-        String userName = user.getUserName();
-        String password = user.getPassword();
-        try {
-          userName = URLDecoder.decode( userName.replace( "+", "%2B" ), "UTF-8" );
-        } catch ( UnsupportedEncodingException e ) {
-          userName = user.getUserName();
-          logger.warn( e.getMessage(), e );
-        }
-        try {
-          password = URLDecoder.decode( password.replace( "+", "%2B" ), "UTF-8" );
-        } catch ( UnsupportedEncodingException e ) {
-          password = user.getPassword();
-          logger.warn( e.getMessage(), e );
-        }
-        IPentahoUser puser = roleDao.getUser( null, userName );
-        if ( puser != null ) {
-          roleDao.setPassword( null, userName, password );
-        }
-        return Response.ok().build();
-      } catch ( Throwable t ) {
-        throw new WebApplicationException( t );
-      }
-    } else {
-      return Response.status( UNAUTHORIZED ).build();
+    try {
+      userRoleDaoService.updatePassword( user );
+      return Response.ok().build();
+    } catch ( SecurityException e ) {
+      throw new WebApplicationException( Response.Status.FORBIDDEN );
     }
   }
 

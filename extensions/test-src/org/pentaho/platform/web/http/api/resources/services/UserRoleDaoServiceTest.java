@@ -635,4 +635,26 @@ public class UserRoleDaoServiceTest {
     userRoleService.createRole( null );
   }
 
+  @Test
+  public void testUpdatePassword() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+    
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    PentahoSystem.registerObject( roleDao );
+    userRoleService.updatePassword( new User( "name", "password" ) );
+  }
+
+  @Test( expected = SecurityException.class )
+  public void testUpdatePasswordNotAdmin() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    PentahoSystem.registerObject( policy );
+
+    userRoleService.updatePassword( new User( "name", "password" ) );
+  }
+
 }
