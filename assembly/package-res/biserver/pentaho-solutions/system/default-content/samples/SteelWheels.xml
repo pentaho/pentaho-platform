@@ -51,8 +51,7 @@
 			</Hierarchy>
 		</Dimension>
 		<Dimension foreignKey="PRODUCTCODE" name="Product">
-      <Hierarchy name="" hasAll="true" allMemberName="All Products" primaryKey="PRODUCTCODE" primaryKeyTable="PRODUCTS"
-                 caption="">
+      <Hierarchy name="" hasAll="true" allMemberName="All Products" primaryKey="PRODUCTCODE" caption="">
 				<Table name="PRODUCTS">
 				</Table>
         <Level name="Line" table="PRODUCTS" column="PRODUCTLINE" type="String" uniqueMembers="false" levelType="Regular"
