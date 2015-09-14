@@ -486,5 +486,24 @@ public class UserRoleDaoResourceTest {
       assertEquals( Response.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus() );
     }
   }
+  
+  @Test
+  public void testUpdatePassword() throws Exception {
+    Response response = userRoleResource.updatePassword( new User( "name", "newPassword" ) );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+  }
+
+  @Test
+  public void testUpdatePasswordNotAdmin() throws Exception {
+    UserRoleDaoService mockService = mock( UserRoleDaoService.class );
+    doThrow( new SecurityException() ).when( mockService ).updatePassword( any( User.class ) );
+    UserRoleDaoResource resource =
+        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+    try {
+      resource.updatePassword( new User( "name", "newPassword" ) );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
+    }
+  }
 
 }

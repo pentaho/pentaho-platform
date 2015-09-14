@@ -268,6 +268,21 @@ public class UserRoleDaoService {
       throw new SecurityException();
     }
   }
+  
+  public void updatePassword( User user ) throws SecurityException {
+    if ( canAdminister() ) {
+      String userName = decode( user.getUserName() );
+      String password = decode( user.getPassword() );
+      IUserRoleDao roleDao =
+          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+      IPentahoUser puser = roleDao.getUser( null, userName );
+      if ( puser != null ) {
+        roleDao.setPassword( null, userName, password );
+      }
+    } else {
+      throw new SecurityException();
+    }
+  }
 
   private boolean canAdminister() {
     return getPolicy().isAllowed( RepositoryReadAction.NAME ) && getPolicy().isAllowed( RepositoryCreateAction.NAME )
