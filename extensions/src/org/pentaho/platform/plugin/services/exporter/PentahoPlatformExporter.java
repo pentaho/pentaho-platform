@@ -68,6 +68,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   public static final String ANALYSIS_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "analysis/";
   public static final String CONNECTIONS_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "connections/";
   public static final String METASTORE = "metastore";
+  public static final String METASTORE_BACKUP_EXT = ".mzip";
 
   private File exportFile;
   protected ZipOutputStream zos;
@@ -338,7 +339,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
       // now that we have the zipped content of an xml metastore, we need to write that to the export bundle
       FileInputStream zis = new FileInputStream( zippedMetastore );
-      String zipFileLocation = METASTORE + EXPORT_TEMP_FILENAME_EXT;
+      String zipFileLocation = METASTORE + METASTORE_BACKUP_EXT;
       ZipEntry metastoreZipFileZipEntry = new ZipEntry( zipFileLocation );
       zos.putNextEntry( metastoreZipFileZipEntry );
       try {
