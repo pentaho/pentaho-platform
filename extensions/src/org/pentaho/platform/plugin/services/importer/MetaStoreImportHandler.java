@@ -104,7 +104,7 @@ public class MetaStoreImportHandler implements IPlatformImportHandler {
 
         tmpXmlMetaStore.setDescription( desc );
 
-        MetaStoreUtil.copy( tmpXmlMetaStore, metastore );
+        MetaStoreUtil.copy( tmpXmlMetaStore, metastore, bundle.overwriteInRepository() );
 
       } catch ( MetaStoreException e ) {
         log.error( "Could not restore the MetaStore" );
