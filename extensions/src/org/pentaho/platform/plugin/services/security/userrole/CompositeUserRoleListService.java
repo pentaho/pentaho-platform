@@ -17,11 +17,17 @@
 
 package org.pentaho.platform.plugin.services.security.userrole;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
-
-import java.util.*;
+import org.pentaho.platform.settings.ServerPortRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class delgates calls to a configured list of IUserRoleListService delegates. The results are determined by the
@@ -33,6 +39,7 @@ import java.util.*;
 public class CompositeUserRoleListService implements IUserRoleListService {
 
   private List<IUserRoleListService> delegates = new ArrayList<IUserRoleListService>();
+  private static Logger logger = LoggerFactory.getLogger( CompositeUserRoleListService.class );
 
   public static enum STRATEGY {
     ADDITIVE,
@@ -81,17 +88,21 @@ public class CompositeUserRoleListService implements IUserRoleListService {
     } );
   }
 
-  @Override public List<String> getAllUsers() {
+  @Override
+  public List<String> getAllUsers() {
     return collectResultsForOperation( new CompositeOperation() {
-      @Override public List<String> perform( IUserRoleListService service ) {
+      @Override
+      public List<String> perform( IUserRoleListService service ) {
         return service.getAllUsers();
       }
     } );
   }
 
-  @Override public List<String> getAllUsers( final ITenant tenant ) {
+  @Override
+  public List<String> getAllUsers( final ITenant tenant ) {
     return collectResultsForOperation( new CompositeOperation() {
-      @Override public List<String> perform( IUserRoleListService service ) {
+      @Override
+      public List<String> perform( IUserRoleListService service ) {
         return service.getAllUsers( tenant );
       }
     } );
@@ -126,6 +137,9 @@ public class CompositeUserRoleListService implements IUserRoleListService {
         }
       } catch ( UnsupportedOperationException ignored ) {
         // next delegate
+      } catch ( Exception e ) {
+        //Log the exception if the method was supported
+        logger.error( "User/Role List could not be obtained.", e );
       }
     }
     return new ArrayList<String>( returnVal );

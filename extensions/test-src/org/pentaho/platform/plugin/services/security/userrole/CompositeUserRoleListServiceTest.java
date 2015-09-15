@@ -28,6 +28,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -154,6 +155,33 @@ public class CompositeUserRoleListServiceTest {
         new String[]{"user1", "suzy", "joe"} ) );
 
   }
+  /**
+   * Tests that if the service throws an exception we still get back an empty list
+   */
+  @Test
+  public void testGetAllUsers2() throws Exception {
+
+    CompositeUserRoleListService badCompositeService =
+        new CompositeUserRoleListService( Arrays.asList( service1, null ) );
+    List<String> allUsers = badCompositeService.getAllUsers( null );
+    assertNotNull( allUsers );
+    assertTrue( allUsers instanceof List );
+    assertEquals( 0, allUsers.size() );
+  }
+  
+  /**
+   * Tests that if the sources lists are empty/null we still get back an empty list
+   */
+  @Test
+  public void testGetAllUsers3() throws Exception {
+
+    IUserRoleListService badService = mock( IUserRoleListService.class );
+    CompositeUserRoleListService badCompositeService = new CompositeUserRoleListService( Arrays.asList( badService, badService )  );
+    List<String> allUsers = badCompositeService.getAllUsers( null );
+    assertNotNull( allUsers);
+    assertTrue( allUsers instanceof List );
+    assertEquals( 0, allUsers.size() );
+  }
 
   @Test
   public void testGetUsersInRole() throws Exception {
@@ -178,4 +206,5 @@ public class CompositeUserRoleListServiceTest {
     assertTrue( unsortedEqualArrays( allRoles.toArray( new String[allRoles.size()] ),
         new String[]{"admin", "rockstar"} ) );
   }
+  
 }
