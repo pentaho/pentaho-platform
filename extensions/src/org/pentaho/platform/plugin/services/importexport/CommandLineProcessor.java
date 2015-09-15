@@ -761,7 +761,7 @@ public class CommandLineProcessor {
    *
    * @throws ParseException
    *           --restore --url=http://localhost:8080/pentaho --username=admin --password=password
-   *           --logfile=c:/temp/steel-wheels.log --file-path=c:/temp/backup.zip
+   *           --overwrite=true --logfile=c:/temp/steel-wheels.log --file-path=c:/temp/backup.zip
    * @throws java.io.IOException
    */
   private void performRestore() throws ParseException, IOException {
@@ -783,6 +783,13 @@ public class CommandLineProcessor {
     try {
       initRestService();
       WebResource resource = client.resource( importURL );
+
+      String overwrite =
+        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY" ),
+          Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME" ), true, false );
+
+      part.field( "overwriteFile", "true".equals( overwrite ) ? "true" : "false",
+        MediaType.MULTIPART_FORM_DATA_TYPE );
 
       // Response response
       ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );

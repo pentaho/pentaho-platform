@@ -1,5 +1,6 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,6 +35,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.Converter;
@@ -56,6 +58,7 @@ import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
@@ -120,14 +123,20 @@ public class FileService {
     }
   }
 
-  public void systemRestore( final InputStream fileUpload ) throws PlatformImportException, SecurityException {
+  public void systemRestore( final InputStream fileUpload, String overwriteFile ) throws PlatformImportException, SecurityException {
     if ( doCanAdminister() ) {
+      boolean overwriteFileFlag = ( "false".equals( overwriteFile ) ? false : true );
+      IRepositoryImportLogger importLogger = null;
+      Level level = Level.ERROR;
+      boolean logJobStarted = false;
+      ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
+      String importDirectory = "/";
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileUpload );
       bundleBuilder.charSet( "UTF-8" );
       bundleBuilder.hidden( true );
-      bundleBuilder.path( "/" );
-      bundleBuilder.overwriteFile( true );
+      bundleBuilder.path( importDirectory );
+      bundleBuilder.overwriteFile( overwriteFileFlag );
       bundleBuilder.name( "SystemBackup.zip" );
       bundleBuilder.applyAclSettings( true );
       bundleBuilder.overwriteAclSettings( false );
@@ -135,7 +144,16 @@ public class FileService {
       bundleBuilder.preserveDsw( true );
 
       IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
-      importer.importFile( bundleBuilder.build() );
+      importLogger = importer.getRepositoryImportLogger();
+      logJobStarted = true;
+      importLogger.startJob( importLoggerStream, importDirectory, level );
+      try {
+        importer.importFile( bundleBuilder.build() );
+      } finally {
+        if ( logJobStarted == true ) {
+          importLogger.endJob();
+        }
+      }
     } else {
       throw new SecurityException();
     }
