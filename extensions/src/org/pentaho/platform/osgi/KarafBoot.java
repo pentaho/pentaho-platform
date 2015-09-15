@@ -104,22 +104,24 @@ public class KarafBoot implements IPentahoSystemListener {
       // the particular execution needs (Carte, Spoon, Pan, Kitchen)
       KettleClientEnvironment.ClientType clientType = KettleClientEnvironment.getInstance().getClient();
       String extraKettleEtc = null;
-      switch( clientType ){
-        case SPOON:
-          extraKettleEtc = "/etc-spoon";
-          break;
-        case PAN:
-          extraKettleEtc = "/etc-pan";
-          break;
-        case KITCHEN:
-          extraKettleEtc = "/etc-kitchen";
-          break;
-        case CARTE:
-          extraKettleEtc = "/etc-carte";
-          break;
-        default:
-          extraKettleEtc = "/etc-default";
-          break;
+      if( clientType != null ) {
+        switch( clientType ) {
+          case SPOON:
+            extraKettleEtc = "/etc-spoon";
+            break;
+          case PAN:
+            extraKettleEtc = "/etc-pan";
+            break;
+          case KITCHEN:
+            extraKettleEtc = "/etc-kitchen";
+            break;
+          case CARTE:
+            extraKettleEtc = "/etc-carte";
+            break;
+          default:
+            extraKettleEtc = "/etc-default";
+            break;
+        }
       }
       if( extraKettleEtc != null ){
         System.setProperty( "felix.fileinstall.dir", root + "/etc"  + "," + root + extraKettleEtc );
