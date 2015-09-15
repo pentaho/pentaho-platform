@@ -117,6 +117,9 @@ public class KarafBoot implements IPentahoSystemListener {
         case CARTE:
           extraKettleEtc = "/etc-carte";
           break;
+        default:
+          extraKettleEtc = "/etc-default";
+          break;
       }
       if( extraKettleEtc != null ){
         System.setProperty( "felix.fileinstall.dir", root + "/etc"  + "," + root + extraKettleEtc );
