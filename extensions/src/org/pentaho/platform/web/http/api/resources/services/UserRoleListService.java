@@ -74,7 +74,22 @@ public class UserRoleListService {
 
   public RoleListWrapper getAllRoles() {
     List<String> roles = getUserRoleListService().getAllRoles();
-    roles.addAll( getExtraRoles() );
+    List<String> extraRoles = getExtraRoles();
+    if ( extraRoles != null ) {
+      if ( systemRoles != null ) {
+        extraRoles.addAll( systemRoles );
+      }
+    }
+    else {
+      extraRoles = systemRoles;
+    }
+    if ( extraRoles != null ) {
+      for ( String ex : extraRoles ) {
+        if( ! roles.contains( ex ) ) {
+          roles.add( ex );
+        }
+      }
+    }
     return new RoleListWrapper( roles );
   }
 
