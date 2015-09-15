@@ -66,6 +66,6 @@ public class MetaStoreImportHandlerTest {
     // not going to test all of the internals of the MetaStoreUtil.copy, just enough to make sure it was called.
     verify( metastore ).createNamespace( "pentaho" );
     verify( metastore ).createNamespace( "hitachi" );
-
+    verify( fromMetaStore ).setRootFolder( anyString() );
   }
 }
