@@ -173,7 +173,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       }
     }
 
-    importMetaStore( manifest );
+    importMetaStore( manifest, bundle.overwriteInRepository() );
 
     for ( IRepositoryFileBundle file : importSource.getFiles() ) {
       String fileName = file.getFile().getName();
@@ -307,7 +307,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     localeFilesProcessor.processLocaleFiles( importer );
   }
 
-  protected void importMetaStore( ExportManifest manifest ) {
+  protected void importMetaStore( ExportManifest manifest, boolean overwrite ) {
     // get the metastore
     ExportManifestMetaStore manifestMetaStore = manifest.getMetaStore();
     if ( manifestMetaStore != null ) {
@@ -318,6 +318,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           .name( manifestMetaStore.getName() )
           .withParam( "description", manifestMetaStore.getDescription() )
           .charSet( "UTF-8" )
+          .overwriteFile( overwrite )
           .mime( "application/vnd.pentaho.metastore" );
 
       cachedImports.put( manifestMetaStore.getFile(), bundleBuilder );

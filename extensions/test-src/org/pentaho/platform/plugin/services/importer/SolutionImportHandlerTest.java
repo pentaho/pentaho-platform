@@ -231,7 +231,7 @@ public class SolutionImportHandlerTest {
 
     when( manifest.getMetaStore() ).thenReturn( manifestMetaStore );
 
-    importHandler.importMetaStore( manifest );
+    importHandler.importMetaStore( manifest, true );
     assertEquals( 1, importHandler.cachedImports.size() );
     assertTrue( importHandler.cachedImports.get( path ) != null );
   }
@@ -241,7 +241,7 @@ public class SolutionImportHandlerTest {
     ExportManifest manifest = spy( new ExportManifest() );
 
     importHandler.cachedImports = new HashMap<String, RepositoryFileImportBundle.Builder>();
-    importHandler.importMetaStore( manifest );
+    importHandler.importMetaStore( manifest, true );
     assertEquals( 0, importHandler.cachedImports.size() );
   }
 
