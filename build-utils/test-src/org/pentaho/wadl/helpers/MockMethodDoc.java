@@ -292,14 +292,4 @@ public class MockMethodDoc implements MethodDoc {
     return false;
   }
 
-  @Override
-  public boolean isDefault() {
-    return false;
-  }
-
-  @Override
-  public Type receiverType() {
-    return null;
-  }
-
 }

@@ -21,9 +21,4 @@ public class MockPathAnnotationDesc implements AnnotationDesc {
     return "@javax.ws.rs.Path";
   }
 
-  @Override
-  public boolean isSynthesized() {
-    return false;
-  }
-
 }
