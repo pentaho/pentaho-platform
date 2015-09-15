@@ -1,5 +1,6 @@
 package org.pentaho.wadl.helpers;
 
+import com.sun.javadoc.AnnotatedType;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationTypeDoc;
 import com.sun.javadoc.ClassDoc;
@@ -383,6 +384,16 @@ public class MockClassDoc implements ClassDoc {
 
   @Override
   public PackageDoc[] importedPackages() {
+    return null;
+  }
+
+  @Override
+  public Type getElementType() {
+    return null;
+  }
+
+  @Override
+  public AnnotatedType asAnnotatedType() {
     return null;
   }
 

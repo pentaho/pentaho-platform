@@ -21,4 +21,9 @@ public class MockDeprecatedAnnotationDesc implements AnnotationDesc {
     return "@java.lang.Deprecated";
   }
 
+  @Override
+  public boolean isSynthesized() {
+    return false;
+  }
+
 }
