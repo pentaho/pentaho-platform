@@ -96,6 +96,9 @@ public class MetaStoreImportHandler implements IPlatformImportHandler {
       try {
         if ( tmpXmlMetaStore == null ) {
           tmpXmlMetaStore = new XmlMetaStore( path.toString() );
+        } else {
+          // we are re-using an existing object, make sure the root folder is pointed at the new location on disk
+          tmpXmlMetaStore.setRootFolder( path.toString() + File.separator + METASTORE );
         }
         tmpXmlMetaStore.setName( bundle.getName() );
 
