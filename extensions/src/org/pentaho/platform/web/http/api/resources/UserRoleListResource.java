@@ -22,6 +22,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,12 +34,14 @@ import javax.ws.rs.core.Response;
 
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.DefaultRoleComparator;
 import org.pentaho.platform.engine.security.DefaultUsernameComparator;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleListService.UnauthorizedException;
+import org.pentaho.platform.web.http.messages.Messages;
 
 /**
  * The UserRoleListResource service lists roles, permissions, and users. Provides a list of users per role and roles per user.
@@ -309,8 +312,13 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   } )
   public Response getUsersInRole( @QueryParam ( "role" ) String role ) throws Exception {
     try {
-      String roles = userRoleListService.doGetUsersInRole( role );
-      return buildOkResponse( roles, MediaType.APPLICATION_XML );
+      List<String> users = PentahoSystem.get( IUserRoleListService.class ).getUsersInRole( null, role );
+      if ( !users.isEmpty() ) {
+        String roles = userRoleListService.doGetUsersInRole( role );
+        return buildOkResponse( roles, MediaType.APPLICATION_XML );
+      }
+      return Response.status( Response.Status.INTERNAL_SERVER_ERROR )
+          .entity( Messages.MISSING_OR_INCORRECT_ROLE_PARAMETER ).build();
     } catch ( UnauthorizedException t ) {
       return buildStatusResponse( UNAUTHORIZED );
     } catch ( Throwable t ) {
