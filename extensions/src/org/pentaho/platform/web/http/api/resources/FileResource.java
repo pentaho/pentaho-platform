@@ -205,9 +205,9 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode( code = 403, condition = "User does not have administrative permissions" ),
     @ResponseCode( code = 500, condition = "Failure to complete the import." )
   } )
-  public Response systemRestore( @FormDataParam( "fileUpload" ) InputStream fileUpload ) {
+  public Response systemRestore( @FormDataParam( "fileUpload" ) InputStream fileUpload, @FormDataParam ( "overwriteFile" ) String overwriteFile ) {
     try {
-      fileService.systemRestore( fileUpload );
+      fileService.systemRestore( fileUpload, overwriteFile );
       return Response.ok().build();
     } catch ( PlatformImportException e ) {
       throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );

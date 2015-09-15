@@ -75,6 +75,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   protected Map<String, RepositoryFileImportBundle.Builder> cachedImports;
   private SolutionFileImportHelper solutionHelper;
   private List<IMimeType> mimeTypes;
+  private boolean overwriteFile;
 
   public SolutionImportHandler( List<IMimeType> mimeTypes ) {
     this.mimeTypes = mimeTypes;
@@ -92,7 +93,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     ZipInputStream zipImportStream = new ZipInputStream( bundle.getInputStream() );
     SolutionRepositoryImportSource importSource = new SolutionRepositoryImportSource( zipImportStream );
     LocaleFilesProcessor localeFilesProcessor = new LocaleFilesProcessor();
-
+    setOverwriteFile( bundle.overwriteInRepository() );
     // importSession.set(ImportSession.getSession());
 
     IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
@@ -162,7 +163,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             .path( MondrianCatalogRepositoryHelper.ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catName )
             .name( "annotations.xml" )
             .charSet( "UTF_8" )
-            .overwriteFile( true )
+            .overwriteFile( isOverwriteFile() )
             .mime( "text/xml" )
             .hidden( false )
             .overwriteFile( true )
@@ -360,11 +361,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           log.info( Messages.getInstance().getString( "USER.Already.Exists", user.getUsername() ) );
 
           try {
-            // set the roles, maybe they changed
-            roleDao.setUserRoles( tenant, user.getUsername(), userRoles );
+            if ( isOverwriteFile() ) {
+              // set the roles, maybe they changed
+              roleDao.setUserRoles( tenant, user.getUsername(), userRoles );
 
-            // set the password just in case it changed
-            roleDao.setPassword( tenant, user.getUsername(), password );
+              // set the password just in case it changed
+              roleDao.setPassword( tenant, user.getUsername(), password );
+            }
           } catch ( Exception ex ) {
             // couldn't set the roles or password either
             log.debug( "Failed to set roles or password for existing user on import", ex );
@@ -383,6 +386,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(
       IRoleAuthorizationPolicyRoleBindingDao.class );
 
+    List<String> existingUsers = new ArrayList<>();
     if ( roles != null ) {
       for ( RoleExport role : roles ) {
         log.debug( "Importing role: " + role.getRolename() );
@@ -391,11 +395,14 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           String[] userarray = users == null ? new String[] {} : users.toArray( new String[] {} );
           IPentahoRole role1 = roleDao.createRole( tenant, role.getRolename(), null, userarray );
         } catch ( AlreadyExistsException e ) {
+          existingUsers.add( role.getRolename() );
           // it's ok if the role already exists, it is probably a default role
           log.info( Messages.getInstance().getString( "ROLE.Already.Exists", role.getRolename() ) );
         }
         try {
-          roleBindingDao.setRoleBindings( tenant, role.getRolename(), role.getPermissions() );
+          if ( existingUsers.contains( role.getRolename() ) && isOverwriteFile() ) {
+            roleBindingDao.setRoleBindings( tenant, role.getRolename(), role.getPermissions() );
+          }
         } catch ( Exception e ) {
           log.info( Messages.getInstance().getString( "ERROR.SettingRolePermissions", role.getRolename() ), e );
         }
@@ -512,4 +519,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     return scheduler != null ? scheduler.createJob( jobRequest ) : null;
   }
 
+  public boolean isOverwriteFile() {
+    return overwriteFile;
+  }
+
+  public void setOverwriteFile( boolean overwriteFile ) {
+    this.overwriteFile = overwriteFile;
+  }
 }
