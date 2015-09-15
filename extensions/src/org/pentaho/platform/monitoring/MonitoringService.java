@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Wrapper for the AsyncEventBus class.
@@ -44,7 +45,17 @@ public class MonitoringService implements IMonitoringService {
 
   public MonitoringService() {
 
-    asyncEventBus = new AsyncEventBus( Executors.newCachedThreadPool() );
+    asyncEventBus = new AsyncEventBus( Executors.newCachedThreadPool(
+        new ThreadFactory() {
+          @Override
+          public Thread newThread(Runnable r) {
+            Thread thread = Executors.defaultThreadFactory().newThread(r);
+            thread.setDaemon(true);
+            thread.setName("MonitoringService pool");
+            return thread;
+          }
+        }
+    ) );
 
     // register the bus with PentahoSystem
     PentahoSystem.registerReference(
