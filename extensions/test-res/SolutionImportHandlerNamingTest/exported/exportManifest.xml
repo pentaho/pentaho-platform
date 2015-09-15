@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:ExportManifest xmlns:ns2="http://www.pentaho.com/schema/">
+    <ExportManifestInformation exportDate="10-09-2015 05:54:24 GST" exportBy="admin" rootFolder="/home/admin/BISERVER-12264/" manifestVersion="2"/>
+    <ExportManifestEntity path="two words">
+        <ExportManifestProperty>
+            <EntityMetaData name="two words" createdDate="2015-09-10T17:48:37.858+04:00" isFolder="true" path="two words" isHidden="false" locale="en_US" title="two words"/>
+        </ExportManifestProperty>
+        <ExportManifestProperty>
+            <EntityAcl>
+                <entriesInheriting>true</entriesInheriting>
+                <owner>admin</owner>
+                <ownerType>USER</ownerType>
+            </EntityAcl>
+        </ExportManifestProperty>
+    </ExportManifestEntity>
+    <ExportManifestEntity path="two words/eval (+).prpt">
+        <ExportManifestProperty>
+            <EntityMetaData name="eval (+).prpt" createdDate="2015-09-10T16:47:12.932+04:00" isFolder="false" path="two words/eval (+)%25.prpt" isHidden="false" locale="en_US" title="eval (+)"/>
+        </ExportManifestProperty>
+        <ExportManifestProperty>
+            <EntityAcl>
+                <entriesInheriting>true</entriesInheriting>
+                <owner>admin</owner>
+                <ownerType>USER</ownerType>
+            </EntityAcl>
+        </ExportManifestProperty>
+    </ExportManifestEntity>
+</ns2:ExportManifest>

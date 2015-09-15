@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -178,10 +178,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     for ( IRepositoryFileBundle file : importSource.getFiles() ) {
       String fileName = file.getFile().getName();
       String actualFilePath = file.getPath();
-      if ( manifestVersion != null ) {
-        fileName = ExportFileNameEncoder.decodeZipFileName( fileName );
-        actualFilePath = ExportFileNameEncoder.decodeZipFileName( actualFilePath );
-      }
+      fileName = ExportFileNameEncoder.decodeZipFileName( fileName );
+      actualFilePath = ExportFileNameEncoder.decodeZipFileName( actualFilePath );
       String repositoryFilePath =
           RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
 
@@ -200,10 +198,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
       String decodedFilePath = file.getPath();
       RepositoryFile decodedFile = file.getFile();
-      if ( manifestVersion != null ) {
-        decodedFile = new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName ).build();
-        decodedFilePath = ExportFileNameEncoder.decodeZipFileName( file.getPath() );
-      }
+      decodedFile = new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName ).build();
+      decodedFilePath = ExportFileNameEncoder.decodeZipFileName( file.getPath() );
 
       if ( file.getFile().isFolder() ) {
         bundleBuilder.mime( "text/directory" );
