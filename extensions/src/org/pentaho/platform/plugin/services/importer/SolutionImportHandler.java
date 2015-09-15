@@ -305,21 +305,22 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   protected void importMetaStore( ExportManifest manifest, boolean overwrite ) {
     // get the metastore
-    ExportManifestMetaStore manifestMetaStore = manifest.getMetaStore();
-    if ( manifestMetaStore != null ) {
-      // get the zipped metastore from the export bundle
-      RepositoryFileImportBundle.Builder bundleBuilder =
-        new RepositoryFileImportBundle.Builder()
-          .path( manifestMetaStore.getFile() )
-          .name( manifestMetaStore.getName() )
-          .withParam( "description", manifestMetaStore.getDescription() )
-          .charSet( "UTF-8" )
-          .overwriteFile( overwrite )
-          .mime( "application/vnd.pentaho.metastore" );
+    if ( manifest != null ) {
+      ExportManifestMetaStore manifestMetaStore = manifest.getMetaStore();
+      if ( manifestMetaStore != null ) {
+        // get the zipped metastore from the export bundle
+        RepositoryFileImportBundle.Builder bundleBuilder =
+          new RepositoryFileImportBundle.Builder()
+            .path( manifestMetaStore.getFile() )
+            .name( manifestMetaStore.getName() )
+            .withParam( "description", manifestMetaStore.getDescription() )
+            .charSet( "UTF-8" )
+            .overwriteFile( overwrite )
+            .mime( "application/vnd.pentaho.metastore" );
 
-      cachedImports.put( manifestMetaStore.getFile(), bundleBuilder );
+        cachedImports.put( manifestMetaStore.getFile(), bundleBuilder );
+      }
     }
-
   }
 
   /**
