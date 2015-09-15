@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
     "classpath:/repository-test-override.spring.xml" } )
 public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
 
-  private JcrAclNodeHelper helper;
+  private JcrAclNodeHelperCallTester helper;
   private ITenant defaultTenant;
   private RepositoryFile targetFile;
 
@@ -49,7 +49,7 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
         .build();
     repo.updateAcl( newAcl );
 
-    helper = new JcrAclNodeHelper( repo );
+    helper = new JcrAclNodeHelperCallTester( repo ); // Subclass for ensuring no redundant calls are made.
     logout();
   }
 
@@ -88,7 +88,10 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
   @Test
   public void visibleForEveryOne() {
     loginAsRepositoryAdmin();
+    helper.resetAclNodeCallCounter();
     assertTrue( helper.canAccess( targetFile, EnumSet.of( RepositoryFilePermission.READ ) ) );
+    // This tests that canAccess doesn't make redundant calls to getAclNode - BISERVER-12780
+    assertEquals( 1, helper.getAclNodeCallCounter() );
   }
 
 
@@ -201,7 +204,11 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     makeDsPrivate();
     loginAsSuzy();
 
+    helper.resetAclNodeCallCounter();
     RepositoryFileAcl aclReturned = helper.getAclFor( targetFile );
+    // This tests that getAclFor doesn't make redundant calls to getAclNode - BISERVER-12780
+    assertEquals( 1, helper.getAclNodeCallCounter() );
+    
     boolean adminPresent = false;
 
     for( RepositoryFileAce ace : aclReturned.getAces() ){

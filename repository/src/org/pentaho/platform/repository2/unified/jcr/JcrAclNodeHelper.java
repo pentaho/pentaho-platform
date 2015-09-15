@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
 /**
  * @author Andrey Khayrutdinov
  * @author Nick Baker
+ * @author Marc Batchelor
  */
 public class JcrAclNodeHelper implements IAclNodeHelper {
   private static final Log logger = LogFactory.getLog( JcrAclNodeHelper.class );
@@ -41,12 +42,8 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
   public JcrAclNodeHelper( IUnifiedRepository unifiedRepository) {
     this.unifiedRepository = unifiedRepository;
   }
-
-  private boolean hasAclNode( final RepositoryFile file ) {
-    return getAclNode( file ) != null;
-  }
-
-  private RepositoryFile getAclNode( final RepositoryFile file ) {
+  // Set to protected for test access
+  protected RepositoryFile getAclNode( final RepositoryFile file ) {
     try {
       return SecurityHelper.getInstance().runAsSystem( new Callable<RepositoryFile>() {
         @Override public RepositoryFile call() throws Exception {
@@ -82,22 +79,22 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
       return false;
     }
       
-    // First check to see if there is an ACL node, this call is done as "system"
-    boolean hasAclNode = hasAclNode( repositoryFile );
-
-    // If no ACL node is present, it's a public resource
-    if ( !hasAclNode ) {
-      return true;
-    }
-
     // Obtain a reference to ACL node as "system", guaranteed access
     final RepositoryFile aclNode = getAclNode( repositoryFile );
+    
+    // If no ACL node is present, it's a public resource
+    // Removed redundant call to getAclNode via BISERVER-12780
+    if ( aclNode == null ) {
+      return true;
+    }
 
     // Check to see if user has READ access to file, this will throw and exception if not.
     try {
       unifiedRepository.getFileById( aclNode.getId() );
     } catch ( Exception e ) {
-      logger.warn( "Error checking access for file", e );
+      if (logger.isWarnEnabled()) {
+        logger.warn( "Error checking access for file", e );
+      }
       return false;
     }
 
@@ -112,14 +109,18 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
    */
   @Override public RepositoryFileAcl getAclFor( final RepositoryFile repositoryFile ) {
 
-    boolean hasAclNode = hasAclNode( repositoryFile );
-    if ( !hasAclNode ) {
+    // Obtain a reference to ACL node as "system", guaranteed access
+    final RepositoryFile aclNode = getAclNode( repositoryFile );
+
+    // If no ACL node is present, it's a public resource
+    // Removed redundant call to getAclNode via BISERVER-12780
+    if ( aclNode == null ) {
       return null;
     }
 
     RepositoryFileAcl acl;
     try {
-      acl = unifiedRepository.getAcl( getAclNode( repositoryFile ).getId() );
+      acl = unifiedRepository.getAcl( aclNode.getId() );
     } catch ( Exception e ) {
       return null;
     }
