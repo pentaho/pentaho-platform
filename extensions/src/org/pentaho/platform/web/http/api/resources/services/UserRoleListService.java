@@ -29,7 +29,9 @@ import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UserRoleListService {
 
@@ -73,24 +75,18 @@ public class UserRoleListService {
   }
 
   public RoleListWrapper getAllRoles() {
-    List<String> roles = getUserRoleListService().getAllRoles();
+    Set<String> existingRoles = new HashSet<>( getUserRoleListService().getAllRoles() );
     List<String> extraRoles = getExtraRoles();
-    if ( extraRoles != null ) {
-      if ( systemRoles != null ) {
-        extraRoles.addAll( systemRoles );
-      }
+    if ( extraRoles == null ) {
+      extraRoles = new ArrayList<>();
     }
-    else {
-      extraRoles = systemRoles;
+    if ( systemRoles != null ) {
+      extraRoles.addAll( systemRoles );
     }
-    if ( extraRoles != null ) {
-      for ( String ex : extraRoles ) {
-        if( ! roles.contains( ex ) ) {
-          roles.add( ex );
-        }
-      }
-    }
-    return new RoleListWrapper( roles );
+
+    existingRoles.addAll( extraRoles );
+
+    return new RoleListWrapper( existingRoles );
   }
 
   public RoleListWrapper getSystemRoles() {
