@@ -62,8 +62,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -166,7 +168,6 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             .overwriteFile( isOverwriteFile() )
             .mime( "text/xml" )
             .hidden( false )
-            .overwriteFile( true )
             .withParam( "domain-id", catName );
           cachedImports.put( annotationsFile, annotationsBundle );
 
@@ -383,7 +384,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(
       IRoleAuthorizationPolicyRoleBindingDao.class );
 
-    List<String> existingUsers = new ArrayList<>();
+    Set<String> existingRoles = new HashSet<>();
     if ( roles != null ) {
       for ( RoleExport role : roles ) {
         log.debug( "Importing role: " + role.getRolename() );
@@ -392,12 +393,18 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           String[] userarray = users == null ? new String[] {} : users.toArray( new String[] {} );
           IPentahoRole role1 = roleDao.createRole( tenant, role.getRolename(), null, userarray );
         } catch ( AlreadyExistsException e ) {
-          existingUsers.add( role.getRolename() );
+          existingRoles.add( role.getRolename() );
           // it's ok if the role already exists, it is probably a default role
           log.info( Messages.getInstance().getString( "ROLE.Already.Exists", role.getRolename() ) );
         }
         try {
-          if ( existingUsers.contains( role.getRolename() ) && isOverwriteFile() ) {
+          if ( existingRoles.contains( role.getRolename() ) ) {
+            //Only update an existing role if the overwrite flag is set
+            if ( isOverwriteFile() ) {
+              roleBindingDao.setRoleBindings( tenant, role.getRolename(), role.getPermissions() );
+            }
+          } else {
+            //Always write a roles permissions that were not previously existing
             roleBindingDao.setRoleBindings( tenant, role.getRolename(), role.getPermissions() );
           }
         } catch ( Exception e ) {
