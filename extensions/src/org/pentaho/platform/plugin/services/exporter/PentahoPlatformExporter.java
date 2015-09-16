@@ -504,4 +504,30 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     IMondrianCatalogService mondrianCatalogService ) {
     this.mondrianCatalogService = mondrianCatalogService;
   }
+
+  @Override
+  protected boolean isExportCandidate( String path ) {
+    if ( path == null ) {
+      return false;
+    }
+
+    String etc = ClientRepositoryPaths.getEtcFolderPath();
+
+    // we need to include the etc/operation_mart folder and sub folders
+    // but NOT any other folders in /etc
+
+    if ( path.startsWith( etc ) ) {
+      // might need to export it...
+      String etc_operations_mart = etc + RepositoryFile.SEPARATOR + "operations_mart";
+      if ( path.equals( etc ) ) {
+        return true;
+      } else if ( path.startsWith( etc_operations_mart ) ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
 }
