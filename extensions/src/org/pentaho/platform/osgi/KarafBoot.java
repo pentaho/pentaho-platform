@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.main.Main;
+import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -98,7 +99,37 @@ public class KarafBoot implements IPentahoSystemListener {
       System.setProperty( "karaf.startRemoteShell", "true" );
       System.setProperty( "karaf.lock", "false" );
       System.setProperty( "karaf.etc", root + "/etc"  );
-      System.setProperty( "felix.fileinstall.dir", root + "/etc" ); // Default is '' which results in serious performance hit
+
+      // When running in the PDI-Clients there are separate etc directories so that features can be customized for
+      // the particular execution needs (Carte, Spoon, Pan, Kitchen)
+      KettleClientEnvironment.ClientType clientType = KettleClientEnvironment.getInstance().getClient();
+      String extraKettleEtc = null;
+      if( clientType != null ) {
+        switch( clientType ) {
+          case SPOON:
+            extraKettleEtc = "/etc-spoon";
+            break;
+          case PAN:
+            extraKettleEtc = "/etc-pan";
+            break;
+          case KITCHEN:
+            extraKettleEtc = "/etc-kitchen";
+            break;
+          case CARTE:
+            extraKettleEtc = "/etc-carte";
+            break;
+          default:
+            extraKettleEtc = "/etc-default";
+            break;
+        }
+      }
+      if( extraKettleEtc != null ){
+        System.setProperty( "felix.fileinstall.dir", root + "/etc"  + "," + root + extraKettleEtc );
+      } else {
+        System.setProperty( "felix.fileinstall.dir", root + "/etc" );
+      }
+
+
 
       // Tell others like the pdi-osgi-bridge that there's already a karaf instance running so they don't start
       // their own.
