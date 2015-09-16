@@ -133,7 +133,7 @@ define([
 
     },
 
-    updateFolderPermissionButtons: function (permissions, multiSelectItems) {
+    updateFolderPermissionButtons: function (permissions, multiSelectItems, renameAllowed) {
       if (permissions != false) {
 
         var writePerm = "false";
@@ -147,10 +147,8 @@ define([
         if (writePerm == "true") {
           var disabled = (multiSelectItems.length > 0) ? false : true;
           $("#pasteButton").prop("disabled", disabled);
-          $("#renameButton").prop("disabled", false);
-        }
-
-        else {
+          $("#renameButton").prop("disabled", !renameAllowed);
+        } else {
           $("#pasteButton").prop("disabled", true);
           $("#renameButton").prop("disabled", true);
         }

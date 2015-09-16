@@ -14,7 +14,6 @@
  *
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
-
 define([
   "js/browser.fileButtons",
   "js/browser.folderButtons",
@@ -33,19 +32,16 @@ define([
   "common-ui/jquery"
 ], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder) {
 
-
   if (window.top.mantle_isBrowseRepoDirty == undefined) {
     window.top.mantle_isBrowseRepoDirty = false;
   }
-
   this.FileBrowser = {};
 
   FileBrowser.urlParam = function (paramName) {
     var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
     if (value) {
       return value[1];
-    }
-    else {
+    } else {
       return null;
     }
   };
@@ -133,7 +129,6 @@ define([
   };
 
   FileBrowser.concatArray = function (arr1, arr2) {
-
     for (var i = 0; i < arr2.length; i++) {
       FileBrowser.pushUnique(arr1, arr2[i]);
     }
@@ -141,20 +136,16 @@ define([
   };
 
   FileBrowser.pushUnique = function (array, item) {
-
     var exists = false;
     for (var i = 0; i < array.length; i++) {
-
       if (item.obj.attr("id") == array[i].obj.attr("id")) {
         exists = true;
         break;
       }
-
     }
     if (!exists) {
       array.push(item);
     }
-
   };
 
   FileBrowser.redraw = function (initialPath, _showDescriptions) {
@@ -192,12 +183,11 @@ define([
     myself.FileBrowserView = new FileBrowserView({
       model: myself.fileBrowserModel,
       el: myself.$container
-
     });
     
     //BISERVER-10586 - need to run listener after fileBrowserModel listener
     myself.fileBrowserModel.on("change:clickedFolder", myself.fileBrowserModel.updateFileList, myself.fileBrowserModel);
-    
+
     //Kill text selection in all IE browsers for the browse perspective
     $("#fileBrowser").bind("selectstart", function(){return false});
   };
@@ -217,7 +207,6 @@ define([
   var FileBrowserModel = Backbone.Model.extend({
     defaults: {
       showHiddenFilesURL: CONTEXT_PATH + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
-
       fileButtons: fileButtons,
       folderButtons: folderButtons,
       trashButtons: trashButtons,
@@ -240,7 +229,6 @@ define([
 
       canDownload: false,
       canPublish: false,
-
       spinConfig: undefined
     },
 
@@ -248,16 +236,12 @@ define([
       var myself = this,
           foldersTreeModel = myself.get("foldersTreeModel"),
           fileListModel = myself.get("fileListModel");
-
       //handle data
       var foldersObj = {}
-
       //get spinner and give a new to each browser
       var config = myself.get("spinConfig").getLargeConfig();
-
       var spinner1 = new Spinner(config),
           spinner2 = new Spinner(config);
-	  
       var _clickedFolder = undefined;
 	  var _clickedFile = undefined;
 	  if ( foldersTreeModel ) { 
@@ -272,7 +256,6 @@ define([
 			time: (new Date()).getTime()
 			}
 	  }
-	  
 	  //create two models
       foldersTreeModel = new FileBrowserFolderTreeModel({
         spinner: spinner1,
@@ -319,24 +302,26 @@ define([
     },
 
     updateFolderClicked: function () {
-
-      var myself = this;
       var clickedFolder = this.get("foldersTreeModel").get("clickedFolder");
       var folderPath = clickedFolder.obj.attr("path");
-      var model = FileBrowser.fileBrowserModel; // trap model
-
       if (folderPath == ".trash") {
         this.updateTrashLastClick();
-      } else {
-        folderPath = Encoder.encodeRepositoryPath(folderPath);
-      }
+      } 
       this.set("clickedFolder", clickedFolder);
-      folderButtons.canDownload(this.get("canDownload"));
-      folderButtons.canPublish(this.get("canPublish"));
-      //Leaving this here...if UX decides they want the hiddenFileLabel style preserved when switching folders
-      //model.get('browserUtils').applyCutItemsStyle();
+      this.updateFolderButtons(folderPath);
+    },
+	
+	updateFolderButtons: function( _folderPath) {
+		var userHomePath = Encoder.encodeRepositoryPath(window.top.HOME_FOLDER);
+		var model = FileBrowser.fileBrowserModel; // trap model
+		var folderPath = Encoder.encodeRepositoryPath( _folderPath);
+		
+		folderButtons.canDownload(this.get("canDownload"));
+        folderButtons.canPublish(this.get("canPublish"));
+        //Leaving this here...if UX decides they want the hiddenFileLabel style preserved when switching folders
+        //model.get('browserUtils').applyCutItemsStyle();
 
-      //Ajax request to check write permissions for folder
+        //Ajax request to check write permissions for folder
       $.ajax({
         url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
         type: "GET",
@@ -347,30 +332,25 @@ define([
         async: true,
         cache: false,
         success: function (response) {
-          folderButtons.updateFolderPermissionButtons(response, model.get('browserUtils').multiSelectItems);
+          folderButtons.updateFolderPermissionButtons(response, model.get('browserUtils').multiSelectItems, !(folderPath == userHomePath));
         },
         error: function (response) {
-          folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems);
+          folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems, false);
         }
       });
-
-    },
+	},
 
     updateFileClicked: function () {
-
       var clickedFile = this.get("fileListModel").get("clickedFile");
       this.set("clickedFile", clickedFile);
       if (this.get("clickedFolder").obj.attr("path") == ".trash") {
         this.updateTrashItemLastClick();
-      }
-      else {
+      } else {
         // BISERVER-9127 - Provide the selected path to the FileButtons object
         fileButtons.onFileSelect(clickedFile.obj.attr("path"));
       }
       fileButtons.canDownload(this.get("canDownload"));
-
       //TODO handle file button press
-
       var filePath = clickedFile.obj.attr("path");
       filePath = Encoder.encodeRepositoryPath(filePath);
 
@@ -425,18 +405,15 @@ define([
       var myself = this;
       //trigger file list update. Force event in case path was not changed
       myself.get("fileListModel").set("path", myself.get("clickedFolder").obj.attr("path"), {silent:true});
-      myself.get("fileListModel").trigger('change:path');
-      
+      myself.get("fileListModel").trigger('change:path');    
     },
 
     updateDescriptions: function () {
       var myself = this;
-
       myself.get("fileListModel").set("showDescriptions", myself.get("showDescriptions"));
       myself.get("foldersTreeModel").set("showDescriptions", myself.get("showDescriptions"));
     }
   });
-
 
   var FileBrowserFolderTreeModel = Backbone.Model.extend({
     defaults: {
@@ -456,15 +433,12 @@ define([
 
     initialize: function () {
       var myself = this;
-
       myself.on("change:updateData", myself.updateData, myself);
     },
 
     updateData: function () {
       var myself = this;
-
       myself.set("runSpinner", true);
-
       myself.fetchData("/", function (response) {
         var trash = {
           "file": {
@@ -485,7 +459,6 @@ define([
         };
         //Add trash to data model
         response.children.push(trash);
-
         myself.set("data", response);
       });
     },
@@ -494,9 +467,7 @@ define([
       var myself = this,
           tree = null,
           localSequenceNumber = myself.get("sequenceNumber");
-
       var url = this.getFileTreeRequest(FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path)));
-
       $.ajax({
         async: true,
         cache: false, // prevent IE from caching the request
@@ -507,13 +478,11 @@ define([
             myself.set("sequenceNumber", localSequenceNumber + 1);
             callback(customSort(response));
           }
-
         },
         error: function () {
         },
         beforeSend: function (xhr) {
           myself.set("runSpinner", true);
-
         }
       });
     },
@@ -524,7 +493,6 @@ define([
     getFileTreeRequest: function (path) {
       return CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FOLDERS";
     }
-
   });
 
   var FileBrowserFileListModel = Backbone.Model.extend({
@@ -555,7 +523,6 @@ define([
     initialize: function () {
       var myself = this;
       myself.set("cachedData", {}); // clear cached data on initialization - Backbone relates to old cachedData when new object is created
-
       myself.on("change:path", myself.updateData, myself);
     },
 
@@ -569,15 +536,13 @@ define([
           var obj = {
             file: Object
           }
-
           obj.file = response.repositoryFileDto[i];
           obj.file.trash = "true";
           obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
           if (obj.file.id) {
             if (myself.get("deletedFiles") == "") {
               myself.set("deletedFiles", obj.file.id + ",");
-            }
-            else {
+            } else {
               myself.set("deletedFiles", myself.get("deletedFiles") + obj.file.id + ",");
             }
           }
@@ -608,11 +573,8 @@ define([
 
     updateData: function () {
       var myself = this;
-
       myself.set("runSpinner", true);
-
       myself.fetchData(myself.get("path"), function (response) {
-
         //If we have trash data we reformat it to match the handlebar templates
         if (myself.get("path") == ".trash") {
           var newResp = myself.reformatTrashResponse(myself, response);
@@ -620,9 +582,7 @@ define([
           if (myself.get("deletedFiles") == "") {
             FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
           }
-
-        }
-        else {
+        } else {
           var newResp = myself.reformatResponse(response);
           newResp.ts = new Date(); // force backbone to trigger onchange event even if response is the same
           myself.set("data", newResp);
@@ -634,7 +594,6 @@ define([
       var myself = this,
           url = this.getFileListRequest(FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path))),
           localSequenceNumber = myself.get("sequenceNumber");
-
       $.ajax({
         async: true,
         cache: false, // prevent IE from caching the request
@@ -729,7 +688,7 @@ define([
       this.model.on("change:clickedFile", this.updateButtonsHeader, this);
 
       //update folder and file browser headers on folder selection change
-      //this.model.on("change:clickedFolder", this.updateFolderBrowserHeader, this);
+      this.model.on("change:clickedFolder", this.updateFolderBrowserHeader, this);
       this.model.on("change:clickedFolder", this.updateFileBrowserHeader, this);
 
       //check buttons enabled
@@ -739,11 +698,8 @@ define([
 
     initializeLayout: function () {
       var myself = this;
-
       myself.$el.empty();
-
       myself.$el.append($(templates.structure({})));
-
     },
 
     initializeOptions: function () {
@@ -797,16 +753,12 @@ define([
       } else if (lastClick == "folder" && folderClicked != undefined) {
         obj.folderName = $(folderClicked.find('.title')[0]).text();
         obj.fileName = undefined;
-      }
-      else if ($(folderClicked).attr('path') == ".trash") {
+      } else if ($(folderClicked).attr('path') == ".trash") {
         obj.trashHeader = jQuery.i18n.prop('trash_actions'); //i18n
       }
-
       obj.i18n = jQuery.i18n;
-
       //require buttons header template
       $buttonsContainer.prepend($(templates.buttonsHeader(obj)));
-
     },
 
     updateFolderBrowserHeader: function () {
@@ -828,14 +780,10 @@ define([
       };
 
       if (this.model.getLastClick() == "trash") {
-
         obj.trashHeader = jQuery.i18n.prop('browsing_trash'); //i18n
       }
-
       //require folders header template
       $folderBrowserContainer.prepend($(templates.folderBrowserHeader(obj)));
-
-
     },
 
     updateFileBrowserHeader: function () {
@@ -857,7 +805,6 @@ define([
 
       //require files header template
       $folderBrowserContainer.prepend($(templates.fileBrowserHeader(obj)));
-
     },
 
     updateButtons: function () {
@@ -868,22 +815,15 @@ define([
       var lastClick = this.model.getLastClick(),
           folderClicked = this.model.getFolderClicked(),
           fileClicked = this.model.getFileClicked();
-
       var buttonsType;
-
       if (lastClick == "file") {
         buttonsType = this.model.defaults.fileButtons;
       } else if (lastClick == "folder") {
         //convert path/title to arrays
-
         buttonsType = this.model.defaults.folderButtons;
-      }
-
-      else if (lastClick == "trash") {
+      } else if (lastClick == "trash") {
         buttonsType = this.model.defaults.trashButtons;
-      }
-
-      else if (lastClick == "trashItem") {
+      } else if (lastClick == "trashItem") {
         buttonsType = this.model.defaults.trashItemButtons;
       }
 
@@ -903,23 +843,16 @@ define([
 
           var multiSelectItems = FileBrowser.concatArray(model.get("fileListModel").get("multiSelect"), model.get("fileListModel").get("shiftLasso"));
           if (model.getLastClick() == "file") {
-
             path = $(model.getFileClicked()[0]).attr("path");
             title = $(model.getFileClicked()[0]).children('.title').text();
             id = $(model.getFileClicked()[0]).attr("id");
-
           } else if (model.getLastClick() == "folder") {
-
             path = $(model.getFolderClicked()[0]).attr("path");
             title = $(model.getFolderClicked()[0]).children('.title').text();
-          }
-
-          else if (model.getLastClick() == "trash") {
+          } else if (model.getLastClick() == "trash") {
             fileList = model.get("fileListModel").get("deletedFiles");
             mode = "purge";
-          }
-          else if (model.getLastClick() == "trashItem") {
-
+          } else if (model.getLastClick() == "trashItem") {
             for (var i = 0; i < multiSelectItems.length; i++) {
               fileList += multiSelectItems[i].obj.attr("id") + ",";
             }
@@ -928,14 +861,13 @@ define([
             if ((path != null) && event.data.handler) {
               event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
               event.stopPropagation();
-            }
-            else {
+            } else {
               event.data.handler(fileList, type, mode);
               event.stopPropagation();
             }
           });
-
       });
+	  model.updateFolderButtons( folderClicked == undefined ? window.top.HOME_FOLDER : folderClicked.attr("path") );
     },
 
     updateButtonsMulti: function () {
@@ -976,25 +908,21 @@ define([
           } else if (model.getLastClick() == "folder") {
             path = $(model.getFolderClicked()[0]).attr("path");
             title = $(model.getFolderClicked()[0]).children('.title')
-          }
-          else if (model.getLastClick() == "trash") {
+          } else if (model.getLastClick() == "trash") {
             fileList = model.get("fileListModel").get("deletedFiles");
             mode = "purge";
-          }
-          else if (model.getLastClick() == "trashItem") {
+          } else if (model.getLastClick() == "trashItem") {
             fileList = $(model.getFileClicked()[0]).attr("id") + ",";
             type = $(model.getFileClicked()[0]).attr("type");
-
-            }
-            if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
-              event.stopPropagation();
-            }
-            else {
+          }
+          if ((path != null) && event.data.handler) {
+            event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
+            event.stopPropagation();
+          } else {
               event.data.handler(fileList, type, mode);
               event.stopPropagation();
-            }
-          });
+          }
+         });
       });
     },
 
@@ -1117,6 +1045,7 @@ define([
 		$folder.addClass("selected");
 		$folder.find("> .folders").show();
 	  }
+	  FileBrowser.fileBrowserModel.updateFolderButtons($folder.attr("path"));
       myself.updateDescriptions();
     },
 
@@ -1141,14 +1070,11 @@ define([
         obj: $target,
         time: (new Date()).getTime()
       });
-
       $(".folder.selected").removeClass("selected");
       $(".folder.secondarySelected").removeClass("secondarySelected");
       $target.addClass("selected");
-
       //deselect any files
       $(".file.selected").removeClass("selected");
-
       event.stopPropagation();
     },
 
@@ -1160,9 +1086,7 @@ define([
       if (runSpinner) {
         if (spinner != undefined) {
           myself.$el.html(spinner.spin().el);
-        } else {
-
-        }
+        } else {  }
       } else {
         myself.model.get("spinner").stop();
       }
@@ -1177,14 +1101,12 @@ define([
         var desc = $this.attr("desc");
         if (showDescriptions && desc != "") {
           $this.attr("title", desc);
-        }
-        else {
+        } else {
           $this.attr("title", $this.attr("ext"));
         }
       });
     }
   });
-
 
   var FileBrowserFileListView = Backbone.View.extend({
     events: {
@@ -1198,7 +1120,6 @@ define([
           data = myself.model.get("data");
       this.model.on("change:data", this.updateFileList, this);
       myself.model.on("change:runSpinner", myself.manageSpinner, myself);
-
       myself.model.on("change:showDescriptions", this.updateDescriptions, this);
     },
 
@@ -1278,18 +1199,14 @@ define([
 
       //Control Click
       if (event.ctrlKey || event.metaKey) {
-
         //Control click will reset the shift lasso and merge its contents into main array
         this.model.set("multiSelect", FileBrowser.concatArray(this.model.get("multiSelect"), this.model.get("shiftLasso")));
         this.model.set("shiftLasso", []);
 
         //If item is already selected, deselect it.
         var clickedFileIndex = -1;
-
         var index;
-
         for (index = 0; index < this.model.get("multiSelect").length; ++index) {
-
           var clickedFileId = this.model.get("clickedFile").obj.attr("id")
           var multiSelectId = this.model.get("multiSelect")[index].obj.attr("id");
           if (clickedFileId == multiSelectId) {
@@ -1300,59 +1217,42 @@ define([
 
         //We are cntrl clicking an existing selection
         if (clickedFileIndex > -1) {
-
           this.model.get("multiSelect").splice(clickedFileIndex, 1);
-
           //Remove selected style from deselected item
           $target.removeClass("selected");
         }
-
         //We are cntrl clicking a new selection
         else {
           FileBrowser.pushUnique(this.model.get("multiSelect"), this.model.get("clickedFile"));
           $target.addClass("selected");
         }
-
-
-      }
-
-      //Shift Click
-      else if (event.shiftKey) {
-
-
+        //Shift Click
+      } else if (event.shiftKey) {
         //reset lasso file selected styles
         for (var i = 0; i < this.model.get("shiftLasso").length; i++) {
           this.model.get("shiftLasso")[i].obj.removeClass("selected");
         }
-
         //Clear the Lasso array
         this.model.set("shiftLasso", []);
-
         $target.addClass("selected");
         prevClicked.obj.addClass("selected");
 
         if (prevClicked.obj.attr("id") != $target.attr("id")) {
-
           //Model title
           this.model.get("data").children[0].file.title;
-
           var files = this.model.get("data").children;
           var inRange = false;
           var secondMatch = false;
           for (var i = 0; i < files.length; i++) {
-
             if (files[i].file.folder === "false") {
-
               if ((files[i].file.id == prevClicked.obj.attr("id") || files[i].file.id == $target.attr("id"))) {
                 if (inRange == true) {
                   secondMatch = true;
-                }
-                else {
+                } else {
                   inRange = true;
                 }
               }
               if (inRange == true) {
-
                 var item = {
                   obj: $("div[id=\"" + files[i].file.id + "\"]")
                 }
@@ -1365,17 +1265,12 @@ define([
             }
           }
         }
-
         //target title
         $target.attr("title");
-
         //prev Clicked title
         prevClicked.obj.attr("title");
-
-      }
-
       //Single Click
-      else {
+      } else {
         //Clear the multiselect array
         this.model.set("multiSelect", []);
         this.model.set("shiftLasso", []);
@@ -1384,7 +1279,6 @@ define([
         //reset all file selected styles
         $(".file.selected").removeClass("selected");
         $target.addClass("selected");
-
       }
 
       var tempModel = [];
@@ -1393,17 +1287,13 @@ define([
       });
 
       this.model.set("multiSelect", tempModel);
-
       //If more than one file is selected add multiselect button options
       if (!(this.model.get("path") == ".trash") && this.model.get("multiSelect").length > 1) {
         FileBrowser.FileBrowserView.updateButtonsMulti();
       }
-
       //Add secondary selection to folder
       $(".folder.selected").addClass("secondarySelected");
       $(".folder.selected").removeClass("selected");
-
-
     },
 
     doubleClickFile: function (event) {
