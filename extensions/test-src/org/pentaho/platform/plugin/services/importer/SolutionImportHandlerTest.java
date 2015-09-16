@@ -143,6 +143,7 @@ public class SolutionImportHandlerTest {
       anyString(),
       any( strings.getClass() ) ) ).thenThrow( new AlreadyExistsException( "already there" ) );
 
+    importHandler.setOverwriteFile( true );
     Map<String, List<String>> rolesToUsers = importHandler.importUsers( users );
 
     assertEquals( 1, rolesToUsers.size() );
@@ -158,6 +159,41 @@ public class SolutionImportHandlerTest {
     // should set the password or roles explicitly if the createUser failed
     verify( userRoleDao ).setUserRoles( any( ITenant.class ), anyString(), any( strings.getClass() ) );
     verify( userRoleDao ).setPassword( any( ITenant.class ), anyString(), anyString() );
+  }
+
+  @Test
+  public void testImportUsers_userAlreadyExists_overwriteFalse() throws Exception {
+    List<UserExport> users = new ArrayList<>();
+    UserExport user = new UserExport();
+    user.setUsername( "scrum master" );
+    user.setRole( "coder" );
+    user.setPassword( "password" );
+    users.add( user );
+    String[] strings = {};
+
+    when( userRoleDao.createUser(
+      any( ITenant.class ),
+      eq( "scrum master" ),
+      anyString(),
+      anyString(),
+      any( strings.getClass() ) ) ).thenThrow( new AlreadyExistsException( "already there" ) );
+
+    importHandler.setOverwriteFile( false );
+    Map<String, List<String>> rolesToUsers = importHandler.importUsers( users );
+
+    assertEquals( 1, rolesToUsers.size() );
+    assertEquals( "scrum master", rolesToUsers.get( "coder" ).get( 0 ) );
+
+    verify( userRoleDao ).createUser(
+      any( ITenant.class ),
+      eq( "scrum master" ),
+      anyString(),
+      anyString(),
+      any( strings.getClass() ) );
+
+    // should set the password or roles explicitly if the createUser failed
+    verify( userRoleDao, never() ).setUserRoles( any( ITenant.class ), anyString(), any( strings.getClass() ) );
+    verify( userRoleDao, never() ).setPassword( any( ITenant.class ), anyString(), anyString() );
   }
 
   @Test
@@ -210,12 +246,47 @@ public class SolutionImportHandlerTest {
     when( userRoleDao.createRole( any( ITenant.class ), anyString(), anyString(), any( userStrings.getClass() ) ) )
       .thenThrow( new AlreadyExistsException( "already there" ) );
 
+    importHandler.setOverwriteFile( true );
     importHandler.importRoles( roles, roleToUserMap );
 
     verify( userRoleDao ).createRole( any( ITenant.class ), anyString(), anyString(), any( userStrings.getClass() ) );
 
     // even if the roles exists, make sure we set the permissions on it anyway... they might have changed
     verify( roleAuthorizationPolicyRoleBindingDao ).setRoleBindings( any( ITenant.class ), eq( roleName ), eq(
+      permissions ) );
+
+  }
+
+  @Test
+  public void testImportRoles_roleAlreadyExists_overwriteFalse() throws Exception {
+    String roleName = "ADMIN";
+    List<String> permissions = new ArrayList<String>();
+
+    RoleExport role = new RoleExport();
+    role.setRolename( roleName );
+    role.setPermission( permissions );
+
+    List<RoleExport> roles = new ArrayList<>();
+    roles.add( role );
+
+    Map<String, List<String>> roleToUserMap = new HashMap<>();
+    final List<String> adminUsers = new ArrayList<>();
+    adminUsers.add( "admin" );
+    adminUsers.add( "root" );
+    roleToUserMap.put( roleName, adminUsers );
+
+    String[] userStrings = adminUsers.toArray( new String[] {} );
+
+    when( userRoleDao.createRole( any( ITenant.class ), anyString(), anyString(), any( userStrings.getClass() ) ) )
+      .thenThrow( new AlreadyExistsException( "already there" ) );
+
+    importHandler.setOverwriteFile( false );
+    importHandler.importRoles( roles, roleToUserMap );
+
+    verify( userRoleDao ).createRole( any( ITenant.class ), anyString(), anyString(), any( userStrings.getClass() ) );
+
+    // even if the roles exists, make sure we set the permissions on it anyway... they might have changed
+    verify( roleAuthorizationPolicyRoleBindingDao, never() ).setRoleBindings( any( ITenant.class ), eq( roleName ), eq(
       permissions ) );
 
   }

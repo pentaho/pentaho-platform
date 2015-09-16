@@ -284,4 +284,23 @@ public class PentahoPlatformExporterTest {
     verify( exporterSpy.zos ).putNextEntry( any( ZipEntry.class ) );
     verify( manifest ).setMetaStore( any( ExportManifestMetaStore.class ) );
   }
+
+  @Test
+  public void testIsExportCandidate() throws Exception {
+    assertTrue( exporter.isExportCandidate( "/etc" ) );
+    assertTrue( exporter.isExportCandidate( "/etc/operations_mart" ) );
+    assertTrue( exporter.isExportCandidate( "/etc/operations_mart/someSubFolder" ) );
+
+    assertTrue( exporter.isExportCandidate( "/public" ) );
+    assertTrue( exporter.isExportCandidate( "/home" ) );
+
+    assertFalse( exporter.isExportCandidate( "/etc/someRandomFolder" ) );
+    assertFalse( exporter.isExportCandidate( "/etc/someRandomFolder/someSubFOlder" ) );
+    assertFalse( exporter.isExportCandidate( "/etc/mondrian" ) );
+    assertFalse( exporter.isExportCandidate( "/etc/metadata" ) );
+    assertFalse( exporter.isExportCandidate( "/etc/metastore" ) );
+    assertFalse( exporter.isExportCandidate( "/etc/olap-servers" ) );
+    assertFalse( exporter.isExportCandidate( "/etc/models" ) );
+    assertFalse( exporter.isExportCandidate( "/etc/pdi" ) );
+  }
 }
