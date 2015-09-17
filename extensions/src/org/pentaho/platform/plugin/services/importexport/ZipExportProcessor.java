@@ -225,12 +225,12 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param repositoryFile
    * @throws ExportException
    */
-  private void addToManifest( RepositoryFile repositoryFile ) throws ExportException {
+  protected void addToManifest( RepositoryFile repositoryFile ) throws ExportException {
     if ( this.withManifest ) {
       // add this entity to the manifest
-      RepositoryFileAcl fileAcl = unifiedRepository.getAcl( repositoryFile.getId() );
+      RepositoryFileAcl fileAcl = getUnifiedRepository().getAcl( repositoryFile.getId() );
       try {
-        exportManifest.add( repositoryFile, fileAcl );
+        getExportManifest().add( repositoryFile, fileAcl );
       } catch ( ExportManifestFormatException e ) {
         throw new ExportException( e.getMessage() );
       }
@@ -245,11 +245,11 @@ public class ZipExportProcessor extends BaseExportProcessor {
   public void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath ) throws
       ExportException, IOException {
     addToManifest( repositoryDir );
-    List<RepositoryFile> children = this.unifiedRepository.getChildren( new RepositoryRequest(
+    List<RepositoryFile> children = getUnifiedRepository().getChildren( new RepositoryRequest(
         String.valueOf( repositoryDir.getId() ), true, 1, null ) );
     for ( RepositoryFile repositoryFile : children ) {
       // exclude 'etc' folder - datasources and etc.
-      if ( !ClientRepositoryPaths.getEtcFolderPath().equals( repositoryFile.getPath() ) ) {
+      if ( isExportCandidate( repositoryFile.getPath() ) ) {
         if ( repositoryFile.isFolder() ) {
           if ( outputStream.getClass().isAssignableFrom( ZipOutputStream.class ) ) {
             ZipOutputStream zos = (ZipOutputStream) outputStream;
@@ -269,6 +269,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
       }
     }
     createLocales( repositoryDir, filePath, repositoryDir.isFolder(), outputStream );
+  }
+
+  protected boolean isExportCandidate( String path ) {
+    return !ClientRepositoryPaths.getEtcFolderPath().equals( path );
   }
 
   /**
@@ -308,7 +312,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param filePath
    * @throws IOException
    */
-  private void createLocales( RepositoryFile repositoryFile, String filePath, boolean isFolder,
+  protected void createLocales( RepositoryFile repositoryFile, String filePath, boolean isFolder,
                               OutputStream outputStrean ) throws IOException {
     ZipEntry entry;
     String zipName;
@@ -328,7 +332,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
           name = "index";
         }
 
-        properties = unifiedRepository.getLocalePropertiesForFileById( repositoryFile.getId(), locale.getLocale() );
+        properties = getUnifiedRepository().getLocalePropertiesForFileById( repositoryFile.getId(), locale.getLocale() );
         if ( properties != null ) {
           properties.remove( "jcr:primaryType" ); // Pentaho Type
           InputStream is = createLocaleFile( name + localeName, properties, locale.getLocale() );
