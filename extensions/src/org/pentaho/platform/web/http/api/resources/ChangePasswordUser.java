@@ -2,7 +2,7 @@ package org.pentaho.platform.web.http.api.resources;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
+@XmlRootElement( name = "ChangePasswordUser" )
 public class ChangePasswordUser {
 
   private String userName;
