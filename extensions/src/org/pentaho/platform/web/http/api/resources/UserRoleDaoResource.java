@@ -471,15 +471,24 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Create new user with specified name and password
+   * Creates new user with the specified user name and password, this request is encapsulated inside a user object that has userName and password values.
+   * The user is created without any assigned roles, roles must be assigned separately. This endpoint is only accessible to an administrative user.
    *
    * <p>
    * <b>Example Request:</b><br />
-   * PUT pentaho/api/userroledao/createUser with JSON {"userName": "name", "password": "password"}
+   * PUT pentaho/api/userroledao/createUser
+   * <user>
+   *   <userName>Joe</userName>
+   *   <password>password</password>
+   * </user>
    * </p>
    *
    * @param user
-   *          object with name and password
+   *          A user is an object the system uses to pass along a userName and password in the format:
+   *          <user>
+   *            <userName>Joe</userName>
+   *            <password>password</password>
+   *          </user>
    * 
    * @return Response object containing the status code of the operation
    */
@@ -508,16 +517,26 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Change password for existing user
-   * 
+   * Allows a user or any user that knows a users name and current password to change that users password. The information is encapsulated in a ChangeUserPassword object that contains the fields: userName, newPassword, oldPassword.
+   *
    * <p>
    * <b>Example Request:</b><br />
-   * PUT pentaho/api/userroledao/user with JSON {"userName": "name", "newPassword": "new", "oldPassword" : "old"} 
+   * PUT pentaho/api/userroledao/user
+   *
+   * <ChangePasswordUser>
+   *   <userName>Joe</userName>
+   *   <newPassword>newPassword</newPassword>
+   *   <oldPassword>oldPassword</oldPassword>
+   * </ChangePasswordUser>
    * </p>
    * 
-   * @param user name
-   * @param new password
-   * @param old Password
+   * @param ChangePasswordUser Encapsulates the fields required for a user to update their password. The object requires the name of the user whose password is being changed, the old password, and the new password.
+   *                           A ChangePasswordUser object can be constructed as follows:
+   * <ChangePasswordUser>
+   *   <userName>Joe</userName>
+   *   <newPassword>newPassword</newPassword>
+   *   <oldPassword>oldPassword</oldPassword>
+   * </ChangePasswordUser>
    * 
    * @return Response object containing the status code of the operation
    */
@@ -545,7 +564,8 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Create a new role with the provided information
+   * Creates a new role that that does not have any permissions assigned to it. Permissions must be assigned after creating the role.
+   * This endpoint is only usable by an administrative user.
    * 
    * <p>
    * <b>Example Request:</b><br />
@@ -553,7 +573,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * </p>
    *
    * @param roleName
-   *          (name of the new role)
+   *          Name of the new role to create in the system.
    * @return Response containing the result of the operation.
    */
   @PUT
@@ -642,15 +662,34 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Update the password of a selected user
+   * This is an administrative tool, that allows an administator the ability to change any users password by passing in the username and the new password.
+   * The fields are encapsulated in a user object containing a userName and password.
    *
-   * @param user (user information <code> User </code>)
+   * <p>
+   * <b>Example Request:</b><br />
+   * PUT pentaho/api/userroledao/updatePassword
+   * <user>
+   *   <userName>Joe</userName>
+   *   <password>password</password>
+   * </user>
+   * </p>
+   *
+   * @param user
+   *          A user is an object the system uses to pass along a userName and password in the format:
+   *          <user>
+   *            <userName>Joe</userName>
+   *            <password>password</password>
+   *          </user>
    * @return response object containing the status code of the operation
    */
   @PUT
   @Path( "/updatePassword" )
   @Consumes( { WILDCARD } )
-  @Facet( name = "Unsupported" )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" ),
+    @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
+  } )
   public Response updatePassword( User user ) {
     try {
       userRoleDaoService.updatePassword( user );
