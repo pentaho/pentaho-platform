@@ -28,6 +28,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
+import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
@@ -122,6 +124,14 @@ public class ExportManifestTest extends TestCase {
 
     exportManifest.addDatasource( connection );
 
+    UserExport user = new UserExport();
+    user.setUsername( "pentaho" );
+    user.setRole( "open source champion" );
+    user.setPassword( "123456" );
+    user.addUserSetting( new ExportManifestUserSetting( "theme", "crystal" ) );
+    user.addUserSetting( new ExportManifestUserSetting( "language", "en_US" ) );
+    exportManifest.addUserExport( user );
+    exportManifest.addGlobalUserSetting( new ExportManifestUserSetting( "viewHiddenFiles", "false" ) );
   }
 
   @Test
