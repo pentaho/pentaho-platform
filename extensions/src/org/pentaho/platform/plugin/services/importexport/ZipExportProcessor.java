@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport;
@@ -208,8 +208,11 @@ public class ZipExportProcessor extends BaseExportProcessor {
       // if we don't get a valid input stream back, skip it
       if ( is != null ) {
         addToManifest( repositoryFile );
-        ZipEntry entry =
-            new ZipEntry( ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) ) );
+        String zipEntryName = getZipEntryName( repositoryFile, filePath );
+        if ( this.withManifest ) {
+          zipEntryName = ExportFileNameEncoder.encodeZipPathName( zipEntryName );
+        }
+        ZipEntry entry = new ZipEntry( zipEntryName );
         zos.putNextEntry( entry );
         IOUtils.copy( is, outputStream );
         zos.closeEntry();
@@ -253,8 +256,11 @@ public class ZipExportProcessor extends BaseExportProcessor {
         if ( repositoryFile.isFolder() ) {
           if ( outputStream.getClass().isAssignableFrom( ZipOutputStream.class ) ) {
             ZipOutputStream zos = (ZipOutputStream) outputStream;
-            ZipEntry entry =
-                new ZipEntry( ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) ) );
+            String zipEntryName = getZipEntryName( repositoryFile, filePath );
+            if ( this.withManifest ) {
+              zipEntryName = ExportFileNameEncoder.encodeZipPathName( zipEntryName );
+            }
+            ZipEntry entry = new ZipEntry( zipEntryName );
             zos.putNextEntry( entry );
           }
           exportDirectory( repositoryFile, outputStream, filePath );
