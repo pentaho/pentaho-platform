@@ -26,6 +26,7 @@
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
 import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
@@ -81,7 +82,7 @@ import java.util.List;
 @XmlAccessorType ( XmlAccessType.FIELD )
 @XmlType ( name = "ExportManifestDto", propOrder = { "exportManifestInformation", "exportManifestMondrian",
   "exportManifestMetadata", "exportManifestSchedule", "exportManifestDatasource", "exportManifestEntity",
-  "exportManifestUser", "exportManifestRole", "exportManifestMetaStore" } )
+  "exportManifestUser", "exportManifestRole", "exportManifestMetaStore", "globalUserSettings" } )
 public class ExportManifestDto {
 
   @XmlElement ( name = "ExportManifestInformation", required = true )
@@ -100,8 +101,10 @@ public class ExportManifestDto {
   protected List<UserExport> exportManifestUser;
   @XmlElement ( name = "ExportManifestRole" )
   protected List<RoleExport> exportManifestRole;
-  @XmlElement ( name = "ExportManifestMetaStore", required = false)
+  @XmlElement ( name = "ExportManifestMetaStore", required = false )
   protected ExportManifestMetaStore exportManifestMetaStore;
+  @XmlElement ( name = "ExportManifestGlobalUserSetting" )
+  protected List<ExportManifestUserSetting> globalUserSettings;
 
   /**
    * Gets the value of the exportManifestInformation property.
@@ -372,7 +375,7 @@ public class ExportManifestDto {
     /**
      * Sets the value of the manifestVersion property.
      *
-     * @param value allowed object is {@link String }
+     * @param manifestVersion allowed object is {@link String }
      */
     public void setManifestVersion( String manifestVersion ) {
       this.manifestVersion = manifestVersion;
@@ -395,5 +398,12 @@ public class ExportManifestDto {
   public void setExportManifestMetaStore(
     ExportManifestMetaStore exportManifestMetaStore ) {
     this.exportManifestMetaStore = exportManifestMetaStore;
+  }
+
+  public List<ExportManifestUserSetting> getGlobalUserSettings() {
+    if ( globalUserSettings == null ) {
+      globalUserSettings = new ArrayList<>();
+    }
+    return globalUserSettings;
   }
 }

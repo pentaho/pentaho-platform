@@ -33,10 +33,14 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
+import org.pentaho.platform.api.usersettings.IUserSettingService;
+import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
+import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
@@ -334,6 +338,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     Map<String, List<String>> roleToUserMap = new HashMap<>();
     IUserRoleDao roleDao = PentahoSystem.get( IUserRoleDao.class );
     ITenant tenant = new Tenant( "/pentaho/" + TenantUtils.getDefaultTenant(), true );
+
     if ( users != null && roleDao != null ) {
       for ( UserExport user : users ) {
         String password = user.getPassword();
@@ -373,9 +378,58 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         } catch ( Exception e ) {
           log.error( Messages.getInstance().getString( "ERROR.CreatingUser", user.getUsername() ) );
         }
+        importUserSettings( user );
       }
     }
     return roleToUserMap;
+  }
+
+  protected void importGlobalUserSettings( List<ExportManifestUserSetting> globalSettings ) {
+    IUserSettingService settingService = PentahoSystem.get( IUserSettingService.class );
+    if ( settingService != null ) {
+      for ( ExportManifestUserSetting globalSetting : globalSettings ) {
+        if ( isOverwriteFile() ) {
+          settingService.setGlobalUserSetting( globalSetting.getName(), globalSetting.getValue() );
+        } else {
+          IUserSetting userSetting = settingService.getGlobalUserSetting( globalSetting.getName(), null );
+          if ( userSetting == null ) {
+            settingService.setGlobalUserSetting( globalSetting.getName(), globalSetting.getValue() );
+          }
+        }
+      }
+    }
+  }
+
+  protected void importUserSettings( UserExport user ) {
+    IUserSettingService settingService = PentahoSystem.get( IUserSettingService.class );
+    IAnyUserSettingService userSettingService = null;
+    if ( settingService != null && settingService instanceof IAnyUserSettingService ) {
+      userSettingService = (IAnyUserSettingService) settingService;
+    }
+
+    if ( userSettingService != null ) {
+      List<ExportManifestUserSetting> exportedSettings = user.getUserSettings();
+      try {
+        for ( ExportManifestUserSetting exportedSetting : exportedSettings ) {
+          if ( isOverwriteFile() ) {
+            userSettingService.setUserSetting( user.getUsername(),
+              exportedSetting.getName(), exportedSetting.getValue() );
+          } else {
+            // see if it's there first before we set this setting
+            IUserSetting userSetting =
+              userSettingService.getUserSetting( user.getUsername(), exportedSetting.getName(), null );
+            if ( userSetting == null ) {
+              // only set it if we didn't find that it exists already
+              userSettingService.setUserSetting( user.getUsername(),
+                exportedSetting.getName(), exportedSetting.getValue() );
+            }
+          }
+        }
+      } catch( SecurityException e) {
+        log.error( Messages.getInstance().getString( "ERROR.ImportingUserSetting", user.getUsername() ) );
+        log.debug( Messages.getInstance().getString( "ERROR.ImportingUserSetting", user.getUsername() ), e );
+      }
+    }
   }
 
   protected void importRoles( List<RoleExport> roles, Map<String, List<String>> roleToUserMap ) {

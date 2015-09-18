@@ -7,7 +7,11 @@ import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsExcepti
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
+import org.pentaho.platform.api.usersettings.IUserSettingService;
+import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
@@ -314,6 +318,77 @@ public class SolutionImportHandlerTest {
     importHandler.cachedImports = new HashMap<String, RepositoryFileImportBundle.Builder>();
     importHandler.importMetaStore( manifest, true );
     assertEquals( 0, importHandler.cachedImports.size() );
+  }
+
+  @Test
+  public void testImportUserSettings() throws Exception {
+    UserExport user = new UserExport();
+    user.setUsername( "pentaho" );
+    user.addUserSetting( new ExportManifestUserSetting( "theme", "crystal" ) );
+    user.addUserSetting( new ExportManifestUserSetting( "language", "en_US" ) );
+    IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
+    PentahoSystem.registerObject( userSettingService );
+    importHandler.setOverwriteFile( true );
+
+    importHandler.importUserSettings( user );
+    verify( userSettingService ).setUserSetting( "pentaho", "theme", "crystal" );
+    verify( userSettingService ).setUserSetting( "pentaho", "language", "en_US" );
+  }
+
+  @Test
+  public void testImportUserSettings_NoOverwrite() throws Exception {
+    UserExport user = new UserExport();
+    user.setUsername( "pentaho" );
+    user.addUserSetting( new ExportManifestUserSetting( "theme", "crystal" ) );
+    user.addUserSetting( new ExportManifestUserSetting( "language", "en_US" ) );
+    IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
+    PentahoSystem.registerObject( userSettingService );
+    importHandler.setOverwriteFile( false );
+
+    IUserSetting existingSetting = mock( IUserSetting.class );
+    when( userSettingService.getUserSetting( "pentaho", "theme", null ) ).thenReturn( existingSetting );
+    when( userSettingService.getUserSetting( "pentaho", "language", null ) ).thenReturn( null );
+
+    importHandler.importUserSettings( user );
+    verify( userSettingService, never() ).setUserSetting( "pentaho", "theme", "crystal" );
+    verify( userSettingService ).setUserSetting( "pentaho", "language", "en_US" );
+    verify( userSettingService ).getUserSetting( "pentaho", "theme", null );
+    verify( userSettingService ).getUserSetting( "pentaho", "language", null );
+  }
+
+  @Test
+  public void testImportGlobalUserSetting() throws Exception {
+    importHandler.setOverwriteFile( true );
+    List<ExportManifestUserSetting> settings = new ArrayList<>();
+    settings.add( new ExportManifestUserSetting( "language", "en_US" ) );
+    settings.add( new ExportManifestUserSetting( "showHiddenFiles", "false" ) );
+    IUserSettingService userSettingService = mock( IUserSettingService.class );
+
+    importHandler.importGlobalUserSettings( settings );
+
+    verify( userSettingService ).setGlobalUserSetting( "language", "en_US" );
+    verify( userSettingService ).setGlobalUserSetting( "showHiddenFiles", "false" );
+    verify( userSettingService, never() ).getGlobalUserSetting( anyString(), anyString() );
+  }
+
+  @Test
+  public void testImportGlobalUserSetting_noOverwrite() throws Exception {
+    importHandler.setOverwriteFile( false );
+    List<ExportManifestUserSetting> settings = new ArrayList<>();
+    settings.add( new ExportManifestUserSetting( "language", "en_US" ) );
+    settings.add( new ExportManifestUserSetting( "showHiddenFiles", "false" ) );
+    IUserSettingService userSettingService = mock( IUserSettingService.class );
+    IUserSetting setting = mock( IUserSetting.class );
+    when( userSettingService.getGlobalUserSetting( "language", null ) ).thenReturn( null );
+    when( userSettingService.getGlobalUserSetting( "showHiddenFiles", null ) ).thenReturn( setting );
+
+    importHandler.importGlobalUserSettings( settings );
+
+    verify( userSettingService ).setGlobalUserSetting( "language", "en_US" );
+    verify( userSettingService, never() ).setGlobalUserSetting( "showHiddenFiles", anyString() );
+    verify( userSettingService ).getGlobalUserSetting( "language", null );
+    verify( userSettingService ).getGlobalUserSetting( "showHiddenFiles", null );
+
   }
 
   @After
