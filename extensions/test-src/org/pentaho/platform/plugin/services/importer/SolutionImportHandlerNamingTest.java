@@ -46,19 +46,16 @@ import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.PluginBeanException;
-import org.pentaho.platform.api.mimetype.IMimeType;
-import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.Converter;
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
+import org.pentaho.platform.plugin.services.importer.mimeType.MimeType;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
@@ -83,9 +80,9 @@ public class SolutionImportHandlerNamingTest {
   private static final String ZIPENTRY_EXPORTMANIFEST = "exportManifest.xml";
   private static final String ZIPENTRY_CONTENT_FILE = "two+words%2525/eval+%28%2B%29%2525.prpt";
 
-  private final IMimeType MIME_SOLUTION = new MimeType( "application/vnd.pentaho.solution-repository", "zip" );
-  private final IMimeType MIME_PRPT = new MimeType( "text/prptMimeType", "prpt" );
-  private final IMimeType MIME_XML = new MimeType( "text/xml", "xml" );
+  private final MimeType MIME_SOLUTION = new MimeType( "application/vnd.pentaho.solution-repository", "zip" );
+  private final MimeType MIME_PRPT = new MimeType( "text/prptMimeType", "prpt" );
+  private final MimeType MIME_XML = new MimeType( "text/xml", "xml" );
 
   private static File tempDir;
   private static File solutionDir;
@@ -129,19 +126,19 @@ public class SolutionImportHandlerNamingTest {
     // mimeResolver
     final Converter defaultConverter = new StreamConverter();
 
-    final List<IMimeType> solutionMimeList = java.util.Collections.singletonList( MIME_SOLUTION );
-    final List<IMimeType> contentMimeList = java.util.Arrays.asList( new IMimeType[] { MIME_PRPT, MIME_XML } );
-    final List<IMimeType> allMimeTypes = new ArrayList<IMimeType>( solutionMimeList.size() + contentMimeList.size() );
+    final List<MimeType> solutionMimeList = java.util.Collections.singletonList( MIME_SOLUTION );
+    final List<MimeType> contentMimeList = java.util.Arrays.asList( new MimeType[] { MIME_PRPT, MIME_XML } );
+    final List<MimeType> allMimeTypes = new ArrayList<MimeType>( solutionMimeList.size() + contentMimeList.size() );
     {
       allMimeTypes.addAll( solutionMimeList );
       allMimeTypes.addAll( contentMimeList );
-      for ( IMimeType mimeType : allMimeTypes ) {
+      for ( MimeType mimeType : allMimeTypes ) {
         mimeType.setConverter( defaultConverter );
       }
     }
 
-    final IPlatformMimeResolver mimeResolver = new NameBaseMimeResolver();
-    for ( IMimeType mimeType : allMimeTypes ) {
+    final IPlatformImportMimeResolver mimeResolver = new NameBaseMimeResolver();
+    for ( MimeType mimeType : allMimeTypes ) {
       mimeResolver.addMimeType( mimeType );
     }
 
@@ -149,7 +146,7 @@ public class SolutionImportHandlerNamingTest {
     PentahoSystem.clearObjectFactory();
     microPlatform = new MicroPlatform( getSolutionPath() );
     microPlatform.defineInstance( IUnifiedRepository.class, repo );
-    microPlatform.defineInstance( IPlatformMimeResolver.class, mimeResolver );
+    microPlatform.defineInstance( IPlatformImportMimeResolver.class, mimeResolver );
     microPlatform.defineInstance( ISolutionEngine.class, Mockito.mock( SolutionEngine.class ) );
     microPlatform.defineInstance( IDatasourceMgmtService.class, Mockito.mock( IDatasourceMgmtService.class ) );
 
