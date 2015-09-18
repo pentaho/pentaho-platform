@@ -20,10 +20,14 @@ import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
+import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
+import org.pentaho.platform.api.usersettings.IUserSettingService;
+import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
+import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
@@ -123,7 +127,9 @@ public class PentahoPlatformExporterTest {
   @Test
   public void testExportUsersAndRoles() {
     IUserRoleDao mockDao = mock( IUserRoleDao.class );
+    IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
     PentahoSystem.registerObject( mockDao );
+    PentahoSystem.registerObject( userSettingService );
 
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
     PentahoSystem.registerObject( roleBindingDao );
@@ -154,10 +160,18 @@ public class PentahoPlatformExporterTest {
     ExportManifest manifest = mock( ExportManifest.class );
     exporter.setExportManifest( manifest );
 
+    List<IUserSetting> settings = new ArrayList<>();
+    IUserSetting setting = mock( IUserSetting.class );
+    settings.add( setting );
+    when( userSettingService.getUserSettings( user.getUsername() ) ).thenReturn( settings );
+    when( userSettingService.getGlobalUserSettings() ).thenReturn( settings );
     exporter.exportUsersAndRoles();
 
     verify( manifest ).addUserExport( userCaptor.capture() );
     verify( manifest ).addRoleExport( roleCaptor.capture() );
+    verify( userSettingService ).getGlobalUserSettings();
+    verify( manifest ).addGlobalUserSetting( any( ExportManifestUserSetting.class ) );
+    assertEquals( settings.size(), userCaptor.getValue().getUserSettings().size() );
 
     UserExport userExport = userCaptor.getValue();
     assertEquals( "testUser", userExport.getUsername() );
