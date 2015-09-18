@@ -21,12 +21,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 
@@ -126,6 +128,10 @@ public class UserSettingServiceTest {
     when( repositoryFile.getId() ).thenReturn( USER_FOLDER_ID );
     when( repository.getFile( anyString() ) ).thenReturn( repositoryFile );
 
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
     doAnswer( new Answer() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {
@@ -144,6 +150,91 @@ public class UserSettingServiceTest {
     } ).when( repository ).setFileMetadata( eq( USER_FOLDER_ID ), anyMap() );
 
     userSettingService.deleteUserSettings();
+  }
+
+  @Test
+  public void testGetUserSettingsByName() throws Exception {
+    final List<IUserSetting> settings = userSettingService.getUserSettings( "test" );
+
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    assertNotNull( settings );
+    assertEquals( 2, settings.size() );
+    for ( IUserSetting setting : settings ) {
+      if ( COMMON_SETTING_NAME.equals( setting.getSettingName() ) ) {
+        assertEquals( COMMON_USER_SETTING_VALUE, setting.getSettingValue() );
+      } else if ( USER_SETTING_NAME_3.equals( setting.getSettingName() ) ) {
+        assertEquals( USER_SETTING_VALUE_3, setting.getSettingValue() );
+      } else if ( GLOBAL_SETTING_NAME_3.equals( setting.getSettingName() ) ) {
+        assertEquals( GLOBAL_SETTING_VALUE_3, setting.getSettingValue() );
+      }
+    }
+  }
+
+  @Test
+  public void testGetUserSettingByName() throws Exception {
+    final String settingName = USER_SETTING_NAME_3;
+    final String defaultValue = "defaultValue";
+
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+    
+    //try to get existing setting
+    final IUserSetting userSetting = userSettingService.getUserSetting( "test", settingName, defaultValue );
+    assertEquals( settingName, userSetting.getSettingName() );
+    assertEquals( USER_SETTING_VALUE_3, userSetting.getSettingValue() );
+  }
+
+  @Test
+  public void testDeleteUserSettingsByName() throws Exception {
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    final RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    when( repositoryFile.getId() ).thenReturn( USER_FOLDER_ID );
+    when( repository.getFile( anyString() ) ).thenReturn( repositoryFile );
+
+    doAnswer( new Answer() {
+      @Override
+      public Object answer( InvocationOnMock invocation ) throws Throwable {
+
+        final Map<String, Serializable> settings = (Map<String, Serializable>) invocation.getArguments()[1];
+
+        assertNotNull( settings );
+        assertEquals( 2, settings.size() );
+
+        final Iterator<String> iterator = settings.keySet().iterator();
+        assertFalse( iterator.next().startsWith( UserSettingService.SETTING_PREFIX ) );
+        assertFalse( iterator.next().startsWith( UserSettingService.SETTING_PREFIX ) );
+
+        return null;
+      }
+    } ).when( repository ).setFileMetadata( eq( USER_FOLDER_ID ), anyMap() );
+
+    userSettingService.deleteUserSettings( "test" );
+  }
+
+  @Test
+  public void testSetUserSettingByName() throws Exception {
+    final String settingName = "settingName";
+    final String settingValue = "settingValue";
+
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    assertEquals( 4, userSettings.size() );
+    userSettingService.setUserSetting( "test", settingName, settingValue );
+    assertEquals( 5, userSettings.size() );
+
+    final Serializable value = userSettings.get( UserSettingService.SETTING_PREFIX + settingName );
+    assertEquals( settingValue, value );
+
+    verify( repository ).setFileMetadata( eq( USER_FOLDER_ID ), anyMap() );
   }
 
   @Test
