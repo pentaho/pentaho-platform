@@ -82,8 +82,6 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   protected ExportManifest exportManifest;
 
-  IUnifiedRepository unifiedRepository;
-
   protected boolean withManifest = true;
 
   protected List<String> localeExportList;
@@ -101,7 +99,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
       this.path = path;
     }
 
-    this.unifiedRepository = repository;
+    setUnifiedRepository( repository );
 
     this.exportHandlerList = new ArrayList<ExportHandler>();
 
@@ -380,7 +378,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
    */
   private List<LocaleMapDto> getAvailableLocales( Serializable fileId ) {
     List<LocaleMapDto> availableLocales = new ArrayList<LocaleMapDto>();
-    List<Locale> locales = unifiedRepository.getAvailableLocalesForFileById( fileId );
+    List<Locale> locales = getUnifiedRepository().getAvailableLocalesForFileById( fileId );
     if ( locales != null && !locales.isEmpty() ) {
       for ( Locale locale : locales ) {
         availableLocales.add( new LocaleMapDto( locale.toString(), null ) );
