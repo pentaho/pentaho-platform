@@ -19,6 +19,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
+import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
+import org.pentaho.platform.api.usersettings.IUserSettingService;
+import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -26,6 +29,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
+import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
@@ -79,6 +83,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   private IMondrianCatalogService mondrianCatalogService;
   private MondrianCatalogRepositoryHelper mondrianCatalogRepositoryHelper;
   private IMetaStore metastore;
+  private IUserSettingService userSettingService;
 
   public PentahoPlatformExporter( IUnifiedRepository repository ) {
     super( ROOT, repository, true );
@@ -301,6 +306,9 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
       IRoleAuthorizationPolicyRoleBindingDao.class );
     ITenant tenant = TenantUtils.getCurrentTenant();
 
+    //  get the user settings for this user
+    IUserSettingService service = getUserSettingService();
+
     //User Export
     List<IPentahoUser> userList = roleDao.getUsers( tenant );
     for ( IPentahoUser user : userList ) {
@@ -312,7 +320,27 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
         userExport.setRole( role.getName() );
       }
 
+      if ( service != null && service instanceof IAnyUserSettingService ) {
+        IAnyUserSettingService userSettings = (IAnyUserSettingService) service;
+        List<IUserSetting> settings = userSettings.getUserSettings( user.getUsername() );
+        if ( settings != null ) {
+          for ( IUserSetting setting : settings ) {
+            userExport.addUserSetting( new ExportManifestUserSetting( setting ) );
+          }
+        }
+      }
+
       this.getExportManifest().addUserExport( userExport );
+    }
+
+    // export the global user settings
+    if ( service != null ) {
+      List<IUserSetting> globalUserSettings = service.getGlobalUserSettings();
+      if ( globalUserSettings != null ) {
+        for ( IUserSetting setting : globalUserSettings ) {
+          getExportManifest().addGlobalUserSetting( new ExportManifestUserSetting( setting ) );
+        }
+      }
     }
 
     //RoleExport
@@ -503,6 +531,17 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   public void setMondrianCatalogService(
     IMondrianCatalogService mondrianCatalogService ) {
     this.mondrianCatalogService = mondrianCatalogService;
+  }
+
+  public IUserSettingService getUserSettingService() {
+    if ( userSettingService == null ) {
+      userSettingService = PentahoSystem.get( IUserSettingService.class, getSession() );
+    }
+    return userSettingService;
+  }
+
+  public void setUserSettingService( IUserSettingService userSettingService ) {
+    this.userSettingService = userSettingService;
   }
 
   @Override

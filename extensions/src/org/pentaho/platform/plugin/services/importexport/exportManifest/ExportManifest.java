@@ -21,6 +21,7 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestDto;
@@ -61,6 +62,7 @@ public class ExportManifest {
   private List<DatabaseConnection> datasourceList = new ArrayList<DatabaseConnection>();
   private List<UserExport> userExports = new ArrayList<UserExport>();
   private List<RoleExport> roleExports = new ArrayList<RoleExport>();
+  private List<ExportManifestUserSetting> globalUserSettings = new ArrayList<>();
   private ExportManifestMetaStore metaStore;
 
   public ExportManifest() {
@@ -82,6 +84,7 @@ public class ExportManifest {
     this.datasourceList = exportManifestDto.getExportManifestDatasource();
     this.userExports = exportManifestDto.getExportManifestUser();
     this.roleExports = exportManifestDto.getExportManifestRole();
+    this.globalUserSettings = exportManifestDto.getGlobalUserSettings();
     setMetaStore( exportManifestDto.getExportManifestMetaStore() );
   }
 
@@ -188,6 +191,7 @@ public class ExportManifest {
     rawExportManifest.getExportManifestUser().addAll( this.getUserExports() );
     rawExportManifest.getExportManifestRole().addAll( this.getRoleExports() );
     rawExportManifest.setExportManifestMetaStore( this.getMetaStore() );
+    rawExportManifest.getGlobalUserSettings().addAll( this.getGlobalUserSettings() );
 
     return rawExportManifest;
   }
@@ -288,5 +292,12 @@ public class ExportManifest {
 
   public ExportManifestMetaStore getMetaStore() {
     return metaStore;
+  }
+
+  public List<ExportManifestUserSetting> getGlobalUserSettings() {
+    return globalUserSettings;
+  }
+  public void addGlobalUserSetting( ExportManifestUserSetting globalSetting ) {
+    globalUserSettings.add( globalSetting );
   }
 }
