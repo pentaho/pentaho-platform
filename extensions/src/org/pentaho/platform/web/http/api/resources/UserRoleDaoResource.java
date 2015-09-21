@@ -232,6 +232,8 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   /**
    * Appends existing roles to an existing user passed to the system through query parameters.
+   * If the user name exists but the role name is not valid (does not exist or is spelled incorrectly) the call will return 200 as the call itself is still successful.
+   * It was able to find the user and add no new roles to it. This prevents the call from failing in the instance of a set of valid roles, with a single invalid role.
    * This endpoint is only available to users with administrative privileges.
    * <p/>
    * <p><b>Example Request:</b><br /> PUT  pentaho/api/userroledao/assignRoleToUser?userName=admin&roleNames=power%20user%09cto%09
@@ -246,7 +248,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes( { WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully append the roles to the user." ),
-    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" ),
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
   } )
   public Response assignRolesToUser( @QueryParam( "userName" ) String userName,
@@ -255,7 +257,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       userRoleDaoService.assignRolesToUser( userName, roleNames );
       return Response.ok().build();
     } catch ( org.pentaho.platform.api.engine.security.userroledao.NotFoundException e ) {
-      throw new WebApplicationException( Response.Status.NOT_FOUND );
+      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
     } catch ( UncategorizedUserRoleDaoException e ) {
       throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
     } catch ( SecurityException e ) {
@@ -477,18 +479,22 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * <p>
    * <b>Example Request:</b><br />
    * PUT pentaho/api/userroledao/createUser
+   * <pre function="syntax.xml">
    * <user>
    *   <userName>Joe</userName>
    *   <password>password</password>
    * </user>
+   * </pre>
    * </p>
    *
    * @param user
    *          A user is an object the system uses to pass along a userName and password in the format:
+   *          <pre function="syntax.xml">
    *          <user>
    *            <userName>Joe</userName>
    *            <password>password</password>
    *          </user>
+   *          </pre>
    * 
    * @return Response object containing the status code of the operation
    */
@@ -498,7 +504,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @StatusCodes( { 
     @ResponseCode( code = 200, condition = "Successfully created new user." ), 
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ), 
-    @ResponseCode( code = 403, condition = "A non administrative user is trying to access this endpoint." ), 
+    @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "Unable to create user." )
   } )
   public Response createUser( User user ) {
@@ -522,21 +528,24 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * <p>
    * <b>Example Request:</b><br />
    * PUT pentaho/api/userroledao/user
-   *
+   * <pre function="syntax.xml">
    * <ChangePasswordUser>
    *   <userName>Joe</userName>
    *   <newPassword>newPassword</newPassword>
    *   <oldPassword>oldPassword</oldPassword>
    * </ChangePasswordUser>
+   * </pre>
    * </p>
    * 
    * @param ChangePasswordUser Encapsulates the fields required for a user to update their password. The object requires the name of the user whose password is being changed, the old password, and the new password.
    *                           A ChangePasswordUser object can be constructed as follows:
+   * <<pre function="syntax.xml">>
    * <ChangePasswordUser>
    *   <userName>Joe</userName>
    *   <newPassword>newPassword</newPassword>
    *   <oldPassword>oldPassword</oldPassword>
    * </ChangePasswordUser>
+   * </pre>
    * 
    * @return Response object containing the status code of the operation
    */
@@ -545,7 +554,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @StatusCodes( { 
     @ResponseCode( code = 200, condition = "Successfully changed password." ), 
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ), 
-    @ResponseCode( code = 403, condition = "Provided user name or password is wrong." ), 
+    @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "An error occurred in the platform." )
   } )
   public Response changeUserPassword( ChangePasswordUser user ) {
@@ -582,7 +591,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @StatusCodes( { 
     @ResponseCode( code = 200, condition = "Successfully created new role." ), 
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ), 
-    @ResponseCode( code = 403, condition = "A non administrative user is trying to access this endpoint." ), 
+    @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "Unable to create role objects." ) 
   } )
   public Response createRole( @QueryParam( "roleName" ) String roleName) {
@@ -645,7 +654,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes ( { WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
-    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" ),
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
   } )
   public Response deleteUsers( @QueryParam( "userNames" ) String userNames ) {
@@ -668,18 +677,22 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * <p>
    * <b>Example Request:</b><br />
    * PUT pentaho/api/userroledao/updatePassword
+   * <pre function="syntax.xml">
    * <user>
    *   <userName>Joe</userName>
    *   <password>password</password>
    * </user>
+   * </pre>
    * </p>
    *
    * @param user
    *          A user is an object the system uses to pass along a userName and password in the format:
+   *          <pre function="syntax.xml">
    *          <user>
    *            <userName>Joe</userName>
    *            <password>password</password>
    *          </user>
+   *          </pre>
    * @return response object containing the status code of the operation
    */
   @PUT
@@ -687,7 +700,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes( { WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
-    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" ),
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
   } )
   public Response updatePassword( User user ) {
@@ -775,7 +788,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path ( "/logicalRoleMap" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" )
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." )
   } )
   public SystemRolesMap getRoleBindingStruct( @QueryParam ( "locale" ) String locale ) {
     try {
@@ -814,7 +827,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path ( "/roleAssignments" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully applied the logical role assignment." ),
-    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method" )
+    @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." )
   } )
   public Response setLogicalRoles( LogicalRoleAssignments roleAssignments ) {
     try {
