@@ -73,7 +73,7 @@ public class DefaultContentSystemListener implements IPentahoSystemListener {
         }
       }
     };
-    if( ! enableAsyncLoading ) {
+    if( enableAsyncLoading ) {
       Thread t = new Thread( runnable );
       t.setDaemon( true );
       t.setName( "Default Content Loader Thread" );
