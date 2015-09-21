@@ -18,7 +18,6 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
-import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -36,9 +35,9 @@ import java.util.Map;
 
 /**
  * Obtains a reference to the requested bean from the PentahoSystem
- * 
+ * <p/>
  * {@code} <pen:bean class="com.foo.Clazz"/> {@code}
- * 
+ * <p/>
  * User: nbaker Date: 3/2/13
  */
 public class BeanBuilder implements FactoryBean {
@@ -87,24 +86,24 @@ public class BeanBuilder implements FactoryBean {
         IPentahoObjectReference objectReference =
             PentahoSystem.getObjectFactory().getObjectReference( cls, PentahoSessionHolder.getSession(),
                 attributes );
-        if( objectReference != null ){
+        if ( objectReference != null ) {
           val = objectReference.getObject();
         }
         resolvingBean.set( null );
-        if( val == null ){
+        if ( val == null ) {
           log.debug( "No object was found to satisfy pen:bean request [" + type + " : " + attributes + "]" );
 
           int dampeningTimeout = -1;
           ISystemConfig iSystemConfig = PentahoSystem.get( ISystemConfig.class );
-          if( iSystemConfig != null ){
+          if ( iSystemConfig != null ) {
             String property = iSystemConfig.getProperty( "system.dampening-timeout" );
-            if( property != null){
+            if ( property != null ) {
               dampeningTimeout = Integer.valueOf( property );
             }
           }
           final int f_dampeningTimeout = dampeningTimeout;
           // send back a proxy
-          if( cls.isInterface() && dampeningTimeout > -1 ){
+          if ( cls.isInterface() && dampeningTimeout > -1 ) {
             log.debug( "Request bean which wasn't found is interface-based. Instantiating a Proxy dampener" );
 
             val = Proxy.newProxyInstance( cls.getClassLoader(), new Class[] { cls }, new InvocationHandler() {
@@ -113,25 +112,25 @@ public class BeanBuilder implements FactoryBean {
               Thread watcher;
               boolean dead = false;
 
-              private void startWatcherThread( final int millis ){
+              private void startWatcherThread( final int millis ) {
 
                 watcher = new Thread( new Runnable() {
                   @Override public void run() {
                     int countdown = millis;
-                    while( countdown > 0 ){
+                    while ( countdown > 0 ) {
                       IPentahoObjectReference objectReference;
                       try {
                         objectReference =
                             PentahoSystem.getObjectFactory().getObjectReference( cls, PentahoSessionHolder.getSession(),
                                 attributes );
-                        if( objectReference != null ){
+                        if ( objectReference != null ) {
                           target = objectReference.getObject();
                         }
                       } catch ( ObjectFactoryException e ) {
                         log.debug( "Error fetching from PentahoSystem", e );
                       }
 
-                      if( target != null ){
+                      if ( target != null ) {
                         synchronized ( lock ) {
                           lock.notifyAll();
                         }
@@ -141,24 +140,35 @@ public class BeanBuilder implements FactoryBean {
                     }
                     dead = true;
                   }
-                });
+                } );
                 watcher.start();
               }
+
               @Override public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
-                if( target == null ) {
-                  synchronized ( lock ){
-                    if( watcher == null && !dead ){
+                if ( target == null ) {
+                  synchronized ( lock ) {
+                    if ( watcher == null && !dead ) {
                       startWatcherThread( f_dampeningTimeout );
                       lock.wait( f_dampeningTimeout );
                     }
                   }
                 }
-                if( target == null ) {
-                  throw new IllegalStateException( "Target of Bean was never resolved: " + cls.getName() );
+                if ( target == null ) {
+
+                  // Last chance. If the attributes are empty, try a plain PentahoSystem.get() which will find bean's
+                  // with the ID equal to the simple name of the class
+                  if ( attributes.isEmpty() ) {
+                    target = getFallbackBySimpleName( cls );
+                  }
+                  if( target == null ) {
+                    throw new IllegalStateException( "Target of Bean was never resolved: " + cls.getName() );
+                  }
                 }
                 return method.invoke( target, args );
               }
             } );
+          } else if( !cls.isInterface() ){
+            val = getFallbackBySimpleName( cls );
           }
         }
         return val;
@@ -169,6 +179,18 @@ public class BeanBuilder implements FactoryBean {
       throw new RuntimeException( e );
     }
 
+
+  }
+
+  private Object getFallbackBySimpleName( Class clazz ){
+    Object lastChanceObject = PentahoSystem.get( clazz, PentahoSessionHolder.getSession() );
+    if ( lastChanceObject != null ) {
+      log.warn( "Target of <pen:bean class=\"" + clazz.getName()
+          + "\"> was found using deprecated bean ID == class.getSimpleName() "
+          + "fallback. The target bean with the id \"" + clazz.getSimpleName()
+          + "\" should be published directly with <pen:publish>" );
+    }
+    return lastChanceObject;
   }
 
   /*
