@@ -151,7 +151,7 @@ public class UserRoleDaoResourceTest {
     try {
       userRoleResource.assignRolesToUser( user, roles );
     } catch ( WebApplicationException e ) {
-      assertEquals( Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus() );
+      assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
     }
   }
 
