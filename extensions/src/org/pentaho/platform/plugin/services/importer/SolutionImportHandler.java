@@ -124,7 +124,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       for ( ExportManifestMetadata exportManifestMetadata : metadataList ) {
 
         String domainId = exportManifestMetadata.getDomainId();
-        boolean overWriteInRepository = true;
+        boolean overWriteInRepository = isOverwriteFile();
         RepositoryFileImportBundle.Builder bundleBuilder =
             new RepositoryFileImportBundle.Builder().charSet( "UTF-8" )
               .hidden( false )
@@ -151,7 +151,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
         RepositoryFileImportBundle.Builder bundleBuilder =
             new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( false ).name( catName ).overwriteFile(
-              true ).mime( "application/vnd.pentaho.mondrian+xml" )
+              isOverwriteFile() ).mime( "application/vnd.pentaho.mondrian+xml" )
                 .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
         // definitely
         // named wrong
