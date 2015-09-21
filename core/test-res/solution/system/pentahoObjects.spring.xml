@@ -116,6 +116,24 @@ PentahoSystem which is initialized after Spring
 
   </bean>
 
+  <bean id="SimpleIntegerHolder" class="org.pentaho.platform.engine.core.SimpleObjectHolder">
+    <property name="val"><pen:bean class="java.lang.Integer"/></property>
+  </bean>
+
+  <bean id="Integer" class="java.lang.Integer">
+    <constructor-arg value="123"/>
+  </bean>
+
+
+  <bean id="SimpleStringHolder" class="org.pentaho.platform.engine.core.SimpleObjectHolder">
+    <property name="val"><pen:bean class="java.lang.CharSequence"/></property>
+  </bean>
+
+
+  <bean id="CharSequence" class="java.lang.String">
+    <constructor-arg value="testing_fallback_by_interface"/>
+  </bean>
+
   <!-- test re-publishing a pen:bean with new attributes -->
   <pen:bean class="org.pentaho.platform.engine.core.MimeTypeListener">
     <pen:publish as-type="INTERFACES">

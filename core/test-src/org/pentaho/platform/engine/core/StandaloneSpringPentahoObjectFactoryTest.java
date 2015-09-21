@@ -19,8 +19,10 @@
 package org.pentaho.platform.engine.core;
 
 import org.junit.Before;
+import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -36,6 +38,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.TestCase;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings( { "all" } )
 public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
@@ -201,6 +206,35 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
     // Check that the bean injected is based on the query for #2
     assertEquals( "Test Attr2", collection.getQueriedBean().name );
 
+  }
+
+  /**
+   * Test <pen:bean> fallback behavior when no object is published matching the request. It should fall-back to
+   * PentahoSystem.get() behavior where beans matching the simple-name of the queried class are returned.
+   * @throws Exception
+   */
+  public void testFallbackPenBean() throws Exception {
+
+    PentahoSystem.shutdown();
+
+    ISystemConfig config = mock( ISystemConfig.class );
+    when( config.getProperty( "system.dampening-timeout" ) ).thenReturn( "3000" );
+
+    PentahoSystem.registerObject( config );
+
+    StandaloneSession session = new StandaloneSession();
+    PentahoSessionHolder.setSession( session );
+    StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
+    factory.init( "test-res/solution/system/pentahoObjects.spring.xml", null );
+    PentahoSystem.registerObjectFactory( factory );
+
+    SimpleObjectHolder integerHolder = PentahoSystem.get( SimpleObjectHolder.class, "SimpleIntegerHolder", session ); // fallback to simpleName
+    assertNotNull( integerHolder );
+    assertEquals( 123, (int) integerHolder.getVal() );
+
+    SimpleObjectHolder stringHolder = PentahoSystem.get( SimpleObjectHolder.class, "SimpleStringHolder", session ); // fallback to simpleName
+    assertNotNull( stringHolder );
+    assertEquals( "testing_fallback_by_interface", stringHolder.getVal().toString() );
   }
 
   public void testPriority() throws Exception {
