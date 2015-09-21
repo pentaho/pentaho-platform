@@ -141,6 +141,9 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
       if ( serviceReferences != null && serviceReferences.size() > 0 ) {
         return true;
       }
+    } catch ( IllegalStateException ise ){
+      // caused by the bundleContext being invalid
+      return false;
     } catch ( InvalidSyntaxException e ) {
       throw new IllegalStateException( "Error finding reference in OSGI" );
     }
