@@ -363,6 +363,7 @@ public class SolutionImportHandlerTest {
     settings.add( new ExportManifestUserSetting( "language", "en_US" ) );
     settings.add( new ExportManifestUserSetting( "showHiddenFiles", "false" ) );
     IUserSettingService userSettingService = mock( IUserSettingService.class );
+    PentahoSystem.registerObject( userSettingService );
 
     importHandler.importGlobalUserSettings( settings );
 
@@ -378,6 +379,7 @@ public class SolutionImportHandlerTest {
     settings.add( new ExportManifestUserSetting( "language", "en_US" ) );
     settings.add( new ExportManifestUserSetting( "showHiddenFiles", "false" ) );
     IUserSettingService userSettingService = mock( IUserSettingService.class );
+    PentahoSystem.registerObject( userSettingService );
     IUserSetting setting = mock( IUserSetting.class );
     when( userSettingService.getGlobalUserSetting( "language", null ) ).thenReturn( null );
     when( userSettingService.getGlobalUserSetting( "showHiddenFiles", null ) ).thenReturn( setting );
@@ -385,7 +387,7 @@ public class SolutionImportHandlerTest {
     importHandler.importGlobalUserSettings( settings );
 
     verify( userSettingService ).setGlobalUserSetting( "language", "en_US" );
-    verify( userSettingService, never() ).setGlobalUserSetting( "showHiddenFiles", anyString() );
+    verify( userSettingService, never() ).setGlobalUserSetting( eq( "showHiddenFiles" ), anyString() );
     verify( userSettingService ).getGlobalUserSetting( "language", null );
     verify( userSettingService ).getGlobalUserSetting( "showHiddenFiles", null );
 
