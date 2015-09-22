@@ -22,6 +22,7 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.UserSession;
@@ -200,6 +201,7 @@ public class ChartTest extends BaseTest {
     StringBuffer content = new StringBuffer();
     StandaloneSession session =
         new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) ); //$NON-NLS-1$
+    PentahoSessionHolder.setSession( session );
     ChartHelper.doChart( "/samples/dashboard/departments.widget.xml", parameters, content, session, messages, null ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     try {
       OutputStream os = getOutputStream( "ChartTest.testChartHelper_Null", ".html" ); //$NON-NLS-1$ //$NON-NLS-2$

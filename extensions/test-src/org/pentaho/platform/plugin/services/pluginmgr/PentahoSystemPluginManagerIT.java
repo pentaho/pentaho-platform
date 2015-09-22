@@ -1,8 +1,6 @@
 package org.pentaho.platform.plugin.services.pluginmgr;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
@@ -20,14 +18,10 @@ import org.pentaho.platform.config.SystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
-import org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager;
-import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
-import org.pentaho.platform.plugin.services.pluginmgr.PluginMessageLogger;
-import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-import org.pentaho.test.platform.plugin.pluginmgr.DefaultPluginManagerTest;
+import org.pentaho.test.platform.plugin.pluginmgr.DefaultPluginManagerIT;
 import org.pentaho.ui.xul.XulOverlay;
 
 import java.io.File;
@@ -42,7 +36,7 @@ import static org.mockito.Mockito.mock;
  * This will only run when the working directory is set to that of the open Extensions project
  * Created by nbaker on 4/22/14.
  */
-public class PentahoSystemPluginManagerTest extends DefaultPluginManagerTest {
+public class PentahoSystemPluginManagerIT extends DefaultPluginManagerIT {
 
   protected String solutionPath = StringUtils.defaultIfEmpty( System.getProperty( "CE_INSTALL" ), "../../pentaho-platform" ) + "/extensions/test-res/PluginManagerTest";
 

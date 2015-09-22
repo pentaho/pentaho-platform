@@ -57,6 +57,7 @@ import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
@@ -64,10 +65,12 @@ import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.mt.RepositoryTenantManager;
+import org.pentaho.platform.repository2.unified.DefaultRepositoryVersionManager;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
@@ -111,7 +114,7 @@ import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestCon
 @ContextConfiguration ( locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings ( "nls" )
-public class FileResourceTest extends JerseyTest implements ApplicationContextAware {
+public class FileResourceIT extends JerseyTest implements ApplicationContextAware {
 
   private static MicroPlatform mp = new MicroPlatform();
 
@@ -149,7 +152,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
   public static final String SYSTEM_PROPERTY = "spring.security.strategy";
 
-  public FileResourceTest() throws Exception {
+  public FileResourceIT() throws Exception {
     super();
     this.setTestContainerFactory( new GrizzlyTestContainerFactory() );
     mp.setFullyQualifiedServerUrl( getBaseURI() + webAppDescriptor.getContextPath() + "/" );
@@ -205,6 +208,9 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     mp.defineInstance( "singleTenantAdminAuthorityName", new String( "Administrator" ) );
     mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.testJcrTemplate, this.repositoryFileDao ) );
 
+    DefaultRepositoryVersionManager defaultRepositoryVersionManager = new DefaultRepositoryVersionManager();
+    defaultRepositoryVersionManager.setPlatformMimeResolver( new NameBaseMimeResolver() );
+    mp.defineInstance( IRepositoryVersionManager.class, defaultRepositoryVersionManager );
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao( userRoleDao );
     List<String> systemRoles = new ArrayList<String>();
@@ -241,7 +247,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     if ( startupCalled ) {
       manager.shutdown();
     }
-
+    mp.stop();
     // null out fields to get back memory
     repo = null;
   }

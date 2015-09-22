@@ -20,8 +20,10 @@ package org.pentaho.test.platform.web;
 import com.mockrunner.mock.web.MockHttpServletRequest;
 import com.mockrunner.mock.web.MockHttpServletResponse;
 import com.mockrunner.mock.web.MockHttpSession;
+import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
+import org.pentaho.platform.engine.services.MessageFormatter;
 import org.pentaho.platform.web.servlet.UIServlet;
 import org.pentaho.test.platform.engine.core.BaseTestCase;
 
@@ -45,6 +47,8 @@ public class UIServletTest extends BaseTestCase {
   public void setUp() {
     StandaloneApplicationContext applicationContext = new StandaloneApplicationContext( getSolutionPath(), "" ); //$NON-NLS-1$
     PentahoSystem.init( applicationContext, getRequiredListeners() );
+    IMessageFormatter msgFormatter = new MessageFormatter();
+    PentahoSystem.registerObject( msgFormatter );
   }
 
   protected Map getRequiredListeners() {
