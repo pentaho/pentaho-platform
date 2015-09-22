@@ -82,6 +82,7 @@ public class SolutionImportHandlerNamingTest {
   private static final String SRC_CONTENT_FILE = SRC_ROOT + "/content.prpt";
   private static final String ZIPENTRY_EXPORTMANIFEST = "exportManifest.xml";
   private static final String ZIPENTRY_CONTENT_FILE = "two+words%2525/eval+%28%2B%29%2525.prpt";
+  private static final String ZIPENTRY_CONTENT_FILE_NOMANIFEST = "two words%25/eval (+)%25.prpt";
 
   private final IMimeType MIME_SOLUTION = new MimeType( "application/vnd.pentaho.solution-repository", "zip" );
   private final IMimeType MIME_PRPT = new MimeType( "text/prptMimeType", "prpt" );
@@ -248,7 +249,7 @@ public class SolutionImportHandlerNamingTest {
 
       ZipOutputStream zipOS = new ZipOutputStream( tmpOS );
 
-      zipOS.putNextEntry( new ZipEntry( ZIPENTRY_CONTENT_FILE ) );
+      zipOS.putNextEntry( new ZipEntry( ZIPENTRY_CONTENT_FILE_NOMANIFEST ) );
       FileUtils.copyFile( srcContentFile, zipOS );
       zipOS.closeEntry();
 
@@ -274,6 +275,7 @@ public class SolutionImportHandlerNamingTest {
     final IPlatformImportBundle bundle = bundleBuilder.build();
 
     runImport( solutionImportHandler, bundle );
+
     { // files with correct names do exist
       RepositoryFile dir = repo.getFile( IMPORT_REPO_DIR + "/two words%25" );
       assertNotNull( dir );
@@ -326,7 +328,7 @@ public class SolutionImportHandlerNamingTest {
       }
     }
 
-    RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
+    final RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
     bundleBuilder.input( solutionInputStream );
     bundleBuilder.charSet( DEFAULT_ENCODING );
     bundleBuilder.hidden( false );
@@ -338,6 +340,7 @@ public class SolutionImportHandlerNamingTest {
     bundleBuilder.name( "testSrc.zip" );
     bundleBuilder.mime( "application/vnd.pentaho.solution-repository" );
     final IPlatformImportBundle bundle = bundleBuilder.build();
+
     runImport( solutionImportHandler, bundle );
 
     { // files with correct names do exist
