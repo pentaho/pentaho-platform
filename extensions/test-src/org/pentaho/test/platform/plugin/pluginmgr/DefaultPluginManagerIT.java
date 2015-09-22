@@ -75,7 +75,7 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 @SuppressWarnings( "nls" )
-public class DefaultPluginManagerTest {
+public class DefaultPluginManagerIT {
 
   protected MicroPlatform microPlatform;
 
