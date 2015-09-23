@@ -851,22 +851,35 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testDoGetFileOrDirAsDownload() throws Throwable {
-    assertDoGetFileOrDirAsDownload( "mockFileName", "true", "mockFileName" );
-    assertDoGetFileOrDirAsDownload( "mockFileName", "false", "mockFileName" );
-    assertDoGetFileOrDirAsDownload( "mock File+Name(%25)", "true", "mock%20File%2BName%28%2525%29" );
-    assertDoGetFileOrDirAsDownload( "mock File+Name(%25)", "false", "mock File+Name(%25)" );
+  public void testDoGetFileOrDirAsDownload0() throws Throwable {
+    assertDoGetFileOrDirAsDownload( "mockFileName.prpt", "true", "mockFileName.prpt.zip", "mockFileName.prpt.zip" );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload1() throws Throwable {
+    assertDoGetFileOrDirAsDownload( "mockFileName.prpt", "false", "mockFileName.prpt", "mockFileName.prpt" );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload2() throws Throwable {
+    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "true", "mock%20File%2BName%28%2525%29.prpt.zip", "mock File+Name(%25).prpt.zip" );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload3() throws Throwable {
+    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "false", "mock%20File%2BName%28%2525%29.prpt", "mock File+Name(%25).prpt" );
   }
 
   /**
    * 
    * @param fileName
    * @param withManifest
-   * @param expectedZipEntryName
+   * @param expectedEncodedFileName
+   * @param expectedFileName 
    * @throws Throwable
    */
   public void assertDoGetFileOrDirAsDownload( final String fileName, final String withManifest,
-      final String expectedZipEntryName ) throws Throwable {
+      final String expectedEncodedFileName, final String expectedFileName  ) throws Throwable {
 
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
     doReturn( true ).when( mockAuthPolicy ).isAllowed( anyString() );
@@ -893,8 +906,8 @@ public class FileServiceTest {
     verify( fileService.repository, times( 1 ) ).getFile( anyString() );
 
     assertEquals( mockStream, wrapper.getOutputStream() );
-    assertEquals( expectedZipEntryName + ".zip", wrapper.getEncodedFileName() );
-    assertEquals( "attachment; filename=\"" + fileName + ".zip\"", wrapper.getAttachment() );
+    assertEquals( expectedEncodedFileName, wrapper.getEncodedFileName() );
+    assertEquals( "attachment; filename=\"" + expectedFileName + "\"", wrapper.getAttachment() );
   }
 
   @Test
