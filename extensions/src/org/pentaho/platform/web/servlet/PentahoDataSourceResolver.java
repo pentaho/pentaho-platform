@@ -33,21 +33,36 @@ import javax.sql.DataSource;
  * @author Luc Boudreau
  */
 public class PentahoDataSourceResolver implements DataSourceResolver {
-  private static final Log logger =
-    LogFactory.getLog( PentahoDataSourceResolver.class );
+  private static final Log logger = LogFactory.getLog( PentahoDataSourceResolver.class );
 
   public DataSource lookup( String dataSourceName ) throws Exception {
+    javax.sql.DataSource datasource = null;
+    String unboundDsName = null;
+    IDBDatasourceService datasourceSvc = null;
     try {
-      IDBDatasourceService datasourceSvc =
+      datasourceSvc =
           PentahoSystem.getObjectFactory().get( IDBDatasourceService.class, PentahoSessionHolder.getSession() );
-      javax.sql.DataSource datasource = datasourceSvc.getDataSource( datasourceSvc.getDSUnboundName( dataSourceName ) );
-      return datasource;
+      unboundDsName = datasourceSvc.getDSUnboundName( dataSourceName );
+      datasource = datasourceSvc.getDataSource( unboundDsName );
     } catch ( ObjectFactoryException e ) {
       logger.error( Messages.getInstance().getErrorString( "PentahoXmlaServlet.ERROR_0002_UNABLE_TO_INSTANTIATE" ), e ); //$NON-NLS-1$
       throw e;
     } catch ( DBDatasourceServiceException e ) {
-      logger.error( Messages.getInstance().getErrorString( "PentahoXmlaServlet.ERROR_0002_UNABLE_TO_INSTANTIATE" ), e ); //$NON-NLS-1$
-      throw e;
+      /* We tried to find the datasource using unbound name. 
+      ** Now as a fall back we will attempt to find this datasource as it is.
+      ** For example jboss/datasource/Hibernate. The unbound name ends up to be Hibernate
+      ** We will first look for Hibernate and if we fail then look for jboss/datasource/Hibernate */ 
+
+      logger.warn( Messages.getInstance().getString(
+          "PentahoXmlaServlet.WARN_0001_UNABLE_TO_FIND_UNBOUND_NAME", dataSourceName, unboundDsName ), e ); //$NON-NLS-1$
+      try {
+        datasource = datasourceSvc.getDataSource( dataSourceName );
+      } catch ( DBDatasourceServiceException dbse ) {
+        logger
+            .error( Messages.getInstance().getErrorString( "PentahoXmlaServlet.ERROR_0002_UNABLE_TO_INSTANTIATE" ), e ); //$NON-NLS-1$
+        throw dbse;
+      }
     }
+    return datasource;
   }
 }
