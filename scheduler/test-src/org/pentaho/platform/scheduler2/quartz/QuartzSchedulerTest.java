@@ -99,6 +99,20 @@ public class QuartzSchedulerTest {
   }
 
   @Test
+  public void createJobTest_ForUser() throws Exception {
+    String actionId = "actionId";
+    ComplexJobTrigger trigger = getComplexJobTrigger();
+    IBackgroundExecutionStreamProvider outputStreamProvider = mock( IBackgroundExecutionStreamProvider.class );
+    Map<String, Serializable> paramMap = new HashMap<>();
+    paramMap.put( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, "ninja" );
+    final Job job = scheduler.createJob( JOB_NAME, paramMap, trigger, outputStreamProvider );
+
+    assertNotNull( job );
+    assertEquals( "ninja", job.getUserName() );
+    assertEquals( Job.JobState.NORMAL, job.getState() );
+  }
+
+  @Test
   public void createQuartzTriggerComplexTriggerTest() throws Exception {
     final Trigger quartzTrigger = QuartzScheduler.createQuartzTrigger( getComplexJobTrigger(), getJobKey() );
 
