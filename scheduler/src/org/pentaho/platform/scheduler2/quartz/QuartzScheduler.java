@@ -257,11 +257,17 @@ public class QuartzScheduler implements IScheduler {
 
     String curUser = getCurrentUser();
 
+    // determine if the job params tell us who owns the job
+    Serializable jobOwner = jobParams.get( RESERVEDMAPKEY_ACTIONUSER );
+    if ( jobOwner != null && jobOwner.toString().length() > 0 ) {
+      curUser = jobOwner.toString();
+    }
+
     QuartzJobKey jobId = new QuartzJobKey( jobName, curUser );
 
     Trigger quartzTrigger = createQuartzTrigger( trigger, jobId );
     
-    if(trigger.getEndTime() !=null ){
+    if( trigger.getEndTime() != null ){
       quartzTrigger.setEndTime( trigger.getEndTime() );
     }
 
@@ -750,11 +756,11 @@ public class QuartzScheduler implements IScheduler {
             if ( sequencePattern.matcher( token ).matches() ) {
               String[] days = token.split( "-" ); //$NON-NLS-1$
               timeRecurrence.add( new SequentialRecurrence( Integer.parseInt( days[0] ),
-                      Integer.parseInt( days[1] ) ) );
+                      Integer.parseInt( days[ 1 ] ) ) );
             } else if ( intervalPattern.matcher( token ).matches() ) {
               String[] days = token.split( "/" ); //$NON-NLS-1$
               timeRecurrence
-                  .add( new IncrementalRecurrence( Integer.parseInt( days[0] ), Integer.parseInt( days[1] ) ) );
+                  .add( new IncrementalRecurrence( Integer.parseInt( days[ 0 ] ), Integer.parseInt( days[ 1 ] ) ) );
             } else if ( "L".equalsIgnoreCase( token ) ) {
               timeRecurrence.add( new QualifiedDayOfMonth() );
             } else {
