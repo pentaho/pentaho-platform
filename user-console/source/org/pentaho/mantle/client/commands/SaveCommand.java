@@ -125,10 +125,7 @@ public class SaveCommand extends AbstractCommand {
 
               JsArrayString extensions =
                 getPossibleExtensions( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId() );
-              String fileExtension = null;
-              if ( extensions.length() == 1 ) {
-                fileExtension = extensions.get( 0 );
-              }
+              final String fileExtension = extensions.length() == 1 ? extensions.get( 0 ) : null;
 
               if ( dialog.doesSelectedFileExist( fileExtension ) ) {
                 dialog.hide();
@@ -139,6 +136,9 @@ public class SaveCommand extends AbstractCommand {
                 overWriteDialog.setContent( new Label( Messages.getString( "fileExistsOverwrite" ), false ) ); //$NON-NLS-1$
                 overWriteDialog.setCallback( new IDialogCallback() {
                   public void okPressed() {
+                    if ( fileExtension != null && tabName.endsWith( fileExtension ) ) {
+                      tabName = tabName.substring( 0, tabName.lastIndexOf( fileExtension ) );
+                    }
                     doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type,
                       true );
                     Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
