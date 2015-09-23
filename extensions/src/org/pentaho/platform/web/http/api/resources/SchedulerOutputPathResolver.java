@@ -65,7 +65,7 @@ public class SchedulerOutputPathResolver {
     String fileNamePattern = "/" + fileName + ".*";
 
     String outputFilePath = scheduleRequest.getOutputFile();
-    if ( outputFilePath.endsWith( fileNamePattern ) ) {
+    if ( outputFilePath != null && outputFilePath.endsWith( fileNamePattern ) ) {
       // we are creating a schedule with a completed path already, strip off the pattern and validate the folder is valid
       outputFilePath = outputFilePath.substring( 0, outputFilePath.indexOf( fileNamePattern ) );
     }
@@ -88,7 +88,7 @@ public class SchedulerOutputPathResolver {
     return null; // it should never reach here
   }
 
-  private boolean isValidOutputPath( String path ) {
+  protected boolean isValidOutputPath( String path ) {
     try {
       RepositoryFile repoFile = repository.getFile( path );
       if ( repoFile != null && repoFile.isFolder() ) {
@@ -100,7 +100,7 @@ public class SchedulerOutputPathResolver {
     return false;
   }
 
-  private String getUserSettingOutputPath() {
+  protected String getUserSettingOutputPath() {
     try {
       IUserSetting userSetting = getSettingsService().getUserSetting( DEFAULT_SETTING_KEY, null );
       if ( userSetting != null && StringUtils.isNotBlank( userSetting.getSettingValue() ) ) {
@@ -112,7 +112,7 @@ public class SchedulerOutputPathResolver {
     return null;
   }
 
-  private String getSystemSettingOutputPath() {
+  protected String getSystemSettingOutputPath() {
     try {
       return PentahoSystem.getSystemSettings().getSystemSetting( DEFAULT_SETTING_KEY, null );
     } catch ( Exception e ) {
@@ -121,7 +121,7 @@ public class SchedulerOutputPathResolver {
     return null;
   }
 
-  private String getUserHomeDirectoryPath() {
+  protected String getUserHomeDirectoryPath() {
     try {
       return ClientRepositoryPaths.getUserHomeFolderPath( pentahoSession.getName() );
     } catch ( Exception e ) {
