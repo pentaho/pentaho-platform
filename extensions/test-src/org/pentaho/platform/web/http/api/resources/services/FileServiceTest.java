@@ -12,13 +12,30 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 package org.pentaho.platform.web.http.api.resources.services;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -62,20 +79,20 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.PropertiesWrapper;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-import org.pentaho.platform.repository2.unified.webservices.PropertiesWrapper;
 
 public class FileServiceTest {
 
@@ -834,8 +851,35 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testDoGetFileOrDirAsDownload() throws Throwable {
-    final String fileName = "mockFileName";
+  public void testDoGetFileOrDirAsDownload0() throws Throwable {
+    assertDoGetFileOrDirAsDownload( "mockFileName.prpt", "true", "mockFileName.prpt.zip", "mockFileName.prpt.zip" );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload1() throws Throwable {
+    assertDoGetFileOrDirAsDownload( "mockFileName.prpt", "false", "mockFileName.prpt", "mockFileName.prpt" );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload2() throws Throwable {
+    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "true", "mock%20File%2BName%28%2525%29.prpt.zip", "mock File+Name(%25).prpt.zip" );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload3() throws Throwable {
+    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "false", "mock%20File%2BName%28%2525%29.prpt", "mock File+Name(%25).prpt" );
+  }
+
+  /**
+   * 
+   * @param fileName
+   * @param withManifest
+   * @param expectedEncodedFileName
+   * @param expectedFileName 
+   * @throws Throwable
+   */
+  public void assertDoGetFileOrDirAsDownload( final String fileName, final String withManifest,
+      final String expectedEncodedFileName, final String expectedFileName  ) throws Throwable {
 
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
     doReturn( true ).when( mockAuthPolicy ).isAllowed( anyString() );
@@ -857,14 +901,13 @@ public class FileServiceTest {
     doReturn( mockStream ).when( fileService ).getDownloadStream( mockRepoFile, mockExportProcessor );
 
     FileService.DownloadFileWrapper wrapper =
-      fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, "true" );
+      fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, withManifest );
 
     verify( fileService.repository, times( 1 ) ).getFile( anyString() );
 
-
     assertEquals( mockStream, wrapper.getOutputStream() );
-    assertEquals( fileName + ".zip", wrapper.getEncodedFileName() );
-    assertEquals( true, wrapper.getAttachment().equals( "attachment; filename=\"mockFileName.zip\"" ) );
+    assertEquals( expectedEncodedFileName, wrapper.getEncodedFileName() );
+    assertEquals( "attachment; filename=\"" + expectedFileName + "\"", wrapper.getAttachment() );
   }
 
   @Test
