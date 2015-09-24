@@ -294,12 +294,20 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       if ( datasourceList != null ) {
         IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
         for ( org.pentaho.database.model.DatabaseConnection databaseConnection : datasourceList ) {
+          if ( databaseConnection.getDatabaseType() == null ) {
+            // don't try to import the connection if there is no type it will cause an error
+            // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
+            log.warn( "Can't import connection " + databaseConnection.getName() + " because it doesn't have a databaseType" );
+            continue;
+          }
           try {
             IDatabaseConnection existingDBConnection =
                 datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
             if ( existingDBConnection != null && existingDBConnection.getName() != null ) {
-              databaseConnection.setId( existingDBConnection.getId() );
-              datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(), databaseConnection );
+              if ( isOverwriteFile() ) {
+                databaseConnection.setId( existingDBConnection.getId() );
+                datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(), databaseConnection );
+              }
             } else {
               datasourceMgmtSvc.createDatasource( databaseConnection );
             }
