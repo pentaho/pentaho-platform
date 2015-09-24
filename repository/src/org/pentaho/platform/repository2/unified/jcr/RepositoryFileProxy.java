@@ -38,7 +38,7 @@ public class RepositoryFileProxy extends RepositoryFile {
   private long fileSize = -1;
   private Date lastModifiedDate;
   private Boolean locked;
-  private ILockHelper lockHelper;
+  private static ILockHelper lockHelper;
   private String lockMessage;
   private String lockOwner;
   private String path;
@@ -65,7 +65,14 @@ public class RepositoryFileProxy extends RepositoryFile {
       e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
     }
     this.template = template;
-    this.lockHelper = PentahoSystem.get( ILockHelper.class );
+
+  }
+
+  private static ILockHelper getLockHelper(){
+    if( lockHelper == null ){
+      lockHelper = PentahoSystem.get( ILockHelper.class );
+    }
+    return lockHelper;
   }
 
   private PentahoJcrConstants getPentahoJcrConstants() {
@@ -94,7 +101,7 @@ public class RepositoryFileProxy extends RepositoryFile {
       return 0;
     }
     // either this or other has a null id; fall back on name
-    return getTitle().compareTo( other.getTitle() );
+    return getName().compareTo( other.getName() );
   }
 
   @Override
@@ -378,7 +385,7 @@ public class RepositoryFileProxy extends RepositoryFile {
         @Override
         public void execute( Session session ) {
           try {
-            lockDate = lockHelper.getLockDate( session, getPentahoJcrConstants(), getLock() );
+            lockDate = getLockHelper().getLockDate( session, getPentahoJcrConstants(), getLock() );
           } catch ( RepositoryException e ) {
             e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
           }
@@ -395,7 +402,7 @@ public class RepositoryFileProxy extends RepositoryFile {
         @Override
         public void execute( Session session ) {
           try {
-            lockMessage = lockHelper.getLockMessage( session, getPentahoJcrConstants(), getLock() );
+            lockMessage = getLockHelper().getLockMessage( session, getPentahoJcrConstants(), getLock() );
           } catch ( RepositoryException e ) {
             e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
           }
@@ -412,7 +419,7 @@ public class RepositoryFileProxy extends RepositoryFile {
         @Override
         public void execute( Session session ) {
           try {
-            lockOwner = lockHelper.getLockOwner( session, getPentahoJcrConstants(), getLock() );
+            lockOwner = getLockHelper().getLockOwner( session, getPentahoJcrConstants(), getLock() );
           } catch ( RepositoryException e ) {
             e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
           }
