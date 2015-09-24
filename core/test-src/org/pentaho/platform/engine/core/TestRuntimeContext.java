@@ -400,4 +400,10 @@ public class TestRuntimeContext extends PentahoBase implements IRuntimeContext {
     return null;
   }
 
+  @Override
+  public List<IContentItem> getOutputContentItems() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }
