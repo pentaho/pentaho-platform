@@ -31,10 +31,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
+import org.pentaho.platform.api.action.IPostProcessingAction;
 import org.pentaho.platform.api.action.IStreamingAction;
 import org.pentaho.platform.api.action.IVarArgsAction;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.ISourcesStreamEvents;
 import org.pentaho.platform.api.repository2.unified.IStreamListener;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -252,8 +254,24 @@ public class ActionAdapterQuartzJob implements Job {
           }
           sendEmail( actionParams, params, outputFilePath );
         }
-        
+        if ( actionBean instanceof IPostProcessingAction ) {
+          markContentAsGenerated( (IPostProcessingAction) actionBean );
+        }
         return updateJob;
+      }
+
+      private void markContentAsGenerated( IPostProcessingAction actionBean ) {
+        IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
+        String lineageId = (String) params.get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+        for ( IContentItem contentItem : actionBean.getActionOutputContents() ) {
+          RepositoryFile sourceFile = repo.getFile( contentItem.getPath() );
+           // add metadata iof we have access and we have file
+          if ( sourceFile != null ) {
+            Map<String, Serializable> metadata = repo.getFileMetadata( sourceFile.getId() );
+            metadata.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId );
+            repo.setFileMetadata( sourceFile.getId(), metadata );
+          }
+        }
       }
     };
 
@@ -274,7 +292,7 @@ public class ActionAdapterQuartzJob implements Job {
           SecurityHelper.getInstance().runAsUser( actionUser, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-              if(streamProvider != null) {
+              if ( streamProvider != null ) {
                 streamProvider.setStreamingAction( null ); // remove generated content  
               }
               QuartzJobKey jobKey = QuartzJobKey.parse( context.getJobDetail().getName() );
@@ -341,7 +359,7 @@ public class ActionAdapterQuartzJob implements Job {
       // send email
       SimpleRepositoryFileData data =
           repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );      
-      
+            
       // if email is setup and we have tos, then do it
       Emailer emailer = new Emailer();
       if ( !emailer.setup() ) {
