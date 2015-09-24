@@ -197,6 +197,11 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
 
   private IPluginManager pluginManager;
 
+  /**
+   * All component should add generated item's path for used it from caller
+   */
+  private List<IContentItem> generatedContentItems;
+
   static {
     RuntimeContext.getComponentClassMap();
   }
@@ -261,6 +266,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       pluginManager = PentahoSystem.get( IPluginManager.class, session );
     }
 
+    generatedContentItems = new ArrayList<IContentItem>();
   }
 
   private IRuntimeElement createChild( boolean persisted ) {
@@ -427,6 +433,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
         outputHandler.setSession( session );
         IContentItem tmpContentItem =
             outputHandler.getOutputContentItem( objectName, contentName, instanceId, mimeType );
+        addOutputContentItem( tmpContentItem );
         if ( contentItem instanceof MultiContentItem ) {
           ( (MultiContentItem) contentItem ).addContentItem( tmpContentItem );
         } else {
@@ -2028,5 +2035,14 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
 
   public void setCreateFeedbackParameterCallback( ICreateFeedbackParameterCallback callback ) {
     createFeedbackParameterCallback = callback;
+  }
+
+  @Override
+  public List<IContentItem> getOutputContentItems() {
+    return generatedContentItems;
+  }
+
+  private void addOutputContentItem( IContentItem contentItem ) {
+    generatedContentItems.add( contentItem );
   }
 }
