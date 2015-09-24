@@ -49,7 +49,7 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
 
   private final RepositoryFile file;
 
-  private final List<RepositoryFileTree> children;
+  private List<RepositoryFileTree> children;
   
   private Boolean versioningEnabled;  //Is versioning enabled for this object
   private Boolean versionCommentEnabled; //Are comments for versions enabled for this object
@@ -89,7 +89,11 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
    * @return
    */
   public List<RepositoryFileTree> getChildren() {
-    return children != null ? Collections.unmodifiableList( children ) : null;
+    return children;
+  }
+
+  public void setChildren( List<RepositoryFileTree> children ){
+    this.children = children == null ? null : new ArrayList<RepositoryFileTree>( children );
   }
 
   /**
