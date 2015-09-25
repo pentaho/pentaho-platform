@@ -1,5 +1,6 @@
 package org.pentaho.platform.web.http.api.resources;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -45,7 +46,7 @@ public class SchedulerOutputPathResolverTest {
     String outputFilePath = schedulerOutputPathResolver.resolveOutputFilePath();
 
     assertEquals( "/home/admin/output/test.*", outputFilePath );
-    verify( repo ).getFile( "/home/admin/output" );
+    verify( repo ).getFile( outputFolder );
 
   }
 
@@ -110,5 +111,10 @@ public class SchedulerOutputPathResolverTest {
     String outputFilePath = schedulerOutputPathResolver.resolveOutputFilePath();
 
     assertEquals( "/home/admin/test.*", outputFilePath );
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    PentahoSystem.clearObjectFactory();
   }
 }
