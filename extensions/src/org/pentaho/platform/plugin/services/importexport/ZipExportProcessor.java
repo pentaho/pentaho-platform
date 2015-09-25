@@ -56,6 +56,7 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -150,7 +151,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
       // don't zip root folder without name
       if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
-        zos.putNextEntry( new ZipEntry( ExportFileNameEncoder.encodeZipPathName( getZipEntryName( exportRepositoryFile, filePath ) ) ) );
+        zos.putNextEntry( new ZipEntry( getFixedZipEntryName( exportRepositoryFile, filePath ) ) );
       }
       exportDirectory( exportRepositoryFile, zos, filePath );
 
@@ -203,10 +204,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
       // if we don't get a valid input stream back, skip it
       if ( is != null ) {
         addToManifest( repositoryFile );
-        String zipEntryName = getZipEntryName( repositoryFile, filePath );
-        if ( this.withManifest ) {
-          zipEntryName = ExportFileNameEncoder.encodeZipPathName( zipEntryName );
-        }
+        String zipEntryName = getFixedZipEntryName( repositoryFile, filePath );
         ZipEntry entry = new ZipEntry( zipEntryName );
         zos.putNextEntry( entry );
         IOUtils.copy( is, outputStream );
@@ -251,10 +249,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
         if ( repositoryFile.isFolder() ) {
           if ( outputStream.getClass().isAssignableFrom( ZipOutputStream.class ) ) {
             ZipOutputStream zos = (ZipOutputStream) outputStream;
-            String zipEntryName = getZipEntryName( repositoryFile, filePath );
-            if ( this.withManifest ) {
-              zipEntryName = ExportFileNameEncoder.encodeZipPathName( zipEntryName );
-            }
+            String zipEntryName = getFixedZipEntryName( repositoryFile, filePath );
             ZipEntry entry = new ZipEntry( zipEntryName );
             zos.putNextEntry( entry );
           }
@@ -274,7 +269,15 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param filePath
    * @return
    */
-  private String getZipEntryName( RepositoryFile repositoryFile, String filePath ) {
+  protected String getFixedZipEntryName( RepositoryFile repositoryFile, String filePath ) {
+    String result = getZipEntryName( repositoryFile, filePath );
+    if ( this.withManifest ) {
+      result = ExportFileNameEncoder.encodeZipPathName( result );
+    }
+    return result;
+  }
+
+  protected String getZipEntryName( RepositoryFile repositoryFile, String filePath ) {
     String result = "";
 
     // if we are at the root, get substring differently
@@ -292,8 +295,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
     if ( repositoryFile.isFolder() ) {
       result += "/";
     }
-
-    return result;
+    return FilenameUtils.normalize( result, true );
   }
 
   /**
@@ -307,7 +309,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   private void createLocales( RepositoryFile repositoryFile, String filePath, boolean isFolder,
                               OutputStream outputStrean ) throws IOException {
     ZipEntry entry;
-    String zipName;
+    String zipEntryName;
     String name;
     String localeName;
     Properties properties;
@@ -315,12 +317,12 @@ public class ZipExportProcessor extends BaseExportProcessor {
     // only process files and folders that we know will have locale settings
     if ( supportedLocaleFileExt( repositoryFile ) ) {
       List<LocaleMapDto> locales = getAvailableLocales( repositoryFile.getId() );
-      zipName = ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) );
+      zipEntryName = getFixedZipEntryName( repositoryFile, filePath );
       name = repositoryFile.getName();
       for ( LocaleMapDto locale : locales ) {
         localeName = locale.getLocale().equalsIgnoreCase( "default" ) ? "" : "_" + locale.getLocale();
         if ( isFolder ) {
-          zipName = ExportFileNameEncoder.encodeZipPathName( getZipEntryName( repositoryFile, filePath ) + "index" );
+          zipEntryName = getFixedZipEntryName( repositoryFile, filePath ) + "index";
           name = "index";
         }
 
@@ -329,7 +331,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
           properties.remove( "jcr:primaryType" ); // Pentaho Type
           InputStream is = createLocaleFile( name + localeName, properties, locale.getLocale() );
           if ( is != null ) {
-            entry = new ZipEntry( zipName + localeName + LOCALE_EXT );
+            entry = new ZipEntry( zipEntryName + localeName + LOCALE_EXT );
             zos.putNextEntry( entry );
             IOUtils.copy( is, outputStrean );
             zos.closeEntry();
