@@ -30,6 +30,7 @@ import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A custom implementation of {@link URLClassLoader} for Pentaho Platform Plugins. It is used to load plugin jars and
@@ -142,56 +143,59 @@ public class PluginClassLoader extends URLClassLoader {
 
   @Override
   public Class<?> loadClass( String name, boolean resolve ) throws ClassNotFoundException {
-    if ( log.isDebugEnabled() ) {
-      log.debug( "loadClass(" + name + ")... " ); //$NON-NLS-1$ //$NON-NLS-2$
-    }
+    synchronized ( this ) {
+      if ( log.isDebugEnabled() ) {
+        log.debug( "loadClass(" + name + ")... " ); //$NON-NLS-1$ //$NON-NLS-2$
+      }
 
-    Class<?> t = null;
-    /*
-     * Here we check the cache to see if the class has been loaded before by either this or the parent classloader. If
-     * it has, then there is no need to load the class again, just return it.
-     */
-    t = findLoadedClass( name );
-    if ( t != null ) {
+      Class<?> t = null;
+      /*
+       * Here we check the cache to see if the class has been loaded before by either this or the parent classloader. If
+       * it has, then there is no need to load the class again, just return it.
+       */
+      t = findLoadedClass( name );
+      if ( t != null ) {
+        if ( log.isDebugEnabled() ) {
+          log.debug( MessageFormat.format( "{0} loaded by {1}", name, t.getClassLoader() ) ); //$NON-NLS-1$
+        }
+        return t;
+      }
+
+      /*
+       * If we are overriding the parent classloader we will first try to load this class from this classloader object in
+       * isolation (no awareness of the parent classloader). If this classloader does not have the class, we will proceed
+       * to attempt to load the class from the parent.
+       */
+      if ( overrideLoad ) {
+        try {
+          t = findClass( name );
+          if ( t != null ) {
+            if ( log.isDebugEnabled() ) {
+              log.debug( MessageFormat.format( "{0} loaded by {1}", name, this ) ); //$NON-NLS-1$
+            }
+            if ( resolve ) {
+              resolveClass( t );
+            }
+            return t;
+          }
+        } catch ( ClassNotFoundException e ) {
+          if ( log.isTraceEnabled() ) {
+            log.trace( MessageFormat
+                .format( "class {0} not found in loader {1}. Trying parent loader", name, this ) ); //$NON-NLS-1$
+          }
+        }
+      }
+
+      /*
+       * At this point we have not found the class either in the cache or in this classloader, so we need to ask the
+       * parent.
+       */
+      t = super.loadClass( name, resolve );
       if ( log.isDebugEnabled() ) {
         log.debug( MessageFormat.format( "{0} loaded by {1}", name, t.getClassLoader() ) ); //$NON-NLS-1$
       }
       return t;
     }
-
-    /*
-     * If we are overriding the parent classloader we will first try to load this class from this classloader object in
-     * isolation (no awareness of the parent classloader). If this classloader does not have the class, we will proceed
-     * to attempt to load the class from the parent.
-     */
-    if ( overrideLoad ) {
-      try {
-        t = findClass( name );
-        if ( t != null ) {
-          if ( log.isDebugEnabled() ) {
-            log.debug( MessageFormat.format( "{0} loaded by {1}", name, this ) ); //$NON-NLS-1$
-          }
-          if ( resolve ) {
-            resolveClass( t );
-          }
-          return t;
-        }
-      } catch ( ClassNotFoundException e ) {
-        if ( log.isTraceEnabled() ) {
-          log.trace( MessageFormat.format( "class {0} not found in loader {1}. Trying parent loader", name, this ) ); //$NON-NLS-1$
-        }
-      }
-    }
-
-    /*
-     * At this point we have not found the class either in the cache or in this classloader, so we need to ask the
-     * parent.
-     */
-    t = super.loadClass( name, resolve );
-    if ( log.isDebugEnabled() ) {
-      log.debug( MessageFormat.format( "{0} loaded by {1}", name, t.getClassLoader() ) ); //$NON-NLS-1$
-    }
-    return t;
   }
 
   @Override
