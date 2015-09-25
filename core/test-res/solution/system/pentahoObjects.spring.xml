@@ -120,8 +120,24 @@ PentahoSystem which is initialized after Spring
     <property name="val"><pen:bean class="java.lang.Integer"/></property>
   </bean>
 
+
+  <bean id="SimpleIntegerHolder2" class="org.pentaho.platform.engine.core.SimpleObjectHolder">
+    <property name="val">
+      <pen:bean class="java.lang.Integer">
+        <pen:attributes>
+          <pen:attr key="id" value="someId"/>
+        </pen:attributes>
+      </pen:bean>
+    </property>
+  </bean>
+
   <bean id="Integer" class="java.lang.Integer">
     <constructor-arg value="123"/>
+  </bean>
+
+
+  <bean id="someId" class="java.lang.Integer">
+    <constructor-arg value="456"/>
   </bean>
 
 
