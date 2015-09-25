@@ -1223,28 +1223,31 @@ public class JcrRepositoryFileUtils {
     fileNode.accept( visitor );
     RepositoryFileTree tree = visitor.getTree();
 
-    if( !StringUtils.isEmpty( childNodeFilter) && !"*".equals( childNodeFilter ) ) {
-      // walk the tree and remove empty directories
-      pruneEmptyNodes( tree );
-    }
+    boolean removeEmptyDirectories = !StringUtils.isEmpty( childNodeFilter ) && !"*".equals( childNodeFilter );
+    // walk the tree and remove empty directories, sort children
+    tidyUpTree( tree, removeEmptyDirectories );
+
 
     return tree;
   }
 
-  private static void pruneEmptyNodes( RepositoryFileTree tree ){
+  private static void tidyUpTree( RepositoryFileTree tree, boolean removeEmptyDirectories ){
     if( tree.getChildren().isEmpty() ){
       tree.setChildren( null );
       return;
     }
-    Iterator<RepositoryFileTree> iterator = tree.getChildren().iterator();
-    while ( iterator.hasNext() ) {
-      RepositoryFileTree next = iterator.next();
-      pruneEmptyNodes( next );
-      // Old behavior honored here, children collection should be null if empty
-      if( next.getFile().isFolder() && ( next.getChildren() == null || next.getChildren().isEmpty() ) ){
-        next.setChildren( null );
+    if( removeEmptyDirectories ) {
+      Iterator<RepositoryFileTree> iterator = tree.getChildren().iterator();
+      while ( iterator.hasNext() ) {
+        RepositoryFileTree next = iterator.next();
+        tidyUpTree( next, removeEmptyDirectories );
+        // Old behavior honored here, children collection should be null if empty
+        if ( next.getFile().isFolder() && ( next.getChildren() == null || next.getChildren().isEmpty() ) ) {
+          next.setChildren( null );
+        }
       }
     }
+    Collections.sort( tree.getChildren() );
   }
 
   public static Node updateFileLocaleProperties( final Session session, final Serializable fileId, String locale,
