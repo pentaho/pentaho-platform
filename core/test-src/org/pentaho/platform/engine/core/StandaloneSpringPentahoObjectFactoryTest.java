@@ -235,6 +235,11 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
     SimpleObjectHolder stringHolder = PentahoSystem.get( SimpleObjectHolder.class, "SimpleStringHolder", session ); // fallback to simpleName
     assertNotNull( stringHolder );
     assertEquals( "testing_fallback_by_interface", stringHolder.getVal().toString() );
+
+    SimpleObjectHolder integerHolder2 = PentahoSystem.get( SimpleObjectHolder.class, "SimpleIntegerHolder2", session ); // checks ID
+    assertNotNull( integerHolder2 );
+    assertEquals( 456, (int) integerHolder2.getVal() );
+
   }
 
   public void testPriority() throws Exception {
