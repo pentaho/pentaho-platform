@@ -39,6 +39,7 @@ package org.pentaho.platform.plugin.services.importexport;
  * Time: 4:41 PM
  */
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -304,8 +305,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
     if ( repositoryFile.isFolder() ) {
       result += "/";
     }
-
-    return result;
+    return FilenameUtils.normalize( result, true );
   }
 
   /**
