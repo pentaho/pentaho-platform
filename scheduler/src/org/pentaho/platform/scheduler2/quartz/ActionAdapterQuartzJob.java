@@ -74,7 +74,7 @@ public class ActionAdapterQuartzJob implements Job {
 
   private String outputFilePath = null;
   private Object lock = new Object();
-  
+
   protected Class<?> resolveClass( JobDataMap jobDataMap ) throws PluginBeanException, JobExecutionException {
     String actionClass = jobDataMap.getString( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS );
     String actionId = jobDataMap.getString( QuartzScheduler.RESERVEDMAPKEY_ACTIONID );
@@ -207,7 +207,7 @@ public class ActionAdapterQuartzJob implements Job {
 
         boolean waitForFileCreated = false;
         OutputStream stream = null;
-        
+
         if ( streamProvider != null ) {
           actionParams.remove( "inputStream" );
           if ( actionBean instanceof IStreamingAction ) {
@@ -246,7 +246,7 @@ public class ActionAdapterQuartzJob implements Job {
 
         actionBean.execute();
 
-        if (stream != null) {
+        if ( stream != null ) {
           IOUtils.closeQuietly( stream );
         }
 
@@ -361,9 +361,7 @@ public class ActionAdapterQuartzJob implements Job {
       metadata.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId );
       repo.setFileMetadata( sourceFile.getId(), metadata );
       // send email
-      SimpleRepositoryFileData data =
-          repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );      
-            
+      SimpleRepositoryFileData data = repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
       // if email is setup and we have tos, then do it
       Emailer emailer = new Emailer();
       if ( !emailer.setup() ) {
@@ -432,7 +430,7 @@ public class ActionAdapterQuartzJob implements Job {
       emailer.send();
     } catch ( Exception e ) {
       log.warn( e.getMessage(), e );
-    }      
+    }
   }
 
   class LoggingJobExecutionException extends JobExecutionException {
