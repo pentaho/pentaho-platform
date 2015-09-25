@@ -172,11 +172,15 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
       for ( String fileName : domainFilesData.keySet() ) {
         // write the file to the zip
-        String path = METADATA_PATH_IN_ZIP + fileName;
-        if ( !path.endsWith( ".xmi" ) ) {
-          path += ".xmi";
+        String metadataFilePath = METADATA_PATH_IN_ZIP + fileName;
+        if ( !metadataFilePath.endsWith( ".xmi" ) ) {
+          metadataFilePath += ".xmi";
         }
-        ZipEntry zipEntry = new ZipEntry( new ZipEntry( ExportFileNameEncoder.encodeZipPathName( path ) ) );
+        String metadataZipEntryName = metadataFilePath;
+        if ( this.withManifest ) {
+          metadataZipEntryName = ExportFileNameEncoder.encodeZipPathName( metadataZipEntryName );
+        }
+        ZipEntry zipEntry = new ZipEntry( metadataZipEntryName );
         InputStream inputStream = domainFilesData.get( fileName );
 
         try {
@@ -186,7 +190,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
           // add the info to the exportManifest
           ExportManifestMetadata metadata = new ExportManifestMetadata();
           metadata.setDomainId( domainId );
-          metadata.setFile( path );
+          metadata.setFile( metadataFilePath );
           getExportManifest().addMetadata( metadata );
 
         } catch ( IOException e ) {
@@ -461,8 +465,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
       // don't zip root folder without name
       if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
-        zos.putNextEntry( new ZipEntry( ExportFileNameEncoder
-          .encodeZipPathName( getZipEntryName( exportRepositoryFile, filePath ) ) ) );
+        zos.putNextEntry( new ZipEntry( getFixedZipEntryName( exportRepositoryFile, filePath ) ) );
       }
       exportDirectory( exportRepositoryFile, zos, filePath );
 
