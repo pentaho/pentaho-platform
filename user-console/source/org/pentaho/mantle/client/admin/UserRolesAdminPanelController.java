@@ -48,7 +48,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     UpdatePasswordController {
   private String delimiter = "\t";
   private static UserRolesAdminPanelController instance = new UserRolesAdminPanelController();
-  private boolean usingLDAPOrJDBC;
+  private boolean usingPentahoSecurity;
 
   public static UserRolesAdminPanelController getInstance() {
     return instance;
@@ -424,18 +424,18 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          usingLDAPOrJDBC = ( response.getText().contains( "ldap" ) || response.getText().contains( "jdbc" ) );
-          usersLabelPanel.setVisible( !usingLDAPOrJDBC );
-          usersPanel.setVisible( !usingLDAPOrJDBC );
-          newRoleButton.setVisible( !usingLDAPOrJDBC );
-          deleteRoleButton.setVisible( !usingLDAPOrJDBC );
+          usingPentahoSecurity = response.getText().contains( "jackrabbit" );
+          usersLabelPanel.setVisible( usingPentahoSecurity );
+          usersPanel.setVisible( usingPentahoSecurity );
+          newRoleButton.setVisible( usingPentahoSecurity );
+          deleteRoleButton.setVisible( usingPentahoSecurity );
 
-          if ( usingLDAPOrJDBC ) {
-            mainTabPanel.getTab( 0 ).setVisible( false );
-            mainTabPanel.selectTab( 1 );
-          } else {
+          if ( usingPentahoSecurity ) {
             mainTabPanel.getTab( 0 ).setVisible( true );
             mainTabPanel.selectTab( 0 );
+          } else {
+            mainTabPanel.getTab( 0 ).setVisible( false );
+            mainTabPanel.selectTab( 1 );
           }
         }
       } );
@@ -523,7 +523,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   }
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
-    if ( !usingLDAPOrJDBC ) {
+    if (usingPentahoSecurity ) {
       mainTabPanel.selectTab( 0 );
     } else {
       mainTabPanel.selectTab( 1 );
