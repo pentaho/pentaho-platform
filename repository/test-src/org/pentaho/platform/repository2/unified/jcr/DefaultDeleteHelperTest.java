@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import org.apache.jackrabbit.spi.commons.name.NameConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +45,7 @@ import javax.jcr.ValueFactory;
 import javax.jcr.Workspace;
 import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockManager;
+import javax.jcr.nodetype.NodeType;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -86,6 +88,8 @@ public class DefaultDeleteHelperTest {
     final Node rootNode = mock( Node.class );
     when( session.getRootNode() ).thenReturn( rootNode );
 
+    when( session.getNamespacePrefix( anyString() ) ).thenReturn( "prefix:" );
+
     pentahoJcrConstants = new PentahoJcrConstants( session );
     pathConversionHelper = mock( IPathConversionHelper.class );
     lockHelper = mock( ILockHelper.class );
@@ -95,7 +99,7 @@ public class DefaultDeleteHelperTest {
     final RepositoryFileProxy repositoryFileProxy = mock( RepositoryFileProxy.class );
     final RepositoryFileProxyFactory repositoryFileProxyFactory = mock( RepositoryFileProxyFactory.class );
     when( repositoryFileProxyFactory.getProxy( Matchers.<Node>anyObject(), Matchers.<IPentahoLocale>anyObject() ) )
-      .thenReturn( repositoryFileProxy );
+        .thenReturn( repositoryFileProxy );
     // set file ID to random value to make different files not equal
     when( repositoryFileProxy.getId() ).thenAnswer( new Answer<Object>() {
       @Override
@@ -216,7 +220,8 @@ public class DefaultDeleteHelperTest {
     when( deletedNode.hasProperty( pentahoJcrConstants.getPHO_DELETEDDATE() ) ).thenReturn( true );
     when( deletedNode.getProperty( pentahoJcrConstants.getPHO_DELETEDDATE() ) ).thenReturn( deletedDate );
     when( deletedNode.hasProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ).thenReturn( true );
-    when( deletedNode.getProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ).thenReturn( origParentFolderPathProperty );
+    when( deletedNode.getProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) )
+        .thenReturn( origParentFolderPathProperty );
 
     when( deletedNodeContent.getParent() ).thenReturn( deletedNode );
 
@@ -255,7 +260,8 @@ public class DefaultDeleteHelperTest {
     final QueryObjectModel queryObjectModel = mock( QueryObjectModel.class );
 
     final QueryObjectModelFactory qomFactory = mock( QueryObjectModelFactory.class );
-    when( qomFactory.createQuery( Matchers.<Source>any(), Matchers.<Constraint>any(), Matchers.<Ordering[]>any(), Matchers.<Column[]>any() ) ).thenReturn( queryObjectModel );
+    when( qomFactory.createQuery( Matchers.<Source>any(), Matchers.<Constraint>any(), Matchers.<Ordering[]>any(),
+        Matchers.<Column[]>any() ) ).thenReturn( queryObjectModel );
     when( qomFactory.selector( anyString(), anyString() ) ).thenReturn( selector );
 
     final QueryResult queryResult = mock( QueryResult.class );
@@ -278,7 +284,8 @@ public class DefaultDeleteHelperTest {
 
     try {
       final String someFilter = "someFilter";
-      final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getDeletedFiles( session, pentahoJcrConstants, path1, someFilter );
+      final List<RepositoryFile> deletedFiles =
+          defaultDeleteHelper.getDeletedFiles( session, pentahoJcrConstants, path1, someFilter );
       assertNotNull( deletedFiles );
       assertEquals( deletedFiles.size(), 2 );
       for ( RepositoryFile file : deletedFiles ) {
@@ -326,7 +333,10 @@ public class DefaultDeleteHelperTest {
 
     when( session.getNodeByIdentifier( fileID ) ).thenReturn( nodeToRemove );
     when( session.getItem( anyString() ) ).thenReturn( nodeUserFolder );
-
+    Workspace workspace = mock( Workspace.class );
+    VersionManager versionManager = mock( VersionManager.class );
+    when( workspace.getVersionManager() ).thenReturn( versionManager );
+    when( session.getWorkspace() ).thenReturn( workspace );
     try {
       defaultDeleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, fileID );
 
@@ -344,7 +354,6 @@ public class DefaultDeleteHelperTest {
     final LockManager lockManager = mock( LockManager.class );
     when( lockManager.getLock( eq( nodeToRemove.getPath() ) ) ).thenReturn( lock );
 
-    final Workspace workspace = mock( Workspace.class );
     when( workspace.getLockManager() ).thenReturn( lockManager );
 
     when( session.getWorkspace() ).thenReturn( workspace );
@@ -360,12 +369,12 @@ public class DefaultDeleteHelperTest {
 
     // if remove from trash folder, folder containing the file need to be removed
     final String trashPath = ServerRepositoryPaths.getUserHomeFolderPath( new Tenant( null, true ),
-      PentahoSessionHolder.getSession().getName() ) + RepositoryFile.SEPARATOR + ".trash";
+        PentahoSessionHolder.getSession().getName() ) + RepositoryFile.SEPARATOR + ".trash";
     when( nodeToRemove.getPath() ).thenReturn( trashPath );
     try {
       defaultDeleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, fileID );
 
-      verify( nodeToRemove, times( 2 ) ).remove();
+      verify( nodeToRemove, times( 3 ) ).remove();
       verify( nodeDeletedParent ).remove();
     } catch ( Exception e ) {
       e.printStackTrace();
@@ -403,7 +412,8 @@ public class DefaultDeleteHelperTest {
     final Node nodeDeletedParent = mock( Node.class );
     when( nodeDeletedParent.getPath() ).thenReturn( "parentPath" );
     when( nodeDeletedParent.hasProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ).thenReturn( true );
-    when( nodeDeletedParent.getProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ).thenReturn( origParentFolderPathProperty );
+    when( nodeDeletedParent.getProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) )
+        .thenReturn( origParentFolderPathProperty );
 
     final Node nodeToRemove = mock( Node.class );
     when( nodeToRemove.getPath() ).thenReturn( "nodePath" );
@@ -445,7 +455,8 @@ public class DefaultDeleteHelperTest {
     when( origParentFolderPathProperty.getString() ).thenReturn( origParentFolderPath );
 
     final Node parentNode = mock( Node.class );
-    when( parentNode.getProperty( eq( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ) ).thenReturn( origParentFolderPathProperty );
+    when( parentNode.getProperty( eq( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ) )
+        .thenReturn( origParentFolderPathProperty );
     when( parentNode.hasProperty( eq( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ) ).thenReturn( true );
 
     final Node node = mock( Node.class );
@@ -454,7 +465,8 @@ public class DefaultDeleteHelperTest {
 
     when( pathConversionHelper.relToAbs( eq( origParentFolderPath ) ) ).thenReturn( relToAbs_origParentFolderPath );
     try {
-      final String originalParentFolderPath = defaultDeleteHelper.getOriginalParentFolderPath( session, pentahoJcrConstants, fileID );
+      final String originalParentFolderPath =
+          defaultDeleteHelper.getOriginalParentFolderPath( session, pentahoJcrConstants, fileID );
 
       assertEquals( relToAbs_origParentFolderPath, originalParentFolderPath );
     } catch ( Exception e ) {
@@ -469,33 +481,43 @@ public class DefaultDeleteHelperTest {
 
     final Node nodeToRemove = mock( Node.class );
     when( nodeToRemove.getPath() ).thenReturn( "nodePath" );
-
+    when( nodeToRemove.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ).thenReturn( true );
+    NodeType nt = mock( NodeType.class );
+    when( nt.getName() ).thenReturn( NameConstants.MIX_VERSIONABLE.getLocalName() );
+    when( nodeToRemove.getPrimaryNodeType() ).thenReturn( nt );
+    when( nodeToRemove.getMixinNodeTypes() ).thenReturn( new NodeType[] {} );
+    when( nodeToRemove.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ).thenReturn( true );
+    Property prop1 = mock( Property.class );
+    String pho_nt_pentahofile = pentahoJcrConstants.getPHO_NT_PENTAHOFILE();
+    when( prop1.toString() ).thenReturn( pho_nt_pentahofile );
+    when( prop1.getString() ).thenReturn( pho_nt_pentahofile );
+    when( nodeToRemove.getProperty( pentahoJcrConstants.getJCR_FROZENPRIMARYTYPE() ) ).thenReturn( prop1 );
     final PropertyIterator referencesPropertyIterator = mock( PropertyIterator.class );
     when( referencesPropertyIterator.hasNext() ).thenReturn( false );
-
     when( nodeToRemove.getReferences() ).thenReturn( referencesPropertyIterator );
-
     when( session.getNodeByIdentifier( fileID ) ).thenReturn( nodeToRemove );
 
+    when( session.getNamespacePrefix( anyString() ) ).thenReturn( "prefix:" );
+
     Workspace workspace = mock( Workspace.class );
-    when( session.getWorkspace()).thenReturn( workspace );
+    when( session.getWorkspace() ).thenReturn( workspace );
     VersionManager versionManager = mock( VersionManager.class );
     when( workspace.getVersionManager() ).thenReturn( versionManager );
 
     VersionHistory history = mock( VersionHistory.class );
-    when( versionManager.getVersionHistory( "nodePath" )).thenReturn( history );
+    when( versionManager.getVersionHistory( "nodePath" ) ).thenReturn( history );
 
     VersionIterator versions = mock( VersionIterator.class );
-    when( history.getAllVersions()).thenReturn( versions );
+    when( history.getAllVersions() ).thenReturn( versions );
     when( versions.hasNext() ).thenReturn( true, false );
     Version version = mock( Version.class );
     when( versions.next() ).thenReturn( version );
-    String value = "I am legend";
-    when( version.getName()).thenReturn( value );
+    String value = "Omega Man";
+    when( version.getName() ).thenReturn( value );
     try {
       defaultDeleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, fileID );
 
-      verify( versionManager).getVersionHistory( nodeToRemove.getPath() );
+      verify( versionManager ).getVersionHistory( nodeToRemove.getPath() );
       verify( nodeToRemove ).remove();
       verify( history ).removeVersion( value );
     } catch ( Exception e ) {
@@ -503,5 +525,76 @@ public class DefaultDeleteHelperTest {
       fail();
     }
 
+  }
+
+  @Test
+  public void testVersionHistoryDeletedWithParent() throws Exception {
+
+    String fileID = "testFileID";
+
+    final Node nodeToRemove = mock( Node.class );
+    when( nodeToRemove.getPath() ).thenReturn( "nodePath" );
+    when( nodeToRemove.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ).thenReturn( true );
+    NodeType nt = mock( NodeType.class );
+    when( nt.getName() ).thenReturn( NameConstants.MIX_VERSIONABLE.getLocalName() );
+    when( nodeToRemove.getPrimaryNodeType() ).thenReturn( nt );
+    when( nodeToRemove.getMixinNodeTypes() ).thenReturn( new NodeType[] {} );
+    when( nodeToRemove.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ).thenReturn( true );
+    Property prop1 = mock( Property.class );
+    String pho_nt_pentahofile = pentahoJcrConstants.getPHO_NT_PENTAHOFILE();
+    when( prop1.toString() ).thenReturn( pho_nt_pentahofile );
+    when( prop1.getString() ).thenReturn( pho_nt_pentahofile );
+    when( nodeToRemove.getProperty( pentahoJcrConstants.getJCR_FROZENPRIMARYTYPE() ) ).thenReturn( prop1 );
+    final PropertyIterator referencesPropertyIterator = mock( PropertyIterator.class );
+    when( referencesPropertyIterator.hasNext() ).thenReturn( false );
+    when( nodeToRemove.getReferences() ).thenReturn( referencesPropertyIterator );
+    when( session.getNodeByIdentifier( fileID ) ).thenReturn( nodeToRemove );
+
+    when( session.getNamespacePrefix( anyString() ) ).thenReturn( "prefix:" );
+
+    Workspace workspace = mock( Workspace.class );
+    when( session.getWorkspace() ).thenReturn( workspace );
+    VersionManager versionManager = mock( VersionManager.class );
+    when( workspace.getVersionManager() ).thenReturn( versionManager );
+
+    VersionHistory history = mock( VersionHistory.class );
+    when( versionManager.getVersionHistory( "nodePath" ) ).thenReturn( history );
+
+    VersionIterator versions = mock( VersionIterator.class );
+    when( history.getAllVersions() ).thenReturn( versions );
+    when( versions.hasNext() ).thenReturn( true, false );
+    Version version = mock( Version.class );
+    when( versions.next() ).thenReturn( version );
+    String value = "Omega Man";
+    when( version.getName() ).thenReturn( value );
+
+    String parentID = "parent";
+    final Node parent = mock( Node.class );
+    when( session.getNodeByIdentifier( parentID ) ).thenReturn( parent );
+    when( parent.getPath() ).thenReturn( "parentNodePath" );
+    when( parent.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ).thenReturn( true );
+
+    Property prop = mock( Property.class );
+    String pho_nt_pentahofolder = pentahoJcrConstants.getPHO_NT_PENTAHOFOLDER();
+    when( prop.toString() ).thenReturn( pho_nt_pentahofolder );
+    when( prop.getString() ).thenReturn( pho_nt_pentahofolder );
+    when( parent.getProperty( pentahoJcrConstants.getJCR_FROZENPRIMARYTYPE() ) ).thenReturn( prop );
+    when( parent.getReferences() ).thenReturn( referencesPropertyIterator );
+
+    NodeIterator nodeIterator = mock( NodeIterator.class );
+    when( nodeIterator.hasNext() ).thenReturn( true, false );
+    when( nodeIterator.next() ).thenReturn( nodeToRemove );
+    when( parent.getNodes() ).thenReturn( nodeIterator );
+
+    try {
+      defaultDeleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, parentID );
+
+      verify( versionManager ).getVersionHistory( nodeToRemove.getPath() );
+      verify( parent ).remove();
+      verify( history ).removeVersion( value );
+    } catch ( Exception e ) {
+      e.printStackTrace();
+      fail();
+    }
   }
 }
