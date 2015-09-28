@@ -42,6 +42,10 @@ import javax.jcr.query.qom.Constraint;
 import javax.jcr.query.qom.QueryObjectModelConstants;
 import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.query.qom.Selector;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
+import javax.jcr.version.VersionManager;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -105,6 +109,7 @@ import java.util.Set;
  * @author mlowery
  */
 public class DefaultDeleteHelper implements IDeleteHelper {
+  public static final String JCR_ROOT_VERSION = "jcr:rootVersion";
 
   // ~ Static fields/initializers
   // ======================================================================================
@@ -415,8 +420,25 @@ public class DefaultDeleteHelper implements IDeleteHelper {
         ServerRepositoryPaths.getUserHomeFolderPath( new Tenant( tenantId, true ), PentahoSessionHolder.getSession()
             .getName() )
             + RepositoryFile.SEPARATOR + FOLDER_NAME_TRASH;
+    Node parent = fileNode.getParent();
+
+    // Delete all previous versions of this node
+    VersionManager versionManager = session.getWorkspace().getVersionManager();
+    VersionHistory versionHistory = versionManager.getVersionHistory( fileNode.getPath() );
+    VersionIterator allVersions = versionHistory.getAllVersions();
+    while ( allVersions.hasNext() ) {
+      Version next =  (Version) allVersions.next();
+      String name = next.getName();
+      // Root version cannot be deleted, the remove below will take care of that.
+      if( !JCR_ROOT_VERSION.equals( name )) {
+        versionHistory.removeVersion( name );
+      }
+    }
+
     if ( fileNode.getPath().startsWith( trashFolder ) ) {
-      fileNode.getParent().remove();
+      // Remove the file and then the wrapper foler
+      fileNode.remove();
+      parent.remove();
     } else {
       fileNode.remove();
     }

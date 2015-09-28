@@ -54,6 +54,10 @@ import javax.jcr.query.qom.QueryObjectModel;
 import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.query.qom.Selector;
 import javax.jcr.query.qom.Source;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
+import javax.jcr.version.VersionManager;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
@@ -457,5 +461,47 @@ public class DefaultDeleteHelperTest {
       e.printStackTrace();
       fail();
     }
+  }
+
+  @Test
+  public void testVersionHistoryDeleted() throws Exception {
+    String fileID = "testFileID";
+
+    final Node nodeToRemove = mock( Node.class );
+    when( nodeToRemove.getPath() ).thenReturn( "nodePath" );
+
+    final PropertyIterator referencesPropertyIterator = mock( PropertyIterator.class );
+    when( referencesPropertyIterator.hasNext() ).thenReturn( false );
+
+    when( nodeToRemove.getReferences() ).thenReturn( referencesPropertyIterator );
+
+    when( session.getNodeByIdentifier( fileID ) ).thenReturn( nodeToRemove );
+
+    Workspace workspace = mock( Workspace.class );
+    when( session.getWorkspace()).thenReturn( workspace );
+    VersionManager versionManager = mock( VersionManager.class );
+    when( workspace.getVersionManager() ).thenReturn( versionManager );
+
+    VersionHistory history = mock( VersionHistory.class );
+    when( versionManager.getVersionHistory( "nodePath" )).thenReturn( history );
+
+    VersionIterator versions = mock( VersionIterator.class );
+    when( history.getAllVersions()).thenReturn( versions );
+    when( versions.hasNext() ).thenReturn( true, false );
+    Version version = mock( Version.class );
+    when( versions.next() ).thenReturn( version );
+    String value = "I am legend";
+    when( version.getName()).thenReturn( value );
+    try {
+      defaultDeleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, fileID );
+
+      verify( versionManager).getVersionHistory( nodeToRemove.getPath() );
+      verify( nodeToRemove ).remove();
+      verify( history ).removeVersion( value );
+    } catch ( Exception e ) {
+      e.printStackTrace();
+      fail();
+    }
+
   }
 }
