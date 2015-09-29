@@ -459,6 +459,14 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public IContentItem getFeedbackContentItem();
 
   /**
+   * Interfaces to the current context to get the content items which was generated
+   * 
+   * @return The content item for output
+   * @see IContentItem
+   */
+  public List<IContentItem> getOutputContentItems();
+
+  /**
    * Interfaces to the current output handler to get the content item that describes the output from this request's
    * component execution.
    * 
