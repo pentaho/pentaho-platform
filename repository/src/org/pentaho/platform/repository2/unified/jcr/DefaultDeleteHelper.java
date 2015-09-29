@@ -449,7 +449,8 @@ public class DefaultDeleteHelper implements IDeleteHelper {
         Node next = (Node) nodes.next();
         purgeHistory( next, session, pentahoJcrConstants );
       }
-    } else if ( JcrRepositoryFileUtils.isPentahoFile( pentahoJcrConstants, fileNode ) ) {
+    } else if ( JcrRepositoryFileUtils.isPentahoFile( pentahoJcrConstants, fileNode ) &&
+        fileNode.isNodeType( pentahoJcrConstants.getPHO_MIX_VERSIONABLE() )) {
       VersionHistory versionHistory = versionManager.getVersionHistory( fileNode.getPath() );
 
       VersionIterator allVersions = versionHistory.getAllVersions();
