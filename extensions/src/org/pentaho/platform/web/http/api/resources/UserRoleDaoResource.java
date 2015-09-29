@@ -184,7 +184,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Allows a user or any user that knows a users name and current password to change that users password. The information is encapsulated in a ChangeUserPassword object that contains the fields: userName, newPassword, oldPassword.
+   * Allows a user to change their password. The information is encapsulated in a ChangeUserPassword object that contains these fields: userName, newPassword, oldPassword.
    *
    * <p>
    * <b>Example Request:</b><br />
