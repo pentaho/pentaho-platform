@@ -482,11 +482,11 @@ public class DefaultDeleteHelperTest {
     final Node nodeToRemove = mock( Node.class );
     when( nodeToRemove.getPath() ).thenReturn( "nodePath" );
     when( nodeToRemove.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ).thenReturn( true );
+    when( nodeToRemove.isNodeType( pentahoJcrConstants.getPHO_MIX_VERSIONABLE() ) ).thenReturn( true );
     NodeType nt = mock( NodeType.class );
     when( nt.getName() ).thenReturn( NameConstants.MIX_VERSIONABLE.getLocalName() );
     when( nodeToRemove.getPrimaryNodeType() ).thenReturn( nt );
     when( nodeToRemove.getMixinNodeTypes() ).thenReturn( new NodeType[] {} );
-    when( nodeToRemove.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ).thenReturn( true );
     Property prop1 = mock( Property.class );
     String pho_nt_pentahofile = pentahoJcrConstants.getPHO_NT_PENTAHOFILE();
     when( prop1.toString() ).thenReturn( pho_nt_pentahofile );
@@ -540,6 +540,7 @@ public class DefaultDeleteHelperTest {
     when( nodeToRemove.getPrimaryNodeType() ).thenReturn( nt );
     when( nodeToRemove.getMixinNodeTypes() ).thenReturn( new NodeType[] {} );
     when( nodeToRemove.isNodeType( pentahoJcrConstants.getNT_FROZENNODE() ) ).thenReturn( true );
+    when( nodeToRemove.isNodeType( pentahoJcrConstants.getPHO_MIX_VERSIONABLE() ) ).thenReturn( true );
     Property prop1 = mock( Property.class );
     String pho_nt_pentahofile = pentahoJcrConstants.getPHO_NT_PENTAHOFILE();
     when( prop1.toString() ).thenReturn( pho_nt_pentahofile );
