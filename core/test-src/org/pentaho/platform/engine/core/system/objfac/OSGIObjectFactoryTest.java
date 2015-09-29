@@ -17,6 +17,22 @@
 
 package org.pentaho.platform.engine.core.system.objfac;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,16 +46,6 @@ import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static junit.framework.Assert.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Unit test for {@link OSGIObjectFactory}.
@@ -130,7 +136,12 @@ public class OSGIObjectFactoryTest {
 
     when( mockContext.getServiceReference( String.class ) ).thenReturn( ref );
     when( mockContext.getServiceReference( String.class.getName() ) ).thenReturn( ref2 );
-
+    IPentahoObjectReference mockIPentahoObjectReference = Mockito.mock( IPentahoObjectReference.class );
+    when( mockIPentahoObjectReference.getObject() ).thenReturn( ref );
+    
+    List<ServiceReference<String>> mockServiceList = new ArrayList<ServiceReference<String>>();
+    mockServiceList.add( ref2 );
+    when( mockContext.getServiceReferences( String.class, null ) ).thenReturn( mockServiceList );
 
     assertEquals( true, factory.objectDefined( String.class ) );
     assertEquals( false, factory.objectDefined( Integer.class ) );
@@ -150,7 +161,7 @@ public class OSGIObjectFactoryTest {
     } catch ( IllegalStateException e ) {
     }
 
-    verify( mockContext ).getServiceReference( String.class );
+    verify( mockContext ).getServiceReferences( String.class, null );
   }
 
   @Test
