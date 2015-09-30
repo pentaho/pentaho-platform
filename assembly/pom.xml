@@ -9,7 +9,7 @@
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>biserver-manual-ce</artifactId>
-  <version>5.4.0.4-149</version>
+  <version>5.4.0.4-C206</version>
   <packaging>pom</packaging>
   <profiles>
     <profile>
