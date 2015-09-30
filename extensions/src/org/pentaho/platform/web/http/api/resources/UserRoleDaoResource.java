@@ -102,7 +102,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Creates new user with the specified user name and password, this request is encapsulated inside a user object that has userName and password values.
+   * Creates a new user with the specified name and password. This request is encapsulated inside a user object that has userName and password values.
    * The user is created without any assigned roles, roles must be assigned separately. This endpoint is only accessible to an administrative user.
    *
    * <p>
@@ -110,7 +110,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * PUT pentaho/api/userroledao/createUser
    * <pre function="syntax.xml">
    * <user>
-   *   <userName>Joe</userName>
+   *   <userName>Luke</userName>
    *   <password>password</password>
    * </user>
    * </pre>
@@ -152,7 +152,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Delete user(s) from the platform using a query parameter that takes a list of tab separated user names.
+   * Delete user(s) from the platform using a query parameter that takes a list of tab separated user names. This endpoint is only available to users with administrative privledges.
    *
    *<p><b>Example Request:</b><br />
    *  PUT pentaho/api/userroledao/deleteUsers?userNames=user1%09user2%09
@@ -191,7 +191,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * PUT pentaho/api/userroledao/user
    * <pre function="syntax.xml">
    * <ChangePasswordUser>
-   *   <userName>Joe</userName>
+   *   <userName>Luke</userName>
    *   <newPassword>newPassword</newPassword>
    *   <oldPassword>oldPassword</oldPassword>
    * </ChangePasswordUser>
@@ -202,7 +202,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *                           A ChangePasswordUser object can be constructed as follows:
    * <<pre function="syntax.xml">>
    * <ChangePasswordUser>
-   *   <userName>Joe</userName>
+   *   <userName>Luke</userName>
    *   <newPassword>newPassword</newPassword>
    *   <oldPassword>oldPassword</oldPassword>
    * </ChangePasswordUser>
@@ -215,7 +215,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully changed password." ),
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
-    @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
+    @ResponseCode( code = 403, condition = "Provided user name or password is incorrect." ),
     @ResponseCode( code = 412, condition = "An error occurred in the platform." )
   } )
   public Response changeUserPassword( ChangePasswordUser user ) {
@@ -300,9 +300,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Appends existing roles to an existing user passed to the system through query parameters.
-   * If the user name exists but the role name is not valid (does not exist or is spelled incorrectly) the call will return 200 as the call itself is still successful.
-   * It was able to find the user and add no new roles to it. This prevents the call from failing in the instance of a set of valid roles, with a single invalid role.
+   * Appends existing roles to an existing user passed to the system through query parameters.<br />
+   * If the user name exists but the role name is not valid, the call will return 200. This means that the call itself was successful and able to find the user, but added no new roles to it.
+   * This prevents the call from failing in the instance of a set of other valid roles, with a single invalid role among them.
    * This endpoint is only available to users with administrative privileges.
    * <p/>
    * <p><b>Example Request:</b><br /> PUT  pentaho/api/userroledao/assignRoleToUser?userName=admin&roleNames=power%20user%09cto%09
@@ -407,7 +407,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Delete role(s) from the platform. Must have administrative privileges.
+   * Delete role(s) from the platform. This endpoint is only available to users with administrative privileges.
    *
    * <p><b>Example Request:</b><br />
    *  PUT  pentaho/api/userroledao/deleteRoles?roleNames=role1%09
@@ -548,9 +548,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    *
    * @param locale The locale paramter is optional and determines the localized role name for a physical permission in the system roles map.
    * @return A role mapping for the current system. Each assignment contains the immutable flag and
-   * roles for immutable assignments cannot be edited. This is useful for roles such as administrator, who should never lose the administrative priviledge.
+   * roles for immutable assignments cannot be edited. This is useful for roles such as administrator, who should never lose the administrative privilege.
    * Logical roles in the assignment are the physical permissions currently mapped to the role. The role name is the name of the role that can be assigned to users.
-   * The system roles map also includes a list of all physical permissions in the system along with their localized role name. The localized role name is based on the local passed into the call, defaulting to "en".
+   * The system roles map also includes a list of all physical permissions in the system along with their localized role name. The localized role name is based on the locale passed into the call, defaulting to "en".
    * These are the physical permissions that can be used to create roles.
    *
    *<p><b>Example Response:</b></p>
