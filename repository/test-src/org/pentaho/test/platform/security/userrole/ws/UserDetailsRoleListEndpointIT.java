@@ -34,7 +34,7 @@ import java.net.URL;
  * 
  */
 @SuppressWarnings( "nls" )
-public class UserDetailsRoleListEndpointTest extends UserDetailsRoleListWebServiceTest {
+public class UserDetailsRoleListEndpointIT extends UserDetailsRoleListWebServiceTest {
 
   IUserRoleListWebService userRoleListWebService;
 
