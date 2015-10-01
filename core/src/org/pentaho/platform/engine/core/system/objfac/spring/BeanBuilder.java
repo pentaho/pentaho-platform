@@ -150,7 +150,7 @@ public class BeanBuilder implements FactoryBean {
 
                   // Last chance. If the attributes are empty, try a plain PentahoSystem.get() which will find bean's
                   // with the ID equal to the simple name of the class
-                  if ( attributes.isEmpty() ) {
+                  if ( attributes.isEmpty() || (attributes.size() == 1 && attributes.containsKey( "id" ))) {
                     target = getFallbackBySimpleName( cls, attributes );
                   }
                   if( target == null ) {
@@ -160,7 +160,7 @@ public class BeanBuilder implements FactoryBean {
                 return method.invoke( target, args );
               }
             } );
-          } else if( !cls.isInterface() ){
+          } else if( !cls.isInterface() && (attributes.isEmpty() || (attributes.size() == 1 && attributes.containsKey( "id" )))){
             val = getFallbackBySimpleName( cls, attributes );
           }
         }
