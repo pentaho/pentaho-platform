@@ -43,8 +43,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.blockout.BlockoutManagerUtil.TIME;
 import org.pentaho.platform.scheduler2.quartz.test.StubUserDetailsService;
 import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
-import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TestQuartzScheduler;
-import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TstPluginManager;
+import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceIT.TestQuartzScheduler;
+import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceIT.TstPluginManager;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.security.userdetails.UserDetailsService;
 
@@ -52,7 +52,7 @@ import org.springframework.security.userdetails.UserDetailsService;
  * @author wseyler
  * 
  */
-public class PentahoBlockoutManagerTest {
+public class PentahoBlockoutManagerIT {
 
   private final long duration;
 
@@ -62,7 +62,7 @@ public class PentahoBlockoutManagerTest {
 
   Set<String> jobIdsToClear = new HashSet<String>();
 
-  public PentahoBlockoutManagerTest() {
+  public PentahoBlockoutManagerIT() {
     duration = TIME.HOUR.time * 2;
   }
 
