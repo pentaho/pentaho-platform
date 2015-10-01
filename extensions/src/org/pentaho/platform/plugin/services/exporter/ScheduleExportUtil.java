@@ -1,11 +1,13 @@
 package org.pentaho.platform.plugin.services.exporter;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
@@ -32,12 +34,46 @@ public class ScheduleExportUtil {
 
     Map<String, Serializable> jobParams = job.getJobParams();
 
-    RepositoryFileStreamProvider streamProvider =
-      (RepositoryFileStreamProvider) jobParams.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    Object streamProviderObj = jobParams.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    RepositoryFileStreamProvider streamProvider = null;
+    if ( streamProviderObj instanceof RepositoryFileStreamProvider ) {
+      streamProvider = (RepositoryFileStreamProvider) streamProviderObj;
+    } else if ( streamProviderObj instanceof String ) {
+      String inputFilePath = null;
+      String outputFilePath = null;
+      String inputOutputString = (String) streamProviderObj;
+      String[] tokens = inputOutputString.split( ":" );
+      if ( !ArrayUtils.isEmpty( tokens ) && tokens.length == 2 ) {
+        inputFilePath = tokens[ 0 ].split( "=" )[ 1 ].trim();
+        outputFilePath = tokens[ 1 ].split( "=" )[ 1 ].trim();
+
+        streamProvider = new RepositoryFileStreamProvider( inputFilePath, outputFilePath, true );
+      }
+    }
 
     if ( streamProvider != null ) {
       schedule.setInputFile( streamProvider.getInputFilePath() );
       schedule.setOutputFile( streamProvider.getOutputFilePath() );
+    } else {
+      // let's look to see if we can figure out the input and output file
+      String directory = (String) jobParams.get( "directory" );
+      String transName = (String) jobParams.get( "transformation" );
+      String jobName = (String) jobParams.get( "job" );
+      String artifact = transName == null ? jobName : transName;
+
+      if ( directory != null && artifact != null ) {
+        String outputFile = RepositoryFilenameUtils.concat( directory, artifact );
+        outputFile += "*";
+
+        if ( artifact.equals( jobName ) ) {
+          artifact += ".kjb";
+        } else {
+          artifact += ".ktr";
+        }
+        String inputFile = RepositoryFilenameUtils.concat( directory, artifact );
+        schedule.setInputFile( inputFile );
+        schedule.setOutputFile( outputFile );
+      }
     }
 
     for ( String key : jobParams.keySet() ) {
