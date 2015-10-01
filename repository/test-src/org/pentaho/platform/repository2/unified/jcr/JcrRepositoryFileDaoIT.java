@@ -20,7 +20,7 @@ import org.pentaho.platform.api.repository2.unified.data.sample.SampleRepository
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
 
-public class JcrRepositoryFileDaoTest extends DefaultUnifiedRepositoryBase {
+public class JcrRepositoryFileDaoIT extends DefaultUnifiedRepositoryBase {
 
   @Before
   public void beforeTest() {

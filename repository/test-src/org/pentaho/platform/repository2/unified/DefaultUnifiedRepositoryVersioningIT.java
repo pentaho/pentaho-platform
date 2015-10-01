@@ -64,7 +64,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
-public class DefaultUnifiedRepositoryVersioningTest extends DefaultUnifiedRepositoryBase {
+public class DefaultUnifiedRepositoryVersioningIT extends DefaultUnifiedRepositoryBase {
   @Before
   public void setup() {
     IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );

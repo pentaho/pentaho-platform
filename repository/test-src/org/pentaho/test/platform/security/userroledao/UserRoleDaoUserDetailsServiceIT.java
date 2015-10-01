@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
-public class UserRoleDaoUserDetailsServiceTest extends DefaultUnifiedRepositoryBase {
+public class UserRoleDaoUserDetailsServiceIT extends DefaultUnifiedRepositoryBase {
 
   private static final String USERNAME = USERNAME_ADMIN; //$NON-NLS-1$
 

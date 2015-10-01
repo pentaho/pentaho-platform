@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
-public class UnifiedRepositoryToWebServiceAdapterTest extends DefaultUnifiedRepositoryBase {
+public class UnifiedRepositoryToWebServiceAdapterIT extends DefaultUnifiedRepositoryBase {
   private UnifiedRepositoryToWebServiceAdapter adapter;
   public static final String MAIN_TENANT_1 = "maintenant1";
 

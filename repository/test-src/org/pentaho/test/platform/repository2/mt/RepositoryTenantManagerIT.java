@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
-public class RepositoryTenantManagerTest extends DefaultUnifiedRepositoryBase {
+public class RepositoryTenantManagerIT extends DefaultUnifiedRepositoryBase {
 
   private final String TENANT_ID_APPLE = "apple";
 

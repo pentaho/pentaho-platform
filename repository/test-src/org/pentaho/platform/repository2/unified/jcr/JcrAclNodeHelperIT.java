@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" } )
-public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
+public class JcrAclNodeHelperIT extends DefaultUnifiedRepositoryBase {
 
   private JcrAclNodeHelperCallTester helper;
   private ITenant defaultTenant;

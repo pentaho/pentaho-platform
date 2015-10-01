@@ -75,11 +75,11 @@ import static org.mockito.Mockito.when;
 
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
-public class DefaultUnifiedRepositoryJaxwsWebServiceTest extends DefaultUnifiedRepositoryBase {
+public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRepositoryBase {
   // ~ Static fields/initializers
   // ======================================================================================
 
-  private final Logger logger = Logger.getLogger( DefaultUnifiedRepositoryJaxwsWebServiceTest.class );
+  private final Logger logger = Logger.getLogger( DefaultUnifiedRepositoryJaxwsWebServiceIT.class );
 
   // ~ Instance fields
   // =================================================================================================
@@ -89,7 +89,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest extends DefaultUnifiedR
   // ~ Constructors
   // ====================================================================================================
 
-  public DefaultUnifiedRepositoryJaxwsWebServiceTest() throws Exception {
+  public DefaultUnifiedRepositoryJaxwsWebServiceIT() throws Exception {
     super();
   }
 

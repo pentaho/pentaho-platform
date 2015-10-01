@@ -98,14 +98,14 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
-public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositoryBase {
+public class DefaultUnifiedRepositoryContentIT extends DefaultUnifiedRepositoryBase {
   // ~ Static fields/initializers
   // ======================================================================================
 
   // ~ Constructors
   // ====================================================================================================
 
-  public DefaultUnifiedRepositoryContentTest() throws Exception {
+  public DefaultUnifiedRepositoryContentIT() throws Exception {
     super();
   }
 

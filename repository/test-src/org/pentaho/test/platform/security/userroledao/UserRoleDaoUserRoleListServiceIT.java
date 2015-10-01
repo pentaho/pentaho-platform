@@ -39,13 +39,13 @@ import static org.junit.Assert.*;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
-public class UserRoleDaoUserRoleListServiceTest extends DefaultUnifiedRepositoryBase {
+public class UserRoleDaoUserRoleListServiceIT extends DefaultUnifiedRepositoryBase {
   public static final int DEFAULT_ROLE_COUNT = 4;
   public static final int DEFAULT_USER_COUNT = 1; // admin
   public static final String MAIN_TENANT_1 = "maintenant1";
   public static final String MAIN_TENANT_2 = "maintenant2";
 
-  private Logger logger = Logger.getLogger( UserRoleDaoUserRoleListServiceTest.class );
+  private Logger logger = Logger.getLogger( UserRoleDaoUserRoleListServiceIT.class );
 
   private ITenant mainTenant_1;
   private ITenant mainTenant_2;
