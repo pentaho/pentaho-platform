@@ -17,11 +17,15 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.apache.log4j.Level;
+import org.junit.Test;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.core.mimetype.MimeType;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,16 +35,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.junit.Test;
-import org.pentaho.platform.api.mimetype.IMimeType;
-import org.pentaho.platform.api.repository2.unified.Converter;
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
-import org.pentaho.platform.core.mimetype.MimeType;
-import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
-import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
-import org.pentaho.test.platform.engine.core.MicroPlatform;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 /**
  * User: nbaker Date: 6/13/12
@@ -55,9 +51,8 @@ public class PlatformImporterTest {
     List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
     handlers.add( mockImportHandler );
 
-    MicroPlatform microPlatform = new MicroPlatform();
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
-    microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
+    PentahoSystem.registerObject( nameResolver );
 
     PentahoPlatformImporter importer =
         new PentahoPlatformImporter( handlers, new DefaultRepositoryContentConverterHandler(
@@ -97,9 +92,8 @@ public class PlatformImporterTest {
     when( mockImportHandler.getMimeTypes() ).thenReturn( mimeList );
     List<IPlatformImportHandler> handlers = Collections.singletonList( mockImportHandler );
 
-    MicroPlatform microPlatform = new MicroPlatform();
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
-    microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
+    PentahoSystem.registerObject( nameResolver );
 
     // mock logger to prevent npe
     IRepositoryImportLogger importLogger = new Log4JRepositoryImportLogger();
@@ -131,9 +125,8 @@ public class PlatformImporterTest {
     when( mockImportHandler.getMimeTypes() ).thenReturn( mimeList );
     List<IPlatformImportHandler> handlers = Collections.singletonList( mockImportHandler );
 
-    MicroPlatform microPlatform = new MicroPlatform();
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
-    microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
+    PentahoSystem.registerObject( nameResolver );
 
     // mock logger to prevent npe
     IRepositoryImportLogger importLogger = new Log4JRepositoryImportLogger();
