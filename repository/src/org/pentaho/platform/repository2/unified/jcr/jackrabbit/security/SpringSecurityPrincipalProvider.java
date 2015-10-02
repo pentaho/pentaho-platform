@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jcr.Session;
 
-import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.security.principal.PrincipalIterator;
@@ -83,8 +82,8 @@ import org.springframework.util.Assert;
  */
 public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
-  public static final String ROLE_CACHE = "SpringSecurityPrincipalProviderRoleCache";
-  public static final String USER_CACHE = "SpringSecurityPrincipalProviderUserCache";
+  public static final String ROLE_CACHE_REGION = "principalProviderRoleCache";
+  public static final String USER_CACHE_REGION = "principalProviderUserCache";
 
   private ICacheManager cacheManager;
 
@@ -118,34 +117,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    */
   private final AtomicBoolean initialized = new AtomicBoolean( false );
 
-  private LRUMap getRolesCache() {
-    return getCache( ROLE_CACHE, 512 );
-  }
-
-  private LRUMap getUserCache() {
-    return getCache( USER_CACHE, 4096 );
-  }
-
   void setCacheManager( ICacheManager cacheManager ) {
     this.cacheManager = cacheManager;
-  }
-
-  private LRUMap getCache( String region, int capacity ) {
-    if ( cacheManager == null ) {
-      return null;
-    }
-
-    Object map = cacheManager.getFromGlobalCache( region );
-    if ( map == null ) {
-      synchronized ( this ) {
-        map = cacheManager.getFromGlobalCache( region );
-        if ( map == null ) {
-          map = new LRUMap( capacity );
-          cacheManager.putInGlobalCache( region, map );
-        }
-      }
-    }
-    return (LRUMap) map;
   }
 
   // ~ Constructors
@@ -192,12 +165,10 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   }
 
   public synchronized void clearCaches() {
-    if ( cacheManager == null ) {
-      return;
+    if ( cacheManager != null ) {
+      cacheManager.clearRegionCache( ROLE_CACHE_REGION );
+      cacheManager.clearRegionCache( USER_CACHE_REGION );
     }
-
-    cacheManager.putInGlobalCache( ROLE_CACHE, null );
-    cacheManager.putInGlobalCache( USER_CACHE, null );
   }
 
   /**
@@ -237,11 +208,9 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       if ( JcrTenantUtils.isTenantedUser( principalName ) ) {
         // 1. then try the user cache
         if ( cacheManager != null ) {
-          Principal userFromUserCache;
-          LRUMap userCache = getUserCache();
-          synchronized ( userCache ) {
-            userFromUserCache = (Principal) userCache.get( JcrTenantUtils.getTenantedUser( principalName ) );
-          }
+          Principal userFromUserCache = (Principal) cacheManager
+            .getFromRegionCache( USER_CACHE_REGION, JcrTenantUtils.getTenantedUser( principalName ) );
+
           if ( userFromUserCache != null ) {
             if ( logger.isTraceEnabled() ) {
               logger.trace( "user " + principalName + " found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
@@ -264,10 +233,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         if ( userDetails != null ) {
           final Principal user = new UserPrincipal( principalName );
           if ( cacheManager != null ) {
-            LRUMap userCache = getUserCache();
-            synchronized ( userCache ) {
-              userCache.put( principalName, user );
-            }
+            cacheManager.putInRegionCache( USER_CACHE_REGION, principalName, user );
           }
           return user;
         }
@@ -276,11 +242,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
         // 1. first try the role cache
         if ( cacheManager != null ) {
-          Principal roleFromCache;
-          LRUMap rolesCache = getRolesCache();
-          synchronized ( rolesCache ) {
-            roleFromCache = (Principal) rolesCache.get( JcrTenantUtils.getTenantedRole( principalName ) );
-          }
+          Principal roleFromCache = (Principal) cacheManager
+            .getFromRegionCache( ROLE_CACHE_REGION, JcrTenantUtils.getTenantedRole( principalName ) );
 
           if ( roleFromCache != null ) {
             if ( logger.isTraceEnabled() ) {
@@ -307,10 +270,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         final Principal roleToCache = createSpringSecurityRolePrincipal( principalName );
 
         if ( cacheManager != null ) {
-          LRUMap rolesCache = getRolesCache();
-          synchronized ( rolesCache ) {
-            rolesCache.put( principalName, roleToCache );
-          }
+          cacheManager.putInRegionCache( ROLE_CACHE_REGION, principalName, roleToCache );
         }
         if ( logger.isTraceEnabled() ) {
           logger.trace( "assuming " + principalName + " is a role" ); //$NON-NLS-1$ //$NON-NLS-2$
@@ -352,14 +312,13 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       for ( final GrantedAuthority role : user.getAuthorities() ) {
 
         final String roleAuthority = role.getAuthority();
-        Principal fromCache = null;
-
-        LRUMap roleCache = getRolesCache();
-        if ( roleCache != null ) {
-          synchronized ( roleCache ) {
-            fromCache = (Principal) roleCache.get( roleAuthority );
-          }
+        Principal fromCache;
+        if (cacheManager == null) {
+          fromCache = null;
+        } else {
+          fromCache = (Principal) cacheManager.getFromRegionCache( ROLE_CACHE_REGION, roleAuthority );
         }
+
         if ( fromCache != null ) {
           groups.add( fromCache );
         } else {
@@ -425,13 +384,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
           String role = authorities[ i ].getAuthority();
           final String tenatedRoleString = JcrTenantUtils.getTenantedRole( role );
           if ( cacheManager != null ) {
-            LRUMap roleCache = getRolesCache();
-            synchronized ( roleCache ) {
-              if ( !roleCache.containsKey( role ) ) {
-                final SpringSecurityRolePrincipal ssRolePrincipal =
-                  new SpringSecurityRolePrincipal( tenatedRoleString );
-                roleCache.put( role, ssRolePrincipal );
-              }
+            Object rolePrincipal = cacheManager.getFromRegionCache( ROLE_CACHE_REGION, role );
+            if ( rolePrincipal == null ) {
+              final SpringSecurityRolePrincipal ssRolePrincipal =
+                new SpringSecurityRolePrincipal( tenatedRoleString );
+              cacheManager.putInRegionCache( ROLE_CACHE_REGION, role, ssRolePrincipal );
             }
           }
           auths[ i ] = new GrantedAuthorityImpl( tenatedRoleString );

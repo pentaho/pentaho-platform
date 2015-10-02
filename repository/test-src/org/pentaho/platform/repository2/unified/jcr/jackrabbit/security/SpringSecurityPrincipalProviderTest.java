@@ -119,21 +119,21 @@ public class SpringSecurityPrincipalProviderTest {
     provider.getPrincipal( ROLE_PRINCIPLE );
     provider.clearCaches();
 
-    assertNull( "Users' cache should be cleared", cacheManager.getFromGlobalCache( USER_CACHE ) );
-    assertNull( "Roles' cache should be cleared", cacheManager.getFromGlobalCache( ROLE_CACHE ) );
+    assertNull( "Users' cache should be cleared", cacheManager.getFromRegionCache( USER_CACHE_REGION, USER_PRINCIPLE ) );
+    assertNull( "Roles' cache should be cleared", cacheManager.getFromRegionCache( ROLE_CACHE_REGION, ROLE_PRINCIPLE ) );
   }
 
 
   @Test
   public void userIsCached() throws Exception {
     initUserCacheConditions();
-    testPrincipleIsCached( USER_PRINCIPLE, USER_CACHE );
+    testPrincipleIsCached( USER_PRINCIPLE, USER_CACHE_REGION );
   }
 
   @Test
   public void roleIsCached() throws Exception {
     initRoleCacheConditions();
-    testPrincipleIsCached( ROLE_PRINCIPLE, ROLE_CACHE );
+    testPrincipleIsCached( ROLE_PRINCIPLE, ROLE_CACHE_REGION );
   }
 
   private void testPrincipleIsCached( String principle, String cache ) throws Exception {
@@ -142,13 +142,11 @@ public class SpringSecurityPrincipalProviderTest {
 
     Principal principal = assertPrincipalMatches( principle );
 
-    Map map = (Map) cacheManager.getFromGlobalCache( cache );
-    Object shouldBePrincipal = map.get( principle );
-
+    Object shouldBePrincipal = cacheManager.getFromRegionCache( cache, principle );
     assertEquals( principal, shouldBePrincipal );
 
     Principal shouldBeCached = provider.getPrincipal( principle );
-    assertTrue( "Second invocation shoud return the same object (cached)", principal == shouldBeCached );
+    assertTrue( "Second invocation should return the same object (cached)", principal == shouldBeCached );
   }
 
   private Principal assertPrincipalMatches( String principle ) {
