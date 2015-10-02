@@ -40,10 +40,8 @@ import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalIteratorAdapter;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISecurityHelper;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
@@ -63,7 +61,7 @@ import org.springframework.util.Assert;
  * <p/>
  * <p> A {@code java.security.Principal} represents a user. A {@code java.security.acl.Group} represents a group. In
  * Spring Security, a group is called a role or authority or granted authority. Arguments to the method {@link
- * #providePrincipal(String)} can either be a Principal or Group. In other words, {@link #providePrincipal(String)}
+ * #getPrincipal(String)} can either be a Principal or Group. In other words, {@link #getPrincipal(String)}
  * might be called with an argument of a Spring Security granted authority. This happens when access control entries
  * (ACEs) grant access to roles and the system needs to verify the role is known. </p>
  * <p/>
@@ -85,6 +83,11 @@ import org.springframework.util.Assert;
  */
 public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
+  public static final String ROLE_CACHE = "SpringSecurityPrincipalProviderRoleCache";
+  public static final String USER_CACHE = "SpringSecurityPrincipalProviderUserCache";
+
+  private ICacheManager cacheManager;
+
   // ~ Static fields/initializers
   // ======================================================================================
 
@@ -102,7 +105,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   private String anonymousId;
 
-  private AnonymousPrincipal anonymousPrincipal = new AnonymousPrincipal();
+  private final AnonymousPrincipal anonymousPrincipal = new AnonymousPrincipal();
 
   final boolean ACCOUNT_NON_EXPIRED = true;
 
@@ -115,9 +118,35 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    */
   private final AtomicBoolean initialized = new AtomicBoolean( false );
 
-  private final LRUMap userCache = new LRUMap( 4096 );
+  private LRUMap getRolesCache() {
+    return getCache( ROLE_CACHE, 512 );
+  }
 
-  private final LRUMap roleCache = new LRUMap( 512 );
+  private LRUMap getUserCache() {
+    return getCache( USER_CACHE, 4096 );
+  }
+
+  void setCacheManager( ICacheManager cacheManager ) {
+    this.cacheManager = cacheManager;
+  }
+
+  private LRUMap getCache( String region, int capacity ) {
+    if ( cacheManager == null ) {
+      return null;
+    }
+
+    Object map = cacheManager.getFromGlobalCache( region );
+    if ( map == null ) {
+      synchronized ( this ) {
+        map = cacheManager.getFromGlobalCache( region );
+        if ( map == null ) {
+          map = new LRUMap( capacity );
+          cacheManager.putInGlobalCache( region, map );
+        }
+      }
+    }
+    return (LRUMap) map;
+  }
 
   // ~ Constructors
   // ====================================================================================================
@@ -150,22 +179,25 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       logger.trace( String.format( "using anonymousId [%s]", anonymousId ) ); //$NON-NLS-1$
     }
 
+    cacheManager = PentahoSystem.getCacheManager( null );
+
     initialized.set( true );
   }
 
   public void close() {
     checkInitialized();
     clearCaches();
+    cacheManager = null;
     initialized.set( false );
   }
 
   public synchronized void clearCaches() {
-    synchronized ( userCache ) {
-      userCache.clear();
+    if ( cacheManager == null ) {
+      return;
     }
-    synchronized ( roleCache ) {
-      roleCache.clear();
-    }
+
+    cacheManager.putInGlobalCache( ROLE_CACHE, null );
+    cacheManager.putInGlobalCache( USER_CACHE, null );
   }
 
   /**
@@ -204,18 +236,25 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
       if ( JcrTenantUtils.isTenantedUser( principalName ) ) {
         // 1. then try the user cache
-        Principal userFromUserCache;
-        synchronized ( userCache ) {
-          userFromUserCache = (Principal) userCache.get( JcrTenantUtils.getTenantedUser( principalName ) );
-        }
-        if ( userFromUserCache != null ) {
-          if ( logger.isTraceEnabled() ) {
-            logger.trace( "user " + principalName + " found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+        if ( cacheManager != null ) {
+          Principal userFromUserCache;
+          LRUMap userCache = getUserCache();
+          synchronized ( userCache ) {
+            userFromUserCache = (Principal) userCache.get( JcrTenantUtils.getTenantedUser( principalName ) );
           }
-          return userFromUserCache;
+          if ( userFromUserCache != null ) {
+            if ( logger.isTraceEnabled() ) {
+              logger.trace( "user " + principalName + " found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            return userFromUserCache;
+          } else {
+            if ( logger.isTraceEnabled() ) {
+              logger.trace( "user " + principalName + " not found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+          }
         } else {
           if ( logger.isTraceEnabled() ) {
-            logger.trace( "user " + principalName + " not found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            logger.trace( " Cache is not available. Will create a principal for user [" + principalName + ']' );
           }
         }
 
@@ -224,8 +263,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         final UserDetails userDetails = internalGetUserDetails( principalName );
         if ( userDetails != null ) {
           final Principal user = new UserPrincipal( principalName );
-          synchronized ( userCache ) {
-            userCache.put( principalName, user );
+          if ( cacheManager != null ) {
+            LRUMap userCache = getUserCache();
+            synchronized ( userCache ) {
+              userCache.put( principalName, user );
+            }
           }
           return user;
         }
@@ -233,15 +275,26 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       } else if ( JcrTenantUtils.isTenatedRole( principalName ) ) {
 
         // 1. first try the role cache
-        final Principal roleFromCache = (Principal) roleCache.get( JcrTenantUtils.getTenantedRole( principalName ) );
-        if ( roleFromCache != null ) {
-          if ( logger.isTraceEnabled() ) {
-            logger.trace( "role " + principalName + " found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+        if ( cacheManager != null ) {
+          Principal roleFromCache;
+          LRUMap rolesCache = getRolesCache();
+          synchronized ( rolesCache ) {
+            roleFromCache = (Principal) rolesCache.get( JcrTenantUtils.getTenantedRole( principalName ) );
           }
-          return roleFromCache;
+
+          if ( roleFromCache != null ) {
+            if ( logger.isTraceEnabled() ) {
+              logger.trace( "role " + principalName + " found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            return roleFromCache;
+          } else {
+            if ( logger.isTraceEnabled() ) {
+              logger.trace( "role " + principalName + " not found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+          }
         } else {
           if ( logger.isTraceEnabled() ) {
-            logger.trace( "role " + principalName + " not found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            logger.trace( " Cache is not available. Will create a principal for role [" + principalName + ']' );
           }
         }
 
@@ -252,7 +305,13 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         // by this class will be caught in
         // SpringSecurityLoginModule.getPrincipal and the login will fail
         final Principal roleToCache = createSpringSecurityRolePrincipal( principalName );
-        roleCache.put( principalName, roleToCache );
+
+        if ( cacheManager != null ) {
+          LRUMap rolesCache = getRolesCache();
+          synchronized ( rolesCache ) {
+            rolesCache.put( principalName, roleToCache );
+          }
+        }
         if ( logger.isTraceEnabled() ) {
           logger.trace( "assuming " + principalName + " is a role" ); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -293,9 +352,13 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       for ( final GrantedAuthority role : user.getAuthorities() ) {
 
         final String roleAuthority = role.getAuthority();
-        Principal fromCache;
-        synchronized ( roleCache ) {
-          fromCache = (Principal) roleCache.get( roleAuthority );
+        Principal fromCache = null;
+
+        LRUMap roleCache = getRolesCache();
+        if ( roleCache != null ) {
+          synchronized ( roleCache ) {
+            fromCache = (Principal) roleCache.get( roleAuthority );
+          }
         }
         if ( fromCache != null ) {
           groups.add( fromCache );
@@ -361,10 +424,14 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         for ( int i = 0; i < authorities.length; i++ ) {
           String role = authorities[ i ].getAuthority();
           final String tenatedRoleString = JcrTenantUtils.getTenantedRole( role );
-          synchronized ( roleCache ) {
-            if ( !roleCache.containsKey( role ) ) {
-              final SpringSecurityRolePrincipal ssRolePrincipal = new SpringSecurityRolePrincipal( tenatedRoleString );
-              roleCache.put( role, ssRolePrincipal );
+          if ( cacheManager != null ) {
+            LRUMap roleCache = getRolesCache();
+            synchronized ( roleCache ) {
+              if ( !roleCache.containsKey( role ) ) {
+                final SpringSecurityRolePrincipal ssRolePrincipal =
+                  new SpringSecurityRolePrincipal( tenatedRoleString );
+                roleCache.put( role, ssRolePrincipal );
+              }
             }
           }
           auths[ i ] = new GrantedAuthorityImpl( tenatedRoleString );
