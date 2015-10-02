@@ -18,19 +18,20 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.junit.Before;
+import org.junit.Test;
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.core.mimetype.MimeType;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
+import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -39,21 +40,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.junit.Before;
-import org.junit.Test;
-import org.pentaho.platform.api.mimetype.IMimeType;
-import org.pentaho.platform.api.repository2.unified.Converter;
-import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
-import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.core.mimetype.MimeType;
-import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
-import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
-import org.pentaho.test.platform.engine.core.MicroPlatform;
-import org.springframework.test.util.ReflectionTestUtils;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class LocaleImportHandlerTest {
 
@@ -65,10 +56,8 @@ public class LocaleImportHandlerTest {
   @Before
   public void setUp() throws Exception {
 
-    MicroPlatform microPlatform = new MicroPlatform();
-
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
-    microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
+    PentahoSystem.registerObject( nameResolver );
 
     IRepositoryContentConverterHandler converterHandler =
         new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
