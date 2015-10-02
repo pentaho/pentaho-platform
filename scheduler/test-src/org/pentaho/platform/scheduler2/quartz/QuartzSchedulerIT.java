@@ -49,7 +49,7 @@ import static junit.framework.Assert.*;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings( "nls" )
-public class QuartzSchedulerTest {
+public class QuartzSchedulerIT {
   private static final String CRON_EXPRESSION = "1 0 0 * * ? *";
   private static final String USER_NAME = "userName";
   private static final String JOB_NAME = "jobName";

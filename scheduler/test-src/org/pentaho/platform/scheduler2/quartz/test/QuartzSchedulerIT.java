@@ -45,12 +45,12 @@ import org.pentaho.platform.scheduler2.quartz.QuartzSchedulerAvailability;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
 import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
-import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TestQuartzScheduler;
+import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceIT.TestQuartzScheduler;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.security.userdetails.UserDetailsService;
 
 @SuppressWarnings( "nls" )
-public class QuartzSchedulerTest {
+public class QuartzSchedulerIT {
   private QuartzScheduler scheduler;
 
   private String TEST_USER = "TestUser";
