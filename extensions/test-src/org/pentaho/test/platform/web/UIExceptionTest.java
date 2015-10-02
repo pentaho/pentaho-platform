@@ -17,11 +17,12 @@
 
 package org.pentaho.test.platform.web;
 
+import junit.framework.TestCase;
 import org.pentaho.platform.api.ui.UIException;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.engine.core.BaseTestCase;
 
-public class UIExceptionTest extends BaseTestCase {
+public class UIExceptionTest extends TestCase {
   private static final String SOLUTION_PATH = "test-src/web-servlet-solution";
 
   public String getSolutionPath() {
