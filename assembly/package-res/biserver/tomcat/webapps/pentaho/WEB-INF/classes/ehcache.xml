@@ -282,4 +282,22 @@
       timeToLiveSeconds="600"
       diskPersistent="false"/>
 
+  <!-- Cache for the Spring Principal Provider -->
+  <cache
+      name="principalProviderRoleCache"
+      maxEntriesLocalHeap="512"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="600"
+      diskPersistent="false"/>
+  <cache
+      name="principalProviderUserCache"
+      maxEntriesLocalHeap="4092"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="600"
+      diskPersistent="false"/>
+
 </ehcache>
