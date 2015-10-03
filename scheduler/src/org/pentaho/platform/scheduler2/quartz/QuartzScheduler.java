@@ -393,6 +393,9 @@ public class QuartzScheduler implements IScheduler {
       Scheduler scheduler = getQuartzScheduler();
       String groupName = jobKey.getUserName();
       for ( Trigger trigger : scheduler.getTriggersOfJob( jobId, groupName ) ) {
+        if ( "MANUAL_TRIGGER".equals( trigger.getGroup() ) ) {
+          continue;
+        }
         if ( trigger instanceof SimpleTrigger ) {
           ( (SimpleTrigger) trigger ).setPreviousFireTime( new Date() );
         } else if ( trigger instanceof CronTrigger ) {
@@ -448,6 +451,9 @@ public class QuartzScheduler implements IScheduler {
       for ( String groupName : scheduler.getJobGroupNames() ) {
         for ( String jobId : scheduler.getJobNames( groupName ) ) {
           for ( Trigger trigger : scheduler.getTriggersOfJob( jobId, groupName ) ) {
+            if ( "MANUAL_TRIGGER".equals( trigger.getGroup() ) ) {
+              continue;
+            }
             Job job = new Job();
             job.setGroupName( groupName );
             JobDetail jobDetail = scheduler.getJobDetail( jobId, groupName );
