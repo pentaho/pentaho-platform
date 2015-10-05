@@ -153,6 +153,14 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     }
 
     cacheManager = PentahoSystem.getCacheManager( null );
+    if ( cacheManager != null ) {
+      if ( !cacheManager.cacheEnabled( USER_CACHE_REGION ) ) {
+        cacheManager.addCacheRegion( USER_CACHE_REGION );
+      }
+      if ( !cacheManager.cacheEnabled( ROLE_CACHE_REGION ) ) {
+        cacheManager.addCacheRegion( ROLE_CACHE_REGION );
+      }
+    }
 
     initialized.set( true );
   }
