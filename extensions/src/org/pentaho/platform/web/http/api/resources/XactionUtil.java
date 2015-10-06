@@ -37,6 +37,7 @@ import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
@@ -73,7 +74,7 @@ public class XactionUtil {
     IPentahoSession userSession = PentahoSessionHolder.getSession();
     ActionSequenceJCRHelper actionHelper = new ActionSequenceJCRHelper( userSession );
     IActionSequence actionSequence =
-      actionHelper.getActionSequence( file.getPath(), PentahoSystem.loggingLevel, RepositoryFilePermission.READ );
+        actionHelper.getActionSequence( file.getPath(), PentahoSystem.loggingLevel, RepositoryFilePermission.READ );
 
     String fileName = "content"; //$NON-NLS-1$
     if ( actionSequence != null ) {
@@ -137,8 +138,7 @@ public class XactionUtil {
     StringBuffer buffer = new StringBuffer();
 
     boolean hasResponse = outputHandler.isResponseExpected();
-    IContentItem responseContentItem =
-      outputHandler.getOutputContentItem( IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null );
+    IContentItem responseContentItem = outputHandler.getOutputContentItem( IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null );
 
     boolean success = ( runtime != null && runtime.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS );
     boolean printSuccess = ( runtime != null ) && success && ( !hasResponse || debugMessages );
@@ -157,6 +157,18 @@ public class XactionUtil {
         formatter.formatFailureMessage( htmlMimeType, runtime, buffer, messages );
       }
     }
+    // clear files which was generated during action execution 
+    // http://jira.pentaho.com/browse/BISERVER-12639
+    IUnifiedRepository unifiedRepository = PentahoSystem.get( IUnifiedRepository.class, null );
+    if ( unifiedRepository != null ) {
+      for ( IContentItem contentItem : runtime.getOutputContentItems() ) {
+        RepositoryFile repositoryFile = unifiedRepository.getFile( contentItem.getPath() );
+        //repositoryFile can be null if we have not access or file does not exist
+        if ( repositoryFile != null ) {
+          unifiedRepository.deleteFile( repositoryFile.getId(), true, null );
+        }
+      }
+    }
     return buffer.toString();
   }
 
@@ -172,13 +184,10 @@ public class XactionUtil {
       HttpSessionParameterProvider sessionParameters = new HttpSessionParameterProvider( userSession );
       HttpRequestParameterProvider requestParameters = new HttpRequestParameterProvider( httpServletRequest );
 
-      boolean doMessages = "true".equalsIgnoreCase(
-        requestParams.getStringParameter( "debug", "false" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      boolean doWrapper = "true".equalsIgnoreCase(
-        requestParams.getStringParameter( "wrapper", "true" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      boolean doMessages = "true".equalsIgnoreCase( requestParams.getStringParameter( "debug", "false" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      boolean doWrapper = "true".equalsIgnoreCase( requestParams.getStringParameter( "wrapper", "true" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-      IOutputHandler outputHandler =
-        createOutputHandler( httpServletResponse, getOutputStream( httpServletResponse, doMessages ) );
+      IOutputHandler outputHandler = createOutputHandler( httpServletResponse, getOutputStream( httpServletResponse, doMessages ) );
 
       // configure output handler, this is necessary so that the right content
       // disposition is set on the response header
@@ -194,21 +203,17 @@ public class XactionUtil {
       createOutputFileName( file, outputHandler );
       int outputPreference = IOutputHandler.OUTPUT_TYPE_DEFAULT;
       outputHandler.setOutputPreference( outputPreference );
-      boolean forcePrompt = "true".equalsIgnoreCase(
-        requestParams.getStringParameter( "prompt", "false" ) ); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+      boolean forcePrompt = "true".equalsIgnoreCase( requestParams.getStringParameter( "prompt", "false" ) ); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 
       List messages = new ArrayList();
       runtime =
         executeInternal( file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession,
           forcePrompt, messages );
-      String str =
-        postExecute( runtime, doMessages, doWrapper, outputHandler, parameterProviders, httpServletRequest,
+      String str = postExecute( runtime, doMessages, doWrapper, outputHandler, parameterProviders, httpServletRequest,
           httpServletResponse, messages );
       return str;
     } catch ( Exception e ) {
-      logger.error(
-        Messages.getInstance().getString( "XactionUtil.ERROR_EXECUTING_ACTION_SEQUENCE", file.getName() ),
-        e ); //$NON-NLS-1$
+      logger.error( Messages.getInstance().getString( "XactionUtil.ERROR_EXECUTING_ACTION_SEQUENCE", file.getName() ), e ); //$NON-NLS-1$
       throw e;
     } finally {
       if ( runtime != null ) {
@@ -240,13 +245,10 @@ public class XactionUtil {
       HttpSessionParameterProvider sessionParameters = new HttpSessionParameterProvider( userSession );
       HttpRequestParameterProvider requestParameters = new HttpRequestParameterProvider( httpServletRequest );
 
-      boolean doMessages = "true".equalsIgnoreCase(
-        requestParams.getStringParameter( "debug", "false" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      boolean doWrapper = "true".equalsIgnoreCase(
-        requestParams.getStringParameter( "wrapper", "true" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      boolean doMessages = "true".equalsIgnoreCase( requestParams.getStringParameter( "debug", "false" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      boolean doWrapper = "true".equalsIgnoreCase( requestParams.getStringParameter( "wrapper", "true" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-      IOutputHandler outputHandler =
-        createOutputHandler( httpServletResponse, getOutputStream( httpServletResponse, doMessages ) );
+      IOutputHandler outputHandler = createOutputHandler( httpServletResponse, getOutputStream( httpServletResponse, doMessages ) );
       if ( mimeTypeListener == null ) {
         mimeTypeListener = new HttpMimeTypeListener( httpServletRequest, httpServletResponse, null );
       }
@@ -265,14 +267,11 @@ public class XactionUtil {
       runtime =
         executeInternal( file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession,
           true, messages );
-      String str =
-        postExecute( runtime, doMessages, doWrapper, outputHandler, parameterProviders, httpServletRequest,
+      String str = postExecute( runtime, doMessages, doWrapper, outputHandler, parameterProviders, httpServletRequest,
           httpServletResponse, messages );
       return str;
     } catch ( Exception e ) {
-      logger.error(
-        Messages.getInstance().getString( "XactionUtil.ERROR_EXECUTING_ACTION_SEQUENCE", file.getName() ),
-        e ); //$NON-NLS-1$
+      logger.error( Messages.getInstance().getString( "XactionUtil.ERROR_EXECUTING_ACTION_SEQUENCE", file.getName() ), e ); //$NON-NLS-1$
       throw e;
     } finally {
       if ( runtime != null ) {
@@ -297,10 +296,8 @@ public class XactionUtil {
       throw new ObjectFactoryException( "No Solution Engine" );
     }
 
-    boolean instanceEnds = "true".equalsIgnoreCase(
-      requestParams.getStringParameter( "instanceends", "true" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    String parameterXsl = systemSettings
-      .getSystemSetting( "default-parameter-xsl", "DefaultParameterForm.xsl" ); //$NON-NLS-1$ //$NON-NLS-2$
+    boolean instanceEnds = "true".equalsIgnoreCase( requestParams.getStringParameter( "instanceends", "true" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    String parameterXsl = systemSettings.getSystemSetting( "default-parameter-xsl", "DefaultParameterForm.xsl" ); //$NON-NLS-1$ //$NON-NLS-2$
 
     solutionEngine.setLoggingLevel( 2 );
     solutionEngine.init( userSession );
@@ -326,8 +323,7 @@ public class XactionUtil {
       IParameterProvider requestParams = new HttpRequestParameterProvider( httpServletRequest );
       httpServletResponse.setContentType( "text/xml" ); //$NON-NLS-1$
       httpServletResponse.setCharacterEncoding( LocaleHelper.getSystemEncoding() );
-      boolean forcePrompt = "true".equalsIgnoreCase(
-        requestParams.getStringParameter( "prompt", "false" ) ); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+      boolean forcePrompt = "true".equalsIgnoreCase( requestParams.getStringParameter( "prompt", "false" ) ); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 
       OutputStream contentStream = new ByteArrayOutputStream();
       SimpleOutputHandler outputHandler = new SimpleOutputHandler( contentStream, false );
@@ -370,15 +366,15 @@ public class XactionUtil {
   public static String doParameter( final RepositoryFile file, IParameterProvider parameterProvider,
                                     final IPentahoSession userSession ) throws IOException {
     ActionSequenceJCRHelper helper = new ActionSequenceJCRHelper();
-    final IActionSequence actionSequence =
-      helper.getActionSequence( file.getPath(), PentahoSystem.loggingLevel, RepositoryFilePermission.READ );
+    final IActionSequence actionSequence = helper.getActionSequence( file.getPath(),
+        PentahoSystem.loggingLevel, RepositoryFilePermission.READ );
     final Document document = DocumentHelper.createDocument();
     try {
       final Element parametersElement = document.addElement( "parameters" );
 
       // noinspection unchecked
       final Map<String, IActionParameter> params =
-        actionSequence.getInputDefinitionsForParameterProvider( IParameterProvider.SCOPE_REQUEST );
+          actionSequence.getInputDefinitionsForParameterProvider( IParameterProvider.SCOPE_REQUEST );
       for ( final Map.Entry<String, IActionParameter> entry : params.entrySet() ) {
         final String paramName = entry.getKey();
         final IActionParameter paramDef = entry.getValue();
@@ -404,12 +400,10 @@ public class XactionUtil {
         createParameterElement( parametersElement, paramName, type, label, "user", "parameters", values );
       }
 
-      createParameterElement( parametersElement, "path", String.class, null, "system", "system", new String[] { file
-        .getPath() } );
-      createParameterElement( parametersElement, "prompt", String.class, null, "system", "system", new String[] {
-        "yes", "no" } );
+      createParameterElement( parametersElement, "path", String.class, null, "system", "system", new String[] { file.getPath() } );
+      createParameterElement( parametersElement, "prompt", String.class, null, "system", "system", new String[] { "yes", "no" } );
       createParameterElement( parametersElement, "instance-id", String.class, null, "system", "system",
-        new String[] { parameterProvider.getStringParameter( "instance-id", null ) } );
+          new String[] { parameterProvider.getStringParameter( "instance-id", null ) } );
       // no close, as far as I know tomcat does not like it that much ..
       OutputFormat format = OutputFormat.createCompactFormat();
       format.setSuppressDeclaration( true );
@@ -446,14 +440,12 @@ public class XactionUtil {
     roleAttr.addAttribute( "value", role );
 
     final Element paramGroupAttr = parameterElement.addElement( "attribute" );
-    paramGroupAttr.addAttribute( "namespace",
-      "http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core" );
+    paramGroupAttr.addAttribute( "namespace", "http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core" );
     paramGroupAttr.addAttribute( "name", "parameter-group" );
     paramGroupAttr.addAttribute( "value", group );
 
     final Element paramGroupLabelAttr = parameterElement.addElement( "attribute" );
-    paramGroupLabelAttr.addAttribute( "namespace",
-      "http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core" );
+    paramGroupLabelAttr.addAttribute( "namespace", "http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core" );
     paramGroupLabelAttr.addAttribute( "name", "parameter-group-label" );
     paramGroupLabelAttr.addAttribute( "value", lookupParameterGroupLabel( group ) );
 
