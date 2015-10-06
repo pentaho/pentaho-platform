@@ -65,6 +65,51 @@ public class ScheduleExportUtilTest {
   }
 
   @Test
+  public void testCreateJobScheduleRequest_NoStreamProvider() throws Exception {
+    String jobName = "JOB";
+
+    Job job = mock( Job.class );
+    SimpleJobTrigger trigger = mock( SimpleJobTrigger.class );
+
+    when( job.getJobTrigger() ).thenReturn( trigger );
+    when( job.getJobName() ).thenReturn( jobName );
+    Map<String, Serializable> params = new HashMap<>();
+    params.put( "directory", "/home/admin" );
+    params.put( "transformation", "myTransform" );
+    when( job.getJobParams() ).thenReturn( params );
+
+    JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
+
+    assertNotNull( jobScheduleRequest );
+    assertEquals( jobName, jobScheduleRequest.getJobName() );
+    assertEquals( trigger, jobScheduleRequest.getSimpleJobTrigger() );
+    assertEquals( "/home/admin/myTransform.ktr", jobScheduleRequest.getInputFile() );
+    assertEquals( "/home/admin/myTransform*", jobScheduleRequest.getOutputFile() );
+  }
+
+  @Test
+  public void testCreateJobScheduleRequest_StringStreamProvider() throws Exception {
+    String jobName = "JOB";
+
+    Job job = mock( Job.class );
+    SimpleJobTrigger trigger = mock( SimpleJobTrigger.class );
+
+    when( job.getJobTrigger() ).thenReturn( trigger );
+    when( job.getJobName() ).thenReturn( jobName );
+    Map<String, Serializable> params = new HashMap<>();
+    params.put( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER, "import file = /home/admin/myJob.kjb:output file=/home/admin/myJob*" );
+    when( job.getJobParams() ).thenReturn( params );
+
+    JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
+
+    assertNotNull( jobScheduleRequest );
+    assertEquals( jobName, jobScheduleRequest.getJobName() );
+    assertEquals( trigger, jobScheduleRequest.getSimpleJobTrigger() );
+    assertEquals( "/home/admin/myJob.kjb", jobScheduleRequest.getInputFile() );
+    assertEquals( "/home/admin/myJob*", jobScheduleRequest.getOutputFile() );
+  }
+
+  @Test
   public void testCreateJobScheduleRequest_ComplexJobTrigger() throws Exception {
     String jobName = "JOB";
     Date now = new Date();
