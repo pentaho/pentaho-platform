@@ -23,6 +23,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.core.mt.Tenant;
@@ -34,7 +35,6 @@ import org.springframework.security.userdetails.User;
 
 
 import java.security.Principal;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.apache.commons.lang.reflect.FieldUtils.readStaticField;
@@ -68,11 +68,10 @@ public class SpringSecurityPrincipalProviderTest {
 
   private ITenantedPrincipleNameResolver userResolver;
   private ITenantedPrincipleNameResolver roleResolver;
+  private SimpleMapCacheManager cacheManager;
 
   private ITenant userTenant;
   private ITenant roleTenant;
-
-  private User user;
 
   @Before
   public void setUp() throws Exception {
@@ -83,18 +82,25 @@ public class SpringSecurityPrincipalProviderTest {
     userResolver = mock( ITenantedPrincipleNameResolver.class );
     roleResolver = mock( ITenantedPrincipleNameResolver.class );
 
+    cacheManager = spy( new SimpleMapCacheManager() );
+    doReturn( false ).when( cacheManager ).cacheEnabled( USER_CACHE_REGION );
+    doReturn( false ).when( cacheManager ).cacheEnabled( ROLE_CACHE_REGION );
+
     userTenant = new Tenant( USER_PRINCIPLE, true );
     roleTenant = new Tenant( ROLE_PRINCIPLE, true );
-
-    user = new User( USER_PRINCIPLE, "", true, true, true, true, new GrantedAuthority[ 0 ] );
-
-    provider = new SpringSecurityPrincipalProvider();
-    provider.init( new Properties() );
 
     mp = new MicroPlatform();
     mp.defineInstance( "tenantedUserNameUtils", userResolver );
     mp.defineInstance( "tenantedRoleNameUtils", roleResolver );
+    mp.defineInstance( ICacheManager.class, cacheManager );
     mp.start();
+
+    provider = new SpringSecurityPrincipalProvider();
+    provider.init( new Properties() );
+    provider = spy( provider );
+
+    User user = new User( USER_PRINCIPLE, "", true, true, true, true, new GrantedAuthority[ 0 ] );
+    doReturn( user ).when( provider ).internalGetUserDetails( USER_PRINCIPLE );
   }
 
   @After
@@ -102,18 +108,22 @@ public class SpringSecurityPrincipalProviderTest {
     mp.stop();
     userResolver = null;
     roleResolver = null;
+    cacheManager = null;
     provider = null;
     mp = null;
   }
 
 
   @Test
+  public void registersCacheRegion() {
+    verify( cacheManager ).addCacheRegion( USER_CACHE_REGION );
+    verify( cacheManager ).addCacheRegion( ROLE_CACHE_REGION );
+  }
+
+  @Test
   public void clearsCache() {
     initUserCacheConditions();
     initRoleCacheConditions();
-
-    SimpleMapCacheManager cacheManager = new SimpleMapCacheManager();
-    provider.setCacheManager( cacheManager );
 
     provider.getPrincipal( USER_PRINCIPLE );
     provider.getPrincipal( ROLE_PRINCIPLE );
@@ -137,9 +147,6 @@ public class SpringSecurityPrincipalProviderTest {
   }
 
   private void testPrincipleIsCached( String principle, String cache ) throws Exception {
-    SimpleMapCacheManager cacheManager = new SimpleMapCacheManager();
-    provider.setCacheManager( cacheManager );
-
     Principal principal = assertPrincipalMatches( principle );
 
     Object shouldBePrincipal = cacheManager.getFromRegionCache( cache, principle );
@@ -178,9 +185,6 @@ public class SpringSecurityPrincipalProviderTest {
   public void initUserCacheConditions() {
     when( userResolver.isValid( USER_PRINCIPLE ) ).thenReturn( true );
     when( userResolver.getTenant( USER_PRINCIPLE ) ).thenReturn( userTenant );
-
-    provider = spy( provider );
-    doReturn( user ).when( provider ).internalGetUserDetails( USER_PRINCIPLE );
   }
 
   public void initRoleCacheConditions() {
