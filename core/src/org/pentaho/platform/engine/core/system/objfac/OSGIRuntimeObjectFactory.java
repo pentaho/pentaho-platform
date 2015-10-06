@@ -7,20 +7,16 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoObjectRegistration;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
-import org.pentaho.platform.engine.core.system.osgi.OSGIUtils;
+import org.pentaho.platform.engine.core.system.objfac.spring.SpringPentahoObjectReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -83,33 +79,34 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
 
         // When OSGI R6 is released we can use the PrototypeServiceFactory. Until then we can't support factory
         // references unless the IPentahoObjectReference is a Singleton scope
-        if( reference instanceof SingletonPentahoObjectReference ) {
+        if ( reference instanceof SingletonPentahoObjectReference
+            || reference instanceof SpringPentahoObjectReference && ( hashtable.get( "scope" ).equals( "singleton" ) ) ) {
           ServiceFactory<Object> factory = new ServiceFactory<Object>() {
             @Override
-            public Object getService(Bundle bundle, ServiceRegistration<Object> serviceRegistration) {
+            public Object getService( Bundle bundle, ServiceRegistration<Object> serviceRegistration ) {
               return reference.getObject();
             }
 
             @Override
-            public void ungetService(Bundle bundle, ServiceRegistration<Object> serviceRegistration, Object o) {
+            public void ungetService( Bundle bundle, ServiceRegistration<Object> serviceRegistration, Object o ) {
 
             }
           };
-          if (hashtable.containsKey("priority")) {
-            hashtable.put(Constants.SERVICE_RANKING, hashtable.get("priority"));
+          if ( hashtable.containsKey( "priority" ) ) {
+            hashtable.put( Constants.SERVICE_RANKING, hashtable.get( "priority" ) );
           }
           ServiceRegistration<?> serviceRegistration =
-                  bundleContext.registerService(aClass.getName(), factory, hashtable);
-          registrations.add(serviceRegistration);
+              bundleContext.registerService( aClass.getName(), factory, hashtable );
+          registrations.add( serviceRegistration );
         } else {
 
           // Publish it as an IPentahoObjectReference instead
-          Hashtable<String, Object> referenceHashTable = new Hashtable<>(hashtable);
-          referenceHashTable.put(REFERENCE_CLASS, aClass.getName());
+          Hashtable<String, Object> referenceHashTable = new Hashtable<>( hashtable );
+          referenceHashTable.put( REFERENCE_CLASS, aClass.getName() );
           ServiceRegistration<?> serviceRegistration =
-                  bundleContext.registerService(IPentahoObjectReference.class.getName(), reference,
-                          referenceHashTable);
-          registrations.add(serviceRegistration);
+              bundleContext.registerService( IPentahoObjectReference.class.getName(), reference,
+                  referenceHashTable );
+          registrations.add( serviceRegistration );
         }
       } catch ( ClassCastException e ) {
         logger.error( "Error Retriving object from OSGI, Class is not as expected", e );
@@ -141,7 +138,7 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
       if ( serviceReferences != null && serviceReferences.size() > 0 ) {
         return true;
       }
-    } catch ( IllegalStateException ise ){
+    } catch ( IllegalStateException ise ) {
       // caused by the bundleContext being invalid
       return false;
     } catch ( InvalidSyntaxException e ) {
@@ -188,4 +185,3 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
     }
   }
 }
-

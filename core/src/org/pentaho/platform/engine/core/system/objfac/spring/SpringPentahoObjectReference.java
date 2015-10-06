@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
@@ -176,6 +177,7 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
       for ( String s : definition.attributeNames() ) {
         this.put( s, definition.getAttribute( s ) );
       }
+      this.put("scope", StringUtils.defaultIfEmpty( definition.getScope(), "singleton") );
     }
 
   }

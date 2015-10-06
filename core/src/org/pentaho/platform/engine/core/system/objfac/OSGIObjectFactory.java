@@ -252,8 +252,10 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
       ServiceReference[] serviceReferences = refs.toArray( new ServiceReference[ refs.size() ] );
       Arrays.sort( serviceReferences, new Comparator<ServiceReference>() {
         @Override public int compare( ServiceReference o1, ServiceReference o2 ) {
-          Integer rank1 = (Integer) o1.getProperty( Constants.SERVICE_RANKING );
-          Integer rank2 = (Integer) o2.getProperty( Constants.SERVICE_RANKING );
+          Object oRank1 = o1.getProperty( Constants.SERVICE_RANKING );
+          Object oRank2 = o2.getProperty( Constants.SERVICE_RANKING );
+          Integer rank1 = (oRank1 != null ) ? Integer.valueOf( oRank1.toString() ) : 0;
+          Integer rank2 = (oRank2 != null ) ? Integer.valueOf( oRank2.toString() ) : 0;
           return Integer.compare( rank1 == null ? 0 : rank1, rank2 == null ? 0 : rank2 );
         }
       } );
