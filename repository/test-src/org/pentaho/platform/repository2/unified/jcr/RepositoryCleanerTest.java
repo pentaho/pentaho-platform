@@ -18,12 +18,14 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import org.apache.jackrabbit.core.IPentahoSystemSessionFactory;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.gc.GarbageCollector;
 import org.junit.Test;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import javax.jcr.Repository;
+import javax.jcr.Session;
 
 import static org.mockito.Mockito.*;
 
@@ -44,8 +46,14 @@ public class RepositoryCleanerTest {
     mp.defineInstance( "jcrRepository", repository );
     mp.start();
 
+    RepositoryCleaner cleaner = new RepositoryCleaner();
+    Session systemSession = mock( Session.class );
+    IPentahoSystemSessionFactory sessionFactory = mock( IPentahoSystemSessionFactory.class );
+    when( sessionFactory.create( repository )).thenReturn( systemSession );
+    cleaner.setSystemSessionFactory( sessionFactory );
+
     try {
-      RepositoryCleaner.gc();
+      cleaner.gc();
     } finally {
       mp.stop();
     }

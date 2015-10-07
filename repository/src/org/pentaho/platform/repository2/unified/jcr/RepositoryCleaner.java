@@ -21,11 +21,18 @@ package org.pentaho.platform.repository2.unified.jcr;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.management.DataStoreGarbageCollector;
+import org.apache.jackrabbit.core.IPentahoSystemSessionFactory;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.version.VersionHistory;
 
 /**
  * This class provides a static method {@linkplain #gc()} for running JCR's GC routine.
@@ -34,9 +41,21 @@ import javax.jcr.RepositoryException;
  */
 public class RepositoryCleaner {
 
-  private static final Log logger = LogFactory.getLog( RepositoryCleaner.class );
+  private final Log logger = LogFactory.getLog( RepositoryCleaner.class );
+  private static final String JCR_FROZEN_NODE = "jcr:frozenNode";
+  private static final String JCR_FROZEN_UUID = "jcr:frozenUuid";
+  private static final String JCR_ROOT_VERSION = "jcr:rootVersion";
+  private IPentahoSystemSessionFactory systemSessionFactory = new IPentahoSystemSessionFactory.DefaultImpl();
 
-  public static synchronized void gc() {
+  /**
+   * Exists primary for testing
+   * @param systemSessionFactory
+   */
+  public void setSystemSessionFactory( IPentahoSystemSessionFactory systemSessionFactory ) {
+    this.systemSessionFactory = systemSessionFactory;
+  }
+
+  public synchronized void gc() {
     Repository jcrRepository = PentahoSystem.get( Repository.class, "jcrRepository", null );
     if ( jcrRepository == null ) {
       logger.error( "Cannot obtain JCR repository. Exiting" );
@@ -45,11 +64,23 @@ public class RepositoryCleaner {
 
     if ( !( jcrRepository instanceof RepositoryImpl ) ) {
       logger.error(
-        String.format( "Expected RepositoryImpl, but got: [%s]. Exiting", jcrRepository.getClass().getName() ) );
+          String.format( "Expected RepositoryImpl, but got: [%s]. Exiting", jcrRepository.getClass().getName() ) );
       return;
     }
 
-    RepositoryImpl repository = (RepositoryImpl) jcrRepository;
+    final RepositoryImpl repository = (RepositoryImpl) jcrRepository;
+
+    try {
+      logger.debug( "Starting Orphaned Version Purge" );
+      Session systemSession = systemSessionFactory.create( repository );
+      Node node = systemSession.getNode( "/jcr:system/jcr:versionStorage" );
+      findVersionNodesAndPurge( node, systemSession );
+      systemSession.save();
+      logger.debug( "Finished Orphaned Version Purge" );
+    } catch ( RepositoryException e ) {
+      logger.error( "Error running Orphaned Version purge", e );
+    }
+
     try {
       logger.info( "Creating garbage collector" );
       // JCR's documentation recommends not to use RepositoryImpl.createDataStoreGarbageCollector() and
@@ -64,6 +95,7 @@ public class RepositoryCleaner {
       DataStoreGarbageCollector gc = repository.createDataStoreGarbageCollector();
       try {
         logger.debug( "Starting marking stage" );
+        gc.setPersistenceManagerScan( false );
         gc.mark();
         logger.debug( "Starting sweeping stage" );
         int deleted = gc.sweep();
@@ -73,6 +105,46 @@ public class RepositoryCleaner {
       }
     } catch ( RepositoryException e ) {
       logger.error( "Error during garbage collecting", e );
+    }
+
+  }
+
+  private void findVersionNodesAndPurge( Node node, Session session ) {
+    if( node == null || session == null ){
+      return;
+    }
+    try {
+      if ( node.getName().equals( JCR_FROZEN_NODE ) && node.hasProperty( JCR_FROZEN_UUID ) && !node.getParent()
+          .getName().equals( JCR_ROOT_VERSION ) ) {
+        // Version Node
+        Property property = node.getProperty( JCR_FROZEN_UUID );
+        Value uuid = property.getValue();
+        Node nodeByIdentifier = null;
+        try {
+          nodeByIdentifier = session.getNodeByIdentifier( uuid.getString() );
+          nodeByIdentifier = session.getNode( nodeByIdentifier.getPath() );
+        } catch ( RepositoryException ex ) {
+          // ignored this means the node is gone.
+        }
+        if ( nodeByIdentifier == null ) {
+          // node is gone
+          logger.info( "Removed orphan version: " + node.getPath() );
+          ( (VersionHistory) node.getParent().getParent() ).removeVersion( node.getParent().getName() );
+        }
+      }
+    } catch ( RepositoryException e ) {
+      logger.error( "Error purging version nodes. Routine will continue", e );
+    }
+
+    NodeIterator nodes = null;
+    try {
+      nodes = node.getNodes();
+    } catch ( RepositoryException e ) {
+      logger.error( "Error purging version nodes. Routine will continue", e );
+    }
+
+    while ( nodes.hasNext() ) {
+      findVersionNodesAndPurge( nodes.nextNode(), session );
     }
   }
 }
