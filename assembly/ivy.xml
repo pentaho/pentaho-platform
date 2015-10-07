@@ -197,7 +197,8 @@
       <artifact name="pur-repository-base-plugin" type="zip"/>
     </dependency>
 
-    <dependency org="xalan" name="xalan" rev="2.7.0"  changing="true" transitive="false"/>
+    <dependency org="xalan" name="xalan" rev="2.7.1"  changing="true" transitive="false"/>
+    <dependency org="xalan" name="serializer" rev="2.7.1"  changing="true" transitive="false"/>
 
     <!-- Karaf Dependencies -->
     <dependency org="org.apache.karaf" name="org.apache.karaf.main" rev="3.0.3"  transitive="false"/>
@@ -241,7 +242,7 @@
     <conflict org="pentaho" module="pentaho-platform-.*" matcher="regexp" rev="${project.revision}" />
     <conflict org="pentaho" module="pentaho-metadata" rev="${dependency.pentaho-metadata.revision}" />
     <conflict org="pentaho-reporting" rev="3.8-SNAPSHOT" />
-    <conflict org="xalan" module="xalan" rev="2.7.0" />
+    <conflict org="xalan" module="xalan" rev="2.7.1" />
 
 </dependencies>
 </ivy-module>
