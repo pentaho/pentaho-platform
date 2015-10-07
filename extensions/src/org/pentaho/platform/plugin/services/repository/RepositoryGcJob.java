@@ -33,7 +33,7 @@ public class RepositoryGcJob implements IAction {
   @Override
   public void execute() throws Exception {
     logger.info( "Starting repository GC" );
-    RepositoryCleaner.gc();
+    new RepositoryCleaner().gc();
     logger.info( "Repository GC has been finished" );
   }
 }
