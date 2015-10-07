@@ -48,6 +48,7 @@ import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.api.repository.IContentItem;
 
@@ -120,6 +121,9 @@ public class XActionUtilTest {
       }
     } );
     PentahoSystem.setSystemSettingsService( systemSettingsService );
+
+    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
+    PentahoSessionHolder.setSession( userSession );
   }
 
   @Test
@@ -130,6 +134,7 @@ public class XActionUtilTest {
 
   @After
   public void tearDown() {
+    PentahoSessionHolder.removeSession();
     PentahoSystem.deregisterObjectFactory( pentahoObjectFactoryUnified );
     PentahoSystem.shutdown();
   }
