@@ -283,8 +283,31 @@ public class SolutionImportHandler implements IPlatformImportHandler {
               }
             }
           } catch ( Exception e ) {
-            throw new PlatformImportException( Messages.getInstance()
+            // there is a scenario where if the file scheduled has a space in the path, that it won't work. the di server
+            // replaces spaces with underscores and the export mechanism can't determine if it needs this to happen or not
+            // so, if we failed to import and there is a space in the path, try again but this time with replacing the space(s)
+            if ( jobScheduleRequest.getInputFile().contains( " " ) || jobScheduleRequest.getOutputFile().contains( " " ) ) {
+              log.info( "Could not import schedule, attempting to replace spaces with underscores and retrying: " +
+                jobScheduleRequest.getInputFile() );
+
+              jobScheduleRequest.setInputFile( jobScheduleRequest.getInputFile().replaceAll( " ", "_" ) );
+              jobScheduleRequest.setOutputFile( jobScheduleRequest.getOutputFile().replaceAll( " ", "_" ) );
+              try {
+                Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
+                if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
+                  if ( response.getEntity() != null ) {
+                    // get the schedule job id from the response and add it to the import session
+                    ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
+                  }
+                }
+              } catch ( Exception ex ) {
+                throw new PlatformImportException( Messages.getInstance()
+                  .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+              }
+            } else {
+              throw new PlatformImportException( Messages.getInstance()
                 .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+            }
           }
         }
       }
