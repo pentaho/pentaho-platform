@@ -17,6 +17,7 @@
 
 package org.pentaho.test.platform.plugin.pluginmgr;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IComponent;
@@ -75,7 +76,7 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 @SuppressWarnings( "nls" )
-public class DefaultPluginManagerTest {
+public class DefaultPluginManagerIT {
 
   protected MicroPlatform microPlatform;
 
@@ -99,6 +100,11 @@ public class DefaultPluginManagerTest {
 
     session = new StandaloneSession();
     pluginManager = new DefaultPluginManager();
+  }
+
+  @After
+  public void shutdown() {
+    microPlatform.stop();
   }
 
   @Test
