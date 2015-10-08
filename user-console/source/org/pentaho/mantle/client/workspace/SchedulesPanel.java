@@ -72,6 +72,7 @@ import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -177,8 +178,6 @@ public class SchedulesPanel extends SimplePanel {
 
   private IDialogCallback scheduleDialogCallback = new IDialogCallback() {
     public void okPressed() {
-      // Remove Next Line to disable deletion of old job
-      controlJobs( getSelectedJobs(), "removeJob", RequestBuilder.DELETE, true );
       refresh();
 
       MessageDialogBox dialogBox =
