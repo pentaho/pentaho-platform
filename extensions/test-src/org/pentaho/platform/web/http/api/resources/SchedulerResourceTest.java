@@ -33,6 +33,8 @@ import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static javax.ws.rs.core.Response.Status.OK;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
@@ -843,5 +845,58 @@ public class SchedulerResourceTest {
 
     verify( schedulerResource.schedulerService, times( 1 ) ).getBlockStatus( mockJobScheduleRequest );
     verify( schedulerResource, times( 1 ) ).buildOkResponse( mockBlockStatusProxy );
+  }
+
+
+  @Test
+  public void updateJob_ReturnsJobId() throws Exception {
+    JobScheduleRequest request = new JobScheduleRequest();
+    Job job = new Job();
+    job.setJobId( "job-id" );
+    when( schedulerResource.schedulerService.updateJob( request ) ).thenReturn( job );
+
+    assertUpdateJob( request, OK, job.getJobId() );
+  }
+
+  @Test
+  public void updateJob_Returns500_WhenSchedulerFails() throws Exception {
+    JobScheduleRequest request = new JobScheduleRequest();
+    when( schedulerResource.schedulerService.updateJob( request ) )
+      .thenThrow( new SchedulerException( new RuntimeException( "error" ) ) );
+
+    assertUpdateJob( request, INTERNAL_SERVER_ERROR, "error" );
+  }
+
+  @Test
+  public void updateJob_Returns500_WhenIoFails() throws Exception {
+    JobScheduleRequest request = new JobScheduleRequest();
+    when( schedulerResource.schedulerService.updateJob( request ) )
+      .thenThrow( new IOException( new RuntimeException( "error" ) ) );
+
+    assertUpdateJob( request, INTERNAL_SERVER_ERROR, "error" );
+  }
+
+  @Test
+  public void updateJob_Returns401_WhenNotAuthorized() throws Exception {
+    JobScheduleRequest request = new JobScheduleRequest();
+    when( schedulerResource.schedulerService.updateJob( request ) )
+      .thenThrow( new SecurityException( "error" ) );
+
+    assertUpdateJob( request, UNAUTHORIZED, null );
+  }
+
+  @Test
+  public void updateJob_Returns403_WhenNotPermitted() throws Exception {
+    JobScheduleRequest request = new JobScheduleRequest();
+    when( schedulerResource.schedulerService.updateJob( request ) )
+      .thenThrow( new IllegalAccessException( "error" ) );
+
+    assertUpdateJob( request, FORBIDDEN, null );
+  }
+
+  private void assertUpdateJob( JobScheduleRequest request, Response.Status expectedStatus, String expectedResponse ) {
+    Response response = schedulerResource.updateJob( request );
+    assertEquals( expectedStatus.getStatusCode(), response.getStatus() );
+    assertEquals( expectedResponse, response.getEntity() );
   }
 }
