@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
  */
 public class PentahoSystemPluginManagerIT extends DefaultPluginManagerIT {
 
-  protected String solutionPath = StringUtils.defaultIfEmpty( System.getProperty( "CE_INSTALL" ), "../../pentaho-platform" ) + "/extensions/test-res/PluginManagerTest";
+  protected String solutionPath = StringUtils.defaultIfEmpty( System.getProperty( "CE_INSTALL" ), ".." ) + "/extensions/test-res/PluginManagerTest";
 
   public void init0() {
     microPlatform = new MicroPlatform( solutionPath );
