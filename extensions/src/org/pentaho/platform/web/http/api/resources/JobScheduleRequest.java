@@ -26,7 +26,8 @@ import java.util.ArrayList;
 
 @XmlRootElement
 public class JobScheduleRequest implements Serializable {
-  private static final long serialVersionUID = -6145183300070801027L;
+
+  private static final long serialVersionUID = -485489832281790257L;
 
   public static final int SUNDAY = 0;
 
@@ -69,6 +70,8 @@ public class JobScheduleRequest implements Serializable {
   public static final int LAST_WEEK_OF_MONTH = 4;
 
   String jobName;
+  
+  String jobId;
 
   String inputFile;
 
@@ -184,4 +187,13 @@ public class JobScheduleRequest implements Serializable {
   public void setTimeZone( String timeZone ) {
     this.timeZone = timeZone;
   }
+
+  public String getJobId() {
+  	return jobId;
+  }
+	
+  public void setJobId(String jobId) {
+  	this.jobId = jobId;
+  }
+	
 }
