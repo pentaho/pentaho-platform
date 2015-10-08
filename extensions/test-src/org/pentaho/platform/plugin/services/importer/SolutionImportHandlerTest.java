@@ -3,21 +3,28 @@ package org.pentaho.platform.plugin.services.importer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
+import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -393,8 +400,86 @@ public class SolutionImportHandlerTest {
 
   }
 
+  @Test
+  public void testImportSchedules() throws Exception {
+    List<JobScheduleRequest> schedules = new ArrayList<>();
+    JobScheduleRequest scheduleRequest = spy( new JobScheduleRequest() );
+    schedules.add( scheduleRequest );
+
+    SolutionImportHandler spyHandler = spy( importHandler );
+    Response response = mock ( Response.class );
+    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
+    when( response.getEntity() ).thenReturn( "job id" );
+
+    doReturn( response ).when( spyHandler ).createSchedulerJob( any( SchedulerResource.class ), eq( scheduleRequest ) );
+
+    spyHandler.importSchedules( schedules );
+
+    verify( spyHandler ).createSchedulerJob( any( SchedulerResource.class ), eq( scheduleRequest ) );
+    assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
+  }
+
+  @Test
+  public void testImportSchedules_FailsToCreateSchedule() throws Exception {
+    List<JobScheduleRequest> schedules = new ArrayList<>();
+    JobScheduleRequest scheduleRequest = spy( new JobScheduleRequest() );
+    scheduleRequest.setInputFile( "/home/admin/scheduledTransform.ktr" );
+    scheduleRequest.setOutputFile( "/home/admin/scheduledTransform*" );
+    schedules.add( scheduleRequest );
+
+    SolutionImportHandler spyHandler = spy( importHandler );
+
+    doThrow( new IOException( "error creating schedule" ) ).when( spyHandler ).createSchedulerJob(
+      any( SchedulerResource.class ), eq( scheduleRequest ) );
+
+    spyHandler.importSchedules( schedules );
+    assertEquals( 0, ImportSession.getSession().getImportedScheduleJobIds().size() );
+  }
+
+  @Test
+  public void testImportSchedules_FailsToCreateScheduleWithSpace() throws Exception {
+    List<JobScheduleRequest> schedules = new ArrayList<>();
+    JobScheduleRequest scheduleRequest = spy( new JobScheduleRequest() );
+    scheduleRequest.setInputFile( "/home/admin/scheduled Transform.ktr" );
+    scheduleRequest.setOutputFile( "/home/admin/scheduled Transform*" );
+    schedules.add( scheduleRequest );
+
+    SolutionImportHandler spyHandler = spy( importHandler );
+
+    ScheduleRequestMatcher throwMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
+    doThrow( new IOException( "error creating schedule" ) ).when( spyHandler ).createSchedulerJob(
+      any( SchedulerResource.class ), argThat( throwMatcher ) );
+
+    Response response = mock( Response.class );
+    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
+    when( response.getEntity() ).thenReturn( "job id" );
+    ScheduleRequestMatcher goodMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
+    doReturn( response ).when( spyHandler ).createSchedulerJob( any( SchedulerResource.class ), argThat(
+      goodMatcher ) );
+
+    spyHandler.importSchedules( schedules );
+    verify( spyHandler, times( 2 ) ).createSchedulerJob( any( SchedulerResource.class ), any( JobScheduleRequest.class ) );
+    assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
+  }
+
+  private class ScheduleRequestMatcher extends ArgumentMatcher<JobScheduleRequest> {
+    private String input;
+    private String output;
+    public ScheduleRequestMatcher( String input, String output ) {
+      this.input = input;
+      this.output = output;
+    }
+    @Override public boolean matches( Object argument ) {
+      JobScheduleRequest jsr = (JobScheduleRequest) argument;
+      boolean matchedInput = input.equals( jsr.getInputFile() );
+      boolean matchedOutput = output.equals( jsr.getOutputFile() );
+      return matchedInput && matchedOutput;
+    }
+  }
+
   @After
   public void tearDown() throws Exception {
+    ImportSession.getSession().getImportedScheduleJobIds().clear();
     PentahoSystem.clearObjectFactory();
   }
 }
