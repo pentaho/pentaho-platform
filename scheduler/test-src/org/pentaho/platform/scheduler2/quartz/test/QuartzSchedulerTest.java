@@ -42,6 +42,9 @@ import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
 import org.pentaho.platform.engine.core.TestAuditEntry;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.scheduler2.messsages.Messages;
+import org.pentaho.platform.scheduler2.quartz.BlockingQuartzJob;
+import org.pentaho.platform.scheduler2.quartz.QuartzJobKey;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.quartz.QuartzSchedulerAvailability;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
@@ -50,6 +53,10 @@ import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
 import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TestQuartzScheduler;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.security.userdetails.UserDetailsService;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.Trigger;
 
 @SuppressWarnings( "nls" )
 public class QuartzSchedulerTest {
@@ -442,6 +449,26 @@ public class QuartzSchedulerTest {
     calendar.set( Calendar.SECOND, startingSec );
     SimpleJobTrigger jobTrigger = new SimpleJobTrigger( calendar.getTime(), null, 0, 0 );
     testGetJobsSchduler.createJob( "getJobsTestJob", TestAction.class, jobParams, jobTrigger );
+
+    SimpleJobTrigger jobTrigger2 = new SimpleJobTrigger( calendar.getTime(), null, 0, 0 );
+    String manualGroup = "MANUAL_TRIGGER";
+    QuartzJobKey jobId = new QuartzJobKey( "getJbosTestJob2", manualGroup );
+    Trigger quartzTrigger = QuartzScheduler.createQuartzTrigger( jobTrigger2, jobId );
+    quartzTrigger.setGroup( manualGroup );
+    if ( jobTrigger2.getEndTime() != null ) {
+      quartzTrigger.setEndTime( jobTrigger2.getEndTime() );
+    }
+    JobDetail jobDetail = new JobDetail( jobId.toString(), jobId.getUserName(), BlockingQuartzJob.class );
+    jobParams.put( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, jobId.getUserName() );
+    JobDataMap jobDataMap = new JobDataMap( jobParams );
+    jobDetail.setJobDataMap( jobDataMap );
+    try {
+      Scheduler scheduler = testGetJobsSchduler.getQuartzScheduler();
+      scheduler.scheduleJob( jobDetail, quartzTrigger );
+    } catch ( org.quartz.SchedulerException e ) {
+      throw new SchedulerException( Messages.getInstance().getString(
+          "QuartzScheduler.ERROR_0001_FAILED_TO_SCHEDULE_JOB", "getJbosTestJob2" ), e ); //$NON-NLS-1$
+    }
 
     List<Job> jobs = testGetJobsSchduler.getJobs( null );
     Assert.assertEquals( 1, jobs.size() );
