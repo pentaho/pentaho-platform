@@ -29,6 +29,7 @@ import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuditEntry;
@@ -130,6 +131,7 @@ public class QuartzSchedulerTest {
     Assert.assertEquals( calendar.getNextIncludedTime( startTime.getTime() ), startTime.getTime() + 1 );
   }
 
+  @Ignore  
   @Test
   public void runComplexTriggerTest() throws SchedulerException {
     Calendar calendar = Calendar.getInstance();
