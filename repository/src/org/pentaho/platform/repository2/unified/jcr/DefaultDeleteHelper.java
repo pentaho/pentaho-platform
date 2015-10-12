@@ -42,6 +42,10 @@ import javax.jcr.query.qom.Constraint;
 import javax.jcr.query.qom.QueryObjectModelConstants;
 import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.query.qom.Selector;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
+import javax.jcr.version.VersionManager;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -68,7 +72,7 @@ import java.util.Set;
  * Original parent folder path stored in property. All delete-related properties stored in file ID node to avoid
  * the need to checkout versioned files when they are deleted. Note that use of JCR XPath queries may require
  * enabling features in the JCR implementation.
- * 
+ *
  * <pre>
  * /pentaho/acme/home/suzy/.trash/pho:testFileId/testFile
  * /pentaho/acme/home/suzy/.trash/pho:testFileId/pho:deletedDate (deleted date property)
@@ -82,7 +86,7 @@ import java.util.Set;
  * Uses node iterators and {@link javax.jcr.Node#getNodes(String)} when filtering. File ID nodes exist to prevent
  * same-name sibling conflicts. Original parent folder path derived from folder ID node name. All delete-related
  * properties stored in file ID node to avoid the need to checkout versioned files when they are deleted.
- * 
+ *
  * <pre>
  * /pentaho/acme/home/suzy/.trash/pho:testFolderId/pho:testFileId/testFile
  * /pentaho/acme/home/suzy/.trash/pho:testFolderId/pho:testFileId/pho:deletedDate (deleted date property)
@@ -101,10 +105,11 @@ import java.util.Set;
  * desirable because a deleted file with confidential information should not be seen by anyone else except the
  * deleting user.
  * </p>
- * 
+ *
  * @author mlowery
  */
 public class DefaultDeleteHelper implements IDeleteHelper {
+  public static final String JCR_ROOT_VERSION = "jcr:rootVersion";
 
   // ~ Static fields/initializers
   // ======================================================================================
@@ -133,7 +138,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    * {@inheritDoc}
    */
   public void deleteFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Serializable fileId ) throws RepositoryException {
+                          final Serializable fileId ) throws RepositoryException {
     Node fileToDeleteNode = session.getNodeByIdentifier( fileId.toString() );
     // move file to .trash subfolder named with the UUID of the file to delete
     Node trashFileIdNode = getOrCreateTrashFileIdNode( session, pentahoJcrConstants, fileId );
@@ -147,14 +152,13 @@ public class DefaultDeleteHelper implements IDeleteHelper {
   }
 
   /**
-   * Creates and/or returns an internal folder to store a single deleted file. This folder is uniquely named and
-   * thus prevents same-name sibling conflicts.
-   * 
-   * @param fileId
-   *          id of file to delete
+   * Creates and/or returns an internal folder to store a single deleted file. This folder is uniquely named and thus
+   * prevents same-name sibling conflicts.
+   *
+   * @param fileId id of file to delete
    */
   private Node getOrCreateTrashFileIdNode( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Serializable fileId ) throws RepositoryException {
+                                           final Serializable fileId ) throws RepositoryException {
     final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":";
     final String folderName = fileId.toString(); //$NON-NLS-1$
     Node trashInternalFolderNode = getOrCreateTrashInternalFolderNode( session, pentahoJcrConstants );
@@ -170,14 +174,15 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    * for files deleted from a given folder.
    */
   private Node legacyGetTrashFolderIdNode( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final String origParentFolderPath ) throws RepositoryException {
+                                           final String origParentFolderPath ) throws RepositoryException {
 
     // get folder id
     String folderId = null;
     if ( session.itemExists( origParentFolderPath ) ) {
       folderId = ( (Node) session.getItem( origParentFolderPath ) ).getIdentifier();
     } else {
-      throw new RuntimeException( Messages.getInstance().getString( "DefaultDeleteHelper.ERROR_0001_PATH_NOT_FOUND" ) ); //$NON-NLS-1$
+      throw new RuntimeException(
+          Messages.getInstance().getString( "DefaultDeleteHelper.ERROR_0001_PATH_NOT_FOUND" ) ); //$NON-NLS-1$
     }
 
     final String prefix = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":";
@@ -195,7 +200,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    */
   private Node
   getOrCreateTrashInternalFolderNode( final Session session, final PentahoJcrConstants pentahoJcrConstants )
-    throws RepositoryException {
+      throws RepositoryException {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     String tenantId = (String) pentahoSession.getAttribute( IPentahoSession.TENANT_ID_KEY );
     Node userHomeFolderNode =
@@ -212,7 +217,8 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    * {@inheritDoc}
    */
   public List<RepositoryFile> getDeletedFiles( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final String origParentFolderPath, final String filter ) throws RepositoryException {
+                                               final String origParentFolderPath, final String filter )
+      throws RepositoryException {
     Node trashNode = getOrCreateTrashInternalFolderNode( session, pentahoJcrConstants );
 
     // query Trash Structure 2
@@ -257,7 +263,8 @@ public class DefaultDeleteHelper implements IDeleteHelper {
         // (and only) child
         deletedFiles.add( nodeToDeletedFile( session, pentahoJcrConstants, trashFileIdNode.getNodes().nextNode() ) );
       } else {
-        throw new RuntimeException( Messages.getInstance().getString( "DefaultDeleteHelper.ERROR_0002_NOT_CLEAN" ) ); //$NON-NLS-1$
+        throw new RuntimeException(
+            Messages.getInstance().getString( "DefaultDeleteHelper.ERROR_0002_NOT_CLEAN" ) ); //$NON-NLS-1$
       }
     }
 
@@ -274,8 +281,9 @@ public class DefaultDeleteHelper implements IDeleteHelper {
   }
 
   private List<RepositoryFile> legacyGetDeletedFiles( final Session session,
-      final PentahoJcrConstants pentahoJcrConstants, final String origParentFolderPath, final String filter )
-    throws RepositoryException {
+                                                      final PentahoJcrConstants pentahoJcrConstants,
+                                                      final String origParentFolderPath, final String filter )
+      throws RepositoryException {
     List<RepositoryFile> deletedFiles = new ArrayList<RepositoryFile>();
     Node trashFolderIdNode = legacyGetTrashFolderIdNode( session, pentahoJcrConstants, origParentFolderPath );
     if ( trashFolderIdNode == null ) {
@@ -301,7 +309,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    * {@inheritDoc}
    */
   public List<RepositoryFile> getDeletedFiles( final Session session, final PentahoJcrConstants pentahoJcrConstants )
-    throws RepositoryException {
+      throws RepositoryException {
     Node trashNode = getOrCreateTrashInternalFolderNode( session, pentahoJcrConstants );
 
     if ( trashNode == null ) {
@@ -331,7 +339,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
   }
 
   private RepositoryFile nodeToDeletedFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Node trashFileNode ) throws RepositoryException {
+                                            final Node trashFileNode ) throws RepositoryException {
     // each fileId node has at most one child that is the deleted file
     RepositoryFile deletedFile =
         JcrRepositoryFileUtils.nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper,
@@ -344,7 +352,8 @@ public class DefaultDeleteHelper implements IDeleteHelper {
 
   //returns encoded path
   private String getOriginalParentFolderPath( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Node trashFileNode, final boolean relative ) throws RepositoryException {
+                                              final Node trashFileNode, final boolean relative )
+      throws RepositoryException {
     if ( trashFileNode.getParent().hasProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ) ) {
       String relPath =
           trashFileNode.getParent().getProperty( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ).getString();
@@ -359,7 +368,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
   }
 
   private Date getDeletedDate( final Node trashFileNode, final PentahoJcrConstants pentahoJcrConstants )
-    throws RepositoryException {
+      throws RepositoryException {
     if ( trashFileNode.getParent().hasProperty( pentahoJcrConstants.getPHO_DELETEDDATE() ) ) {
       return trashFileNode.getParent().getProperty( pentahoJcrConstants.getPHO_DELETEDDATE() ).getDate().getTime();
     } else {
@@ -372,7 +381,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    * {@inheritDoc}
    */
   public void permanentlyDeleteFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Serializable fileId ) throws RepositoryException {
+                                     final Serializable fileId ) throws RepositoryException {
     Assert.notNull( fileId );
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
     // guard against using a file retrieved from a more lenient session inside a more strict session
@@ -415,15 +424,49 @@ public class DefaultDeleteHelper implements IDeleteHelper {
         ServerRepositoryPaths.getUserHomeFolderPath( new Tenant( tenantId, true ), PentahoSessionHolder.getSession()
             .getName() )
             + RepositoryFile.SEPARATOR + FOLDER_NAME_TRASH;
+    Node parent = fileNode.getParent();
+
+
+    purgeHistory( fileNode, session, pentahoJcrConstants );
+
     if ( fileNode.getPath().startsWith( trashFolder ) ) {
-      fileNode.getParent().remove();
+      // Remove the file and then the wrapper foler
+      fileNode.remove();
+      parent.remove();
     } else {
       fileNode.remove();
     }
   }
 
+  private void purgeHistory( Node fileNode, Session session, PentahoJcrConstants pentahoJcrConstants )
+      throws RepositoryException {
+    // Delete all previous versions of this node
+    VersionManager versionManager = session.getWorkspace().getVersionManager();
+    if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, fileNode ) ) {
+      // go down to children
+      NodeIterator nodes = fileNode.getNodes();
+      while ( nodes.hasNext() ) {
+        Node next = (Node) nodes.next();
+        purgeHistory( next, session, pentahoJcrConstants );
+      }
+    } else if ( JcrRepositoryFileUtils.isPentahoFile( pentahoJcrConstants, fileNode ) ) {
+      VersionHistory versionHistory = versionManager.getVersionHistory( fileNode.getPath() );
+
+      VersionIterator allVersions = versionHistory.getAllVersions();
+      while ( allVersions.hasNext() ) {
+        Version next = (Version) allVersions.next();
+        String name = next.getName();
+        // Root version cannot be deleted, the remove below will take care of that.
+        if ( !JCR_ROOT_VERSION.equals( name ) ) {
+          versionHistory.removeVersion( name );
+        }
+      }
+    }
+
+  }
+
   protected RepositoryFile getReferrerFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Property referrerProperty ) throws RepositoryException {
+                                            final Property referrerProperty ) throws RepositoryException {
     Node currentNode = referrerProperty.getParent();
     while ( !currentNode.isNodeType( pentahoJcrConstants.getPHO_NT_PENTAHOHIERARCHYNODE() ) ) {
       currentNode = currentNode.getParent();
@@ -442,11 +485,11 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    * {@inheritDoc}
    */
   public void undeleteFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Serializable fileId ) throws RepositoryException {
+                            final Serializable fileId ) throws RepositoryException {
     Node fileToUndeleteNode = session.getNodeByIdentifier( fileId.toString() );
     String trashFileIdNodePath = fileToUndeleteNode.getParent().getPath();
     String origParentFolderPath = getOriginalParentFolderPath( session, pentahoJcrConstants
-      , fileToUndeleteNode, false );
+        , fileToUndeleteNode, false );
 
     String absDestPath = origParentFolderPath + RepositoryFile.SEPARATOR + fileToUndeleteNode.getName();
 
@@ -465,8 +508,9 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    * {@inheritDoc}
    */
   public String getOriginalParentFolderPath( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Serializable fileId ) throws RepositoryException {
-    return JcrStringHelper.pathDecode( getOriginalParentFolderPath( session, pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ),
-        false ) );
+                                             final Serializable fileId ) throws RepositoryException {
+    return JcrStringHelper.pathDecode(
+        getOriginalParentFolderPath( session, pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ),
+            false ) );
   }
 }
