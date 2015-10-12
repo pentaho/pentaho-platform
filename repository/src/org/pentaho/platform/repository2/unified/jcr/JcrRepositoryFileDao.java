@@ -33,6 +33,7 @@ import java.util.Set;
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
 import javax.jcr.ItemExistsException;
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
@@ -293,15 +294,16 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         "JcrRepositoryFileDao.ERROR_0001_NO_TRANSFORMER" ) ); //$NON-NLS-1$
   }
 
-  protected ITransformer<IRepositoryFileData>
-    findTransformerForWrite( final Class<? extends IRepositoryFileData> clazz ) {
+  protected ITransformer<IRepositoryFileData> findTransformerForWrite(
+    Class<? extends IRepositoryFileData> clazz ) {
+
     for ( ITransformer<IRepositoryFileData> transformer : transformers ) {
       if ( transformer.canWrite( clazz ) ) {
         return transformer;
       }
     }
     throw new IllegalArgumentException( Messages.getInstance().getString(
-        "JcrRepositoryFileDao.ERROR_0001_NO_TRANSFORMER" ) ); //$NON-NLS-1$
+      "JcrRepositoryFileDao.ERROR_0001_NO_TRANSFORMER" ) ); //$NON-NLS-1$
   }
 
   /**
@@ -382,7 +384,12 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        Node fileNode = session.getNodeByIdentifier( fileId.toString() );
+        Node fileNode;
+        try {
+          fileNode = session.getNodeByIdentifier( fileId.toString() );
+        } catch ( ItemNotFoundException e ) {
+          fileNode = null;
+        }
         RepositoryFile file =
             fileNode != null ? JcrRepositoryFileUtils.nodeToFile( session, pentahoJcrConstants, pathConversionHelper,
                 lockHelper, fileNode, loadMaps, locale ) : null;
@@ -965,10 +972,11 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    * {@inheritDoc}
    */
   @Override
-  public void
-    restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  public void restoreFileAtVersion( final Serializable fileId, final Serializable versionId,
+                                    final String versionMessage ) {
     if ( isKioskEnabled() ) {
-      throw new RuntimeException( Messages.getInstance().getString( "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED" ) ); //$NON-NLS-1$
+      throw new RuntimeException(
+        Messages.getInstance().getString( "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED" ) ); //$NON-NLS-1$
     }
     Assert.notNull( fileId );
     Assert.notNull( versionId );
