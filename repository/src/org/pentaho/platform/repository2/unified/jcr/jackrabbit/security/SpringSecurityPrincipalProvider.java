@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jcr.Session;
 
-import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.security.principal.PrincipalIterator;
@@ -40,10 +39,8 @@ import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalIteratorAdapter;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISecurityHelper;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
@@ -63,7 +60,7 @@ import org.springframework.util.Assert;
  * <p/>
  * <p> A {@code java.security.Principal} represents a user. A {@code java.security.acl.Group} represents a group. In
  * Spring Security, a group is called a role or authority or granted authority. Arguments to the method {@link
- * #providePrincipal(String)} can either be a Principal or Group. In other words, {@link #providePrincipal(String)}
+ * #getPrincipal(String)} can either be a Principal or Group. In other words, {@link #getPrincipal(String)}
  * might be called with an argument of a Spring Security granted authority. This happens when access control entries
  * (ACEs) grant access to roles and the system needs to verify the role is known. </p>
  * <p/>
@@ -85,6 +82,11 @@ import org.springframework.util.Assert;
  */
 public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
+  public static final String ROLE_CACHE_REGION = "principalProviderRoleCache";
+  public static final String USER_CACHE_REGION = "principalProviderUserCache";
+
+  private ICacheManager cacheManager;
+
   // ~ Static fields/initializers
   // ======================================================================================
 
@@ -102,7 +104,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   private String anonymousId;
 
-  private AnonymousPrincipal anonymousPrincipal = new AnonymousPrincipal();
+  private final AnonymousPrincipal anonymousPrincipal = new AnonymousPrincipal();
 
   final boolean ACCOUNT_NON_EXPIRED = true;
 
@@ -115,9 +117,9 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    */
   private final AtomicBoolean initialized = new AtomicBoolean( false );
 
-  private final LRUMap userCache = new LRUMap( 4096 );
-
-  private final LRUMap roleCache = new LRUMap( 512 );
+  void setCacheManager( ICacheManager cacheManager ) {
+    this.cacheManager = cacheManager;
+  }
 
   // ~ Constructors
   // ====================================================================================================
@@ -150,21 +152,30 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       logger.trace( String.format( "using anonymousId [%s]", anonymousId ) ); //$NON-NLS-1$
     }
 
+    cacheManager = PentahoSystem.getCacheManager( null );
+    if ( cacheManager != null ) {
+      if ( !cacheManager.cacheEnabled( USER_CACHE_REGION ) ) {
+        cacheManager.addCacheRegion( USER_CACHE_REGION );
+      }
+      if ( !cacheManager.cacheEnabled( ROLE_CACHE_REGION ) ) {
+        cacheManager.addCacheRegion( ROLE_CACHE_REGION );
+      }
+    }
+
     initialized.set( true );
   }
 
   public void close() {
     checkInitialized();
     clearCaches();
+    cacheManager = null;
     initialized.set( false );
   }
 
   public synchronized void clearCaches() {
-    synchronized ( userCache ) {
-      userCache.clear();
-    }
-    synchronized ( roleCache ) {
-      roleCache.clear();
+    if ( cacheManager != null ) {
+      cacheManager.clearRegionCache( ROLE_CACHE_REGION );
+      cacheManager.clearRegionCache( USER_CACHE_REGION );
     }
   }
 
@@ -204,18 +215,23 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
       if ( JcrTenantUtils.isTenantedUser( principalName ) ) {
         // 1. then try the user cache
-        Principal userFromUserCache;
-        synchronized ( userCache ) {
-          userFromUserCache = (Principal) userCache.get( JcrTenantUtils.getTenantedUser( principalName ) );
-        }
-        if ( userFromUserCache != null ) {
-          if ( logger.isTraceEnabled() ) {
-            logger.trace( "user " + principalName + " found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+        if ( cacheManager != null ) {
+          Principal userFromUserCache = (Principal) cacheManager
+            .getFromRegionCache( USER_CACHE_REGION, JcrTenantUtils.getTenantedUser( principalName ) );
+
+          if ( userFromUserCache != null ) {
+            if ( logger.isTraceEnabled() ) {
+              logger.trace( "user " + principalName + " found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            return userFromUserCache;
+          } else {
+            if ( logger.isTraceEnabled() ) {
+              logger.trace( "user " + principalName + " not found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            }
           }
-          return userFromUserCache;
         } else {
           if ( logger.isTraceEnabled() ) {
-            logger.trace( "user " + principalName + " not found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            logger.trace( " Cache is not available. Will create a principal for user [" + principalName + ']' );
           }
         }
 
@@ -224,8 +240,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         final UserDetails userDetails = internalGetUserDetails( principalName );
         if ( userDetails != null ) {
           final Principal user = new UserPrincipal( principalName );
-          synchronized ( userCache ) {
-            userCache.put( principalName, user );
+          if ( cacheManager != null ) {
+            cacheManager.putInRegionCache( USER_CACHE_REGION, principalName, user );
           }
           return user;
         }
@@ -233,15 +249,23 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       } else if ( JcrTenantUtils.isTenatedRole( principalName ) ) {
 
         // 1. first try the role cache
-        final Principal roleFromCache = (Principal) roleCache.get( JcrTenantUtils.getTenantedRole( principalName ) );
-        if ( roleFromCache != null ) {
-          if ( logger.isTraceEnabled() ) {
-            logger.trace( "role " + principalName + " found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+        if ( cacheManager != null ) {
+          Principal roleFromCache = (Principal) cacheManager
+            .getFromRegionCache( ROLE_CACHE_REGION, JcrTenantUtils.getTenantedRole( principalName ) );
+
+          if ( roleFromCache != null ) {
+            if ( logger.isTraceEnabled() ) {
+              logger.trace( "role " + principalName + " found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            return roleFromCache;
+          } else {
+            if ( logger.isTraceEnabled() ) {
+              logger.trace( "role " + principalName + " not found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            }
           }
-          return roleFromCache;
         } else {
           if ( logger.isTraceEnabled() ) {
-            logger.trace( "role " + principalName + " not found in cache" ); //$NON-NLS-1$ //$NON-NLS-2$
+            logger.trace( " Cache is not available. Will create a principal for role [" + principalName + ']' );
           }
         }
 
@@ -252,7 +276,10 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         // by this class will be caught in
         // SpringSecurityLoginModule.getPrincipal and the login will fail
         final Principal roleToCache = createSpringSecurityRolePrincipal( principalName );
-        roleCache.put( principalName, roleToCache );
+
+        if ( cacheManager != null ) {
+          cacheManager.putInRegionCache( ROLE_CACHE_REGION, principalName, roleToCache );
+        }
         if ( logger.isTraceEnabled() ) {
           logger.trace( "assuming " + principalName + " is a role" ); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -294,9 +321,12 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
         final String roleAuthority = role.getAuthority();
         Principal fromCache;
-        synchronized ( roleCache ) {
-          fromCache = (Principal) roleCache.get( roleAuthority );
+        if (cacheManager == null) {
+          fromCache = null;
+        } else {
+          fromCache = (Principal) cacheManager.getFromRegionCache( ROLE_CACHE_REGION, roleAuthority );
         }
+
         if ( fromCache != null ) {
           groups.add( fromCache );
         } else {
@@ -361,10 +391,12 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         for ( int i = 0; i < authorities.length; i++ ) {
           String role = authorities[ i ].getAuthority();
           final String tenatedRoleString = JcrTenantUtils.getTenantedRole( role );
-          synchronized ( roleCache ) {
-            if ( !roleCache.containsKey( role ) ) {
-              final SpringSecurityRolePrincipal ssRolePrincipal = new SpringSecurityRolePrincipal( tenatedRoleString );
-              roleCache.put( role, ssRolePrincipal );
+          if ( cacheManager != null ) {
+            Object rolePrincipal = cacheManager.getFromRegionCache( ROLE_CACHE_REGION, role );
+            if ( rolePrincipal == null ) {
+              final SpringSecurityRolePrincipal ssRolePrincipal =
+                new SpringSecurityRolePrincipal( tenatedRoleString );
+              cacheManager.putInRegionCache( ROLE_CACHE_REGION, role, ssRolePrincipal );
             }
           }
           auths[ i ] = new GrantedAuthorityImpl( tenatedRoleString );
