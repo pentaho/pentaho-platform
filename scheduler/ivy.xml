@@ -20,6 +20,7 @@
     <dependency org="org.quartz-scheduler" name="quartz" rev="1.7.2"  transitive="false"/>
 
     <dependency org="junit" name="junit" rev="4.4" conf="test->default" />
+    <dependency org="org.mockito" name="mockito-all" rev="1.8.5" conf="test->default"/>
     <dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default" />
     	<dependency org="org.jmock" name="jmock-legacy" rev="2.5.1" conf="test->default" />
 
