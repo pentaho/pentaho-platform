@@ -75,10 +75,10 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
   @Override public boolean canAccess( final RepositoryFile repositoryFile,
                                       final EnumSet<RepositoryFilePermission> permissions ) {
 
-    if(repositoryFile == null) {
+    if ( repositoryFile == null ) {
       return false;
     }
-      
+
     // Obtain a reference to ACL node as "system", guaranteed access
     final RepositoryFile aclNode = getAclNode( repositoryFile );
     
@@ -108,6 +108,10 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
    * {@inheritDoc}
    */
   @Override public RepositoryFileAcl getAclFor( final RepositoryFile repositoryFile ) {
+
+    if ( repositoryFile == null ) {
+      return null;
+    }
 
     // Obtain a reference to ACL node as "system", guaranteed access
     final RepositoryFile aclNode = getAclNode( repositoryFile );
