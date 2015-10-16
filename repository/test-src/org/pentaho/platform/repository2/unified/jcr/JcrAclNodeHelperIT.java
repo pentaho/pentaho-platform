@@ -2,7 +2,6 @@ package org.pentaho.platform.repository2.unified.jcr;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;
@@ -19,7 +18,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.jcr.PathNotFoundException;
-import javax.jcr.ReferentialIntegrityException;
 import java.util.EnumSet;
 
 import static org.junit.Assert.*;
@@ -234,6 +232,20 @@ public class JcrAclNodeHelperIT extends DefaultUnifiedRepositoryBase {
 
     assertTrue( adminPresent );
   }
+
+
+  @Test
+  public void getAclFor_Null_ReturnsFalse() throws Exception {
+    loginAsRepositoryAdmin();
+    assertNull( helper.getAclFor( null ) );
+  }
+
+  @Test
+  public void canAccess_Null_ReturnsFalse() throws Exception {
+    loginAsRepositoryAdmin();
+    assertFalse( helper.canAccess( null, EnumSet.of( RepositoryFilePermission.READ ) ) );
+  }
+
 
   private void makeDsPrivate() {
     loginAsRepositoryAdmin();
