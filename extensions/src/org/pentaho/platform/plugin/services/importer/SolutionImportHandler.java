@@ -270,47 +270,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       }
     }
     if ( manifest != null ) {
-      List<JobScheduleRequest> scheduleList = manifest.getScheduleList();
-      if ( scheduleList != null ) {
-        SchedulerResource schedulerResource = new SchedulerResource();
-        for ( JobScheduleRequest jobScheduleRequest : scheduleList ) {
-          try {
-            Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
-            if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
-              if ( response.getEntity() != null ) {
-                // get the schedule job id from the response and add it to the import session
-                ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
-              }
-            }
-          } catch ( Exception e ) {
-            // there is a scenario where if the file scheduled has a space in the path, that it won't work. the di server
-            // replaces spaces with underscores and the export mechanism can't determine if it needs this to happen or not
-            // so, if we failed to import and there is a space in the path, try again but this time with replacing the space(s)
-            if ( jobScheduleRequest.getInputFile().contains( " " ) || jobScheduleRequest.getOutputFile().contains( " " ) ) {
-              log.info( "Could not import schedule, attempting to replace spaces with underscores and retrying: " +
-                jobScheduleRequest.getInputFile() );
-
-              jobScheduleRequest.setInputFile( jobScheduleRequest.getInputFile().replaceAll( " ", "_" ) );
-              jobScheduleRequest.setOutputFile( jobScheduleRequest.getOutputFile().replaceAll( " ", "_" ) );
-              try {
-                Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
-                if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
-                  if ( response.getEntity() != null ) {
-                    // get the schedule job id from the response and add it to the import session
-                    ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
-                  }
-                }
-              } catch ( Exception ex ) {
-                throw new PlatformImportException( Messages.getInstance()
-                  .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
-              }
-            } else {
-              throw new PlatformImportException( Messages.getInstance()
-                .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
-            }
-          }
-        }
-      }
+      importSchedules( manifest.getScheduleList() );
 
       // Add Pentaho Connections
       List<org.pentaho.database.model.DatabaseConnection> datasourceList = manifest.getDatasourceList();
@@ -342,6 +302,56 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     }
     // Process locale files.
     localeFilesProcessor.processLocaleFiles( importer );
+  }
+
+  protected void importSchedules( List<JobScheduleRequest> scheduleList ) throws PlatformImportException {
+    if ( scheduleList != null ) {
+      SchedulerResource schedulerResource = new SchedulerResource();
+      for ( JobScheduleRequest jobScheduleRequest : scheduleList ) {
+        try {
+          Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
+          if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
+            if ( response.getEntity() != null ) {
+              // get the schedule job id from the response and add it to the import session
+              ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
+            }
+          }
+        } catch ( Exception e ) {
+          // there is a scenario where if the file scheduled has a space in the file name, that it won't work. the di server
+          // replaces spaces with underscores and the export mechanism can't determine if it needs this to happen or not
+          // so, if we failed to import and there is a space in the path, try again but this time with replacing the space(s)
+          if ( jobScheduleRequest.getInputFile().contains( " " ) || jobScheduleRequest.getOutputFile().contains( " " ) ) {
+            log.info( "Could not import schedule, attempting to replace spaces with underscores and retrying: "
+              + jobScheduleRequest.getInputFile() );
+            File inFile = new File( jobScheduleRequest.getInputFile() );
+            File outFile = new File( jobScheduleRequest.getOutputFile() );
+            String inputFileName = inFile.getParent() + RepositoryFile.SEPARATOR
+              + inFile.getName().replaceAll( " ", "_" );
+            String outputFileName = outFile.getParent() + RepositoryFile.SEPARATOR
+              + outFile.getName().replaceAll( " ", "_" );
+            jobScheduleRequest.setInputFile( inputFileName );
+            jobScheduleRequest.setOutputFile( outputFileName );
+            try {
+              Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
+              if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
+                if ( response.getEntity() != null ) {
+                  // get the schedule job id from the response and add it to the import session
+                  ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
+                }
+              }
+            } catch ( Exception ex ) {
+              // log it and keep going. we should stop processing all schedules just because one fails.
+              log.error( Messages.getInstance()
+                .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+            }
+          } else {
+            // log it and keep going. we should stop processing all schedules just because one fails.
+            log.error( Messages.getInstance()
+              .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+          }
+        }
+      }
+    }
   }
 
   protected void importMetaStore( ExportManifest manifest, boolean overwrite ) {
@@ -460,7 +470,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             }
           }
         }
-      } catch( SecurityException e) {
+      } catch ( SecurityException e ) {
         log.error( Messages.getInstance().getString( "ERROR.ImportingUserSetting", user.getUsername() ) );
         log.debug( Messages.getInstance().getString( "ERROR.ImportingUserSetting", user.getUsername() ), e );
       }
