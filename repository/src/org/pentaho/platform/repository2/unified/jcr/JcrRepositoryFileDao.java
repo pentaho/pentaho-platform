@@ -42,6 +42,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.Lock;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
@@ -72,6 +74,7 @@ import org.springframework.util.StringUtils;
  * @author mlowery
  */
 public class JcrRepositoryFileDao implements IRepositoryFileDao {
+  private static final Log logger = LogFactory.getLog( JcrRepositoryFileDao.class );
 
   // ~ Static fields/initializers
   // ======================================================================================
@@ -388,6 +391,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         try {
           fileNode = session.getNodeByIdentifier( fileId.toString() );
         } catch ( ItemNotFoundException e ) {
+          logger.info( "Couldn't find file by id: " + fileId );
           fileNode = null;
         }
         RepositoryFile file =
