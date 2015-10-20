@@ -1,5 +1,6 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -25,9 +26,9 @@ public class RepositoryPublishService {
    * Publishes the file to the provided path in the repository. The file will be overwritten if the overwrite flag
    * is set to true
    *
-   * @param pathId (colon separated path for the repository file)
+   * @param pathId path for the repository file
    *               <pre function="syntax.xml">
-   *               :path:to:file:id
+   *               /path/to/file/id
    *               </pre>
    * @param fileContents (input stream containing the data)
    * @param overwriteFile (flag to determine whether to overwrite the existing file in the repository or not)
@@ -35,7 +36,7 @@ public class RepositoryPublishService {
    *               true
    *               </pre>
    *
-   * @returns response object indicating the success or failure of this operation
+   * @deprecated use {@linkplain #publishFile(String, InputStream, Boolean)} instead
    */
   public void writeFile( String pathId, InputStream fileContents, Boolean overwriteFile )
     throws PlatformImportException, PentahoAccessControlException {
@@ -54,6 +55,40 @@ public class RepositoryPublishService {
     } catch ( Exception e ) {
       logger.error( e );
       throw new InternalError();
+    }
+  }
+
+  /**
+   * Publishes the file to the provided path in the repository via registered importers. The file will be overwritten if
+   * the {@code overwrite} is {@code true}
+   *
+   * @param pathId        slash-separated path for the repository file <pre function="syntax.xml"> /path/to/file/id
+   *                      </pre>
+   * @param fileContents  input stream containing the data
+   * @param overwriteFile flag to determine whether to overwrite the existing file in the repository or not <pre
+   *                      function="syntax.xml"> true </pre>
+   * @throws PentahoAccessControlException if current user is not allowed to publish files
+   * @throws PlatformImportException rethrows any exception raised in the importer
+   * @throws RuntimeException rethrows any exception raised in the importer
+   */
+  public void publishFile( String pathId, InputStream fileContents, Boolean overwriteFile )
+    throws PlatformImportException, PentahoAccessControlException {
+    try {
+      validateAccess();
+    } catch ( PentahoAccessControlException e ) {
+      logger.error( e );
+      throw e;
+    }
+
+    IPlatformImportBundle bundle = prepareBundle( pathId, fileContents, overwriteFile );
+    try {
+      getPlatformImporter().importFile( bundle );
+    } catch ( PlatformImportException e ) {
+      logger.error( e );
+      throw e;
+    } catch ( Exception e ) {
+      logger.error( e );
+      throw new RuntimeException();
     }
   }
 
@@ -82,11 +117,24 @@ public class RepositoryPublishService {
     return platformImporter;
   }
 
+  @Deprecated
   protected IPlatformImportBundle buildBundle( String pathId, InputStream fileContents, Boolean overwriteFile ) {
     File file = new File( pathId );
     RepositoryFileImportBundle.Builder bundleBuilder =
       new RepositoryFileImportBundle.Builder().input( fileContents ).charSet( "UTF-8" ).hidden( false ).mime(
         "text/xml" ).path( file.getParent() ).name( file.getName() ).overwriteFile( overwriteFile );
     return bundleBuilder.build();
+  }
+
+  protected IPlatformImportBundle prepareBundle( String fullPath, InputStream fileContents, Boolean overwriteFile ) {
+    return new RepositoryFileImportBundle.Builder()
+      .input( fileContents )
+      .charSet( "UTF-8" )
+      .hidden( false )
+      .mime( "text/xml" )
+      .path( "/" + FilenameUtils.getPathNoEndSeparator( fullPath ) )
+      .name( FilenameUtils.getName( fullPath ) )
+      .overwriteFile( overwriteFile )
+      .build();
   }
 }
