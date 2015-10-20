@@ -140,7 +140,7 @@ public interface IUnifiedRepository {
    *          {@link Serializable} file Id of the file
    * @param locale
    *          {@link IPentahoLocale} which the user wishes to have contained in the map
-   * @return {@link RepositoryFile}
+   * @return file or {@code null} if the file does not exist or access is denied
    */
   RepositoryFile getFileById( final Serializable fileId, final IPentahoLocale locale );
 
@@ -169,7 +169,7 @@ public interface IUnifiedRepository {
    * @param locale
    *          {@link IPentahoLocale} locale to retrieve for {@link RepositoryFile}
    * 
-   * @return {@link RepositoryFile}
+   * @return file or {@code null} if the file does not exist or access is denied
    */
   RepositoryFile getFileById( final Serializable fileId, final boolean loadLocaleMaps, final IPentahoLocale locale );
 
