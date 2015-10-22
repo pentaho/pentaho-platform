@@ -65,7 +65,7 @@ public class SchedulerOutputPathResolver {
     String fileNamePattern = "/" + fileName + ".*";
 
     String outputFilePath = scheduleRequest.getOutputFile();
-    if ( outputFilePath.endsWith( fileNamePattern ) ) {
+    if ( outputFilePath != null && outputFilePath.endsWith( fileNamePattern ) ) {
       // we are creating a schedule with a completed path already, strip off the pattern and validate the folder is valid
       outputFilePath = outputFilePath.substring( 0, outputFilePath.indexOf( fileNamePattern ) );
     }
