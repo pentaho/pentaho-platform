@@ -1,10 +1,13 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.pentaho.platform.api.mt.ITenant;
@@ -20,7 +23,7 @@ public class JcrRepositoryFileDaoTest extends DefaultUnifiedRepositoryBase {
   @Test
   //Running within defined date
   public void testUpdateFile1() throws Exception {
-    
+
     RepositoryFile newFile = createFile( "JcrRepositoryFileDaoTest1.test" );
     IRepositoryFileData dataMock = new SampleRepositoryFileData( "", true, 0 );
 
@@ -33,8 +36,8 @@ public class JcrRepositoryFileDaoTest extends DefaultUnifiedRepositoryBase {
     assertEquals( "incorrect version date", lastVersionDate, startDate );
 
   }
-  
-  
+
+
   @Test
   //Running without defined date
   public void testUpdateFile2() throws Exception {
@@ -76,6 +79,24 @@ public class JcrRepositoryFileDaoTest extends DefaultUnifiedRepositoryBase {
 
     return newFile;
 
+  }
+
+
+  @Test
+  public void getFileById_ReturnsNull_WhenDoesNotExist() throws Exception {
+    loginAsRepositoryAdmin();
+    RepositoryFile file = repo.getFileById( UUID.randomUUID().toString() );
+    assertNull( file );
+  }
+
+  @Test
+  public void getFileById_ReturnsFile_WhenExists() throws Exception {
+    RepositoryFile file = createFile( "file-to-be-returned-by-id.test" );
+    assertNotNull( file.getId() );
+
+    loginAsRepositoryAdmin();
+    RepositoryFile found = repo.getFileById( file.getId() );
+    assertEquals( file.getName(), found.getName() );
   }
 
 }
