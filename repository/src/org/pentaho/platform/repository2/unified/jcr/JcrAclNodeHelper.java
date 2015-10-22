@@ -89,8 +89,17 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
     // Obtain a reference to ACL node as "system", guaranteed access
     final RepositoryFile aclNode = getAclNode( repositoryFile );
 
-    // Check to see if user has READ access to file, this will return null if not.
-    if ( unifiedRepository.getFileById( aclNode.getId() ) == null ) {
+    boolean notFound;
+    try {
+      // Check to see if user has READ access to file, this will return null if not.
+      notFound = ( unifiedRepository.getFileById( aclNode.getId() ) == null );
+    } catch ( Exception e ) {
+      if ( logger.isWarnEnabled() ) {
+        logger.warn( "Error checking access for file", e );
+      }
+      notFound = true;
+    }
+    if ( notFound ) {
       return false;
     }
 
