@@ -56,7 +56,7 @@ import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 import org.pentaho.platform.web.http.messages.Messages;
 
 /**
- * The SchedulerResource service provides the means to create, read, update, delete, and list schedules and blockout periods.  Also provides the ability to control the status of schedules and the scheduler.
+ * The SchedulerResource service provides the means to create, read, update, delete, and list schedules and blockout periods.  Also provides the ability to control the status of schedules and the scheduler.
  */
 @Path ( "/scheduler" )
 public class SchedulerResource extends AbstractJaxRSResource {
@@ -104,7 +104,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  admin	JobName	1410786491777
+   *   admin  JobName  1410786491777
    * </pre>
    */
   @POST
@@ -120,6 +120,69 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response createJob( JobScheduleRequest scheduleRequest ) {
     try {
       Job job = schedulerService.createJob( scheduleRequest );
+      return buildPlainTextOkResponse( job.getJobId() );
+    } catch ( SchedulerException e ) {
+      return buildServerErrorResponse( e.getCause().getMessage() );
+    } catch ( IOException e ) {
+      return buildServerErrorResponse( e.getCause().getMessage() );
+    } catch ( SecurityException e ) {
+      return buildStatusResponse( UNAUTHORIZED );
+    } catch ( IllegalAccessException e ) {
+      return buildStatusResponse( FORBIDDEN );
+    }
+  }
+
+  /**
+   * Changes an existing job by creating an instance with new content (picked from {@code scheduleRequest}) and
+   * removing the current instance.
+   *
+   * <p><b>Example Request:</b><br />
+   *  POST pentaho/api/scheduler/job/edit
+   * </p>
+   * <br /><b>POST data:</b>
+   *  <pre function="syntax.xml">
+   *      &lt;jobScheduleRequest&gt;
+   *      &lt;jobName&gt;JobName&lt;/jobName&gt;
+   *      &lt;simpleJobTrigger&gt;
+   *      &lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;
+   *      &lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;
+   *      &lt;repeatCount&gt;-1&lt;/repeatCount&gt;
+   *      &lt;startTime&gt;2014-08-14T11:46:00.000-04:00&lt;/startTime&gt;
+   *      &lt;endTime /&gt;
+   *      &lt;/simpleJobTrigger&gt;
+   *      &lt;inputFile&gt;/public/Steel Wheels/Top Customers (report).prpt&lt;/inputFile&gt;
+   *      &lt;outputFile&gt;/public/output&lt;/outputFile&gt;
+   *      &lt;jobParameters&gt;
+   *      &lt;name&gt;ParameterName&lt;/name&gt;
+   *      &lt;type&gt;string&lt;/type&gt;
+   *      &lt;stringValue&gt;false&lt;/stringValue&gt;
+   *      &lt;/jobParameters&gt;
+   *      &lt;/jobScheduleRequest&gt;
+   *      &lt;/jobId&gt;
+   *  </pre>
+   * </p>
+   *
+   * @param scheduleRequest A JobScheduleRequest object to define the parameters of the job being updated.
+   * @return A jax-rs Response object with the created jobId.
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   *  admin	JobName	1410786491777
+   * </pre>
+   */
+  @POST
+  @Path ( "/job/update" )
+  @Consumes ( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces ( "text/plain" )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Schedule updated successfully." ),
+      @ResponseCode ( code = 401, condition = "User is not allowed to update schedules." ),
+      @ResponseCode ( code = 403, condition = "Cannot update schedules for the specified file." ),
+      @ResponseCode ( code = 500, condition = "An error occurred while updating a schedule." )
+  } )
+  public Response updateJob( JobScheduleRequest scheduleRequest ) {
+    try {
+      Job job = schedulerService.updateJob( scheduleRequest );
       return buildPlainTextOkResponse( job.getJobId() );
     } catch ( SchedulerException e ) {
       return buildServerErrorResponse( e.getCause().getMessage() );
