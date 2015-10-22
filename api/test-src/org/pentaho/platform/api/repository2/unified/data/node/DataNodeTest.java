@@ -27,6 +27,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -80,16 +81,40 @@ public class DataNodeTest {
     DataNode origNode = new DataNode( NODE_NAME );
     setChildNodes( origNode );
     setProperties( origNode );
+
+    assertNotEquals( origNode.hashCode(), node.hashCode() );
+
     DataNode dupNode = new DataNode( NODE_NAME );
     setChildNodes( dupNode );
     setProperties( dupNode );
 
+    // Test all aspects of toString
+    assertEquals( origNode.toString(), dupNode.toString() );
+
+    // Test some variations of equals
     assertTrue( origNode.equals( dupNode ) );
     assertFalse( node.equals( dupNode ) );
     assertFalse( node.equals( null ) );
     assertFalse( node.equals( new String() ) );
-    assertTrue( node.equals( node ) );
+    DataNode diffNameNode = new DataNode( "diffName" );
+    diffNameNode.setId( NODE_ID );
+    assertFalse( node.equals( diffNameNode ) );
 
+    // Test null ID check
+    dupNode.setId( null );
+    origNode.setId( NODE_ID );
+    assertFalse( dupNode.equals( origNode ) );
+    assertFalse( origNode.equals( dupNode ) );
+
+    // Test null name
+    DataNode anotherDupNode = new DataNode( null );
+    anotherDupNode.setId( NODE_ID );
+    setChildNodes( anotherDupNode );
+    setProperties( anotherDupNode );
+    assertFalse( anotherDupNode.equals( origNode ) );
+
+    // Test object equals
+    assertTrue( node.equals( node ) );
   }
 
   @Test
