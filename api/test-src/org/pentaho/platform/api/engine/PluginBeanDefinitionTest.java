@@ -32,6 +32,7 @@ public class PluginBeanDefinitionTest {
   public void testGetterSetter() {
     PluginBeanDefinition definition = new PluginBeanDefinition( BEAN_ID, CLASSNAME );
     assertEquals( BEAN_ID, definition.getBeanId() );
+    // Just a test.
     assertEquals( CLASSNAME, definition.getClassname() );
 
     definition.setBeanId( NEW_BEAN_ID );
