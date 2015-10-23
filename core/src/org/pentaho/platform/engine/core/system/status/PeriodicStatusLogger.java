@@ -63,11 +63,15 @@ public class PeriodicStatusLogger implements Runnable, IServerStatusChangeListen
   }
 
   public synchronized static void stop() {
-    if ( periodicStatusLogger == null || runThread == null ) {
+    if ( !isStarted() ) {
       throw new IllegalStateException( "The PeriodicStatusLogger has not been started" );
     }
     periodicStatusLogger.stopFlag = true;
     runThread = null;
+  }
+  
+  public static boolean isStarted(){
+    return periodicStatusLogger != null && runThread != null;
   }
 
   public void run() {
