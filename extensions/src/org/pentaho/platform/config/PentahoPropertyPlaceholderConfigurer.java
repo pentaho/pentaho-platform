@@ -50,4 +50,7 @@ public class PentahoPropertyPlaceholderConfigurer extends PropertyPlaceholderCon
     return config.getProperty( placeholder );
   }
 
+  protected ISystemConfig getSystemConfig() {
+    return config;
+  }
 }

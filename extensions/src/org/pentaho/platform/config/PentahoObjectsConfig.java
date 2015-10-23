@@ -377,7 +377,7 @@ public class PentahoObjectsConfig {
     return document;
   }
 
-  private class ObjectDescriptor {
+  protected class ObjectDescriptor {
     private String className;
     private ScopeType scope;
 

@@ -56,8 +56,7 @@ public class GatherStatsAction implements IAction {
 
   public void execute() throws KettleXMLException, KettleException {
 
-    String systemSolutionfolder = PentahoSystem.getApplicationContext().getSolutionPath( "system" );
-    String jobFileFullPath = systemSolutionfolder + "/" + getTransFileName();
+    String jobFileFullPath = getJobFileFullPath();
 
     TransMeta transMeta = new TransMeta( jobFileFullPath );
     if ( transMeta != null ) {
@@ -65,6 +64,11 @@ public class GatherStatsAction implements IAction {
       trans.execute( null );
       trans.waitUntilFinished();
     }
+  }
+
+  protected String getJobFileFullPath() {
+    String systemSolutionfolder = PentahoSystem.getApplicationContext().getSolutionPath( "system" );
+    return systemSolutionfolder + "/" + getTransFileName();
   }
 
   public String getTransFileName() {

@@ -80,7 +80,7 @@ public class PropertiesFileConfiguration implements IConfiguration {
     return p;
   }
 
-  private void loadProperties() throws IOException {
+  protected void loadProperties() throws IOException {
     properties = new Properties();
     synchronized ( propFile ) {
       properties.load( new FileInputStream( propFile ) );
@@ -115,5 +115,9 @@ public class PropertiesFileConfiguration implements IConfiguration {
       properties.store( new FileOutputStream( propFile ), "" );
     }
 
+  }
+
+  protected void setPropFile( File propFile ) {
+    this.propFile = propFile;
   }
 }
