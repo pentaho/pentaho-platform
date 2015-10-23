@@ -33,10 +33,8 @@ public class StatsDatabaseCheck implements IPentahoSystemListener {
 
   public boolean startup( final IPentahoSession session ) {
 
-    String systemSolutionfolder = PentahoSystem.getApplicationContext().getSolutionPath( "system" );
-    String jobFileFullPath = systemSolutionfolder + "/" + jobFileName;
-
     JobMeta jobMeta = null;
+    String jobFileFullPath = getJobFileFullPath();
     try {
       jobMeta = new JobMeta( jobFileFullPath, null );
     } catch ( KettleXMLException kxe ) {
@@ -44,6 +42,10 @@ public class StatsDatabaseCheck implements IPentahoSystemListener {
       return false;
     }
 
+    return executeJob( jobMeta, jobFileFullPath );
+  }
+
+  protected boolean executeJob( JobMeta jobMeta, String jobFileFullPath ) {
     if ( jobMeta != null ) {
       Job job = new Job( null, jobMeta );
       Result result = new Result();
@@ -54,10 +56,13 @@ public class StatsDatabaseCheck implements IPentahoSystemListener {
         Logger.error( "Error executing " + jobFileFullPath, ke.getMessage() );
         return false;
       }
-
     }
-
     return true;
+  }
+
+  protected String getJobFileFullPath() {
+    String systemSolutionfolder = PentahoSystem.getApplicationContext().getSolutionPath( "system" );
+    return systemSolutionfolder + "/" + getJobFileName();
   }
 
   public void shutdown() {

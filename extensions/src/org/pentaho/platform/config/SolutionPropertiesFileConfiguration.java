@@ -30,7 +30,7 @@ public class SolutionPropertiesFileConfiguration extends PropertiesFileConfigura
     super( id, new File( getSolutionPath() + File.separator + propFile ) );
   }
 
-  private static String getSolutionPath() {
+  protected static String getSolutionPath() {
     String solutionPath = null;
     if ( PentahoSystem.getApplicationContext() != null ) {
       solutionPath = PentahoSystem.getApplicationContext().getSolutionPath( "system" );

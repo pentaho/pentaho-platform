@@ -33,21 +33,21 @@ public class WebXml {
 
   Document document;
 
-  private static final String PARAM_NAME_ELEMENT = "param-name"; //$NON-NLS-1$
-  private static final String PARAM_VALUE_ELEMENT = "param-value"; //$NON-NLS-1$
-  private static final String ROOT_ELEMENT = "web-app"; //$NON-NLS-1$
-  private static final String CONTEXT_CONFIG_CONTEXT_PARAM_NAME = "contextConfigLocation"; //$NON-NLS-1$
-  private static final String BASE_URL_CONTEXT_PARAM_NAME = "base-url"; //$NON-NLS-1$
-  private static final String FULLY_QUALIFIED_SERVER_URL_CONTEXT_PARAM_NAME = "fully-qualified-server-url"; //$NON-NLS-1$
-  private static final String SOLUTION_PATH_CONTEXT_PARAM_NAME = "solution-path"; //$NON-NLS-1$
-  private static final String LOCALE_LANGUAGE_CONTEXT_PARAM_NAME = "locale-language"; //$NON-NLS-1$
-  private static final String LOCALE_COUNTRY_CONTEXT_PARAM_NAME = "locale-country"; //$NON-NLS-1$
-  private static final String ENCODING_CONTEXT_PARAM_NAME = "encoding"; //$NON-NLS-1$
-  private static final String HOME_SERVLET_NAME = "Home"; //$NON-NLS-1$
-  private static final String CONTEXT_PARAM_ELEMENT = "context-param"; //$NON-NLS-1$
-  private static final String CONTEXT_PARAM_XPATH = ROOT_ELEMENT + "/" + CONTEXT_PARAM_ELEMENT; //$NON-NLS-1$
-  private static final String CONTEXT_PARAM_NAME_TEMPLATE_XPATH = CONTEXT_PARAM_XPATH + "/param-name[text()=\"{0}\"]"; //$NON-NLS-1$
-  private static final String SERVLET_NAME_TEMPLATE_XPATH = ROOT_ELEMENT + "/servlet/servlet-name[text() = \"{0}\"]"; //$NON-NLS-1$
+  protected static final String PARAM_NAME_ELEMENT = "param-name"; //$NON-NLS-1$
+  protected static final String PARAM_VALUE_ELEMENT = "param-value"; //$NON-NLS-1$
+  protected static final String ROOT_ELEMENT = "web-app"; //$NON-NLS-1$
+  protected static final String CONTEXT_CONFIG_CONTEXT_PARAM_NAME = "contextConfigLocation"; //$NON-NLS-1$
+  protected static final String BASE_URL_CONTEXT_PARAM_NAME = "base-url"; //$NON-NLS-1$
+  protected static final String FULLY_QUALIFIED_SERVER_URL_CONTEXT_PARAM_NAME = "fully-qualified-server-url"; //$NON-NLS-1$
+  protected static final String SOLUTION_PATH_CONTEXT_PARAM_NAME = "solution-path"; //$NON-NLS-1$
+  protected static final String LOCALE_LANGUAGE_CONTEXT_PARAM_NAME = "locale-language"; //$NON-NLS-1$
+  protected static final String LOCALE_COUNTRY_CONTEXT_PARAM_NAME = "locale-country"; //$NON-NLS-1$
+  protected static final String ENCODING_CONTEXT_PARAM_NAME = "encoding"; //$NON-NLS-1$
+  protected static final String HOME_SERVLET_NAME = "Home"; //$NON-NLS-1$
+  protected static final String CONTEXT_PARAM_ELEMENT = "context-param"; //$NON-NLS-1$
+  protected static final String CONTEXT_PARAM_XPATH = ROOT_ELEMENT + "/" + CONTEXT_PARAM_ELEMENT; //$NON-NLS-1$
+  protected static final String CONTEXT_PARAM_NAME_TEMPLATE_XPATH = CONTEXT_PARAM_XPATH + "/param-name[text()=\"{0}\"]"; //$NON-NLS-1$
+  protected static final String SERVLET_NAME_TEMPLATE_XPATH = ROOT_ELEMENT + "/servlet/servlet-name[text() = \"{0}\"]"; //$NON-NLS-1$
 
   public WebXml( File pentahoXmlFile ) throws IOException, DocumentException, XmlParseException {
     this( XmlDom4JHelper.getDocFromFile( pentahoXmlFile, new DtdEntityResolver() ) );
@@ -74,6 +74,11 @@ public class WebXml {
     return getContextParamValue( CONTEXT_CONFIG_CONTEXT_PARAM_NAME );
   }
 
+  /**
+   *
+   * @return the fully qualified url of the server
+   * @deprecated use {@link #getFullyQualifiedServerUrl()} instead.
+   */
   @Deprecated
   public String getBaseUrl() {
     return getFullyQualifiedServerUrl();
