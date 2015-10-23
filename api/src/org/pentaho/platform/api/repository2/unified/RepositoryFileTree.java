@@ -50,7 +50,7 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
   private final RepositoryFile file;
 
   private final List<RepositoryFileTree> children;
-  
+
   private Boolean versioningEnabled;  //Is versioning enabled for this object
   private Boolean versionCommentEnabled; //Are comments for versions enabled for this object
 
@@ -190,6 +190,10 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
     }
 
     private static List<RepositoryFileTree> toTreeChildren( final List<Builder> children ) {
+      if ( null == children ) {
+        return null;
+      }
+
       List<RepositoryFileTree> converted = new ArrayList<RepositoryFileTree>( children.size() );
       for ( Builder child : children ) {
         converted.add( child.build() );
@@ -198,6 +202,10 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
     }
 
     private static List<Builder> toBuilderChildren( final List<RepositoryFileTree> children ) {
+      if ( null == children ) {
+        return null;
+      }
+
       List<Builder> converted = new ArrayList<Builder>( children.size() );
       for ( RepositoryFileTree child : children ) {
         converted.add( new Builder( child ) );

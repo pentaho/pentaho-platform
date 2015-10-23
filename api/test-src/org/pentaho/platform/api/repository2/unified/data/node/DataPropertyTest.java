@@ -69,8 +69,18 @@ public class DataPropertyTest {
     assertTrue( prop.equals( prop ) );
     assertFalse( prop.equals( new String() ) );
     assertTrue( prop.equals( new DataProperty( PROP_NAME, PROP_VALUE, PROP_TYPE ) ) );
-    assertFalse( prop.equals( new DataProperty( null, PROP_VALUE, PROP_TYPE ) ) );
-    assertFalse( prop.equals( new DataProperty( PROP_NAME, null, PROP_TYPE ) ) );
-    assertFalse( prop.equals( new DataProperty( PROP_NAME, PROP_TYPE, null ) ) );
+
+    DataProperty nullProp = new DataProperty( null, PROP_VALUE, PROP_TYPE );
+    assertFalse( prop.equals( nullProp ) );
+    assertFalse( nullProp.equals( prop ) );
+    nullProp = new DataProperty( null, null, PROP_TYPE );
+    assertFalse( prop.equals( nullProp ) );
+    assertFalse( nullProp.equals( prop ) );
+    nullProp = new DataProperty( null, null, null );
+    assertFalse( prop.equals( nullProp ) );
+    assertFalse( nullProp.equals( prop ) );
+
+    // Test null values
+    assertNull( nullProp.getRef() );
   }
 }
