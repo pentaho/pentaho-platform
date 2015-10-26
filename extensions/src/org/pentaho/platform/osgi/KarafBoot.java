@@ -32,6 +32,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -90,64 +91,12 @@ public class KarafBoot implements IPentahoSystemListener {
         }
       }
 
-      System.setProperty( "karaf.home", root );
-      System.setProperty( "karaf.base", root );
-      System.setProperty( "karaf.data", root + "/data" );
-      System.setProperty( "karaf.history", root + "/data/history.txt" );
-      System.setProperty( "karaf.instances", root + "/instances" );
-      System.setProperty( "karaf.startLocalConsole", "false" );
-      System.setProperty( "karaf.startRemoteShell", "true" );
-      System.setProperty( "karaf.lock", "false" );
-      System.setProperty( "karaf.etc", root + "/etc"  );
-
-      // When running in the PDI-Clients there are separate etc directories so that features can be customized for
-      // the particular execution needs (Carte, Spoon, Pan, Kitchen)
-      KettleClientEnvironment.ClientType clientType = KettleClientEnvironment.getInstance().getClient();
-      String extraKettleEtc = null;
-      if( clientType != null ) {
-        switch( clientType ) {
-          case SPOON:
-            extraKettleEtc = "/etc-spoon";
-            break;
-          case PAN:
-            extraKettleEtc = "/etc-pan";
-            break;
-          case KITCHEN:
-            extraKettleEtc = "/etc-kitchen";
-            break;
-          case CARTE:
-            extraKettleEtc = "/etc-carte";
-            break;
-          default:
-            extraKettleEtc = "/etc-default";
-            break;
-        }
-      }
-      if( extraKettleEtc != null ){
-        System.setProperty( "felix.fileinstall.dir", root + "/etc"  + "," + root + extraKettleEtc );
-      } else {
-        System.setProperty( "felix.fileinstall.dir", root + "/etc" );
-      }
-
-
-
-      // Tell others like the pdi-osgi-bridge that there's already a karaf instance running so they don't start
-      // their own.
-      System.setProperty( "embedded.karaf.mode", "true" );
-
-
-      // set the location of the log4j config file, since OSGI won't pick up the one in webapp
-      System.setProperty( "log4j.configuration",
-        new File( solutionRootPath + "/system/osgi/log4j.xml" ).toURI().toString() );
-      // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
-      // same one used when instatiating appenders.
-      System.setProperty( "log4j.ignoreTCL", "true" );
+      configureSystemProperties( solutionRootPath, root );
 
       expandSystemPackages( root + "/etc/custom.properties" );
 
       // Setup karaf instance configuration
-      KarafInstance karafInstance = new KarafInstance( root );
-      new KarafInstancePortFactory( root + "/etc/KarafPorts.yaml" ).process();
+      KarafInstance karafInstance = createAndProcessKarafInstance( root );
 
       //Define any additional karaf instance properties here using karafInstance.registerProperty
       karafInstance.start();
@@ -179,6 +128,76 @@ public class KarafBoot implements IPentahoSystemListener {
       logger.error( "Error starting Karaf", e );
     }
     return main != null;
+  }
+
+  protected KarafInstance createAndProcessKarafInstance( String root ) throws FileNotFoundException {
+    KarafInstance karafInstance = new KarafInstance( root );
+    new KarafInstancePortFactory( root + "/etc/KarafPorts.yaml" ).process();
+    return karafInstance;
+  }
+
+  protected void configureSystemProperties( String solutionRootPath, String root ) {
+    System.setProperty( "karaf.home", root );
+    System.setProperty( "karaf.base", root );
+    System.setProperty( "karaf.data", root + "/data" );
+    System.setProperty( "karaf.history", root + "/data/history.txt" );
+    System.setProperty( "karaf.instances", root + "/instances" );
+    System.setProperty( "karaf.startLocalConsole", "false" );
+    System.setProperty( "karaf.startRemoteShell", "true" );
+    System.setProperty( "karaf.lock", "false" );
+    System.setProperty( "karaf.etc", root + "/etc"  );
+
+    // When running in the PDI-Clients there are separate etc directories so that features can be customized for
+    // the particular execution needs (Carte, Spoon, Pan, Kitchen)
+    KettleClientEnvironment.ClientType clientType = getClientType();
+    String extraKettleEtc = translateToExtraKettleEtc( clientType );
+
+    if( extraKettleEtc != null ){
+      System.setProperty( "felix.fileinstall.dir", root + "/etc"  + "," + root + extraKettleEtc );
+    } else {
+      System.setProperty( "felix.fileinstall.dir", root + "/etc" );
+    }
+
+
+    // Tell others like the pdi-osgi-bridge that there's already a karaf instance running so they don't start
+    // their own.
+    System.setProperty( "embedded.karaf.mode", "true" );
+
+
+    // set the location of the log4j config file, since OSGI won't pick up the one in webapp
+    System.setProperty( "log4j.configuration",
+      new File( solutionRootPath + "/system/osgi/log4j.xml" ).toURI().toString() );
+    // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
+    // same one used when instatiating appenders.
+    System.setProperty( "log4j.ignoreTCL", "true" );
+  }
+
+  protected String translateToExtraKettleEtc( KettleClientEnvironment.ClientType clientType ) {
+    String extraKettleEtc = null;
+    if ( clientType != null ) {
+      switch( clientType ) {
+        case SPOON:
+          extraKettleEtc = "/etc-spoon";
+          break;
+        case PAN:
+          extraKettleEtc = "/etc-pan";
+          break;
+        case KITCHEN:
+          extraKettleEtc = "/etc-kitchen";
+          break;
+        case CARTE:
+          extraKettleEtc = "/etc-carte";
+          break;
+        default:
+          extraKettleEtc = "/etc-default";
+          break;
+      }
+    }
+    return extraKettleEtc;
+  }
+
+  protected KettleClientEnvironment.ClientType getClientType() {
+    return KettleClientEnvironment.getInstance().getClient();
   }
 
   boolean canOpenConfigPropertiesForEdit( String directory ) {
