@@ -311,6 +311,9 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       $wnd.enableSave = function (enable) {
           tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setCurrentTabSaveEnabled(Z)(enable);
       }
+      $wnd.enableSaveForFrame = function (id,enable) {
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setTabSaveEnabled(Ljava/lang/String;Z)(id,enable);
+      }
       $wnd.closeTab = function (url) {
           tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::closeTab(Ljava/lang/String;)(url);
       }
@@ -347,9 +350,19 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   public void setCurrentTabSaveEnabled( boolean enabled ) {
-    IFrameTabPanel panel = getCurrentFrame();
+    PentahoTab tab = getTab( getSelectedTabIndex() );
+    setTabSaveEnabled( tab, enabled );
+  }
+  
+  public void setTabSaveEnabled( PentahoTab tab, boolean enabled ) {
+    IFrameTabPanel panel = null;
+    
+    if( tab!= null ) {
+      panel = getFrame( tab );
+    }
+    
     if ( panel != null ) {
-      panel.setSaveEnabled( enabled );
+      panel.setSaveEnabled( enabled ); 
       Widget selectTabContent = null;
       if ( getTab( getSelectedTabIndex() ) != null ) {
         selectTabContent = getTab( getSelectedTabIndex() ).getContent();
@@ -357,6 +370,34 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
       EventBusUtil.EVENT_BUS.fireEvent( new SolutionBrowserSelectEvent( selectTabContent, selectedItems ) );
     }
+  }
+
+  public void setTabSaveEnabled( String frameId, boolean enabled ) {
+    PentahoTab tab = getTabByFrameId( frameId );
+    if( tab != null ) {
+      setTabSaveEnabled( tab, enabled );
+    }
+  }
+  
+  private IFrameTabPanel getPanelByFrameId( String frameId ) {
+    PentahoTab tab = getTabByFrameId( frameId );
+    if( tab!=null ) {
+      return getFrame( tab );
+    } else {
+      return null;
+    }
+  }
+  
+  private PentahoTab getTabByFrameId( String frameId ) {
+    PentahoTab tab;
+    for( int i = 0; i < getTabCount(); i++ ) {
+      tab = getTab( i );
+      IFrameTabPanel panel = getFrame( tab );
+      if( panel.getFrame().getElement().getAttribute( "id" ).equals( frameId ) ) {
+        return tab;
+      }
+    }
+    return null;
   }
 
   /*
