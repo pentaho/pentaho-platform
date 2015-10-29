@@ -29,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -91,6 +92,38 @@ public class RepositoryFileTest {
     assertTrue( file.equals( dupFile ) );
     assertTrue( file.equals( file ) );
     assertFalse( file.equals( null ) );
+  }
+
+  @Test
+  public void testBuilder() {
+    RepositoryFile.Builder builder = new RepositoryFile.Builder( file );
+    assertTrue( file.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
+    assertNull( file.getLocalePropertiesMap().get( RepositoryFile.DEFAULT_LOCALE ) );
+    builder.clearLocalePropertiesMap();
+    RepositoryFile newFile = builder.build();
+    assertTrue( newFile.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
+    assertNotNull( newFile.getLocalePropertiesMap().get( RepositoryFile.DEFAULT_LOCALE ) );
+
+    builder.localeProperties( null, new Properties() );
+    newFile = builder.build();
+    assertEquals( 2, newFile.getLocalePropertiesMap().size() );
+    assertNotNull( newFile.getLocalePropertiesMap().get( null ) );
+
+    String localTitle = "newLocalTitle";
+    String newTitle = "newTitle";
+    builder.title( localTitle, newTitle );
+    newFile = builder.build();
+    assertTrue( newFile.getLocalePropertiesMap().containsKey( localTitle ) );
+    assertEquals( newTitle, newFile.getLocalePropertiesMap().get( localTitle ).getProperty( RepositoryFile.TITLE ) );
+    assertEquals( newTitle, newFile.getLocalePropertiesMap().get( localTitle ).getProperty( RepositoryFile.FILE_TITLE ) );
+
+    String localDesc = "newLocalDesc";
+    String newDesc = "newDesc";
+    builder.description( localDesc, newDesc );
+    newFile = builder.build();
+    assertTrue( newFile.getLocalePropertiesMap().containsKey( localDesc ) );
+    assertEquals( newDesc, newFile.getLocalePropertiesMap().get( localDesc ).getProperty( RepositoryFile.DESCRIPTION ) );
+    assertEquals( newDesc, newFile.getLocalePropertiesMap().get( localDesc ).getProperty( RepositoryFile.FILE_DESCRIPTION ) );
   }
 
   private void checkRepositoryFile( RepositoryFile theFile ) {
