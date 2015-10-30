@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.commons.connection.DataUtilities;
@@ -28,6 +29,7 @@ import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -40,12 +42,281 @@ import org.pentaho.platform.util.web.SimpleUrlFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
  * This class provides wrapper functions to make it easier to execute action sequences and generate a widget.
  */
 public class ChartHelper {
+
+  public static final String OUTER_PARAMS = "outer-params"; //$NON-NLS-1$
+  public static final String INNER_PARAM = "inner-param"; //$NON-NLS-1$
+  public static final String DRILL_URL = "drill-url"; //$NON-NLS-1$
+  public static final String IMAGE_URL = "image-url"; //$NON-NLS-1$
+  public static final String VALUE = "value"; //$NON-NLS-1$
+  public static final String IMAGE_WIDTH = "image-width"; //$NON-NLS-1$
+  public static final String IMAGE_HEIGHT = "image-height"; //$NON-NLS-1$
+  public static final String SERIES_NAME = "series-name"; //$NON-NLS-1$
+  public static final String TITLE = "title"; //$NON-NLS-1$
+
+  public static final String CONNECTION = "connection"; //$NON-NLS-1$
+  public static final String QUERY = "query"; //$NON-NLS-1$
+  public static final String DATA_PROCESS = "data-process"; //$NON-NLS-1$
+
+  public static final String CONTENT_TYPE = "text/html"; //$NON-NLS-1$
+
+  public static final String nbsp = "&nbsp;"; //$NON-NLS-1$
+
+  protected enum Error {
+    ERROR_0001_IO_PROBLEM_GETTING_CHART_TYPE, //
+    ERROR_0002_COULD_NOT_DETERMINE_CHART_TYPE, //
+    ERROR_0003_INVALID_CHART_TYPE, //
+    ERROR_0001_COULD_NOT_CREATE_WIDGET;
+  }
+
+  protected static class LogWriter {
+
+    protected static final String KEY_PREFIX = ChartHelper.class.getSimpleName() + '.';
+
+    private ILogger logger;
+
+    protected IPentahoSession userSession;
+    protected List<?> messages;
+
+    private StringBuffer messageBuffer = new StringBuffer();
+
+    public LogWriter( final IPentahoSession userSession, ILogger logger, List<?> messages ) {
+      // No logger? The usersession extends ILogger, use it for loggin
+      this.logger = logger == null ? userSession : logger;
+      this.userSession = userSession;
+      this.messages = messages;
+    }
+
+    public String logErrorAndGetContent( final Error errorKey, final Object... params ) {
+      return logErrorAndGetContent( null, errorKey, params );
+    }
+
+    public String logErrorAndGetContent( final Throwable e, final Error errorKey, final Object... params ) {
+      String errorStr = logError( e, errorKey, params );
+      PentahoSystem.get( IMessageFormatter.class, userSession ).formatErrorMessage( CONTENT_TYPE, errorStr, messages,
+          messageBuffer );
+      return messageBuffer.toString();
+    }
+
+    public String logError( final Throwable e, final Error errorKey, final Object... params ) {
+      String errorStr = Messages.getInstance().getString( KEY_PREFIX + errorKey.name(), params );
+      if ( e == null ) {
+        logger.error( errorStr );
+      } else {
+        logger.error( errorStr, e );
+      }
+      return errorStr;
+    }
+
+    public ILogger getLogger() {
+      return logger;
+    }
+  }
+
+  protected static class Builder {
+
+    protected LogWriter logWriter;
+
+    protected IParameterProvider parameterProvider;
+    protected IPentahoSession userSession;
+    protected String actionPath;
+    protected List<?> messages;
+    protected String chartTypeStr;
+    protected String datasetType;
+    protected String content;
+
+    public Builder( final String actionPath, final IParameterProvider parameterProvider,
+        final IPentahoSession userSession, final ILogger logger, final List<?> messages ) {
+      logWriter = new LogWriter( userSession, logger, messages );
+      this.parameterProvider = parameterProvider;
+      this.userSession = userSession;
+      this.actionPath = actionPath;
+      this.messages = messages;
+    }
+
+    public boolean doChart( final StringBuffer outputStream ) {
+      try {
+        initChartType();
+      } catch ( Exception e ) {
+        outputStream.append( logWriter.logErrorAndGetContent( e, Error.ERROR_0001_IO_PROBLEM_GETTING_CHART_TYPE ) );
+        return false;
+      }
+      if ( !StringUtils.isNumeric( chartTypeStr ) ) {
+        // we have no idea what to try to generate
+        outputStream.append( logWriter.logErrorAndGetContent( Error.ERROR_0002_COULD_NOT_DETERMINE_CHART_TYPE ) );
+        return false;
+      }
+
+      int chartType = JFreeChartEngine.getChartType( chartTypeStr );
+      int width = (int) parameterProvider.getLongParameter( IMAGE_WIDTH, 150 );
+      int height = (int) parameterProvider.getLongParameter( IMAGE_HEIGHT, 150 );
+      String urlDrillTemplate = parameterProvider.getStringParameter( DRILL_URL, "" );
+      SimpleUrlFactory urlFactory = new SimpleUrlFactory( urlDrillTemplate );
+
+      AbstractJFreeChartComponent chartComponent = null;
+      try {
+        chartComponent = determineChartByDataset( chartType, height, width, urlFactory );
+
+        if ( chartComponent == null ) {
+          chartComponent = determineChartByChartType( chartType, height, width, urlFactory );
+        }
+
+        if ( chartComponent != null ) {
+          try {
+            chartComponent.setLoggingLevel( logWriter.getLogger().getLoggingLevel() );
+            chartComponent.validate( userSession, null );
+            chartComponent.setUrlTemplate( urlDrillTemplate );
+
+            initContent( chartComponent );
+            content = chartComponent.getContent( CONTENT_TYPE );
+            if ( content == null ) {
+              outputStream.append( logWriter.logErrorAndGetContent( Error.ERROR_0001_COULD_NOT_CREATE_WIDGET ) );
+              return false;
+            }
+          } catch ( Throwable e ) {
+            logWriter.logError( e, Error.ERROR_0001_COULD_NOT_CREATE_WIDGET ); // TODO why not return false
+          }
+        }
+      } finally {
+        if ( chartComponent != null ) {
+          chartComponent.dispose();
+        }
+      }
+
+      return true;
+    }
+
+    protected void initChartType() {
+      // Determine the type of chart we are building; these values can come from the chart xml definition, or
+      // from the parameter provider. Try the parameter provider first, for performance reasons.
+      chartTypeStr = parameterProvider.getStringParameter( ChartDefinition.TYPE_NODE_NAME, null );
+      if ( StringUtils.isBlank( chartTypeStr ) ) {
+        // attempt to get the chart type and possibly data type from the xml doc
+        ActionSequenceJCRHelper jcrHelper = new ActionSequenceJCRHelper( userSession );
+        Document chartDefinition = jcrHelper.getSolutionDocument( actionPath, RepositoryFilePermission.READ );
+        Node chartAttributes = chartDefinition.selectSingleNode( "//" + AbstractChartComponent.CHART_NODE_NAME ); //$NON-NLS-1$
+        chartTypeStr = chartAttributes.selectSingleNode( ChartDefinition.TYPE_NODE_NAME ).getText();
+        Node datasetTypeNode = chartAttributes.selectSingleNode( ChartDefinition.DATASET_TYPE_NODE_NAME );
+        if ( datasetTypeNode != null ) {
+          datasetType = datasetTypeNode.getText();
+        }
+      } else {
+        datasetType = ChartDefinition.CATEGORY_DATASET_STR;
+      }
+    }
+
+    // WARNING!!! This is an atypical way to access data for the chart... these parameters and their
+    // usage are undocumented, and only left in here to support older solutions that may be using them.
+    protected void initContent( AbstractChartComponent chartComponent ) throws Exception {
+      String connectionName = parameterProvider.getStringParameter( CONNECTION, null );
+      String queryTemplate = parameterProvider.getStringParameter( QUERY, null );
+      if ( StringUtils.isNotBlank( connectionName ) && StringUtils.isNotBlank( queryTemplate ) ) {
+        chartComponent.setDataAction( actionPath );
+        IPentahoResultSet values = getValues( connectionName, queryTemplate );
+        chartComponent.setValues( values );
+
+        String outerParams = parameterProvider.getStringParameter( OUTER_PARAMS, null );
+        if ( StringUtils.isNotBlank( outerParams ) ) {
+          StringTokenizer tokenizer = new StringTokenizer( outerParams, ";" ); //$NON-NLS-1$
+          while ( tokenizer.hasMoreTokens() ) {
+            chartComponent.addOuterParamName( tokenizer.nextToken() );
+          }
+        }
+      } else {
+        String dataAction = parameterProvider.getStringParameter( DATA_PROCESS, null );
+        if ( StringUtils.isNotBlank( dataAction ) ) {
+          chartComponent.setDataAction( dataAction );
+        }
+      }
+    }
+
+    protected IPentahoResultSet getValues( final String connectionName, final String queryTemplate ) throws Exception {
+      IPentahoConnection connection = null;
+      try {
+        // connection = new SQLConnection(connectionName, logger)
+        // TODO support non-SQL data sources. Much easier now using the factory
+        connection =
+            PentahoConnectionFactory.getConnection( IPentahoConnection.SQL_DATASOURCE, connectionName, userSession,
+                logWriter.getLogger() );
+        String query =
+            TemplateUtil.applyTemplate( queryTemplate, TemplateUtil.parametersToProperties( parameterProvider ), null );
+        return connection.executeQuery( query );
+      } finally {
+        if ( connection != null ) {
+          connection.close();
+        }
+      }
+    }
+
+    protected AbstractJFreeChartComponent determineChartByChartType( int chartType, int height, int width,
+        IPentahoUrlFactory urlFactory ) {
+      // Didn't find a dataset, so try to create the component based on chart type.
+      switch ( chartType ) {
+        case JFreeChartEngine.BAR_CHART_TYPE:
+        case JFreeChartEngine.AREA_CHART_TYPE:
+        case JFreeChartEngine.BAR_LINE_CHART_TYPE:
+        case JFreeChartEngine.LINE_CHART_TYPE:
+        case JFreeChartEngine.DIFFERENCE_CHART_TYPE:
+        case JFreeChartEngine.DOT_CHART_TYPE:
+        case JFreeChartEngine.STEP_AREA_CHART_TYPE:
+        case JFreeChartEngine.STEP_CHART_TYPE:
+        case JFreeChartEngine.PIE_GRID_CHART_TYPE:
+          CategoryDatasetChartComponent datasetChartComponent =
+              new CategoryDatasetChartComponent( chartType, actionPath, width, height, urlFactory, messages );
+          String seriesName = parameterProvider.getStringParameter( SERIES_NAME, null ); //$NON-NLS-1$
+          datasetChartComponent.setSeriesName( seriesName );
+          return datasetChartComponent;
+        case JFreeChartEngine.PIE_CHART_TYPE:
+
+          return new PieDatasetChartComponent( chartType, actionPath, width, height, urlFactory, messages );
+
+        case JFreeChartEngine.DIAL_CHART_TYPE:
+
+          DialChartComponent dialChartComponent =
+              new DialChartComponent( chartType, actionPath, width, height, urlFactory, messages );
+          // Very likely null; allow API users to continue to pass the dial value via parameters
+          String dialValue = parameterProvider.getStringParameter( VALUE, null );
+          if ( dialValue != null ) {
+            Number numericDialValue =
+                DataUtilities.toNumber( dialValue, LocaleHelper.getCurrencyFormat(), LocaleHelper.getNumberFormat() );
+            dialChartComponent.setValue( numericDialValue.doubleValue() );
+          }
+          return dialChartComponent;
+
+        case JFreeChartEngine.BUBBLE_CHART_TYPE:
+
+          return new XYZSeriesCollectionChartComponent( chartType, actionPath, width, height, urlFactory, messages );
+
+        case JFreeChartEngine.UNDEFINED_CHART_TYPE:
+        default:
+
+          // Unsupported chart type, bail out
+          content =
+              logWriter.logErrorAndGetContent( Error.ERROR_0003_INVALID_CHART_TYPE, chartTypeStr, Integer
+                  .toString( chartType ) );
+          return null;
+      }
+    }
+
+    protected AbstractJFreeChartComponent determineChartByDataset( int chartType, int height, int width,
+        IPentahoUrlFactory urlFactory ) {
+      // Some charts are determined by the dataset that is passed in; check these first...
+      if ( ChartDefinition.TIME_SERIES_COLLECTION_STR.equalsIgnoreCase( datasetType ) ) {
+        return new TimeSeriesCollectionChartComponent( chartType, actionPath, width, height, urlFactory, messages );
+      } else if ( ChartDefinition.XY_SERIES_COLLECTION_STR.equalsIgnoreCase( datasetType ) ) {
+        return new XYSeriesCollectionChartComponent( chartType, actionPath, width, height, urlFactory, messages );
+      } else if ( ChartDefinition.XYZ_SERIES_COLLECTION_STR.equalsIgnoreCase( datasetType ) ) {
+        return new XYZSeriesCollectionChartComponent( chartType, actionPath, width, height, urlFactory, messages );
+      }
+      return null;
+    }
+  }
 
   /**
    * doChart generates the images and html necessary to render various charts within a web page.
@@ -66,248 +337,14 @@ public class ChartHelper {
    * @return true if successful
    */
   public static boolean doChart( final String actionPath, final IParameterProvider parameterProvider,
-      final StringBuffer outputStream, final IPentahoSession userSession, final ArrayList messages, ILogger logger ) {
-
-    boolean result = true;
-    String content = null;
-    StringBuffer messageBuffer = new StringBuffer();
-
-    if ( logger == null ) {
-      // No logger? The usersession extends ILogger, use it for logging
-      logger = userSession;
-    }
-
-    // Retrieve all parameters from parameter provider
-
-    String outerParams = parameterProvider.getStringParameter( "outer-params", null ); //$NON-NLS-1$
-    String innerParam = parameterProvider.getStringParameter( "inner-param", null ); //$NON-NLS-1$
-
-    String urlDrillTemplate = parameterProvider.getStringParameter( "drill-url", null ); //$NON-NLS-1$
-    String imageUrl = parameterProvider.getStringParameter( "image-url", null ); //$NON-NLS-1$
-
-    // Very likely null; allow API users to continue to pass the dial value via parameters
-    String dialValue = parameterProvider.getStringParameter( "value", null ); //$NON-NLS-1$
-    IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-    if ( imageUrl == null ) {
-      imageUrl = requestContext.getContextPath(); //$NON-NLS-1$
-    }
-
-    if ( urlDrillTemplate == null ) {
-      urlDrillTemplate = ""; //$NON-NLS-1$
-    }
-
-    int width = (int) parameterProvider.getLongParameter( "image-width", 150 ); //$NON-NLS-1$
-    int height = (int) parameterProvider.getLongParameter( "image-height", 150 ); //$NON-NLS-1$
-
-    SimpleUrlFactory urlFactory = new SimpleUrlFactory( urlDrillTemplate );
-
-    // Determine the type of chart we are building; these values can come from the chart xml definition, or
-    // from the parameter provider. Try the parameter provider first, for performance reasons.
-
-    String chartTypeStr = parameterProvider.getStringParameter( ChartDefinition.TYPE_NODE_NAME, null );
-    String datasetType = ChartDefinition.CATEGORY_DATASET_STR;
-    if ( ( chartTypeStr == null ) || ( chartTypeStr.length() == 0 ) ) {
-
-      try {
-        // attempt to get the chart type and possibly data type from the xml doc
-        ActionSequenceJCRHelper jcrHelper = new ActionSequenceJCRHelper( userSession );
-        Document chartDefinition = jcrHelper.getSolutionDocument( actionPath, RepositoryFilePermission.READ );
-        Node chartAttributes = chartDefinition.selectSingleNode( "//" + AbstractChartComponent.CHART_NODE_NAME ); //$NON-NLS-1$
-        chartTypeStr = chartAttributes.selectSingleNode( ChartDefinition.TYPE_NODE_NAME ).getText();
-        Node datasetTypeNode = chartAttributes.selectSingleNode( ChartDefinition.DATASET_TYPE_NODE_NAME );
-        if ( datasetTypeNode != null ) {
-          datasetType = datasetTypeNode.getText();
-        }
-
-      } catch ( Exception e ) {
-
-        logger.error(
-            Messages.getInstance().getErrorString( "ChartHelper.ERROR_0001_IO_PROBLEM_GETTING_CHART_TYPE" ), e ); //$NON-NLS-1$
-        PentahoSystem
-            .get( IMessageFormatter.class, userSession )
-            .formatErrorMessage(
-                "text/html", Messages.getInstance().getString( "ChartHelper.ERROR_0001_IO_PROBLEM_GETTING_CHART_TYPE" ), messages, messageBuffer ); //$NON-NLS-1$ //$NON-NLS-2$
-        content = messageBuffer.toString();
-        result = false;
-      }
-    }
-
-    // Check again - do we have a chart type now? If not, bail out, we have no idea what to try to generate
-    if ( ( chartTypeStr == null ) || ( chartTypeStr.length() == 0 ) ) {
-
-      logger.error( Messages.getInstance().getString( "ChartHelper.ERROR_0002_COULD_NOT_DETERMINE_CHART_TYPE" ) ); //$NON-NLS-1$
-      PentahoSystem
-          .get( IMessageFormatter.class, userSession )
-          .formatErrorMessage(
-              "text/html", Messages.getInstance().getString( "ChartHelper.ERROR_0002_COULD_NOT_DETERMINE_CHART_TYPE" ), messages, messageBuffer ); //$NON-NLS-1$ //$NON-NLS-2$
-      content = messageBuffer.toString();
-      result = false;
-    }
-
-    if ( !result ) {
-      outputStream.append( content );
-      return result;
-    }
-
-    int chartType = JFreeChartEngine.getChartType( chartTypeStr );
-    AbstractJFreeChartComponent chartComponent = null;
-
-    try {
-      // Some charts are determined by the dataset that is passed in; check these first...
-      if ( datasetType.equalsIgnoreCase( ChartDefinition.TIME_SERIES_COLLECTION_STR ) ) {
-        chartComponent =
-            new TimeSeriesCollectionChartComponent( chartType, actionPath, width, height, urlFactory, messages );
-      } else if ( datasetType.equalsIgnoreCase( ChartDefinition.XY_SERIES_COLLECTION_STR ) ) {
-        chartComponent =
-            new XYSeriesCollectionChartComponent( chartType, actionPath, width, height, urlFactory, messages );
-      } else if ( datasetType.equalsIgnoreCase( ChartDefinition.XYZ_SERIES_COLLECTION_STR ) ) {
-        chartComponent =
-            new XYZSeriesCollectionChartComponent( chartType, actionPath, width, height, urlFactory, messages );
-      }
-
-      // Didn't find a dataset, so try to create the component based on chart type.
-      if ( chartComponent == null ) {
-        switch ( chartType ) {
-          case JFreeChartEngine.BAR_CHART_TYPE:
-          case JFreeChartEngine.AREA_CHART_TYPE:
-          case JFreeChartEngine.BAR_LINE_CHART_TYPE:
-          case JFreeChartEngine.LINE_CHART_TYPE:
-          case JFreeChartEngine.DIFFERENCE_CHART_TYPE:
-          case JFreeChartEngine.DOT_CHART_TYPE:
-          case JFreeChartEngine.STEP_AREA_CHART_TYPE:
-          case JFreeChartEngine.STEP_CHART_TYPE:
-          case JFreeChartEngine.PIE_GRID_CHART_TYPE:
-
-            chartComponent =
-                new CategoryDatasetChartComponent( chartType, actionPath, width, height, urlFactory, messages );
-            break;
-
-          case JFreeChartEngine.PIE_CHART_TYPE:
-
-            chartComponent = new PieDatasetChartComponent( chartType, actionPath, width, height, urlFactory, messages );
-            break;
-
-          case JFreeChartEngine.DIAL_CHART_TYPE:
-
-            chartComponent = new DialChartComponent( chartType, actionPath, width, height, urlFactory, messages );
-            if ( dialValue != null ) {
-              Number numericDialValue =
-                  DataUtilities.toNumber( dialValue, LocaleHelper.getCurrencyFormat(), LocaleHelper.getNumberFormat() );
-              ( (DialChartComponent) chartComponent ).setValue( numericDialValue.doubleValue() );
-            }
-            break;
-
-          case JFreeChartEngine.BUBBLE_CHART_TYPE:
-
-            chartComponent =
-                new XYZSeriesCollectionChartComponent( chartType, actionPath, width, height, urlFactory, messages );
-            break;
-
-          case JFreeChartEngine.UNDEFINED_CHART_TYPE:
-          default:
-            // Unsupported chart type, bail out
-            logger.error( Messages.getInstance().getString(
-                "ChartHelper.ERROR_0003_INVALID_CHART_TYPE", chartTypeStr, Integer.toString( chartType ) ) ); //$NON-NLS-1$
-            PentahoSystem.get( IMessageFormatter.class, userSession ).formatErrorMessage(
-                "text/html", Messages.getInstance().getString( "ChartHelper.ERROR_0003_INVALID_CHART_TYPE", //$NON-NLS-1$ //$NON-NLS-2$
-                    chartTypeStr, Integer.toString( chartType ) ), messages, messageBuffer );
-            content = messageBuffer.toString();
-            result = false;
-
-        }
-      }
-
-      if ( result && ( chartComponent != null ) ) {
-        try {
-
-          chartComponent.setLoggingLevel( logger.getLoggingLevel() );
-          chartComponent.validate( userSession, null );
-          chartComponent.setDataAction( actionPath );
-          chartComponent.setUrlTemplate( urlDrillTemplate );
-
-          String seriesName = parameterProvider.getStringParameter( "series-name", null ); //$NON-NLS-1$
-          if ( chartComponent instanceof CategoryDatasetChartComponent ) {
-            ( (CategoryDatasetChartComponent) chartComponent ).setSeriesName( seriesName );
-          }
-
-          // WARNING!!! This is an atypical way to access data for the chart... these parameters and their
-          // usage are undocumented, and only left in here to support older solutions that may be using them.
-          // *************** START QUESTIONABLE CODE ********************************************************
-
-          String connectionName = parameterProvider.getStringParameter( "connection", null ); //$NON-NLS-1$
-          String query = parameterProvider.getStringParameter( "query", null ); //$NON-NLS-1$
-          String dataAction = parameterProvider.getStringParameter( "data-process", null ); //$NON-NLS-1$
-
-          IPentahoConnection connection = null;
-          try {
-            chartComponent.setParamName( innerParam );
-            chartComponent.setParameterProvider( IParameterProvider.SCOPE_REQUEST, parameterProvider );
-            if ( ( connectionName != null ) && ( query != null ) ) {
-              // connection = new SQLConnection(connectionName, logger)
-              // TODO support non-SQL data sources. Much easier now using the factory
-              connection =
-                  PentahoConnectionFactory.getConnection( IPentahoConnection.SQL_DATASOURCE, connectionName,
-                      userSession, logger );
-
-              try {
-                query =
-                    TemplateUtil.applyTemplate( query, TemplateUtil.parametersToProperties( parameterProvider ), null );
-                IPentahoResultSet results = connection.executeQuery( query );
-                chartComponent.setValues( results );
-              } finally {
-                boolean ignored = true;
-              }
-
-              chartComponent.setUrlTemplate( urlDrillTemplate );
-              if ( outerParams != null ) {
-                StringTokenizer tokenizer = new StringTokenizer( outerParams, ";" ); //$NON-NLS-1$
-                while ( tokenizer.hasMoreTokens() ) {
-                  chartComponent.addOuterParamName( tokenizer.nextToken() );
-                }
-              }
-            } else if ( dataAction != null ) {
-              chartComponent.setDataAction( dataAction );
-            }
-            // ***************** END QUESTIONABLE CODE ********************************************************
-
-            content = chartComponent.getContent( "text/html" ); //$NON-NLS-1$
-
-          } finally {
-            if ( connection != null ) {
-              connection.close();
-            }
-          }
-
-        } catch ( Throwable e ) {
-          logger.error( Messages.getInstance().getErrorString( "Widget.ERROR_0001_COULD_NOT_CREATE_WIDGET" ), e ); //$NON-NLS-1$
-        }
-      } // end of if(result)
-
-      try {
-        if ( content == null ) {
-          PentahoSystem
-              .get( IMessageFormatter.class, userSession )
-              .formatErrorMessage(
-                  "text/html", Messages.getInstance().getErrorString( "Widget.ERROR_0001_COULD_NOT_CREATE_WIDGET" ), messages, messageBuffer ); //$NON-NLS-1$ //$NON-NLS-2$
-          content = messageBuffer.toString();
-          result = false;
-        }
-        outputStream.append( content );
-      } catch ( Exception e ) {
-        logger.error( Messages.getInstance().getErrorString( "Widget.ERROR_0001_COULD_NOT_CREATE_WIDGET" ), e ); //$NON-NLS-1$
-      }
-
-    } finally {
-      if ( chartComponent != null ) {
-        chartComponent.dispose();
-      }
-    }
-    return result;
+      final StringBuffer outputStream, final IPentahoSession userSession, final List<?> messages, ILogger logger ) {
+    Builder builder = new Builder( actionPath, parameterProvider, userSession, logger, messages );
+    return builder.doChart( outputStream );
   }
 
   /**
-   * doPieChart generates the images and html necessary to render pie charts. It provides a simple wrapper around
-   * the class org.pentaho.ui.component.charting.PieDatasetChartComponent
+   * doPieChart generates the images and html necessary to render pie charts. It provides a simple wrapper around the
+   * class org.pentaho.ui.component.charting.PieDatasetChartComponent
    * 
    * @param solutionName
    *          the solution name
@@ -330,30 +367,21 @@ public class ChartHelper {
    * @deprecated use doChart instead
    */
   @Deprecated
-  public static boolean
-  doPieChart( final String actionPath, final IParameterProvider parameterProvider, final StringBuffer outputStream,
-        final IPentahoSession userSession, final ArrayList messages, final ILogger logger ) {
-
+  public static boolean doPieChart( final String actionPath, final IParameterProvider parameterProvider,
+      final StringBuffer outputStream, final IPentahoSession userSession, final List<?> messages, final ILogger logger ) {
     boolean result = true;
-    String outerParams = parameterProvider.getStringParameter( "outer-params", null ); //$NON-NLS-1$
-    String innerParam = parameterProvider.getStringParameter( "inner-param", null ); //$NON-NLS-1$
+    String outerParams = parameterProvider.getStringParameter( OUTER_PARAMS, null );
+    String innerParam = parameterProvider.getStringParameter( INNER_PARAM, null );
+    int width = (int) parameterProvider.getLongParameter( IMAGE_WIDTH, 150 );
+    int height = (int) parameterProvider.getLongParameter( IMAGE_HEIGHT, 150 );
+    String urlDrillTemplate = parameterProvider.getStringParameter( DRILL_URL, "" ); //$NON-NLS-1$
 
-    String urlDrillTemplate = parameterProvider.getStringParameter( "drill-url", null ); //$NON-NLS-1$
-    String imageUrl = parameterProvider.getStringParameter( "image-url", null ); //$NON-NLS-1$
-    IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-    if ( imageUrl == null ) {
-      imageUrl = requestContext.getContextPath(); //$NON-NLS-1$
+    String imageUrl = parameterProvider.getStringParameter( IMAGE_URL, null );
+    if ( StringUtils.isBlank( imageUrl ) ) {
+      imageUrl = PentahoRequestContextHolder.getRequestContext().getContextPath();
     }
-
-    if ( urlDrillTemplate == null ) {
-      urlDrillTemplate = ""; //$NON-NLS-1$
-    }
-
-    int width = (int) parameterProvider.getLongParameter( "image-width", 150 ); //$NON-NLS-1$
-    int height = (int) parameterProvider.getLongParameter( "image-height", 150 ); //$NON-NLS-1$
 
     SimpleUrlFactory urlFactory = new SimpleUrlFactory( urlDrillTemplate );
-
     PieDatasetChartComponent chartComponent = null;
     try {
       chartComponent =
@@ -423,11 +451,7 @@ public class ChartHelper {
 
     boolean result = true;
     String linkUrl = parameterProvider.getStringParameter( "drill-url", null ); //$NON-NLS-1$
-    String imageUrl = parameterProvider.getStringParameter( "image-url", null ); //$NON-NLS-1$
     IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-    if ( imageUrl == null ) {
-      imageUrl = requestContext.getContextPath(); //$NON-NLS-1$
-    }
 
     if ( linkUrl == null ) {
       linkUrl = ""; //$NON-NLS-1$
