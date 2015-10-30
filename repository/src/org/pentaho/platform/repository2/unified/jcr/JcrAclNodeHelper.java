@@ -113,6 +113,10 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
    */
   @Override public RepositoryFileAcl getAclFor( final RepositoryFile repositoryFile ) {
 
+    if ( repositoryFile == null ) {
+      return null;
+    }
+
     // Obtain a reference to ACL node as "system", guaranteed access
     final RepositoryFile aclNode = getAclNode( repositoryFile );
 

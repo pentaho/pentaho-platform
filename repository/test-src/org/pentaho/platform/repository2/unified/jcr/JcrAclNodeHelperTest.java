@@ -235,6 +235,20 @@ public class JcrAclNodeHelperTest extends DefaultUnifiedRepositoryBase {
     assertTrue( adminPresent );
   }
 
+
+  @Test
+  public void getAclFor_Null_ReturnsFalse() throws Exception {
+    loginAsRepositoryAdmin();
+    assertNull( helper.getAclFor( null ) );
+  }
+
+  @Test
+  public void canAccess_Null_ReturnsFalse() throws Exception {
+    loginAsRepositoryAdmin();
+    assertFalse( helper.canAccess( null, EnumSet.of( RepositoryFilePermission.READ ) ) );
+  }
+
+
   private void makeDsPrivate() {
     loginAsRepositoryAdmin();
     RepositoryFileAcl acl = createAclFor( USERNAME_SUZY );
