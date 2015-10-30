@@ -69,9 +69,7 @@ public class SolutionContextListener implements ServletContextListener {
     String localeLanguage = getServerParameter( "locale-language" ); //$NON-NLS-1$
     String localeCountry = getServerParameter( "locale-country" ); //$NON-NLS-1$
     boolean localeSet = false;
-    if ( ( localeLanguage != null )
-      && !"".equals( localeLanguage ) && ( localeCountry != null ) && !""
-      .equals( localeCountry ) ) { //$NON-NLS-1$ //$NON-NLS-2$
+    if ( !StringUtils.isEmpty( localeLanguage ) && !StringUtils.isEmpty( localeCountry ) ) {
       Locale[] locales = Locale.getAvailableLocales();
       if ( locales != null ) {
         for ( Locale element : locales ) {

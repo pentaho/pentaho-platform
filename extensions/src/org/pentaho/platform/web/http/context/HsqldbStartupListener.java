@@ -47,14 +47,17 @@ public class HsqldbStartupListener implements ServletContextListener {
   private Map<String, String> getDatabases( ServletContext ctx ) {
     HashMap<String, String> map = new LinkedHashMap<String, String>();
     String dbs = ctx.getInitParameter( "hsqldb-databases" ); //$NON-NLS-1$
-    String[] dbEntries = dbs.split( "," ); //$NON-NLS-1$
-    for ( int i = 0; i < dbEntries.length; i++ ) {
-      String[] entry = dbEntries[i].split( "@" ); //$NON-NLS-1$
-      if ( ( entry.length != 2 ) || ( StringUtils.isEmpty( entry[0] ) ) || ( StringUtils.isEmpty( entry[1] ) ) ) {
-        logger.error( Messages.getErrorString( "HsqlDatabaseStartupListener.ERROR_0001_HSQLDB_ENTRY_MALFORMED" ) ); //$NON-NLS-1$
-        continue;
+    if ( dbs != null ) {
+      String[] dbEntries = dbs.split( "," ); //$NON-NLS-1$
+      for ( int i = 0; i < dbEntries.length; i++ ) {
+        String[] entry = dbEntries[ i ].split( "@" ); //$NON-NLS-1$
+        if ( ( entry.length != 2 ) || ( StringUtils.isEmpty( entry[ 0 ] ) ) || ( StringUtils.isEmpty( entry[ 1 ] ) ) ) {
+          logger.error(
+            Messages.getErrorString( "HsqlDatabaseStartupListener.ERROR_0001_HSQLDB_ENTRY_MALFORMED" ) ); //$NON-NLS-1$
+          continue;
+        }
+        map.put( entry[ 0 ], entry[ 1 ] );
       }
-      map.put( entry[0], entry[1] );
     }
     return map;
   }

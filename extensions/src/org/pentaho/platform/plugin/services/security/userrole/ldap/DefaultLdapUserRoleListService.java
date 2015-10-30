@@ -110,7 +110,7 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     for ( GrantedAuthority role : results ) {
       String roleString =
           ( roleMapper != null ) ? roleMapper.toPentahoRole( role.getAuthority() ) : role.getAuthority();
-      if ( roleString != null && !extraRoles.contains( roleString ) ) {
+      if ( roleString != null && extraRoles != null && !extraRoles.contains( roleString ) ) {
         roles.add( roleString );
       }
     }
