@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.commons.connection.DataUtilities;
@@ -35,7 +36,9 @@ import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.uifoundation.messages.Messages;
+import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.messages.MessagesBase;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 
 import java.io.File;
@@ -45,7 +48,16 @@ import java.util.StringTokenizer;
 /**
  * This class provides wrapper functions to make it easier to execute action sequences and generate a widget.
  */
+@Deprecated // BISERVER-12899
 public class ChartHelper {
+
+  private static void deprecateWarning() {
+    String key = "PentahoSystem.WARN_DEPRECATED_CLASS"; //$NON-NLS-1$
+    MessagesBase messages = org.pentaho.platform.engine.core.messages.Messages.getInstance();
+    String message = messages.getErrorString( key, ChartHelper.class.getCanonicalName() );
+    String stackTrace = StringUtils.join( Thread.currentThread().getStackTrace(), "\n\t" ); //$NON-NLS-1$
+    Logger.warn( ChartHelper.class, message + "\n\t" + stackTrace ); //$NON-NLS-1$
+  }
 
   /**
    * doChart generates the images and html necessary to render various charts within a web page.
@@ -65,8 +77,10 @@ public class ChartHelper {
    * 
    * @return true if successful
    */
+  @Deprecated
   public static boolean doChart( final String actionPath, final IParameterProvider parameterProvider,
       final StringBuffer outputStream, final IPentahoSession userSession, final ArrayList messages, ILogger logger ) {
+    deprecateWarning();
 
     boolean result = true;
     String content = null;
@@ -333,6 +347,7 @@ public class ChartHelper {
   public static boolean
   doPieChart( final String actionPath, final IParameterProvider parameterProvider, final StringBuffer outputStream,
         final IPentahoSession userSession, final ArrayList messages, final ILogger logger ) {
+    deprecateWarning();
 
     boolean result = true;
     String outerParams = parameterProvider.getStringParameter( "outer-params", null ); //$NON-NLS-1$
@@ -420,6 +435,7 @@ public class ChartHelper {
   public static boolean doDial( final String solutionName, final String actionPath, final String chartName,
       final IParameterProvider parameterProvider, final StringBuffer outputStream, final IPentahoSession userSession,
       final ArrayList messages, final ILogger logger ) {
+    deprecateWarning();
 
     boolean result = true;
     String linkUrl = parameterProvider.getStringParameter( "drill-url", null ); //$NON-NLS-1$
