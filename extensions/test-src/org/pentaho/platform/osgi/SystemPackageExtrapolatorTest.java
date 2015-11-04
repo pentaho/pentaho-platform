@@ -1,10 +1,22 @@
 package org.pentaho.platform.osgi;
 
+import org.jboss.modules.DependencySpec;
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleFinder;
+import org.jboss.modules.ModuleIdentifier;
+import org.jboss.modules.ModuleLoadException;
+import org.jboss.modules.ModuleLoader;
+import org.jboss.modules.ModuleSpec;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertTrue;
 
 public class SystemPackageExtrapolatorTest {
 
@@ -13,7 +25,7 @@ public class SystemPackageExtrapolatorTest {
   @Test
   public void testExpandProperties() throws Exception {
     SystemPackageExtrapolator systemPackageExtrapolator = new SystemPackageExtrapolator();
-    Properties properties = new Properties(  );
+    Properties properties = new Properties();
     properties.setProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA, "org.apache.karaf.branding,"
         + " org.apache.xerces.impl.dv; version=\"2.11.0\","
         + " org.apache.*,org.slf4j.*; version=\"1.7.7\"" );
@@ -28,8 +40,47 @@ public class SystemPackageExtrapolatorTest {
     assertTrue( "Log4J package should have been added", processedPackages
         .contains( "org.apache.log4j" ) );
 
+    assertTrue( "org.apache package should have been added", processedPackages
+        .contains( "org.apache" ) );
+
     assertTrue( "pentaho package should have been added with versioning", processedPackages
         .contains( "org.slf4j.impl; version=\"1.7.7\"" ) );
 
+  }
+
+  @Test
+  public void testJBossProvider() {
+    SystemPackageExtrapolator.JBossModulePackageProvider jBossModulePackageProvider
+        = new SystemPackageExtrapolator.JBossModulePackageProvider();
+
+    Set<String> packages = jBossModulePackageProvider.getPackages();
+    assertThat( packages, is( empty() ) );
+
+
+    ModuleIdentifier moduleIdentifier = ModuleIdentifier.create( "org.pentaho.test.module" );
+    ModuleSpec.Builder builder = ModuleSpec.build( moduleIdentifier );
+    builder.addDependency( DependencySpec.createSystemDependencySpec(
+            new HashSet<String>( Arrays.asList( "org.apache", "org.apache.log4j" ) ) )
+    );
+
+    final ModuleSpec moduleSpec = builder.create();
+    ModuleLoader loader = new ModuleLoader( new ModuleFinder[] { new ModuleFinder() {
+      @Override public ModuleSpec findModule( ModuleIdentifier moduleIdentifier, ModuleLoader moduleLoader )
+          throws ModuleLoadException {
+        return moduleSpec;
+      }
+    } } );
+
+    try {
+      Module module = loader.loadModule( moduleIdentifier );
+      jBossModulePackageProvider.setModule( module );
+    } catch ( ModuleLoadException e ) {
+      e.printStackTrace();
+    }
+
+
+    packages = jBossModulePackageProvider.getPackages();
+    assertThat( packages, contains( "org.apache", "org.apache.log4j" ) );
+    assertThat( packages, not(contains( "org.not.there" ) ) );
   }
 }

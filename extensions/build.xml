@@ -38,7 +38,7 @@
 	<target name="assemble"/>
 	
 	<!-- Override resolve to tack on a resolve of enunciate jars needed for doc generation -->
-	<target name="resolve" depends="subfloor.resolve, resolve-enunciate" />
+	<target name="resolve" depends="subfloor.resolve, resolve-enunciate, resolve-codegen" />
 	<target name="resolve-enunciate" depends="resolve-init">
 		<ivy:resolve file="${ivyfile}" conf="enunciate" />
 		<ivy:retrieve conf="enunciate" pattern="${basedir}/enunciate/lib/[module]-[revision](-[classifier]).[ext]" />
