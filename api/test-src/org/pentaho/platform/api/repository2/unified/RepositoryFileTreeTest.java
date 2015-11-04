@@ -30,7 +30,10 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bgroves on 10/23/15.
@@ -63,6 +66,9 @@ public class RepositoryFileTreeTest {
     assertNotNull( fileTree.toString() );
     assertEquals( 1, fileTree.getChildren().size() );
 
+    when( REPO_FILE.isFolder() ).thenReturn( true );
+    assertTrue( fileTree.toString().contains( "/" ) );
+
     try {
       RepositoryFileTree throwError = new RepositoryFileTree( null, null );
       fail( "Should of thrown an IllegalArgumentException" );
@@ -78,14 +84,25 @@ public class RepositoryFileTreeTest {
 
   @Test
   public void testBuilder() {
-    RepositoryFileTree.Builder builder = new RepositoryFileTree.Builder( new RepositoryFile( null, null, false, false,
-      false, null, null, null, null, false, null, null, null, null, null, null, null, null, new Long( 1 ), null, null ) );
-    RepositoryFileTree anotherFileTree = builder.build();
+    RepositoryFile nullFile = new RepositoryFile( null, null, false, false,
+      false, null, null, null, null, false, null, null, null, null, null, null, null, null, new Long( 1 ), null, null );
+    RepositoryFileTree.Builder nullBuilder = new RepositoryFileTree.Builder( nullFile );
+    RepositoryFileTree anotherFileTree = nullBuilder.build();
     assertFalse( anotherFileTree.equals( fileTree ) );
+    assertEquals( nullFile, nullBuilder.getFile() );
 
-    builder = new RepositoryFileTree.Builder( fileTree );
+    RepositoryFileTree.Builder builder = new RepositoryFileTree.Builder( fileTree );
     RepositoryFileTree dupFileTree = builder.build();
     assertTrue( fileTree.equals( dupFileTree ) );
+    fileTree.compareTo( dupFileTree );
+    verify( REPO_FILE ).compareTo( any( RepositoryFile.class ) );
+
+    List<RepositoryFileTree.Builder> children = builder.getChildren();
+    assertEquals( 1, children.size() );
+    builder.child( nullBuilder );
+    children = builder.getChildren();
+    assertEquals( 2, children.size() );
+    assertTrue( children.contains( nullBuilder ) );
 
     builder = new RepositoryFileTree.Builder( REPO_FILE_CHILD  );
     assertFalse( fileTree.equals( builder.build() ) );

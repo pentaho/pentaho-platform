@@ -32,34 +32,30 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 
 public class RepositoryFileTest {
 
   private static final String NAME = "name";
   private static final String ID = "id";
-  private static final String CREATOR_ID = anyString();
-  private static final Date CREATED_DATE = any( Date.class );
-  private static final Date LAST_MODIFIED_DATE = any( Date.class );
-  private static final Long FILE_SIZE = anyLong();
-  private static final Boolean FOLDER = anyBoolean();
-  private static final String PATH = anyString();
-  private static final Boolean HIDDEN = anyBoolean();
-  private static final Boolean VERSIONED = anyBoolean();
-  private static final String VERSION_ID = anyString();
-  private static final Boolean LOCKED = anyBoolean();
-  private static final String LOCK_OWNER = anyString();
-  private static final String LOCK_MESSAGE = anyString();
-  private static final Date LOCK_DATE = any( Date.class );
-  private static final String TITLE = anyString();
-  private static final String DESCRIPTION = anyString();
+  private static final String CREATOR_ID = "creatorID";
+  private static final Date CREATED_DATE = new Date();
+  private static final Date LAST_MODIFIED_DATE = new Date();
+  private static final Long FILE_SIZE = 1000L;
+  private static final Boolean FOLDER = true;
+  private static final String PATH = "path";
+  private static final Boolean HIDDEN = false;
+  private static final Boolean VERSIONED = true;
+  private static final String VERSION_ID = "versionId";
+  private static final Boolean LOCKED = false;
+  private static final String LOCK_OWNER = "theOwner";
+  private static final String LOCK_MESSAGE = "becauseICan";
+  private static final Date LOCK_DATE = new Date();
+  private static final String TITLE = "title";
+  private static final String DESCRIPTION = "this file";
   private static final Map<String, Properties> LOCALE_PROP = new HashMap<String, Properties>();
-  private static final String LOCALE = anyString();
-  private static final String PARENT_FOLDER = anyString();
-  private static final Date DELETED_DATE = any( Date.class );
+  private static final String LOCALE = "en_us_utf8";
+  private static final String PARENT_FOLDER = "parentFolder";
+  private static final Date DELETED_DATE = new Date();
 
   private RepositoryFile file;
 
@@ -86,12 +82,78 @@ public class RepositoryFileTest {
       // Pass
     }
 
-    assertNotEquals( 29791, dupFile.hashCode() );
+    assertEquals( 0, file.compareTo( file ) );
 
-    // Coverage for equals
+    RepositoryFile.Builder builder = new RepositoryFile.Builder( file );
+    builder.title( "diffTitle" );
+    builder.id( null );
+    assertNotEquals( 0, file.compareTo( builder.build() ) );
+
+    assertNotEquals( 29791, dupFile.hashCode() );
+  }
+
+  @Test
+  public void testBuilderNulls() {
+    RepositoryFile nullFile = new RepositoryFile( ID, NAME, FOLDER, HIDDEN, VERSIONED, VERSION_ID, PATH, null, null,
+      LOCKED, LOCK_OWNER, LOCK_MESSAGE, null, LOCALE, null, DESCRIPTION, PARENT_FOLDER, null, FILE_SIZE,
+      CREATOR_ID, null );
+
+    assertNull( nullFile.getCreatedDate() );
+    assertNull( nullFile.getLastModifiedDate() );
+    assertNull( nullFile.getLockDate() );
+    assertEquals( NAME, nullFile.getTitle() );
+    assertNull( nullFile.getLocalePropertiesMap() );
+    assertNull( nullFile.getDeletedDate() );
+  }
+
+  @Test
+  public void testEquals() {
+    RepositoryFile dupFile = file.clone();
     assertTrue( file.equals( dupFile ) );
     assertTrue( file.equals( file ) );
     assertFalse( file.equals( null ) );
+
+    RepositoryFile.Builder builder = new RepositoryFile.Builder( file );
+    // equals version ID
+    builder.versionId( "diffVersionId" );
+    RepositoryFile newFile = builder.build();
+    assertFalse( newFile.equals( file ) );
+
+    builder.versionId( null );
+    newFile = builder.build();
+    assertFalse( newFile.equals( file ) );
+
+
+    RepositoryFile secondNewFile = builder.build();
+    assertTrue( newFile.equals( secondNewFile ) );
+
+    // equals locale
+    builder.locale( "diffLocale" );
+    newFile = builder.build();
+    assertFalse( newFile.equals( file ) );
+
+    builder.locale( null );
+    newFile = builder.build();
+    assertFalse( newFile.equals( file ) );
+
+    secondNewFile = builder.build();
+    assertTrue( newFile.equals( secondNewFile ) );
+
+    // equals ID
+    builder.id( "diffId" );
+    newFile = builder.build();
+    assertFalse( newFile.equals( file ) );
+
+    builder.id( null );
+    newFile = builder.build();
+    assertFalse( newFile.equals( file ) );
+
+    secondNewFile = builder.build();
+    assertTrue( newFile.equals( secondNewFile ) );
+
+    builder.path( "diffPath" );
+    secondNewFile = builder.build();
+    assertFalse( newFile.equals( secondNewFile ) );
   }
 
   @Test
@@ -124,6 +186,68 @@ public class RepositoryFileTest {
     assertTrue( newFile.getLocalePropertiesMap().containsKey( localDesc ) );
     assertEquals( newDesc, newFile.getLocalePropertiesMap().get( localDesc ).getProperty( RepositoryFile.DESCRIPTION ) );
     assertEquals( newDesc, newFile.getLocalePropertiesMap().get( localDesc ).getProperty( RepositoryFile.FILE_DESCRIPTION ) );
+
+    builder = new RepositoryFile.Builder( ID, NAME );
+    newFile = builder.build();
+    assertEquals( NAME, newFile.getName() );
+    assertEquals( ID, newFile.getId() );
+
+    String newString = "newString";
+    builder.name( newString );
+    newFile = builder.build();
+    assertEquals( newString, newFile.getName() );
+
+    // Test that Default Locale gets set
+    builder.localePropertiesMap( new HashMap<String, Properties>() );
+    newFile = builder.build();
+    assertTrue( newFile.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
+
+    builder.localePropertiesMap( null );
+    builder.title( LOCALE, "newTitle" );
+    newFile = builder.build();
+    assertTrue( newFile.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
+
+    try {
+      builder = new RepositoryFile.Builder( null, NAME );
+      fail( "Null pointer exception should of be thrown." );
+    } catch ( Exception e ) {
+      // Pass
+    }
+
+    // Test null Properties Map
+    RepositoryFile nullFile = new RepositoryFile( ID, NAME, FOLDER, HIDDEN, VERSIONED, VERSION_ID, PATH, CREATED_DATE, LAST_MODIFIED_DATE,
+      LOCKED, LOCK_OWNER, LOCK_MESSAGE, LOCK_DATE, LOCALE, TITLE, DESCRIPTION, PARENT_FOLDER, DELETED_DATE, FILE_SIZE,
+      CREATOR_ID, null );
+    builder = new RepositoryFile.Builder( nullFile );
+    newFile = builder.build();
+    assertNull( newFile.getLocalePropertiesMap() );
+    try {
+      builder.clearLocalePropertiesMap();
+    } catch ( Exception e ) {
+      fail( "NPE should not have occurred." );
+    }
+    newFile = builder.build();
+    assertNull( newFile.getLocalePropertiesMap() );
+
+    // Test overwriting existing properties
+    builder = new RepositoryFile.Builder( file );
+    newFile = builder.build();
+    assertFalse( newFile.getLocalePropertiesMap().containsKey( LOCALE ) );
+    builder.title( LOCALE, TITLE );
+    newFile = builder.build();
+    assertEquals( TITLE, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.TITLE ) );
+
+    builder.title( LOCALE, newTitle );
+    newFile = builder.build();
+    assertEquals( newTitle, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.TITLE ) );
+
+    builder.description( LOCALE, DESCRIPTION );
+    newFile = builder.build();
+    assertEquals( DESCRIPTION, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.DESCRIPTION ) );
+
+    builder.description( LOCALE, newDesc );
+    newFile = builder.build();
+    assertEquals( newDesc, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.DESCRIPTION ) );
   }
 
   private void checkRepositoryFile( RepositoryFile theFile ) {
@@ -132,7 +256,7 @@ public class RepositoryFileTest {
     assertEquals( CREATOR_ID, theFile.getCreatorId() );
     assertEquals( CREATED_DATE, theFile.getCreatedDate() );
     assertEquals( LAST_MODIFIED_DATE, theFile.getLastModifiedDate() );
-    assertEquals( 0, theFile.getFileSize(), .0000001 );
+    assertEquals( FILE_SIZE, theFile.getFileSize(), .0000001 );
     assertEquals( FOLDER, theFile.isFolder() );
     assertEquals( PATH, theFile.getPath() );
     assertEquals( HIDDEN, theFile.isHidden() );
