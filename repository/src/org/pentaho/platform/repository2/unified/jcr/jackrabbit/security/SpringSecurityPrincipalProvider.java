@@ -237,8 +237,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
         // 2. then try the springSecurityUserCache and, failing that, actual
         // back-end user lookup
-        final UserDetails userDetails = internalGetUserDetails( principalName );
-        if ( userDetails != null ) {
+
+        // it may not be necessary to get user's details to emit principal,
+        boolean skipVerification =
+          !"true".equalsIgnoreCase( PentahoSystem.getSystemSetting( "verify-user-on-principal-creation", "true" ) );
+        if ( skipVerification || internalGetUserDetails( principalName ) != null ) {
           final Principal user = new UserPrincipal( principalName );
           if ( cacheManager != null ) {
             cacheManager.putInRegionCache( USER_CACHE_REGION, principalName, user );
@@ -321,7 +324,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
         final String roleAuthority = role.getAuthority();
         Principal fromCache;
-        if (cacheManager == null) {
+        if ( cacheManager == null ) {
           fromCache = null;
         } else {
           fromCache = (Principal) cacheManager.getFromRegionCache( ROLE_CACHE_REGION, roleAuthority );

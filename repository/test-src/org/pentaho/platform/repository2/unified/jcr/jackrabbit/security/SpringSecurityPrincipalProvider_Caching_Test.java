@@ -19,16 +19,13 @@
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.SimpleMapCacheManager;
-import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.User;
@@ -37,31 +34,13 @@ import org.springframework.security.userdetails.User;
 import java.security.Principal;
 import java.util.Properties;
 
-import static org.apache.commons.lang.reflect.FieldUtils.readStaticField;
-import static org.apache.commons.lang.reflect.FieldUtils.writeStaticField;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityPrincipalProvider.*;
 
-public class SpringSecurityPrincipalProviderTest {
+public class SpringSecurityPrincipalProvider_Caching_Test {
   private static final String USER_PRINCIPLE = "user";
   private static final String ROLE_PRINCIPLE = "role";
-
-  private static Object userNameUtils;
-  private static Object roleNameUtils;
-
-  @BeforeClass
-  public static void saveInternalFields() throws Exception {
-    userNameUtils = readStaticField( JcrTenantUtils.class, "userNameUtils", true );
-    roleNameUtils = readStaticField( JcrTenantUtils.class, "roleNameUtils", true );
-  }
-
-  @AfterClass
-  public static void restoreInternalFields() throws Exception {
-    writeStaticField( JcrTenantUtils.class, "userNameUtils", userNameUtils, true );
-    writeStaticField( JcrTenantUtils.class, "roleNameUtils", roleNameUtils, true );
-  }
-
 
   private SpringSecurityPrincipalProvider provider;
   private MicroPlatform mp;
@@ -75,10 +54,6 @@ public class SpringSecurityPrincipalProviderTest {
 
   @Before
   public void setUp() throws Exception {
-    // cleaning up static fields
-    writeStaticField( JcrTenantUtils.class, "userNameUtils", null, true );
-    writeStaticField( JcrTenantUtils.class, "roleNameUtils", null, true );
-
     userResolver = mock( ITenantedPrincipleNameResolver.class );
     roleResolver = mock( ITenantedPrincipleNameResolver.class );
 
