@@ -27,6 +27,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * Created by bgroves on 10/28/15.
@@ -60,6 +61,7 @@ public class RepositoryRequestTest {
 
   @Test
   public void testRepositoryRequest() {
+    // Test no arg constructor
     RepositoryRequest defaultRequest = new RepositoryRequest();
     assertFalse( defaultRequest.isShowHidden() );
     assertEquals( RepositoryRequest.FILES_TYPE_FILTER.FILES_FOLDERS, defaultRequest.getTypes() );
@@ -70,10 +72,12 @@ public class RepositoryRequestTest {
     assertFalse( defaultRequest.isIncludeAcls() );
     assertNull( defaultRequest.getChildNodeFilter() );
 
+    // Test constructor with nulls
     RepositoryRequest nullRequest = new RepositoryRequest( null, null, null, null );
     assertFalse( nullRequest.isShowHidden() );
     assertEquals( new Integer( -1 ), nullRequest.getDepth() );
 
+    // Test constructor with values
     assertEquals( SHOW_HIDE, request.isShowHidden() );
     assertEquals( RepositoryRequest.FILES_TYPE_FILTER.FILES, request.getTypes() );
     assertEquals( INCLUDE_SET, request.getIncludeMemberSet() );
@@ -90,5 +94,15 @@ public class RepositoryRequestTest {
     String newPath = "newPath";
     request.setPath( newPath );
     assertEquals( newPath, request.getPath() );
+
+    // Test absence of include/exclude member sets
+    String legacyFilter = "includeMembers=(include)|excludeMembers=(exclude)";
+    try {
+      new RepositoryRequest( PATH, SHOW_HIDE, DEPTH, legacyFilter );
+      fail( "RuntimeException should of been thrown" );
+    } catch ( RuntimeException e ) {
+      // Pass
+    }
+
   }
 }
