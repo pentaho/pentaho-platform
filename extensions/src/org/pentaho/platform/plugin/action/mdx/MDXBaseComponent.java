@@ -577,4 +577,20 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
   public boolean init() {
     return true;
   }
+
+  @Override
+  protected void setOutputValue( String outputName, Object value ) {
+    super.setOutputValue( outputName, value );
+  }
+
+  // for unit testing
+  protected void setConnection( IPentahoConnection connection ) {
+    this.connection = connection;
+  }
+
+  // for unit testing
+  @Override
+  protected String applyInputsToFormat( String format ) {
+    return super.applyInputsToFormat( format );
+  }
 }
