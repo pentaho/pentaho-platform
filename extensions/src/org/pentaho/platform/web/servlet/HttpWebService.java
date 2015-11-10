@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web.servlet;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -97,13 +98,11 @@ public class HttpWebService extends ServletBase {
 
   public String getPayloadAsString( final HttpServletRequest request ) throws IOException {
     BufferedReader reader = request.getReader();
-    StringBuffer stringBuffer = new StringBuffer();
-    char[] buffer = new char[2048];
-    int b = reader.read( buffer );
-    while ( b > 0 ) {
-      stringBuffer.append( buffer, 0, b );
+    if ( reader != null ) {
+      return IOUtils.toString( reader );
+    } else {
+      return null;
     }
-    return stringBuffer.toString();
   }
 
   public void doGetFixMe( final HttpServletRequest request, final HttpServletResponse response )
@@ -339,7 +338,7 @@ public class HttpWebService extends ServletBase {
   }
 
   @SuppressWarnings( "deprecation" )
-  private void doDial( final String solutionName, final String actionPath, final String actionName,
+  protected void doDial( final String solutionName, final String actionPath, final String actionName,
       final IParameterProvider parameterProvider, final OutputStream outputStream, final IPentahoSession userSession ) {
 
     ArrayList messages = new ArrayList();
@@ -362,51 +361,9 @@ public class HttpWebService extends ServletBase {
       // not much we can do here...
     }
 
-    /*
-     * String linkUrl = parameterProvider.getStringParameter("drill-url", null); //$NON-NLS-1$ String imageUrl =
-     * parameterProvider.getStringParameter("image-url", null); //$NON-NLS-1$ if (imageUrl == null) { imageUrl =
-     * PentahoSystem.getApplicationContext().getBaseUrl(); }
-     * 
-     * if (linkUrl == null) { linkUrl = ""; //$NON-NLS-1$ }
-     * 
-     * int width = (int) parameterProvider.getLongParameter("image-width", 150); //$NON-NLS-1$ int height = (int)
-     * parameterProvider.getLongParameter("image-height", 150); //$NON-NLS-1$
-     * 
-     * SimpleUrlFactory urlFactory = new SimpleUrlFactory(linkUrl);
-     * 
-     * ArrayList messages = new ArrayList(); DashboardWidgetComponent widget = new
-     * DashboardWidgetComponent(DashboardWidgetComponent.TYPE_DIAL, solutionName + File.separator + actionPath +
-     * File.separator + actionName, width, height, urlFactory, messages); //$NON-NLS-1$ widget.validate(userSession,
-     * null);
-     * 
-     * widget.setParameterProvider("request", parameterProvider); //$NON-NLS-1$
-     * 
-     * double value = Double.parseDouble(parameterProvider.getStringParameter("value", "0")); //$NON-NLS-1$
-     * //$NON-NLS-2$ widget.setValue(value);
-     * 
-     * String title = parameterProvider.getStringParameter("title", ""); //$NON-NLS-1$ //$NON-NLS-2$
-     * widget.setTitle(title); //$NON-NLS-1$
-     * 
-     * String content = widget.getContent("text/html"); //$NON-NLS-1$
-     * 
-     * if (content == null) { StringBuffer buffer = new StringBuffer();
-     * MessageFormatHelper.formatErrorMessage("text/html",
-     * Messages.getInstance().getString("Widget.ERROR_0001_COULD_NOT_CREATE_WIDGET"), messages, buffer); //$NON-NLS-1$
-     * //$NON-NLS-2$ content = buffer.toString(); }
-     * 
-     * if (content == null || content.equals("")) { //$NON-NLS-1$ content = "&nbsp;"; //$NON-NLS-1$ } try {
-     * outputStream.write(SoapHelper.getSoapHeader().getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write(SoapHelper.openSoapResponse().getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write("<content><![CDATA[".getBytes(LocaleHelper.getSystemEncoding())); //$NON-NLS-1$
-     * outputStream.write(content.getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write("]]></content>".getBytes(LocaleHelper.getSystemEncoding())); //$NON-NLS-1$
-     * outputStream.write(SoapHelper.closeSoapResponse().getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write(SoapHelper.getSoapFooter().getBytes(LocaleHelper.getSystemEncoding())); } catch (IOException
-     * e) { // not much we acn do here... }
-     */
   }
 
-  private void doChart( final String actionPath, final IParameterProvider parameterProvider,
+  protected void doChart( final String actionPath, final IParameterProvider parameterProvider,
       final OutputStream outputStream, final IPentahoSession userSession ) {
 
     String chartTypeStr = parameterProvider.getStringParameter( "chart-type", "" ); //$NON-NLS-1$ //$NON-NLS-2$
@@ -418,7 +375,7 @@ public class HttpWebService extends ServletBase {
   }
 
   @SuppressWarnings( "deprecation" )
-  private void doPieChart( final String actionPath, final IParameterProvider parameterProvider,
+  protected void doPieChart( final String actionPath, final IParameterProvider parameterProvider,
       final OutputStream outputStream, final IPentahoSession userSession ) {
 
     ArrayList messages = new ArrayList();
@@ -439,48 +396,9 @@ public class HttpWebService extends ServletBase {
       // not much we can do here...
     }
 
-    /*
-     * String outerParams = parameterProvider.getStringParameter("outer-params", null); //$NON-NLS-1$ String innerParam
-     * = parameterProvider.getStringParameter("inner-param", null); //$NON-NLS-1$
-     * 
-     * String urlDrillTemplate = parameterProvider.getStringParameter("drill-url", null); //$NON-NLS-1$ String imageUrl
-     * = parameterProvider.getStringParameter("image-url", null); //$NON-NLS-1$ if (imageUrl == null) { imageUrl =
-     * PentahoSystem.getApplicationContext().getBaseUrl(); }
-     * 
-     * if (urlDrillTemplate == null) { urlDrillTemplate = ""; //$NON-NLS-1$ }
-     * 
-     * SimpleUrlFactory urlFactory = new SimpleUrlFactory(urlDrillTemplate);
-     * 
-     * PieDatasetChartComponent chartComponent = null; try { ArrayList messages = new ArrayList(); String
-     * chartDefinitionStr = solutionName + File.separator + actionPath + File.separator + actionName; chartComponent =
-     * new PieDatasetChartComponent(chartDefinitionStr, urlFactory, messages); //$NON-NLS-1$
-     * chartComponent.setUrlTemplate(urlDrillTemplate); if (outerParams != null) { StringTokenizer tokenizer = new
-     * StringTokenizer(outerParams, ";"); //$NON-NLS-1$ while (tokenizer.hasMoreTokens()) {
-     * chartComponent.addOuterParamName(tokenizer.nextToken()); } } chartComponent.setParamName(innerParam);
-     * 
-     * chartComponent.setDataAction(chartDefinitionStr); chartComponent.validate(userSession, null);
-     * 
-     * chartComponent.setParameterProvider("request", parameterProvider); //$NON-NLS-1$
-     * 
-     * String content = chartComponent.getContent("text/html"); //$NON-NLS-1$
-     * 
-     * if (content == null || content.equals("")) { //$NON-NLS-1$ content = "&nbsp;"; //$NON-NLS-1$ } if (content ==
-     * null) { StringBuffer buffer = new StringBuffer(); MessageFormatHelper.formatErrorMessage("text/html",
-     * Messages.getInstance().getString("Widget.ERROR_0001_COULD_NOT_CREATE_WIDGET"), messages, buffer); //$NON-NLS-1$
-     * //$NON-NLS-2$ content = buffer.toString(); }
-     * 
-     * try { outputStream.write(SoapHelper.getSoapHeader().getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write(SoapHelper.openSoapResponse().getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write("<content><![CDATA[".getBytes(LocaleHelper.getSystemEncoding())); //$NON-NLS-1$
-     * outputStream.write(content.getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write("]]></content>".getBytes(LocaleHelper.getSystemEncoding())); //$NON-NLS-1$
-     * outputStream.write(SoapHelper.closeSoapResponse().getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write(SoapHelper.getSoapFooter().getBytes(LocaleHelper.getSystemEncoding())); } catch (IOException
-     * e) { // not much we acn do here... } } finally { if (chartComponent != null) chartComponent.dispose(); }
-     */
   }
 
-  private void doOtherChart( final String actionPath, final IParameterProvider parameterProvider,
+  protected void doOtherChart( final String actionPath, final IParameterProvider parameterProvider,
       final OutputStream outputStream, final IPentahoSession userSession ) {
 
     ArrayList messages = new ArrayList();
@@ -501,68 +419,6 @@ public class HttpWebService extends ServletBase {
       // not much we can do here...
     }
 
-    /*
-     * String outerParams = parameterProvider.getStringParameter("outer-params", null); //$NON-NLS-1$ String innerParam
-     * = parameterProvider.getStringParameter("inner-param", null); //$NON-NLS-1$
-     * 
-     * String urlDrillTemplate = parameterProvider.getStringParameter("drill-url", null); //$NON-NLS-1$ String imageUrl
-     * = parameterProvider.getStringParameter("image-url", null); //$NON-NLS-1$ if (imageUrl == null) { imageUrl =
-     * PentahoSystem.getApplicationContext().getBaseUrl(); }
-     * 
-     * if (urlDrillTemplate == null) { urlDrillTemplate = ""; //$NON-NLS-1$ }
-     * 
-     * int width = (int) parameterProvider.getLongParameter("image-width", 150); //$NON-NLS-1$ int height = (int)
-     * parameterProvider.getLongParameter("image-height", 150); //$NON-NLS-1$
-     * 
-     * SimpleUrlFactory urlFactory = new SimpleUrlFactory(urlDrillTemplate);
-     * 
-     * CategoryDatasetChartComponent chartComponent = null; try { String content = null; ArrayList messages = new
-     * ArrayList(); try { String chartDefinitionStr = solutionName + File.separator + actionPath + File.separator +
-     * actionName; String chartTypeStr = parameterProvider.getStringParameter("chart-type", null); //$NON-NLS-1$ int
-     * chartType = CategoryDatasetChartDefinition.getChartType(chartTypeStr); chartComponent = new
-     * CategoryDatasetChartComponent(chartType, chartDefinitionStr, width, height, urlFactory, messages); //$NON-NLS-1$
-     * 
-     * String connectionName = parameterProvider.getStringParameter("connection", null); //$NON-NLS-1$ String query =
-     * parameterProvider.getStringParameter("query", null); //$NON-NLS-1$ String dataAction =
-     * parameterProvider.getStringParameter("data-process", null); //$NON-NLS-1$ IPentahoConnection connection = null;
-     * //$NON-NLS-1$ try { if (connectionName != null && query != null) { connection = new SQLConnection(connectionName,
-     * this); //$NON-NLS-1$ try { query = TemplateUtil.applyTemplate(query,
-     * TemplateUtil.parametersToProperties(parameterProvider)); IPentahoResultSet results =
-     * connection.executeQuery(query); chartComponent.setValues(results); } finally { }
-     * chartComponent.setUrlTemplate(urlDrillTemplate); if (outerParams != null) { StringTokenizer tokenizer = new
-     * StringTokenizer(outerParams, ";"); //$NON-NLS-1$ while (tokenizer.hasMoreTokens()) {
-     * chartComponent.addOuterParamName(tokenizer.nextToken()); } }
-     * 
-     * chartComponent.setParamName(innerParam);
-     * 
-     * chartComponent.setDataAction(chartDefinitionStr); chartComponent.validate(userSession, null);
-     * 
-     * chartComponent.setParameterProvider("request", parameterProvider); //$NON-NLS-1$
-     * 
-     * content = chartComponent.getContent("text/html"); //$NON-NLS-1$ } else if (dataAction != null) { String
-     * actionInfo[] = PentahoSystem.parseActionString(dataAction); if (actionInfo != null && actionInfo.length == 3) {
-     * chartComponent.setDataAction(actionInfo[0], actionInfo[1], actionInfo[2], "rule-result"); //$NON-NLS-1$
-     * //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ } } else { error("'query' and 'connection' must be specified"); }
-     * 
-     * } finally { if (connection != null) { connection.close(); } }
-     * 
-     * // String query = "select department, actual, budget, variance // from quadrant_actuals"; //$NON-NLS-1$
-     * 
-     * } catch (Exception e) { // not much we can do here... } try { if (content == null) { StringBuffer buffer = new
-     * StringBuffer(); MessageFormatHelper.formatErrorMessage("text/html",
-     * Messages.getInstance().getString("Widget.ERROR_0001_COULD_NOT_CREATE_WIDGET"), messages, buffer); //$NON-NLS-1$
-     * //$NON-NLS-2$ content = buffer.toString(); }
-     * outputStream.write(SoapHelper.getSoapHeader().getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write(SoapHelper.openSoapResponse().getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write("<content><![CDATA[".getBytes(LocaleHelper.getSystemEncoding())); //$NON-NLS-1$
-     * outputStream.write(content.getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write("]]></content>".getBytes(LocaleHelper.getSystemEncoding())); //$NON-NLS-1$
-     * outputStream.write(SoapHelper.closeSoapResponse().getBytes(LocaleHelper.getSystemEncoding()));
-     * outputStream.write(SoapHelper.getSoapFooter().getBytes(LocaleHelper.getSystemEncoding())); } catch (Exception e)
-     * {
-     * 
-     * } } finally { if (chartComponent != null) chartComponent.dispose(); }
-     */
   }
 
   //

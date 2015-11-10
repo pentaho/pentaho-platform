@@ -227,7 +227,7 @@ public class OpenFlashChartComponent extends ComponentBase {
       byRow = Boolean.valueOf( getInputStringValue( BY_ROW_PROP ) ).booleanValue();
     }
 
-    String chartJson = PentahoOFC4JChartHelper.generateChartJson( chartNode, data, byRow, log );
+    String chartJson = generateChartJson( data, chartNode, byRow );
 
     // generate a unique name for the function
 
@@ -260,6 +260,10 @@ public class OpenFlashChartComponent extends ComponentBase {
     return true;
   }
 
+  protected String generateChartJson( IPentahoResultSet data, Node chartNode, boolean byRow ) {
+    return PentahoOFC4JChartHelper.generateChartJson( chartNode, data, byRow, log );
+  }
+
   protected String getFlashFragment() {
     return flashFragment;
   }
@@ -280,5 +284,33 @@ public class OpenFlashChartComponent extends ComponentBase {
   public Log getLogger() {
     return log;
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // overrides for testability
+  @Override
+  protected Object getInputValue( String inputName ) {
+    return super.getInputValue( inputName );
+  }
+
+  @Override
+  protected String getInputStringValue( String inputName ) {
+    return super.getInputStringValue( inputName );
+  }
+
+  @Override
+  protected boolean isDefinedInput( String inputName ) {
+    return super.isDefinedInput( inputName );
+  }
+
+  @Override
+  protected boolean isDefinedResource( String resourceName ) {
+    return super.isDefinedResource( resourceName );
+  }
+
+  @Override
+  public void inputMissingError( String paramName ) {
+    super.inputMissingError( paramName );
+  }
+  ///////////////////////////////////////////////////////////////////////////////////////
 
 }
