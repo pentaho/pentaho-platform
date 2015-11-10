@@ -83,6 +83,24 @@ public class UploadFileUtils {
     if ( !checkLimits( getUploadedFileItem().getSize() ) ) {
       return false;
     }
+    
+    boolean res = process( getUploadedFileItem().getInputStream() );
+    getUploadedFileItem().delete(); // Forcibly deletes temp file - now WE track it.
+    return res;
+
+  }
+
+  /**
+   * process uploading using inputStream instead of UploadedFileItem
+   * do not support unzipping
+   * @param inputStream
+   * @return
+   * @throws Exception
+   */
+  public boolean process( InputStream inputStream ) throws Exception {
+    if ( inputStream == null ) {
+      return false;
+    }
 
     File file = null;
     if ( isTemporary() ) {
@@ -100,27 +118,25 @@ public class UploadFileUtils {
       }
     }
 
-    InputStream itemInputStream = getUploadedFileItem().getInputStream();
     try {
       OutputStream outputStream = new BufferedOutputStream( new FileOutputStream( file ) );
       try {
-        IOUtils.copy( itemInputStream, outputStream );
+        IOUtils.copy( inputStream, outputStream );
       } finally {
         IOUtils.closeQuietly( outputStream ); // note - close calls flush.
       }
     } finally {
-      IOUtils.closeQuietly( itemInputStream );
+      IOUtils.closeQuietly( inputStream );
     }
-    getUploadedFileItem().delete(); // Forcibly deletes temp file - now WE track it.
 
-    if ( shouldUnzip ) {
+    if ( shouldUnzip && getUploadedFileItem() != null ) {
       return handleUnzip( file );
     } else {
       writer.write( file.getName() );
     }
     return true;
   }
-
+  
   protected boolean handleUnzip( File file ) throws IOException {
     String fileNames = file.getName();
 
