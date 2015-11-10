@@ -20,7 +20,9 @@ public interface IPentahoRegistrableObjectFactory extends IPentahoObjectFactory 
    *     <dd>A combination of the other options, all classes and interfaces.</dd>
    * </p>
    */
-  static enum Types { INTERFACES, CLASSES, ALL }
+  static enum Types {
+    INTERFACES, CLASSES, ALL
+  }
 
   /**
    * Register an Object instance with the ObjectFactory. It will be registered implicitly under Types.ALL
