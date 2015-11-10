@@ -28,7 +28,7 @@ public class DataNode {
 
   public enum DataPropertyType {
     BOOLEAN, DATE, DOUBLE, LONG, STRING, REF
-  };
+  }
 
   private String name;
 

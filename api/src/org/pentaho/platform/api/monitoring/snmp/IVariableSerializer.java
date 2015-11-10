@@ -27,7 +27,7 @@ public interface IVariableSerializer {
 
   public class BasicSerializer implements IVariableSerializer {
     @Override public Integer serializeToInt( Object o ) {
-      if( o == null ){
+      if ( o == null ) {
         return -1;
       }
       if ( o instanceof Integer ) {
@@ -42,7 +42,7 @@ public interface IVariableSerializer {
     }
 
     @Override public String serializeToString( Object o ) {
-      return o!= null ? o.toString() : "";
+      return o != null ? o.toString() : "";
     }
 
   }

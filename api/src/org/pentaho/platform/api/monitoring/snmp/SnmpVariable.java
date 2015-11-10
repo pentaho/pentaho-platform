@@ -30,7 +30,9 @@ import java.lang.annotation.Target;
 @Retention( RetentionPolicy.RUNTIME )
 @Target( { ElementType.FIELD, ElementType.METHOD } )
 public @interface SnmpVariable {
-  enum TYPE { INTEGER, STRING }
+  enum TYPE {
+    INTEGER, STRING
+  }
 
   String oid() default ""; //So can coexist with old
   
