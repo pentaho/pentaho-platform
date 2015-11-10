@@ -21,12 +21,11 @@ package org.pentaho.platform.engine.core.messages;
 import org.pentaho.platform.util.messages.MessagesBase;
 
 public class Messages extends MessagesBase {
-  private static final String BUNDLE_NAME = Messages.class.getPackage().getName() + ".messages"; //$NON-NLS-1$
-
+  
   private static Messages instance = new Messages();
 
   private Messages() {
-    super( BUNDLE_NAME );
+    super();
   }
 
   public static Messages getInstance() {

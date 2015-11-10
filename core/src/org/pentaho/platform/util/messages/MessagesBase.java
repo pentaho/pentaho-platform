@@ -29,6 +29,10 @@ public class MessagesBase {
   private final Map<Locale, ResourceBundle> locales = Collections
       .synchronizedMap( new HashMap<Locale, ResourceBundle>() );
   private String bundleName;
+  
+  public MessagesBase( ) {
+    this.bundleName = getClass().getPackage().getName() + ".messages"; //$NON-NLS-1$;
+  }
 
   public MessagesBase( String bundleName ) {
     this.bundleName = bundleName;

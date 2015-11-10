@@ -18,13 +18,13 @@
 
 package org.pentaho.platform.util;
 
-import junit.framework.TestCase;
 import org.codehaus.jettison.json.JSONException;
-import org.junit.Test;
+
+import junit.framework.TestCase;
 
 public class JSONComparitorTest extends TestCase {
-  @Test
-  public static void testJSONComparator() {
+
+  public void testJSONComparator() {
     // A JSON string that could be returned by ModelSerializer
     String json1 =
       "{\"MQLQuery\":{\"cols\":[{\"Column\":{\"id\":\"mycolumn\"}}],\"conds\":[{\"condition\":{\"@operator\":\"=\","
