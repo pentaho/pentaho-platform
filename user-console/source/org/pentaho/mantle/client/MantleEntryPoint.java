@@ -19,11 +19,7 @@ package org.pentaho.mantle.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
@@ -42,10 +38,11 @@ public class MantleEntryPoint implements EntryPoint, IResourceBundleLoadCallback
   public void onModuleLoad() {
     // just some quick sanity setting of the platform effective locale based on the override
     // which comes from the url parameter
-    if ( !StringUtils.isEmpty( Window.Location.getParameter( "locale" ) ) ) {
-      String locale = Window.Location.getParameter( "locale" );
+
+    String locale = getLocationParameter( "locale" );
+    if ( !StringUtils.isEmpty( locale ) ) {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/locale"; //$NON-NLS-1$
-      RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+      RequestBuilder builder = getRequestBuilder( RequestBuilder.POST, url );
       builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       try {
         builder.sendRequest( locale, new RequestCallback() {
@@ -61,18 +58,19 @@ public class MantleEntryPoint implements EntryPoint, IResourceBundleLoadCallback
         // showError(e);
       }
     }
-    ResourceBundle messages = new ResourceBundle();
+    ResourceBundle messages = getResourceBundle();
     Messages.setResourceBundle( messages );
-    messages.loadBundle( GWT.getModuleBaseURL() + "messages/", "mantleMessages", true, MantleEntryPoint.this ); //$NON-NLS-1$ //$NON-NLS-2$
+    messages.loadBundle( GWT.getModuleBaseURL() + "messages/", "mantleMessages", true,
+        MantleEntryPoint.this ); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   public void bundleLoaded( String bundleName ) {
     Window.setTitle( Messages.getString( "productName" ) ); //$NON-NLS-1$
 
-    MantleApplication mantle = MantleApplication.getInstance();
+    MantleApplication mantle = getMantleApplication();
     mantle.loadApplication();
 
-    RootPanel loadingPanel = RootPanel.get( "loading" ); //$NON-NLS-1$
+    RootPanel loadingPanel = getRootPanel( "loading" ); //$NON-NLS-1$
     if ( loadingPanel != null ) {
       loadingPanel.removeFromParent();
       loadingPanel.setVisible( false );
@@ -80,4 +78,23 @@ public class MantleEntryPoint implements EntryPoint, IResourceBundleLoadCallback
     }
   }
 
+  String getLocationParameter( String param ) {
+    return Window.Location.getParameter( param );
+  }
+
+  ResourceBundle getResourceBundle() {
+    return new ResourceBundle();
+  }
+
+  RequestBuilder getRequestBuilder( RequestBuilder.Method method, String url ) {
+    return new RequestBuilder( method, url );
+  }
+
+  MantleApplication getMantleApplication() {
+    return MantleApplication.getInstance();
+  }
+
+  RootPanel getRootPanel( String panelName ) {
+    return RootPanel.get( panelName );
+  }
 }

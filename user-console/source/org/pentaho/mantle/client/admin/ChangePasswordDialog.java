@@ -64,8 +64,16 @@ public class ChangePasswordDialog extends GwtDialog {
     this.controller = controller;
   }
 
+  HorizontalPanel getHorizontalPanel() {
+    return new HorizontalPanel();
+  }
+
+  VerticalPanel getVerticalPanel() {
+    return new VerticalPanel();
+  }
+
   public Panel getButtonPanel() {
-    HorizontalPanel hp = new HorizontalPanel();
+    HorizontalPanel hp = getHorizontalPanel();
     hp.add( acceptBtn );
     hp.setCellWidth( acceptBtn, "100%" );
     hp.setCellHorizontalAlignment( acceptBtn, HorizontalPanel.ALIGN_RIGHT );
@@ -75,13 +83,13 @@ public class ChangePasswordDialog extends GwtDialog {
 
   public Panel getDialogContents() {
 
-    HorizontalPanel hp = new HorizontalPanel();
+    HorizontalPanel hp = getHorizontalPanel();
 
     SimplePanel hspacer = new SimplePanel();
     hspacer.setWidth( "10px" );
     hp.add( hspacer );
 
-    VerticalPanel vp = new VerticalPanel();
+    VerticalPanel vp = getVerticalPanel();
     hp.add( vp );
 
     SimplePanel vspacer = new SimplePanel();

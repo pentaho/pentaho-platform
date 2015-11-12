@@ -18,11 +18,7 @@
 package org.pentaho.mantle.client.commands;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -40,22 +36,27 @@ public class CheckForSoftwareUpdatesCommand extends AbstractCommand {
   public CheckForSoftwareUpdatesCommand() {
   }
 
+  RequestBuilder getRequestBuilder( RequestBuilder.Method httpMethod, String url ) {
+    return new RequestBuilder( httpMethod, url );
+  }
+
   protected void performOperation() {
     performOperation( true );
   }
 
   protected void performOperation( boolean feedback ) {
     final String url = GWT.getHostPageBaseURL() + "api/version/softwareUpdates"; //$NON-NLS-1$
-    RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
+    RequestBuilder requestBuilder = getRequestBuilder( RequestBuilder.GET, url );
     requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     requestBuilder.setHeader( "accept", "text/plain" );
     try {
       requestBuilder.sendRequest( null, new RequestCallback() {
 
         public void onError( Request request, Throwable exception ) {
-          MessageDialogBox dialogBox =
-              new MessageDialogBox(
-                  Messages.getString( "softwareUpdates" ), Messages.getString( "noUpdatesAvailable" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+          MessageDialogBox
+              dialogBox =
+              new MessageDialogBox( Messages.getString( "softwareUpdates" ), Messages.getString( "noUpdatesAvailable" ),
+                  false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
           dialogBox.center();
         }
 
@@ -80,38 +81,45 @@ public class CheckForSoftwareUpdatesCommand extends AbstractCommand {
               String type = updateElement.getAttribute( "type" ); //$NON-NLS-1$
               String os = updateElement.getAttribute( "os" ); //$NON-NLS-1$
               // String title = updateElement.getAttribute("title");
-              String downloadURL = updateElement.getElementsByTagName( "downloadurl" ).item( 0 ).toString(); //$NON-NLS-1$
-              downloadURL = downloadURL.substring( downloadURL.indexOf( "http" ), downloadURL.indexOf( "]" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+              String
+                  downloadURL =
+                  updateElement.getElementsByTagName( "downloadurl" ).item( 0 ).toString(); //$NON-NLS-1$
+              downloadURL =
+                  downloadURL.substring( downloadURL.indexOf( "http" ),
+                      downloadURL.indexOf( "]" ) ); //$NON-NLS-1$ //$NON-NLS-2$
               updateTable.setWidget( i + 1, 0, new Label( version ) );
               updateTable.setWidget( i + 1, 1, new Label( type ) );
               updateTable.setWidget( i + 1, 2, new Label( os ) );
-              updateTable
-                  .setWidget(
-                    i + 1,
-                    3,
-                    new HTML(
+              updateTable.setWidget( i + 1, 3, new HTML(
                       "<A HREF=\"" + downloadURL + "\" target=\"_blank\" title=\"" + downloadURL + "\">" + Messages
-                        .getString( "download" ) + "</A>" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                          .getString( "download" )
+                          + "</A>" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
               updateTable.getCellFormatter().setStyleName( i + 1, 0, "backgroundContentTableCell" ); //$NON-NLS-1$
               updateTable.getCellFormatter().setStyleName( i + 1, 1, "backgroundContentTableCell" ); //$NON-NLS-1$
               updateTable.getCellFormatter().setStyleName( i + 1, 2, "backgroundContentTableCell" ); //$NON-NLS-1$
               updateTable.getCellFormatter().setStyleName( i + 1, 3, "backgroundContentTableCellRight" ); //$NON-NLS-1$
               if ( i == updates.getLength() - 1 ) {
                 // last
-                updateTable.getCellFormatter().setStyleName( i + 1, 0, "backgroundContentTableCellBottom" ); //$NON-NLS-1$
-                updateTable.getCellFormatter().setStyleName( i + 1, 1, "backgroundContentTableCellBottom" ); //$NON-NLS-1$
-                updateTable.getCellFormatter().setStyleName( i + 1, 2, "backgroundContentTableCellBottom" ); //$NON-NLS-1$
-                updateTable.getCellFormatter().setStyleName( i + 1, 3, "backgroundContentTableCellBottomRight" ); //$NON-NLS-1$
+                updateTable.getCellFormatter()
+                    .setStyleName( i + 1, 0, "backgroundContentTableCellBottom" ); //$NON-NLS-1$
+                updateTable.getCellFormatter()
+                    .setStyleName( i + 1, 1, "backgroundContentTableCellBottom" ); //$NON-NLS-1$
+                updateTable.getCellFormatter()
+                    .setStyleName( i + 1, 2, "backgroundContentTableCellBottom" ); //$NON-NLS-1$
+                updateTable.getCellFormatter()
+                    .setStyleName( i + 1, 3, "backgroundContentTableCellBottomRight" ); //$NON-NLS-1$
               }
             }
-            PromptDialogBox versionPromptDialog =
-                new PromptDialogBox(
-                    Messages.getString( "softwareUpdateAvailable" ), Messages.getString( "ok" ), null, false, true, updateTable ); //$NON-NLS-1$ //$NON-NLS-2$
+            PromptDialogBox
+                versionPromptDialog =
+                new PromptDialogBox( Messages.getString( "softwareUpdateAvailable" ), Messages.getString( "ok" ), null,
+                    false, true, updateTable ); //$NON-NLS-1$ //$NON-NLS-2$
             versionPromptDialog.center();
           } else {
-            MessageDialogBox dialogBox =
-                new MessageDialogBox(
-                    Messages.getString( "softwareUpdates" ), Messages.getString( "noUpdatesAvailable" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+            MessageDialogBox
+                dialogBox =
+                new MessageDialogBox( Messages.getString( "softwareUpdates" ),
+                    Messages.getString( "noUpdatesAvailable" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
             dialogBox.center();
           }
         }

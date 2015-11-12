@@ -18,11 +18,7 @@
 package org.pentaho.mantle.client.commands;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.Command;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
@@ -35,7 +31,6 @@ import java.util.List;
 
 /**
  * @author wseyler
- * 
  */
 public class RestoreFileCommand implements Command {
   String moduleBaseURL = GWT.getModuleBaseURL();
@@ -74,14 +69,21 @@ public class RestoreFileCommand implements Command {
     repositoryFiles = selectedItemsClone;
   }
 
+  SolutionFileActionEvent getSolutionFileActionEvent() {
+    return new SolutionFileActionEvent();
+  }
+
+  RequestBuilder getRequestBuilder( RequestBuilder.Method httpMethod, String url ) {
+    return new RequestBuilder( httpMethod, url );
+  }
+
   /*
    * (non-Javadoc)
    * 
    * @see com.google.gwt.user.client.Command#execute()
    */
-  @Override
-  public void execute() {
-    final SolutionFileActionEvent event = new SolutionFileActionEvent();
+  @Override public void execute() {
+    final SolutionFileActionEvent event = getSolutionFileActionEvent();
     event.setAction( this.getClass().getName() );
     String temp = "";
 
@@ -100,33 +102,33 @@ public class RestoreFileCommand implements Command {
     final String filesList = temp;
 
     String deleteFilesURL = contextURL + "api/repo/files/restore"; //$NON-NLS-1$
-    RequestBuilder deleteFilesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, deleteFilesURL );
+    RequestBuilder deleteFilesRequestBuilder = getRequestBuilder( RequestBuilder.PUT, deleteFilesURL );
     deleteFilesRequestBuilder.setHeader( "Content-Type", "text/plain" ); //$NON-NLS-1$//$NON-NLS-2$
     deleteFilesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {
       deleteFilesRequestBuilder.sendRequest( filesList, new RequestCallback() {
 
-        @Override
-        public void onError( Request request, Throwable exception ) {
-          MessageDialogBox dialogBox =
-              new MessageDialogBox(
-                  Messages.getString( "cannotRestore" ), Messages.getString( "couldNotRestoreItem", type ), //$NON-NLS-1$ //$NON-NLS-2$
+        @Override public void onError( Request request, Throwable exception ) {
+          MessageDialogBox
+              dialogBox =
+              new MessageDialogBox( Messages.getString( "cannotRestore" ),
+                  Messages.getString( "couldNotRestoreItem", type ), //$NON-NLS-1$ //$NON-NLS-2$
                   false, false, true );
           dialogBox.center();
           event.setMessage( "cannotRestore" );
           EventBusUtil.EVENT_BUS.fireEvent( event );
         }
 
-        @Override
-        public void onResponseReceived( Request request, Response response ) {
+        @Override public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == 200 ) {
             new RefreshRepositoryCommand().execute( false );
             event.setMessage( "Success" );
             EventBusUtil.EVENT_BUS.fireEvent( event );
           } else {
-            MessageDialogBox dialogBox =
-                new MessageDialogBox(
-                    Messages.getString( "cannotRestore" ), Messages.getString( "couldNotRestoreItem", type ), //$NON-NLS-1$ //$NON-NLS-2$
+            MessageDialogBox
+                dialogBox =
+                new MessageDialogBox( Messages.getString( "cannotRestore" ),
+                    Messages.getString( "couldNotRestoreItem", type ), //$NON-NLS-1$ //$NON-NLS-2$
                     false, false, true, Messages.getString( "close" ) );
             dialogBox.center();
             event.setMessage( "Success" );
@@ -137,16 +139,19 @@ public class RestoreFileCommand implements Command {
         }
       } );
     } catch ( RequestException e ) {
-      MessageDialogBox dialogBox =
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "restoreError" ), //$NON-NLS-1$ //$NON-NLS-2$
+      MessageDialogBox
+          dialogBox =
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "restoreError" ),
+              //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true );
       dialogBox.center();
       event.setMessage( Messages.getString( "restoreError" ) );
       EventBusUtil.EVENT_BUS.fireEvent( event );
     }
   }
+
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
-    $wnd.mantle_isBrowseRepoDirty=isDirty;
+    $wnd.mantle_isBrowseRepoDirty = isDirty;
   }-*/;
 }

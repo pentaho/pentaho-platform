@@ -31,19 +31,31 @@ public class CollapseBrowserCommand extends AbstractCommand {
   public CollapseBrowserCommand() {
   }
 
+  SolutionBrowserPanel getSolutionBrowserPanel() {
+    return SolutionBrowserPanel.getInstance();
+  }
+
+  PerspectiveManager getPerspectiveManager() {
+    return PerspectiveManager.getInstance();
+  }
+
+  RequestBuilder getRequestBuilder( RequestBuilder.Method httpMethod, String url ) {
+    return new RequestBuilder( httpMethod, url );
+  }
+
   protected void performOperation() {
     performOperation( false );
   }
 
   protected void performOperation( boolean feedback ) {
-    final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
+    final SolutionBrowserPanel solutionBrowserPerspective = getSolutionBrowserPanel();
     if ( !solutionBrowserPerspective.isNavigatorShowing() ) {
-      PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
+      getPerspectiveManager().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
     }
     solutionBrowserPerspective.setNavigatorShowing( false );
 
     final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_NAVIGATOR"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+    RequestBuilder builder = getRequestBuilder( RequestBuilder.POST, url );
     try {
       builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       builder.sendRequest( "false", EmptyRequestCallback.getInstance() );

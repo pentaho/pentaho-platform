@@ -89,7 +89,7 @@ public class MantleMenuBar extends MenuBar {
   }
 
   @Override
-  public void onPopupClosed( PopupPanel sender, boolean autoClosed ) {
+    public void onPopupClosed( PopupPanel sender, boolean autoClosed ) {
     super.addCloseHandler( new CloseHandler<PopupPanel>() {
 
       public void onClose( CloseEvent<PopupPanel> event ) {

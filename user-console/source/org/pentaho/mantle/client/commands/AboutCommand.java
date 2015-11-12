@@ -18,11 +18,7 @@
 package org.pentaho.mantle.client.commands;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -39,16 +35,24 @@ public class AboutCommand extends AbstractCommand {
   public AboutCommand() {
   }
 
+  String getMantleRevisionOverride() {
+    return MantleApplication.mantleRevisionOverride;
+  }
+
+  RequestBuilder getRequestBuilder( RequestBuilder.Method httpMethod, String url ) {
+    return new RequestBuilder( httpMethod, url );
+  }
+
   protected void performOperation() {
     performOperation( true );
   }
 
   protected void performOperation( boolean feedback ) {
-    if ( StringUtils.isEmpty( MantleApplication.mantleRevisionOverride ) == false ) {
+    if ( StringUtils.isEmpty( getMantleRevisionOverride() ) == false ) {
       showAboutDialog( MantleApplication.mantleRevisionOverride );
     } else {
       final String url = GWT.getHostPageBaseURL() + "api/version/show"; //$NON-NLS-1$
-      RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
+      RequestBuilder requestBuilder = getRequestBuilder( RequestBuilder.GET, url );
       requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       requestBuilder.setHeader( "accept", "text/plain" );
       try {
@@ -69,12 +73,20 @@ public class AboutCommand extends AbstractCommand {
     }
   }
 
+  PromptDialogBox getPromptDialogBox( String title, String okText, String cancelText, boolean autoHide,
+      boolean modal ) {
+    return new PromptDialogBox( title, okText, cancelText, autoHide, modal );
+  }
+
   private void showAboutDialog( String version ) {
-    @SuppressWarnings( "deprecation" )
-    String licenseInfo = Messages.getString( "licenseInfo", "" + ( ( new Date() ).getYear() + 1900 ) );
+    @SuppressWarnings( "deprecation" ) String
+        licenseInfo =
+        Messages.getString( "licenseInfo", "" + ( ( new Date() ).getYear() + 1900 ) );
     String releaseLabel = Messages.getString( "release" );
-    PromptDialogBox dialogBox =
-        new PromptDialogBox( Messages.getString( "aboutDialogTitle" ), Messages.getString( "ok" ), null, false, true ); //$NON-NLS-1$
+    PromptDialogBox
+        dialogBox =
+        getPromptDialogBox( Messages.getString( "aboutDialogTitle" ), Messages.getString( "ok" ), null, false,
+            true ); //$NON-NLS-1$
 
     VerticalPanel aboutContent = new VerticalPanel();
     aboutContent.add( new Label( releaseLabel + " " + version ) );

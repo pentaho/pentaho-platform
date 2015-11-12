@@ -25,23 +25,14 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
@@ -58,7 +49,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
   /**
    * Use get instance for use in Admin, otherwise use constructor
-   * 
+   *
    * @return singleton ContentCleanerPanel
    */
   public static ContentCleanerPanel getInstance() {
@@ -70,15 +61,20 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     activate();
   }
 
+  RequestBuilder getRequestBuilder( RequestBuilder.Method method, String url ) {
+    return new RequestBuilder( method, url );
+  }
+
   public void activate() {
     clear();
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
-    RequestBuilder scheduleFileRequestBuilder =
-        new RequestBuilder( RequestBuilder.GET, contextURL + "api/scheduler/getContentCleanerJob?cb="
-            + System.currentTimeMillis() );
+    RequestBuilder
+        scheduleFileRequestBuilder =
+        getRequestBuilder( RequestBuilder.GET,
+            contextURL + "api/scheduler/getContentCleanerJob?cb=" + System.currentTimeMillis() );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
     scheduleFileRequestBuilder.setHeader( "accept", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
@@ -208,7 +204,8 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
               scheduleLabelPanel.add( new Label( Messages.getString( "deleteGeneratedFilesOlderThan" ), false ) );
               scheduleLabelPanel.add( scheduleTextBox );
               scheduleLabelPanel.add( new Label( Messages.getString( "daysUsingTheFollowingRules" ), false ) );
-              ScheduleRecurrenceDialog editSchedule =
+              ScheduleRecurrenceDialog
+                  editSchedule =
                   new ScheduleRecurrenceDialog( null, jsJob, callback, false, false,
                       AbstractWizardDialog.ScheduleDialogType.SCHEDULER );
               editSchedule.setShowSuccessDialog( false );
@@ -244,24 +241,24 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
   }
 
   /**
-   * @param age
-   *          in milliseconds
+   * @param age in milliseconds
    */
   public void deleteContentNow( long age ) {
     String date = DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( new Date() );
-    String json =
+    String
+        json =
         "{\"jobName\": \"Content Cleaner\", \"actionClass\": \"org.pentaho.platform.admin.GeneratedContentCleaner\","
-          + " \"jobParameters\":[ { \"name\": \"age\", \"stringValue\": \""
-            + age
+            + " \"jobParameters\":[ { \"name\": \"age\", \"stringValue\": \"" + age
             + "\", \"type\": \"string\" }], \"simpleJobTrigger\": { \"endTime\": null, \"repeatCount\": \"0\", "
-          + "\"repeatInterval\": \"0\", \"startTime\": \"" + date + "\", \"uiPassParam\": \"RUN_ONCE\"} }";
+            + "\"repeatInterval\": \"0\", \"startTime\": \"" + date + "\", \"uiPassParam\": \"RUN_ONCE\"} }";
 
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
-    RequestBuilder scheduleFileRequestBuilder =
-        new RequestBuilder( RequestBuilder.POST, contextURL + "api/scheduler/job" );
+    RequestBuilder
+        scheduleFileRequestBuilder =
+        getRequestBuilder( RequestBuilder.POST, contextURL + "api/scheduler/job" );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
     try {

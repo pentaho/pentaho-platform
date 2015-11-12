@@ -110,5 +110,22 @@
       </ivy:publish>
   </target>
 
-
+  <!-- Setup the classpath used for testing -->
+  <path id="test.classpath">
+    <pathelement path="${testclasses.dir}"/>
+    <pathelement path="${classes.dir}"/>
+    <path refid="test.classpath.custom"/>
+    <fileset dir="${devlib.dir}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${testlib.dir}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${codegenlib.dir}">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
 </project>
