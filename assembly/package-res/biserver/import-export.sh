@@ -9,4 +9,4 @@ setPentahoEnv
 
 # uses Java 6 classpath wildcards
 # quotes required around classpath to prevent shell expansion
-"$_PENTAHO_JAVA" -Xmx2048m -XX:MaxPermSize=256m -classpath "$DIR/tomcat/webapps/pentaho/WEB-INF/lib/*" org.pentaho.platform.plugin.services.importexport.CommandLineProcessor ${1+"$@"}
+"$_PENTAHO_JAVA" -Xmx2048m -XX:MaxPermSize=256m -Dfile.encoding=utf8 -classpath "$DIR/tomcat/webapps/pentaho/WEB-INF/lib/*" org.pentaho.platform.plugin.services.importexport.CommandLineProcessor ${1+"$@"}
