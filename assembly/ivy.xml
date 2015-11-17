@@ -319,7 +319,7 @@
 
     <dependency org="org.ow2.asm" name="asm-all" rev="4.0" conf="core-bundle->default"/>
     <dependency org="org.apache.commons" name="com.springsource.org.apache.commons.logging" rev="1.1.1"  conf="core-bundle->default"/>
-    <dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="core-bundle->default" />
+    <dependency org="commons-collections" name="commons-collections" rev="3.2.2" conf="core-bundle->default" />
     <dependency org="org.slf4j" name="osgi-over-slf4j" rev="1.7.5" conf="core-bundle->default"/>
     <dependency org="log4j" name="log4j" rev="1.2.17" conf="core-bundle->default"/>
     <dependency org="org.slf4j" name="slf4j-api" rev="1.7.5" conf="core-bundle->default"/>
