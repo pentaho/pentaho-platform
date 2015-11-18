@@ -225,6 +225,10 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
         logger.debug( "Found domain in cache: " + key ); //$NON-NLS-1$
       }
       if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( id ) ) {
+
+        if ( logger.isDebugEnabled() ) {
+          logger.debug( "User no longer has access to Domain, purging from session cache: " + key );
+        }
         purgeDomain( domain.getId() );
         domain = null;
       }
@@ -232,6 +236,11 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     }
     domain = delegate.getDomain( id );
     if ( domain != null ) {
+
+      if ( logger.isDebugEnabled() ) {
+        logger.debug( "Requested Domain wasn't in Session Cache, but was found in the delegating repository: " +id );
+      }
+
       SecurityHelper helper = new SecurityHelper();
       domain = helper.createSecureDomain( this, domain );
       // cache domain with the key we used to look it up, not whatever new id it might have now
