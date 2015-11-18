@@ -299,6 +299,10 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   @Override
   public boolean hasAccessFor( String domainId ) {
+
+    if ( logger.isDebugEnabled() ) {
+      logger.debug( "Checking access for: " + domainId );
+    }
     return getAclHelper().canAccess( getMetadataRepositoryFile( domainId ), EnumSet.of( RepositoryFilePermission.READ ) );
   }
 
@@ -728,8 +732,16 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   protected RepositoryFile getMetadataRepositoryFile( final String domainId ) {
     RepositoryFile domainFile = metadataMapping.getDomainFile( domainId );
     if ( null == domainFile ) {
+
+      if ( logger.isDebugEnabled() ) {
+        logger.debug( "Requested Domain (" + domainId + ") wasn't found in Metadata Mapping. Domain cache will be reloaded" );
+      }
+
       reloadDomains();
       domainFile = metadataMapping.getDomainFile( domainId );
+    }
+    if( domainFile == null && logger.isDebugEnabled() ) {
+      logger.debug( "Even after reloading all domains, the specified Domain wasn't found in the system: " + domainId );
     }
     return domainFile;
   }
