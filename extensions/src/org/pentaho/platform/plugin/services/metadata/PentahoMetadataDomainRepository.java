@@ -730,7 +730,10 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    * Accesses the metadata mapping (with 1 retry) to find the metadata file for the specified domainId
    */
   protected RepositoryFile getMetadataRepositoryFile( final String domainId ) {
-    RepositoryFile domainFile = metadataMapping.getDomainFile( domainId );
+    RepositoryFile domainFile;
+    synchronized ( metadataMapping ) {
+      domainFile = metadataMapping.getDomainFile( domainId );
+    }
     if ( null == domainFile ) {
 
       if ( logger.isDebugEnabled() ) {
@@ -738,7 +741,9 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       }
 
       reloadDomains();
-      domainFile = metadataMapping.getDomainFile( domainId );
+      synchronized ( metadataMapping ) {
+        domainFile = metadataMapping.getDomainFile( domainId );
+      }
     }
     if( domainFile == null && logger.isDebugEnabled() ) {
       logger.debug( "Even after reloading all domains, the specified Domain wasn't found in the system: " + domainId );
