@@ -199,7 +199,6 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     return inputStream2;
   }
 
-  
   private void processLocaleFile( final IPlatformImportBundle bundle, String domainId ) throws PlatformImportException {
     final String fullFilename = RepositoryFilenameUtils.concat( "/", bundle.getName() );
     final PentahoMetadataFileInfo info = new PentahoMetadataFileInfo( fullFilename );
