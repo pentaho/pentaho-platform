@@ -92,12 +92,7 @@ public class SystemPackageExtrapolator {
             JarFile jarFile = new JarFile( file );
             Enumeration<JarEntry> entries = jarFile.entries();
             while ( entries.hasMoreElements() ) {
-              JarEntry jarEntry = entries.nextElement();
-              String name = jarEntry.getName();
-
-              if ( jarEntry.isDirectory() ) {
-                packages.add( name.replaceAll( "\\/", "." ).substring( 0, name.length() - 1 ) );
-              }
+              packages.add( getPackageName( entries.nextElement() ) );
             }
           } catch ( IOException e ) {
             logger.debug( "Error procesing jar for packages", e );
@@ -107,6 +102,16 @@ public class SystemPackageExtrapolator {
 
       return packages;
     }
+  }
+
+  static String getPackageName( JarEntry jarEntry ) {
+    String name = jarEntry.getName();
+
+    int lastSlash = name.lastIndexOf( '/' );
+    if ( lastSlash >= 0 ) {
+      return name.substring( 0, lastSlash ).replaceAll( "\\/", "." );
+    }
+    return "";
   }
 
 
