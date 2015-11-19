@@ -13,9 +13,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.jar.JarEntry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SystemPackageExtrapolatorTest {
@@ -82,5 +84,14 @@ public class SystemPackageExtrapolatorTest {
     packages = jBossModulePackageProvider.getPackages();
     assertThat( packages, contains( "org.apache", "org.apache.log4j" ) );
     assertThat( packages, not(contains( "org.not.there" ) ) );
+  }
+
+  @Test
+  public void testGetPackageName() {
+    assertEquals( "com.test.name", SystemPackageExtrapolator.getPackageName( new JarEntry( "com/test/name/bob.class" ) ) );
+    assertEquals( "com.test.name", SystemPackageExtrapolator.getPackageName( new JarEntry( "com/test/name/" ) ) );
+    assertEquals( "", SystemPackageExtrapolator.getPackageName( new JarEntry( "/" ) ) );
+    assertEquals( "bob", SystemPackageExtrapolator.getPackageName( new JarEntry( "bob/" ) ) );
+    assertEquals( "", SystemPackageExtrapolator.getPackageName( new JarEntry( "bob.class" ) ) );
   }
 }
