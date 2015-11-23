@@ -65,7 +65,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SuppressWarnings( "nls" )
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration
-public class JaxWsSchedulerServiceTest {
+public class JaxWsSchedulerServiceIT {
 
   @Autowired
   private ApplicationContext applicationContext;
@@ -342,8 +342,8 @@ public class JaxWsSchedulerServiceTest {
 
   @Test( timeout = 1000 * 5 * 60 )
   public void testUpdateComplexJob() throws SchedulerException {
-	long start  = System.currentTimeMillis() + 1000;
-	long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
+    long start  = System.currentTimeMillis() + 1000;
+    long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
     int startingMinute = ( Calendar.getInstance().get( Calendar.MINUTE ) + 10 ) % 60;
     ComplexJobTrigger jobTrigger = new ComplexJobTrigger();
     jobTrigger.setStartTime( new Date(start) );
@@ -358,8 +358,8 @@ public class JaxWsSchedulerServiceTest {
 
     jobTrigger = new ComplexJobTrigger();
 
-	start  = System.currentTimeMillis() + 2*1000;
-	end = System.currentTimeMillis() + 1000 + 7*60*60*100;
+    start  = System.currentTimeMillis() + 2*1000;
+    end = System.currentTimeMillis() + 1000 + 7*60*60*100;
 
     jobTrigger.setStartTime( new Date(start) );
     jobTrigger.setEndTime( new Date(end) );
@@ -389,8 +389,8 @@ public class JaxWsSchedulerServiceTest {
 
   @Test
   public void testUpdateSimpleJob() throws SchedulerException {
-	long start  = System.currentTimeMillis() + 1000;
-	long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
+    long start  = System.currentTimeMillis() + 1000;
+    long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
     SimpleJobTrigger jobTrigger = new SimpleJobTrigger();
     jobTrigger.setStartTime( new Date(start) );
     jobTrigger.setEndTime( new Date(end) );
@@ -404,8 +404,8 @@ public class JaxWsSchedulerServiceTest {
 
     jobTrigger = new SimpleJobTrigger();
 
-	start  = System.currentTimeMillis() + 1000;
-	end = System.currentTimeMillis() + 1000 + 5*60*60*100;
+    start  = System.currentTimeMillis() + 1000;
+    end = System.currentTimeMillis() + 1000 + 5*60*60*100;
 
     jobTrigger.setStartTime( new Date(start));
     jobTrigger.setEndTime( new Date(end) );

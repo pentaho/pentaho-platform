@@ -30,7 +30,7 @@ import org.pentaho.platform.engine.core.system.boot.PlatformInitializationExcept
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 
 @SuppressWarnings( "nls" )
-public class QuartzThreadsTest {
+public class QuartzThreadsIT {
 
   private QuartzScheduler scheduler;
 
