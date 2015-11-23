@@ -60,6 +60,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import com.sun.jersey.multipart.FormDataParam;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,6 +90,7 @@ import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.FileVersioningConfiguration;
@@ -364,6 +366,8 @@ public class FileResource extends AbstractJaxRSResource {
   } )
   public Response createFile( @PathParam ( "pathId" ) String pathId, InputStream fileContents ) {
     try {
+      checkCorrectExtension( pathId );
+      
       fileService.createFile( httpServletRequest.getCharacterEncoding(), pathId, fileContents );
       return buildOkResponse();
     } catch ( Throwable t ) {
@@ -1896,6 +1900,8 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       JcrRepositoryFileUtils.checkName(newName);
 
+      checkCorrectExtension( newName );
+
       boolean success = fileService.doRename( pathId, newName );
       if ( success ) {
         return buildOkResponse();
@@ -2234,5 +2240,14 @@ public class FileResource extends AbstractJaxRSResource {
 
   protected Messages getMessagesInstance() {
     return Messages.getInstance();
+  }
+  
+  private void checkCorrectExtension(String fileName) {
+    IRepositoryContentConverterHandler handler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
+    String ext = RepositoryFilenameUtils.getExtension( fileName );
+
+    if ( handler != null && handler.getConverter( ext ) == null ) {
+      throw new IllegalArgumentException( Messages.getInstance().getString( "FileResource.INCORRECT_EXTENSION", fileName ) );
+    }
   }
 }
