@@ -217,7 +217,8 @@
 	<dependency org="org.osgi" name="org.osgi.compendium" rev="5.0.0"  transitive="false"/>
 
     <dependency org="pentaho" name="pentaho-proxy-factory" rev="${project.revision}"/>
-
+    <dependency org="pentaho.weka" name="pdm-3.7-ce" rev="3.7.11.1" transitive="false" conf="default->default" changing="true" />
+    
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.
