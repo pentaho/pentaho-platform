@@ -113,7 +113,9 @@ public class PeriodicStatusLogger implements Runnable, IServerStatusChangeListen
     if ( lastMessages != serverStatusProvider.getStatusMessages()
         || lastServerStatus != serverStatusProvider.getStatus() ) {
       setCurrentValues();
-      runThread.interrupt();
+      if (runThread != null ) {
+        runThread.interrupt();
+      }
     }
   }
 
