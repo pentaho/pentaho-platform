@@ -18,6 +18,20 @@
 
 package org.pentaho.platform.engine.core.system;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
+
 import org.apache.commons.collections.list.UnmodifiableList;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
@@ -42,6 +56,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.IRuntimeContext;
+import org.pentaho.platform.api.engine.IServerStatusProvider;
 import org.pentaho.platform.api.engine.ISessionStartupAction;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.ISystemConfig;
@@ -64,20 +79,8 @@ import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
+import org.pentaho.platform.engine.core.system.status.ServerStatusProvider;
+import org.pentaho.platform.engine.core.system.status.PeriodicStatusLogger;
 
 public class PentahoSystem {
 
@@ -241,6 +244,11 @@ public class PentahoSystem {
 
     PentahoSystem.initializedStatus = PentahoSystem.SYSTEM_INITIALIZED_OK;
 
+    
+    ServerStatusProvider.setServerStatus( IServerStatusProvider.ServerStatus.STARTING );
+    ServerStatusProvider.setStatusMessages ( new String[] { "Caution, the server is initializing. Do not shut down or restart the server at this time." } );
+    PeriodicStatusLogger.start();
+    
     // PDI-3438 Scheduled job fails to open a transformation
     // Kettle jobs spawn threads which may require authentication to load transformations from
     // the kettle repository, by using the INHERITABLETHREADLOCAL strategy, spawned threads will
@@ -341,6 +349,9 @@ public class PentahoSystem {
     if ( debug ) {
       Logger.debug( PentahoSystem.class, "PentahoSystem Init Complete" ); //$NON-NLS-1$
     }
+    
+    //For now we'll stop the logger.  Might want to leave this running when we get more implemented.
+    PeriodicStatusLogger.stop();
     return true;
   }
 
