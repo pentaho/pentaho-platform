@@ -13,29 +13,45 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.security.policy.rolebased;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.SetMultimap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAggregatingAuthorizationAction;
+import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISecurityHelper;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.util.Assert;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 /**
  * An authorization policy based on roles.
  * 
  * @author mlowery
  */
-public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
+public class RoleAuthorizationPolicy implements IAuthorizationPolicy, ISessionAwareAuthorizationPolicy {
+
+  private static final Log logger = LogFactory.getLog( RoleAuthorizationPolicy.class );
 
   // ~ Static fields/initializers
   // ======================================================================================
@@ -45,6 +61,8 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
 
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
 
+  private final ListMultimap<String, String> aggregateActionsMapping;
+
   // ~ Constructors
   // ====================================================================================================
 
@@ -52,6 +70,58 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
     super();
     Assert.notNull( roleBindingDao );
     this.roleBindingDao = roleBindingDao;
+    this.aggregateActionsMapping = buildActionsMapping( PentahoSystem.getAll( IAuthorizationAction.class ) );
+  }
+
+  // package-local visibility for testing purposes
+  ListMultimap<String, String> buildActionsMapping( List<IAuthorizationAction> actions ) {
+    SetMultimap<String, String> multimap = HashMultimap.create( actions.size(), 3 );
+
+    List<IAggregatingAuthorizationAction> unprocessed = new LinkedList<>();
+    for ( IAuthorizationAction action : actions ) {
+      if ( action instanceof IAggregatingAuthorizationAction ) {
+        unprocessed.add( (IAggregatingAuthorizationAction) action );
+      } else {
+        multimap.put( action.getName(), action.getName() );
+      }
+    }
+
+    while ( !unprocessed.isEmpty() ) {
+      int counter = 0;
+      for ( Iterator<IAggregatingAuthorizationAction> iterator = unprocessed.iterator(); iterator.hasNext(); ) {
+        IAggregatingAuthorizationAction action = iterator.next();
+
+        List<String> aggregated = action.getAggregatedActions();
+        List<String> collector = new ArrayList<>();
+        boolean processedAll = true;
+        for ( String aggregatedAction : aggregated ) {
+          if ( multimap.containsKey( aggregatedAction ) ) {
+            collector.addAll( multimap.get( aggregatedAction ) );
+          } else {
+            processedAll = false;
+          }
+        }
+
+        if ( processedAll ) {
+          iterator.remove();
+
+          multimap.putAll( action.getName(), collector );
+          multimap.put( action.getName(), action.getName() );
+
+          counter++;
+        }
+      }
+
+      if ( counter == 0 ) {
+        StringBuilder sb = new StringBuilder();
+        for ( IAggregatingAuthorizationAction action : unprocessed ) {
+          sb.append( action.getName() ).append( " --> " ).append( action.getAggregatedActions() ).append( '\n' );
+        }
+        throw new IllegalStateException( "Found circular dependency among:\n" + sb.toString() );
+      }
+    }
+
+    return ImmutableListMultimap.<String, String>builder().putAll( multimap ).build();
   }
 
   // ~ Methods
@@ -61,27 +131,55 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
    * {@inheritDoc}
    */
   public List<String> getAllowedActions( String actionNamespace ) {
-    List<String> assignedRolesInNamespace = new ArrayList<String>();
+    Set<String> roleNames = includeAggregates( roleBindingDao.getBoundLogicalRoleNames( getRuntimeRoleNames() ) );
     if ( actionNamespace == null ) {
-      assignedRolesInNamespace.addAll( roleBindingDao.getBoundLogicalRoleNames( getRuntimeRoleNames() ) );
+      return new ArrayList<>( roleNames );
     } else {
       if ( !actionNamespace.endsWith( "." ) ) {
         actionNamespace += ".";
       }
-      for ( String assignedRole : roleBindingDao.getBoundLogicalRoleNames( getRuntimeRoleNames() ) ) {
+      List<String> assignedRolesInNamespace = new ArrayList<String>( roleNames.size() );
+      for ( String assignedRole : roleNames ) {
         if ( assignedRole.startsWith( actionNamespace ) ) {
           assignedRolesInNamespace.add( assignedRole );
         }
       }
+      return assignedRolesInNamespace;
     }
-    return assignedRolesInNamespace;
+  }
+
+  private Set<String> includeAggregates( List<String> actions ) {
+    if ( actions == null || actions.isEmpty() ) {
+      return Collections.emptySet();
+    }
+    Set<String> result = new HashSet<>( actions );
+    for ( String action : actions ) {
+      result.addAll( aggregateActionsMapping.get( action ) );
+    }
+    return result;
   }
 
   /**
    * {@inheritDoc}
    */
   public boolean isAllowed( String actionName ) {
-    return roleBindingDao.getBoundLogicalRoleNames( getRuntimeRoleNames() ).contains( actionName );
+    return includeAggregates( roleBindingDao.getBoundLogicalRoleNames( getRuntimeRoleNames() ) )
+      .contains( actionName );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isAllowed( Session session, String actionName ) {
+    List<String> boundLogicalRoleNames;
+    try {
+      boundLogicalRoleNames = roleBindingDao.getBoundLogicalRoleNames( session, getRuntimeRoleNames() );
+    } catch ( RepositoryException e ) {
+      logger.error( e );
+      return false;
+    }
+    return includeAggregates( boundLogicalRoleNames ).contains( actionName );
   }
 
   protected List<String> getRuntimeRoleNames() {

@@ -13,15 +13,17 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.security.policy.rolebased.ws;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.security.policy.rolebased.ISessionAwareAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 
+import javax.jcr.Session;
 import javax.jws.WebService;
 import java.util.List;
 
@@ -34,7 +36,8 @@ import java.util.List;
 @WebService( endpointInterface = "org.pentaho.platform.security.policy.rolebased.ws.IAuthorizationPolicyWebService",
     serviceName = "authorizationPolicy", portName = "authorizationPolicyPort",
     targetNamespace = "http://www.pentaho.org/ws/1.0" )
-public class DefaultAuthorizationPolicyWebService implements IAuthorizationPolicyWebService {
+public class DefaultAuthorizationPolicyWebService implements IAuthorizationPolicyWebService,
+  ISessionAwareAuthorizationPolicy {
 
   // ~ Static fields/initializers
   // ======================================================================================
@@ -75,4 +78,12 @@ public class DefaultAuthorizationPolicyWebService implements IAuthorizationPolic
     return policy.isAllowed( actionName );
   }
 
+  @Override
+  public boolean isAllowed( Session session, String actionName ) {
+    if ( policy instanceof ISessionAwareAuthorizationPolicy ) {
+      return ( (ISessionAwareAuthorizationPolicy) policy ).isAllowed( session, actionName );
+    }
+
+    throw new UnsupportedOperationException( "Not implemented by policy: " + policy.getClass() );
+  }
 }
