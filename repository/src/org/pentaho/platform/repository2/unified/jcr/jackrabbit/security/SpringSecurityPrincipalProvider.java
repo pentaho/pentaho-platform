@@ -221,8 +221,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
         // 2. then try the springSecurityUserCache and, failing that, actual
         // back-end user lookup
-        final UserDetails userDetails = internalGetUserDetails( principalName );
-        if ( userDetails != null ) {
+
+        // it may not be necessary to get user's details to emit principal,
+        boolean skipVerification =
+          !"true".equalsIgnoreCase( PentahoSystem.getSystemSetting( "verify-user-on-principal-creation", "true" ) );
+        if ( skipVerification || internalGetUserDetails( principalName ) != null ) {
           final Principal user = new UserPrincipal( principalName );
           synchronized ( userCache ) {
             userCache.put( principalName, user );
