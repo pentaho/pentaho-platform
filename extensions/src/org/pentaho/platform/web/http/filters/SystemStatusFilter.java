@@ -38,20 +38,17 @@ public class SystemStatusFilter implements Filter {
 
   private String redirectToOnInitError;
 
-  private boolean systemInitializedOk;
-
   public void init( final FilterConfig filterConfig ) throws ServletException {
     String failurePage = filterConfig.getInitParameter( "initFailurePage" ); //$NON-NLS-1$
     if ( ( failurePage == null ) || ( failurePage.length() == 0 ) ) {
       failurePage = "InitFailure"; //$NON-NLS-1$
     }
     redirectToOnInitError = "/" + failurePage; //$NON-NLS-1$ 
-    systemInitializedOk = PentahoSystem.getInitializedOK();
   }
 
   public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain filterChain )
     throws IOException, ServletException {
-    if ( systemInitializedOk ) {
+    if ( PentahoSystem.getInitializedOK() ) {
       filterChain.doFilter( request, response );
     } else {
       HttpServletRequest req = (HttpServletRequest) request;

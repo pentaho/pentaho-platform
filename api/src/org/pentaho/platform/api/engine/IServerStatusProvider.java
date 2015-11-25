@@ -32,6 +32,8 @@ public interface IServerStatusProvider {
 
   public void registerServerStatusChangeListener( IServerStatusChangeListener serverStatusChangeListener );
 
+  public void removeServerStatusChangeListener( IServerStatusChangeListener serverStatusChangeListener );
+
   public enum ServerStatus {
     DOWN, STARTING, STARTED, STOPPING, ERROR
   }

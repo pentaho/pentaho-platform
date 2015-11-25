@@ -34,16 +34,16 @@ public class ServerStatusProvider implements IServerStatusProvider {
   private static String[] messages;
   private static IServerStatusProvider.ServerStatus serverStatus = IServerStatusProvider.ServerStatus.DOWN;
   private static final List<IServerStatusChangeListener> listeners = new ArrayList<IServerStatusChangeListener>();
-  private static final ServerStatusProvider serverStatusProvider = new ServerStatusProvider(); 
-  
-  private ServerStatusProvider(){
+  private static final ServerStatusProvider serverStatusProvider = new ServerStatusProvider();
+
+  private ServerStatusProvider() {
     // Access through static methods only
   }
-  
-  public static ServerStatusProvider getInstance(){
+
+  public static ServerStatusProvider getInstance() {
     return serverStatusProvider;
   }
-  
+
   @Override
   public ServerStatus getStatus() {
     return serverStatus;
@@ -64,6 +64,11 @@ public class ServerStatusProvider implements IServerStatusProvider {
   @Override
   public void registerServerStatusChangeListener( IServerStatusChangeListener serverStatusChangeListener ) {
     listeners.add( serverStatusChangeListener );
+  }
+
+  @Override
+  public void removeServerStatusChangeListener( IServerStatusChangeListener serverStatusChangeListener ) {
+    listeners.remove( serverStatusChangeListener );
   }
 
   public static void setStatusMessages( String[] messages ) {
