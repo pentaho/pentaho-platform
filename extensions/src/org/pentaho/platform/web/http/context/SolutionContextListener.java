@@ -30,10 +30,13 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.pentaho.platform.api.engine.IServerStatusChangeListener;
+import org.pentaho.platform.api.engine.IServerStatusProvider;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.status.ServerStatusProvider;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -45,11 +48,11 @@ public class SolutionContextListener implements ServletContextListener {
   protected static String solutionPath;
 
   protected static String contextPath;
-  
+
   private static final String DEFAULT_SPRING_CONFIG_FILE_NAME = "pentahoObjects.spring.xml"; //$NON-NLS-1$
 
   private ServletContext context;
-  
+
   Logger logger = LoggerFactory.getLogger( getClass() );
 
   public void contextInitialized( final ServletContextEvent event ) {
@@ -116,7 +119,7 @@ public class SolutionContextListener implements ServletContextListener {
     }
 
     IApplicationContext applicationContext =
-      new WebApplicationContext( SolutionContextListener.solutionPath, fullyQualifiedServerUrl, context
+        new WebApplicationContext( SolutionContextListener.solutionPath, fullyQualifiedServerUrl, context
         .getRealPath( "" ), context ); //$NON-NLS-1$
 
     /*
@@ -134,7 +137,7 @@ public class SolutionContextListener implements ServletContextListener {
         }
       }
     }
-        
+
     /*
      * Copy out all the initParameter values from the servlet context and put them in the application context.
      */
@@ -149,9 +152,18 @@ public class SolutionContextListener implements ServletContextListener {
     setSystemCfgFile( context );
     setObjectFactory( context );
 
-    boolean initOk = PentahoSystem.init( applicationContext );
+    PentahoSystem.init( applicationContext, true );
 
-    this.showInitializationMessage( initOk, fullyQualifiedServerUrl );
+    final String fullyQualifiedServerUrlOut = fullyQualifiedServerUrl;
+    ServerStatusProvider.getInstance().registerServerStatusChangeListener( new IServerStatusChangeListener() {
+      @Override
+      public void onStatusChange() {
+        if ( ServerStatusProvider.getInstance().getStatus() != IServerStatusProvider.ServerStatus.STARTING ) {
+          showInitializationMessage( ServerStatusProvider.getInstance().getStatus() == IServerStatusProvider.ServerStatus.STARTED, fullyQualifiedServerUrlOut );
+        }
+        ServerStatusProvider.getInstance().removeServerStatusChangeListener( this );
+      }
+    } );
   }
 
   /**
@@ -196,7 +208,7 @@ public class SolutionContextListener implements ServletContextListener {
       pentahoObjectFactory = (IPentahoObjectFactory) classObject.newInstance();
     } catch ( Exception e ) {
       String msg =
-        Messages.getInstance().getErrorString(
+          Messages.getInstance().getErrorString(
           "SolutionContextListener.ERROR_0002_BAD_OBJECT_FACTORY", pentahoObjectFactoryClassName ); //$NON-NLS-1$
       // Cannot proceed without an object factory, so we'll put some context around what
       // we were trying to do throw a runtime exception
@@ -229,7 +241,7 @@ public class SolutionContextListener implements ServletContextListener {
       IVersionHelper helper = PentahoSystem.get( IVersionHelper.class, null ); // No session yet
       if ( initOk ) {
         System.out
-          .println( Messages
+            .println( Messages
             .getInstance()
             .getString(
               "SolutionContextListener.INFO_SYSTEM_READY",
@@ -237,7 +249,7 @@ public class SolutionContextListener implements ServletContextListener {
               SolutionContextListener.solutionPath ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       } else {
         System.err
-          .println( Messages
+            .println( Messages
             .getInstance()
             .getString(
               "SolutionContextListener.INFO_SYSTEM_NOT_READY",
@@ -263,13 +275,13 @@ public class SolutionContextListener implements ServletContextListener {
     }
     // log everything that goes on here
     logger.info( Messages.getInstance().getString(
-      "SolutionContextListener.INFO_SYSTEM_EXITING" ) ); //$NON-NLS-1$
+        "SolutionContextListener.INFO_SYSTEM_EXITING" ) ); //$NON-NLS-1$
   }
-  
+
   private String getServerParameter( String paramName ) {
     return getServerParameter( paramName, false );
   }
-  
+
   private String getServerParameter( String paramName, boolean suppressWarning ) {
     String result = context.getInitParameter( paramName );
     if ( result == null ) {
