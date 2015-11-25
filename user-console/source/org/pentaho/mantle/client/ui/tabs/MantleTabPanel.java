@@ -17,17 +17,11 @@
 
 package org.pentaho.mantle.client.ui.tabs;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.Window.ClosingEvent;
-import com.google.gwt.user.client.Window.ClosingHandler;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
@@ -47,10 +41,17 @@ import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel.CustomFrame;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.HashSet;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.ClosingEvent;
+import com.google.gwt.user.client.Window.ClosingHandler;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel {
 
@@ -100,8 +101,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
   }
 
-  public void
-  showNewURLTab( String tabName, String tabTooltip, String url, boolean setFileInfoInFrame, String frameName ) {
+  public void showNewURLTab( String tabName, String tabTooltip, String url, boolean setFileInfoInFrame, String frameName ) {
 
     showLoadingIndicator();
     PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
@@ -191,8 +191,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
     EventBusUtil.EVENT_BUS.fireEvent( new SolutionBrowserSelectEvent( selectTabContent, selectedItems ) );
 
-    if ( setFileInfoInFrame && SolutionBrowserPanel.getInstance().getFilesListPanel()
-        .getSelectedFileItems().size() > 0 ) {
+    if ( setFileInfoInFrame && SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0 ) {
       setFileInfoInFrame( SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().get( 0 ) );
     }
 
@@ -311,6 +310,9 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       $wnd.enableSave = function (enable) {
           tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setCurrentTabSaveEnabled(Z)(enable);
       }
+      $wnd.enableSaveForFrame = function (id,enable) {
+          tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setTabSaveEnabled(Ljava/lang/String;Z)(id,enable);
+      }
       $wnd.closeTab = function (url) {
           tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::closeTab(Ljava/lang/String;)(url);
       }
@@ -347,7 +349,17 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   public void setCurrentTabSaveEnabled( boolean enabled ) {
-    IFrameTabPanel panel = getCurrentFrame();
+    PentahoTab tab = getTab( getSelectedTabIndex() );
+    setTabSaveEnabled( tab, enabled );
+  }
+
+  public void setTabSaveEnabled( PentahoTab tab, boolean enabled ) {
+    IFrameTabPanel panel = null;
+
+    if ( tab != null ) {
+      panel = getFrame( tab );
+    }
+
     if ( panel != null ) {
       panel.setSaveEnabled( enabled );
       Widget selectTabContent = null;
@@ -359,9 +371,37 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
   }
 
+  public void setTabSaveEnabled( String frameId, boolean enabled ) {
+    PentahoTab tab = getTabByFrameId( frameId );
+    if ( tab != null ) {
+      setTabSaveEnabled( tab, enabled );
+    }
+  }
+
+  private IFrameTabPanel getPanelByFrameId( String frameId ) {
+    PentahoTab tab = getTabByFrameId( frameId );
+    if ( tab != null ) {
+      return getFrame( tab );
+    } else {
+      return null;
+    }
+  }
+
+  private PentahoTab getTabByFrameId( String frameId ) {
+    PentahoTab tab;
+    for ( int i = 0; i < getTabCount(); i++ ) {
+      tab = getTab( i );
+      IFrameTabPanel panel = getFrame( tab );
+      if ( panel.getFrame().getElement().getAttribute( "id" ).equals( frameId ) ) {
+        return tab;
+      }
+    }
+    return null;
+  }
+
   /*
-   * registerContentOverlay - register the overlay with the panel. Once the registration is done it fires a
-   * soultion browser event passing the current tab index and the type of event
+   * registerContentOverlay - register the overlay with the panel. Once the registration is done it fires a soultion
+   * browser event passing the current tab index and the type of event
    */
   public void registerContentOverlay( String id ) {
     IFrameTabPanel panel = getCurrentFrame();
@@ -556,7 +596,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
   }
 
-
   public static native void clearClosingFrame( Element frame )
   /*-{
       try {
@@ -583,10 +622,10 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }-*/;
 
   /**
-   * Called by JSNI call from parameterized xaction prompt pages to "cancel". The only 'key' to pass up is the URL.
-   * To handle the possibility of multiple tabs with the same url, this method first checks the assumption that the
-   * current active tab initiates the call. Otherwise it checks from tail up for the first tab with a matching url
-   * and closes that one. *
+   * Called by JSNI call from parameterized xaction prompt pages to "cancel". The only 'key' to pass up is the URL. To
+   * handle the possibility of multiple tabs with the same url, this method first checks the assumption that the current
+   * active tab initiates the call. Otherwise it checks from tail up for the first tab with a matching url and closes
+   * that one. *
    *
    * @param url
    */
@@ -710,28 +749,28 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   private native void ieFix( Element frame )/*-{
-      try {
-          var inputElements = frame.contentWindow.document.getElementsByTagName("input");
-          for (var i = 0; i < inputElements.length; i++) {
-              if (inputElements[i].getAttribute("type") != null && "TEXT" === inputElements[i].getAttribute("type")
-                  .toUpperCase()) {
-                  if (inputElements[i].getAttribute("paramType") == null || !("DATE" === inputElements[i].getAttribute
-                  ("paramType").toUpperCase())) {
-                      inputElements[i].focus();
-                      break;
-                  }
-              }
-          }
-      } catch (e) {
-          //ignore
-      }
+    try {
+        var inputElements = frame.contentWindow.document.getElementsByTagName("input");
+        for (var i = 0; i < inputElements.length; i++) {
+            if (inputElements[i].getAttribute("type") != null && "TEXT" === inputElements[i].getAttribute("type")
+                .toUpperCase()) {
+                if (inputElements[i].getAttribute("paramType") == null || !("DATE" === inputElements[i].getAttribute
+                ("paramType").toUpperCase())) {
+                    inputElements[i].focus();
+                    break;
+                }
+            }
+        }
+    } catch (e) {
+        //ignore
+    }
   }-*/;
 
   public static native void onTabSelect( Element element )/*-{
-      try {
-          element.contentWindow.onMantleActivation(); // tab must define this callback function
-      } catch (e) {
-          // ignore
-      }
+    try {
+        element.contentWindow.onMantleActivation(); // tab must define this callback function
+    } catch (e) {
+        // ignore
+    }
   }-*/;
 }
