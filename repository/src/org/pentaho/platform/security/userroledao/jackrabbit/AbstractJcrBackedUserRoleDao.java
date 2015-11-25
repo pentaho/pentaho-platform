@@ -120,6 +120,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
   private UserCache userDetailsCache = new NullUserCache();
 
+  private boolean useJackrabbitUserCache = true;
+
   public AbstractJcrBackedUserRoleDao( ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
       String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao,
@@ -471,7 +473,10 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         new PentahoUser( tenantedUserNameUtils.getTenant( jackrabbitUser.getID() ), tenantedUserNameUtils
             .getPrincipleName( jackrabbitUser.getID() ), password, description, !jackrabbitUser.isDisabled() );
 
-    userCache.put( jackrabbitUser.getID(), pentahoUser );
+    if ( isUseJackrabbitUserCache() ) {
+      userCache.put( jackrabbitUser.getID(), pentahoUser );
+    }
+
     return pentahoUser;
   }
 
@@ -885,5 +890,13 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       }
     }
     return usersToBeRemoved.toArray( new String[0] );
+  }
+
+  public boolean isUseJackrabbitUserCache() {
+    return useJackrabbitUserCache;
+  }
+
+  public void setUseJackrabbitUserCache( boolean useJackrabbitUserCache ) {
+    this.useJackrabbitUserCache = useJackrabbitUserCache;
   }
 }
