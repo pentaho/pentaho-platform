@@ -21,27 +21,47 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IServerStatusProvider;
 import org.pentaho.platform.engine.core.system.status.ServerStatusProvider;
 
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
-/**
- * The purpose of this filter is to check to make sure that the platform is properly initialized before letting requests
- * in.
- * 
- */
-public class SystemStatusFilter extends ForwardFilter {
+public class SystemInitStatusFilter extends ForwardFilter {
 
-  public void init( final FilterConfig filterConfig ) throws ServletException {
-    String failurePage = filterConfig.getInitParameter( "initFailurePage" ); //$NON-NLS-1$
-    failurePage = StringUtils.defaultIfBlank( failurePage, "InitFailure" ); //$NON-NLS-1$
-    setRedirectPath( "/" + failurePage ); //$NON-NLS-1$ 
+  private final String REDIRECT_PAGE_KEY = "redirectPage"; //$NON-NLS-1$  
+  private final String DEFAULT_PAGE = "html/InitState.html"; //$NON-NLS-1$  
+
+  private IServerStatusProvider serverStatusProvider;
+
+  @Override
+  public void init( FilterConfig filterConfig ) throws ServletException {
+    String redirectPage = filterConfig.getInitParameter( REDIRECT_PAGE_KEY );
+    redirectPage = StringUtils.defaultIfBlank( redirectPage, DEFAULT_PAGE );
+    setRedirectPath( "/" + redirectPage ); //$NON-NLS-1$ 
+
+    serverStatusProvider = ServerStatusProvider.getInstance();
   }
-  
+
   @Override
   protected boolean isEnable() {
-    return IServerStatusProvider.ServerStatus.ERROR == ServerStatusProvider.getInstance().getStatus();
+    return true; // IServerStatusProvider.ServerStatus.STARTING == serverStatusProvider.getStatus();
   }
 
+  @Override
+  public void doFilter( ServletRequest rq, ServletResponse rs, FilterChain filterChain ) throws IOException,
+    ServletException {
+    String path = getPath( rq );
+    if ( path.equalsIgnoreCase( "/content" ) ) {
+      filterChain.doFilter( rq, rs );
+    } else {
+      super.doFilter( rq, rs, filterChain );
+    }
+  }
+
+  @Override
   public void destroy() {
     // nothing
   }

@@ -1,6 +1,10 @@
 package org.pentaho.platform.web.http.filters;
 
-import com.mockrunner.mock.web.MockFilterChain;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockFilterConfig;
@@ -11,15 +15,13 @@ import org.springframework.mock.web.MockServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.*;
+import com.mockrunner.mock.web.MockFilterChain;
 
 public class PentahoAwareCharacterEncodingFilterTest {
 
   private static final String NEW_ENCODING = "win-1252";
 
-  private PentahoAwareCharacterEncodingFilter filter;
+  private PentahoAwareCharacterEncodingFilterImpl filter;
   private HttpServletRequest request;
   private MockFilterConfig filterConfig;
 
@@ -28,14 +30,14 @@ public class PentahoAwareCharacterEncodingFilterTest {
     MockHttpServletRequest req = new MockHttpServletRequest();
     HttpSession session = req.getSession();
     MockServletContext ctx = (MockServletContext) session.getServletContext();
-    ctx.addInitParameter( PentahoAwareCharacterEncodingFilter.INIT_PARAM_ENCODING, NEW_ENCODING );
+    ctx.addInitParameter( PentahoAwareCharacterEncodingFilterImpl.INIT_PARAM_ENCODING, NEW_ENCODING );
 
     request = spy( req );
     doReturn( session ).when( request ).getSession( anyBoolean() );
 
     filterConfig = new MockFilterConfig();
 
-    filter = new PentahoAwareCharacterEncodingFilter();
+    filter = new PentahoAwareCharacterEncodingFilterImpl();
   }
 
 
@@ -80,11 +82,11 @@ public class PentahoAwareCharacterEncodingFilterTest {
     request.setCharacterEncoding( null );
 
     MockServletContext ctx = (MockServletContext) request.getSession().getServletContext();
-    ctx.addInitParameter( PentahoAwareCharacterEncodingFilter.INIT_PARAM_ENCODING, "" );
+    ctx.addInitParameter( PentahoAwareCharacterEncodingFilterImpl.INIT_PARAM_ENCODING, "" );
 
     filter.init( filterConfig );
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
 
-    assertEquals( PentahoAwareCharacterEncodingFilter.DEFAULT_CHAR_ENCODING, request.getCharacterEncoding() );
+    assertEquals( PentahoAwareCharacterEncodingFilterImpl.DEFAULT_CHAR_ENCODING, request.getCharacterEncoding() );
   }
 }
