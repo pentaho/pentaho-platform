@@ -116,6 +116,14 @@
         <extension>prpt</extension>
       </MimeTypeDefinition>
     </MimeTypeDefinitions>
-  </ImportHandler> 
-  
+  </ImportHandler>
+
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler">
+    <MimeTypeDefinitions>
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.prptstyle+xml" hidden="true">
+        <extension>prptstyle</extension>
+      </MimeTypeDefinition>
+    </MimeTypeDefinitions>
+  </ImportHandler>
+
 </tns:ImportHandlerMimeTypeDefinitions>
