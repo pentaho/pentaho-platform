@@ -44,6 +44,10 @@ public class MicroPlatform extends PentahoSystemBoot {
 
   protected RepositoryModule repositoryModule;
 
+  {
+    setUseThreadForStart( false );
+  }
+
   public MicroPlatform() {
     super();
   }
