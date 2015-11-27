@@ -17,11 +17,11 @@
  */
 package org.pentaho.platform.engine.core.system.status;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IServerStatusChangeListener;
 import org.pentaho.platform.api.engine.IServerStatusProvider;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This is intended as a temporary implementation of server status log message provider.
@@ -33,7 +33,7 @@ public class ServerStatusProvider implements IServerStatusProvider {
 
   private static String[] messages;
   private static IServerStatusProvider.ServerStatus serverStatus = IServerStatusProvider.ServerStatus.DOWN;
-  private static final List<IServerStatusChangeListener> listeners = new ArrayList<IServerStatusChangeListener>();
+  private static final List<IServerStatusChangeListener> listeners = new CopyOnWriteArrayList<IServerStatusChangeListener>();
   private static final ServerStatusProvider serverStatusProvider = new ServerStatusProvider();
 
   private ServerStatusProvider() {
