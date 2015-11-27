@@ -23,11 +23,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.pentaho.platform.api.engine.IServerStatusProvider;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.platform.engine.core.system.status.ServerStatusProvider;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.servlet.GetResource;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
@@ -40,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
 
 import static junit.framework.Assert.assertEquals;
@@ -176,5 +180,19 @@ public class GetResourceIT {
     verify( response ).setContentType( eq( TEST_MIME_TYPE ) );
     verify( response ).setHeader( eq( CONTENT_DISPOSITION_HEADER ), endsWith( repoFileName ) );
     verify( response ).setContentLength( repoFileLength );
+  }
+
+  @Test
+  public void testServerStatus() throws Exception {
+    when( request.getParameter( "serverStatus" ) ).thenReturn( "" );
+    final PrintWriter writer = mock( PrintWriter.class );
+    when( response.getWriter() ).thenReturn( writer );
+
+    servlet.service( request, response );
+
+    verify( response ).setContentType( "text/plain" );
+    verify( response ).setStatus( HttpServletResponse.SC_OK );
+    verify( response ).setCharacterEncoding( LocaleHelper.getSystemEncoding() );
+    verify( writer ).write( ServerStatusProvider.ServerStatus.STARTED.toString() );
   }
 }
