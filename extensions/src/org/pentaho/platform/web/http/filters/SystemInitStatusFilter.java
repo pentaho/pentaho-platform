@@ -47,7 +47,7 @@ public class SystemInitStatusFilter extends ForwardFilter {
 
   @Override
   protected boolean isEnable() {
-    return true; // IServerStatusProvider.ServerStatus.STARTING == serverStatusProvider.getStatus();
+    return IServerStatusProvider.ServerStatus.STARTED != serverStatusProvider.getStatus();
   }
 
   @Override
