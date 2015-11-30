@@ -341,6 +341,17 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return Response.ok( UserConsoleService.getPentahoSession().removeAttribute( key ) ).build();
   }
 
+  @GET
+  @Path ( "/registeredPlugins" )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Returns a list of registerd plugins as a list string" )
+  } )
+  @Facet ( name = "Unsupported" )
+  public Response registeredPlugins() {
+    List<String> registeredPlugins = userConsoleService.getRegisteredPlugins();
+    return buildOkResponse( registeredPlugins.toString() );
+  }
+
   protected Response buildOkResponse( Object entity ) {
     return Response.ok( entity ).build();
   }
