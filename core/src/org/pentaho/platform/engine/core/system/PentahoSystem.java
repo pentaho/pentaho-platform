@@ -262,6 +262,8 @@ public class PentahoSystem {
             doInit();
           }
         } );
+        startingThread.setDaemon( true );
+        startingThread.setName( "PentahoSystem init thread" );
         startingThread.start();
       } else {
         doInit();
