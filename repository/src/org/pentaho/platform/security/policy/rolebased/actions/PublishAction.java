@@ -13,18 +13,27 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.security.policy.rolebased.actions;
 
+import org.pentaho.platform.api.engine.IAggregatingAuthorizationAction;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
  * User: nbaker Date: 3/30/13
  */
-public class PublishAction extends AbstractAuthorizationAction {
+public class PublishAction extends AbstractAuthorizationAction implements IAggregatingAuthorizationAction {
   public static final String NAME = "org.pentaho.security.publish";
+
+  private static final List<String> IMPLICIT_PRIVILEGES =
+    Arrays.asList( RepositoryReadAction.NAME, RepositoryCreateAction.NAME );
+
   ResourceBundle resourceBundle;
 
   @Override
@@ -36,5 +45,10 @@ public class PublishAction extends AbstractAuthorizationAction {
   public String getLocalizedDisplayName( String localeString ) {
     resourceBundle = getResourceBundle( localeString );
     return resourceBundle.getString( NAME );
+  }
+
+  @Override
+  public List<String> getAggregatedActions() {
+    return Collections.unmodifiableList( IMPLICIT_PRIVILEGES );
   }
 }

@@ -754,6 +754,11 @@
     <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
   </bean>
 
+  <!-- this bean is needed to avoid interceptions on its methods invocations (used in PentahoEntryCollector) -->
+  <bean id="nonTransactedAuthorizationPolicy" class="org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy">
+    <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
+  </bean>
+
   <util:map id="immutableRoleBindingMap">
     <entry key-ref="singleTenantAdminAuthorityName">
 	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 

@@ -1,5 +1,5 @@
 /*!
- * Copyright 2010 - 2014 Pentaho Corporation.  All rights reserved.
+ * Copyright 2010 - 2015 Pentaho Corporation.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,24 +26,27 @@ import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.security.authorization.PrivilegeBits;
 import org.apache.jackrabbit.core.security.authorization.PrivilegeManagerImpl;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
 import org.pentaho.platform.repository2.unified.jcr.IAclMetadataStrategy.AclMetadata;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.ISessionAwareAuthorizationPolicy;
+import org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.util.Assert;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.security.*;
+import javax.jcr.security.AccessControlEntry;
+import javax.jcr.security.AccessControlList;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.AccessControlPolicy;
+import javax.jcr.security.AccessControlPolicyIterator;
+import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionHistory;
 import java.security.Principal;
 import java.security.acl.Group;
@@ -77,6 +80,8 @@ public class PentahoEntryCollector extends EntryCollector {
    * logger instance
    */
   private static final Logger log = LoggerFactory.getLogger( PentahoEntryCollector.class );
+
+  protected ISessionAwareAuthorizationPolicy sessionAwarePolicy;
 
   private List<MagicAceDefinition> magicAceDefinitions = new ArrayList<MagicAceDefinition>();
 
@@ -152,7 +157,7 @@ public class PentahoEntryCollector extends EntryCollector {
     ACLTemplate acl;
     while ( true ) {
       currentNode = findAccessControlledNode( currentNode );
-      NodeImpl aclNode = currentNode.getNode( N_POLICY ); 
+      NodeImpl aclNode = currentNode.getNode( N_POLICY );
       String path = aclNode != null ? aclNode.getParent().getPath() : null;
       acl = new ACLTemplate( aclNode, path, false /* allowUnknownPrincipals */ );
 
@@ -270,6 +275,41 @@ public class PentahoEntryCollector extends EntryCollector {
     return PentahoSystem.get( IRoleAuthorizationPolicyRoleBindingDao.class );
   }
 
+
+  // package-local visibility for testing purposes
+  synchronized ISessionAwareAuthorizationPolicy getSessionAwarePolicy() {
+    if ( sessionAwarePolicy == null ) {
+
+      // first let's look if a named instance is defined
+      if ( PentahoSystem.getObjectFactory().objectDefined( "nonTransactedAuthorizationPolicy" ) ) {
+        sessionAwarePolicy = PentahoSystem.get( ISessionAwareAuthorizationPolicy.class,
+          "nonTransactedAuthorizationPolicy", PentahoSessionHolder.getSession() );
+      }
+
+      // if none has been found, create the instance directly
+      if ( sessionAwarePolicy == null ) {
+        IRoleAuthorizationPolicyRoleBindingDao nonTransactedDao = PentahoSystem.get(
+          IRoleAuthorizationPolicyRoleBindingDao.class,
+          "roleAuthorizationPolicyRoleBindingDaoTarget", PentahoSessionHolder.getSession() );
+
+        if ( nonTransactedDao == null ) {
+          // invalid configuration, fail fast here
+          throw new IllegalStateException( "Could not obtain 'roleAuthorizationPolicyRoleBindingDaoTarget'" );
+        }
+        sessionAwarePolicy = new RoleAuthorizationPolicy( nonTransactedDao );
+
+        // ... and register it
+        IPentahoObjectReference<ISessionAwareAuthorizationPolicy> ref =
+          new SingletonPentahoObjectReference.Builder<>( ISessionAwareAuthorizationPolicy.class )
+            .object( sessionAwarePolicy )
+            .attributes( Collections.<String, Object>singletonMap( "ID", "nonTransactedAuthorizationPolicy" ) )
+            .build();
+        PentahoSystem.registerReference( ref );
+      }
+    }
+    return sessionAwarePolicy;
+  }
+
   /**
    * Extracts ACEs including magic aces. Magic ACEs are added for (1) the owner, (2) as a result of magic ACE
    * definitions, and (3) as a result of ancestor ACL contributions.
@@ -277,35 +317,24 @@ public class PentahoEntryCollector extends EntryCollector {
    * <p> Modifications to these ACLs are not persisted. </p>
    */
   protected List<PentahoEntry> getAcesIncludingMagicAces( final String path, final String owner,
-                                                                final ACLTemplate ancestorAcl, final ACLTemplate acl )
+                                                          final ACLTemplate ancestorAcl, final ACLTemplate acl )
     throws RepositoryException {
     if ( PentahoSessionHolder.getSession() == null || PentahoSessionHolder.getSession().getId() == null
-        || PentahoSessionHolder.getSession().getId().trim().equals( "" ) ) { //$NON-NLS-1$
-      if ( log.isDebugEnabled() ) {
-        log.debug( "no PentahoSession so no magic ACEs" ); //$NON-NLS-1$
-      }
+        || PentahoSessionHolder.getSession().getId().trim().isEmpty() ) { //$NON-NLS-1$
+      log.debug( "no PentahoSession so no magic ACEs" ); //$NON-NLS-1$
       return Collections.emptyList();
     }
     if ( owner != null ) {
       addOwnerAce( owner, acl );
     }
 
-    boolean match = false;
-    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = null;
-    try {
-      roleBindingDao =
-        PentahoSystem.getObjectFactory().get( IRoleAuthorizationPolicyRoleBindingDao.class,
-          "roleAuthorizationPolicyRoleBindingDaoTarget", PentahoSessionHolder.getSession() );
-    } catch ( ObjectFactoryException e ) {
-      e.printStackTrace();
-    }
-
+    ISessionAwareAuthorizationPolicy policy = getSessionAwarePolicy();
     ITenant tenant = JcrTenantUtils.getTenant();
     for ( final MagicAceDefinition def : magicAceDefinitions ) {
-      match = false;
+      boolean match = false;
 
       String substitutedPath = MessageFormat.format( def.path, tenant.getRootFolderAbsolutePath() );
-      if ( isAllowed( roleBindingDao, def.logicalRole ) ) {
+      if ( policy.isAllowed( systemSession, def.logicalRole ) ) {
         if ( def.applyToTarget ) {
           match = path.equals( substitutedPath );
         }
@@ -328,7 +357,7 @@ public class PentahoEntryCollector extends EntryCollector {
       }
       if ( match ) {
         Principal principal =
-            new MagicPrincipal( JcrTenantUtils.getTenantedUser( PentahoSessionHolder.getSession().getName() ) );
+          new MagicPrincipal( JcrTenantUtils.getTenantedUser( PentahoSessionHolder.getSession().getName() ) );
         // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully
         // later;
         // changed never persisted
@@ -336,8 +365,7 @@ public class PentahoEntryCollector extends EntryCollector {
       }
     }
 
-
-    List acEntries = new ArrayList();
+    List<PentahoEntry> acEntries = new ArrayList<>();
     acEntries.addAll( buildPentahoEntries( acl ) ); // leaf ACEs go first so ACL metadata ACE stays first
     acEntries.addAll( getRelevantAncestorAces( ancestorAcl ) );
     return acEntries;
@@ -360,9 +388,9 @@ public class PentahoEntryCollector extends EntryCollector {
     NodeImpl ancestorNode = (NodeImpl) systemSession.getNode( ancestorAcl.getPath() );
     PentahoEntries fullEntriesIncludingMagicACEs = this.getEntries( ancestorNode );
 
-    JackrabbitAccessControlManager acMgr = ( JackrabbitAccessControlManager ) systemSession.getAccessControlManager();
+    JackrabbitAccessControlManager acMgr = (JackrabbitAccessControlManager) systemSession.getAccessControlManager();
     PrivilegeManagerImpl privMrg =
-        ( PrivilegeManagerImpl ) ( (( JackrabbitWorkspace ) systemSession.getWorkspace() ).getPrivilegeManager() );
+      (PrivilegeManagerImpl) ( ( (JackrabbitWorkspace) systemSession.getWorkspace() ).getPrivilegeManager() );
 
     Privilege addChildNodesPrivilege = acMgr.privilegeFromName( Privilege.JCR_ADD_CHILD_NODES );
     PrivilegeBits addChildNodesPrivilegeBits = privMrg.getBits( addChildNodesPrivilege );
@@ -370,10 +398,9 @@ public class PentahoEntryCollector extends EntryCollector {
     Privilege removeChildNodesPrivilege = acMgr.privilegeFromName( Privilege.JCR_REMOVE_CHILD_NODES );
     PrivilegeBits removeChildNodesPrivilegeBits = privMrg.getBits( removeChildNodesPrivilege );
 
-    for ( PentahoEntry entry : ( List<PentahoEntry> ) fullEntriesIncludingMagicACEs.getACEs() ) {
+    for ( PentahoEntry entry : (List<PentahoEntry>) fullEntriesIncludingMagicACEs.getACEs() ) {
 
-      List<Privilege> privs = new ArrayList<Privilege>( 2 );
-
+      List<Privilege> privs = new ArrayList<>( 2 );
       if ( entry.getPrivilegeBits().includes( addChildNodesPrivilegeBits ) ) {
         privs.add( addChildNodesPrivilege );
       }
@@ -382,10 +409,10 @@ public class PentahoEntryCollector extends EntryCollector {
       }
       // remove all physical entries from the ACL. MagicAces will not be present in the ACL Entries, so we check
       // before trying to remove
-      AccessControlEntry[] ancestorACEs = ancestorAcl.getEntries().toArray( new AccessControlEntry[]{} );
-      for( AccessControlEntry ace : ancestorACEs ){
+      AccessControlEntry[] ancestorACEs = ancestorAcl.getEntries().toArray( new AccessControlEntry[ 0 ] );
+      for ( AccessControlEntry ace : ancestorACEs ) {
         PentahoEntry pe = buildPentahoEntry( ancestorNode.getNodeId(), ancestorAcl.getPath(), ace );
-        if ( entry.equals( pe ) ){
+        if ( entry.equals( pe ) ) {
           ancestorAcl.removeAccessControlEntry( ace );
         }
       }
@@ -400,11 +427,11 @@ public class PentahoEntryCollector extends EntryCollector {
 
           if ( ace.getPrincipal().getName().equals( entry.getPrincipalName() ) ) {
             ancestorAcl.removeAccessControlEntry( ace );
+          }
         }
-      }
 
-      if ( !ancestorAcl.addAccessControlEntry( entry.isGroupEntry() ?
-              new MagicGroup( entry.getPrincipalName() ) : new MagicPrincipal( entry.getPrincipalName() ),
+        if ( !ancestorAcl.addAccessControlEntry( entry.isGroupEntry()
+            ? new MagicGroup( entry.getPrincipalName() ) : new MagicPrincipal( entry.getPrincipalName() ),
           privs.toArray( new Privilege[ privs.size() ] ) ) ) {
           // we can never fail to add this entry because it means we may be giving more permission than the above two
           throw new RuntimeException();
@@ -423,7 +450,7 @@ public class PentahoEntryCollector extends EntryCollector {
   protected void addOwnerAce( final String owner, final ACLTemplate acl ) throws RepositoryException {
     Principal ownerPrincipal = systemSession.getPrincipalManager().getPrincipal( owner );
     if ( ownerPrincipal != null ) {
-      Principal magicPrincipal = null;
+      Principal magicPrincipal;
       if ( ownerPrincipal instanceof Group ) {
         magicPrincipal = new MagicGroup( JcrTenantUtils.getTenantedUser( ownerPrincipal.getName() ) );
       } else {
@@ -459,7 +486,7 @@ public class PentahoEntryCollector extends EntryCollector {
         NodeImpl aclNode = root.getNode( N_REPO_POLICY );
         String path = aclNode != null ? aclNode.getParent().getPath() : null;
 
-        if( filter instanceof PentahoEntryFilter ){
+        if ( filter instanceof PentahoEntryFilter ) {
           filterEntries( filter, PentahoEntry.readEntries( aclNode, path ), userAces, groupAces );
         } else {
           filterEntries( filter, Entry.readEntries( aclNode, path ), userAces, groupAces );
@@ -495,72 +522,53 @@ public class PentahoEntryCollector extends EntryCollector {
     }
   }
 
-  protected List<String> getRuntimeRoleNames() {
-    IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    List<String> runtimeRoles = new ArrayList<String>();
-    Assert.state( pentahoSession != null );
-    Authentication authentication = SecurityHelper.getInstance().getAuthentication();
-    if ( authentication != null ) {
-      GrantedAuthority[] authorities = authentication.getAuthorities();
-      for ( int i = 0; i < authorities.length; i++ ) {
-        runtimeRoles.add( authorities[ i ].getAuthority() );
-      }
-    }
-    return runtimeRoles;
-  }
+  private static AccessControlList getACList( AccessControlManager acMgr, String path ) throws RepositoryException {
 
-  protected boolean isAllowed( IRoleAuthorizationPolicyRoleBindingDao roleBindingDao, String logicalRoleName )
-    throws RepositoryException {
-    return roleBindingDao.getBoundLogicalRoleNames( systemSession, getRuntimeRoleNames() ).contains(
-        logicalRoleName );
-  }
-
-  private static AccessControlList getACList(AccessControlManager acMgr, String path) throws RepositoryException {
-
-    for ( AccessControlPolicyIterator it = acMgr.getApplicablePolicies(path); it.hasNext(); ) {
+    for ( AccessControlPolicyIterator it = acMgr.getApplicablePolicies( path ); it.hasNext(); ) {
       AccessControlPolicy acp = it.nextAccessControlPolicy();
       if ( acp instanceof AccessControlList ) {
-        return ( AccessControlList ) acp;
+        return (AccessControlList) acp;
       }
     }
-    AccessControlPolicy[] acps = acMgr.getPolicies(path);
-    for (int i = 0; i < acps.length; i++) {
-      if ( acps[i] instanceof AccessControlList ) {
-        return (AccessControlList) acps[i] ;
+    AccessControlPolicy[] acps = acMgr.getPolicies( path );
+    for ( AccessControlPolicy acp : acps ) {
+      if ( acp instanceof AccessControlList ) {
+        return (AccessControlList) acp;
       }
     }
     return null;
   }
 
-  private List<PentahoEntry> buildPentahoEntries( ACLTemplate acl ) throws RepositoryException{
+  private List<PentahoEntry> buildPentahoEntries( ACLTemplate acl ) throws RepositoryException {
+    List<PentahoEntry> aces;
+    if ( acl != null && acl.getEntries() != null && !acl.getEntries().isEmpty() ) {
+      String path = acl.getPath();
+      NodeId nodeId = ( (NodeImpl) systemSession.getNode( path ) ).getNodeId();
 
-    List<PentahoEntry> aces = new ArrayList<PentahoEntry>();
-
-    if( acl != null && acl.getEntries() != null && acl.getEntries().size() > 0 ){
-
-      NodeImpl aclNode = ( (NodeImpl) systemSession.getNode( acl.getPath() ) );
-
-      for( AccessControlEntry ace : acl.getEntries() ){
-         aces.add( buildPentahoEntry( aclNode.getNodeId(), acl.getPath(), ace ) );
+      List<AccessControlEntry> entries = acl.getEntries();
+      aces = new ArrayList<>( entries.size() );
+      for ( AccessControlEntry ace : entries ) {
+        aces.add( buildPentahoEntry( nodeId, path, ace ) );
       }
+    } else {
+      aces = Collections.emptyList();
     }
 
     return aces;
   }
 
-  private PentahoEntry buildPentahoEntry( NodeId nodeId, String path, AccessControlEntry ace ) throws RepositoryException {
+  private PentahoEntry buildPentahoEntry( NodeId nodeId, String path, AccessControlEntry ace )
+    throws RepositoryException {
 
     PentahoEntry entry = null;
-
-    if( ace != null ) {
-
+    if ( ace != null ) {
       Principal principal = ace.getPrincipal();
       boolean isGroupEntry = principal instanceof Group;
-      PrivilegeBits bits = ( ( ACLTemplate.Entry ) ace ).getPrivilegeBits();
-      boolean isAllow = ( ( ACLTemplate.Entry ) ace ).isAllow();
+      PrivilegeBits bits = ( (ACLTemplate.Entry) ace ).getPrivilegeBits();
+      boolean isAllow = ( (ACLTemplate.Entry) ace ).isAllow();
 
       entry = new PentahoEntry( nodeId, principal.getName(), isGroupEntry, bits, isAllow, path,
-          ( (ACLTemplate.Entry) ace ).getRestrictions() );
+        ( (ACLTemplate.Entry) ace ).getRestrictions() );
     }
 
     return entry;
@@ -570,14 +578,14 @@ public class PentahoEntryCollector extends EntryCollector {
 
     private List<PentahoEntry> aces;
 
-    PentahoEntries( List aces, NodeId nextId  ) {
+    PentahoEntries( List aces, NodeId nextId ) {
       super( null, nextId );
-      this.aces = ( List<PentahoEntry> ) aces;
+      this.aces = (List<PentahoEntry>) aces;
     }
 
-    PentahoEntries( Entries e  ) {
+    PentahoEntries( Entries e ) {
       super( e.getACEs(), e.getNextId() );
-      this.aces = new ArrayList<PentahoEntry>();
+      this.aces = new ArrayList<>();
     }
 
     @Override
@@ -593,7 +601,7 @@ public class PentahoEntryCollector extends EntryCollector {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
-      sb.append("size = ").append( getACEs() != null ? getACEs().size() : 0 ).append(", ");
+      sb.append( "size = " ).append( getACEs() != null ? getACEs().size() : 0 ).append( ", " );
       sb.append( "nextNodeId = " ).append( getNextId() );
       return sb.toString();
     }
