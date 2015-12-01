@@ -28,13 +28,17 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 public class SystemInitStatusFilter extends ForwardFilter {
 
-  private final String REDIRECT_PAGE_KEY = "redirectPage"; //$NON-NLS-1$  
-  private final String DEFAULT_PAGE = "html/InitState.html"; //$NON-NLS-1$  
+  protected static final String REDIRECT_PAGE_KEY = "redirectPage"; //$NON-NLS-1$
+  protected static final String DEFAULT_PAGE = "html/InitState.html"; //$NON-NLS-1$
+  private static final String[] IGNORED_RESOURCES = new String[] {
+      "/GetResource?serverStatus"
+  };
 
-  private IServerStatusProvider serverStatusProvider;
+  protected IServerStatusProvider serverStatusProvider;
 
   @Override
   public void init( FilterConfig filterConfig ) throws ServletException {
@@ -54,11 +58,26 @@ public class SystemInitStatusFilter extends ForwardFilter {
   public void doFilter( ServletRequest rq, ServletResponse rs, FilterChain filterChain ) throws IOException,
     ServletException {
     String path = getPath( rq );
-    if ( path.equalsIgnoreCase( "/content" ) ) {
+    if ( HttpServletRequest.class.isInstance( rq ) ) {
+      final HttpServletRequest httpRq = (HttpServletRequest) rq;
+      if ( httpRq.getQueryString() != null ) {
+        path += "?" + httpRq.getQueryString();
+      }
+    }
+    if ( path.equalsIgnoreCase( "/content" ) || checkIgnoredResources( path ) ) {
       filterChain.doFilter( rq, rs );
     } else {
       super.doFilter( rq, rs, filterChain );
     }
+  }
+
+  private boolean checkIgnoredResources( String uri ) {
+    for ( String res : IGNORED_RESOURCES ) {
+      if ( uri.equals( res ) ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
