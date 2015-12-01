@@ -36,6 +36,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.AuthorizableExistsException;
@@ -448,9 +449,10 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return getRoles( session, JcrTenantUtils.getCurrentTenant() );
   }
 
-  private IPentahoUser convertToPentahoUser( User jackrabbitUser ) throws RepositoryException {
-    if ( userCache.containsKey( jackrabbitUser.getID() ) ) {
-      return (IPentahoUser) userCache.get( jackrabbitUser.getID() );
+  @VisibleForTesting
+  IPentahoUser convertToPentahoUser( User jackrabbitUser ) throws RepositoryException {
+    if ( getUserCache().containsKey( jackrabbitUser.getID() ) ) {
+      return (IPentahoUser) getUserCache().get( jackrabbitUser.getID() );
     }
     IPentahoUser pentahoUser = null;
     Value[] propertyValues = null;
@@ -470,11 +472,11 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     }
 
     pentahoUser =
-        new PentahoUser( tenantedUserNameUtils.getTenant( jackrabbitUser.getID() ), tenantedUserNameUtils
+        new PentahoUser( getTenantedUserNameUtils().getTenant( jackrabbitUser.getID() ), getTenantedUserNameUtils()
             .getPrincipleName( jackrabbitUser.getID() ), password, description, !jackrabbitUser.isDisabled() );
 
     if ( isUseJackrabbitUserCache() ) {
-      userCache.put( jackrabbitUser.getID(), pentahoUser );
+      getUserCache().put( jackrabbitUser.getID(), pentahoUser );
     }
 
     return pentahoUser;
@@ -898,5 +900,10 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
   public void setUseJackrabbitUserCache( boolean useJackrabbitUserCache ) {
     this.useJackrabbitUserCache = useJackrabbitUserCache;
+  }
+
+  @VisibleForTesting
+  LRUMap getUserCache() {
+    return userCache;
   }
 }
