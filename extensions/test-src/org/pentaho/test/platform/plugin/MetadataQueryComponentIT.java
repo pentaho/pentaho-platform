@@ -520,6 +520,40 @@ public class MetadataQueryComponentIT {
     }
 
   }
+  
+    @Test
+  public void testEmptyInputs() {
+    String mql =
+        "<mql><domain_id>DOMAIN</domain_id><model_id>MODEL</model_id>"
+            + "<parameters><parameter name=\"param1\" type=\"STRING\" defaultValue=\"Alpha Cognac|"
+            + "ANG Resellers|&quot;American Souvenirs Inc|test|quoted&quot;\"/></parameters>"
+            + "<selections><selection>"
+            + "<view>CATEGORY</view>"
+            + "<column>LC_CUSTOMERNAME</column>"
+            + "</selection>"
+            + "</selections>"
+            + "<constraints>"
+            + "<constraint><operator>AND</operator><condition>EQUALS([CATEGORY.LC_CUSTOMERNAME];"
+            + "[param:param1])</condition></constraint>"
+            + "</constraints>" + "</mql>";
+
+    MetadataQueryComponent component = new MetadataQueryComponent();
+    Map<String, Object> inputs = new HashMap<String, Object>();
+    inputs.put( "param1", new String[] { } );
+    component.setInputs( inputs );
+    component.setQuery( mql );
+    component.execute();
+
+    IPentahoResultSet rs = component.getResultSet();
+    try {
+      Assert.assertNotNull( rs );
+      Assert.assertEquals( 0, rs.getRowCount() );
+
+    } finally {
+      rs.close();
+      rs.closeConnection();
+    }
+  }
 
   public Domain getJdbcDomain() {
     Domain domain = getBasicDomain();
