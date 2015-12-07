@@ -12,15 +12,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
@@ -30,6 +28,7 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.services.RepositoryPublishService;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -81,10 +80,9 @@ public class RepositoryPublishResource {
   @Consumes ( { MediaType.MULTIPART_FORM_DATA } )
   @Produces ( MediaType.TEXT_PLAIN )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully publish the artifact." ),
-      @ResponseCode ( code = 403, condition = "Failure to publish the file due to permissions." ),
-      @ResponseCode ( code = 500, condition = "Failure to publish the file due to a server error." ),
-  } )
+    @ResponseCode ( code = 200, condition = "Successfully publish the artifact." ),
+    @ResponseCode ( code = 403, condition = "Failure to publish the file due to permissions." ),
+    @ResponseCode ( code = 500, condition = "Failure to publish the file due to a server error." ), } )
   @Facet( name = "Unsupported" )
   public Response writeFile( @FormDataParam ( "importPath" ) String pathId,
                              @FormDataParam ( "fileUpload" ) InputStream fileContents,
@@ -137,8 +135,7 @@ public class RepositoryPublishResource {
     @ResponseCode ( code = 200, condition = "Successfully publish the file." ),
     @ResponseCode ( code = 403, condition = "Failure to publish the file due to permissions." ),
     @ResponseCode ( code = 422, condition = "Failure to publish the file due to failed validation." ),
-    @ResponseCode ( code = 500, condition = "Failure to publish the file due to a server error." ),
-  } )
+    @ResponseCode ( code = 500, condition = "Failure to publish the file due to a server error." ), } )
   @Facet( name = "Unsupported" )
   public Response writeFileWithEncodedName( @FormDataParam( "importPath" ) String pathId,
                                             @FormDataParam( "fileUpload" ) InputStream fileContents,
@@ -169,14 +166,7 @@ public class RepositoryPublishResource {
   // package-local visibility for testing purposes
   boolean invalidPath( String path ) {
     char[] chars = new FileService().doGetReservedChars().toString().toCharArray();
-    while ( !path.isEmpty() ) {
-      String name = FilenameUtils.getName( path );
-      if ( StringUtils.containsAny( name, chars ) ) {
-        return true;
-      }
-      path = FilenameUtils.getPathNoEndSeparator( path );
-    }
-    return false;
+    return FileUtils.containsReservedCharacter( path, chars );
   }
 
 
