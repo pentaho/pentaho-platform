@@ -111,8 +111,11 @@ public class DefaultUnifiedRepositoryContentIT extends DefaultUnifiedRepositoryB
 
   // ~ Methods
   // =========================================================================================================
+  @Override
   @Before
-  public void setup() {
+  public void setUp() throws Exception {
+    super.initialize( Boolean.TRUE );
+
     IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
     when( mockRepositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
     when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
@@ -2013,6 +2016,30 @@ public class DefaultUnifiedRepositoryContentIT extends DefaultUnifiedRepositoryB
     assertFalse( repo.getReservedChars().isEmpty() );
   }
 
+  @Test
+  public void testMoveEncoded() throws Exception {
+    loginAsSysTenantAdmin();
+    ITenant tenantAcme =
+        tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,
+            ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( tenantAcme, USERNAME_ADMIN, PASSWORD, "", new String[] { tenantAdminRoleName } );
+
+    login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
+    defaultBackingRepositoryLifecycleManager.newTenant();
+    login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
+
+    RepositoryFile parentFolder =
+        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+    RepositoryFile srcFolder = new RepositoryFile.Builder( "src" ).folder( true ).build();
+    RepositoryFile destFolder = new RepositoryFile.Builder( "dest" ).folder( true ).build();
+    srcFolder = repo.createFolder( parentFolder.getId(), srcFolder, null );
+    destFolder = repo.createFolder( parentFolder.getId(), destFolder, null );
+
+    RepositoryFile newFile = createSampleFile( srcFolder.getPath(), "_x0039__x0020_rows.prpt", "ddfdf", false, 83 );
+    repo.moveFile( newFile.getId(), destFolder.getPath(), null );
+    assertEquals( "/home/suzy/dest/_x0039__x0020_rows.prpt", repo.getFileById( newFile.getId() ).getPath() );
+  }
 
   private RepositoryFile createSimpleFile( final Serializable parentFolderId, final String fileName ) throws Exception {
     final String dataString = "Hello World!";

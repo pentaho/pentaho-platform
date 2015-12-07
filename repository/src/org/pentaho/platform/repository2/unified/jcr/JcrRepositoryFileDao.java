@@ -914,14 +914,22 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
             destParentFolderNode );
         String finalEncodedSrcAbsPath = srcFileNode.getPath();
-        String finalDestAbsPath =
-            appendFileName && !file.isFolder() ? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName()
-                : cleanDestAbsPath;
+        String finalEncodedDestAbsPath = null;
+        if ( appendFileName && !file.isFolder() ) {
+          if ( JcrStringHelper.pathDecode( srcFileNode.getName() ).equals( srcFileNode.getName() ) ) {
+            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName() );
+          } else {
+            //name is already encoded (BISERVER-12569)
+            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath ) + RepositoryFile.SEPARATOR + srcFileNode.getName();
+          }
+        } else {
+          finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath );
+        }
         try {
           if ( copy ) {
-            session.getWorkspace().copy( finalEncodedSrcAbsPath, JcrStringHelper.pathEncode( finalDestAbsPath ) );
+            session.getWorkspace().copy( finalEncodedSrcAbsPath, finalEncodedDestAbsPath );
           } else {
-            session.getWorkspace().move( finalEncodedSrcAbsPath, JcrStringHelper.pathEncode( finalDestAbsPath ) );
+            session.getWorkspace().move( finalEncodedSrcAbsPath, finalEncodedDestAbsPath );
           }
         } catch ( ItemExistsException iae ) {
           throw new UnifiedRepositoryException( ( file.isFolder() ? "Folder " : "File " ) + "with path ["
