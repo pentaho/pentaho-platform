@@ -1,3 +1,20 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ */
 package org.pentaho.platform.engine.core.system.status;
 
 import static org.junit.Assert.assertEquals;
@@ -7,7 +24,6 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
@@ -16,18 +32,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IServerStatusProvider;
 
+/**
+ * 
+ * @author tkafalas
+ *
+ */
 public class PeriodicStatusLoggerTest {
   private final String TEST_MESSAGE1 = "This is a test";
   private final String TEST_MESSAGE2 = "another message";
-  private static org.apache.commons.logging.impl.Log4JLogger implementedlogger;
   private TestAppender appender;
   private static Logger logger;
+  IServerStatusProvider serverStatusProvider;
 
   @Before
   public void setup() {
     appender = new TestAppender();
     logger = Logger.getRootLogger();
     logger.addAppender( appender );
+    serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
   }
 
   @After
@@ -37,16 +59,16 @@ public class PeriodicStatusLoggerTest {
 
   @Test
   public void test() throws Exception {
-    ServerStatusProvider.setStatusMessages( new String[] { TEST_MESSAGE1 } );
+    serverStatusProvider.setStatusMessages( new String[] { TEST_MESSAGE1 } );
     PeriodicStatusLogger.setCycleTime( 500 ); // We want a fast test
     assertEquals( 500, PeriodicStatusLogger.getCycleTime() );
-    ServerStatusProvider.setServerStatus( IServerStatusProvider.ServerStatus.STARTING );
+    serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STARTING );
     PeriodicStatusLogger.start();
     assertEquals( TEST_MESSAGE1, PeriodicStatusLogger.getStatusMessages()[0] );
     assertEquals( IServerStatusProvider.ServerStatus.STARTING, PeriodicStatusLogger.getServerStatus() );
     Thread.sleep( 600 );
     assertEquals( 2, appender.getLog().size() );
-    ServerStatusProvider.setStatusMessages( new String[] { TEST_MESSAGE2 } );
+    serverStatusProvider.setStatusMessages( new String[] { TEST_MESSAGE2 } );
     Thread.sleep( 600 );
     try {
       PeriodicStatusLogger.start();

@@ -17,10 +17,6 @@
 
 package org.pentaho.platform.web.http.filters;
 
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.engine.IServerStatusProvider;
-import org.pentaho.platform.engine.core.system.status.ServerStatusProvider;
-
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -29,6 +25,10 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.engine.IServerStatusProvider;
+import org.pentaho.platform.api.engine.ServerStatusProvider;
 
 public class SystemInitStatusFilter extends ForwardFilter {
 
@@ -46,7 +46,7 @@ public class SystemInitStatusFilter extends ForwardFilter {
     redirectPage = StringUtils.defaultIfBlank( redirectPage, DEFAULT_PAGE );
     setRedirectPath( "/" + redirectPage ); //$NON-NLS-1$ 
 
-    serverStatusProvider = ServerStatusProvider.getInstance();
+    serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
   }
 
   @Override

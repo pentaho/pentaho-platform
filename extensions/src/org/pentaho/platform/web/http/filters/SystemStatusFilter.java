@@ -17,12 +17,11 @@
 
 package org.pentaho.platform.web.http.filters;
 
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.engine.IServerStatusProvider;
-import org.pentaho.platform.engine.core.system.status.ServerStatusProvider;
-
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.engine.IServerStatusProvider;
 
 /**
  * The purpose of this filter is to check to make sure that the platform is properly initialized before letting requests
@@ -39,7 +38,7 @@ public class SystemStatusFilter extends ForwardFilter {
   
   @Override
   protected boolean isEnable() {
-    return IServerStatusProvider.ServerStatus.ERROR == ServerStatusProvider.getInstance().getStatus();
+    return IServerStatusProvider.ServerStatus.ERROR == IServerStatusProvider.LOCATOR.getProvider().getStatus();
   }
 
   public void destroy() {

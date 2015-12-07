@@ -29,7 +29,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
-import org.pentaho.platform.engine.core.system.status.ServerStatusProvider;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.servlet.GetResource;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -193,6 +192,6 @@ public class GetResourceIT {
     verify( response ).setContentType( "text/plain" );
     verify( response ).setStatus( HttpServletResponse.SC_OK );
     verify( response ).setCharacterEncoding( LocaleHelper.getSystemEncoding() );
-    verify( writer ).write( ServerStatusProvider.ServerStatus.STARTED.toString() );
+    verify( writer ).write( IServerStatusProvider.ServerStatus.STARTED.toString() );
   }
 }

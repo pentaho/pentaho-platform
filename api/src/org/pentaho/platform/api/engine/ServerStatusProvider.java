@@ -15,7 +15,7 @@
  *
  * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.platform.engine.core.system.status;
+package org.pentaho.platform.api.engine;
 
 import org.pentaho.platform.api.engine.IServerStatusChangeListener;
 import org.pentaho.platform.api.engine.IServerStatusProvider;
@@ -24,25 +24,16 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * This is intended as a temporary implementation of server status log message provider.
+ * This is the default implementation of server status log message provider.
  * 
  * @author tkafalas
  *
  */
 public class ServerStatusProvider implements IServerStatusProvider {
 
-  private static String[] messages;
-  private static IServerStatusProvider.ServerStatus serverStatus = IServerStatusProvider.ServerStatus.DOWN;
-  private static final List<IServerStatusChangeListener> listeners = new CopyOnWriteArrayList<IServerStatusChangeListener>();
-  private static final ServerStatusProvider serverStatusProvider = new ServerStatusProvider();
-
-  private ServerStatusProvider() {
-    // Access through static methods only
-  }
-
-  public static ServerStatusProvider getInstance() {
-    return serverStatusProvider;
-  }
+  private String[] messages;
+  private IServerStatusProvider.ServerStatus serverStatus = IServerStatusProvider.ServerStatus.DOWN;
+  private final List<IServerStatusChangeListener> listeners = new CopyOnWriteArrayList<IServerStatusChangeListener>();
 
   @Override
   public ServerStatus getStatus() {
@@ -54,9 +45,9 @@ public class ServerStatusProvider implements IServerStatusProvider {
     return messages;
   }
 
-  public static void setServerStatus( IServerStatusProvider.ServerStatus serverStatus ) {
-    if ( ServerStatusProvider.serverStatus != serverStatus ) {
-      ServerStatusProvider.serverStatus = serverStatus;
+  public void setStatus( IServerStatusProvider.ServerStatus serverStatus ) {
+    if ( this.serverStatus != serverStatus ) {
+      this.serverStatus = serverStatus;
       fireOnChange();
     }
   }
@@ -71,14 +62,14 @@ public class ServerStatusProvider implements IServerStatusProvider {
     listeners.remove( serverStatusChangeListener );
   }
 
-  public static void setStatusMessages( String[] messages ) {
-    if ( ServerStatusProvider.messages != messages ) {
-      ServerStatusProvider.messages = messages;
+  public void setStatusMessages( String[] messages ) {
+    if ( this.messages != messages ) {
+      this.messages = messages;
       fireOnChange();
     }
   }
 
-  private static void fireOnChange() {
+  private void fireOnChange() {
     for ( IServerStatusChangeListener listener : listeners ) {
       listener.onStatusChange();
     }

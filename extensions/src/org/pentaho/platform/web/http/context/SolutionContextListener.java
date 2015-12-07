@@ -36,7 +36,6 @@ import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.status.ServerStatusProvider;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -155,13 +154,15 @@ public class SolutionContextListener implements ServletContextListener {
     PentahoSystem.init( applicationContext, true );
 
     final String fullyQualifiedServerUrlOut = fullyQualifiedServerUrl;
-    ServerStatusProvider.getInstance().registerServerStatusChangeListener( new IServerStatusChangeListener() {
+    
+    final IServerStatusProvider serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
+    serverStatusProvider.registerServerStatusChangeListener( new IServerStatusChangeListener() {
       @Override
       public void onStatusChange() {
-        if ( ServerStatusProvider.getInstance().getStatus() != IServerStatusProvider.ServerStatus.STARTING ) {
-          showInitializationMessage( ServerStatusProvider.getInstance().getStatus() == IServerStatusProvider.ServerStatus.STARTED, fullyQualifiedServerUrlOut );
+        if ( serverStatusProvider.getStatus() != IServerStatusProvider.ServerStatus.STARTING ) {
+          showInitializationMessage( serverStatusProvider.getStatus() == IServerStatusProvider.ServerStatus.STARTED, fullyQualifiedServerUrlOut );
         }
-        ServerStatusProvider.getInstance().removeServerStatusChangeListener( this );
+        serverStatusProvider.removeServerStatusChangeListener( this );
       }
     } );
   }
