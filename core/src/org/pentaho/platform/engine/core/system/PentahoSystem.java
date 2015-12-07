@@ -74,6 +74,7 @@ import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.OSGIRuntimeObjectFactory;
+import org.pentaho.platform.engine.core.system.status.PeriodicStatusLogger;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -84,8 +85,6 @@ import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
-import org.pentaho.platform.engine.core.system.status.ServerStatusProvider;
-import org.pentaho.platform.engine.core.system.status.PeriodicStatusLogger;
 
 public class PentahoSystem {
 
@@ -188,6 +187,8 @@ public class PentahoSystem {
       .decorate( PentahoSystem.ACLFileExtensionList );
 
   private static final List logoutListeners = Collections.synchronizedList( new ArrayList() );
+  
+  private static final IServerStatusProvider serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
 
   // TODO even if logging is not configured messages need to make it out to
   // the console
@@ -974,7 +975,7 @@ public class PentahoSystem {
   }
 
   public static void shutdown() {
-    ServerStatusProvider.setServerStatus( IServerStatusProvider.ServerStatus.STOPPING );
+    serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STOPPING );
     if ( LocaleHelper.getLocale() == null ) {
       LocaleHelper.setLocale( Locale.getDefault() );
     }
@@ -1005,7 +1006,7 @@ public class PentahoSystem {
     systemExitPoint();
     setApplicationContext( null );
     PentahoSystem.initializedStatus = PentahoSystem.SYSTEM_NOT_INITIALIZED;
-    ServerStatusProvider.setServerStatus( IServerStatusProvider.ServerStatus.DOWN );
+    serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.DOWN );
   }
 
   public static IApplicationContext getApplicationContext() {
@@ -1427,8 +1428,8 @@ public class PentahoSystem {
   }
 
   private static void doInit() {
-    ServerStatusProvider.setServerStatus( IServerStatusProvider.ServerStatus.STARTING );
-    ServerStatusProvider.setStatusMessages( new String[] { "Caution, the server is initializing. Do not shut down or restart the server at this time." } );
+    serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STARTING );
+    serverStatusProvider.setStatusMessages( new String[] { "Caution, the server is initializing. Do not shut down or restart the server at this time." } );
     PeriodicStatusLogger.start();
 
     // PDI-3438 Scheduled job fails to open a transformation
@@ -1518,7 +1519,7 @@ public class PentahoSystem {
       PentahoSystem.initializedStatus |= PentahoSystem.SYSTEM_LISTENERS_FAILED;
       PentahoSystem.addInitializationFailureMessage( PentahoSystem.SYSTEM_LISTENERS_FAILED, msg );
 
-      ServerStatusProvider.setServerStatus( IServerStatusProvider.ServerStatus.ERROR );
+      serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.ERROR );
     }
 
     // once everything else is initialized, start global actions
@@ -1530,12 +1531,6 @@ public class PentahoSystem {
     if ( debug ) {
       Logger.debug( PentahoSystem.class, "PentahoSystem Init Complete" ); //$NON-NLS-1$
     }
-
-    //For now we'll stop the logger.  Might want to leave this running when we get more implemented.
-    if ( ServerStatusProvider.getInstance().getStatus() != IServerStatusProvider.ServerStatus.ERROR ) {
-      ServerStatusProvider.setServerStatus( IServerStatusProvider.ServerStatus.STARTED );
-    }
-    PeriodicStatusLogger.stop();
 
     // call plugin listeners
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
@@ -1562,5 +1557,11 @@ public class PentahoSystem {
         Logger.warn( PentahoSystem.class, e.getMessage(), e );
       }
     }
+    
+    if ( serverStatusProvider.getStatus() != IServerStatusProvider.ServerStatus.ERROR ) {
+      serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STARTED );
+    }
+    //For now we'll stop the logger.
+    PeriodicStatusLogger.stop();
   }
 }

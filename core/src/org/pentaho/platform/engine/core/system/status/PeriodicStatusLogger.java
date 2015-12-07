@@ -48,7 +48,7 @@ public class PeriodicStatusLogger implements Runnable, IServerStatusChangeListen
   private static PeriodicStatusLogger getInstance() {
     if ( periodicStatusLogger == null ) {
       periodicStatusLogger = new PeriodicStatusLogger();
-      serverStatusProvider = ServerStatusProvider.getInstance();
+      serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
       serverStatusProvider.registerServerStatusChangeListener( periodicStatusLogger );
     }
     return periodicStatusLogger;

@@ -22,6 +22,8 @@
 
 		<dependency org="org.springframework.security"   name="spring-security-core"      rev="${dependency.spring.security.revision}" transitive="false"/>
 		<dependency org="org.springframework"            name="spring-beans"              rev="${dependency.spring.framework.revision}"         transitive="false"/>
+		
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.3" transitive="false"/>
 
 		<!--  internal dependencies -->
 		<dependency org="pentaho" name="pentaho-connections"        rev="${dependency.pentaho-connections.revision}"         changing="true"/>
