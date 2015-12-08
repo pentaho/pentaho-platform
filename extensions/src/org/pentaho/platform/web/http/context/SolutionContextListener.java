@@ -151,7 +151,7 @@ public class SolutionContextListener implements ServletContextListener {
     setSystemCfgFile( context );
     setObjectFactory( context );
 
-    PentahoSystem.init( applicationContext, true );
+    PentahoSystem.init( applicationContext, false );
 
     final String fullyQualifiedServerUrlOut = fullyQualifiedServerUrl;
     
