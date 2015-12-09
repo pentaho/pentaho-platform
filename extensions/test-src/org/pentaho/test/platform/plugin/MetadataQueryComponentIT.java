@@ -12,11 +12,11 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
-
 package org.pentaho.test.platform.plugin;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,52 +59,53 @@ public class MetadataQueryComponentIT {
 
   private MicroPlatform microPlatform;
 
-  @Before
-  public void init0() {
+  private IPentahoResultSet resultSet;
 
+  @Before
+  public void setUp() throws Exception {
     microPlatform = new MicroPlatform( "test-src/solution" );
     microPlatform.define( ISolutionEngine.class, SolutionEngine.class );
     microPlatform.define( IMetadataDomainRepository.class, InMemoryMetadataDomainRepository.class, Scope.GLOBAL );
     microPlatform.define( "connection-SQL", SQLConnection.class );
     microPlatform.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL );
-    FileSystemBackedUnifiedRepository repos =
-        (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
+    FileSystemBackedUnifiedRepository repos = (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
     repos.setRootDir( new File( "test-src/solution" ) );
 
-    // TODO: need to define the IDBDatasourceService.class
     microPlatform.define( IDBDatasourceService.class, JndiDatasourceService.class, Scope.GLOBAL );
-    try {
-      KettleEnvironment.init( false );
-      IMetadataDomainRepository repo = PentahoSystem.get( IMetadataDomainRepository.class, null );
-      Domain domain = getBasicDomain();
-      Domain domain2 = getJdbcDomain();
-      // System.out.println(new SerializationService().serializeDomain(domain));
+    KettleEnvironment.init( false );
+    IMetadataDomainRepository repo = PentahoSystem.get( IMetadataDomainRepository.class, null );
+    Domain domain = getBasicDomain();
+    Domain domain2 = getJdbcDomain();
 
-      Domain domain3 = getJdbcDomain();
-      domain3.setId( "JDBCDOMAIN2" );
-      domain3.getLogicalModels().get( 0 ).setProperty( "max_rows", new BigDecimal( 10 ) );
+    Domain domain3 = getJdbcDomain();
+    domain3.setId( "JDBCDOMAIN2" );
+    domain3.getLogicalModels().get( 0 ).setProperty( "max_rows", new BigDecimal( 10 ) );
 
-      Domain domain4 = getBasicDomain();
-      ( (SqlPhysicalModel) domain4.getPhysicalModels().get( 0 ) ).getDatasource().setDialectType( "MYSQL" );
-      Map<String, String> attributes = new HashMap<String, String>();
-      attributes.put( "QUOTE_ALL_FIELDS", "Y" );
-      ( (SqlPhysicalModel) domain4.getPhysicalModels().get( 0 ) ).getDatasource().setAttributes( attributes );
+    Domain domain4 = getBasicDomain();
+    ( (SqlPhysicalModel) domain4.getPhysicalModels().get( 0 ) ).getDatasource().setDialectType( "MYSQL" );
+    Map<String, String> attributes = new HashMap<String, String>();
+    attributes.put( "QUOTE_ALL_FIELDS", "Y" );
+    ( (SqlPhysicalModel) domain4.getPhysicalModels().get( 0 ) ).getDatasource().setAttributes( attributes );
 
-      domain4.setId( "MYSQL_DOMAIN" );
-      repo.storeDomain( domain, true );
-      repo.storeDomain( domain2, true );
-      repo.storeDomain( domain3, true );
-      repo.storeDomain( domain4, true );
-    } catch ( Exception e ) {
-      e.printStackTrace();
-    }
+    domain4.setId( "MYSQL_DOMAIN" );
+    repo.storeDomain( domain, true );
+    repo.storeDomain( domain2, true );
+    repo.storeDomain( domain3, true );
+    repo.storeDomain( domain4, true );
 
     // JNDI
-
     System.setProperty( "java.naming.factory.initial", "org.osjava.sj.SimpleContextFactory" ); //$NON-NLS-1$ //$NON-NLS-2$
     System.setProperty( "org.osjava.sj.root", "test-src/solution/system/simple-jndi" ); //$NON-NLS-1$ //$NON-NLS-2$
     System.setProperty( "org.osjava.sj.delimiter", "/" ); //$NON-NLS-1$ //$NON-NLS-2$
+  }
 
+  @After
+  public void tearDown() {
+    if ( resultSet != null ) {
+      resultSet.close();
+      resultSet.closeConnection();
+      resultSet = null;
+    }
   }
 
   @Test
@@ -122,49 +123,18 @@ public class MetadataQueryComponentIT {
             + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
-    MetadataQueryComponent component = new MetadataQueryComponent();
-    component.setQuery( mql );
-    component.execute();
+    exucuteComponent( mql, null );
 
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 16, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 16, resultSet.getRowCount() );
 
-    } finally {
-      if ( rs != null ) {
-        rs.close();
-        rs.closeConnection();
-      }
-    }
-
-    component = new MetadataQueryComponent();
     Map<String, Object> inputs = new HashMap<String, Object>();
     inputs.put( "param1", "B%" );
-    component.setInputs( inputs );
-    component.setQuery( mql );
-    component.execute();
 
-    rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 5, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
+    exucuteComponent( mql, inputs );
 
-    } finally {
-      if ( rs != null ) {
-        rs.close();
-        rs.closeConnection();
-      }
-    }
-
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 5, resultSet.getRowCount() );
   }
 
   @Test
@@ -183,45 +153,22 @@ public class MetadataQueryComponentIT {
             + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
-    MetadataQueryComponent component = new MetadataQueryComponent();
-    component.setQuery( mql );
-    component.execute();
+    exucuteComponent( mql, null );
 
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 2, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 2, resultSet.getRowCount() );
 
-    } finally {
-      rs.close();
-      rs.closeConnection();
-    }
-
-    component = new MetadataQueryComponent();
     Map<String, Object> inputs = new HashMap<String, Object>();
-    inputs.put( "param1", new String[] { "BG&E Collectables", "Baane Mini Imports",
-      "Bavarian Collectables Imports, Co.", "Boards & Toys Co." } );
-    component.setInputs( inputs );
-    component.setQuery( mql );
-    component.execute();
+    inputs.put( "param1", new String[] {
+      "BG&E Collectables",
+      "Baane Mini Imports",
+      "Bavarian Collectables Imports, Co.",
+      "Boards & Toys Co." } );
 
-    rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 4, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
+    exucuteComponent( mql, inputs );
 
-    } finally {
-      rs.close();
-      rs.closeConnection();
-    }
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 4, resultSet.getRowCount() );
 
     mql =
         "<mql><domain_id>DOMAIN</domain_id><model_id>MODEL</model_id>"
@@ -239,31 +186,15 @@ public class MetadataQueryComponentIT {
             + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
-    component = new MetadataQueryComponent();
-    component.setQuery( mql );
-    component.execute();
+    exucuteComponent( mql, null );
 
-    rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 15, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] + " [" + obj[1] + "]" );
-      }
-
-    } finally {
-      rs.close();
-      rs.closeConnection();
-    }
-
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 15, resultSet.getRowCount() );
   }
 
   @Test
   public void testPreProcessor() {
-
     microPlatform.define( "sqlGenerator", TestPreSqlGenerator.class );
-
     String mql =
         "<mql><domain_id>DOMAIN</domain_id><model_id>MODEL</model_id>"
             + "<parameters><parameter name=\"param1\" type=\"STRING\" defaultValue=\"A%\"/></parameters>"
@@ -277,31 +208,16 @@ public class MetadataQueryComponentIT {
             + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
-    MetadataQueryComponent component = new MetadataQueryComponent();
-    component.setQuery( mql );
-    component.execute();
-
     // Preprocessor test code will add condition narrowing
     // resultset to 6 rows, all customers starting with 'Au'
+    exucuteComponent( mql, null );
 
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 6, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
-
-    } finally {
-      rs.close();
-      rs.closeConnection();
-    }
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 6, resultSet.getRowCount() );
   }
 
   @Test
   public void testPostProcessor() {
-
     microPlatform.define( "sqlGenerator", TestPostSqlGenerator.class );
 
     String mql =
@@ -317,26 +233,13 @@ public class MetadataQueryComponentIT {
             + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
 
-    MetadataQueryComponent component = new MetadataQueryComponent();
-    component.setQuery( mql );
-    component.execute();
-
     // Postprocessor test code will add condition changing
     // resultset to 10 rows, all contactfirstnames starting with 'A'
 
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 10, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
+    exucuteComponent( mql, null );
 
-    } finally {
-      rs.close();
-      rs.closeConnection();
-    }
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 10, resultSet.getRowCount() );
   }
 
   @Test
@@ -345,70 +248,34 @@ public class MetadataQueryComponentIT {
         "<mql><domain_id>DOMAIN</domain_id><model_id>MODEL</model_id>" + "<selections><selection>"
             + "<view>CATEGORY</view>" + "<column>LC_CUSTOMERNAME</column>" + "</selection>" + "</selections></mql>";
 
-    MetadataQueryComponent component = new MetadataQueryComponent();
-    component.setQuery( mql );
-    component.execute();
+    exucuteComponent( mql, null );
 
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 1, rs.getColumnCount() );
-      Assert.assertEquals( 122, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
-
-    } finally {
-      if ( rs != null ) {
-        rs.close();
-        rs.closeConnection();
-      }
-    }
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 1, resultSet.getColumnCount() );
+    Assert.assertEquals( 122, resultSet.getRowCount() );
   }
 
   @Test
   public void testMysqlComponent() {
 
     // first, test default behavior of forceDb = false
-
     String mql =
         "<mql><domain_id>MYSQL_DOMAIN</domain_id><model_id>MODEL</model_id>" + "<selections><selection>"
             + "<view>CATEGORY</view>" + "<column>LC_CUSTOMERNAME</column>" + "</selection>" + "</selections></mql>";
 
-    MetadataQueryComponent component = new MetadataQueryComponent();
-    component.setQuery( mql );
-    boolean result = component.execute();
+    exucuteComponent( mql, null );
 
-    Assert.assertTrue( result );
-
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 1, rs.getColumnCount() );
-      Assert.assertEquals( 122, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
-
-    } finally {
-      if ( rs != null ) {
-        rs.close();
-        rs.closeConnection();
-      }
-    }
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 1, resultSet.getColumnCount() );
+    Assert.assertEquals( 122, resultSet.getRowCount() );
 
     // second, test with forceDb = true
-
-    MetadataQueryComponent component2 = new MetadataQueryComponent();
-    component2.setQuery( mql );
     Map<String, Object> inputs = new HashMap<String, Object>();
     inputs.put( "forcedbdialect", "true" );
-    component2.setInputs( inputs );
-    result = component2.execute();
-    Assert.assertFalse( result );
-    Assert.assertNull( component2.getResultSet() );
+
+    exucuteComponent( mql, inputs );
+
+    Assert.assertNull( resultSet );
   }
 
   @Test
@@ -417,26 +284,11 @@ public class MetadataQueryComponentIT {
         "<mql><domain_id>JDBCDOMAIN</domain_id><model_id>MODEL</model_id>" + "<selections><selection>"
             + "<view>CATEGORY</view>" + "<column>LC_CUSTOMERNAME</column>" + "</selection>" + "</selections></mql>";
 
-    MetadataQueryComponent component = new MetadataQueryComponent();
-    component.setQuery( mql );
-    component.execute();
+    exucuteComponent( mql, null );
 
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 1, rs.getColumnCount() );
-      Assert.assertEquals( 122, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
-
-    } finally {
-      if ( rs != null ) {
-        rs.close();
-        rs.closeConnection();
-      }
-    }
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 1, resultSet.getColumnCount() );
+    Assert.assertEquals( 122, resultSet.getRowCount() );
   }
 
   @Test
@@ -445,29 +297,14 @@ public class MetadataQueryComponentIT {
         "<mql><domain_id>{domain}</domain_id><model_id>MODEL</model_id>" + "<selections><selection>"
             + "<view>CATEGORY</view>" + "<column>LC_CUSTOMERNAME</column>" + "</selection>" + "</selections></mql>";
 
-    MetadataQueryComponent component = new MetadataQueryComponent();
-    Map<String, Object> map = new HashMap<String, Object>();
-    map.put( "domain", "JDBCDOMAIN" );
-    component.setInputs( map );
-    component.setQuery( mql );
-    component.execute();
+    Map<String, Object> inputs = new HashMap<String, Object>();
+    inputs.put( "domain", "JDBCDOMAIN" );
 
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 1, rs.getColumnCount() );
-      Assert.assertEquals( 122, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
+    exucuteComponent( mql, inputs );
 
-    } finally {
-      if ( rs != null ) {
-        rs.close();
-        rs.closeConnection();
-      }
-    }
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 1, resultSet.getColumnCount() );
+    Assert.assertEquals( 122, resultSet.getRowCount() );
   }
 
   @Test
@@ -476,52 +313,24 @@ public class MetadataQueryComponentIT {
         "<mql><domain_id>JDBCDOMAIN2</domain_id><model_id>MODEL</model_id>" + "<selections><selection>"
             + "<view>CATEGORY</view>" + "<column>LC_CUSTOMERNAME</column>" + "</selection>" + "</selections></mql>";
 
+    exucuteComponent( mql, null );
+
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 1, resultSet.getColumnCount() );
+    Assert.assertEquals( 10, resultSet.getRowCount() );
+
     MetadataQueryComponent component = new MetadataQueryComponent();
-    component.setQuery( mql );
-    component.execute();
-
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 1, rs.getColumnCount() );
-      Assert.assertEquals( 10, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
-
-    } finally {
-      if ( rs != null ) {
-        rs.close();
-        rs.closeConnection();
-      }
-    }
-
-    component = new MetadataQueryComponent();
     component.setQuery( mql );
     component.setMaxRows( 100 );
     component.execute();
 
-    rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 1, rs.getColumnCount() );
-      Assert.assertEquals( 100, rs.getRowCount() );
-      Object[] obj;
-      while ( ( obj = rs.next() ) != null ) {
-        System.out.println( obj[0] );
-      }
-
-    } finally {
-      if ( rs != null ) {
-        rs.close();
-        rs.closeConnection();
-      }
-    }
-
+    resultSet = component.getResultSet();
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 1, resultSet.getColumnCount() );
+    Assert.assertEquals( 100, resultSet.getRowCount() );
   }
-  
-    @Test
+
+  @Test
   public void testEmptyInputs() {
     String mql =
         "<mql><domain_id>DOMAIN</domain_id><model_id>MODEL</model_id>"
@@ -536,23 +345,44 @@ public class MetadataQueryComponentIT {
             + "<constraint><operator>AND</operator><condition>EQUALS([CATEGORY.LC_CUSTOMERNAME];"
             + "[param:param1])</condition></constraint>"
             + "</constraints>" + "</mql>";
-
-    MetadataQueryComponent component = new MetadataQueryComponent();
     Map<String, Object> inputs = new HashMap<String, Object>();
     inputs.put( "param1", new String[] { } );
+
+    exucuteComponent( mql, inputs );
+
+    Assert.assertNotNull( resultSet );
+    Assert.assertEquals( 0, resultSet.getRowCount() );
+  }
+
+  @Test
+  public void testEmptyXMLHelper() {
+    MetadataQueryComponent component = new MetadataQueryComponent();
+    component.setQueryModelXmlHelper( "NonExistClassName" );
+    Assert.assertFalse( component.execute() );
+  }
+
+  @Test
+  public void testEmptyQuery() {
+    MetadataQueryComponent component = new MetadataQueryComponent();
+    Assert.assertFalse( component.execute() );
+  }
+
+  @Test
+  public void testValidate() {
+    MetadataQueryComponent component = new MetadataQueryComponent();
+    Assert.assertFalse( component.validate() );
+
+    component.setQuery( "MQL" );
+    Assert.assertTrue( component.validate() );
+  }
+
+  private void exucuteComponent( String mql, Map<String, Object> inputs ) {
+    MetadataQueryComponent component = new MetadataQueryComponent();
     component.setInputs( inputs );
     component.setQuery( mql );
     component.execute();
-
-    IPentahoResultSet rs = component.getResultSet();
-    try {
-      Assert.assertNotNull( rs );
-      Assert.assertEquals( 0, rs.getRowCount() );
-
-    } finally {
-      rs.close();
-      rs.closeConnection();
-    }
+    //result set will be closed after tear down method
+    resultSet = component.getResultSet();
   }
 
   public Domain getJdbcDomain() {
@@ -568,7 +398,6 @@ public class MetadataQueryComponentIT {
   }
 
   public Domain getBasicDomain() {
-
     SqlPhysicalModel model = new SqlPhysicalModel();
     SqlDataSource dataSource = new SqlDataSource();
     dataSource.setDatabaseName( "SampleData" );
@@ -638,5 +467,4 @@ public class MetadataQueryComponentIT {
     return domain;
   }
 
-  // TODO: Write test for inline ETL
 }

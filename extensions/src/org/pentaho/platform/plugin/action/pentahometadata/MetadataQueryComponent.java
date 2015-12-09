@@ -20,7 +20,6 @@ package org.pentaho.platform.plugin.action.pentahometadata;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.commons.connection.IPentahoResultSet;
-import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.metadata.model.IMetadataQueryExec;
 import org.pentaho.metadata.query.model.Parameter;
 import org.pentaho.metadata.query.model.Query;
@@ -255,12 +254,7 @@ public class MetadataQueryComponent {
       resultSet = executor.executeQuery( queryObject );
       if ( resultSet != null && !live && executor.isLive() ) {
         // read the results and cache them
-        MemoryResultSet cachedResultSet = new MemoryResultSet( resultSet.getMetaData() );
-        Object[] rowObjects = resultSet.next();
-        while ( rowObjects != null ) {
-          cachedResultSet.addRow( rowObjects );
-          rowObjects = resultSet.next();
-        }
+        IPentahoResultSet cachedResultSet = resultSet.memoryCopy();
         resultSet.close();
         resultSet.closeConnection();
         resultSet = cachedResultSet;

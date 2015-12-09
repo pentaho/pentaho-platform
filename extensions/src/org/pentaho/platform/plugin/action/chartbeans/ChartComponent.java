@@ -159,10 +159,6 @@ public class ChartComponent {
       throw new ChartBootException( bootException );
     }
 
-    // Transform IPentahoResultSet to an object array
-
-    Object[][] data = processChartData( resultSet, valueColumn );
-
     if ( chartModel.getTheme() != null ) {
       AbstractChartThemeFactory chartThemeFactory = new AbstractChartThemeFactory() {
         protected List<File> getThemeFiles() {
@@ -202,12 +198,14 @@ public class ChartComponent {
 
     InputStream is = null;
 
+    // Transform IPentahoResultSet to an object array
+    Object[][] data = processChartData( resultSet, valueColumn );
     try {
       IChartLinkGenerator chartLinkGenerator =
           contentLinkingTemplate == null ? null : new ChartLinkGenerator( contentLinkingTemplate );
       IChartDataModel chartDataModel =
           ChartBeanFactory.createChartDataModel( data, scalingFactor, convertNullsToZero, valueColumn, seriesColumn,
-            categoryColumn, chartModel );
+            categoryColumn, chartModel, resultSet.getMetaData() );
       IOutput output = ChartBeanFactory.createChart( chartModel, chartDataModel, chartLinkGenerator );
       // Wrap output as necessary
       if ( OpenFlashChartPlugin.PLUGIN_ID.equals( chartEngine ) ) {
