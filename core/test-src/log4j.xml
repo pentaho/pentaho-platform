@@ -49,7 +49,7 @@
 
   <appender name="PENTAHOCONSOLE" class="org.apache.log4j.ConsoleAppender">
     <param name="Target" value="System.out"/>
-    <param name="Threshold" value="WARN"/>
+    <param name="Threshold" value="INFO"/>
 
     <layout class="org.apache.log4j.PatternLayout">
       <!-- The default pattern: Date Priority [Category] Message\n -->
@@ -93,6 +93,11 @@
 
   <category name="com.pentaho">
     <priority value="WARN"/>
+    <appender-ref ref="PENTAHOFILE"/>
+  </category>
+  
+  <category name="org.pentaho.platform.engine.core.system.status">
+    <priority value="INFO"/>
     <appender-ref ref="PENTAHOFILE"/>
   </category>
 
