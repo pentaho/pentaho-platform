@@ -26,21 +26,13 @@ import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPlatformPlugin;
-import org.pentaho.platform.api.engine.IPlatformReadyListener;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ISystemSettings;
-import org.pentaho.platform.api.engine.PluginLifecycleException;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -76,33 +68,6 @@ public class PentahoSystemTest {
     initXMLFactories( false );
 
     Assert.assertEquals( testPropertyValue, System.getProperty( testSystemPropertyName ) );
-  }
-
-  @Test
-  public void initPluginListeners() throws Exception {
-    IPluginManager pluginManager = mock( IPluginManager.class );
-    IPluginProvider pluginProvider = mock( IPluginProvider.class );
-    PentahoSystem.registerObject( pluginManager );
-    PentahoSystem.registerObject( pluginProvider );
-    List<IPlatformPlugin> pluginList = new ArrayList<>();
-    IPlatformPlugin pluginA = mock( IPlatformPlugin.class );
-    IPlatformPlugin pluginB = mock( IPlatformPlugin.class );
-    pluginList.add( pluginA );
-    pluginList.add( pluginB );
-    when( pluginProvider.getPlugins( any( IPentahoSession.class ) ) ).thenReturn( pluginList );
-
-    when( pluginA.getLifecycleListenerClassname() ).thenReturn( TestReadyListener.class.getName() );
-    when( pluginA.getId() ).thenReturn( "PluginA" );
-    when( pluginB.getLifecycleListenerClassname() ).thenReturn( "" );
-
-    ClassLoader classLoader = mock( ClassLoader.class );
-    when( pluginManager.getClassLoader( "PluginA" ) ).thenReturn( classLoader );
-    Class clazz = TestReadyListener.class;
-    when( classLoader.loadClass( TestReadyListener.class.getName() ) ).thenReturn( clazz );
-
-    PentahoSystem.init();
-
-    assertTrue( TestReadyListener.readyCalled );
   }
 
   private void initXMLFactories( boolean factoriesInPentahoXML ) throws Exception {
@@ -146,19 +111,5 @@ public class PentahoSystemTest {
     PentahoSystem.registerObjectFactory( objectFactory );
 
     PentahoSystem.init();
-  }
-
-  static class TestReadyListener implements IPlatformReadyListener {
-    static boolean readyCalled = false;
-
-    public TestReadyListener() {
-      readyCalled = false;
-    }
-
-    @Override public void ready() throws PluginLifecycleException {
-      // to verify this is called in the new instance created within the listener, we are going to
-      // set a static property that we can check. we don't have the luxury of getting at the actual instance.
-      readyCalled = true;
-    }
   }
 }
