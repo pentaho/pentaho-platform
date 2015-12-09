@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -28,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IServerStatusProvider;
-import org.pentaho.platform.api.engine.ServerStatusProvider;
 
 public class SystemInitStatusFilter extends ForwardFilter {
 
@@ -64,11 +64,22 @@ public class SystemInitStatusFilter extends ForwardFilter {
         path += "?" + httpRq.getQueryString();
       }
     }
-    if ( path.equalsIgnoreCase( "/content" ) || checkIgnoredResources( path ) ) {
+
+    if ( isInitStatusPageFiles( path ) ) {
+      RequestDispatcher dispatcher = rq.getRequestDispatcher( path );
+      dispatcher.forward( rq, rs );
+      return;
+    }
+
+    if ( checkIgnoredResources( path ) ) {
       filterChain.doFilter( rq, rs );
     } else {
       super.doFilter( rq, rs, filterChain );
     }
+  }
+
+  private boolean isInitStatusPageFiles( String path ) {
+    return path.startsWith( "/html/" );
   }
 
   private boolean checkIgnoredResources( String uri ) {
