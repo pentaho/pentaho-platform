@@ -114,7 +114,11 @@
    
    <category name="org.pentaho.di.monitor">
       <priority value="ERROR"/>
-   </category>	
+   </category>
+   
+   <category name="org.pentaho.platform.engine.core.system.status">
+    <priority value="INFO"/>
+  </category>	
    
    <!-- =========================== -->
    <!-- Repository Import Log Level -->
