@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +48,6 @@ public class BootTest {
   @Test
   public void testBoot() throws Exception {
     PentahoSystemBoot boot = new PentahoSystemBoot();
-    boot.setUseThreadForStart( false );
     boot.setFilePath( "test-src/solution" );
 
     IPentahoObjectFactory factory = boot.getFactory();
@@ -56,7 +56,7 @@ public class BootTest {
     assertTrue( "object factory not definable", factory instanceof IPentahoDefinableObjectFactory );
 
     boot.define( ISolutionEngine.class.getSimpleName(), Object1.class.getName(),
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
     boot.define( "MyObject", Object1.class.getName(), IPentahoDefinableObjectFactory.Scope.GLOBAL );
     boot.define( "MyObject", Object2.class.getName(), IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
@@ -83,10 +83,9 @@ public class BootTest {
   @Test
   public void testBootListeners() throws Exception {
     PentahoSystemBoot boot = new PentahoSystemBoot();
-    boot.setUseThreadForStart( false );
     boot.setFilePath( "test-src/solution" );
     boot.define( ISolutionEngine.class.getSimpleName(), Object1.class.getName(),
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
     TestLifecycleListener lifecycleListener1 = new TestLifecycleListener();
     TestLifecycleListener lifecycleListener2 = new TestLifecycleListener();
@@ -133,10 +132,9 @@ public class BootTest {
   @Test
   public void testBootActions() throws Exception {
     PentahoSystemBoot boot = new PentahoSystemBoot();
-    boot.setUseThreadForStart( false );
     boot.setFilePath( "test-src/solution" );
     boot.define( ISolutionEngine.class.getSimpleName(), Object1.class.getName(),
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
     TestStartupAction startupAction1 = new TestStartupAction();
     TestStartupAction startupAction2 = new TestStartupAction();
@@ -175,7 +173,6 @@ public class BootTest {
   @Test
   public void testBootSettings() throws Exception {
     PentahoSystemBoot boot = new PentahoSystemBoot();
-    boot.setUseThreadForStart( false );
     boot.setFilePath( "test-src/solution" );
 
     IPentahoObjectFactory factory = boot.getFactory();
@@ -191,17 +188,16 @@ public class BootTest {
   public void testReadOnlyFactory() {
 
     PentahoSystemBoot boot = new PentahoSystemBoot();
-    boot.setUseThreadForStart( false );
     boot.setFilePath( "test-src/solution" );
     TestObjectFactory objectFactory = new TestObjectFactory();
     boot.setFactory( objectFactory );
 
     boot.define( ISolutionEngine.class.getSimpleName(), Object1.class.getName(),
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
   }
 
   @Test
-  public void testObjectFactoryAvailableThruShutdown() {
+  public void testObjectFactoryAvailableThruShutdown(){
 
     final AtomicBoolean objectFactoryWasValid = new AtomicBoolean( false );
     IPentahoSystemListener listener = new IPentahoSystemListener() {
@@ -218,13 +214,13 @@ public class BootTest {
 
       }
     };
-    PentahoSystem.setSystemListeners( Collections.singletonList( listener ) );
+    PentahoSystem.setSystemListeners( Collections.singletonList( listener ));
     PentahoSystem.init();
 
     // Add an object to PentahoSystem, then verify that it can be retrieved
     PentahoSystem.registerObject( "Testing" );
     String s = PentahoSystem.get( String.class );
-    assertEquals( "Testing", s );
+    assertEquals( "Testing", s);
 
     PentahoSystem.shutdown();
     // At this point the shutdown() method on the listener has been called, check the boolean flag.
@@ -237,7 +233,7 @@ public class BootTest {
    * Tests that multiple calls to PentahoSystem.init() without an intervening shutdown() results in an error being
    * logged.
    */
-  public void testMultipleInitWithoutShutdownLogsError() {
+  public void testMultipleInitWithoutShutdownLogsError(){
     // capture current length of exceptions
 
     int currentExceptionNo = ( Logger.getExceptions() == null ) ? 0 : Logger.getExceptions().size();
@@ -247,8 +243,8 @@ public class BootTest {
     assertTrue( "Exception was not thrown as expected", exceptions.size() > currentExceptionNo );
     StackTraceElement stackTraceElement = exceptions.get( currentExceptionNo ).getStackTrace()[ 0 ];
     assertEquals( PentahoSystem.class.getName(), stackTraceElement.getClassName() );
-    assertEquals( "init", stackTraceElement.getMethodName() );
-    assertEquals("'Init' method was run twice without 'shutdown'", exceptions.get( 0 ).getMessage() );
+    assertEquals( "init", stackTraceElement.getMethodName());
+    assertEquals("'Init' method was run twice without 'shutdown'", exceptions.get(0).getMessage());
 
   }
 }

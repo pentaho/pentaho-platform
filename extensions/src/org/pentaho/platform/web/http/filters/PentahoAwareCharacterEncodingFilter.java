@@ -12,75 +12,74 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.filters;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.web.http.messages.Messages;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
-// Filters container instead web.xml changes
-public class PentahoAwareCharacterEncodingFilter implements Filter {
+/**
+ * Looks at the <code>context-param</code> named <code>encoding</code> in <code>web.xml</code> for its encoding
+ * selection. If not found, falls back to method used by superclass. Finally, defaults to <code>UTF-8</code>.
+ * 
+ * @author mlowery
+ */
+public class PentahoAwareCharacterEncodingFilter extends SetCharacterEncodingFilter {
 
-  private List<Filter> filters;
+  // ~ Static fields/initializers ============================================
+
+  private static final Log logger = LogFactory.getLog( PentahoAwareCharacterEncodingFilter.class );
+
+  public static final String INIT_PARAM_ENCODING = "encoding"; //$NON-NLS-1$
+
+  public static final String DEFAULT_CHAR_ENCODING = "UTF-8"; //$NON-NLS-1$
+
+  // ~ Instance fields =======================================================
+
+  // ~ Constructors ==========================================================
+
+  public PentahoAwareCharacterEncodingFilter() {
+    super();
+  }
+
+  // ~ Methods ===============================================================
 
   @Override
-  public void init( FilterConfig config ) throws ServletException {
-    this.filters = new ArrayList<Filter>( 2 );
-
-    addFilter( new PentahoAwareCharacterEncodingFilterImpl(), config );
-    addFilter( new SystemInitStatusFilter(), config );
-  }
-
-  private void addFilter( Filter filter, FilterConfig config ) throws ServletException {
-    filter.init( config );
-    this.filters.add( filter );
-  }
-
-  @Override
-  public void doFilter( ServletRequest rq, ServletResponse rs, FilterChain chain ) throws IOException, ServletException {
-    FilterChainWrap chainWrap = new FilterChainWrap( this.filters );
-    chainWrap.setFilterChain( chain );
-    chainWrap.doFilter( rq, rs );
-  }
-
-  @Override
-  public void destroy() {
-    for ( Filter filter : filters ) {
-      filter.destroy();
-    }
-  }
-
-  class FilterChainWrap implements FilterChain {
-
-    Iterator<Filter> filterIterator;
-    FilterChain chain;
-
-    public FilterChainWrap( List<Filter> filters ) {
-      this.filterIterator = filters.iterator();
-    }
-
-    @Override
-    public void doFilter( ServletRequest rq, ServletResponse rs ) throws IOException, ServletException {
-      if ( this.filterIterator.hasNext() ) {
-        this.filterIterator.next().doFilter( rq, rs, this );
-      } else {
-        this.chain.doFilter( rq, rs );
+  protected String selectEncoding( final ServletRequest request ) {
+    if ( request instanceof HttpServletRequest ) {
+      HttpServletRequest httpRequest = (HttpServletRequest) request;
+      String enc =
+          httpRequest.getSession( true ).getServletContext().getInitParameter(
+            PentahoAwareCharacterEncodingFilter.INIT_PARAM_ENCODING );
+      if ( StringUtils.isNotBlank( enc ) ) {
+        if ( PentahoAwareCharacterEncodingFilter.logger.isDebugEnabled() ) {
+          PentahoAwareCharacterEncodingFilter.logger.debug( Messages.getInstance().getString(
+            "PentahoAwareCharacterEncodingFilter.ENCODING_IN_CTX", enc ) ); //$NON-NLS-1$
+        }
+        return enc;
       }
     }
-
-    public void setFilterChain( FilterChain chain ) {
-      this.chain = chain;
+    String enc = super.selectEncoding( request );
+    if ( StringUtils.isNotBlank( enc ) ) {
+      if ( PentahoAwareCharacterEncodingFilter.logger.isDebugEnabled() ) {
+        PentahoAwareCharacterEncodingFilter.logger.debug( Messages.getInstance().getString(
+          "PentahoAwareCharacterEncodingFilter.ENCODING_IN_FILTER_INIT", enc ) ); //$NON-NLS-1$
+      }
+      return enc;
+    } else {
+      if ( PentahoAwareCharacterEncodingFilter.logger.isWarnEnabled() ) {
+        PentahoAwareCharacterEncodingFilter.logger.warn( Messages.getInstance().getString(
+            "PentahoAwareCharacterEncodingFilter.COULD_NOT_FIND_ENCODING", //$NON-NLS-1$
+            PentahoAwareCharacterEncodingFilter.DEFAULT_CHAR_ENCODING ) );
+      }
+      return PentahoAwareCharacterEncodingFilter.DEFAULT_CHAR_ENCODING;
     }
   }
 

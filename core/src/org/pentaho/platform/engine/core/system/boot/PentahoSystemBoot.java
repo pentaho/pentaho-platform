@@ -86,8 +86,6 @@ public class PentahoSystemBoot {
 
   private boolean initialized = false;
 
-  private boolean useThreadForStart = true;
-
   /**
    * Creates a minimal ready-to-run platform. Use this constructor if you want to accept all the defaults for your
    * in-memory platform.
@@ -205,7 +203,7 @@ public class PentahoSystemBoot {
   public boolean start() throws PlatformInitializationException {
     initialized = false;
     try {
-      initialized = PentahoSystem.init( createApplicationContext(), useThreadForStart );
+      initialized = PentahoSystem.init( createApplicationContext() );
       // we want to wrap any exception that causes initialization to fail, so we will
       // catch throwable
     } catch ( Throwable t ) {
@@ -454,11 +452,4 @@ public class PentahoSystemBoot {
     return this;
   }
 
-  public boolean isUseThreadForStart() {
-    return useThreadForStart;
-  }
-
-  public void setUseThreadForStart( boolean useThreadForStart ) {
-    this.useThreadForStart = useThreadForStart;
-  }
 }
