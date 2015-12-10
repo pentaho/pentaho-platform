@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -170,22 +170,21 @@ public class FileResource extends AbstractJaxRSResource {
    *    </pre>
    */
   @GET
-  @Path ( "/backup" )
-  @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully exported the existing Pentaho System" ),
-    @ResponseCode ( code = 403, condition = "User does not have administrative permissions"),
-    @ResponseCode ( code = 500, condition = "Failure to complete the export." )
-  } )
+  @Path( "/backup" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully exported the existing Pentaho System" ),
+    @ResponseCode( code = 403, condition = "User does not have administrative permissions" ),
+    @ResponseCode( code = 500, condition = "Failure to complete the export." ) } )
   public Response systemBackup( @HeaderParam ( "user-agent" ) String userAgent ) {
-    FileService.DownloadFileWrapper wrapper = null;
-    try{
+    FileService.DownloadFileWrapper wrapper;
+    try {
       wrapper = fileService.systemBackup( userAgent );
       return buildZipOkResponse( wrapper );
-    } catch( IOException e ) {
+    } catch ( IOException e ) {
       throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
-    } catch( ExportException e ) {
+    } catch ( ExportException e ) {
       throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
-    } catch( SecurityException e ) {
+    } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
     }
   }
@@ -205,8 +204,7 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully imported the Pentaho System" ),
     @ResponseCode( code = 403, condition = "User does not have administrative permissions" ),
-    @ResponseCode( code = 500, condition = "Failure to complete the import." )
-  } )
+    @ResponseCode( code = 500, condition = "Failure to complete the import." ) } )
   public Response systemRestore( @FormDataParam( "fileUpload" ) InputStream fileUpload, @FormDataParam ( "overwriteFile" ) String overwriteFile ) {
     try {
       fileService.systemRestore( fileUpload, overwriteFile );
@@ -217,7 +215,7 @@ public class FileResource extends AbstractJaxRSResource {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
     }
   }
-  
+
   /**
    * Move a list of files to the user's trash folder.
    *
@@ -230,13 +228,12 @@ public class FileResource extends AbstractJaxRSResource {
    * @return A jax-rs Response object with the appropriate status code, header, and body.
    */
   @PUT
-  @Path ( "/delete" )
-  @Consumes ( { WILDCARD } )
-  @Facet ( name = "Unsupported" )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully moved file to trash." ),
-      @ResponseCode ( code = 500, condition = "Failure move the file to the trash." )
-  } )
+  @Path( "/delete" )
+  @Consumes( { WILDCARD } )
+  @Facet( name = "Unsupported" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully moved file to trash." ),
+    @ResponseCode( code = 500, condition = "Failure move the file to the trash." ) } )
   public Response doDeleteFiles( String params ) {
     try {
       fileService.doDeleteFiles( params );
@@ -260,8 +257,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the comma seperated list of fileIds from the system." ),
-    @ResponseCode ( code = 403, condition = "Failure to delete the file due to path not found." )
-  } )
+    @ResponseCode ( code = 403, condition = "Failure to delete the file due to path not found." ) } )
   public Response doDeleteFilesPermanent( String params ) {
     try {
       fileService.doDeleteFilesPermanent( params );
@@ -291,8 +287,7 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully moved the file." ),
       @ResponseCode ( code = 403, condition = "Failure to move the file due to path not found." ),
-      @ResponseCode ( code = 500, condition = "Failure to move the file." )
-  } )
+      @ResponseCode ( code = 500, condition = "Failure to move the file." ) } )
   public Response doMove( @PathParam ( "pathId" ) String destPathId, String params ) {
     try {
       fileService.doMoveFiles( destPathId, params );
@@ -323,8 +318,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully restored the file." ),
-      @ResponseCode ( code = 403, condition = "Failure to Restore the file." ),
-  } )
+      @ResponseCode ( code = 403, condition = "Failure to Restore the file." ), } )
   public Response doRestore( String params ) {
     try {
       fileService.doRestoreFiles( params );
@@ -362,12 +356,11 @@ public class FileResource extends AbstractJaxRSResource {
   @Consumes ( { WILDCARD } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully created the file." ),
-      @ResponseCode ( code = 403, condition = "Failure to create the file due to permissions, file already exists, or invalid path id." )
-  } )
+      @ResponseCode ( code = 403, condition = "Failure to create the file due to permissions, file already exists, or invalid path id." ) } )
   public Response createFile( @PathParam ( "pathId" ) String pathId, InputStream fileContents ) {
     try {
       checkCorrectExtension( pathId );
-      
+
       fileService.createFile( httpServletRequest.getCharacterEncoding(), pathId, fileContents );
       return buildOkResponse();
     } catch ( Throwable t ) {
@@ -395,8 +388,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully copied the file." ),
-      @ResponseCode ( code = 500, condition = "Failure to Copy file due to exception while getting file with id fileid..." ),
-  } )
+      @ResponseCode ( code = 500, condition = "Failure to Copy file due to exception while getting file with id fileid..." ), } )
   public Response doCopyFiles( @PathParam ( "pathId" ) String pathId, @QueryParam ( "mode" ) Integer mode,
                                String params ) {
     try {
@@ -433,8 +425,7 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully get the file or directory." ),
       @ResponseCode ( code = 404, condition = "Failed to find the file or resource." ),
-      @ResponseCode ( code = 500, condition = "Failed to open content." )
-  } )
+      @ResponseCode ( code = 500, condition = "Failed to open content." ) } )
   public Response doGetFileOrDir( @PathParam ( "pathId" ) String pathId ) {
     try {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
@@ -513,9 +504,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully get the file or directory." ),
-    @ResponseCode ( code = 404, condition = "Failed to find the file or resource." )
-  } )
-
+    @ResponseCode ( code = 404, condition = "Failed to find the file or resource." ) } )
   // have to accept anything for browsers to work
   public String doIsParameterizable( @PathParam ( "pathId" ) String pathId ) throws FileNotFoundException {
     boolean hasParameterUi = false;
@@ -606,13 +595,11 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 400, condition = "Usually a bad pathId." ),
       @ResponseCode ( code = 403, condition = "pathId points at a file the user doesn't have access to." ),
       @ResponseCode ( code = 404, condition = "File not found." ),
-      @ResponseCode ( code = 500, condition = "Failed to download file for another reason." )
-
-  } )
+      @ResponseCode ( code = 500, condition = "Failed to download file for another reason." ) } )
   // have to accept anything for browsers to work
   public Response doGetFileOrDirAsDownload( @HeaderParam ( "user-agent" ) String userAgent,
                                             @PathParam ( "pathId" ) String pathId, @QueryParam ( "withManifest" ) String strWithManifest ) {
-    FileService.DownloadFileWrapper wrapper = null;
+    FileService.DownloadFileWrapper wrapper;
     try {
       wrapper = fileService.doGetFileOrDirAsDownload( userAgent, pathId, strWithManifest );
       return buildZipOkResponse( wrapper );
@@ -658,8 +645,7 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Successfully retrieved file." ),
       @ResponseCode ( code = 403, condition = "Failed to retrieve file due to permission problem." ),
       @ResponseCode ( code = 404, condition = "Failed to retrieve file due because file was not found." ),
-      @ResponseCode ( code = 500, condition = "Failed to download file because of some other error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Failed to download file because of some other error." ) } )
   public Response doGetFileAsInline( @PathParam ( "pathId" ) String pathId ) {
     try {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileAsInline( pathId );
@@ -704,9 +690,7 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Successfully saved file." ),
       @ResponseCode ( code = 403, condition = "Failed to save acls due to missing or incorrect properties." ),
       @ResponseCode ( code = 400, condition = "Failed to save acls due to malformed xml." ),
-      @ResponseCode ( code = 500, condition = "Failed to save acls due to another error." )
-  } )
-
+      @ResponseCode ( code = 500, condition = "Failed to save acls due to another error." ) } )
   public Response setFileAcls( @PathParam ( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
     try {
       fileService.setFileAcls( pathId, acl );
@@ -774,8 +758,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved file." ),
-      @ResponseCode ( code = 500, condition = "Failed to download file because of some other error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Failed to download file because of some other error." ) } )
   @Facet ( name = "Unsupported" )
   public Response doSetContentCreator( @PathParam ( "pathId" ) String pathId, RepositoryFileDto contentCreator ) {
     try {
@@ -834,8 +817,7 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved locale information." ),
       @ResponseCode ( code = 404, condition = "Failed to retrieve locales because the file was not found." ),
-      @ResponseCode ( code = 500, condition = "Unable to retrieve locales due to some other error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Unable to retrieve locales due to some other error." ) } )
   public List<LocaleMapDto> doGetFileLocales( @PathParam ( "pathId" ) String pathId ) {
     List<LocaleMapDto> locales = new ArrayList<LocaleMapDto>();
     try {
@@ -883,8 +865,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved locale properties." ),
-      @ResponseCode ( code = 500, condition = "Unable to retrieve locale properties due to some other error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Unable to retrieve locale properties due to some other error." ) } )
   public List<StringKeyStringValueDto> doGetLocaleProperties( @PathParam ( "pathId" ) String pathId,
                                                               @QueryParam ( "locale" ) String locale ) {
     return fileService.doGetLocaleProperties( pathId, locale );
@@ -917,8 +898,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully updated locale properties." ),
-      @ResponseCode ( code = 500, condition = "Unable to update locale properties due to some other error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Unable to update locale properties due to some other error." ) } )
   public Response doSetLocaleProperties( @PathParam ( "pathId" ) String pathId, @QueryParam ( "locale" ) String locale,
                                          List<StringKeyStringValueDto> properties ) {
     try {
@@ -955,8 +935,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully deleted the locale." ),
-      @ResponseCode ( code = 500, condition = "Unable to delete the locale properties due to some other error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Unable to delete the locale properties due to some other error." ) } )
   public Response doDeleteLocale( @PathParam ( "pathId" ) String pathId, @QueryParam ( "locale" ) String locale ) {
     try {
       fileService.doDeleteLocale( pathId, locale );
@@ -999,8 +978,7 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the properties of the root directory." ),
       @ResponseCode ( code = 404, condition = "Unable to retrieve the properties of the root directory due to file not found error." ),
-      @ResponseCode ( code = 500, condition = "Unable to retrieve the properties of the root directory due to some other error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Unable to retrieve the properties of the root directory due to some other error." ) } )
   public RepositoryFileDto doGetRootProperties() {
     return fileService.doGetRootProperties();
   }
@@ -1028,8 +1006,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the permissions of the file." ),
-      @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the file due to some other error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the file due to some other error." ) } )
   public List<Setting> doGetCanAccessList( @PathParam ( "pathId" ) String pathId,
                                            @QueryParam ( "permissions" ) String permissions ) {
     return fileService.doGetCanAccessList( pathId, permissions );
@@ -1081,8 +1058,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the permissions of the given paths." ),
-      @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error." ) } )
   public List<Setting> doGetPathsAccessList( StringListWrapper pathsWrapper ) {
     return fileService.doGetPathsAccessList( pathsWrapper );
   }
@@ -1109,8 +1085,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces ( TEXT_PLAIN )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the permissions of the given paths." ),
-    @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error." )
-  } )
+    @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error." ) } )
   public String doGetCanAccess( @PathParam ( "pathId" ) String pathId,
                                 @QueryParam ( "permissions" ) String permissions ) {
     return fileService.doGetCanAccess( pathId, permissions );
@@ -1134,8 +1109,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "/canAdminister" )
   @Produces ( TEXT_PLAIN )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully returns a boolean value, either true or false" )
-  } )
+      @ResponseCode ( code = 200, condition = "Successfully returns a boolean value, either true or false" ) } )
   public String doGetCanAdminister() {
     try {
       return fileService.doCanAdminister() ? "true" : "false";
@@ -1162,8 +1136,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "/reservedCharacters" )
   @Produces ( { TEXT_PLAIN } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully returns a list of repositroy reserved characters" )
-  } )
+      @ResponseCode ( code = 200, condition = "Successfully returns a list of repositroy reserved characters" ) } )
   public Response doGetReservedChars() {
     StringBuffer buffer = fileService.doGetReservedChars();
     return buildPlainTextOkResponse( buffer.toString() );
@@ -1187,8 +1160,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "/reservedCharactersDisplay" )
   @Produces ( { TEXT_PLAIN } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully returns a list of repositroy reserved characters" )
-  } )
+      @ResponseCode ( code = 200, condition = "Successfully returns a list of repositroy reserved characters" ) } )
   public Response doGetReservedCharactersDisplay() {
     StringBuffer buffer = fileService.doGetReservedCharactersDisplay();
     return buildPlainTextOkResponse( buffer.toString() );
@@ -1212,8 +1184,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "/canCreate" )
   @Produces ( TEXT_PLAIN )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully returns true or false depending on the users permissions" )
-  } )
+      @ResponseCode ( code = 200, condition = "Successfully returns true or false depending on the users permissions" ) } )
   public String doGetCanCreate() {
     return fileService.doGetCanCreate();
   }
@@ -1256,8 +1227,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Returns the requested file permissions in xml or json format" ),
-      @ResponseCode ( code = 500, condition = "File failed to be retrieved. This could be caused by an invalid path, or the file does not exist." )
-  } )
+      @ResponseCode ( code = 500, condition = "File failed to be retrieved. This could be caused by an invalid path, or the file does not exist." ) } )
   public RepositoryFileAclDto doGetFileAcl( @PathParam ( "pathId" ) String pathId ) {
     return fileService.doGetFileAcl( pathId );
   }
@@ -1308,8 +1278,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the properties for a file." ),
-      @ResponseCode ( code = 204, condition = "Invalid file path." )
-  } )
+      @ResponseCode ( code = 204, condition = "Invalid file path." ) } )
   public RepositoryFileDto doGetProperties( @PathParam ( "pathId" ) String pathId ) {
     try {
       return fileService.doGetProperties( pathId );
@@ -1333,8 +1302,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the content creator for a file." ),
-    @ResponseCode ( code = 403, condition = "Failure to move the file due to path not found." )
-  } )
+    @ResponseCode ( code = 403, condition = "Failure to move the file due to path not found." ) } )
   public RepositoryFileDto doGetContentCreator( @PathParam ( "pathId" ) String pathId ) {
     try {
       return fileService.doGetContentCreator( pathId );
@@ -1404,9 +1372,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}/generatedContent" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
-      @ResponseCode ( code = 200, condition = "Empty list of RepositoryFileDto objects." )
-  } )
+    @ResponseCode ( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
+    @ResponseCode ( code = 200, condition = "Empty list of RepositoryFileDto objects." ) } )
   public List<RepositoryFileDto> doGetGeneratedContent( @PathParam ( "pathId" ) String pathId ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     try {
@@ -1481,10 +1448,9 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}/generatedContentForUser" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
-      @ResponseCode ( code = 200, condition = "Empty list of RepositoryFileDto objects." ),
-      @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+    @ResponseCode ( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
+    @ResponseCode ( code = 200, condition = "Empty list of RepositoryFileDto objects." ),
+    @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public List<RepositoryFileDto> doGetGeneratedContentForUser( @PathParam ( "pathId" ) String pathId,
                                                                @QueryParam ( "user" ) String user ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
@@ -1619,9 +1585,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "/children" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of child files from root of the repository." ),
-      @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+    @ResponseCode ( code = 200, condition = "Successfully retrieved the list of child files from root of the repository." ),
+    @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public List<RepositoryFileDto> doGetRootChildren( @QueryParam ( "filter" ) String filter,
                                                     @QueryParam ( "showHidden" ) Boolean showHidden,
                                                     @DefaultValue ( "false" ) @QueryParam ( "includeAcls" ) Boolean includeAcls ) {
@@ -1686,10 +1651,9 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}/tree" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of files from root of the repository." ),
-      @ResponseCode ( code = 404, condition = "Invalid parameters." ),
-      @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+    @ResponseCode ( code = 200, condition = "Successfully retrieved the list of files from root of the repository." ),
+    @ResponseCode ( code = 404, condition = "Invalid parameters." ),
+    @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public RepositoryFileTreeDto doGetTree( @PathParam ( "pathId" ) String pathId, @QueryParam ( "depth" ) Integer depth,
                                           @QueryParam ( "filter" ) String filter, @QueryParam ( "showHidden" ) Boolean showHidden,
                                           @DefaultValue ( "false" ) @QueryParam ( "includeAcls" ) Boolean includeAcls ) {
@@ -1753,9 +1717,9 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}/children" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of child files from selected repository path of the repository." ),
-      @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+    @ResponseCode( code = 200,
+      condition = "Successfully retrieved the list of child files from selected repository path of the repository." ),
+    @ResponseCode( code = 500, condition = "Server Error." ) } )
   public List<RepositoryFileDto> doGetChildren( @PathParam ( "pathId" ) String pathId,
                                                 @QueryParam ( "filter" ) String filter, @QueryParam ( "showHidden" ) Boolean showHidden,
                                                 @DefaultValue ( "false" ) @QueryParam ( "includeAcls" ) Boolean includeAcls ) {
@@ -1819,9 +1783,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "/deleted" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of files from trash folder of the repository." ),
-      @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+    @ResponseCode ( code = 200, condition = "Successfully retrieved the list of files from trash folder of the repository." ),
+    @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public List<RepositoryFileDto> doGetDeletedFiles() {
     return fileService.doGetDeletedFiles();
   }
@@ -1852,11 +1815,10 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path ( "{pathId : .+}/metadata" )
   @Produces ( { APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved metadata." ),
-      @ResponseCode ( code = 403, condition = "Invalid path." ),
-      @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully retrieved metadata." ),
+    @ResponseCode( code = 403, condition = "Invalid path." ),
+    @ResponseCode( code = 500, condition = "Server Error." ) } )
   public List<StringKeyStringValueDto> doGetMetadata( @PathParam ( "pathId" ) String pathId ) {
     try {
       return fileService.doGetMetadata( pathId );
@@ -1892,13 +1854,12 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}/rename" )
   @Consumes ( { WILDCARD } )
   @Produces ( { WILDCARD } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully renamed file." ),
-      @ResponseCode ( code = 200, condition = "File to be renamed does not exist." )
-  } )
-  public Response doRename( @PathParam ( "pathId" ) String pathId, @QueryParam ( "newName" ) String newName ) {
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully renamed file." ),
+    @ResponseCode( code = 200, condition = "File to be renamed does not exist." ) } )
+  public Response doRename( @PathParam( "pathId" ) String pathId, @QueryParam( "newName" ) String newName ) {
     try {
-      JcrRepositoryFileUtils.checkName(newName);
+      JcrRepositoryFileUtils.checkName( newName );
 
       checkCorrectExtension( newName );
 
@@ -1943,8 +1904,7 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Successfully retrieved metadata." ),
       @ResponseCode ( code = 403, condition = "Invalid path." ),
       @ResponseCode ( code = 400, condition = "Invalid payload." ),
-      @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public Response doSetMetadata( @PathParam ( "pathId" ) String pathId, List<StringKeyStringValueDto> metadata ) {
     try {
       fileService.doSetMetadata( pathId, metadata );
@@ -1983,11 +1943,10 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully created folder." ),
       @ResponseCode ( code = 409, condition = "Path already exists." ),
-      @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+      @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public Response doCreateDirs( @PathParam ( "pathId" ) String pathId ) {
     try {
-      if ( fileService.doCreateDir( pathId ) ) {
+      if ( fileService.doCreateDirSafe( pathId ) ) {
         return buildOkResponse();
       } else {
         return Response.status( Response.Status.CONFLICT ).entity( "couldNotCreateFolderDuplicate" ).build();
@@ -2058,13 +2017,11 @@ public class FileResource extends AbstractJaxRSResource {
   @Path( "/generatedContentForSchedule" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes( {
-      @ResponseCode( code = 200, condition = "Successfully got the generated content for schedule" )
-  } )
+    @ResponseCode( code = 200, condition = "Successfully got the generated content for schedule" ) } )
   public List<RepositoryFileDto> doGetGeneratedContentForSchedule( @QueryParam( "lineageId" ) String lineageId ) {
-
     return schedulerResource.doGetGeneratedContentForSchedule( lineageId );
   }
-  
+
   /**
    * This method is used to determine whether versioning should be active for the given path
    *
@@ -2089,15 +2046,15 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}/versioningConfiguration" )
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully returns the versioning configuation" )
-  } )
+    @ResponseCode( code = 200, condition = "Successfully returns the versioning configuration" ) } )
   public FileVersioningConfiguration doVersioningConfiguration( @PathParam( "pathId" ) String pathId ) {
     IRepositoryVersionManager repositoryVersionManager = PentahoSystem.get( IRepositoryVersionManager.class );
+    String path = FileUtils.idToPath( pathId );
     return new FileVersioningConfiguration(
-        repositoryVersionManager.isVersioningEnabled( FileUtils.idToPath( pathId ) ), repositoryVersionManager
-            .isVersionCommentEnabled( FileUtils.idToPath( pathId ) ) );
+      repositoryVersionManager.isVersioningEnabled( path ),
+      repositoryVersionManager.isVersionCommentEnabled( path ) );
   }
-  
+
   protected boolean isPathValid( String path ) {
     return fileService.isPathValid( path );
   }
@@ -2241,8 +2198,8 @@ public class FileResource extends AbstractJaxRSResource {
   protected Messages getMessagesInstance() {
     return Messages.getInstance();
   }
-  
-  private void checkCorrectExtension(String fileName) {
+
+  private void checkCorrectExtension( String fileName ) {
     IRepositoryContentConverterHandler handler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
     String ext = RepositoryFilenameUtils.getExtension( fileName );
 
