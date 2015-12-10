@@ -171,6 +171,9 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
             for ( Object p : multivaluedParamValues ) {
               sqlParams.add( p );
             }
+            if ( multivaluedParamValues.length == 0 ) {
+              sqlParams.add( "" );
+            }
           } else {
             sqlParams.add( sqlParam );
           }
