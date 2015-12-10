@@ -25,4 +25,12 @@ public class FileUtils {
     }
     return path;
   }
+
+  public static String[] convertCommaSeparatedStringToArray( String stringToConvert ) {
+    if ( stringToConvert == null || stringToConvert.isEmpty() ) {
+      throw new IllegalArgumentException( "String cannot be null or empty" );
+    }
+
+    return stringToConvert.split( "[,]" );
+  }
 }

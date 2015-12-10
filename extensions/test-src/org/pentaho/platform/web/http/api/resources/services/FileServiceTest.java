@@ -20,22 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anySet;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -97,6 +83,15 @@ import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 public class FileServiceTest {
 
   private static FileService fileService;
+  private static final String COMMA = ",";
+  private static final String FILE_1 = "file1";
+  private static final String FILE_2 = "file2";
+  private static final String FILE_3 = "file3";
+  private static final String params = FILE_1 + COMMA + FILE_2;
+  private static String USER_NAME = "user";
+  private static String FOLDER_HOME = "home";
+  private static String SEPARATOR = "/";
+  private static String PATH_USER_HOME_FOLDER = SEPARATOR + FOLDER_HOME + SEPARATOR + USER_NAME;
 
   @Before
   public void setUp() {
@@ -113,8 +108,6 @@ public class FileServiceTest {
 
   @Test
   public void testDoDeleteFiles() throws Exception {
-    String params = "file1,file2";
-
     fileService.doDeleteFiles( params );
 
     verify( fileService.getRepoWs(), times( 1 ) ).deleteFile( "file1", null );
@@ -122,8 +115,139 @@ public class FileServiceTest {
   }
 
   @Test
+  public void restoredFilesInTrashDeletedAfterRestoringInHomeDir_renameMode() throws Exception {
+    FileService fileService = mock( FileService.class );
+    mockSession( fileService, USER_NAME );
+    when( fileService.doRestoreFilesInHomeDir( params, FileService.MODE_RENAME ) ).thenCallRealMethod();
+
+    boolean restored = fileService.doRestoreFilesInHomeDir( params, FileService.MODE_RENAME );
+
+    verify( fileService ).doDeleteFilesPermanent( params );
+    assertEquals( restored, true );
+  }
+
+  @Test
+  public void onlyNonConflictFilesDeletedAfterRestoringInHomeDir_noOverwriteMode() throws Exception {
+    FileService fileService = mock( FileService.class );
+    mockSession( fileService, USER_NAME );
+    mockDoRestoreInHomeDir( fileService );
+
+    final String filesToRestore = params;
+
+    when( fileService.getSourceFileIdsThatNotConflictWithFolderFiles( PATH_USER_HOME_FOLDER, params ) ).thenCallRealMethod();
+    when( fileService.getCommaSeparatedFileIds( anyListOf( String.class ) ) ).thenCallRealMethod();
+
+    boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_NO_OVERWRITE );
+
+    verify( fileService ).doDeleteFilesPermanent( FILE_2 );
+    assertEquals( result, true );
+  }
+
+  @Test
+  public void filesOverwrittenWhenConflict_overwriteMode() throws Exception {
+    FileService fileService = mock( FileService.class );
+    mockSession(fileService, USER_NAME );
+    mockDoRestoreInHomeDir( fileService );
+    final String filesToRestore = params;
+
+    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) ).thenCallRealMethod();
+    when( fileService.getCommaSeparatedFileIds( anyListOf( String.class ) ) ).thenCallRealMethod();
+
+    boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE );
+
+    verify( fileService ).doMoveFiles( PATH_USER_HOME_FOLDER, filesToRestore );
+    verify( fileService ).doDeleteFilesPermanent( FILE_1 );
+
+    assertEquals( result, true );
+  }
+
+
+  @Test
+  public void filesOverwrittenWhenNoConflict_overwriteMode() throws Exception {
+    FileService fileService = mock( FileService.class );
+    mockSession(fileService,  USER_NAME );
+    final String filesToRestore = params;
+
+    when( fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE ) ).thenCallRealMethod();
+    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) ).thenReturn( "" );
+
+
+    boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE );
+
+    verify( fileService ).doMoveFiles( PATH_USER_HOME_FOLDER, filesToRestore );
+
+    assertEquals( result, true );
+  }
+
+
+  @Test
+  public void noFilesOverwrittenWhenDeletingOfConflictFilesFailed_overwriteMode() throws Exception {
+    FileService fileService = mock( FileService.class );
+    mockSession( fileService, USER_NAME );
+    when( fileService.doRestoreFilesInHomeDir( params, FileService.MODE_OVERWRITE ) ).thenCallRealMethod();
+    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, params ) ).thenReturn( params );
+    doThrow( new Exception() ).when( fileService ).doDeleteFilesPermanent( anyString() );
+
+    boolean result = fileService.doRestoreFilesInHomeDir( params, FileService.MODE_OVERWRITE );
+
+    verify( fileService, never() ).doMoveFiles( PATH_USER_HOME_FOLDER, params );
+    assertEquals( result, false );
+  }
+
+  @Test
+  public void conflictWhenRestoreFileNameEqFolderFileName() throws Exception {
+    FileService fileService = mock( FileService.class );
+    mockDoRestoreInHomeDir( fileService );
+    when( fileService.canRestoreToFolderWithNoConflicts( PATH_USER_HOME_FOLDER, params ) ).thenCallRealMethod();
+
+    boolean result = fileService.canRestoreToFolderWithNoConflicts( PATH_USER_HOME_FOLDER, params );
+    assertEquals( result, false );
+  }
+
+  public List<RepositoryFileDto> getMockedRepositoryFileDtoList( String[] fileNames ) {
+    List<RepositoryFileDto> repoFileDtoList = new ArrayList<>();
+
+    for ( String fileName : fileNames ) {
+      RepositoryFileDto repoFileDto = mock( RepositoryFileDto.class );
+      when( repoFileDto.getName() ).thenReturn( fileName );
+      when( repoFileDto.getId() ).thenReturn( fileName );
+      repoFileDtoList.add( repoFileDto );
+    }
+
+    return repoFileDtoList;
+  }
+
+  public RepositoryFile getMockedRepoFile( String fileName ) {
+    RepositoryFile repoFileDto = mock( RepositoryFile.class );
+    when( repoFileDto.getName() ).thenReturn( fileName );
+
+    return repoFileDto;
+  }
+
+  public void mockDoRestoreInHomeDir( FileService fileService ) {
+    IUnifiedRepository iUnifiedRepository = mock( IUnifiedRepository.class );
+
+    List<RepositoryFileDto> homeFolderFiles = getMockedRepositoryFileDtoList( new String[] { FILE_1, FILE_3 } );
+    when( fileService.doGetChildren( eq( PATH_USER_HOME_FOLDER ), anyString(), anyBoolean(), anyBoolean() ) )
+      .thenReturn( homeFolderFiles );
+
+    when( fileService.getRepository() ).thenReturn( iUnifiedRepository );
+    when( fileService.doRestoreFilesInHomeDir( eq(params), anyInt() ) ).thenCallRealMethod();
+    RepositoryFile mockRepoFile1 = getMockedRepoFile( FILE_1 );
+    RepositoryFile mockRepoFile2 = getMockedRepoFile( FILE_2 );
+    when( iUnifiedRepository.getFileById( eq( FILE_1 ) ) ).thenReturn( mockRepoFile1 );
+    when( iUnifiedRepository.getFileById( eq( FILE_2 ) ) ).thenReturn( mockRepoFile2 );
+  }
+
+
+  public void mockSession( FileService fileService, String userName ) {
+    IPentahoSession mockSession = mock( IPentahoSession.class );
+    when( mockSession.getName() ).thenReturn( userName );
+    when( fileService.getSession() ).thenReturn( mockSession );
+  }
+
+  @Test
   public void testDoDeleteFilesException() {
-    String params = "file1,file2";
     doThrow( new IllegalArgumentException() ).when(
       fileService.defaultUnifiedRepositoryWebService ).deleteFile( anyString(), anyString() );
 
@@ -331,8 +455,6 @@ public class FileServiceTest {
 
   @Test
   public void testDoDeleteFilesPermanent() throws Exception {
-    String params = "file1,file2";
-
     fileService.doDeleteFilesPermanent( params );
 
     verify( fileService.getRepoWs(), times( 1 ) ).deleteFileWithPermanentFlag( "file1", true, null );
@@ -375,7 +497,6 @@ public class FileServiceTest {
 
   @Test
   public void testDoDeleteFilesPermanentException() {
-    String params = "file1,file2";
     doThrow( new IllegalArgumentException() ).when(
       fileService.defaultUnifiedRepositoryWebService ).deleteFileWithPermanentFlag( anyString(), eq( true ),
       anyString() );

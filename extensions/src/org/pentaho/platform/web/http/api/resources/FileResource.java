@@ -21,10 +21,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.MediaType.WILDCARD;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,6 +79,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterH
 import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -91,6 +89,7 @@ import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.FileVersioningConfiguration;
@@ -217,7 +216,7 @@ public class FileResource extends AbstractJaxRSResource {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
     }
   }
-  
+
   /**
    * Move a list of files to the user's trash folder.
    *
@@ -310,28 +309,51 @@ public class FileResource extends AbstractJaxRSResource {
    * Restores a list of files from the user's trash folder to their previous locations.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT pentaho/api/repo/files/restore
+   *    PUT pentaho/api/repo/files/restore - restore files to original location
+   *    PUT pentaho/api/repo/files/restore?overwriteMode=2 - restore files to user home folder, RENAME mode
    * </p>
    *
    * @param params comma separated list of file ids to be restored.
-   *
-   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   * @param mode   needed only when restoring files to user home folder,
+   *               representing which type of overwrite mode to use. Can be one of this values:
+   *               MODE_OVERWRITE (1) - will just replace existing
+   *               RENAME (2) - adds a number to the end of the file name.
+   *               MODE_NO_OVERWRITE (3) - will not overwrite if file exist.
+   *               null - no overwrite mode
    */
   @PUT
-  @Path ( "/restore" )
-  @Consumes ( { WILDCARD } )
-  @Facet ( name = "Unsupported" )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully restored the file." ),
-      @ResponseCode ( code = 403, condition = "Failure to Restore the file." ),
+  @Path( "/restore" )
+  @Consumes( { WILDCARD } )
+  @Facet( name = "Unsupported" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully restored the file." ),
+    @ResponseCode( code = 307, condition = "Cannot restore in origin folder, can restore in home folder without conflicts" ),
+    @ResponseCode( code = 403, condition = "Failure to Restore the file." ),
+    @ResponseCode( code = 409, condition = "Cannot restore in origin folder, cannot restore in home folder without conflicts" ),
   } )
-  public Response doRestore( String params ) {
-    try {
-      fileService.doRestoreFiles( params );
-      return buildOkResponse();
-    } catch ( InternalError e ) {
-      logger.error( Messages.getInstance().getString( "FileResource.FILE_GET_LOCALES" ), e );
-      return buildStatusResponse( INTERNAL_SERVER_ERROR );
+  public Response doRestore( String params,
+                             @QueryParam( value = "overwriteMode" ) Integer mode ) {
+    if ( mode != null ) {
+      boolean success = fileService.doRestoreFilesInHomeDir( params, mode );
+      return success ? buildOkResponse() : buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    } else {
+      try {
+        fileService.doRestoreFiles( params );
+        return buildOkResponse();
+      } catch ( UnifiedRepositoryAccessDeniedException e ) {
+        // This means, that user doesn't have permissions to write in files origin folder
+        // and files can be restored only to userHomeFolder.
+        // We are going to find out, if files with such names exist already
+        // in userHomeFolder and sent statusCode due to id.
+        if ( !fileService.canRestoreToFolderWithNoConflicts( getUserHomeFolder(), params ) ) {
+          return buildStatusResponse( Response.Status.CONFLICT );
+        } else {
+          return buildStatusResponse( Response.Status.TEMPORARY_REDIRECT );
+        }
+      } catch ( InternalError e ) {
+        logger.error( Messages.getInstance().getString( "FileResource.FILE_GET_LOCALES" ), e );
+        return buildStatusResponse( INTERNAL_SERVER_ERROR );
+      }
     }
   }
 
@@ -367,7 +389,7 @@ public class FileResource extends AbstractJaxRSResource {
   public Response createFile( @PathParam ( "pathId" ) String pathId, InputStream fileContents ) {
     try {
       checkCorrectExtension( pathId );
-      
+
       fileService.createFile( httpServletRequest.getCharacterEncoding(), pathId, fileContents );
       return buildOkResponse();
     } catch ( Throwable t ) {
@@ -2064,7 +2086,7 @@ public class FileResource extends AbstractJaxRSResource {
 
     return schedulerResource.doGetGeneratedContentForSchedule( lineageId );
   }
-  
+
   /**
    * This method is used to determine whether versioning should be active for the given path
    *
@@ -2075,7 +2097,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param pathId Colon separated path for the repository file.
    *
-   * @return The Versioning Configuration applicable to the path submitted 
+   * @return The Versioning Configuration applicable to the path submitted
    *
    * <p><b>Example Response:</b></p>
    *  <pre function="syntax.xml">
@@ -2097,7 +2119,7 @@ public class FileResource extends AbstractJaxRSResource {
         repositoryVersionManager.isVersioningEnabled( FileUtils.idToPath( pathId ) ), repositoryVersionManager
             .isVersionCommentEnabled( FileUtils.idToPath( pathId ) ) );
   }
-  
+
   protected boolean isPathValid( String path ) {
     return fileService.isPathValid( path );
   }
@@ -2241,7 +2263,7 @@ public class FileResource extends AbstractJaxRSResource {
   protected Messages getMessagesInstance() {
     return Messages.getInstance();
   }
-  
+
   private void checkCorrectExtension(String fileName) {
     IRepositoryContentConverterHandler handler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
     String ext = RepositoryFilenameUtils.getExtension( fileName );
@@ -2249,5 +2271,9 @@ public class FileResource extends AbstractJaxRSResource {
     if ( handler != null && handler.getConverter( ext ) == null ) {
       throw new IllegalArgumentException( Messages.getInstance().getString( "FileResource.INCORRECT_EXTENSION", fileName ) );
     }
+  }
+
+  protected String getUserHomeFolder() {
+    return ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
   }
 }

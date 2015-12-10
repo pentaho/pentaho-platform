@@ -1,14 +1,18 @@
-/*
- * Copyright 2002 - 2013 Pentaho Corporation.  All rights reserved.
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
  *
- * This software was developed by Pentaho Corporation and is provided under the terms
- * of the Mozilla Public License, Version 1.1, or any later version. You may not use
- * this file except in compliance with the license. If you need a copy of the license,
- * please go to http://www.mozilla.org/MPL/MPL-1.1.txt. TThe Initial Developer is Pentaho Corporation.
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Software distributed under the Mozilla Public License is distributed on an "AS IS"
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
- * the license for the specific language governing your rights and limitations.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -16,6 +20,7 @@ package org.pentaho.platform.web.http.api.resources;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,6 +30,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -59,8 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class FileResourceTest {
@@ -71,7 +76,7 @@ public class FileResourceTest {
   private static final String NAME_NEW_FILE = "nameNewFile.xml";
   private static final String NAME_NEW_FILE_WITHOUTH_EXTENSION = "nameNewFile";
   private static final String NAME_NEW_FILE_WRONG_EXTENSION = "nameNewFile.wrong";
-  
+  private static final String FILE_ID = "444324fd54ghad";
   private FileResource fileResource;
 
   @Before
@@ -211,7 +216,7 @@ public class FileResourceTest {
     Response mockResponse = mock( Response.class );
     doReturn( mockResponse ).when( fileResource ).buildOkResponse();
 
-    Response testResponse = fileResource.doRestore( params );
+    Response testResponse = fileResource.doRestore( params, null );
 
     verify( fileResource, times( 1 ) ).buildOkResponse();
     verify( fileResource.fileService, times( 1 ) ).doRestoreFiles( params );
@@ -227,12 +232,24 @@ public class FileResourceTest {
     Response mockInternalErrorResponse = mock( Response.class );
     doReturn( mockInternalErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
 
-    Response testResponse = fileResource.doRestore( params );
+    Response testResponse = fileResource.doRestore( params, null );
 
     assertEquals( mockInternalErrorResponse, testResponse );
     verify( fileResource.fileService, times( 1 ) ).doRestoreFiles( params );
     verify( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
   }
+
+  @Test
+  public void testNoServerErrorCodeReturnedWhenUserHasNoWritePermissionsToFolder() {
+    UnifiedRepositoryAccessDeniedException mockedException = mock( UnifiedRepositoryAccessDeniedException.class );
+    doThrow( mockedException ).when( fileResource.fileService ).doRestoreFiles( FILE_ID );
+    doReturn( "user/home" ).when( fileResource ).getUserHomeFolder();
+    doReturn( false ).when( fileResource.fileService ).canRestoreToFolderWithNoConflicts( anyString(), eq(FILE_ID) );
+
+    Response response = fileResource.doRestore( FILE_ID, null );
+    assertNotEquals( response.getStatus(), INTERNAL_SERVER_ERROR.getStatusCode() );
+  }
+
 
   @Test
   public void testCreateFile() throws Exception {

@@ -1,3 +1,20 @@
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ */
+
 package org.pentaho.platform.web.http.api.resources.services;
 
 import java.io.ByteArrayOutputStream;
@@ -47,6 +64,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -63,6 +81,7 @@ import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
@@ -88,11 +107,11 @@ import org.pentaho.platform.web.http.messages.Messages;
 
 public class FileService {
 
-  private static final Integer MODE_OVERWRITE = 1;
+  public static final Integer MODE_OVERWRITE = 1;
 
-  private static final Integer MODE_RENAME = 2;
+  public static final Integer MODE_RENAME = 2;
 
-  private static final Integer MODE_NO_OVERWRITE = 3;
+  public static final Integer MODE_NO_OVERWRITE = 3;
 
   private static final Log logger = LogFactory.getLog( FileService.class );
 
@@ -178,7 +197,7 @@ public class FileService {
    * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
   public void doDeleteFiles( String params ) throws Exception {
-    String[] sourceFileIds = params.split( "[,]" );
+    String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
         getRepoWs().deleteFile( sourceFileIds[i], null );
@@ -197,7 +216,7 @@ public class FileService {
    * @return Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
   public void doDeleteFilesPermanent( String params ) throws Exception {
-    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
+    String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params ); //$NON-NLS-1$
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
         getRepoWs().deleteFileWithPermanentFlag( sourceFileIds[ i ], true, null );
@@ -310,7 +329,7 @@ public class FileService {
     if ( repositoryFileDto == null ) {
       throw new FileNotFoundException( idToPath );
     }
-    String[] sourceFileIds = params.split( "[,]" );
+    String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
     int i = 0;
     try {
       for ( ; i < sourceFileIds.length; i++ ) {
@@ -333,16 +352,178 @@ public class FileService {
    * @throws Exception containing the string, "SystemResource.GENERAL_ERROR"
    */
   public void doRestoreFiles( String params ) throws InternalError {
-    String[] sourceFileIds = params.split( "[,]" );
+    String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().undeleteFile( sourceFileIds[i], null );
+        getRepoWs().undeleteFile( sourceFileIds[ i ], null );
       }
     } catch ( Exception e ) {
+      if ( e instanceof UnifiedRepositoryAccessDeniedException ) {
+        throw e;
+      }
       logger.error( Messages.getInstance().getString( "SystemResource.FILE_RESTORE_FAILED" ), e );
       throw new InternalError();
     }
   }
+
+  /**
+   *
+   * Restores a list of files from the trash folder to user's home folder,
+   * ignoring files previous locations (with no change of file owner)
+   * @param  params Comma separated list of files to be restored
+   * @param overwriteMode  Default is RENAME (2) which adds a number to the end of the file name. MODE_OVERWRITE (1)
+   *                       will just replace existing or MODE_NO_OVERWRITE (3) will not copy if file exist.
+   *
+   */
+  public boolean doRestoreFilesInHomeDir( String params, int overwriteMode ) {
+    if ( overwriteMode < 1 || overwriteMode > 3 ) {
+      overwriteMode = MODE_RENAME;
+    }
+
+    String userHomeFolderPath =
+      ClientRepositoryPaths.getUserHomeFolderPath( getSession().getName() );
+
+    String filesToDeletePermanent = null;
+    if ( overwriteMode == MODE_RENAME ) {
+      doCopyFiles( userHomeFolderPath, overwriteMode, params );
+      filesToDeletePermanent = params;
+    } else if ( overwriteMode == MODE_NO_OVERWRITE ) {
+      // we can delete from trash only non-conflict files,
+      // because conflict files won't be restored
+      String nonConflictFileIds = getSourceFileIdsThatNotConflictWithFolderFiles( userHomeFolderPath, params );
+      doCopyFiles( userHomeFolderPath, overwriteMode, params );
+
+      if ( nonConflictFileIds.isEmpty() ) {
+        // all files were restored. Nothing to delete
+        return true;
+      }
+      filesToDeletePermanent = nonConflictFileIds;
+    } else if ( overwriteMode == MODE_OVERWRITE ) {
+      String conflictFileIdsInHomeDir = getFolderFileIdsThatConflictWithSource( userHomeFolderPath, params );
+      if ( !conflictFileIdsInHomeDir.isEmpty() ) {
+        try {
+          doDeleteFilesPermanent( conflictFileIdsInHomeDir );
+          doMoveFiles( userHomeFolderPath, params );
+        } catch ( FileNotFoundException e ) {
+          logger.error( "File with id: " + e.getMessage() + " is not found!" );
+          return false;
+        } catch ( Exception e ) {
+          logger.warn( "Files with ids: " + params + " were restored, but not deleted" );
+          return false;
+        }
+      } else {
+        try {
+          doMoveFiles( userHomeFolderPath, params );
+        } catch ( FileNotFoundException e ) {
+          logger.error( "File with id: " + e.getMessage() + " is not found!" );
+          return false;
+        }
+      }
+
+    }
+
+    if ( filesToDeletePermanent != null && !params.isEmpty() ) {
+      try {
+        doDeleteFilesPermanent( filesToDeletePermanent );
+      } catch ( Exception e ) {
+        logger.warn( "Files with ids: " + filesToDeletePermanent + " were restored, but not deleted" );
+      }
+    }
+
+    return true;
+  }
+
+
+  public String getFolderFileIdsThatConflictWithSource( String pathToFolder, String params ) {
+    if ( params == null ) {
+      throw new IllegalArgumentException( "parameters cannot be null" );
+    }
+    String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
+
+    List<String> conflictFileIdsList = new ArrayList<>();
+    List<RepositoryFileDto> homeFolderFiles = doGetChildren( pathToFolder, null, false, true );
+
+
+    for ( RepositoryFileDto fileInHomeFolder : homeFolderFiles ) {
+      for ( String sourceFileId : sourceFileIds ) {
+        RepositoryFile fileToRestore = getRepository().getFileById( sourceFileId );
+        if ( fileToRestore.getName().equals( fileInHomeFolder.getName() ) ) {
+          conflictFileIdsList.add( fileInHomeFolder.getId() );
+        }
+      }
+    }
+
+    return getCommaSeparatedFileIds( conflictFileIdsList );
+  }
+
+  /**
+   * Conflict occurs if one of source files has the same
+   * name with any of folder files.
+   *
+   * @param params
+   *            String with file ids, separated by comma
+   * @param pathToFolder
+   *            path to folder
+   *
+   * @return String
+   *            with file ids of not conflict files, separated by comma
+   *
+   */
+  protected String getSourceFileIdsThatNotConflictWithFolderFiles( String pathToFolder, String params ) {
+    String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
+
+    List<String> nonConflictFileIdsList = new ArrayList<>();
+    List<RepositoryFileDto> homeFolderFiles = doGetChildren( pathToFolder, null, true, true );
+
+    for ( String sourceFileId : sourceFileIds ) {
+      boolean isConflict = false;
+      RepositoryFile fileToRestore = getRepository().getFileById( sourceFileId );
+      if ( fileToRestore == null ) {
+        logger.error( "Could not get file with id: " + sourceFileId );
+        continue;
+      }
+      for ( RepositoryFileDto fileInHomeFolder : homeFolderFiles ) {
+        if ( fileToRestore.getName().equals( fileInHomeFolder.getName() ) ) {
+          isConflict = true;
+          break;
+        }
+      }
+      if ( !isConflict ) {
+        nonConflictFileIdsList.add( sourceFileId );
+      }
+    }
+
+    return getCommaSeparatedFileIds( nonConflictFileIdsList );
+  }
+
+  /**
+   *
+   * @param fileIdsList
+   *          List with file ids.
+   * @return
+   *      - String of file ids, separated by comma
+   *      - Empty String if <param> fileIdList </param> is null or empty
+   *
+   */
+  protected String getCommaSeparatedFileIds( List<String> fileIdsList ) {
+    if ( fileIdsList == null || fileIdsList.size() == 0 ) {
+      return StringUtils.EMPTY;
+    }
+
+    StringBuilder stringBuilder = new StringBuilder();
+
+    for ( String fileId : fileIdsList ) {
+      stringBuilder.append( fileId ).append( "," );
+    }
+
+    String fileIds = stringBuilder.toString();
+
+    // delete last ','
+    fileIds = fileIds.substring( 0, fileIds.length() - 1 );
+
+    return fileIds;
+  }
+
 
   public class DownloadFileWrapper {
     private StreamingOutput outputStream;
@@ -557,7 +738,7 @@ public class FileService {
 
     String path = idToPath( pathId );
     RepositoryFile destDir = getRepository().getFile( path );
-    String[] sourceFileIds = params.split( "[,]" ); //$NON-NLS-1$
+    String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params ); //$NON-NLS-1$
     if ( mode == MODE_OVERWRITE || mode == MODE_NO_OVERWRITE ) {
       for ( String sourceFileId : sourceFileIds ) {
         RepositoryFile sourceFile = getRepository().getFileById( sourceFileId );
@@ -1070,6 +1251,36 @@ public class FileService {
 
   public boolean isPath( String pathId ) {
     return pathId != null && pathId.contains( "/" );
+  }
+
+  /**
+   *
+   * @param params
+   *            id of files, separated by ','
+   *
+   * @return false if params is null or homeFolder has files
+   *               with names and extension equal to passed files
+   *         true otherwise
+   *
+   * @throws IllegalArgumentException
+   *              if <param>params</param> is null
+   */
+  public boolean canRestoreToFolderWithNoConflicts( String pathToFolder, String params ) {
+    if ( params == null ) {
+      throw new IllegalArgumentException( "parameters cannot be null" );
+    }
+    List<RepositoryFileDto> filesInFolder = doGetChildren( pathToFolder, null, false, true );
+    String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
+
+    for ( RepositoryFileDto fileInFolder : filesInFolder ) {
+      for ( String sourceFileId : sourceFileIds ) {
+        RepositoryFile fileToRestore = getRepository().getFileById( sourceFileId );
+        if ( fileToRestore.getName().equals( fileInFolder.getName() ) ) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   public IAuthorizationPolicy getPolicy() {
