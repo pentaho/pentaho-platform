@@ -187,7 +187,7 @@ public class FileService {
         IOUtils.copy( inputStream, output );
       }
     };
-    }
+  }
   /**
    * Moves the list of files to the user's trash folder
    * <p/>
@@ -1909,7 +1909,7 @@ public class FileService {
   }
 
   private PentahoPlatformExporter getBackupExporter() {
-    if( backupExporter == null ) {
+    if ( backupExporter == null ) {
       backupExporter = new PentahoPlatformExporter( getRepository() );
     }
 
