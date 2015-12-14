@@ -250,10 +250,6 @@ public class PentahoSystem {
 
     PentahoSystem.initializedStatus = PentahoSystem.SYSTEM_INITIALIZED_OK;
     
-    serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STARTING );
-    serverStatusProvider.setStatusMessages( new String[] { "Caution, the server is initializing. Do not shut down or restart the server at this time." } );
-    PeriodicStatusLogger.start();
-
     // PDI-3438 Scheduled job fails to open a transformation
     // Kettle jobs spawn threads which may require authentication to load transformations from
     // the kettle repository, by using the INHERITABLETHREADLOCAL strategy, spawned threads will
@@ -355,8 +351,6 @@ public class PentahoSystem {
       Logger.debug( PentahoSystem.class, "PentahoSystem Init Complete" ); //$NON-NLS-1$
     }
     
-    //For now we'll stop the logger.  Might want to leave this running when we get more implemented.
-    PeriodicStatusLogger.stop();
     return true;
   }
 

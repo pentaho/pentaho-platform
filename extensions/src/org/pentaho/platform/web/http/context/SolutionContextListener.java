@@ -30,10 +30,12 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.pentaho.platform.api.engine.IServerStatusProvider;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.status.PeriodicStatusLogger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -49,6 +51,8 @@ public class SolutionContextListener implements ServletContextListener {
   private static final String DEFAULT_SPRING_CONFIG_FILE_NAME = "pentahoObjects.spring.xml"; //$NON-NLS-1$
 
   private ServletContext context;
+  
+  private static final IServerStatusProvider serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
   
   Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -149,7 +153,16 @@ public class SolutionContextListener implements ServletContextListener {
     setSystemCfgFile( context );
     setObjectFactory( context );
 
-    boolean initOk = PentahoSystem.init( applicationContext );
+    serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STARTING );
+    serverStatusProvider.setStatusMessages( new String[] { "Caution, the server is initializing. Do not shut down or restart the server at this time." } );
+    PeriodicStatusLogger.start();
+    
+    boolean initOk;
+    try {
+      initOk = PentahoSystem.init( applicationContext );
+    } finally {
+      PeriodicStatusLogger.stop();
+    }
 
     this.showInitializationMessage( initOk, fullyQualifiedServerUrl );
   }
