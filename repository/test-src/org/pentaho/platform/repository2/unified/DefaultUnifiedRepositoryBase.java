@@ -216,40 +216,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
 
   @Before
   public void setUp() throws Exception {
-    loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
-    mp = new MicroPlatform( getSolutionPath() );
-    // used by DefaultPentahoJackrabbitAccessControlHelper
-    mp.defineInstance( "tenantedUserNameUtils", userNameUtils );
-    mp.defineInstance( "tenantedRoleNameUtils", roleNameUtils );
-    mp.defineInstance( "ILockHelper", new DefaultLockHelper( userNameUtils ) );
-
-    mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
-    mp.defineInstance( ITenantManager.class, tenantManager );
-    mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
-    mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
-    mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate,
-        this.repositoryFileDao ) );
-    mp.defineInstance( "ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver() );
-    mp.defineInstance( "useMultiByteEncoding", Boolean.FALSE );
-    mp.defineInstance( IUnifiedRepository.class, repo );
-    mp.defineInstance( IRepositoryFileAclDao.class, repositoryFileAclDao );
-    IUserRoleListService userRoleListService = mock( IUserRoleListService.class );
-    when( userRoleListService.getRolesForUser( any( ITenant.class ), anyString() ) ).thenReturn(
-        Arrays.asList( tenantAdminRoleName, AUTHENTICATED_ROLE_NAME ) );
-    mp.defineInstance( IUserRoleListService.class, userRoleListService );
-    mp.defineInstance( "singleTenantAdminUserName", singleTenantAdminUserName );
-    mp.defineInstance( "singleTenantAdminAuthorityName", tenantAdminRoleName );
-    // Start the micro-platform
-    mp.start();
-    loginAsRepositoryAdmin();
-    setAclManagement();
-
-    systemTenant =
-      tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName,
-        tenantAuthenticatedRoleName, ANONYMOUS_ROLE_NAME );
-    userRoleDao.createUser( systemTenant, sysAdminUserName, PASSWORD, "", new String[] { tenantAdminRoleName } );
-    logout();
+    initialize( Boolean.FALSE );
   }
 
   @After
@@ -309,6 +276,43 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
 
   public void loginAsSysTenantAdmin() {
     login( sysAdminUserName, systemTenant, new String[]{ tenantAdminRoleName, tenantAuthenticatedRoleName } );
+  }
+
+  public void initialize( boolean multiByteEncoding ) throws Exception {
+    loginAsRepositoryAdmin();
+    SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
+    mp = new MicroPlatform( getSolutionPath() );
+    // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance( "tenantedUserNameUtils", userNameUtils );
+    mp.defineInstance( "tenantedRoleNameUtils", roleNameUtils );
+    mp.defineInstance( "ILockHelper", new DefaultLockHelper( userNameUtils ) );
+
+    mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
+    mp.defineInstance( ITenantManager.class, tenantManager );
+    mp.defineInstance( "roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget );
+    mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
+    mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate,
+        this.repositoryFileDao ) );
+    mp.defineInstance( "ITenantedPrincipleNameResolver", new DefaultTenantedPrincipleNameResolver() );
+    mp.defineInstance( "useMultiByteEncoding", multiByteEncoding );
+    mp.defineInstance( IUnifiedRepository.class, repo );
+    mp.defineInstance( IRepositoryFileAclDao.class, repositoryFileAclDao );
+    IUserRoleListService userRoleListService = mock( IUserRoleListService.class );
+    when( userRoleListService.getRolesForUser( any( ITenant.class ), anyString() ) ).thenReturn(
+        Arrays.asList( tenantAdminRoleName, AUTHENTICATED_ROLE_NAME ) );
+    mp.defineInstance( IUserRoleListService.class, userRoleListService );
+    mp.defineInstance( "singleTenantAdminUserName", singleTenantAdminUserName );
+    mp.defineInstance( "singleTenantAdminAuthorityName", tenantAdminRoleName );
+    // Start the micro-platform
+    mp.start();
+    loginAsRepositoryAdmin();
+    setAclManagement();
+
+    systemTenant =
+      tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName,
+        tenantAuthenticatedRoleName, ANONYMOUS_ROLE_NAME );
+    userRoleDao.createUser( systemTenant, sysAdminUserName, PASSWORD, "", new String[] { tenantAdminRoleName } );
+    logout();
   }
 
   /**
