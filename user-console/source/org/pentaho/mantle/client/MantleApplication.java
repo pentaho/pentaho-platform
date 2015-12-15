@@ -21,12 +21,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -41,13 +37,7 @@ import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
-import org.pentaho.mantle.client.events.MantleSettingsLoadedEventHandler;
-import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
-import org.pentaho.mantle.client.events.PerspectivesLoadedEventHandler;
-import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
-import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
+import org.pentaho.mantle.client.events.*;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -93,7 +83,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     setupNativeHooks( this, new LoginCommand() );
     FileChooserDialog.setupNativeHooks();
 
-    UserSettingsManager.getInstance().getUserSettings( new AsyncCallback<JsArray<JsSetting>>() {
+    getUserSettingsManager().getUserSettings( new AsyncCallback<JsArray<JsSetting>>() {
       public void onSuccess( JsArray<JsSetting> settings ) {
         onUserSettingsLoaded( new UserSettingsLoadedEvent( settings ) );
       }
@@ -103,52 +93,56 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     }, false );
   }
 
+  UserSettingsManager getUserSettingsManager() {
+    return UserSettingsManager.getInstance();
+  }
+
   public native void setupNativeHooks( MantleApplication mantle, LoginCommand loginCmd )
   /*-{
-      $wnd.mantle_initialized = true;
-      $wnd.mantle_showMessage = function (title, message) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          mantle.@org.pentaho.mantle.client.MantleApplication::showMessage(Ljava/lang/String;Ljava/lang/String;)(title, message);
-      }
+    $wnd.mantle_initialized = true;
+    $wnd.mantle_showMessage = function (title, message) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      mantle.@org.pentaho.mantle.client.MantleApplication::showMessage(Ljava/lang/String;Ljava/lang/String;)(title, message);
+    }
 
-      $wnd.addGlassPaneListener = function (callback) {
-          if ($wnd.addDataAccessGlassPaneListener) {
-              $wnd.addDataAccessGlassPaneListener(callback);
-          }
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          mantle.@org.pentaho.mantle.client.MantleApplication::addGlassPaneListener(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
+    $wnd.addGlassPaneListener = function (callback) {
+      if ($wnd.addDataAccessGlassPaneListener) {
+        $wnd.addDataAccessGlassPaneListener(callback);
       }
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      mantle.@org.pentaho.mantle.client.MantleApplication::addGlassPaneListener(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
+    }
 
-      $wnd.executeCommand = function (commandName, parameterMap) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          @org.pentaho.mantle.client.MantleApplication::executeCommand(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(commandName, parameterMap);
-      }
+    $wnd.executeCommand = function (commandName, parameterMap) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      @org.pentaho.mantle.client.MantleApplication::executeCommand(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(commandName, parameterMap);
+    }
 
-      $wnd.authenticate = function (callback) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          loginCmd.@org.pentaho.mantle.client.commands.LoginCommand::loginWithCallback(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
-      }
+    $wnd.authenticate = function (callback) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      loginCmd.@org.pentaho.mantle.client.commands.LoginCommand::loginWithCallback(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
+    }
 
-      $wnd.urlCommand = function (url, title, showInDialog, dialogWidth, dialogHeight) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          @org.pentaho.mantle.client.commands.UrlCommand::_execute(Ljava/lang/String;Ljava/lang/String;ZII)(url, title, showInDialog, dialogWidth, dialogHeight);
-      }
+    $wnd.urlCommand = function (url, title, showInDialog, dialogWidth, dialogHeight) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      @org.pentaho.mantle.client.commands.UrlCommand::_execute(Ljava/lang/String;Ljava/lang/String;ZII)(url, title, showInDialog, dialogWidth, dialogHeight);
+    }
 
-      $wnd.mantle_addHandler = function (type, handler) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, handler);
-      }
+    $wnd.mantle_addHandler = function (type, handler) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, handler);
+    }
 
-      $wnd.mantle_fireEvent = function (type, parameterMap) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          @org.pentaho.mantle.client.MantleApplication::fireEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, parameterMap);
-      }
+    $wnd.mantle_fireEvent = function (type, parameterMap) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      @org.pentaho.mantle.client.MantleApplication::fireEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, parameterMap);
+    }
 
-      // globally available busy indicator
-      $wnd.mantle_notifyGlasspaneListeners = function (isShown) {
-          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          mantle.@org.pentaho.mantle.client.MantleApplication::notifyGlasspaneListeners(Z)(isShown);
-      }
+    // globally available busy indicator
+    $wnd.mantle_notifyGlasspaneListeners = function (isShown) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      mantle.@org.pentaho.mantle.client.MantleApplication::notifyGlasspaneListeners(Z)(isShown);
+    }
   }-*/;
 
   public static void addHandler( final String type, final JavaScriptObject handler ) {
@@ -161,62 +155,66 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public static native void showBusyIndicator( String title, String message )
   /*-{
-      $wnd.pen.require([
-              "common-ui/util/BusyIndicator"
-          ],
+    $wnd.pen.require([
+        "common-ui/util/BusyIndicator"
+      ],
 
-          function (busy) {
-              busy.show(title, message);
-          });
+      function (busy) {
+        busy.show(title, message);
+      });
   }-*/;
 
   public static native void hideBusyIndicator()
   /*-{
-      $wnd.pen.require([
-              "common-ui/util/BusyIndicator"
-          ],
+    $wnd.pen.require([
+        "common-ui/util/BusyIndicator"
+      ],
 
-          function (busy) {
-              busy.hide();
-          });
+      function (busy) {
+        busy.hide();
+      });
   }-*/;
 
   public static native void showBusyIndicatorById( String title, String message, String id )
   /*-{
-      $wnd.pen.require([
-              "common-ui/util/BusyIndicator"
-          ],
+    $wnd.pen.require([
+        "common-ui/util/BusyIndicator"
+      ],
 
-          function (busy) {
-              busy.show(title, message, id);
-          });
+      function (busy) {
+        busy.show(title, message, id);
+      });
   }-*/;
 
   public static native void hideBusyIndicatorById( String id )
   /*-{
-      $wnd.pen.require([
-              "common-ui/util/BusyIndicator"
-          ],
+    $wnd.pen.require([
+        "common-ui/util/BusyIndicator"
+      ],
 
-          function (busy) {
-              busy.hide(id);
-          });
+      function (busy) {
+        busy.hide(id);
+      });
   }-*/;
 
   public static native void log( String message )
     /*-{
-        try {
-            window.top.console.log(message);
-        } catch (e) {
-        }
+      try {
+        window.top.console.log(message);
+      } catch (e) {
+      }
     }-*/;
 
   public void notifyGlasspaneListeners( boolean isShown ) {
     if ( isShown ) {
-      GlassPane.getInstance().show();
+      getGlassPane().show();
     } else {
-      GlassPane.getInstance().hide();
+      getGlassPane().hide();
     }
+  }
+
+  GlassPane getGlassPane() {
+    return GlassPane.getInstance();
   }
 
   private static void executeCommand( String commandName, JavaScriptObject parameterMap ) {
@@ -224,7 +222,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
   }
 
   private void addGlassPaneListener( JavaScriptObject obj ) {
-    GlassPane.getInstance().addGlassPaneListener( new GlassPaneNativeListener( obj ) );
+    getGlassPane().addGlassPaneListener( new GlassPaneNativeListener( obj ) );
   }
 
   /**
@@ -240,7 +238,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public void onUserSettingsLoaded( final UserSettingsLoadedEvent event ) {
     // listen to any reloads of mantle settings
-    MantleSettingsManager.getInstance().getMantleSettings( new AsyncCallback<HashMap<String, String>>() {
+    getMantleSettingsManager().getMantleSettings( new AsyncCallback<HashMap<String, String>>() {
       public void onSuccess( HashMap<String, String> mantleSettings ) {
         // merge user settings with mantle settings for possible system/tenant/user overrides
         JsArray<JsSetting> userSettings = event.getSettings();
@@ -258,35 +256,83 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     }, false );
   }
 
+  MantleSettingsManager getMantleSettingsManager() {
+    return MantleSettingsManager.getInstance();
+  }
+
+  String getWindowLocationParameter( String key ) {
+    return Window.Location.getParameter( key );
+  }
+
+  RootPanel rootPanelGet( String key ) {
+    if ( key != null ) {
+      return RootPanel.get( key );
+    }
+
+    return RootPanel.get();
+  }
+
+  MantleXul getMantleXul() {
+    return MantleXul.getInstance();
+  }
+
+  PerspectiveManager getPerspectiveManager() {
+    return PerspectiveManager.getInstance();
+  }
+
+  UserDropDown getUserDropDown() {
+    return new UserDropDown();
+  }
+
+  Label getLabel() {
+    return new Label();
+  }
+
+  SolutionBrowserPanel getSolutionBrowserPanel() {
+    return SolutionBrowserPanel.getInstance();
+  }
+
+  RequestBuilder getRequestBuilder( RequestBuilder.Method method, String url ) {
+    return new RequestBuilder( method, url );
+  }
+
+  MessageDialogBox getMessageDialogBox( String title, String msg, boolean isHtml, boolean autoHide, boolean modal ) {
+    return new MessageDialogBox( title, msg, isHtml, autoHide, modal );
+  }
+
   public void onMantleSettingsLoaded( MantleSettingsLoadedEvent event ) {
     final HashMap<String, String> settings = event.getSettings();
 
-    final boolean showOnlyPerspective =
-        Boolean.parseBoolean( StringUtils.isEmpty( Window.Location.getParameter( "showOnlyPerspective" ) ) ? settings.get( "showOnlyPerspective" ) : Window.Location.getParameter( "showOnlyPerspective" ) );
-    final String startupPerspective =
-        StringUtils.isEmpty( Window.Location.getParameter( "startupPerspective" ) ) ? settings.get( "startupPerspective" ) : Window.Location.getParameter( "startupPerspective" );
+    final boolean
+        showOnlyPerspective =
+        Boolean.parseBoolean( StringUtils.isEmpty( getWindowLocationParameter( "showOnlyPerspective" ) ) ?
+            settings.get( "showOnlyPerspective" ) : getWindowLocationParameter( "showOnlyPerspective" ) );
+    final String
+        startupPerspective =
+        StringUtils.isEmpty( getWindowLocationParameter( "startupPerspective" ) ) ?
+            settings.get( "startupPerspective" ) : getWindowLocationParameter( "startupPerspective" );
 
     mantleRevisionOverride = settings.get( "user-console-revision" );
 
-    RootPanel.get( "pucMenuBar" ).add( MantleXul.getInstance().getMenubar() );
-    RootPanel.get( "pucPerspectives" ).add( PerspectiveManager.getInstance() );
-    RootPanel.get( "pucToolBar" ).add( MantleXul.getInstance().getToolbar() );
-    RootPanel.get( "pucUserDropDown" ).add( new UserDropDown() );
+    rootPanelGet( "pucMenuBar" ).add( getMantleXul().getMenubar() );
+    rootPanelGet( "pucPerspectives" ).add( getPerspectiveManager() );
+    rootPanelGet( "pucToolBar" ).add( getMantleXul().getToolbar() );
+    rootPanelGet( "pucUserDropDown" ).add( getUserDropDown() );
 
     if ( showOnlyPerspective && !StringUtils.isEmpty( startupPerspective ) ) {
-      RootPanel.get( "pucHeader" ).setVisible( false );
-      RootPanel.get( "pucContent" ).getElement().getStyle().setTop( 0, Unit.PX );
+      rootPanelGet( "pucHeader" ).setVisible( false );
+      rootPanelGet( "pucContent" ).getElement().getStyle().setTop( 0, Unit.PX );
     }
 
     // update supported file types
     PluginOptionsHelper.buildEnabledOptionsList( settings );
 
     // show stuff we've created/configured
-    contentDeck.add( new Label() );
+    contentDeck.add( getLabel() );
     contentDeck.showWidget( 0 );
-    contentDeck.add( SolutionBrowserPanel.getInstance() );
+    contentDeck.add( getSolutionBrowserPanel() );
     if ( showOnlyPerspective && !StringUtils.isEmpty( startupPerspective ) ) {
-      SolutionBrowserPanel.getInstance().setVisible( false );
+      getSolutionBrowserPanel().setVisible( false );
     }
 
     contentDeck.getElement().setId( "applicationShell" );
@@ -294,12 +340,12 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
     // menubar=no,location=no,resizable=yes,scrollbars=no,status=no,width=1200,height=800
     try {
-      RootPanel.get( "pucContent" ).add( contentDeck );
+      rootPanelGet( "pucContent" ).add( contentDeck );
     } catch ( Throwable t ) {
       // onLoad of something is causing problems
     }
 
-    RootPanel.get().add( WaitPopup.getInstance() );
+    rootPanelGet( null ).add( WaitPopup.getInstance() );
 
     // Add in the overlay panel
     overlayPanel.setVisible( false );
@@ -307,26 +353,26 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     overlayPanel.setWidth( "100%" );
     overlayPanel.getElement().getStyle().setProperty( "zIndex", "1000" );
     overlayPanel.getElement().getStyle().setProperty( "position", "absolute" );
-    RootPanel.get().add( overlayPanel, 0, 0 );
+    rootPanelGet( null ).add( overlayPanel, 0, 0 );
 
     String submitOnEnterSetting = settings.get( "submit-on-enter-key" );
     submitOnEnter = submitOnEnterSetting == null ? submitOnEnter : Boolean.parseBoolean( submitOnEnterSetting );
 
     try {
       String restUrl = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
-      RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, restUrl );
+      RequestBuilder requestBuilder = getRequestBuilder( RequestBuilder.GET, restUrl );
       requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       requestBuilder.sendRequest( null, new RequestCallback() {
 
-        @Override
-        public void onError( Request arg0, Throwable arg1 ) {
-          MessageDialogBox dialogBox =
-              new MessageDialogBox( Messages.getString( "error" ), arg1.getLocalizedMessage(), false, false, true ); //$NON-NLS-1$
+        @Override public void onError( Request arg0, Throwable arg1 ) {
+          MessageDialogBox
+              dialogBox =
+              new MessageDialogBox( Messages.getString( "error" ), arg1.getLocalizedMessage(), false, false,
+                  true ); //$NON-NLS-1$
           dialogBox.center();
         }
 
-        @Override
-        public void onResponseReceived( Request arg0, Response response ) {
+        @Override public void onResponseReceived( Request arg0, Response response ) {
           Boolean isAdministrator = Boolean.parseBoolean( response.getText() );
           SolutionBrowserPanel.getInstance().setAdministrator( isAdministrator );
 
@@ -335,10 +381,11 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
             RequestBuilder requestBuilder2 = new RequestBuilder( RequestBuilder.GET, restUrl2 );
             requestBuilder2.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
             requestBuilder2.sendRequest( null, new RequestCallback() {
-              @Override
-              public void onError( Request arg0, Throwable arg1 ) {
-                MessageDialogBox dialogBox =
-                    new MessageDialogBox( Messages.getString( "error" ), arg1.getLocalizedMessage(), false, false, true ); //$NON-NLS-1$
+              @Override public void onError( Request arg0, Throwable arg1 ) {
+                MessageDialogBox
+                    dialogBox =
+                    new MessageDialogBox( Messages.getString( "error" ), arg1.getLocalizedMessage(), false, false,
+                        true ); //$NON-NLS-1$
                 dialogBox.center();
               }
 
@@ -355,8 +402,8 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
                     if ( StringUtils.isEmpty( url ) == false ) { //$NON-NLS-1$
                       url = URL.decodeQueryString( url );
                       name = URL.decodeQueryString( name );
-                      SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab( name != null ? name : url,
-                          url, url, false );
+                      SolutionBrowserPanel.getInstance().getContentTabPanel()
+                          .showNewURLTab( name != null ? name : url, url, url, false );
                     }
                   }
                 }
@@ -370,36 +417,41 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
                   // Spaces were double encoded so that they wouldn't be replaced with '+' when creating a deep
                   // link so when following a deep link we need to replace '%20' with a space even after decoding
                   String title = Window.Location.getParameter( "name" ).replaceAll( "%20", " " ); //$NON-NLS-1$
-                  SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab( title, title, startupURL,
-                      false );
+                  SolutionBrowserPanel.getInstance().getContentTabPanel()
+                      .showNewURLTab( title, title, startupURL, false );
                 }
               }
             } );
           } catch ( RequestException e ) {
-            MessageDialogBox dialogBox =
-                new MessageDialogBox( Messages.getString( "error" ), e.getLocalizedMessage(), false, false, true ); //$NON-NLS-1$
+            MessageDialogBox
+                dialogBox =
+                getMessageDialogBox( Messages.getString( "error" ), e.getLocalizedMessage(), false, false, true );
             dialogBox.center();
           }
         }
       } );
     } catch ( RequestException e ) {
-      MessageDialogBox dialogBox =
-          new MessageDialogBox( Messages.getString( "error" ), e.getLocalizedMessage(), false, false, true ); //$NON-NLS-1$
+      MessageDialogBox
+          dialogBox =
+          getMessageDialogBox( Messages.getString( "error" ), e.getLocalizedMessage(), false, false, true );
       dialogBox.center();
     }
 
     if ( !StringUtils.isEmpty( startupPerspective ) ) {
-      if ( PerspectiveManager.getInstance().isLoaded() ) {
-        PerspectiveManager.getInstance().setPerspective( startupPerspective );
+      if ( getPerspectiveManager().isLoaded() ) {
+        getPerspectiveManager().setPerspective( startupPerspective );
       } else {
-        EventBusUtil.EVENT_BUS.addHandler( PerspectivesLoadedEvent.TYPE, new PerspectivesLoadedEventHandler() {
+        getEventBus().addHandler( PerspectivesLoadedEvent.TYPE, new PerspectivesLoadedEventHandler() {
           public void onPerspectivesLoaded( PerspectivesLoadedEvent event ) {
             PerspectiveManager.getInstance().setPerspective( startupPerspective );
           }
         } );
       }
     }
+  }
 
+  EventBus getEventBus() {
+    return EventBusUtil.EVENT_BUS;
   }
 
   public DeckPanel getContentDeck() {

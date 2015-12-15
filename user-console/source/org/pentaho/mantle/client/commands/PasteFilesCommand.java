@@ -18,11 +18,7 @@
 package org.pentaho.mantle.client.commands;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
@@ -33,10 +29,10 @@ import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFolderActionEvent;
+import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserFile;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,9 +72,12 @@ public class PasteFilesCommand extends AbstractCommand {
                *
                * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation()
                */
-  @Override
-  protected void performOperation() {
+  @Override protected void performOperation() {
     performOperation( false );
+  }
+
+  SolutionBrowserClipboard getSolutionBrowserClipboard() {
+    return SolutionBrowserClipboard.getInstance();
   }
 
   /*
@@ -86,30 +85,26 @@ public class PasteFilesCommand extends AbstractCommand {
    *
    * @see org.pentaho.mantle.client.commands.AbstractCommand#performOperation(boolean)
    */
-  @Override
-  protected void performOperation( boolean feedback ) {
-    final SolutionBrowserClipboard clipBoard = SolutionBrowserClipboard.getInstance();
-    @SuppressWarnings ( "unchecked" )
-    final List<SolutionBrowserFile> clipboardFileItems = clipBoard.getClipboardItems();
+  @Override protected void performOperation( boolean feedback ) {
+    final SolutionBrowserClipboard clipBoard = getSolutionBrowserClipboard();
+    @SuppressWarnings( "unchecked" ) final List<SolutionBrowserFile> clipboardFileItems = clipBoard.getClipboardItems();
 
     if ( clipboardFileItems != null && clipboardFileItems.size() > 0 && getSolutionPath() != null ) {
-      String getChildrenUrl =
-          contextURL
-              + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/tree?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
-      RequestBuilder childrenRequestBuilder = new RequestBuilder( RequestBuilder.GET, getChildrenUrl );
+      String
+          getChildrenUrl =
+          contextURL + "api/repo/files/" + pathToId( getSolutionPath() ) + "/tree?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
+      RequestBuilder childrenRequestBuilder = getRequestBuilder( RequestBuilder.GET, getChildrenUrl );
       try {
         childrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
         childrenRequestBuilder.sendRequest( null, new RequestCallback() {
 
-          @Override
-          public void onError( Request getChildrenRequest, Throwable exception ) {
+          @Override public void onError( Request getChildrenRequest, Throwable exception ) {
             Window.alert( exception.getLocalizedMessage() );
             event.setMessage( exception.getLocalizedMessage() );
             EventBusUtil.EVENT_BUS.fireEvent( event );
           }
 
-          @Override
-          public void onResponseReceived( Request getChildrenRequest, Response getChildrenResponse ) {
+          @Override public void onResponseReceived( Request getChildrenRequest, Response getChildrenResponse ) {
             event.setMessage( "Click" );
             EventBusUtil.EVENT_BUS.fireEvent( event );
             boolean cutSameDir = false;
@@ -126,15 +121,18 @@ public class PasteFilesCommand extends AbstractCommand {
               for ( SolutionBrowserFile file : clipboardFileItems ) {
                 if ( file.getPath() != null ) {
                   String pasteFileParentPath = file.getPath();
-                  String fileNameWithExt = pasteFileParentPath.substring( pasteFileParentPath.lastIndexOf( "/" ) + 1, pasteFileParentPath.length() ); //$NON-NLS-1$
-                  pasteFileParentPath = pasteFileParentPath.substring( 0, pasteFileParentPath.lastIndexOf( "/" ) ); //$NON-NLS-1$
-                  if ( childNames.contains( fileNameWithExt )
-                      && !getSolutionPath().equals( pasteFileParentPath ) ) {
+                  String
+                      fileNameWithExt =
+                      pasteFileParentPath.substring( pasteFileParentPath.lastIndexOf( "/" ) + 1,
+                          pasteFileParentPath.length() ); //$NON-NLS-1$
+                  pasteFileParentPath =
+                      pasteFileParentPath.substring( 0, pasteFileParentPath.lastIndexOf( "/" ) ); //$NON-NLS-1$
+                  if ( childNames.contains( fileNameWithExt ) && !getSolutionPath().equals( pasteFileParentPath ) ) {
                     promptForOptions = true;
                     break;
-                  } else if ( childNames.contains( fileNameWithExt )
-                      && getSolutionPath().equals( pasteFileParentPath )
-                      && SolutionBrowserClipboard.getInstance().getClipboardAction() == SolutionBrowserClipboard.ClipboardAction.CUT ) {
+                  } else if ( childNames.contains( fileNameWithExt ) && getSolutionPath().equals( pasteFileParentPath )
+                      && SolutionBrowserClipboard.getInstance().getClipboardAction()
+                      == SolutionBrowserClipboard.ClipboardAction.CUT ) {
                     cutSameDir = true;
                     break;
                   }
@@ -175,10 +173,17 @@ public class PasteFilesCommand extends AbstractCommand {
     }
   }
 
+  RequestBuilder getRequestBuilder( RequestBuilder.Method method, String url ) {
+    return new RequestBuilder( method, url );
+  }
+
+  String pathToId( String path ) {
+    return SolutionBrowserPanel.pathToId( path );
+  }
+
   void performSave( final SolutionBrowserClipboard clipBoard, Integer overwriteMode ) {
 
-    @SuppressWarnings ( "unchecked" )
-    final List<SolutionBrowserFile> clipboardFileItems = clipBoard.getClipboardItems();
+    @SuppressWarnings( "unchecked" ) final List<SolutionBrowserFile> clipboardFileItems = clipBoard.getClipboardItems();
     String temp = ""; //$NON-NLS-1$
     for ( SolutionBrowserFile file : clipboardFileItems ) {
       temp += file.getId() + ","; //$NON-NLS-1$
@@ -187,28 +192,31 @@ public class PasteFilesCommand extends AbstractCommand {
     temp = temp.substring( 0, temp.length() - 1 );
     final String filesList = temp;
 
-    String copyUrl = contextURL
-        + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/children?mode=" + overwriteMode; //$NON-NLS-1$//$NON-NLS-2$
+    String
+        copyUrl =
+        contextURL + "api/repo/files/" + pathToId( getSolutionPath() ) + "/children?mode="
+            + overwriteMode; //$NON-NLS-1$//$NON-NLS-2$
 
-    String moveUrl = contextURL
-        + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/move"; //$NON-NLS-1$//$NON-NLS-2$
+    String
+        moveUrl =
+        contextURL + "api/repo/files/" + pathToId( getSolutionPath() ) + "/move"; //$NON-NLS-1$//$NON-NLS-2$
 
-    RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder( RequestBuilder.PUT, ( SolutionBrowserClipboard.getInstance()
-        .getClipboardAction() == SolutionBrowserClipboard.ClipboardAction.CUT ) ? moveUrl : copyUrl );
+    RequestBuilder
+        pasteChildrenRequestBuilder =
+        getRequestBuilder( RequestBuilder.PUT, ( SolutionBrowserClipboard.getInstance().getClipboardAction()
+            == SolutionBrowserClipboard.ClipboardAction.CUT ) ? moveUrl : copyUrl );
     pasteChildrenRequestBuilder.setHeader( "Content-Type", "text/plain" ); //$NON-NLS-1$//$NON-NLS-2$
     pasteChildrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {
       pasteChildrenRequestBuilder.sendRequest( filesList, new RequestCallback() {
 
-        @Override
-        public void onError( Request pasteChildrenRequest, Throwable exception ) {
+        @Override public void onError( Request pasteChildrenRequest, Throwable exception ) {
           Window.alert( exception.getLocalizedMessage() );
           event.setMessage( exception.getLocalizedMessage() );
           EventBusUtil.EVENT_BUS.fireEvent( event );
         }
 
-        @Override
-        public void onResponseReceived( Request pasteChildrenRequest, Response pasteChildrenResponse ) {
+        @Override public void onResponseReceived( Request pasteChildrenRequest, Response pasteChildrenResponse ) {
           switch ( pasteChildrenResponse.getStatusCode() ) {
             case Response.SC_OK:
               event.setMessage( "Success" );
@@ -216,7 +224,8 @@ public class PasteFilesCommand extends AbstractCommand {
               FileChooserDialog.setIsDirty( Boolean.TRUE );
               setBrowseRepoDirty( Boolean.TRUE );
               //This will allow for multiple paste presses after a cut/paste.
-              SolutionBrowserClipboard.getInstance().setClipboardAction( SolutionBrowserClipboard.ClipboardAction.COPY );
+              SolutionBrowserClipboard.getInstance()
+                  .setClipboardAction( SolutionBrowserClipboard.ClipboardAction.COPY );
               break;
             case Response.SC_FORBIDDEN:
               event.setMessage( Messages.getString( "pasteFilesCommand.accessDenied" ) );

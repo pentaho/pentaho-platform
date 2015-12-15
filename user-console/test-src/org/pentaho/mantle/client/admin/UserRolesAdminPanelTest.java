@@ -15,19 +15,17 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.mantle.client;
+package org.pentaho.mantle.client.admin;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import org.pentaho.mantle.client.objects.UserPermission;
+import com.google.gwtmockito.GwtMockitoTestRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class NothingTest extends TestCase {
+import static org.junit.Assert.assertNotNull;
 
-  public void testNothing() {
+@RunWith( GwtMockitoTestRunner.class ) public class UserRolesAdminPanelTest {
 
-    Assert.assertTrue( true );
-    UserPermission userPerm = new UserPermission();
-    Assert.assertNotNull( userPerm.toString() );
+  @Test public void testGetInstance() {
+    assertNotNull( UserRolesAdminPanel.getInstance() );
   }
-
 }

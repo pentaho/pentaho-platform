@@ -18,21 +18,10 @@
 package org.pentaho.mantle.client.admin;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.event.dom.client.MouseUpEvent;
-import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.TextBox;
@@ -61,16 +50,14 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     activate();
 
     AsyncCallback<String> emailTestCallback = new AsyncCallback<String>() {
-      @Override
-      public void onFailure( Throwable err ) {
+      @Override public void onFailure( Throwable err ) {
         MantleApplication.hideBusyIndicator();
         etd.getElement().setId( "emailTestDialog" );
         etd.show( err.getMessage() );
 
       }
 
-      @Override
-      public void onSuccess( String message ) {
+      @Override public void onSuccess( String message ) {
         MantleApplication.hideBusyIndicator();
         etd.getElement().setId( "emailTestDialog" );
         etd.show( message );
@@ -94,51 +81,45 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     } );
 
     prepareTextBox( smtpHostTextBox, new ChangeHandler() {
-      @Override
-      public void onChange( ChangeEvent event ) {
+      @Override public void onChange( ChangeEvent event ) {
         emailConfig.setSmtpHost( smtpHostTextBox.getValue() );
         setDirty( true );
       }
     } );
 
     prepareTextBox( portTextBox, new ChangeHandler() {
-      @Override
-      public void onChange( ChangeEvent event ) {
+      @Override public void onChange( ChangeEvent event ) {
         setDirty( true );
       }
     } );
     portTextBox.addChangeHandler( new ChangeHandler() {
-      @Override
-      public void onChange( ChangeEvent event ) {
+      @Override public void onChange( ChangeEvent event ) {
         if ( isPortValid( portTextBox.getValue() ) ) {
           emailConfig.setSmtpPort( Integer.parseInt( portTextBox.getValue() ) );
           setDirty( true );
         } else {
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-              , false, true ).center();
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false,
+              false, true ).center();
         }
       }
     } );
 
     prepareTextBox( fromAddressTextBox, new ChangeHandler() {
-      @Override
-      public void onChange( ChangeEvent event ) {
+      @Override public void onChange( ChangeEvent event ) {
         emailConfig.setDefaultFrom( fromAddressTextBox.getValue() );
         setDirty( true );
       }
     } );
 
     prepareTextBox( fromNameTextBox, new ChangeHandler() {
-      @Override
-      public void onChange( ChangeEvent event ) {
+      @Override public void onChange( ChangeEvent event ) {
         emailConfig.setFromName( fromNameTextBox.getValue() );
         setDirty( true );
       }
     } );
 
     prepareTextBox( userNameTextBox, new ChangeHandler() {
-      @Override
-      public void onChange( ChangeEvent event ) {
+      @Override public void onChange( ChangeEvent event ) {
         emailConfig.setUserId( userNameTextBox.getValue() );
         setDirty( true );
       }
@@ -170,8 +151,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
         if ( isPortValid( portTextBox.getValue() ) ) {
           setEmailConfig();
         } else {
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-              , false, true ).center();
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false,
+              false, true ).center();
         }
       }
     } );
@@ -217,8 +198,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
   private void testEmail() {
 
     // show the busy indicator...
-    MantleApplication.showBusyIndicator( Messages.getString( "pleaseWait" ), Messages
-        .getString( "connectionTest.inprog" ) );
+    MantleApplication
+        .showBusyIndicator( Messages.getString( "pleaseWait" ), Messages.getString( "connectionTest.inprog" ) );
     emailTester.test( emailConfig );
 
   }
@@ -279,25 +260,24 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
     if ( isDirty ) {
-      MessageDialogBox messageBox = new MessageDialogBox( Messages.getString( "confirm" )
-          , Messages.getString( "dirtyStateMessage" ), false, false, true, Messages.getString( "yes" ), null
-          , Messages.getString( "no" ) );
+      MessageDialogBox
+          messageBox =
+          new MessageDialogBox( Messages.getString( "confirm" ), Messages.getString( "dirtyStateMessage" ), false,
+              false, true, Messages.getString( "yes" ), null, Messages.getString( "no" ) );
       messageBox.setCallback( new IDialogCallback() {
 
-        @Override
-        public void okPressed() {
+        @Override public void okPressed() {
           if ( isPortValid( portTextBox.getValue() ) ) {
             setEmailConfig();
             callback.onSuccess( true );
             setDirty( false );
           } else {
-            new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-                , false, true ).center();
+            new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false,
+                false, true ).center();
           }
         }
 
-        @Override
-        public void cancelPressed() {
+        @Override public void cancelPressed() {
           callback.onSuccess( true );
           setDirty( false );
         }
@@ -315,23 +295,20 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
   private void prepareTextBox( final TextBox textBox, final ChangeHandler changeHandler ) {
     textBox.addKeyUpHandler( new KeyUpHandler() {
-      @Override
-      public void onKeyUp( KeyUpEvent event ) {
+      @Override public void onKeyUp( KeyUpEvent event ) {
         changeHandler.onChange( null );
       }
     } );
     textBox.addMouseUpHandler( new MouseUpHandler() {
-      @Override
-      public void onMouseUp( MouseUpEvent event ) {
+      @Override public void onMouseUp( MouseUpEvent event ) {
         final String oldValue = textBox.getValue();
         new Timer() { // set timer for IE 'x' clear input button.
-          @Override
-          public void run() {
+          @Override public void run() {
             if ( !oldValue.equals( textBox.getValue() ) ) {
               changeHandler.onChange( null );
             }
           }
-        } .schedule( 100 );
+        }.schedule( 100 );
       }
     } );
   }

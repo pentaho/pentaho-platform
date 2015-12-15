@@ -8,3 +8,6 @@ build-utils/dist
 build-utils/lib
 build-utils/test-lib
 .settings
+.DS_Store
+override.properties
+*.iml

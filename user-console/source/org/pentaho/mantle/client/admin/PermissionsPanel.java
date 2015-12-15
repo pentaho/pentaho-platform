@@ -92,8 +92,8 @@ public class PermissionsPanel extends VerticalPanel {
     }
   }
 
-  public void setSelectedPermissions() {
-    Timer t = new Timer() {
+  Timer getSelectedPermissionsTimer() {
+    return new Timer() {
       public void run() {
         int selectedIndex = rolesListBox.getSelectedIndex();
         if ( selectedIndex >= 0 ) {
@@ -104,12 +104,16 @@ public class PermissionsPanel extends VerticalPanel {
           }
           for ( LogicalRoleInfo logicalRoleInfo : logicalRoles.values() ) {
             logicalRoleInfo.checkBox.setValue( ( logicalRoleAssignments != null )
-                && logicalRoleAssignments.contains( logicalRoleInfo.roleName ) );
+                    && logicalRoleAssignments.contains( logicalRoleInfo.roleName ) );
             logicalRoleInfo.checkBox.setEnabled( !immutableRoles.contains( roleName ) );
           }
         }
       }
     };
+  }
+
+  public void setSelectedPermissions() {
+    Timer t = getSelectedPermissionsTimer();
     t.scheduleRepeating( 100 );
   }
 
@@ -208,7 +212,7 @@ public class PermissionsPanel extends VerticalPanel {
     }
   }
 
-  private final native JavaScriptObject parseRoleMappings( String json )
+  final native JavaScriptObject parseRoleMappings( String json )
   /*-{
     var arr = [];
     var obj = eval('(' + json + ')');

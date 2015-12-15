@@ -80,7 +80,8 @@
         </dependency>
 
         <!--  Testing dependencies -->
-        <dependency org="junit"          name="junit"          rev="4.12" conf="test->default" />
-
+        <dependency org="junit" name="junit" rev="4.11" conf="test->default" />
+        <dependency org="org.mockito" name="mockito-all" rev="1.9.5" transitive="false" conf="test->default"/>
+        <dependency org="com.google.gwt.gwtmockito" name="gwtmockito" rev="1.1.4" conf="test->default"/>
     </dependencies>    
 </ivy-module>

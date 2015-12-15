@@ -19,16 +19,8 @@ package org.pentaho.mantle.client.admin;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
@@ -44,8 +36,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel,
-    UpdatePasswordController {
+public class UserRolesAdminPanelController extends UserRolesAdminPanel
+    implements ISysAdminPanel, UpdatePasswordController {
   private String delimiter = "\t";
   private static UserRolesAdminPanelController instance = new UserRolesAdminPanelController();
   private boolean usingPentahoSecurity;
@@ -53,7 +45,6 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   public static UserRolesAdminPanelController getInstance() {
     return instance;
   }
-
 
   public UserRolesAdminPanelController() {
     super();
@@ -78,9 +69,13 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     activate();
   }
 
+  RequestBuilder getRequestBuilder( RequestBuilder.Method method, String url ) {
+    return new RequestBuilder( method, url );
+  }
+
   public void saveUser( final String name, final String password ) {
     String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createUser";
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, serviceUrl );
+    RequestBuilder executableTypesRequestBuilder = getRequestBuilder( RequestBuilder.PUT, serviceUrl );
     try {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
@@ -103,7 +98,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
   public void saveRole( final String name ) {
     String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/createRole?roleName=" + encodeUri( name );
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, serviceUrl );
+    RequestBuilder executableTypesRequestBuilder = getRequestBuilder( RequestBuilder.PUT, serviceUrl );
     try {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
@@ -154,15 +149,22 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
   private void checkForError( String title, Response response ) {
     if ( response != null && response.getText() != null && response.getText().length() > 0 ) {
-      MessageDialogBox messageBox = new MessageDialogBox( title, response.getText(), false, false, true
-          , Messages.getString( "close" ) );
+      MessageDialogBox
+          messageBox =
+          new MessageDialogBox( title, response.getText(), false, false, true, Messages.getString( "close" ) );
       messageBox.center();
     }
   }
 
+  MessageDialogBox getMessageDialogBox( String title, String message, boolean isHTML, boolean autoHide, boolean modal,
+      String okText ) {
+    return new MessageDialogBox( title, message, isHTML, autoHide, modal, okText );
+  }
+
   private void displayErrorInMessageBox( String title, String message ) {
-    MessageDialogBox messageBox = new MessageDialogBox( title, message, false, false, true
-        , Messages.getString( "close" ) );
+    MessageDialogBox
+        messageBox =
+        getMessageDialogBox( title, message, false, false, true, Messages.getString( "close" ) );
     messageBox.center();
   }
 
@@ -176,7 +178,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     }
 
     String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/deleteUsers?userNames=" + selectedUsers.toString();
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, serviceUrl );
+    RequestBuilder executableTypesRequestBuilder = getRequestBuilder( RequestBuilder.PUT, serviceUrl );
     try {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
@@ -200,15 +202,20 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     }
   }
 
+  String getSelectedUserValue() {
+    return usersListBox.getValue( usersListBox.getSelectedIndex() );
+  }
+
   public void updatePassword( String newPassword ) {
 
-    String userName = usersListBox.getValue( usersListBox.getSelectedIndex() );
+    String userName = getSelectedUserValue();
     String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/updatePassword";
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, serviceUrl );
+    RequestBuilder executableTypesRequestBuilder = getRequestBuilder( RequestBuilder.PUT, serviceUrl );
     try {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
-      String json =
+      String
+          json =
           "{\"userName\": \"" + encodeUri( userName ) + "\", \"password\": \"" + encodeUri( newPassword ) + "\"}";
       executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
@@ -244,8 +251,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     initializeList( "users", defaultValue, "api/userroledao/users", usersListBox );
   }
 
-  private void initializeList( final String type, final String defaultValue, String serviceUrl
-      , final ListBox listBox ) {
+  private void initializeList( final String type, final String defaultValue, String serviceUrl,
+      final ListBox listBox ) {
     final String url = GWT.getHostPageBaseURL() + serviceUrl;
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -493,7 +500,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     initializeAvailableUsers( null );
 
     final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider";
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
+    RequestBuilder executableTypesRequestBuilder = getRequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
     try {
@@ -523,7 +530,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   }
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
-    if (usingPentahoSecurity ) {
+    if ( usingPentahoSecurity ) {
       mainTabPanel.selectTab( 0 );
     } else {
       mainTabPanel.selectTab( 1 );
@@ -583,7 +590,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
       }
 
-      String serviceUrl =
+      String
+          serviceUrl =
           GWT.getHostPageBaseURL() + "api/userroledao/assignRoleToUser?userName=" + encodeUri( userName )
               + "&roleNames=" + roleNames.toString();
       modifyUserRoles( userName, serviceUrl );
@@ -601,7 +609,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
       }
 
-      String serviceUrl =
+      String
+          serviceUrl =
           GWT.getHostPageBaseURL() + "api/userroledao/removeRoleFromUser?userName=" + encodeUri( userName )
               + "&roleNames=" + roleNames.toString();
       modifyUserRoles( userName, serviceUrl );
@@ -611,7 +620,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class AddAllRolesListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       String userName = usersListBox.getValue( usersListBox.getSelectedIndex() );
-      String serviceUrl =
+      String
+          serviceUrl =
           GWT.getHostPageBaseURL() + "api/userroledao/assignAllRolesToUser?userName=" + encodeUri( userName );
       modifyUserRoles( userName, serviceUrl );
     }
@@ -620,7 +630,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class RemoveAllRolesListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       String userName = usersListBox.getValue( usersListBox.getSelectedIndex() );
-      String serviceUrl =
+      String
+          serviceUrl =
           GWT.getHostPageBaseURL() + "api/userroledao/removeAllRolesFromUser?userName=" + encodeUri( userName );
       modifyUserRoles( userName, serviceUrl );
     }
@@ -637,7 +648,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
       }
 
-      String serviceUrl =
+      String
+          serviceUrl =
           GWT.getHostPageBaseURL() + "api/userroledao/assignUserToRole?userNames=" + userNames.toString() + "&roleName="
               + encodeUri( roleName );
       modifyRoleUsers( roleName, serviceUrl );
@@ -655,9 +667,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
       }
 
-      String serviceUrl =
-          GWT.getHostPageBaseURL() + "api/userroledao/removeUserFromRole?userNames=" + userNames.toString() + "&roleName="
-              + encodeUri( roleName );
+      String
+          serviceUrl =
+          GWT.getHostPageBaseURL() + "api/userroledao/removeUserFromRole?userNames=" + userNames.toString()
+              + "&roleName=" + encodeUri( roleName );
       modifyRoleUsers( roleName, serviceUrl );
     }
   }
@@ -665,7 +678,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class AddAllUsersListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       String roleName = rolesListBox.getValue( rolesListBox.getSelectedIndex() );
-      String serviceUrl =
+      String
+          serviceUrl =
           GWT.getHostPageBaseURL() + "api/userroledao/assignAllUsersToRole?roleName=" + encodeUri( roleName );
       modifyRoleUsers( roleName, serviceUrl );
     }
@@ -674,7 +688,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class RemoveAllUsersListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       String roleName = rolesListBox.getValue( rolesListBox.getSelectedIndex() );
-      String serviceUrl =
+      String
+          serviceUrl =
           GWT.getHostPageBaseURL() + "api/userroledao/removeAllUsersFromRole?roleName=" + encodeUri( roleName );
       modifyRoleUsers( roleName, serviceUrl );
     }
@@ -690,17 +705,16 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class DeleteRoleListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       if ( rolesListBox.getSelectedIndex() != -1 ) {
-        MessageDialogBox warning = new MessageDialogBox( Messages.getString( "deleteRoleTitle" )
-            , Messages.getString( "deleteRoleMessage" ), false, false, true, Messages.getString( "yesDelete" ), null
-            , Messages.getString( "no" ) );
+        MessageDialogBox
+            warning =
+            new MessageDialogBox( Messages.getString( "deleteRoleTitle" ), Messages.getString( "deleteRoleMessage" ),
+                false, false, true, Messages.getString( "yesDelete" ), null, Messages.getString( "no" ) );
         warning.setCallback( new IDialogCallback() {
-          @Override
-          public void okPressed() {
+          @Override public void okPressed() {
             deleteRoles();
           }
 
-          @Override
-          public void cancelPressed() {
+          @Override public void cancelPressed() {
           }
         } );
         warning.center();
@@ -718,17 +732,16 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class DeleteUserListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       if ( usersListBox.getSelectedIndex() != -1 ) {
-        MessageDialogBox warning = new MessageDialogBox( Messages.getString( "deleteUserTitle" )
-            , Messages.getString( "deleteUserMessage" ), false, false, true, Messages.getString( "yesDelete" ), null
-            , Messages.getString( "no" ) );
+        MessageDialogBox
+            warning =
+            new MessageDialogBox( Messages.getString( "deleteUserTitle" ), Messages.getString( "deleteUserMessage" ),
+                false, false, true, Messages.getString( "yesDelete" ), null, Messages.getString( "no" ) );
         warning.setCallback( new IDialogCallback() {
-          @Override
-          public void okPressed() {
+          @Override public void okPressed() {
             deleteUsers();
           }
 
-          @Override
-          public void cancelPressed() {
+          @Override public void cancelPressed() {
           }
         } );
         warning.center();

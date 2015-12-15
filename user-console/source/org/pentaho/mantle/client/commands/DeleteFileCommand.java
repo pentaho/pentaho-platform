@@ -17,9 +17,9 @@
 
 package org.pentaho.mantle.client.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.*;
+import com.google.gwt.user.client.ui.HTML;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -30,13 +30,9 @@ import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserFile;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.ui.HTML;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DeleteFileCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();
@@ -44,7 +40,6 @@ public class DeleteFileCommand extends AbstractCommand {
   String moduleName = GWT.getModuleName();
 
   String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
-
 
   public DeleteFileCommand() {
   }
@@ -81,7 +76,7 @@ public class DeleteFileCommand extends AbstractCommand {
 
   protected void performOperation() {
 
-    if (  this.getSolutionPath() != null && this.getFileNames() != null && this.getFileIds() != null ) {
+    if ( this.getSolutionPath() != null && this.getFileNames() != null && this.getFileIds() != null ) {
       StringTokenizer pathTk = new StringTokenizer( this.getSolutionPath(), "\n" );
       StringTokenizer nameTk = new StringTokenizer( this.getFileNames(), "\n" );
       StringTokenizer idTk = new StringTokenizer( this.getFileIds(), "\n" );
@@ -95,8 +90,17 @@ public class DeleteFileCommand extends AbstractCommand {
     }
   }
 
+  SolutionFileActionEvent getSolutionFileActionEvent() {
+    return new SolutionFileActionEvent();
+  }
+
+  PromptDialogBox getPromptDialogBox( String title, String okText, String cancelText, boolean autoHide,
+      boolean modal ) {
+    return new PromptDialogBox( title, okText, cancelText, autoHide, modal );
+  }
+
   protected void performOperation( boolean feedback ) {
-    final SolutionFileActionEvent event = new SolutionFileActionEvent();
+    final SolutionFileActionEvent event = getSolutionFileActionEvent();
     event.setAction( this.getClass().getName() );
 
     String temp = "";
@@ -108,8 +112,13 @@ public class DeleteFileCommand extends AbstractCommand {
     }
 
     // remove trailing ","
-    temp = temp.substring( 0, temp.length() - 1 );
-    names = names.substring( 0, names.length() - 1 );
+    if ( temp.length() > 0 ) {
+      temp = temp.substring( 0, temp.length() - 1 );
+    }
+
+    if ( names.length() > 0 ) {
+      names = names.substring( 0, names.length() - 1 );
+    }
 
     final String filesList = temp;
 
@@ -120,9 +129,10 @@ public class DeleteFileCommand extends AbstractCommand {
       } else {
         messageTextBox = new HTML( Messages.getString( "moveToTrashQuestionFile", names ) );
       }
-      final PromptDialogBox fileMoveToTrashWarningDialogBox =
-          new PromptDialogBox( Messages.getString( "moveToTrash" ), Messages.getString( "yesMoveToTrash" ), Messages
-              .getString( "no" ), true, true );
+      final PromptDialogBox
+          fileMoveToTrashWarningDialogBox =
+          getPromptDialogBox( Messages.getString( "moveToTrash" ), Messages.getString( "yesMoveToTrash" ),
+              Messages.getString( "no" ), true, true );
       fileMoveToTrashWarningDialogBox.setContent( messageTextBox );
 
       final IDialogCallback callback = new IDialogCallback() {
@@ -143,18 +153,23 @@ public class DeleteFileCommand extends AbstractCommand {
     }
   }
 
+  RequestBuilder getRequestBuilder( RequestBuilder.Method method, String url ) {
+    return new RequestBuilder( method, url );
+  }
+
   public void doDelete( String filesList, final SolutionFileActionEvent event ) {
     String deleteFilesURL = contextURL + "api/repo/files/delete"; //$NON-NLS-1$
-    RequestBuilder deleteFilesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, deleteFilesURL );
+    RequestBuilder deleteFilesRequestBuilder = getRequestBuilder( RequestBuilder.PUT, deleteFilesURL );
     deleteFilesRequestBuilder.setHeader( "Content-Type", "text/plain" ); //$NON-NLS-1$//$NON-NLS-2$
     deleteFilesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {
       deleteFilesRequestBuilder.sendRequest( filesList, new RequestCallback() {
 
-        @Override
-        public void onError( Request request, Throwable exception ) {
-          MessageDialogBox dialogBox =
-              new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ), //$NON-NLS-1$ //$NON-NLS-2$
+        @Override public void onError( Request request, Throwable exception ) {
+          MessageDialogBox
+              dialogBox =
+              new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ),
+                  //$NON-NLS-1$ //$NON-NLS-2$
                   false, false, true );
           dialogBox.center();
 
@@ -162,8 +177,7 @@ public class DeleteFileCommand extends AbstractCommand {
           EventBusUtil.EVENT_BUS.fireEvent( event );
         }
 
-        @Override
-        public void onResponseReceived( Request request, Response response ) {
+        @Override public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == 200 ) {
             event.setMessage( "Success" );
             EventBusUtil.EVENT_BUS.fireEvent( event );
@@ -184,20 +198,24 @@ public class DeleteFileCommand extends AbstractCommand {
 
       } );
     } catch ( RequestException e ) {
-      MessageDialogBox dialogBox =
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ), //$NON-NLS-1$ //$NON-NLS-2$
+      MessageDialogBox
+          dialogBox =
+          getMessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ),
+              //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true );
       dialogBox.center();
       event.setMessage( Messages.getString( "couldNotDeleteFile" ) );
       EventBusUtil.EVENT_BUS.fireEvent( event );
     }
-
   }
 
-
+  MessageDialogBox getMessageDialogBox( String title, String message, boolean isHTML, boolean autoHide,
+      boolean modal ) {
+    return new MessageDialogBox( title, message, isHTML, autoHide, modal );
+  }
 
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
-    $wnd.mantle_isBrowseRepoDirty=isDirty;
+    $wnd.mantle_isBrowseRepoDirty = isDirty;
   }-*/;
 }
