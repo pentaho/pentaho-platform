@@ -25,6 +25,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -61,6 +62,7 @@ import java.util.List;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.*;
 
 public class FileResourceTest {
@@ -71,7 +73,8 @@ public class FileResourceTest {
   private static final String NAME_NEW_FILE = "nameNewFile.xml";
   private static final String NAME_NEW_FILE_WITHOUTH_EXTENSION = "nameNewFile";
   private static final String NAME_NEW_FILE_WRONG_EXTENSION = "nameNewFile.wrong";
-  
+
+  private static final String FILE_ID = "444324fd54ghad";
   private FileResource fileResource;
 
   @Before
@@ -211,7 +214,7 @@ public class FileResourceTest {
     Response mockResponse = mock( Response.class );
     doReturn( mockResponse ).when( fileResource ).buildOkResponse();
 
-    Response testResponse = fileResource.doRestore( params );
+    Response testResponse = fileResource.doRestore( params, null );
 
     verify( fileResource, times( 1 ) ).buildOkResponse();
     verify( fileResource.fileService, times( 1 ) ).doRestoreFiles( params );
@@ -227,12 +230,24 @@ public class FileResourceTest {
     Response mockInternalErrorResponse = mock( Response.class );
     doReturn( mockInternalErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
 
-    Response testResponse = fileResource.doRestore( params );
+    Response testResponse = fileResource.doRestore( params, null );
 
     assertEquals( mockInternalErrorResponse, testResponse );
     verify( fileResource.fileService, times( 1 ) ).doRestoreFiles( params );
     verify( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
   }
+
+  @Test
+  public void testNoServerErrorCodeReturnedWhenUserHasNoWritePermissionsToFolder() {
+    UnifiedRepositoryAccessDeniedException mockedException = mock( UnifiedRepositoryAccessDeniedException.class );
+    doThrow( mockedException ).when( fileResource.fileService ).doRestoreFiles( FILE_ID );
+    doReturn( "user/home" ).when( fileResource ).getUserHomeFolder();
+    doReturn( false ).when( fileResource.fileService ).canRestoreToFolderWithNoConflicts( anyString(), eq(FILE_ID) );
+
+    Response response = fileResource.doRestore( FILE_ID, null );
+    assertNotEquals( response.getStatus(), INTERNAL_SERVER_ERROR.getStatusCode() );
+  }
+
 
   @Test
   public void testCreateFile() throws Exception {
