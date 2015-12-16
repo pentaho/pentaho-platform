@@ -505,7 +505,7 @@ public class FileService {
    *          List with file ids.
    * @return
    *      - String of file ids, separated by comma
-   *      - Empty String if <param> fileIdList </param> is null or empty
+   *      - Empty String if {@code fileIdList} is null or empty
    *
    */
   protected String getCommaSeparatedFileIds( List<String> fileIdsList ) {
@@ -1260,12 +1260,12 @@ public class FileService {
    * @param params
    *            id of files, separated by ','
    *
-   * @return false if params is null or homeFolder has files
+   * @return false if homeFolder has files
    *               with names and extension equal to passed files
    *         true otherwise
    *
    * @throws IllegalArgumentException
-   *              if <param>params</param> is null
+   *              if {@code params} is null
    */
   public boolean canRestoreToFolderWithNoConflicts( String pathToFolder, String params ) {
     if ( params == null ) {

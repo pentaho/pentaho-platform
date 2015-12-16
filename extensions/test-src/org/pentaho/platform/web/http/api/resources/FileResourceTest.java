@@ -94,11 +94,11 @@ public class FileResourceTest {
 
   @BeforeClass
   public static void initTest() {
-    IRepositoryContentConverterHandler handler =  mock( IRepositoryContentConverterHandler.class );
+    IRepositoryContentConverterHandler handler = mock( IRepositoryContentConverterHandler.class );
     when( handler.getConverter( XML_EXTENSION ) ).thenReturn( new StreamConverter() );
     PentahoSystem.registerObject( handler );
   }
-  
+
   @Test
   public void doDeleteFiles() throws Exception {
     String params = "params";
@@ -242,7 +242,7 @@ public class FileResourceTest {
     UnifiedRepositoryAccessDeniedException mockedException = mock( UnifiedRepositoryAccessDeniedException.class );
     doThrow( mockedException ).when( fileResource.fileService ).doRestoreFiles( FILE_ID );
     doReturn( "user/home" ).when( fileResource ).getUserHomeFolder();
-    doReturn( false ).when( fileResource.fileService ).canRestoreToFolderWithNoConflicts( anyString(), eq(FILE_ID) );
+    doReturn( false ).when( fileResource.fileService ).canRestoreToFolderWithNoConflicts( anyString(), eq( FILE_ID ) );
 
     Response response = fileResource.doRestore( FILE_ID, null );
     assertNotEquals( response.getStatus(), INTERNAL_SERVER_ERROR.getStatusCode() );
@@ -273,28 +273,28 @@ public class FileResourceTest {
     InputStream mockInputStream = mock( InputStream.class );
     Response testResponse = fileResource.createFile( PATH_ID_WITHOUTH_EXTENSION, mockInputStream );
     assertEquals( Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
-    
+
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( anyString() );
   }
-  
+
   @Test
   public void testCreateFileIncorrectExtension() throws Exception {
     InputStream mockInputStream = mock( InputStream.class );
     Response testResponse = fileResource.createFile( PATH_ID_INCORRECT_EXTENSION, mockInputStream );
     assertEquals( Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
-    
+
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( anyString() );
   }
-  
+
   @Test
   public void testCreateFileCorrectExtension() throws Exception {
     InputStream mockInputStream = mock( InputStream.class );
     Response testResponse = fileResource.createFile( PATH_ID, mockInputStream );
     assertEquals( Status.OK.getStatusCode(), testResponse.getStatus() );
-    
+
     verify( fileResource, times( 1 ) ).buildOkResponse();
   }
-  
+
   @Test
   public void testCreateFileError() throws Exception {
     String charsetName = "charsetName";
@@ -357,7 +357,7 @@ public class FileResourceTest {
     Integer mode = 1;
     String params = "params";
 
-    Exception illegalArgument = new IllegalArgumentException( );
+    Exception illegalArgument = new IllegalArgumentException();
     doThrow( illegalArgument ).when( fileResource.fileService ).doCopyFiles( PATH_ID, mode, params );
 
     Response testResponse = fileResource.doCopyFiles( PATH_ID, mode, params );
@@ -531,7 +531,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoIsParameterizable() throws Exception {
-    
+
 
     String path = "path";
     doReturn( path ).when( fileResource.fileService ).idToPath( PATH_ID );
@@ -623,7 +623,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoIsParameterizableError() throws Exception {
-    
+
 
     String path = "path";
     doReturn( path ).when( fileResource.fileService ).idToPath( PATH_ID );
@@ -665,7 +665,7 @@ public class FileResourceTest {
   @Test
   public void testDoGetFileOrDirAsDownload() throws Throwable {
     String userAgent = "userAgent";
-    
+
     String strWithManifest = "strWithManifest";
 
     FileService.DownloadFileWrapper mockDownloadFileWrapper = mock( FileService.DownloadFileWrapper.class );
@@ -685,7 +685,7 @@ public class FileResourceTest {
   @Test
   public void testDoGetFileOrDirAsDownloadError() throws Throwable {
     String userAgent = "userAgent";
-    
+
     String strWithManifest = "strWithManifest";
 
     Messages mockMessages = mock( Messages.class );
@@ -717,7 +717,7 @@ public class FileResourceTest {
     // Test 2
     Exception mockIllegalSelectorException = mock( IllegalSelectorException.class );
     doThrow( mockIllegalSelectorException ).when( fileResource.fileService ).doGetFileOrDirAsDownload( userAgent,
-        PATH_ID, strWithManifest );
+      PATH_ID, strWithManifest );
     doReturn( exceptionMessage ).when( mockIllegalSelectorException ).getMessage();
 
     testResponse = fileResource.doGetFileOrDirAsDownload( userAgent, PATH_ID, strWithManifest );
@@ -726,7 +726,7 @@ public class FileResourceTest {
     // Test 3
     Exception mockGeneralSecurityException = mock( GeneralSecurityException.class );
     doThrow( mockGeneralSecurityException ).when( fileResource.fileService ).doGetFileOrDirAsDownload( userAgent,
-        PATH_ID, strWithManifest );
+      PATH_ID, strWithManifest );
     doReturn( exceptionMessage ).when( mockGeneralSecurityException ).getMessage();
 
     testResponse = fileResource.doGetFileOrDirAsDownload( userAgent, PATH_ID, strWithManifest );
@@ -756,7 +756,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetFileAsInline() throws Exception {
-    
+
 
     FileService.RepositoryFileToStreamWrapper mockWrapper = mock( FileService.RepositoryFileToStreamWrapper.class );
     doReturn( mockWrapper ).when( fileResource.fileService ).doGetFileAsInline( PATH_ID );
@@ -773,7 +773,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetFileAsInlineError() throws Exception {
-    
+
 
     Response mockForbiddenResponse = mock( Response.class );
     doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
@@ -813,7 +813,7 @@ public class FileResourceTest {
 
   @Test
   public void testSetFileAcls() throws Exception {
-    
+
     RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
 
     doNothing().when( fileResource.fileService ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
@@ -830,7 +830,7 @@ public class FileResourceTest {
 
   @Test
   public void testSetFileAclsError() throws Exception {
-    
+
     RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
 
     Messages mockMessages = mock( Messages.class );
@@ -852,7 +852,7 @@ public class FileResourceTest {
 
   @Test
   public void testSetContentCreator() throws Exception {
-    
+
     RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
 
     doNothing().when( fileResource.fileService ).doSetContentCreator( PATH_ID, mockRepositoryFileDto );
@@ -869,7 +869,7 @@ public class FileResourceTest {
 
   @Test
   public void testSetContentCreatorError() throws Exception {
-    
+
     RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
 
     Response mockNotFoundResponse = mock( Response.class );
@@ -905,7 +905,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetFileLocales() throws Exception {
-    
+
 
     List<LocaleMapDto> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetFileLocales( PATH_ID );
@@ -918,7 +918,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetFileLocalesError() throws Exception {
-    
+
 
     Messages mockMessages = mock( Messages.class );
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
@@ -944,7 +944,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetLocaleProperties() {
-    
+
     String locale = "locale";
 
     List<StringKeyStringValueDto> mockList = mock( List.class );
@@ -956,7 +956,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoDeleteLocale() throws Exception {
-    
+
     String locale = "locale";
 
     doNothing().when( fileResource.fileService ).doDeleteLocale( PATH_ID, locale );
@@ -973,7 +973,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoDeleteLocaleError() throws Exception {
-    
+
     String locale = "locale";
 
     Throwable mockThrowable = mock( RuntimeException.class );
@@ -1015,7 +1015,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetCanAccessList() {
-    
+
     String permissions = "permissions";
 
     List<Setting> mockList = mock( List.class );
@@ -1029,7 +1029,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetCanAccess() {
-    
+
     String permissions = "permissions";
 
     String canAccess = "canAccess";
@@ -1099,7 +1099,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetFileAcl() {
-    
+
 
     RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
     doReturn( mockRepositoryFileAclDto ).when( fileResource.fileService ).doGetFileAcl( PATH_ID );
@@ -1110,7 +1110,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetProperties() throws Exception {
-    
+
 
     RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
     doReturn( mockRepositoryFileDto ).when( fileResource.fileService ).doGetProperties( PATH_ID );
@@ -1123,7 +1123,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetPropertiesError() throws Exception {
-    
+
 
     Exception mockFileNotFoundException = mock( FileNotFoundException.class );
     doThrow( mockFileNotFoundException ).when( fileResource.fileService ).doGetProperties( PATH_ID );
@@ -1141,7 +1141,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetContentCreator() throws Exception {
-    
+
 
     RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
     doReturn( mockRepositoryFileDto ).when( fileResource.fileService ).doGetContentCreator( PATH_ID );
@@ -1154,7 +1154,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetContentCreatorError() throws Exception {
-    
+
 
     Throwable mockThrowable = mock( RuntimeException.class );
     doThrow( mockThrowable ).when( fileResource.fileService ).doGetContentCreator( PATH_ID );
@@ -1167,7 +1167,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetGeneratedContent() throws Exception {
-    
+
 
     List<RepositoryFileDto> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetGeneratedContent( PATH_ID );
@@ -1180,7 +1180,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetGeneratedContentError() throws Exception {
-    
+
 
     Exception mockFileNotFoundException = mock( FileNotFoundException.class );
     doThrow( mockFileNotFoundException ).when( fileResource.fileService ).doGetGeneratedContent( PATH_ID );
@@ -1206,7 +1206,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetGeneratedContentForUser() throws Exception {
-    
+
     String user = "user";
 
     List<RepositoryFileDto> mockList = mock( List.class );
@@ -1220,7 +1220,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetGeneratedContentForUserError() throws Exception {
-    
+
     String user = "user";
 
     Exception mockFileNotFoundException = mock( FileNotFoundException.class );
@@ -1282,15 +1282,16 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetTree() {
-    
+
     Integer depth = 0;
     String filter = "filter";
     Boolean showHidden = Boolean.TRUE;
     Boolean includeAcls = Boolean.TRUE;
 
     RepositoryFileTreeDto mockRepositoryFileTreeDto = mock( RepositoryFileTreeDto.class );
-    doReturn( mockRepositoryFileTreeDto ).when( fileResource.fileService ).doGetTree( PATH_ID, depth, filter, showHidden,
-      includeAcls );
+    doReturn( mockRepositoryFileTreeDto ).when( fileResource.fileService )
+      .doGetTree( PATH_ID, depth, filter, showHidden,
+        includeAcls );
 
     RepositoryFileTreeDto testDto = fileResource.doGetTree( PATH_ID, depth, filter, showHidden, includeAcls );
     assertEquals( mockRepositoryFileTreeDto, testDto );
@@ -1300,7 +1301,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetChildren() {
-    
+
     String filter = "filter";
     Boolean showHidden = Boolean.TRUE;
     Boolean includeAcls = Boolean.TRUE;
@@ -1329,7 +1330,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetMetadata() throws Exception {
-    
+
 
     List<StringKeyStringValueDto> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetMetadata( PATH_ID );
@@ -1342,7 +1343,7 @@ public class FileResourceTest {
 
   @Test
   public void testDoGetMetadataError() throws Exception {
-    
+
 
     Exception mockFileNotFoundException = mock( FileNotFoundException.class );
     doThrow( mockFileNotFoundException ).when( fileResource.fileService ).doGetMetadata( PATH_ID );
@@ -1388,26 +1389,26 @@ public class FileResourceTest {
   public void testDoRenameWithoutExtension() throws Exception {
     Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     assertEquals( Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
-    
+
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( anyString() );
   }
-  
+
   @Test
   public void testDoRenameIncorrectExtension() throws Exception {
     Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WRONG_EXTENSION );
     assertEquals( Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
-    
+
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( anyString() );
   }
-  
+
   @Test
   public void testDoRenameCorrectExtension() throws Exception {
     Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE );
     assertEquals( Status.OK.getStatusCode(), testResponse.getStatus() );
-    
+
     verify( fileResource, times( 1 ) ).buildOkResponse( anyString() );
   }
-  
+
   @Test
   public void testDoRenameError() throws Exception {
     Throwable mockThrowable = mock( RuntimeException.class );

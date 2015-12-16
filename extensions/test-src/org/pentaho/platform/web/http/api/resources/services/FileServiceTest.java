@@ -142,7 +142,8 @@ public class FileServiceTest {
 
     final String filesToRestore = PARAMS;
 
-    when( fileService.getSourceFileIdsThatNotConflictWithFolderFiles( PATH_USER_HOME_FOLDER, PARAMS ) ).thenCallRealMethod();
+    when( fileService.getSourceFileIdsThatNotConflictWithFolderFiles( PATH_USER_HOME_FOLDER, PARAMS ) )
+      .thenCallRealMethod();
     when( fileService.getCommaSeparatedFileIds( anyListOf( String.class ) ) ).thenCallRealMethod();
 
     boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_NO_OVERWRITE );
@@ -154,11 +155,12 @@ public class FileServiceTest {
   @Test
   public void filesOverwrittenWhenConflict_overwriteMode() throws Exception {
     FileService fileService = mock( FileService.class );
-    mockSession(fileService, USER_NAME );
+    mockSession( fileService, USER_NAME );
     mockDoRestoreInHomeDir( fileService );
     final String filesToRestore = PARAMS;
 
-    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) ).thenCallRealMethod();
+    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) )
+      .thenCallRealMethod();
     when( fileService.getCommaSeparatedFileIds( anyListOf( String.class ) ) ).thenCallRealMethod();
 
     boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE );
@@ -173,11 +175,12 @@ public class FileServiceTest {
   @Test
   public void filesOverwrittenWhenNoConflict_overwriteMode() throws Exception {
     FileService fileService = mock( FileService.class );
-    mockSession(fileService,  USER_NAME );
+    mockSession( fileService, USER_NAME );
     final String filesToRestore = PARAMS;
 
     when( fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE ) ).thenCallRealMethod();
-    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) ).thenReturn( "" );
+    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) )
+      .thenReturn( "" );
 
 
     boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE );
@@ -240,7 +243,7 @@ public class FileServiceTest {
       .thenReturn( homeFolderFiles );
 
     when( fileService.getRepository() ).thenReturn( iUnifiedRepository );
-    when( fileService.doRestoreFilesInHomeDir( eq(PARAMS), anyInt() ) ).thenCallRealMethod();
+    when( fileService.doRestoreFilesInHomeDir( eq( PARAMS ), anyInt() ) ).thenCallRealMethod();
     RepositoryFile mockRepoFile1 = getMockedRepoFile( FILE_1 );
     RepositoryFile mockRepoFile2 = getMockedRepoFile( FILE_2 );
     when( iUnifiedRepository.getFileById( eq( FILE_1 ) ) ).thenReturn( mockRepoFile1 );
@@ -994,24 +997,26 @@ public class FileServiceTest {
 
   @Test
   public void testDoGetFileOrDirAsDownload2() throws Throwable {
-    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "true", "mock%20File%2BName%28%2525%29.prpt.zip", "mock File+Name(%25).prpt.zip" );
+    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "true", "mock%20File%2BName%28%2525%29.prpt.zip",
+      "mock File+Name(%25).prpt.zip" );
   }
 
   @Test
   public void testDoGetFileOrDirAsDownload3() throws Throwable {
-    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "false", "mock%20File%2BName%28%2525%29.prpt", "mock File+Name(%25).prpt" );
+    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "false", "mock%20File%2BName%28%2525%29.prpt",
+      "mock File+Name(%25).prpt" );
   }
 
   /**
-   * 
    * @param fileName
    * @param withManifest
    * @param expectedEncodedFileName
-   * @param expectedFileName 
+   * @param expectedFileName
    * @throws Throwable
    */
   public void assertDoGetFileOrDirAsDownload( final String fileName, final String withManifest,
-      final String expectedEncodedFileName, final String expectedFileName  ) throws Throwable {
+                                              final String expectedEncodedFileName, final String expectedFileName )
+    throws Throwable {
 
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
     doReturn( true ).when( mockAuthPolicy ).isAllowed( anyString() );
@@ -1411,7 +1416,8 @@ public class FileServiceTest {
 
     try {
       doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
-      List<RepositoryFileDto> list = fileService.searchGeneratedContent(userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+      List<RepositoryFileDto> list =
+        fileService.searchGeneratedContent( userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
       assertEquals( list.size(), 1 );
     } catch ( FileNotFoundException e ) {
       e.printStackTrace();
@@ -1434,7 +1440,7 @@ public class FileServiceTest {
 
     try {
       doReturn( null ).when( fileService ).doGetProperties( pathId );
-      fileService.searchGeneratedContent(userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+      fileService.searchGeneratedContent( userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
       fail();
     } catch ( FileNotFoundException e ) {
     }

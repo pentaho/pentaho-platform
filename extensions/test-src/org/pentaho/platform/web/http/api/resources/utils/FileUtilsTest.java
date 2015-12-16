@@ -93,7 +93,7 @@ public class FileUtilsTest {
     assertEquals( result[ 0 ], string );
   }
 
-  @Test( expected = IllegalArgumentException.class)
+  @Test( expected = IllegalArgumentException.class )
   public void convertEmptyString() {
     FileUtils.convertCommaSeparatedStringToArray( StringUtils.EMPTY );
   }

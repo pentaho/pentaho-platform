@@ -330,7 +330,7 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode( code = 403, condition = "Failure to Restore the file." ),
     @ResponseCode( code = 409, condition = "Cannot restore in origin folder, cannot restore in home folder without "
       + "conflicts" ),
-  } )
+    } )
   public Response doRestore( String params,
                              @QueryParam( value = "overwriteMode" ) Integer mode ) {
     if ( mode != null ) {
@@ -344,7 +344,7 @@ public class FileResource extends AbstractJaxRSResource {
         // This means, that user doesn't have permissions to write in files origin folder
         // and files can be restored only to userHomeFolder.
         // We are going to find out, if files with such names exist already
-        // in userHomeFolder and sent statusCode due to id.
+        // in userHomeFolder and sent statusCode due to it.
         if ( !fileService.canRestoreToFolderWithNoConflicts( getUserHomeFolder(), params ) ) {
           return buildStatusResponse( Response.Status.CONFLICT );
         } else {
@@ -1551,7 +1551,7 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the list of files from root of the repository." ),
       @ResponseCode ( code = 404, condition = "Invalid parameters." ),
       @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+    } )
   public RepositoryFileTreeDto doGetRootTree( @QueryParam ( "depth" ) Integer depth,
                                               @QueryParam ( "filter" ) String filter, @QueryParam ( "showHidden" ) Boolean showHidden,
                                               @DefaultValue ( "false" ) @QueryParam ( "includeAcls" ) Boolean includeAcls ) {

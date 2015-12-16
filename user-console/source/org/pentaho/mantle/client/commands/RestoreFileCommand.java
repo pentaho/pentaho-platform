@@ -217,7 +217,7 @@ public class RestoreFileCommand implements Command {
                 builder.sendRequest( filesList, new RequestCallback() {
                   @Override
                   public void onResponseReceived( Request request, Response response ) {
-                    if (response.getStatusCode() == Response.SC_OK) {
+                    if ( response.getStatusCode() == Response.SC_OK ) {
                       new RefreshRepositoryCommand().execute( false );
                       event.setMessage( "Success" );
                       EventBusUtil.EVENT_BUS.fireEvent( event );
@@ -238,10 +238,7 @@ public class RestoreFileCommand implements Command {
           };
           overwriteDialog.setCallback( callback );
           overwriteDialog.center();
-        }
-        // We can't write to origin file folder, and there are
-        // no files in homeFolder with same names and extension
-        else if ( restoreResponseStatusCode == Response.SC_TEMPORARY_REDIRECT ) {
+        } else if ( restoreResponseStatusCode == Response.SC_TEMPORARY_REDIRECT ) {
           String moveFilesURL = contextURL + "api/repo/files/" + encodedUserHomeFolderPath + "/move";
           RequestBuilder builder = new RequestBuilder( RequestBuilder.PUT, moveFilesURL );
           try {
@@ -269,7 +266,7 @@ public class RestoreFileCommand implements Command {
     restoreFileWarningDialogBox.center();
   }
 
-  public void showErrorDialogBox(SolutionFileActionEvent event) {
+  public void showErrorDialogBox( SolutionFileActionEvent event ) {
     MessageDialogBox dialogBox =
       new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "restoreError" ), //$NON-NLS-1$ //$NON-NLS-2$
         false, false, true );
