@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -73,16 +73,15 @@ public class DirectoryResource extends AbstractJaxRSResource {
    *  </pre>
    */
   @PUT
-  @Path ( "{pathId : .+}" )
-  @Consumes ( { WILDCARD } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully created folder." ),
-      @ResponseCode ( code = 409, condition = "Path already exists." ),
-      @ResponseCode ( code = 500, condition = "Server Error." )
-  } )
+  @Path( "{pathId : .+}" )
+  @Consumes( { WILDCARD } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully created folder." ),
+    @ResponseCode( code = 409, condition = "Path already exists." ),
+    @ResponseCode( code = 500, condition = "Server Error." ) } )
   public Response createDirs( @PathParam ( "pathId" ) String pathId ) {
     try {
-      if ( fileService.doCreateDir( pathId ) ) {
+      if ( fileService.doCreateDirSafe( pathId ) ) {
         return Response.ok().build();
       } else {
         return Response.status( Response.Status.CONFLICT ).entity( "couldNotCreateFolderDuplicate" ).build();
