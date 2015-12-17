@@ -274,7 +274,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, rootFolderPath ) );
   }
 
-  protected void loginAsSysTenantAdmin() {
+  public void loginAsSysTenantAdmin() {
     login( sysAdminUserName, systemTenant, new String[]{ tenantAdminRoleName, tenantAuthenticatedRoleName } );
   }
 

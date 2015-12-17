@@ -1,3 +1,21 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ */
+
 package org.pentaho.platform.web.http.api.resources.services;
 
 import java.io.ByteArrayOutputStream;
@@ -30,6 +48,7 @@ import java.util.StringTokenizer;
 
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -168,7 +187,8 @@ public class FileService {
         IOUtils.copy( inputStream, output );
       }
     };
-    }
+  }
+
   /**
    * Moves the list of files to the user's trash folder
    * <p/>
@@ -1474,10 +1494,15 @@ public class FileService {
    *                      :path:to:file
    *                    </pre>
    * @return            A jax-rs Response object with the appropriate status code, header, and body.
+   * @deprecated use {@link #doCreateDirSafe(String)} instead
    */
   public boolean doCreateDir( String pathId ) {
     String path = idToPath( pathId );
-    String[] folders = path.split( "[" + FileUtils.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
+    return doCreateDirFor( path );
+  }
+
+  private boolean doCreateDirFor( String pathWithSlashes ) {
+    String[] folders = pathWithSlashes.split( "[" + FileUtils.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
     RepositoryFileDto parentDir = getRepoWs().getFile( FileUtils.PATH_SEPARATOR );
     boolean dirCreated = false;
     for ( String folder : folders ) {
@@ -1497,6 +1522,43 @@ public class FileService {
       parentDir = currentFolder;
     }
     return dirCreated;
+  }
+
+  /**
+   * Creates a new folder with {@code pathId} as name if it does not contain reserved characters. To obtain them, the
+   * method calls {@link #doGetReservedChars()}. Additionally, it is checked that folder name is not '.' or '..' and
+   * does not contain '/'.
+   *
+   * @param pathId the desired path
+   * @return {@code true} if the folder has been created
+   * @throws InvalidNameException if {@code pathId} contains prohibited characters.
+   */
+  public boolean doCreateDirSafe( String pathId ) throws InvalidNameException {
+    if ( pathId.indexOf( '/' ) != -1 ) {
+      // after converting id to path '/' will be interpreted as path separator,
+      // hence check it here
+      throw new InvalidNameException();
+    }
+
+    String path = idToPath( pathId );
+    if ( path.indexOf( '\\' ) != -1 ) {
+      // '\' is prohibited as well
+      throw new InvalidNameException();
+    }
+    if ( !isValidFolderName( path ) ) {
+      throw new InvalidNameException();
+    }
+
+    return doCreateDirFor( path );
+  }
+
+  private boolean isValidFolderName( String path ) {
+    if ( FileUtils.containsReservedCharacter( path, doGetReservedChars().toString().toCharArray() ) ) {
+      return false;
+    }
+
+    String folderName = FilenameUtils.getName( path );
+    return !".".equals( folderName ) && !"..".equals( folderName );
   }
 
   private String getParentPath( final String path ) {
@@ -1698,7 +1760,7 @@ public class FileService {
   }
 
   private PentahoPlatformExporter getBackupExporter() {
-    if( backupExporter == null ) {
+    if ( backupExporter == null ) {
       backupExporter = new PentahoPlatformExporter( getRepository() );
     }
 
@@ -1713,5 +1775,9 @@ public class FileService {
       logger.error( ex );
     }
     return decodeName;
+  }
+
+  public static class InvalidNameException extends Exception {
+    private static final long serialVersionUID = 5394548505099358146L;
   }
 }

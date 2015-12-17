@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -1981,7 +1981,7 @@ public class FileResource extends AbstractJaxRSResource {
   } )
   public Response doCreateDirs( @PathParam ( "pathId" ) String pathId ) {
     try {
-      if ( fileService.doCreateDir( pathId ) ) {
+      if ( fileService.doCreateDirSafe( pathId ) ) {
         return buildOkResponse();
       } else {
         return Response.status( Response.Status.CONFLICT ).entity( "couldNotCreateFolderDuplicate" ).build();
