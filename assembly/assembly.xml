@@ -358,7 +358,12 @@
       <fileset file="${solution-archives.dir}/*.zip" />
     </unzip>
     <!-- Set the visible value of the plugin-sample dirs -->
-    <set-solution-visibility dir="${plugin-samples.solution.dir}" visible="${plugin-samples.visible}" />
+    
+    <condition property="plugin-samples.hidden" value="true" else="false">
+        <equals arg1="${plugin-samples.visible}" arg2="false" casesensitive="false"/>
+    </condition>    
+    <set-solution-visibility dir="${plugin-samples.solution.dir}" visible="${plugin-samples.visible}" 
+    hidden="${plugin-samples.hidden}"/>
 
       <!-- Add libraries to the sample data -->
     <antcall target="resolve-sampledata-libs"/>
@@ -375,13 +380,18 @@
   <macrodef name="set-solution-visibility">
     <attribute name="dir" />
     <attribute name="visible" default="true" />
+    <attribute name="hidden" default="false" />    
     <sequential>
       <!-- Set the visible value of the specified directory -->
       <!--  ... replace <visible>...</visible> with <visible>@{visible}</visible> -->
-      <echo message="Setting visibility=@{visible} for directory [@{dir}]..." />
+      <echo message="Setting visibility=@{visible}/hidden=@{hidden} for directory [@{dir}]..." />
       <replaceregexp file="@{dir}/index.xml"
                      match="&lt;visible&gt;.*&lt;/visible&gt;"
                      replace="&lt;visible&gt;@{visible}&lt;/visible&gt;" />
+      <replaceregexp file="@{dir}/exportManifest.xml"
+                     match='path="public/plugin-samples" isHidden=".*"'
+                     replace='path="public/plugin-samples" isHidden="@{hidden}"'/>
+                     
     </sequential>
   </macrodef>
 
