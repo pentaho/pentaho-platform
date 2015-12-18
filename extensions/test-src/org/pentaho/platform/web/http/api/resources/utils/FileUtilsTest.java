@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.web.http.api.resources.utils;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -68,5 +69,32 @@ public class FileUtilsTest {
   @Test
   public void containsReservedCharacter_File_Bad() {
     assertTrue( containsReservedCharacter( "/a/b/c/qwerty%.txt", TEST_RESERVED ) );
+  }
+
+  @Test
+  public void convertCommaSeparatedString() {
+    String comma = ",";
+    String string2 = "string2";
+    String string1 = "string1";
+
+    String commaSeparatedStr = string1 + comma + string2;
+    String[] result = FileUtils.convertCommaSeparatedStringToArray( commaSeparatedStr );
+    assertEquals( result.length, 2 );
+    assertEquals( result[ 0 ], string1 );
+    assertEquals( result[ 1 ], string2 );
+  }
+
+  @Test
+  public void convertSingleString() {
+    String string = "string";
+
+    String[] result = FileUtils.convertCommaSeparatedStringToArray( string );
+    assertEquals( result.length, 1 );
+    assertEquals( result[ 0 ], string );
+  }
+
+  @Test( expected = IllegalArgumentException.class )
+  public void convertEmptyString() {
+    FileUtils.convertCommaSeparatedStringToArray( StringUtils.EMPTY );
   }
 }

@@ -24,12 +24,17 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.HTML;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionFileActionEvent;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import java.util.List;
 
@@ -117,17 +122,45 @@ public class RestoreFileCommand implements Command {
           EventBusUtil.EVENT_BUS.fireEvent( event );
         }
 
+
         @Override
-        public void onResponseReceived( Request request, Response response ) {
-          if ( response.getStatusCode() == 200 ) {
+        public void onResponseReceived( final Request request, final Response response ) {
+          if ( response.getStatusCode() == Response.SC_OK ) {
             new RefreshRepositoryCommand().execute( false );
             event.setMessage( "Success" );
             EventBusUtil.EVENT_BUS.fireEvent( event );
+          } else if ( response.getStatusCode() == Response.SC_CONFLICT
+            || response.getStatusCode() == Response.SC_TEMPORARY_REDIRECT ) {
+            final int restoreResponseStatusCode = response.getStatusCode();
+
+            final String userHomeDirUrl = GWT.getHostPageBaseURL() + "api/session/userWorkspaceDir";
+
+            final RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, userHomeDirUrl );
+            try {
+              // Get user home folder string
+              builder.sendRequest( "", new RequestCallback() {
+                @Override
+                public void onResponseReceived( final Request request, final Response response ) {
+                  if ( response.getStatusCode() == 200 ) {
+                    // API returns /user/home_folder/workspace
+                    String userHomeFolderPath = response.getText().replaceAll( "/workspace", "" );
+                    performRestoreToHomeFolder( filesList, restoreResponseStatusCode, userHomeFolderPath, event );
+                  }
+                }
+
+                @Override
+                public void onError( Request request, Throwable exception ) {
+                  showErrorDialogBox( event );
+                }
+              } );
+            } catch ( RequestException e ) {
+              showErrorDialogBox( event );
+            }
           } else {
             MessageDialogBox dialogBox =
-                new MessageDialogBox(
-                    Messages.getString( "cannotRestore" ), Messages.getString( "couldNotRestoreItem", type ), //$NON-NLS-1$ //$NON-NLS-2$
-                    false, false, true, Messages.getString( "close" ) );
+              new MessageDialogBox(
+                Messages.getString( "cannotRestore" ), Messages.getString( "couldNotRestoreItem", type ), //$NON-NLS-1$ //$NON-NLS-2$
+                false, false, true, Messages.getString( "close" ) );
             dialogBox.center();
             event.setMessage( "Success" );
             FileChooserDialog.setIsDirty( Boolean.TRUE );
@@ -137,14 +170,111 @@ public class RestoreFileCommand implements Command {
         }
       } );
     } catch ( RequestException e ) {
-      MessageDialogBox dialogBox =
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "restoreError" ), //$NON-NLS-1$ //$NON-NLS-2$
-              false, false, true );
-      dialogBox.center();
-      event.setMessage( Messages.getString( "restoreError" ) );
-      EventBusUtil.EVENT_BUS.fireEvent( event );
+      showErrorDialogBox( event );
     }
   }
+
+  private void performRestoreToHomeFolder( final String filesList, final int restoreResponseStatusCode,
+                                           final String userHomeFolderPath, final SolutionFileActionEvent event ) {
+
+    final String encodedUserHomeFolderPath = SolutionBrowserPanel.pathToId( userHomeFolderPath );
+    String fileListDescription = "files";
+    // if there is one file
+    if ( filesList.split( "," ).length == 1 ) {
+      fileListDescription = "file";
+    }
+
+    HTML messageTextBox = new HTML();
+    String cannotRestoreToOrigFolder = Messages.getString( "cannotRestoreToOriginFolder", fileListDescription );
+    String restoreToHomeFolder = Messages.getString( "restoreToHomeFolder", userHomeFolderPath );
+
+    messageTextBox.setHTML( cannotRestoreToOrigFolder + "<br> <br>" + restoreToHomeFolder + "<br>" );
+    final PromptDialogBox restoreFileWarningDialogBox =
+      new PromptDialogBox( Messages.getString( "couldNotWriteToFolder" ), "Restore File", "Cancel", true, true );
+    restoreFileWarningDialogBox.setContent( messageTextBox );
+
+    final IDialogCallback callback = new IDialogCallback() {
+
+      public void cancelPressed() {
+        restoreFileWarningDialogBox.hide();
+      }
+
+      public void okPressed() {
+        // We can't write to origin file folder, and there are
+        // files in homeFolder with same names
+        if ( restoreResponseStatusCode == Response.SC_CONFLICT ) {
+          final OverwritePromptDialog overwriteDialog = new OverwritePromptDialog();
+          final IDialogCallback callback = new IDialogCallback() {
+            public void cancelPressed() {
+              event.setMessage( "Cancel" );
+              overwriteDialog.hide();
+            }
+
+            public void okPressed() {
+              String restoreFilesUrl = contextURL + "api/repo/files/restore?overwriteMode=" + overwriteDialog.getOverwriteMode(); //$NON-NLS-1$
+              RequestBuilder builder = new RequestBuilder( RequestBuilder.PUT, restoreFilesUrl );
+              try {
+                builder.sendRequest( filesList, new RequestCallback() {
+                  @Override
+                  public void onResponseReceived( Request request, Response response ) {
+                    if ( response.getStatusCode() == Response.SC_OK ) {
+                      new RefreshRepositoryCommand().execute( false );
+                      event.setMessage( "Success" );
+                      EventBusUtil.EVENT_BUS.fireEvent( event );
+                    } else {
+                      showErrorDialogBox( event );
+                    }
+                  }
+
+                  @Override
+                  public void onError( Request request, Throwable exception ) {
+                    showErrorDialogBox( event );
+                  }
+                } );
+              } catch ( RequestException e ) {
+                showErrorDialogBox( event );
+              }
+            }
+          };
+          overwriteDialog.setCallback( callback );
+          overwriteDialog.center();
+        } else if ( restoreResponseStatusCode == Response.SC_TEMPORARY_REDIRECT ) {
+          String moveFilesURL = contextURL + "api/repo/files/" + encodedUserHomeFolderPath + "/move";
+          RequestBuilder builder = new RequestBuilder( RequestBuilder.PUT, moveFilesURL );
+          try {
+            builder.sendRequest( filesList, new RequestCallback() {
+              @Override
+              public void onResponseReceived( Request request, Response response ) {
+                new RefreshRepositoryCommand().execute( false );
+                event.setMessage( "Success" );
+                EventBusUtil.EVENT_BUS.fireEvent( event );
+              }
+
+              @Override
+              public void onError( Request request, Throwable exception ) {
+                showErrorDialogBox( event );
+              }
+            } );
+          } catch ( RequestException e ) {
+            showErrorDialogBox( event );
+          }
+        }
+      }
+    };
+
+    restoreFileWarningDialogBox.setCallback( callback );
+    restoreFileWarningDialogBox.center();
+  }
+
+  public void showErrorDialogBox( SolutionFileActionEvent event ) {
+    MessageDialogBox dialogBox =
+      new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "restoreError" ), //$NON-NLS-1$ //$NON-NLS-2$
+        false, false, true );
+    dialogBox.center();
+    event.setMessage( Messages.getString( "restoreError" ) );
+    EventBusUtil.EVENT_BUS.fireEvent( event );
+  }
+
   private static native void setBrowseRepoDirty( boolean isDirty )
   /*-{
     $wnd.mantle_isBrowseRepoDirty=isDirty;
