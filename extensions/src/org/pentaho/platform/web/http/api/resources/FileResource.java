@@ -1889,8 +1889,6 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       JcrRepositoryFileUtils.checkName( newName );
 
-      checkCorrectExtension( newName );
-
       boolean success = fileService.doRename( pathId, newName );
       if ( success ) {
         return buildOkResponse();
