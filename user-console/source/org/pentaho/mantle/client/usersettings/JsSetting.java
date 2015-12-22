@@ -32,7 +32,7 @@ public class JsSetting extends JavaScriptObject {
   public static final native JsArray<JsSetting> parseSettingsJson( String json )
   /*-{
     if(json == null || json === '') { return null; }
-    var obj = eval('(' + json + ')');
+    var obj = JSON.parse(json);
     return obj != null ? obj.setting : obj;
   }-*/;
 
