@@ -361,11 +361,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       userRoleDaoService.removeRolesFromUser( userName, roleNames );
       return Response.ok().build();
     } catch ( org.pentaho.platform.api.engine.security.userroledao.NotFoundException e ) {
-      throw new WebApplicationException( Response.Status.NOT_FOUND );
+      throw new WebApplicationException( Response.status( Response.Status.NOT_FOUND ).entity( e.getLocalizedMessage() ).build() );
     } catch ( UncategorizedUserRoleDaoException e ) {
-      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+      throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).entity( e.getLocalizedMessage() ).build() );
     } catch ( SecurityException e ) {
-      throw new WebApplicationException( Response.Status.FORBIDDEN );
+      throw new WebApplicationException( Response.status( Response.Status.FORBIDDEN ).entity( e.getLocalizedMessage() ).build() );
     }
   }
 

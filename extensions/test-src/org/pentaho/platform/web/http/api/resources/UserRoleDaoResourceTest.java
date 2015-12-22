@@ -18,6 +18,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -169,13 +170,14 @@ public class UserRoleDaoResourceTest {
     String user = "testUser1";
     String roles = "testRole1";
 
-    doThrow( new SecurityException() ).when( userRoleService )
+    doThrow( new SecurityException( "expectedTestException" ) ).when( userRoleService )
       .removeRolesFromUser( anyString(), anyString() );
 
     try {
       userRoleResource.removeRolesFromUser( user, roles );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
+      assertNotNull( e.getResponse().getEntity() );
     }
   }
 
@@ -191,6 +193,7 @@ public class UserRoleDaoResourceTest {
       userRoleResource.removeRolesFromUser( user, roles );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
+      assertNotNull( e.getResponse().getEntity() );
     }
   }
 
@@ -206,6 +209,7 @@ public class UserRoleDaoResourceTest {
       userRoleResource.removeRolesFromUser( user, roles );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus() );
+      assertNotNull( e.getResponse().getEntity() );
     }
   }
 
