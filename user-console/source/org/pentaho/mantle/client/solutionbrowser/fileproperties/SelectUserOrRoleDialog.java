@@ -150,13 +150,13 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
 
   private final native JsArrayString parseUsersJson( String json )
   /*-{
-    var obj = eval('(' + json + ')');
+    var obj = JSON.parse(json);
     return obj.users;
   }-*/;
 
   private final native JsArrayString parseRolesJson( String json )
   /*-{
-    var obj = eval('(' + json + ')');
+    var obj = JSON.parse(json);
     return obj.roles;
   }-*/;
 

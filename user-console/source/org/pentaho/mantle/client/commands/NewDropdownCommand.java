@@ -213,7 +213,7 @@ public class NewDropdownCommand extends AbstractCommand {
   
   private native JsArray<JsCreateNewConfig> parseJson( String json )
   /*-{
-    var obj = eval('(' + json + ')');
+    var obj = JSON.parse(json);
     return obj.Item;
   }-*/;
 
