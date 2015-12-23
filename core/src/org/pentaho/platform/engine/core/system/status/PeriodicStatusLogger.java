@@ -73,20 +73,22 @@ public class PeriodicStatusLogger implements Runnable, IServerStatusChangeListen
   public void run() {
     setCurrentValues();
     while ( !stopFlag ) {
-      if ( lastMessages != null ) {
-        //logger.info( "Server State: " + lastServerStatus.name() );
-        for ( String message : lastMessages ) {
-          // System.out.println( message );
-          if ( logger.isInfoEnabled()){
-            logger.info( message );
-          } else {
-            logger.error( message );
-          }
-          try {
-            Thread.sleep( cycleTime );
-          } catch ( InterruptedException e ) {
-            // The interrupt will force an immediate recycle. Interrupts occur when the status message is changed
-          }
+      logMessages();
+      try {
+        Thread.sleep( cycleTime );
+      } catch ( InterruptedException e ) {
+        // The interrupt will force an immediate recycle. Interrupts occur when the status message is changed
+      }
+    }
+  }
+
+  private void logMessages() {
+    if ( lastMessages != null ) {
+      for ( String message : lastMessages ) {
+        if ( logger.isInfoEnabled() ) {
+          logger.info( message );
+        } else {
+          logger.error( message );
         }
       }
     }
@@ -113,6 +115,7 @@ public class PeriodicStatusLogger implements Runnable, IServerStatusChangeListen
     if ( lastMessages != serverStatusProvider.getStatusMessages()
         || lastServerStatus != serverStatusProvider.getStatus() ) {
       setCurrentValues();
+      logMessages();
       if (runThread != null ) {
         runThread.interrupt();
       }

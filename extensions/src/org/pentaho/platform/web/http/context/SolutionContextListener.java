@@ -157,14 +157,23 @@ public class SolutionContextListener implements ServletContextListener {
     serverStatusProvider.setStatusMessages( new String[] { "Caution, the server is initializing. Do not shut down or restart the server at this time." } );
     PeriodicStatusLogger.start();
     
-    boolean initOk;
+    boolean initOk = false;
     try {
       initOk = PentahoSystem.init( applicationContext );
     } finally {
+      updateStatusMessages( initOk );
       PeriodicStatusLogger.stop();
     }
 
     this.showInitializationMessage( initOk, fullyQualifiedServerUrl );
+  }
+
+  private void updateStatusMessages( boolean initOk ) {
+    if ( initOk ) {
+      serverStatusProvider.setStatusMessages( new String[] { "The system has finished initializing." } );
+    } else {
+      serverStatusProvider.setStatusMessages( new String[] { "Warning, one or more errors occurred during the initialization process." } );
+    }
   }
 
   /**
