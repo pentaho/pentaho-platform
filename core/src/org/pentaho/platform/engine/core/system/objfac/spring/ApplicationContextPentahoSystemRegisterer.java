@@ -18,6 +18,8 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
+import java.io.File;
+
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.springframework.beans.BeansException;
@@ -25,7 +27,6 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
@@ -39,6 +40,8 @@ import org.springframework.core.PriorityOrdered;
 public class ApplicationContextPentahoSystemRegisterer implements ApplicationContextAware, BeanFactoryPostProcessor,
   PriorityOrdered {
 
+  private static boolean barrierBeanFileProcessed;
+  
   @Override
   public void setApplicationContext( ApplicationContext applicationContext ) throws BeansException {
     safeAddBeanScopePostProcessors( applicationContext );
@@ -52,7 +55,15 @@ public class ApplicationContextPentahoSystemRegisterer implements ApplicationCon
   @Override
   public void postProcessBeanFactory( ConfigurableListableBeanFactory configurableListableBeanFactory )
     throws BeansException {
-
+    configurableListableBeanFactory.addBeanPostProcessor( BarrierBeanPostProcessor.getInstance() );
+    // Make sure barrierbean.xml is processed before any spring processing.
+    if ( !barrierBeanFileProcessed ) {
+      // Put ServiceBarrier holds in place
+      String barrierBeanFilePath =
+          System.getProperty( "PentahoSystemPath" ) + File.separator + "barrierbean.properties";
+      BarrierBeanProcessor.getInstance().registerBarrierBeans( barrierBeanFilePath );
+      barrierBeanFileProcessed = true;
+    }
   }
 
   @Override
