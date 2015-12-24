@@ -1085,7 +1085,7 @@ public class SchedulesPanel extends SimplePanel {
 
   private native JsArray<JsJob> parseJson( String json )
   /*-{
-      var obj = eval('(' + json + ')');
+      var obj = JSON.parse(json);
       if (obj != null && obj.hasOwnProperty("job")) {
           return obj.job;
       }
@@ -1094,7 +1094,7 @@ public class SchedulesPanel extends SimplePanel {
 
   private native JsJob parseJsonJob( String json )
   /*-{
-      var obj = eval('(' + json + ')');
+      var obj = JSON.parse(json);
       return obj;
   }-*/;
 
