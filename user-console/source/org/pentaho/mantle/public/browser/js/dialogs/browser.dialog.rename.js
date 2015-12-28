@@ -46,8 +46,6 @@ define([
     initialize: function () {
       var me = this;
 
-      this.on("change:name", this.renamePath);
-
       // Set default for showOverrideDialog
       BrowserUtils._makeAjaxCall("GET", "text", this.buildsessionVariableUrl("showOverrideDialog"), true, function (result) {
         me.set("showOverrideDialog", result.length == 0 || result === "true");
@@ -59,8 +57,7 @@ define([
       this.set("path", null);
     },
     
-    renamePath: function (event, name) {
-      var prevName = event._previousAttributes.name;
+    renamePath: function (prevName, name) {
 
       // if the value was previously null or being set to null, nothing should happen
       if (prevName === null || name === null) {
@@ -307,7 +304,9 @@ define([
 
       this.RenameDialog.$dialog.find(".ok").bind("click", function () {
         me.RenameDialog.hide();
-        me.model.set("name", me.$el.find("#rename-field").val());
+        var newName = me.$el.find("#rename-field").val();
+        var oldName = me.model.get("name");
+        me.model.renamePath( oldName,newName );
       });
       this.RenameDialog.$dialog.find(".cancel").bind("click", function () {
         me.cancelRename.apply(me);
@@ -351,22 +350,7 @@ define([
     init: function (path, overrideType) {
 			
       var repoPath = Encoder.encodeRepositoryPath( path );
-
-      var me = this;
-      BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(repoPath) + "/localeProperties", true,
-          function (success) {
-            if (success) {
-              var arr = success.stringKeyStringValueDto;
-              for (i in arr) {
-                var obj = arr[i];
-                if (obj.key === "file.title") {
-                  me.model.set("name", obj.value);
-                  return;
-                }
-              }
-            }
-          });
-
+      
       var name = path.split("/")[path.split("/").length - 1];
       if ( overrideType !== "folder") {
     	  var dotIndex = name.lastIndexOf("\.");
@@ -378,7 +362,21 @@ define([
       this.model.set("path", repoPath);
       this.model.set("name", name);
       this.view.overrideType = overrideType;
-      this.view.render();
+
+      var me = this;
+      BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(repoPath) + "/localeProperties", true,
+          function (success) {
+            if (success) {
+              var arr = success.stringKeyStringValueDto;
+              for (i in arr) {
+                var obj = arr[i];
+                if (obj.key === "file.title") {
+                  me.model.set("name", obj.value);
+                }
+              }
+            }
+            me.view.render();
+          });
     }
   }
 

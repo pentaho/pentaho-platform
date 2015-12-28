@@ -1369,41 +1369,25 @@ public class FileResourceTest {
     doReturn( mockOkMsgResponse ).when( fileResource ).buildOkResponse( errMsg );
 
     // Test 1
-    doReturn( true ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE );
+    doReturn( true ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
 
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE );
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     assertEquals( mockOkResponse, testResponse );
 
     // Test 2
-    doReturn( false ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE );
+    doReturn( false ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
 
-    testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE );
+    testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     assertEquals( mockOkMsgResponse, testResponse );
 
-    verify( fileResource.fileService, times( 2 ) ).doRename( PATH_ID, NAME_NEW_FILE );
+    verify( fileResource.fileService, times( 2 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     verify( fileResource, times( 1 ) ).buildOkResponse();
     verify( fileResource, times( 1 ) ).buildOkResponse( errMsg );
   }
 
   @Test
-  public void testDoRenameWithoutExtension() throws Exception {
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
-    assertEquals( Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
-
-    verify( fileResource, times( 1 ) ).buildServerErrorResponse( anyString() );
-  }
-
-  @Test
-  public void testDoRenameIncorrectExtension() throws Exception {
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WRONG_EXTENSION );
-    assertEquals( Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
-
-    verify( fileResource, times( 1 ) ).buildServerErrorResponse( anyString() );
-  }
-
-  @Test
   public void testDoRenameCorrectExtension() throws Exception {
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE );
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     assertEquals( Status.OK.getStatusCode(), testResponse.getStatus() );
 
     verify( fileResource, times( 1 ) ).buildOkResponse( anyString() );
@@ -1412,7 +1396,7 @@ public class FileResourceTest {
   @Test
   public void testDoRenameError() throws Exception {
     Throwable mockThrowable = mock( RuntimeException.class );
-    doThrow( mockThrowable ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE );
+    doThrow( mockThrowable ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
 
     String msg = "msg";
     doReturn( msg ).when( mockThrowable ).getMessage();
@@ -1420,10 +1404,10 @@ public class FileResourceTest {
     Response mockResponse = mock( Response.class );
     doReturn( mockResponse ).when( fileResource ).buildServerErrorResponse( msg );
 
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE );
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     assertEquals( mockResponse, testResponse );
 
-    verify( fileResource.fileService, times( 1 ) ).doRename( PATH_ID, NAME_NEW_FILE );
+    verify( fileResource.fileService, times( 1 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     verify( mockThrowable, times( 1 ) ).getMessage();
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( msg );
   }
