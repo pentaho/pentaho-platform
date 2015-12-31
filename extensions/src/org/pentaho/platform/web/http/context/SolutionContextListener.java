@@ -154,7 +154,7 @@ public class SolutionContextListener implements ServletContextListener {
     setObjectFactory( context );
 
     serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STARTING );
-    serverStatusProvider.setStatusMessages( new String[] { "Caution, the server is initializing. Do not shut down or restart the server at this time." } );
+    serverStatusProvider.setStatusMessages( new String[] { "Caution, the system is initializing. Do not shut down or restart the system at this time." } );
     PeriodicStatusLogger.start();
     
     boolean initOk = false;
