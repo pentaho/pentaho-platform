@@ -20,5 +20,6 @@
     <dependency org="com.sun.jersey.contribs" name="wadl-resourcedoc-doclet" rev="1.19" transitive="false" conf="default, test->default" />
 
     <dependency org="junit" name="junit" rev="4.12" conf="test->default"/>
+    <dependency org="org.mockito" name="mockito-all" rev="1.9.5" transitive="false" conf="test->default"/>
   </dependencies>
 </ivy-module>
