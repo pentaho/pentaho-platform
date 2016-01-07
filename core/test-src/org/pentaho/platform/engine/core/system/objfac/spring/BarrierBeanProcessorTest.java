@@ -70,14 +70,12 @@ public class BarrierBeanProcessorTest {
     barrierBeanProcessor.registerBarrierBeans( "fooFile" );
     assertEquals( 3, barrierBeanProcessor.getBarrierBeans().size() );
 
-    // Check for hold and release
+    // Check for availablility
     IServiceBarrierManager serviceBarrierManager = IServiceBarrierManager.LOCATOR.getManager();
     IServiceBarrier serviceBarrier = serviceBarrierManager.getServiceBarrier( BARRIER_NAME1 );
-    // The barrier should have a hold on it
-    assertFalse( serviceBarrier.isAvailable() );
-    // Simulate the bean being created by releasing one hold on the barrier
-    serviceBarrier.release(); 
-    // The following line should not block since we released the barrier
+    assertTrue( serviceBarrier.isAvailable() );
+
+    // The following line should not block since we did not put a hold on the barrier
     barrierBeanProcessor.awaitBarrier( BARRIER_NAME1 );
   }
 
