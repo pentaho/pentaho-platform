@@ -57,7 +57,8 @@ public class BarrierBeanProcessor {
 
   /**
    * This method can be run multiple times for multiple barrierBean files. Only one list of barrierBeans is maintained
-   * so that plugins can add their own barrierBeans if necessary.
+   * so that plugins can add their own barrierBeans if necessary.  Registered barrierBeans will be held just prior
+   * to bean initialization.  See {@link BarrierBeanPostProcessor}
    * 
    * @param barrierBeanFilePath
    * @return
@@ -84,7 +85,8 @@ public class BarrierBeanProcessor {
   
   /**
    * This method can be run multiple times for multiple barrierBean property sets. Only one list of barrierBeans is maintained
-   * so that plugins can add their own barrierBeans if necessary.
+   * so that plugins can add their own barrierBeans if necessary.  Registered barrierBeans will be held just prior
+   * to bean initialization.  See {@link BarrierBeanPostProcessor}
    * 
    * @param barrierBeanFilePath
    * @return
@@ -107,9 +109,6 @@ public class BarrierBeanProcessor {
             newSet.add( barrierName );
             beanBarriers.put( barrierBean.getBeanName(), newSet );
           }
-
-          //put one hold on the barrier for each bean defined for it.
-          barrier.hold();
         }
 
         List<BarrierBean> finalBarrierBeans = (List<BarrierBean>) barrierBeans.get( barrierName );
@@ -142,6 +141,6 @@ public class BarrierBeanProcessor {
       // This should never happen
       logger.error( "ServiceBarrier Interrupted", e1 );
     }
-  }  
+  } 
   
 }

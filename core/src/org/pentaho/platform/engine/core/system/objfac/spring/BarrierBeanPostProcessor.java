@@ -20,6 +20,8 @@ import java.util.Set;
 
 import org.pentaho.platform.servicecoordination.api.IServiceBarrier;
 import org.pentaho.platform.servicecoordination.api.IServiceBarrierManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
@@ -31,6 +33,8 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  */
 public class BarrierBeanPostProcessor implements BeanPostProcessor {
   static IServiceBarrierManager serviceBarrierManager;
+  
+  private static Logger logger = LoggerFactory.getLogger( BarrierBeanPostProcessor.class );
   
   private static BarrierBeanPostProcessor barrierBeanPostProcessor;
 
@@ -47,6 +51,14 @@ public class BarrierBeanPostProcessor implements BeanPostProcessor {
 
   @Override
   public Object postProcessBeforeInitialization( Object bean, String beanName ) throws BeansException {
+    logger.debug( "beforeInitialization: " + beanName );
+    Set<String> barriers = BarrierBeanProcessor.getInstance().getBeanBarriers().get( beanName );
+    if ( barriers != null ) {
+      for ( String barrierName : barriers ) {
+        IServiceBarrier barrier = serviceBarrierManager.getServiceBarrier( barrierName );
+        barrier.hold();
+      }
+    }
     return bean;
   }
 
@@ -56,6 +68,7 @@ public class BarrierBeanPostProcessor implements BeanPostProcessor {
    * barrier will be released.
    */
   public Object postProcessAfterInitialization( Object bean, String beanName ) throws BeansException {
+    logger.debug( "AfterInitialization: " + beanName );
     Set<String> barriers = BarrierBeanProcessor.getInstance().getBeanBarriers().get( beanName );
     if ( barriers != null ) {
       for ( String barrierName : barriers ) {
