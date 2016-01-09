@@ -1,38 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>pentaho</groupId>
-  <artifactId>biserver-manual-ce</artifactId>
-  <version>${RELEASE_VERSION}</version>
-  <packaging>pom</packaging>
-
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-parent-pom</artifactId>
     <version>1.0.4</version>
   </parent>
-
-  <!-- NOTE: This Maven pom file is currently ONLY for the purpose of assembling 
-    the biserver-manual zip It does NOT build the artifacts ... yet :P -->
-
-
+  <groupId>pentaho</groupId>
+  <artifactId>biserver-manual-ce</artifactId>
+  <version>5.4.0.8-161</version>
+  <packaging>pom</packaging>
   <profiles>
-
     <profile>
       <id>manual</id>
-      
-      <properties>
-        <dependency.pentaho.oss-licenses.version>${RELEASE_VERSION}</dependency.pentaho.oss-licenses.version>
-      </properties>
-      
       <build>
         <directory>dist</directory>
-
         <plugins>
-
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
             <executions>
               <execution>
@@ -53,22 +38,20 @@
               </execution>
             </executions>
           </plugin>
-
         </plugins>
       </build>
-
+      <properties>
+        <dependency.pentaho.oss-licenses.version>${RELEASE_VERSION}</dependency.pentaho.oss-licenses.version>
+      </properties>
       <dependencies>
         <dependency>
           <groupId>pentaho</groupId>
           <artifactId>oss-licenses</artifactId>
           <version>${dependency.pentaho.oss-licenses.version}</version>
-          <scope>provided</scope>
           <type>zip</type>
+          <scope>provided</scope>
         </dependency>
       </dependencies>
-
     </profile>
   </profiles>
-
-
 </project>
