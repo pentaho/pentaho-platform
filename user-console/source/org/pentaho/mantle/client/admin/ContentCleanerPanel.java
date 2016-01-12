@@ -283,7 +283,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     if (null == json || "" == json) {
       return null;
     }
-    var obj = eval('(' + json + ')');
+    var obj = JSON.parse(json);
     return obj;
   }-*/;
 

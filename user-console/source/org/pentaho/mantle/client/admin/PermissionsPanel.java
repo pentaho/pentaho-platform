@@ -211,7 +211,7 @@ public class PermissionsPanel extends VerticalPanel {
   private final native JavaScriptObject parseRoleMappings( String json )
   /*-{
     var arr = [];
-    var obj = eval('(' + json + ')');
+    var obj = JSON.parse(json);
     if (obj != null) {
       if (obj.assignments.constructor.toString().indexOf("Array") == -1) {
         arr.push(obj.assignments);

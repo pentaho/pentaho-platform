@@ -43,7 +43,7 @@ public class JsPerspective extends JavaScriptObject {
 
   public static final native JsArray<JsPerspective> parseJson( String json )
   /*-{
-    var obj = eval('(' + json + ')');
+    var obj = JSON.parse(json);
     return obj.pluginPerspective;
   }-*/;
 

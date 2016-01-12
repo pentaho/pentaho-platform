@@ -32,7 +32,7 @@ public class JsTheme extends JavaScriptObject {
 
   public static final native JsArray<JsTheme> getThemes( String json )
   /*-{
-    var obj = eval('(' + json + ')');
+    var obj = JSON.parse(json);
 
     // Sort themes alphabetically
     obj.theme = obj.theme.sort(function(a, b) {
