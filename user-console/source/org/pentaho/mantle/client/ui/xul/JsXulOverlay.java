@@ -40,7 +40,7 @@ public class JsXulOverlay extends JavaScriptObject {
 
   public static final native JsArray<JsXulOverlay> parseJson( String json )
   /*-{
-    var obj = eval('(' + json + ')');
+    var obj = JSON.parse(json);
     return obj.overlay;
   }-*/;
 
