@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-define(["common-ui/util/PentahoSpinner", "common-ui/util/spin.min"], function (spinner, Spinner) {
+define(["common-ui/util/PentahoSpinner", "common-ui/util/spin.min", "dojox/html/entities"], function (spinner, Spinner, Entities) {
 
   var local = {
     name: "favorites",
@@ -196,7 +196,7 @@ define(["common-ui/util/PentahoSpinner", "common-ui/util/spin.min"], function (s
       var template = Handlebars.compile(this.template.html);
       if (items.length > 0) {
         try {
-          context[this.name] = JSON.parse(items);
+          context[this.name] = JSON.parse(Entities.decode(items));
           context.isEmpty = context[this.name].length == 0;
           this.currentItems = context[this.name];
           if (context.isEmpty) {
