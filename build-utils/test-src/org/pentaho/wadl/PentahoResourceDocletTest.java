@@ -11,8 +11,6 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationTypeDoc;
@@ -37,31 +35,30 @@ public class PentahoResourceDocletTest {
   private MethodDoc methodDoc;
   private ClassDoc classDoc;
 
-
   @Before
-  public void before(){
-    annotationTypeDeprecated = mock(AnnotationTypeDoc.class);
-    when(annotationTypeDeprecated.toString()).thenReturn("deprecated");
+  public void before() {
+    annotationTypeDeprecated = mock( AnnotationTypeDoc.class );
+    when( annotationTypeDeprecated.toString() ).thenReturn( "deprecated" );
 
-    annotationDescDeprecated = mock(AnnotationDesc.class);
-    when(annotationDescDeprecated.annotationType()).thenReturn(annotationTypeDeprecated);
-    when(annotationDescDeprecated.toString()).thenReturn("@java.lang.Deprecated");
+    annotationDescDeprecated = mock( AnnotationDesc.class );
+    when( annotationDescDeprecated.annotationType() ).thenReturn( annotationTypeDeprecated );
+    when( annotationDescDeprecated.toString() ).thenReturn( "@java.lang.Deprecated" );
 
-    annotationDescPath = mock(AnnotationDesc.class);
-    when(annotationDescPath.annotationType()).thenReturn(annotationTypeDeprecated);
-    when(annotationDescPath.toString()).thenReturn("@javax.ws.rs.Path");
+    annotationDescPath = mock( AnnotationDesc.class );
+    when( annotationDescPath.annotationType() ).thenReturn( annotationTypeDeprecated );
+    when( annotationDescPath.toString() ).thenReturn( "@javax.ws.rs.Path" );
 
-    methodDoc = mock(MethodDoc.class);
-    when(methodDoc.name()).thenReturn("methodName");
-    when(methodDoc.commentText()).thenReturn("comment text");
-    when(methodDoc.annotations()).thenReturn( new AnnotationDesc[]{ annotationDescDeprecated, annotationDescPath });
+    methodDoc = mock( MethodDoc.class );
+    when( methodDoc.name() ).thenReturn( "methodName" );
+    when( methodDoc.commentText() ).thenReturn( "comment text" );
+    when( methodDoc.annotations() ).thenReturn( new AnnotationDesc[] { annotationDescDeprecated, annotationDescPath } );
 
-    classDoc = mock(ClassDoc.class);
-    when(classDoc.methods()).thenReturn(new MethodDoc[]{ methodDoc });
-    when(classDoc.annotations()).thenReturn(new AnnotationDesc[]{ annotationDescDeprecated, annotationDescPath });
+    classDoc = mock( ClassDoc.class );
+    when( classDoc.methods() ).thenReturn( new MethodDoc[] { methodDoc } );
+    when( classDoc.annotations() ).thenReturn( new AnnotationDesc[] { annotationDescDeprecated, annotationDescPath } );
 
-    rootDoc = mock(RootDoc.class);
-    when(rootDoc.classes()).thenReturn(new ClassDoc[]{ classDoc });
+    rootDoc = mock( RootDoc.class );
+    when( rootDoc.classes() ).thenReturn( new ClassDoc[] { classDoc } );
   }
 
   @Test
@@ -73,8 +70,9 @@ public class PentahoResourceDocletTest {
   }
 
   private String readFromFile() {
+    BufferedReader reader = null;
     try {
-      BufferedReader reader = new BufferedReader( new FileReader( FILE_NAME ) );
+      reader = new BufferedReader( new FileReader( FILE_NAME ) );
       StringBuilder strBuilder = new StringBuilder();
 
       String line = reader.readLine();
@@ -88,6 +86,14 @@ public class PentahoResourceDocletTest {
       Assert.fail( "expected file not found" );
     } catch ( IOException e ) {
       e.printStackTrace();
+    } finally {
+      if ( reader != null ) {
+        try {
+          reader.close();
+        } catch ( IOException e ) {
+          // noop
+        }
+      }
     }
     return null;
   }
