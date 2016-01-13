@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     ============================================================================-->
 
 <project name="subfloor-js" basedir="." default="default" xmlns:ivy="antlib:org.apache.ivy.ant"
-         xmlns:artifact="antlib:org.apache.maven.artifact.ant" xmlns:m="http://ant.apache.org/ivy/maven" >
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
 
   <!-- Import the next subfloor instance, defaults to -pkg, but configurable -->
@@ -68,8 +68,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <property name="js.build.optimizer"
             value="uglify"
             description="Flag to pass into RequireJS's build profile. Possible values: none, uglify"/>
-
-  <property name="dependency.pentaho-js-build.revision" value="1.0.0" />
 
   <!-- location to expand the zipped contents of js dependencies (to be available for testing) -->
   <property name="js.expanded.lib.dir" value="${js.lib.dir}/expanded"/>
@@ -107,30 +105,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </target>
 
   <target name="check-pentaho-js-build-downloaded" depends="subfloor.install-ivy">
-    <ivy:resolve organisation="pentaho" module="pentaho-js-build"
-                 revision="${dependency.pentaho-js-build.revision}"
-                 type="zip" inline="true" m:classifier="assembly" />
-
-    <ivy:retrieve organisation="pentaho" module="pentaho-js-build"
-                  revision="${dependency.pentaho-js-build.revision}"
-                  type="zip" inline="true" m:classifier="assembly"
-                  pattern="build-res/[artifact].[ext]" />
-
-    <!-- There's no easy way to know when the artifacts have in fact changed
-         (ivy.deps.changed doesn't quite work as desired),
-         so, to be safe, this needs to get unzipped every time. -->
-    <delete dir="build-res/pentaho-js-build" quiet="true" />
-    <unzip src="build-res/pentaho-js-build.zip" dest="build-res" />
+    <if>
+      <not>
+        <available file="build-res/pentaho-js-build"/>
+      </not>
+      <then>
+        <ivy:resolve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true"/>
+        <ivy:retrieve organisation="pentaho" module="pentaho-js-build" revision="0.2" inline="true"
+                      pattern="build-res/[artifact].[ext]"/>
+        <unzip src="build-res/pentaho-js-build.zip" dest="build-res"/>
+      </then>
+    </if>
   </target>
 
   <target name="extract-source-and-build-require-js-profile" depends="install-antcontrib, check-pentaho-js-build-downloaded">
-    <!-- this is also used by the build-js task (that depends on this one) -->
-    <path id="build.classpath">
-      <fileset dir="build-res/pentaho-js-build/libs"> <!-- temporary until core build files in artifactory -->
-        <include name="*.jar"/>
-      </fileset>
-    </path>
-
     <if>
       <not>
         <available file="${js.module.script.agg.dir}"/>
@@ -151,6 +139,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           </fileset>
         </copy>
 
+        <path id="build.classpath">
+          <fileset dir="build-res/pentaho-js-build/libs"> <!-- temporary until core build files in artifactory -->
+            <include name="*.jar"/>
+          </fileset>
+        </path>
         <echo message="Collecting RequireJS Configurations"/>
         <echo message="var requireCfg={paths: {}, shim: {}, map: {&quot;*&quot;: {}}, bundles: {}, config: {service: {}}, packages: []};"
               file="build-res/requireCfg-raw.js" append="false"/>
@@ -159,29 +152,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </concat>
         <concat destfile="build-res/requireCfg-raw.js" append="true" force="yes">
           <fileset dir="${js.module.script.agg.dir}" casesensitive="yes">
-            <include name="*/*require-js-cfg.js"/>
+            <include name="*/*-require-js-cfg.js"/>
           </fileset>
         </concat>
 
-        <!-- Call Rhino, with profileBuilder.js, that evaluates requireCfg-raw.js
-             and writes the resulting JSON to requireCfg.js -->
-        <java classname="org.mozilla.javascript.tools.shell.Main" fork="true" classpathref="build.classpath">
-          <arg value="build-res/pentaho-js-build/profileBuilder.js" />
+        <java classname="org.mozilla.javascript.tools.shell.Main"
+          fork="true"
+          classpathref="build.classpath"
+          args="build-res/pentaho-js-build/profileBuilder.js">
         </java>
 
-        <!-- Load any remaining in the requireCfg variable -->
-        <echo message=";if(typeof requireCfg !== 'undefined') { require(requireCfg); }"
-              append="true" file="build-res/requireCfg.js"/>
+        <echo message="require(requireCfg);" append="true" file="build-res/requireCfg.js"/>
       </then>
     </if>
   </target>
 
   <target name="build-js" depends="extract-source-and-build-require-js-profile">
-    <echo message="js.module.script.agg.dir: ${js.module.script.agg.dir}"/>
-
     <delete dir="${js.build.output.dir}"/>
+    <echo message="js.module.script.agg.dir: ${js.module.script.agg.dir}"/>
+    <mkdir dir="${js.module.script.agg.dir}"/>
 
-    <!-- Includes require.js, for projects that create a renamed require.js version -->
     <copy todir="${js.module.script.agg.dir}" overwrite="true">
       <fileset dir="build-res/pentaho-js-build/module-scripts">
         <include name="**/*"/>
@@ -194,9 +184,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <if>
       <isset property="isWindows"/>
       <then>
+        <property name="node-is-available" value="false"/>
         <available file="node.exe" filepath="${env.PATH}" property="node-is-available"/>
       </then>
       <else>
+        <property name="node-is-available" value="false"/>
         <available file="node" filepath="${env.PATH}" property="node-is-available"/>
       </else>
     </if>
@@ -204,7 +196,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <if>
       <equals arg1="true" arg2="${node-is-available}"/>
       <then>
-        <exec executable="node" failonerror="${js.build.failonerror}">
+        <exec command="node" failonerror="${js.build.failonerror}">
           <arg value="build-res/pentaho-js-build/r.js"/>
           <arg value="-o"/>
           <arg value="${js.build.file}"/>
@@ -215,8 +207,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <java classname="org.mozilla.javascript.tools.shell.Main"
               fork="true"
               classpathref="build.classpath"
+              args="build-res/pentaho-js-build/r.js -o ${js.build.file} optimize=${js.build.optimizer}"
               failonerror="${js.build.failonerror}">
-          <arg value="build-res/pentaho-js-build/r.js -o ${js.build.file} optimize=${js.build.optimizer}" />
         </java>
       </else>
     </if>
