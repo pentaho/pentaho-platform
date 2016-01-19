@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
-define(["home/favorites"], function (Favorites) {
+define(["home/favorites", "dojox/html/entities"], function (Favorites, Entities) {
 
   var local = {
     recents: undefined,
@@ -64,7 +64,7 @@ define(["home/favorites"], function (Favorites) {
             async: false,
             success: function (result) {
               try {
-                that.favoritesList = JSON.parse(result);
+                that.favoritesList = JSON.parse(Entities.decode(result));
               } catch (err) {
                 that.favoritesList = [];
               }
