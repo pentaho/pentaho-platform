@@ -126,7 +126,7 @@ define(["common-ui/jquery-pentaho-i18n"], function (context) {
 
     getUrlVars: function() {
       var vars = {};
-      var parts = window.top.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+      var parts = window.parent.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
           vars[key] = value;
       });
       return vars;

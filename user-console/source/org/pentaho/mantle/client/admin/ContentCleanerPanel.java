@@ -279,7 +279,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
   private final native JsJob parseJsonJob( String json )
   /*-{
-    window.top.jobjson = json;
+    window.parent.jobjson = json;
     if (null == json || "" == json) {
       return null;
     }

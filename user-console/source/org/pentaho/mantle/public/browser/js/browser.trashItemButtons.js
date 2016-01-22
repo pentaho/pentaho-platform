@@ -49,8 +49,8 @@ define([
 
     initEventHandlers: function () {
       // listen for file action events
-      if (window.top.mantle_addHandler != undefined)
-        window.top.mantle_addHandler("SolutionFileActionEvent", this.eventLogger);
+      if (window.parent.mantle_addHandler != undefined)
+        window.parent.mantle_addHandler("SolutionFileActionEvent", this.eventLogger);
     },
 
     buildParameter: function (fileList, type, mode) {
@@ -62,7 +62,7 @@ define([
     },
 
     urlParam: function (paramName) {
-      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
+      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.parent.location.href);
       if (value) {
         return value[1];
       }
@@ -76,11 +76,11 @@ define([
     },
 
     restoreHandler: function (fileList, type, mode) {
-      window.top.executeCommand("RestoreFileCommand", this.buildParameter(fileList, type, null));
+      window.parent.executeCommand("RestoreFileCommand", this.buildParameter(fileList, type, null));
     },
 
     permDeleteHandler: function (fileList, type, mode) {
-      window.top.executeCommand("DeletePermanentFileCommand", this.buildParameter(fileList, type, mode));
+      window.parent.executeCommand("DeletePermanentFileCommand", this.buildParameter(fileList, type, mode));
     }
   };
 

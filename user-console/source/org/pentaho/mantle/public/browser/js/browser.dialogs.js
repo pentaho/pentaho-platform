@@ -25,7 +25,7 @@ define([
 
   var dialogs = new Array();
 
-  var $body = $(window.top.document).find("html body"),
+  var $body = $(window.parent.document).find("html body"),
       $container = $body.find(".bootstrap.dialogs");
 
   // Add container to body once
