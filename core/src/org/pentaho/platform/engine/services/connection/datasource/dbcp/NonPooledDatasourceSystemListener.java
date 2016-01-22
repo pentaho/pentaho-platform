@@ -61,6 +61,8 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
 
           Logger.debug( this, "  Setting up datasource - " + databaseConnection ); //$NON-NLS-1$
 
+          dsName = databaseConnection.getName();
+
           //isPortUsedByServer should NOT be called on a JNDI data source
           //http://jira.pentaho.com/browse/BISERVER-12244
           if ( !databaseConnection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
@@ -71,8 +73,6 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
                 + dsName + "\" not cached)" ); //$NON-NLS-1$
             continue;
           }
-
-          dsName = databaseConnection.getName();
 
           cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
 
