@@ -59,26 +59,26 @@ define([
 
     initEventHandlers: function () {
       // listen for file action events
-      if (window.top.mantle_addHandler != undefined)
-        window.top.mantle_addHandler("SolutionFolderActionEvent", this.eventLogger);
+      if (window.parent.mantle_addHandler != undefined)
+        window.parent.mantle_addHandler("SolutionFolderActionEvent", this.eventLogger);
     },
 
     openButtonHandler: function (path) {
       for(var i=0;i<path.length;i++){
-        window.top.mantle_openRepositoryFile(path[i], "RUN");
+        window.parent.mantle_openRepositoryFile(path[i], "RUN");
       }
     },
 
     cutHandler: function (path, title, id) {
-      window.top.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
+      window.parent.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
     },
 
     copyHandler: function (path, title, id) {
-      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
+      window.parent.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
     },
 
     deleteHandler: function (path, title, id) {
-      window.top.executeCommand("DeleteFileCommand", this.buildParameter(path, title, id));
+      window.parent.executeCommand("DeleteFileCommand", this.buildParameter(path, title, id));
     },
 
       buildParameter: function (path, title, id) {
@@ -103,7 +103,7 @@ define([
      },
 
     urlParam: function (paramName) {
-      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
+      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.parent.location.href);
       if (value) {
         return value[1];
       }

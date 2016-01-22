@@ -206,7 +206,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
   public static native void log( String message )
     /*-{
         try {
-            window.top.console.log(message);
+            console.log(message);
         } catch (e) {
         }
     }-*/;
