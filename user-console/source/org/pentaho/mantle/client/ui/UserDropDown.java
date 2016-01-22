@@ -33,7 +33,7 @@ public class UserDropDown extends CustomDropDown {
 
   private static native String getUsername()
   /*-{  
-    return window.top.SESSION_NAME;
+    return window.parent.SESSION_NAME;
   }-*/;
 
 }

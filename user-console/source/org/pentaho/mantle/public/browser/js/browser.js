@@ -32,13 +32,13 @@ define([
   "common-ui/jquery"
 ], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder) {
 
-  if (window.top.mantle_isBrowseRepoDirty == undefined) {
-    window.top.mantle_isBrowseRepoDirty = false;
+  if (window.parent.mantle_isBrowseRepoDirty == undefined) {
+    window.parent.mantle_isBrowseRepoDirty = false;
   }
   this.FileBrowser = {};
 
   FileBrowser.urlParam = function (paramName) {
-    var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
+    var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.parent.location.href);
     if (value) {
       return value[1];
     } else {
@@ -219,7 +219,7 @@ define([
 
       clickedFolder: undefined,
       clickedFile: undefined,
-      startFolder: window.top.HOME_FOLDER,
+      startFolder: window.parent.HOME_FOLDER,
       lastClick: "folder",
       data: undefined,
       openFileHandler: undefined,
@@ -287,7 +287,7 @@ define([
 
       myself.on("change:showDescriptions", myself.updateDescriptions, myself);
 
-      window.top.mantle_addHandler("FavoritesChangedEvent", $.proxy(myself.onFavoritesChanged, myself));
+      window.parent.mantle_addHandler("FavoritesChangedEvent", $.proxy(myself.onFavoritesChanged, myself));
     },
     onFavoritesChanged: function () {
       // BISERVER-9127  - Reselect current file
@@ -312,7 +312,7 @@ define([
     },
 	
 	updateFolderButtons: function( _folderPath) {
-		var userHomePath = Encoder.encodeRepositoryPath(window.top.HOME_FOLDER);
+		var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
 		var model = FileBrowser.fileBrowserModel; // trap model
 		var folderPath = Encoder.encodeRepositoryPath( _folderPath);
 		
@@ -605,8 +605,8 @@ define([
             callback(customSort(response));
           }
 
-          if (window.top.mantle_isBrowseRepoDirty == true) {
-            window.top.mantle_isBrowseRepoDirty = false;
+          if (window.parent.mantle_isBrowseRepoDirty == true) {
+            window.parent.mantle_isBrowseRepoDirty = false;
             //clear the cache
             myself.set("cachedData", {});
           }
@@ -627,7 +627,7 @@ define([
         beforeSend: function (xhr) {
           myself.set("runSpinner", true);
 
-          if (!window.top.mantle_isBrowseRepoDirty) {
+          if (!window.parent.mantle_isBrowseRepoDirty) {
             if (myself.get("cachedData") != undefined) {
               if (myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] != undefined) {
                 if (_.isEqual(myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")], myself.get("data"))) {
@@ -772,8 +772,8 @@ define([
         folderBreadcrumb: folderClicked != undefined ? folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined,
         i18n: jQuery.i18n,
         refreshHandler: function () {
-          if (window.top.mantle_fireEvent) {
-            window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent",
+          if (window.parent.mantle_fireEvent) {
+            window.parent.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent",
                                                          "booleanParam": FileBrowser.fileBrowserModel.get("showDescriptions") });
           }
         }
@@ -867,7 +867,7 @@ define([
             }
           });
       });
-	  model.updateFolderButtons( folderClicked == undefined ? window.top.HOME_FOLDER : folderClicked.attr("path") );
+	  model.updateFolderButtons( folderClicked == undefined ? window.parent.HOME_FOLDER : folderClicked.attr("path") );
     },
 
     updateButtonsMulti: function () {
@@ -1365,7 +1365,7 @@ define([
   function customSort(response) {
 
     var sortFunction = function (a, b) {
-      return window.top.localeCompare(a.file.title, b.file.title);
+      return window.parent.localeCompare(a.file.title, b.file.title);
     };
 
     var recursivePreorder = function (node) {
@@ -1382,8 +1382,8 @@ define([
       }
     };
 
-    if (!window.top.localeCompare) {
-      console.log('window.top.localeCompare function has not been loaded');
+    if (!window.parent.localeCompare) {
+      console.log('window.parent.localeCompare function has not been loaded');
       return response; // the server should still return a sorted tree list
     }
 
@@ -1413,6 +1413,6 @@ define([
 });
 
 function perspectiveActivated() {
-  window.top.mantle_isBrowseRepoDirty = true;
+  window.parent.mantle_isBrowseRepoDirty = true;
   FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path"));
 }

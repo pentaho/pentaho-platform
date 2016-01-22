@@ -114,16 +114,16 @@ define([
             var isFile = slashPath.search("\\.") > -1;
         
             // if possible refresh the solution browser panel
-            if (typeof window.top.mantle_setIsRepoDirty !== "undefined") {
-              window.top.mantle_setIsRepoDirty(true);
-              window.top.mantle_isBrowseRepoDirty=true;
+            if (typeof window.parent.mantle_setIsRepoDirty !== "undefined") {
+              window.parent.mantle_setIsRepoDirty(true);
+              window.parent.mantle_isBrowseRepoDirty=true;
             }
         
             // Refresh file or folder list
             if (isFile) {
-              window.top.mantle_fireEvent('GenericEvent', {'eventSubType': 'RefreshCurrentFolderEvent'});
+              window.parent.mantle_fireEvent('GenericEvent', {'eventSubType': 'RefreshCurrentFolderEvent'});
             } else {
-              window.top.mantle_fireEvent('GenericEvent', {
+              window.parent.mantle_fireEvent('GenericEvent', {
                 'eventSubType': 'RefreshFolderEvent',
                 'stringParam': slashPath
               });
@@ -131,7 +131,7 @@ define([
         
             // Reset model variables since the action completed successfully
             me.reset();
-            window.top.executeCommand("RefreshRepositoryCommand");
+            window.parent.executeCommand("RefreshRepositoryCommand");
           },
           function (error) {
             setPrevVals.apply(me);

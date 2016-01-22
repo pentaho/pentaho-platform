@@ -89,7 +89,7 @@
       FileBrowser.setCanDownload(canDownload);
       FileBrowser.setCanPublish(canPublish);
       
-      var open_dir = window.top.HOME_FOLDER;
+      var open_dir = window.parent.HOME_FOLDER;
       
       $.ajax({
 				url: CONTEXT_PATH + "api/mantle/session-variable?key=scheduler_folder",
@@ -112,18 +112,18 @@
 				}
 			});
       
-      if (window.top.mantle_addHandler == undefined) return;
+      if (window.parent.mantle_addHandler == undefined) return;
 
-      window.top.mantle_addHandler("ShowHiddenFilesEvent", function (event) {
+      window.parent.mantle_addHandler("ShowHiddenFilesEvent", function (event) {
         if (event.value != undefined) {
           //Clear the Browse Perspective cache
-          window.top.mantle_isBrowseRepoDirty = true;
+          window.parent.mantle_isBrowseRepoDirty = true;
           FileBrowser.setShowHiddenFiles(event.value);
-          FileBrowser.update(window.top.HOME_FOLDER);
+          FileBrowser.update(window.parent.HOME_FOLDER);
         }
       });
 
-      window.top.mantle_addHandler("ShowDescriptionsEvent", function (event) {
+      window.parent.mantle_addHandler("ShowDescriptionsEvent", function (event) {
         if (event.value != undefined) {
           FileBrowser.updateShowDescriptions(event.value);
         }
@@ -131,22 +131,22 @@
 
 
       // refresh file list on successful delete
-      window.top.mantle_addHandler("SolutionFileActionEvent", function (event) {
+      window.parent.mantle_addHandler("SolutionFileActionEvent", function (event) {
         if (event.action.indexOf('DeleteFileCommand') >= 0 ||
             (event.action.indexOf('RestoreFileCommand') >= 0) ||
             (event.action.indexOf('DeletePermanentFileCommand') >= 0)) {
           if (event.message == 'Success') {
-            window.top.mantle_isBrowseRepoDirty = true;
+            window.parent.mantle_isBrowseRepoDirty = true;
             refreshFileBrowser(event);
           }
           else {
-            window.top.mantle_showMessage('Error', event.message);
+            window.parent.mantle_showMessage('Error', event.message);
           }
         }
         else if ((event.action.indexOf('ScheduleHelper') >= 0) ||
                 (event.action.indexOf('ShareFileCommand') >= 0)) {
             if (event.message == 'Open' || event.message == 'Success') {
-                window.top.mantle_setPerspective('browser.perspective'); // change to browse perspective
+                window.parent.mantle_setPerspective('browser.perspective'); // change to browse perspective
             }
         }
         else if (event.action.indexOf('CutFilesCommand') >= 0 ||
@@ -189,7 +189,7 @@
         }
       });
 
-      window.top.mantle_addHandler("SolutionFolderActionEvent", function (event) {
+      window.parent.mantle_addHandler("SolutionFolderActionEvent", function (event) {
           // refresh folder list on create new folder / delete folder / import
           if (event.action.indexOf('NewFolderCommand') >= 0 ||
                   event.action.indexOf('DeleteFolderCommand') >= 0 ||
@@ -199,7 +199,7 @@
                   refreshFileBrowser(event);
               }
               else {
-                  window.top.mantle_showMessage('Error', event.message);
+                  window.parent.mantle_showMessage('Error', event.message);
               }
           }
           else if (event.action.indexOf('PasteFilesCommand') >= 0) {
@@ -233,7 +233,7 @@
                       switch (event.action) {
                           case "org.pentaho.mantle.client.commands.PasteFilesCommand":
                               //Handle errors
-                              window.top.mantle_showMessage('Error', event.message);
+                              window.parent.mantle_showMessage('Error', event.message);
                               browserUtils.uiSpinnerFeedback([fileListModel], []);
                               break;
                       }
@@ -242,14 +242,14 @@
           }
       });
 
-      window.top.mantle_addHandler("GenericEvent", function (paramJson) {
+      window.parent.mantle_addHandler("GenericEvent", function (paramJson) {
         if (paramJson.eventSubType == "OpenFolderEvent") {
           FileBrowser.openFolder(paramJson.stringParam);
         }
         else if (paramJson.eventSubType == "RefreshBrowsePerspectiveEvent") {
           //Clear the Browse Perspective cache
-          window.top.mantle_isBrowseRepoDirty = true;
-          FileBrowser.update(window.top.HOME_FOLDER, paramJson.booleanParam); // refresh folder list
+          window.parent.mantle_isBrowseRepoDirty = true;
+          FileBrowser.update(window.parent.HOME_FOLDER, paramJson.booleanParam); // refresh folder list
         }
         else if (paramJson.eventSubType == "RefreshFolderEvent") {
           FileBrowser.update(paramJson.stringParam); // refresh specified folder
@@ -280,7 +280,7 @@
     }
     //If no last clicked folder, restore to home folder
     else {
-        FileBrowser.update(window.top.HOME_FOLDER);
+        FileBrowser.update(window.parent.HOME_FOLDER);
     }
   }
 
