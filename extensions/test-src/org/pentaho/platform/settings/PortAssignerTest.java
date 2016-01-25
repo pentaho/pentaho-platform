@@ -12,16 +12,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2015 Pentaho Corporation. All rights reserved.
+ * Copyright 2016 Pentaho Corporation. All rights reserved.
  */
-
 package org.pentaho.platform.settings;
 
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.HashSet;
-
 import org.junit.Test;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
