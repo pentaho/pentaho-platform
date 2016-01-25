@@ -17,6 +17,8 @@
 
 package org.pentaho.platform.web.http.context;
 
+import org.pentaho.di.core.KettleClientEnvironment;
+import org.pentaho.di.core.KettleClientEnvironment.ClientType;
 import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -75,8 +77,14 @@ public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationCo
     } else {
       resource = super.getResourceByPath( path );
     }
-
-    if ( path.toLowerCase().endsWith( DEFAULT_SPRING_XML ) ) {
+    ClientType clientType = null;
+    // We need to check if we are running in spoon. For that we need to get the kettle client type
+    if(KettleClientEnvironment.isInitialized() && KettleClientEnvironment.getInstance() != null) {
+      clientType  = KettleClientEnvironment.getInstance().getClient();
+    }
+    
+    // If the client type is spoon then we will skip adding the xml file
+    if ( path.toLowerCase().endsWith( DEFAULT_SPRING_XML ) && ( clientType == null || !clientType.equals( ClientType.SPOON ) ) ) {
       try {
 
         DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
