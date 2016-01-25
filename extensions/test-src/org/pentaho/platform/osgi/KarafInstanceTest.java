@@ -12,18 +12,19 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2015 Pentaho Corporation. All rights reserved.
+ * Copyright 2016 Pentaho Corporation. All rights reserved.
  */
-
 package org.pentaho.platform.osgi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.HashSet;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.settings.PortAssigner;
 import org.pentaho.platform.settings.ServerPortRegistry;
@@ -36,24 +37,40 @@ import org.pentaho.platform.settings.ServerPortRegistry;
 public class KarafInstanceTest {
   private String TEST_CACHE_FOLDER = "./bin/test/cacheTest";
 
+  @Before
+  public void setUp() throws IOException {
+    // remove a prior test run, if any
+    File folder = new File( TEST_CACHE_FOLDER );
+    if ( folder.exists() ) {
+      FileUtils.deleteDirectory( folder );
+    }
+  }
+  
+  @After
+  public void tearDown() throws IOException {
+    // clean up
+    File folder = new File( TEST_CACHE_FOLDER );
+    if ( folder.exists() ) {
+      FileUtils.deleteDirectory( folder );
+    }
+  }
+  
   @Test
   public void testKarafInstance() throws Exception {
-    // remove a prior test run, if any
-    FileUtils.deleteDirectory( new File( TEST_CACHE_FOLDER ) );
-
-    // Test port assignment
-    //pool = new KarafInstanceTest.PortPool();
-    @SuppressWarnings( "unused" )
     KarafInstance karafInstance1 = createTestInstance( 1 );
     KarafInstance karafInstance2 = createTestInstance( 2 );
-    @SuppressWarnings( "unused" )
     KarafInstance karafInstance3 = createTestInstance( 3 );
 
     // Test instance Re-use
     karafInstance2.close();
     karafInstance2 = createTestInstance( 2 );
-    createTestInstance( 4 );
+    KarafInstance karafInstance4 = createTestInstance( 4 );
 
+    //close all instance
+    karafInstance1.close();
+    karafInstance2.close();
+    karafInstance3.close();
+    karafInstance4.close();
   }
 
   private KarafInstance createTestInstance( int expectedInstanceNumber ) throws Exception {

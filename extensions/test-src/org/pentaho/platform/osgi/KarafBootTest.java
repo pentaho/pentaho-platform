@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -67,7 +67,9 @@ public class KarafBootTest {
 
   @AfterClass
   public static void cleanUp() throws IOException {
-    FileUtils.deleteDirectory( tmpDir );
+    if ( tmpDir.exists() ) {
+      FileUtils.deleteDirectory( tmpDir );
+    }
   }
 
   @Before
@@ -80,11 +82,14 @@ public class KarafBootTest {
   @After
   public void tearDown() throws Exception {
     PentahoSystem.clearObjectFactory();
+    boot.shutdown();
   }
 
   @Test
   public void testStartup_noKarafPortsYaml() throws Exception {
-    assertFalse( boot.startup( session ) );
+    KarafBoot karafBoot = spy( boot );
+    doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
+    assertFalse( karafBoot.startup( session ) );
   }
 
   @Test
@@ -94,8 +99,8 @@ public class KarafBootTest {
 
     boolean startup = karafBoot.startup( session );
     verify( karafInstance ).start();
-
     // can't see if it started since we aren't actually starting up karaf, return value will be false
+    assertFalse( startup );
   }
 
   @Test
@@ -110,6 +115,7 @@ public class KarafBootTest {
     verify( karafInstance ).start();
 
     // can't see if it started since we aren't actually starting up karaf, return value will be false
+    assertFalse( startup );
   }
 
   @Test
@@ -123,23 +129,52 @@ public class KarafBootTest {
   }
 
   @Test
-  public void testConfigureSystemProperties() throws Exception {
-
+  public void testConfigureSystemProperties_karafHome() throws Exception {
+    testConfigureSystemProperties( "karaf.home", "karaf.home" );
   }
 
   @Test
-  public void testCanOpenConfigPropertiesForEdit() throws Exception {
-
+  public void testConfigureSystemProperties_karafBase() throws Exception {
+    testConfigureSystemProperties( "karaf.base", "karaf.base" );
   }
 
   @Test
-  public void testExpandSystemPackages() throws Exception {
-
+  public void testConfigureSystemProperties_karafHistory() throws Exception {
+    testConfigureSystemProperties( "karaf.history", "karaf.history" );
   }
 
   @Test
-  public void testShutdown() throws Exception {
-    boot.shutdown();
+  public void testConfigureSystemProperties_karafInstances() throws Exception {
+    testConfigureSystemProperties( "karaf.instances", "karaf.instances" );
+  }
+
+  @Test
+  public void testConfigureSystemProperties_startLocalConsole() throws Exception {
+    testConfigureSystemProperties( "karaf.startLocalConsole", "karaf.startLocalConsole" );
+  }
+
+  @Test
+  public void testConfigureSystemProperties_startRemoteShell() throws Exception {
+    testConfigureSystemProperties( "karaf.startRemoteShell", "karaf.startRemoteShell" );
+  }
+
+  @Test
+  public void testConfigureSystemProperties_karafLock() throws Exception {
+    testConfigureSystemProperties( "karaf.lock", "karaf.lock" );
+  }
+
+  @Test
+  public void testConfigureSystemProperties_karafData() throws Exception {
+    testConfigureSystemProperties( "karaf.data", "karaf.data" );
+  }
+
+  private void testConfigureSystemProperties( String propertyName, String expected ) throws Exception {
+    //set property
+    System.setProperty( propertyName, expected );
+    KarafBoot karafBoot = new KarafBoot();
+    karafBoot.configureSystemProperties( "solutionRootPath", "root" );
+    //check that property does not everrided
+    assertEquals( expected, System.getProperty( propertyName ) );
   }
 
 }
