@@ -179,15 +179,16 @@ public class CopyFilesOperation_DeepFolderCopyTest {
   }
 
   private List<RepositoryFile> listOfMockedRepoFiles( final int files, final boolean isFolder ) {
-    return new ArrayList<RepositoryFile>() {{
-      for ( int i = 0; i < files; i++ ) {
-        if ( isFolder ) {
-          add( mockFolder() );
-        } else {
-          add( mockFile() );
+    return new ArrayList<RepositoryFile>() { {
+        for ( int i = 0; i < files; i++ ) {
+          if ( isFolder ) {
+            add( mockFolder() );
+          } else {
+            add( mockFile() );
+          }
         }
       }
-    }};
+    };
   }
 
   public static RepositoryFile mockFile( String id ) {

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2006 - 2014 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  *
  */
 
@@ -133,7 +133,7 @@ public class JcrStringHelper {
     String[] folders = encodedPath.split( SEPARATOR );
     StringBuilder decodedPath = new StringBuilder( encodedPath.length() * 2 );
     for ( int i = 0; i < folders.length; i++ ) {
-      decodedPath.append( fileNameDecode( folders[i] ) );
+      decodedPath.append( fileNameDecode( folders[ i ] ) );
       if ( i != folders.length - 1 || encodedPath.endsWith( SEPARATOR ) ) {
         decodedPath.append( SEPARATOR );
       }
@@ -163,8 +163,8 @@ public class JcrStringHelper {
   public static boolean isMultiByteEncodingEnabled() {
     if ( !multiByteValueInitialized && PentahoSystem.getInitializedOK() ) {
       Boolean setting =
-          PentahoSystem.get( Boolean.class, "useMultiByteEncoding", PentahoSessionHolder.getSession() );
-      if( setting == null ){
+        PentahoSystem.get( Boolean.class, "useMultiByteEncoding", PentahoSessionHolder.getSession() );
+      if ( setting == null ) {
         useMultiByteEncoding = false;
       } else {
         useMultiByteEncoding = setting;
