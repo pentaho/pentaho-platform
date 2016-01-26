@@ -21,10 +21,13 @@ import org.junit.Test;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 
 public class JcrStringHelperTest {
+  private static final String PATH_TO_REPORT_NOT_ENCODED = "/home/admin/[~!@#$%^&*(){}|.,]-=_+|;'\"?<>~`.prpti";
+  private static final String PATH_TO_REPORT_ENCODED = "/home/admin/%5B~!@#$%25^&%2A(){}%7C.,%5D-=_+%7C;'\"?<>~`.prpti";
 
   @Test
   public void testLetterDigitIDEncode() {
@@ -113,10 +116,20 @@ public class JcrStringHelperTest {
 
   @Test
   public void testPathWithSpecificCharactersDecode() {
-    String path = "/home/admin/[~!@#$%^&*(){}|.,]-=_+|;'\"?<>~`.prpti";
-    String encodedPath = JcrStringHelper.pathEncode( path );
-    assertFalse( path.equals( encodedPath ) );
+    String encodedPath = JcrStringHelper.pathEncode( PATH_TO_REPORT_NOT_ENCODED );
+    assertFalse( PATH_TO_REPORT_NOT_ENCODED.equals( encodedPath ) );
     String decodedPath = JcrStringHelper.pathDecode( encodedPath );
-    assertEquals( path, decodedPath );
+    assertEquals( PATH_TO_REPORT_NOT_ENCODED, decodedPath );
   }
+
+  @Test
+  public void testFileIsNotEncoded() {
+     assertFalse( JcrStringHelper.isEncoded( PATH_TO_REPORT_NOT_ENCODED ) );
+  }
+
+  @Test
+  public void testFileIsEncoded() {
+    assertTrue( JcrStringHelper.isEncoded( PATH_TO_REPORT_ENCODED ) );
+  }
+
 }

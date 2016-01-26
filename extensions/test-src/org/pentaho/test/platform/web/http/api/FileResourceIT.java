@@ -422,44 +422,6 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   }
 
   @Test
-  public void testCopyFiles() throws Exception {
-    mp.defineInstance( IUnifiedRepository.class, repo );
-    loginAsRepositoryAdmin();
-    ITenant systemTenant =
-        tenantManager.createTenant( null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName,
-            authenticatedAuthorityName, "Anonymous" );
-    userRoleDao.createUser( systemTenant, sysAdminUserName, "password", "", new String[]{adminAuthorityName} );
-    login( sysAdminUserName, systemTenant, new String[]{adminAuthorityName, authenticatedAuthorityName} );
-
-    ITenant mainTenant_1 =
-        tenantManager.createTenant( systemTenant, MAIN_TENANT_1, adminAuthorityName, authenticatedAuthorityName,
-            "Anonymous" );
-    userRoleDao.createUser( mainTenant_1, "admin", "password", "", new String[]{adminAuthorityName} );
-    login( "admin", mainTenant_1, new String[]{authenticatedAuthorityName} );
-
-    try{
-      final String destFolderPath = "public:folder3:folder4";
-      final String fileName = "file.txt";
-
-      String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
-      createTestFile( publicFolderPath.replaceAll( "/", ":" ) + ":" + fileName, "abcdefg" );
-      WebResource webResource = resource();
-      RepositoryFile file = repo.getFile( ClientRepositoryPaths.getPublicFolderPath() + "/" + fileName );
-      ClientResponse r =
-          webResource.path( "repo/files/" + destFolderPath + "/children" ).accept( TEXT_PLAIN ).put(
-              ClientResponse.class, file.getId() );
-      assertResponse( r, Status.OK );
-    }
-    catch(Throwable ex){
-      TestCase.fail();
-    }
-    finally{
-      cleanupUserAndRoles( mainTenant_1 );
-      cleanupUserAndRoles( systemTenant );
-    }
-  }
-
-  @Test
   public void testGetWhenFileDNE() {
     mp.defineInstance( IUnifiedRepository.class, repo );
     loginAsRepositoryAdmin();
