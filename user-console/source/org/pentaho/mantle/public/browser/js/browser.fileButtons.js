@@ -121,10 +121,10 @@ define([
       var that = this; // trap this
 
       // listen for file action events
-      if (window.top.mantle_addHandler != undefined) {
-        window.top.mantle_addHandler("SolutionFileActionEvent", $.proxy(that.eventLogger, that));
-        window.top.mantle_addHandler("FavoritesChangedEvent", $.proxy(that.onFavoritesChanged, that));
-        window.top.mantle_addHandler("GenericEvent", $.proxy(that.onNewFavoritesItems, that));
+      if (window.parent.mantle_addHandler != undefined) {
+        window.parent.mantle_addHandler("SolutionFileActionEvent", $.proxy(that.eventLogger, that));
+        window.parent.mantle_addHandler("FavoritesChangedEvent", $.proxy(that.onFavoritesChanged, that));
+        window.parent.mantle_addHandler("GenericEvent", $.proxy(that.onNewFavoritesItems, that));
       }
     },
 
@@ -137,7 +137,7 @@ define([
     },
 
     urlParam: function (paramName) {
-      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
+      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.parent.location.href);
       if (value) {
         return value[1];
       }
@@ -234,8 +234,8 @@ define([
 
     // Send request to FavoritesController to get the current list of favorites.
     refreshFavoritesList: function () {
-      if (this.updateFavoriteItems && window.top.mantle_fireEvent) {
-        window.top.mantle_fireEvent('GenericEvent', {"eventSubType": "favoritesListRequest"});
+      if (this.updateFavoriteItems && window.parent.mantle_fireEvent) {
+        window.parent.mantle_fireEvent('GenericEvent', {"eventSubType": "favoritesListRequest"});
       }
     },
 
@@ -288,57 +288,57 @@ define([
     },
 
     openButtonHandler: function (path) {
-      window.top.mantle_openRepositoryFile(path, "RUN");
+      window.parent.mantle_openRepositoryFile(path, "RUN");
     },
 
     openNewButtonHandler: function (path) {
-      window.top.mantle_openRepositoryFile(path, "NEWWINDOW");
-      window.top.mantle_setPerspective('browser.perspective');
+      window.parent.mantle_openRepositoryFile(path, "NEWWINDOW");
+      window.parent.mantle_setPerspective('browser.perspective');
     },
 
     runInBackgroundHandler: function (path, title) {
-      window.top.executeCommand("RunInBackgroundCommand", this.buildParameter(path, title));
+      window.parent.executeCommand("RunInBackgroundCommand", this.buildParameter(path, title));
     },
 
     editHandler: function (path) {
-      window.top.mantle_openRepositoryFile(path, "EDIT");
+      window.parent.mantle_openRepositoryFile(path, "EDIT");
     },
 
     deleteHandler: function (path, title, id) {
-      window.top.executeCommand("DeleteFileCommand", this.buildParameter(path, title, id));
+      window.parent.executeCommand("DeleteFileCommand", this.buildParameter(path, title, id));
     },
 
     cutHandler: function (path, title, id) {
-      window.top.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
+      window.parent.executeCommand("CutFilesCommand", this.buildParameter(path, title, id));
     },
 
     copyHandler: function (path, title, id) {
-      window.top.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
+      window.parent.executeCommand("CopyFilesCommand", this.buildParameter(path, title, id));
     },
 
     downloadHandler: function (path) {
-      window.top.executeCommand("ExportFileCommand", this.buildParameter(path));
+      window.parent.executeCommand("ExportFileCommand", this.buildParameter(path));
     },
 
     shareHandler: function (path) {
-      window.top.executeCommand("ShareFileCommand", this.buildParameter(path));
+      window.parent.executeCommand("ShareFileCommand", this.buildParameter(path));
     },
 
     scheduleHandler: function (path) {
-      window.top.mantle_openRepositoryFile(path, "SCHEDULE_NEW");
+      window.parent.mantle_openRepositoryFile(path, "SCHEDULE_NEW");
     },
 
     favoritesHandler: function (path, title) {
       if (this.isFavorite) {
-        window.top.mantle_removeFavorite(path);
+        window.parent.mantle_removeFavorite(path);
       }
       else {
-        window.top.mantle_addFavorite(path, title);
+        window.parent.mantle_addFavorite(path, title);
       }
     },
 
     propertiesHandler: function (path) {
-      window.top.executeCommand("FilePropertiesCommand", this.buildParameter(path));
+      window.parent.executeCommand("FilePropertiesCommand", this.buildParameter(path));
     },
 
     renameHandler: function (path) {

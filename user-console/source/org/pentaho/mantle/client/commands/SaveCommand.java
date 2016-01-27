@@ -264,7 +264,7 @@ public class SaveCommand extends AbstractCommand {
   /*-{
     var isSavedSuccessfully = true;
     var errorCallback = function() {
-      window.top.mantle_showMessage(save, unableToSaveMessage);
+      window.parent.mantle_showMessage(save, unableToSaveMessage);
       isSavedSuccessfully = false;
     }
 

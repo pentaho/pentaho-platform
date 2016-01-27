@@ -126,7 +126,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
       <div class='row-fluid'>
         <script type="text/x-handlebars-template">
           <div class="well sidebar">
-            <button class="btn btn-large btn-block" onclick="window.top.mantle_setPerspective('browser.perspective')">
+            <button class="btn btn-large btn-block" onclick="window.parent.mantle_setPerspective('browser.perspective')">
               {{i18n.browse}}
             </button>
 
@@ -169,7 +169,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
               <div class="empty-panel content-panel">
                 <div class="centered">
                   <div class="empty-message">{{i18n.empty_recents_panel_message}}</div>
-                  <button class="pentaho-button" onclick="window.top.mantle_setPerspective('browser.perspective');">{{i18n.browse}}</button>
+                  <button class="pentaho-button" onclick="window.parent.mantle_setPerspective('browser.perspective');">{{i18n.browse}}</button>
                 </div>
               </div>
               {{else}}
@@ -233,7 +233,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
               <div class="empty-panel content-panel">
                 <div class="centered">
                   <div class="empty-message">{{i18n.empty_favorites_panel_message}}</div>
-                  <button class="pentaho-button" onclick="window.top.mantle_setPerspective('browser.perspective')">{{i18n.browse}}</button>
+                  <button class="pentaho-button" onclick="window.parent.mantle_setPerspective('browser.perspective')">{{i18n.browse}}</button>
                 </div>
               </div>
               {{else}}

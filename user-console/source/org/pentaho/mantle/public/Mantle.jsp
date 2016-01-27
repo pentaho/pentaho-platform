@@ -74,8 +74,8 @@
             }
   %>
   <script type="text/javascript">
-    if(typeof window.top.PentahoMobile != "undefined"){
-      window.top.location.reload();
+    if(typeof window.parent.PentahoMobile != "undefined"){
+      window.parent.location.reload();
     } else {
       var tag = document.createElement('META');
       tag.setAttribute('HTTP-EQUIV', 'refresh');
