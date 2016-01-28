@@ -76,9 +76,9 @@ define([
 
     initEventHandlers: function () {
       // listen for file action events
-      if (window.top.mantle_addHandler) {
-        window.top.mantle_addHandler("SolutionFolderActionEvent", this.eventLogger);
-        window.top.mantle_addHandler("SolutionFileActionEvent", this.postPropertiesHandler);
+      if (window.parent.mantle_addHandler) {
+        window.parent.mantle_addHandler("SolutionFolderActionEvent", this.eventLogger);
+        window.parent.mantle_addHandler("SolutionFileActionEvent", this.postPropertiesHandler);
       }
     },
 
@@ -90,7 +90,7 @@ define([
     },
 
     urlParam: function (paramName) {
-      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.top.location.href);
+      var value = new RegExp('[\\?&]' + paramName + '=([^&#]*)').exec(window.parent.location.href);
       if (value) {
         return value[1];
       }
@@ -160,30 +160,30 @@ define([
     },
 
     newFolderHandler: function (path) {
-      if (window.top != undefined)
-        window.top.executeCommand("NewFolderCommand", this.buildParameter(path));
+      if (window.parent != undefined)
+        window.parent.executeCommand("NewFolderCommand", this.buildParameter(path));
     },
 
     deleteFolderHandler: function (path) {
-      window.top.executeCommand("DeleteFolderCommand", this.buildParameter(path));
+      window.parent.executeCommand("DeleteFolderCommand", this.buildParameter(path));
     },
 
     pasteHandler: function (path, title, id,  multiSelectItems, browserUtils) {
       if (browserUtils.multiSelectItems.length > 0 ) {
-        window.top.executeCommand("PasteFilesCommand", this.buildParameter(path));
+        window.parent.executeCommand("PasteFilesCommand", this.buildParameter(path));
       }
     },
 
     uploadHandler: function (path) {
-      window.top.executeCommand("ImportFileCommand", this.buildParameter(path));
+      window.parent.executeCommand("ImportFileCommand", this.buildParameter(path));
     },
 
     downloadHandler: function (path) {
-      window.top.executeCommand("ExportFileCommand", this.buildParameter(path));
+      window.parent.executeCommand("ExportFileCommand", this.buildParameter(path));
     },
 
     propertiesHandler: function (path) {
-      window.top.executeCommand("FilePropertiesCommand", this.buildParameter(path));
+      window.parent.executeCommand("FilePropertiesCommand", this.buildParameter(path));
     },
 
     postPropertiesHandler: function () {
