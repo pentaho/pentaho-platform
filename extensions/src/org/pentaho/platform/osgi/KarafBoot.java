@@ -12,9 +12,8 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2014 Pentaho Corporation. All rights reserved.
+ * Copyright 2016 Pentaho Corporation. All rights reserved.
  */
-
 package org.pentaho.platform.osgi;
 
 import org.apache.commons.io.FileUtils;
@@ -46,12 +45,12 @@ import java.util.UUID;
 public class KarafBoot implements IPentahoSystemListener {
   private Main main;
   Logger logger = LoggerFactory.getLogger( getClass() );
-  private static boolean initialized;
+
   public static final String ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA = "org.osgi.framework.system.packages.extra";
 
   private static final String SYSTEM_PROP_OSX_APP_ROOT_DIR = "osx.app.root.dir";
 
-  private static final String KARAF_DIR = "/system/karaf";
+  protected static final String KARAF_DIR = "/system/karaf";
 
   @Override public boolean startup( IPentahoSession session ) {
 
@@ -137,49 +136,58 @@ public class KarafBoot implements IPentahoSystemListener {
   }
 
   protected void configureSystemProperties( String solutionRootPath, String root ) {
-    System.setProperty( "karaf.home", root );
-    System.setProperty( "karaf.base", root );
-    System.setProperty( "karaf.data", root + "/data" );
-    System.setProperty( "karaf.history", root + "/data/history.txt" );
-    System.setProperty( "karaf.instances", root + "/instances" );
-    System.setProperty( "karaf.startLocalConsole", "false" );
-    System.setProperty( "karaf.startRemoteShell", "true" );
-    System.setProperty( "karaf.lock", "false" );
-    System.setProperty( "karaf.etc", root + "/etc"  );
+    fillMissedSystemProperty( "karaf.home", root );
+    fillMissedSystemProperty( "karaf.base", root );
+    fillMissedSystemProperty( "karaf.data", root + "/data" );
+    fillMissedSystemProperty( "karaf.history", root + "/data/history.txt" );
+    fillMissedSystemProperty( "karaf.instances", root + "/instances" );
+    fillMissedSystemProperty( "karaf.startLocalConsole", "false" );
+    fillMissedSystemProperty( "karaf.startRemoteShell", "true" );
+    fillMissedSystemProperty( "karaf.lock", "false" );
+    fillMissedSystemProperty( "karaf.etc", root + "/etc"  );
 
     // When running in the PDI-Clients there are separate etc directories so that features can be customized for
     // the particular execution needs (Carte, Spoon, Pan, Kitchen)
     KettleClientEnvironment.ClientType clientType = getClientType();
     String extraKettleEtc = translateToExtraKettleEtc( clientType );
 
-    if( extraKettleEtc != null ){
+    if ( extraKettleEtc != null ) {
       System.setProperty( "felix.fileinstall.dir", root + "/etc"  + "," + root + extraKettleEtc );
     } else {
       System.setProperty( "felix.fileinstall.dir", root + "/etc" );
     }
 
-
     // Tell others like the pdi-osgi-bridge that there's already a karaf instance running so they don't start
     // their own.
     System.setProperty( "embedded.karaf.mode", "true" );
-
 
     // set the location of the log4j config file, since OSGI won't pick up the one in webapp
     File file = new File( solutionRootPath + "/system/osgi/log4j.xml" );
     if ( file.exists() ) {
       System.setProperty( "log4j.configuration", file.toURI().toString() );
     } else {
-      logger.warn( file.toURI().toString() +" file not exist" );
+      logger.warn( file.toURI().toString() + " file not exist" );
     }
     // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
     // same one used when instatiating appenders.
     System.setProperty( "log4j.ignoreTCL", "true" );
   }
 
+  /**
+   * If property with propertyName does not exist, than set property with value propertyValue
+   * @param propertyName - property for check
+   * @param propertyValue - value to set if property null
+   */
+  protected void fillMissedSystemProperty( String propertyName, String propertyValue ) {
+    if ( System.getProperty( propertyName ) == null ) {
+      System.setProperty( propertyName, propertyValue );
+    }
+  }
+
   protected String translateToExtraKettleEtc( KettleClientEnvironment.ClientType clientType ) {
     String extraKettleEtc = null;
     if ( clientType != null ) {
-      switch( clientType ) {
+      switch ( clientType ) {
         case SPOON:
           extraKettleEtc = "/etc-spoon";
           break;
@@ -260,7 +268,9 @@ public class KarafBoot implements IPentahoSystemListener {
 
   @Override public void shutdown() {
     try {
-      main.destroy();
+      if ( main != null ) {
+        main.destroy();
+      }
     } catch ( Exception e ) {
       logger.error( "Error stopping Karaf", e );
     }
