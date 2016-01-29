@@ -55,18 +55,18 @@ import javax.xml.xpath.XPathFactory;
  */
 public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationContext {
 
-  private final static String DEFAULT_NAMESPASE = "ns";
+  private static final String DEFAULT_NAMESPASE = "ns";
 
-  private final static String SYSTEM_FOLDER = "system";
+  private static final String SYSTEM_FOLDER = "system";
 
-  private final static String DEFAULT_SPRING_XML = "pentaho-spring-beans.xml";
-  private final static String IMPORT_TAG = "import";
-  private final static String RESOURCE_ATTR = "resource";
-  private final static String RESOURCE = "importExport.xml";
+  private static final String DEFAULT_SPRING_XML = "pentaho-spring-beans.xml";
+  private static final String IMPORT_TAG = "import";
+  private static final String RESOURCE_ATTR = "resource";
+  private static final String RESOURCE = "importExport.xml";
 
-  private final static String IMPORT_COMMENT = "Import \"{0}\" was added by \"{1}\" class automatically";
+  private static final String IMPORT_COMMENT = "Import \"{0}\" was added by \"{1}\" class automatically";
 
-  private final static XPathFactory XPATH_FACTORY = XPathFactory.newInstance();
+  private static final XPathFactory XPATH_FACTORY = XPathFactory.newInstance();
 
   protected Resource getResourceByPath( String path ) {
     Resource resource = null;
@@ -79,12 +79,13 @@ public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationCo
     }
     ClientType clientType = null;
     // We need to check if we are running in spoon. For that we need to get the kettle client type
-    if(KettleClientEnvironment.isInitialized() && KettleClientEnvironment.getInstance() != null) {
+    if ( KettleClientEnvironment.isInitialized( )
+        && KettleClientEnvironment.getInstance() != null ) {
       clientType  = KettleClientEnvironment.getInstance().getClient();
     }
-    
     // If the client type is spoon then we will skip adding the xml file
-    if ( path.toLowerCase().endsWith( DEFAULT_SPRING_XML ) && ( clientType == null || !clientType.equals( ClientType.SPOON ) ) ) {
+    if ( path.toLowerCase().endsWith( DEFAULT_SPRING_XML )
+        && ( clientType == null || !clientType.equals( ClientType.SPOON ) ) ) {
       try {
 
         DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
