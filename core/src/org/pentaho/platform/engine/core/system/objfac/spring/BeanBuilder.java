@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
@@ -100,7 +100,7 @@ public class BeanBuilder implements FactoryBean {
             log.debug( "Request bean which wasn't found is interface-based. Instantiating a Proxy dampener" );
 
             val = Proxy.newProxyInstance( cls.getClassLoader(), new Class[] { cls }, new InvocationHandler() {
-              String lock = "lock";
+              String lock = "lock_" + getClass().getName(); // class name to prevent locking somewhere else by the same string
               Object target;
               Thread watcher;
               boolean dead = false;
@@ -138,7 +138,7 @@ public class BeanBuilder implements FactoryBean {
               }
 
               @Override public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
-                if ( target == null ) {
+                if ( target == null && f_dampeningTimeout > 0 ) {
                   synchronized ( lock ) {
                     if ( watcher == null && !dead ) {
                       startWatcherThread( f_dampeningTimeout );
@@ -150,17 +150,17 @@ public class BeanBuilder implements FactoryBean {
 
                   // Last chance. If the attributes are empty, try a plain PentahoSystem.get() which will find bean's
                   // with the ID equal to the simple name of the class
-                  if ( attributes.isEmpty() || (attributes.size() == 1 && attributes.containsKey( "id" ))) {
+                  if ( attributes.isEmpty() || ( attributes.size() == 1 && attributes.containsKey( "id" ) ) ) {
                     target = getFallbackBySimpleName( cls, attributes );
                   }
-                  if( target == null ) {
+                  if ( target == null ) {
                     throw new IllegalStateException( "Target of Bean was never resolved: " + cls.getName() );
                   }
                 }
                 return method.invoke( target, args );
               }
             } );
-          } else if( !cls.isInterface() && (attributes.isEmpty() || (attributes.size() == 1 && attributes.containsKey( "id" )))){
+          } else if ( !cls.isInterface() && ( attributes.isEmpty() || ( attributes.size() == 1 && attributes.containsKey( "id" ) ) ) ) {
             val = getFallbackBySimpleName( cls, attributes );
           }
         }
@@ -176,8 +176,8 @@ public class BeanBuilder implements FactoryBean {
   }
 
   private int getDampeningTimeout() {
-    if( dampeningTimeout == null ) {
-      dampeningTimeout = -1;
+    if ( dampeningTimeout == null ) {
+      dampeningTimeout = 0;
       ISystemConfig iSystemConfig = PentahoSystem.get( ISystemConfig.class );
       if ( iSystemConfig != null ) {
         String property = iSystemConfig.getProperty( "system.dampening-timeout" );
@@ -189,10 +189,10 @@ public class BeanBuilder implements FactoryBean {
     return dampeningTimeout;
   }
 
-  private Object getFallbackBySimpleName( Class clazz, Map<String, String> attributes ){
+  private Object getFallbackBySimpleName( Class clazz, Map<String, String> attributes ) {
     Object lastChanceObject;
-    if( attributes != null && attributes.containsKey( "id" ) ){
-      lastChanceObject = PentahoSystem.get( clazz, attributes.get("id"), PentahoSessionHolder.getSession() );
+    if ( attributes != null && attributes.containsKey( "id" ) ) {
+      lastChanceObject = PentahoSystem.get( clazz, attributes.get( "id" ), PentahoSessionHolder.getSession() );
     } else {
       lastChanceObject = PentahoSystem.get( clazz, PentahoSessionHolder.getSession() );
     }
