@@ -8,7 +8,6 @@ import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsExcepti
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -30,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -471,8 +471,8 @@ public class SolutionImportHandlerTest {
     }
     @Override public boolean matches( Object argument ) {
       JobScheduleRequest jsr = (JobScheduleRequest) argument;
-      boolean matchedInput = input.equals( jsr.getInputFile() );
-      boolean matchedOutput = output.equals( jsr.getOutputFile() );
+      boolean matchedInput = input.equals( separatorsToUnix( jsr.getInputFile() ) );
+      boolean matchedOutput = output.equals( separatorsToUnix( jsr.getOutputFile() ) );
       return matchedInput && matchedOutput;
     }
   }
