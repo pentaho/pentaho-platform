@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -348,7 +348,7 @@ public class FileResource extends AbstractJaxRSResource {
         if ( !fileService.canRestoreToFolderWithNoConflicts( getUserHomeFolder(), params ) ) {
           return buildStatusResponse( Response.Status.CONFLICT );
         } else {
-          return buildStatusResponse( Response.Status.TEMPORARY_REDIRECT );
+          return buildStatusResponse( Response.Status.NOT_ACCEPTABLE );
         }
       } catch ( InternalError e ) {
         logger.error( Messages.getInstance().getString( "FileResource.FILE_GET_LOCALES" ), e );

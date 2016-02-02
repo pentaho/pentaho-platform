@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.commands;
@@ -130,7 +130,7 @@ public class RestoreFileCommand implements Command {
             event.setMessage( "Success" );
             EventBusUtil.EVENT_BUS.fireEvent( event );
           } else if ( response.getStatusCode() == Response.SC_CONFLICT
-            || response.getStatusCode() == Response.SC_TEMPORARY_REDIRECT ) {
+            || response.getStatusCode() == Response.SC_NOT_ACCEPTABLE ) {
             final int restoreResponseStatusCode = response.getStatusCode();
 
             final String userHomeDirUrl = GWT.getHostPageBaseURL() + "api/session/userWorkspaceDir";
@@ -238,7 +238,7 @@ public class RestoreFileCommand implements Command {
           };
           overwriteDialog.setCallback( callback );
           overwriteDialog.center();
-        } else if ( restoreResponseStatusCode == Response.SC_TEMPORARY_REDIRECT ) {
+        } else if ( restoreResponseStatusCode == Response.SC_NOT_ACCEPTABLE ) {
           String moveFilesURL = contextURL + "api/repo/files/" + encodedUserHomeFolderPath + "/move";
           RequestBuilder builder = new RequestBuilder( RequestBuilder.PUT, moveFilesURL );
           try {

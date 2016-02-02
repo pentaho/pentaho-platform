@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2006 - 2014 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  *
  */
 
@@ -31,6 +31,7 @@ public class JcrStringHelper {
 
   private static boolean useMultiByteEncoding = false;
   private static boolean multiByteValueInitialized = false;
+  private static final String SEPARATOR = "/";
 
   private JcrStringHelper() {
   }
@@ -92,12 +93,12 @@ public class JcrStringHelper {
    * @return
    */
   public static String pathEncode( String path ) {
-    String[] folders = path.split( "/" );
+    String[] folders = path.split( SEPARATOR );
     StringBuilder encodedPath = new StringBuilder( path.length() * 2 );
     for ( int i = 0; i < folders.length; i++ ) {
       encodedPath.append( fileNameEncode( folders[i] ) );
-      if ( i != folders.length - 1 || path.endsWith( "/" ) ) {
-        encodedPath.append( "/" );
+      if ( i != folders.length - 1 || path.endsWith( SEPARATOR ) ) {
+        encodedPath.append( SEPARATOR );
       }
     }
     return encodedPath.toString();
@@ -111,12 +112,12 @@ public class JcrStringHelper {
    * @return
    */
   public static String pathEncode( String path, boolean useMultiByte ) {
-    String[] folders = path.split( "/" );
+    String[] folders = path.split( SEPARATOR );
     StringBuilder encodedPath = new StringBuilder( path.length() * 2 );
     for ( int i = 0; i < folders.length; i++ ) {
       encodedPath.append( fileNameEncode( folders[i], useMultiByte ) );
-      if ( i != folders.length - 1 || path.endsWith( "/" ) ) {
-        encodedPath.append( "/" );
+      if ( i != folders.length - 1 || path.endsWith( SEPARATOR ) ) {
+        encodedPath.append( SEPARATOR );
       }
     }
     return encodedPath.toString();
@@ -129,12 +130,12 @@ public class JcrStringHelper {
    * @return
    */
   public static String pathDecode( String encodedPath ) {
-    String[] folders = encodedPath.split( "/" );
+    String[] folders = encodedPath.split( SEPARATOR );
     StringBuilder decodedPath = new StringBuilder( encodedPath.length() * 2 );
     for ( int i = 0; i < folders.length; i++ ) {
-      decodedPath.append( fileNameDecode( folders[i] ) );
-      if ( i != folders.length - 1 || encodedPath.endsWith( "/" ) ) {
-        decodedPath.append( "/" );
+      decodedPath.append( fileNameDecode( folders[ i ] ) );
+      if ( i != folders.length - 1 || encodedPath.endsWith( SEPARATOR ) ) {
+        decodedPath.append( SEPARATOR );
       }
     }
     return decodedPath.toString();
@@ -148,12 +149,12 @@ public class JcrStringHelper {
    * @return
    */
   public static String pathDecode( String encodedPath, boolean useMultiByte ) {
-    String[] folders = encodedPath.split( "/" );
+    String[] folders = encodedPath.split( SEPARATOR );
     StringBuilder decodedPath = new StringBuilder( encodedPath.length() * 2 );
     for ( int i = 0; i < folders.length; i++ ) {
       decodedPath.append( fileNameDecode( folders[i], useMultiByte ) );
-      if ( i != folders.length - 1 || encodedPath.endsWith( "/" ) ) {
-        decodedPath.append( "/" );
+      if ( i != folders.length - 1 || encodedPath.endsWith( SEPARATOR ) ) {
+        decodedPath.append( SEPARATOR );
       }
     }
     return decodedPath.toString();
@@ -162,8 +163,8 @@ public class JcrStringHelper {
   public static boolean isMultiByteEncodingEnabled() {
     if ( !multiByteValueInitialized && PentahoSystem.getInitializedOK() ) {
       Boolean setting =
-          PentahoSystem.get( Boolean.class, "useMultiByteEncoding", PentahoSessionHolder.getSession() );
-      if( setting == null ){
+        PentahoSystem.get( Boolean.class, "useMultiByteEncoding", PentahoSessionHolder.getSession() );
+      if ( setting == null ) {
         useMultiByteEncoding = false;
       } else {
         useMultiByteEncoding = setting;
@@ -175,9 +176,27 @@ public class JcrStringHelper {
 
   /**
    *
-   * @param versioningEnabled
+   * @param useMultiByteEncoding
+   *
    */
   public static void setMultiByteEncodingEnabled( boolean useMultiByteEncoding ) {
     JcrStringHelper.useMultiByteEncoding = useMultiByteEncoding;
   }
+
+  /**
+   *
+   * Assume that path is encoded and try to decode it.
+   * If it changes from original, it is already encoded,
+   * else - it is not.
+   * @param path
+   *          path, needed to be evaluated
+   * @return
+   *      true if path is already encoded,
+   *      false otherwise
+   *
+   */
+  public static boolean isEncoded( String path ) {
+    return !path.equals( pathDecode( path ) );
+  }
+
 }

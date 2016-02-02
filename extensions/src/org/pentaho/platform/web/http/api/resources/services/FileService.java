@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -34,6 +34,7 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -57,9 +58,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository2.unified.Converter;
-import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
-import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -82,7 +80,6 @@ import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
@@ -104,7 +101,9 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadActi
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
+import org.pentaho.platform.web.http.api.resources.operations.CopyFilesOperation;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.api.resources.utils.RepositoryFileHelper;
 import org.pentaho.platform.web.http.messages.Messages;
 
 public class FileService {
@@ -394,12 +393,13 @@ public class FileService {
       // we can delete from trash only non-conflict files,
       // because conflict files won't be restored
       String nonConflictFileIds = getSourceFileIdsThatNotConflictWithFolderFiles( userHomeFolderPath, params );
-      doCopyFiles( userHomeFolderPath, overwriteMode, params );
 
       if ( nonConflictFileIds.isEmpty() ) {
-        // all files were restored. Nothing to delete
+        // all files are conflict, so nothing to restore in this mode
         return true;
       }
+
+      doCopyFiles( userHomeFolderPath, overwriteMode, nonConflictFileIds );
       filesToDeletePermanent = nonConflictFileIds;
     } else if ( overwriteMode == MODE_OVERWRITE ) {
       String conflictFileIdsInHomeDir = getFolderFileIdsThatConflictWithSource( userHomeFolderPath, params );
@@ -739,102 +739,12 @@ public class FileService {
     }
 
     String path = idToPath( pathId );
-    RepositoryFile destDir = getRepository().getFile( path );
     String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params ); //$NON-NLS-1$
-    if ( mode == MODE_OVERWRITE || mode == MODE_NO_OVERWRITE ) {
-      for ( String sourceFileId : sourceFileIds ) {
-        RepositoryFile sourceFile = getRepository().getFileById( sourceFileId );
-        if ( destDir != null && destDir.isFolder() && sourceFile != null && !sourceFile.isFolder() ) {
-          String fileName = sourceFile.getName();
-          String
-              sourcePath =
-              sourceFile.getPath().substring( 0, sourceFile.getPath().lastIndexOf( FileUtils.PATH_SEPARATOR ) );
-          if ( !sourcePath.equals( destDir.getPath() ) ) { // We're saving to a different folder than we're copying
-            // from
-            IRepositoryFileData data = getData( sourceFile );
-            RepositoryFileAcl acl = getRepository().getAcl( sourceFileId );
-            RepositoryFile
-                destFile =
-                getRepository().getFile( destDir.getPath() + FileUtils.PATH_SEPARATOR + fileName );
-            if ( destFile == null ) { // destFile doesn't exist so we'll create it.
-              RepositoryFile duplicateFile =
-                  new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).versioned(
-                      sourceFile.isVersioned() ).build();
-              final RepositoryFile repositoryFile =
-                  getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
-              getRepository()
-                  .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
-            } else if ( mode == MODE_OVERWRITE ) { // destFile exists so check to see if we want to overwrite it.
-              RepositoryFileDto destFileDto = toFileDto( destFile, null, false );
-              destFileDto.setHidden( sourceFile.isHidden() );
-              destFile = toFile( destFileDto );
-              final RepositoryFile repositoryFile = getRepository().updateFile( destFile, data, null );
-              getRepository().updateAcl( acl );
-              getRepository()
-                  .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
-            }
-          }
-        }
-      }
-    } else {
-      for ( String sourceFileId : sourceFileIds ) {
-        RepositoryFile sourceFile = getRepository().getFileById( sourceFileId );
-        if ( destDir != null && destDir.isFolder() && sourceFile != null && !sourceFile.isFolder() ) {
 
-          // First try to see if regular name is available
-          String fileName = sourceFile.getName();
-          String copyText = "";
-          String rootCopyText = "";
-          String nameNoExtension = fileName;
-          String extension = "";
-          int indexOfDot = fileName.lastIndexOf( '.' );
-          if ( !( indexOfDot == -1 ) ) {
-            nameNoExtension = fileName.substring( 0, indexOfDot );
-            extension = fileName.substring( indexOfDot );
-          }
+    CopyFilesOperation copyFilesOperation =
+      new CopyFilesOperation( getRepository(), getRepoWs(), Arrays.asList( sourceFileIds ), path, mode );
 
-          RepositoryFileDto
-              testFile =
-              getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + nameNoExtension + extension ); //$NON-NLS-1$
-          if ( testFile != null ) {
-            // Second try COPY_PREFIX, If the name already ends with a COPY_PREFIX don't append twice
-            if ( !nameNoExtension
-                .endsWith( Messages.getInstance().getString( "FileResource.COPY_PREFIX" ) ) ) { //$NON-NLS-1$
-              copyText = rootCopyText = Messages.getInstance().getString( "FileResource.COPY_PREFIX" );
-              fileName = nameNoExtension + copyText + extension;
-              testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + fileName );
-            }
-          }
-
-          // Third try COPY_PREFIX + DUPLICATE_INDICATOR
-          Integer nameCount = 1;
-          while ( testFile != null ) {
-            nameCount++;
-            copyText =
-                rootCopyText + Messages.getInstance().getString( "FileResource.DUPLICATE_INDICATOR", nameCount );
-            fileName = nameNoExtension + copyText + extension;
-            testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + fileName );
-          }
-          IRepositoryFileData data = getData( sourceFile );
-          RepositoryFileAcl acl = getRepository().getAcl( sourceFileId );
-          RepositoryFile duplicateFile = null;
-
-          // If the title is different than the source file, copy it separately
-          if ( !sourceFile.getName().equals( sourceFile.getTitle() ) ) {
-            duplicateFile =
-                new RepositoryFile.Builder( fileName ).title( RepositoryFile.DEFAULT_LOCALE,
-                    sourceFile.getTitle() + copyText ).hidden( sourceFile.isHidden() ).versioned(
-                    sourceFile.isVersioned() ).build();
-          } else {
-            duplicateFile = new RepositoryFile.Builder( fileName ).hidden( sourceFile.isHidden() ).build();
-          }
-
-          final RepositoryFile repositoryFile =
-              getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
-          getRepository().setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( sourceFileId ) );
-        }
-      }
-    }
+    copyFilesOperation.execute();
   }
 
   /**
@@ -879,67 +789,7 @@ public class FileService {
     return wrapper;
   }
 
-  public IRepositoryFileData getData( RepositoryFile repositoryFile ) {
-    IRepositoryContentConverterHandler converterHandler;
-    Map<String, Converter> converters;
-    IPlatformMimeResolver mimeResolver;
-
-    IRepositoryFileData repositoryFileData = null;
-
-    if ( !repositoryFile.isFolder() ) {
-      // Get the extension
-      final String ext = RepositoryFilenameUtils.getExtension( repositoryFile.getName() );
-      if ( ( ext == null ) || ( ext.isEmpty() ) ) {
-        return null;
-      }
-
-      // Find the converter
-
-      // If we have not been given a handler, try PentahoSystem
-      converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
-
-      // fail if we have no converter handler
-      if ( converterHandler == null ) {
-        return null;
-      }
-
-      converters = converterHandler.getConverters();
-
-      final Converter converter = converters.get( ext );
-      if ( converter == null ) {
-        return null;
-      }
-
-      // Check the mime type
-      mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
-
-      // fail if we have no mime resolver
-      if ( mimeResolver == null ) {
-        return null;
-      }
-
-      final String mimeType = mimeResolver.resolveMimeTypeForFileName( repositoryFile.getName() ).getName();
-      if ( ( mimeType == null ) || ( mimeType.isEmpty() ) ) {
-        return null;
-      }
-
-      // Get the input stream
-      InputStream inputStream = converter.convert( repositoryFile.getId() );
-      if ( inputStream == null ) {
-        return null;
-      }
-
-      // Get the file data
-      repositoryFileData = converter.convert( inputStream, "UTF-8", mimeType );
-      if ( repositoryFileData == null ) {
-        return null;
-      }
-    }
-
-    return repositoryFileData;
-  }
-
-  /**
+   /**
    * Save the acls of the selected file to the repository
    *
    * This method is used to update and save the acls of the selected file to the repository
@@ -1216,7 +1066,7 @@ public class FileService {
         // add the existing acls and file data
         RepositoryFileAcl acl = getRepository().getAcl( sourceFile.getId() );
         if ( !file.isFolder() ) {
-          IRepositoryFileData data = getData( sourceFile );
+          IRepositoryFileData data = RepositoryFileHelper.getFileData( sourceFile );
 
           getRepository().updateFile( destFile, data, null );
           getRepository().updateAcl( acl );
@@ -1669,7 +1519,7 @@ public class FileService {
         RepositoryFile updatedFile =
           new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
             newName ).build();
-        repository.updateFile( updatedFile, getData( movedFile ), "Updating the file" );
+        repository.updateFile( updatedFile, RepositoryFileHelper.getFileData( movedFile ), "Updating the file" );
       }
       return true;
     } else {

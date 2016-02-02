@@ -12,8 +12,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
+
 package org.pentaho.platform.web.http.api.resources.services;
 
 import static org.junit.Assert.assertEquals;
@@ -271,49 +272,6 @@ public class FileServiceTest {
     } catch ( Exception e ) {
       fail();
     }
-  }
-
-  @Test
-  public void testDoCopyFiles() throws Exception {
-
-    String destinationPath = "/path/to/destination";
-    String destinationPathColon = ":path:to:destination";
-
-    String filePath1 = "/path/to/source/file1.ext";
-    String fileId1 = "file1";
-
-    String filePath2 = "/path/to/source/file2.ext";
-    String fileId2 = "file2";
-
-    when( fileService.policy.isAllowed( anyString() ) ).thenReturn( true );
-
-    RepositoryFile repositoryFile = mock( RepositoryFile.class );
-    when( fileService.repository.createFile( any( Serializable.class ), any( RepositoryFile.class ), any(
-      IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() ) ).thenReturn( repositoryFile );
-
-    RepositoryFile destDir = mock( RepositoryFile.class );
-    when( destDir.isFolder() ).thenReturn( true );
-    when( destDir.getPath() ).thenReturn( destinationPath );
-    when( fileService.repository.getFile( destinationPath ) ).thenReturn( destDir );
-
-    RepositoryFile repositoryFile1 = mock( RepositoryFile.class );
-    when( repositoryFile1.isFolder() ).thenReturn( false );
-    when( repositoryFile1.getPath() ).thenReturn( filePath1 );
-    when( fileService.repository.getFileById( fileId1 ) ).thenReturn( repositoryFile1 );
-
-    RepositoryFile repositoryFile2 = mock( RepositoryFile.class );
-    when( repositoryFile2.isFolder() ).thenReturn( false );
-    when( repositoryFile2.getPath() ).thenReturn( filePath2 );
-    when( fileService.repository.getFileById( fileId2 ) ).thenReturn( repositoryFile2 );
-
-    fileService.doCopyFiles( destinationPathColon, 1, fileId1 + "," + fileId2 );
-
-    verify( fileService.repository, times( 2 ) )
-      .createFile( any( Serializable.class ), any( RepositoryFile.class ), any(
-        IRepositoryFileData.class ), any( RepositoryFileAcl.class ), anyString() );
-    verify( fileService.repository ).getFile( destinationPath );
-    verify( fileService.repository ).getFileById( fileId1 );
-    verify( fileService.repository ).getFileById( fileId2 );
   }
 
   @Test
@@ -1679,9 +1637,6 @@ public class FileServiceTest {
     RepositoryFileAcl acl = mock( RepositoryFileAcl.class );
     doReturn( acl ).when( fileService.repository ).getAcl( acl );
 
-    IRepositoryFileData data = mock( IRepositoryFileData.class );
-    doReturn( data ).when( fileService ).getData( sourceFile );
-
     // Test 1 - canManage should be true at start
     try {
       fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
@@ -1795,7 +1750,6 @@ public class FileServiceTest {
     verify( fileService, times( 8 ) ).toFile( any( RepositoryFileDto.class ) );
     verify( destFileDto, times( 8 ) ).setHidden( anyBoolean() );
     verify( fileService.repository, times( 8 ) ).getAcl( anyString() );
-    verify( fileService, times( 7 ) ).getData( any( RepositoryFile.class ) );
     verify( fileService.repository, times( 7 ) )
       .updateFile( any( RepositoryFile.class ), any( IRepositoryFileData.class ),
         anyString() );

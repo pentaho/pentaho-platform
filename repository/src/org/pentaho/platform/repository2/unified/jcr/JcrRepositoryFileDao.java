@@ -915,12 +915,12 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
             destParentFolderNode );
         String finalEncodedSrcAbsPath = srcFileNode.getPath();
         String finalEncodedDestAbsPath = null;
-        if ( appendFileName && !file.isFolder() ) {
-          if ( JcrStringHelper.pathDecode( srcFileNode.getName() ).equals( srcFileNode.getName() ) ) {
-            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName() );
+        if ( appendFileName ) {
+          final String fileName = srcFileNode.getName();
+          if ( JcrStringHelper.isEncoded( fileName ) ) {
+            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath ) + RepositoryFile.SEPARATOR + fileName;
           } else {
-            //name is already encoded (BISERVER-12569)
-            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath ) + RepositoryFile.SEPARATOR + srcFileNode.getName();
+            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath + RepositoryFile.SEPARATOR + fileName );
           }
         } else {
           finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath );
