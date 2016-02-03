@@ -111,7 +111,6 @@
     <dependency org="org.apache.ws.commons.axiom" name="axiom-impl" rev="1.2.8" transitive="false"/>
 
     <dependency org="oro" name="oro" rev="2.0.8"/>
-    <dependency org="org.tuckey" name="urlrewrite" rev="3.2.0"/>
     <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1"/>
 
 
@@ -376,6 +375,7 @@
     <dependency org="com.mockrunner" name="mockrunner" rev="0.3.1" conf="test->default"/>
     <dependency org="net.javacrumbs.json-unit" name="json-unit" rev="1.5.5" conf="test->default" />
     <dependency org="xmlunit" name="xmlunit" rev="1.6" conf="test->default" />
+    <dependency org="org.tuckey" name="urlrewrite" rev="3.2.0" conf="test->default" />
 
     <!-- Necessary because Pentaho's security tests re-use Spring's Security test classes. -->
     <dependency org="org.springframework.security" name="spring-security-core-tests" rev="${dependency.spring.security.tests.revision}"
