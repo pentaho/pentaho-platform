@@ -37,16 +37,24 @@ import static org.mockito.Mockito.*;
  */
 
 /**
- * Goals of this test are: 1. verify, that recursion ends. 2. verify, that accurate number of files and folders were
- * created.
+ * Goals of this test are:
+ * 1. verify, that recursion ends.
+ * 2. verify, that accurate number of files and folders were created.
+ *
  * <p/>
  * Tests are called N_LevelDeepness, where by deepness meant folders-hierarchy deepness.
  * <p/>
  * Example:
  * <p/>
- * 1 level deepness: -folder -file -file
+ * 1 level deepness: -folder
+ *                      -file
+ *                      -file
  * <p/>
- * 3 level deepness: -folder -folder -file -folder -folder
+ * 3 level deepness: -folder
+ *                      -folder
+ *                          -file
+ *                      -folder
+ *                          -folder
  */
 public class CopyFilesOperation_DeepFolderCopyTest {
   private static IUnifiedRepository repo;
@@ -85,7 +93,7 @@ public class CopyFilesOperation_DeepFolderCopyTest {
     List<RepositoryFile> files = listOfMockedFiles( 3 );
     mockRequest( from, files );
 
-    operation.performFolderDeepCopy( from, to, CopyFilesOperation.DEEPNESS_DEFAULT );
+    operation.performFolderDeepCopy( from, to, CopyFilesOperation.DEFAULT_DEEPNESS );
 
     performVerification( 0, files.size() );
   }
@@ -101,7 +109,7 @@ public class CopyFilesOperation_DeepFolderCopyTest {
       mockRequest( folder, listOfMockedFiles( filesInEachFolder ) );
     }
 
-    operation.performFolderDeepCopy( from, to, CopyFilesOperation.DEEPNESS_DEFAULT );
+    operation.performFolderDeepCopy( from, to, CopyFilesOperation.DEFAULT_DEEPNESS );
 
     // one stands for root folder.
     performVerification( numberOfFolders, numberOfFolders * filesInEachFolder );
@@ -136,7 +144,7 @@ public class CopyFilesOperation_DeepFolderCopyTest {
       mockRequest( folder, foldersSixLevel );
     }
 
-    operation.performFolderDeepCopy( from, to, CopyFilesOperation.DEEPNESS_DEFAULT );
+    operation.performFolderDeepCopy( from, to, CopyFilesOperation.DEFAULT_DEEPNESS );
 
     performVerification( expectedFolders, 0 );
   }

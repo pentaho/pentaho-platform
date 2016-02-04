@@ -31,15 +31,12 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapte
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.api.resources.utils.RepositoryFileHelper;
 import org.pentaho.platform.web.http.messages.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static org.pentaho.platform.web.http.api.resources.services.FileService.MODE_NO_OVERWRITE;
-import static org.pentaho.platform.web.http.api.resources.services.FileService.MODE_OVERWRITE;
-import static org.pentaho.platform.web.http.api.resources.utils.RepositoryFileHelper.getFileData;
 
 public class CopyFilesOperation {
 
@@ -52,7 +49,7 @@ public class CopyFilesOperation {
   private DefaultUnifiedRepositoryWebService defaultUnifiedRepositoryWebService;
 
   private static final Log logger = LogFactory.getLog( FileService.class );
-  public static final Integer DEEPNESS_DEFAULT = 10;
+  public static final Integer DEFAULT_DEEPNESS = 10;
 
   public CopyFilesOperation( List<String> sourceFileIds, String destDirPath, int overrideMode ) {
     this( PentahoSystem.get( IUnifiedRepository.class ), new DefaultUnifiedRepositoryWebService(), sourceFileIds,
@@ -112,9 +109,9 @@ public class CopyFilesOperation {
         continue;
       }
 
-      if ( mode == MODE_OVERWRITE ) {
+      if ( mode == FileService.MODE_OVERWRITE ) {
         copyOverrideMode( sourceFile );
-      } else if ( mode == MODE_NO_OVERWRITE ) {
+      } else if ( mode == FileService.MODE_NO_OVERWRITE ) {
         copyNoOverrideMode( sourceFile );
       } else {
         copyRenameMode( sourceFile );
@@ -139,7 +136,7 @@ public class CopyFilesOperation {
           file.isVersioned() ).build();
       final RepositoryFile repositoryFile =
         getRepository()
-          .createFile( destDir.getId(), duplicateFile, getFileData( file ), acl,
+          .createFile( destDir.getId(), duplicateFile, RepositoryFileHelper.getFileData( file ), acl,
             null );
       getRepository()
         .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( file.getId() ) );
@@ -151,7 +148,7 @@ public class CopyFilesOperation {
     destFileDto.setHidden( file.isHidden() );
     destFile = toFile( destFileDto );
 
-    final RepositoryFile repositoryFile = getRepository().updateFile( destFile, getFileData( file ), null );
+    final RepositoryFile repositoryFile = getRepository().updateFile( destFile, RepositoryFileHelper.getFileData( file ), null );
     getRepository().updateAcl( acl );
     getRepository()
       .setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( file.getId() ) );
@@ -178,7 +175,7 @@ public class CopyFilesOperation {
       repositoryFile = getRepository()
         .createFolder( destDir.getId(), duplicateFile, getRepository().getAcl( repoFile.getId() ), null );
 
-      performFolderDeepCopy( repoFile, repositoryFile, DEEPNESS_DEFAULT );
+      performFolderDeepCopy( repoFile, repositoryFile, DEFAULT_DEEPNESS );
     } else {
       duplicateFile = new RepositoryFile.
         Builder( repoFile.getName() )
@@ -188,7 +185,7 @@ public class CopyFilesOperation {
         .build();
 
       repositoryFile = getRepository()
-        .createFile( destDir.getId(), duplicateFile, getFileData( repoFile ),
+        .createFile( destDir.getId(), duplicateFile, RepositoryFileHelper.getFileData( repoFile ),
           getRepository().getAcl( repoFile.getId() ),
           null );
     }
@@ -232,7 +229,7 @@ public class CopyFilesOperation {
       repoFileName = nameNoExtension + copyText + extension;
       testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + repoFileName );
     }
-    IRepositoryFileData data = getFileData( repoFile );
+    IRepositoryFileData data = RepositoryFileHelper.getFileData( repoFile );
     RepositoryFileAcl acl = getRepository().getAcl( repoFile.getId() );
     RepositoryFile duplicateFile = null;
     final RepositoryFile repositoryFile;
@@ -250,7 +247,7 @@ public class CopyFilesOperation {
       repositoryFile = getRepository()
         .createFolder( destDir.getId(), duplicateFile, acl, null );
 
-      performFolderDeepCopy( repoFile, repositoryFile, DEEPNESS_DEFAULT );
+      performFolderDeepCopy( repoFile, repositoryFile, DEFAULT_DEEPNESS );
     } else {
       // If the title is different than the source file, copy it separately
       if ( !repoFile.getName().equals( repoFile.getTitle() ) ) {
@@ -297,7 +294,7 @@ public class CopyFilesOperation {
     }
 
     if ( deepness == null || deepness < 0 ) {
-      deepness = DEEPNESS_DEFAULT;
+      deepness = DEFAULT_DEEPNESS;
     }
 
     List<RepositoryFile> children =
@@ -309,7 +306,7 @@ public class CopyFilesOperation {
           getRepository().createFolder( to.getId(), repoFile, getRepository().getAcl( repoFile.getId() ), null );
         performFolderDeepCopy( repoFile, childFolder, deepness );
       } else {
-        getRepository().createFile( to.getId(), repoFile, getFileData( repoFile ), null );
+        getRepository().createFile( to.getId(), repoFile, RepositoryFileHelper.getFileData( repoFile ), null );
       }
     }
   }
