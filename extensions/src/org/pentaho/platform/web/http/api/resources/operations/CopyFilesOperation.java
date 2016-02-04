@@ -49,7 +49,7 @@ public class CopyFilesOperation {
   private DefaultUnifiedRepositoryWebService defaultUnifiedRepositoryWebService;
 
   private static final Log logger = LogFactory.getLog( FileService.class );
-  public static final Integer DEEPNESS_DEFAULT = 10;
+  public static final Integer DEFAULT_DEEPNESS = 10;
 
   public CopyFilesOperation( List<String> sourceFileIds, String destDirPath, int overrideMode ) {
     this( PentahoSystem.get( IUnifiedRepository.class ), new DefaultUnifiedRepositoryWebService(), sourceFileIds,
@@ -175,7 +175,7 @@ public class CopyFilesOperation {
       repositoryFile = getRepository()
         .createFolder( destDir.getId(), duplicateFile, getRepository().getAcl( repoFile.getId() ), null );
 
-      performFolderDeepCopy( repoFile, repositoryFile, DEEPNESS_DEFAULT );
+      performFolderDeepCopy( repoFile, repositoryFile, DEFAULT_DEEPNESS );
     } else {
       duplicateFile = new RepositoryFile.
         Builder( repoFile.getName() )
@@ -247,7 +247,7 @@ public class CopyFilesOperation {
       repositoryFile = getRepository()
         .createFolder( destDir.getId(), duplicateFile, acl, null );
 
-      performFolderDeepCopy( repoFile, repositoryFile, DEEPNESS_DEFAULT );
+      performFolderDeepCopy( repoFile, repositoryFile, DEFAULT_DEEPNESS );
     } else {
       // If the title is different than the source file, copy it separately
       if ( !repoFile.getName().equals( repoFile.getTitle() ) ) {
@@ -294,7 +294,7 @@ public class CopyFilesOperation {
     }
 
     if ( deepness == null || deepness < 0 ) {
-      deepness = DEEPNESS_DEFAULT;
+      deepness = DEFAULT_DEEPNESS;
     }
 
     List<RepositoryFile> children =
