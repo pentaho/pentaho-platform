@@ -290,9 +290,9 @@ public class EventBusUtilGenerator extends Generator {
               propertyName = propertyName.substring( 0, 1 ).toLowerCase() + propertyName.substring( 1 );
               String simpleType = implementingType.getField( propertyName ).getType().getSimpleSourceName();
               if ( "string".equalsIgnoreCase( simpleType ) ) {
-                parameterJSON += "\'" + propertyName + "\': \'\" + event." + eventMethod.getName() + "() + \"\',";
+                parameterJSON += "\\\"" + propertyName + "\\\": \\\"\\\\\\\" + event." + eventMethod.getName() + "() + \\\\\\\"\\\",";
               } else {
-                parameterJSON += "\'" + propertyName + "\': \" + event." + eventMethod.getName() + "() + \",";
+                parameterJSON += "\\\"" + propertyName + "\\\": \\\" + event." + eventMethod.getName() + "() + \\\",";
               }
             }
           }
