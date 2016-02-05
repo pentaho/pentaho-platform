@@ -19,8 +19,12 @@ package org.pentaho.platform.web.http.filters;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.UserSession;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
@@ -39,9 +43,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -203,44 +207,34 @@ public class ProxyTrustingFilter implements Filter {
         if ( !isEmpty( name ) ) {
 
           try {
-            SecurityHelper.getInstance().runAsUser( name, new Callable<Void>() {
+            becomeUser( name );
+            HttpSession httpSession = req.getSession();
+            httpSession.setAttribute( PentahoSystem.PENTAHO_SESSION_KEY, PentahoSessionHolder.getSession() );
 
-              @Override
-              public Void call() throws Exception {
-                HttpSession httpSession = req.getSession();
+            /**
+            * definition of anonymous inner class
+            */
+            SecurityContext authWrapper = new SecurityContext() {
+            /**
+              * 
+              */
+              private static final long serialVersionUID = 1L;
+              private Authentication authentication;
 
-                httpSession.setAttribute( PentahoSystem.PENTAHO_SESSION_KEY, PentahoSessionHolder.getSession() );
+              public Authentication getAuthentication() {
+                return authentication;
+              };
 
-                /**
-                 * definition of anonymous inner class
-                 */
-                SecurityContext authWrapper = new SecurityContext() {
-                  /**
-                     * 
-                     */
-                  private static final long serialVersionUID = 1L;
-                  private Authentication authentication;
+              public void setAuthentication( Authentication authentication ) {
+                this.authentication = authentication;
+              };
+            }; // end anonymous inner class
 
-                  public Authentication getAuthentication() {
-                    return authentication;
-                  };
-
-                  public void setAuthentication( Authentication authentication ) {
-                    this.authentication = authentication;
-                  };
-                }; // end anonymous inner class
-
-                authWrapper.setAuthentication( SecurityContextHolder.getContext().getAuthentication() );
-                httpSession.setAttribute( HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY,
-                  authWrapper );
-                return null;
-              }
-
-            } );
+            authWrapper.setAuthentication( SecurityContextHolder.getContext().getAuthentication() );
+            httpSession.setAttribute( HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY, authWrapper );
           } catch ( Exception e ) {
             throw new ServletException( e );
           }
-
         }
       }
     }
@@ -311,4 +305,24 @@ public class ProxyTrustingFilter implements Filter {
     return Character.toUpperCase( lower.charAt( 0 ) ) + lower.substring( 1 );
   }
 
+  // cloned from SecurityHelper and adapted to add a default location to the session
+  protected void becomeUser( final String principalName ) {
+    UserSession session = null;
+    Locale locale = Locale.getDefault();
+    ITenantedPrincipleNameResolver tenantedUserNameUtils =
+      PentahoSystem.get( ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null );
+    if ( tenantedUserNameUtils != null ) {
+      session = new UserSession( principalName, locale, false, null );
+      ITenant tenant = tenantedUserNameUtils.getTenant( principalName );
+      session.setAttribute( IPentahoSession.TENANT_ID_KEY, tenant.getId() );
+      session.setAuthenticated( tenant.getId(), principalName );
+    } else {
+      session = new UserSession( principalName, locale, false, null );
+      session.setAuthenticated( principalName );
+    }
+    PentahoSessionHolder.setSession( session );
+    Authentication auth = SecurityHelper.getInstance().createAuthentication( principalName );
+    SecurityContextHolder.getContext().setAuthentication( auth );
+    PentahoSystem.sessionStartup( PentahoSessionHolder.getSession(), null );
+  }
 }
