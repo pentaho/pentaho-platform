@@ -1,3 +1,20 @@
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ */
+
 package org.pentaho.platform.plugin.services.importer;
 
 import org.junit.After;
@@ -23,6 +40,7 @@ import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -407,7 +425,7 @@ public class SolutionImportHandlerTest {
     schedules.add( scheduleRequest );
 
     SolutionImportHandler spyHandler = spy( importHandler );
-    Response response = mock ( Response.class );
+    Response response = mock( Response.class );
     when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
     when( response.getEntity() ).thenReturn( "job id" );
 
@@ -460,6 +478,35 @@ public class SolutionImportHandlerTest {
     spyHandler.importSchedules( schedules );
     verify( spyHandler, times( 2 ) ).createSchedulerJob( any( SchedulerResource.class ), any( JobScheduleRequest.class ) );
     assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
+  }
+
+  @Test
+  public void testImportSchedules_FailsToCreateScheduleWithSpaceOnWindows() throws Exception {
+    String sep = File.separator;
+    System.setProperty( "file.separator", "\\" );
+    List<JobScheduleRequest> schedules = new ArrayList<>();
+    JobScheduleRequest scheduleRequest = spy( new JobScheduleRequest() );
+    scheduleRequest.setInputFile( "/home/admin/scheduled Transform.ktr" );
+    scheduleRequest.setOutputFile( "/home/admin/scheduled Transform*" );
+    schedules.add( scheduleRequest );
+
+    SolutionImportHandler spyHandler = spy( importHandler );
+
+    ScheduleRequestMatcher throwMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
+    doThrow( new IOException( "error creating schedule" ) ).when( spyHandler ).createSchedulerJob(
+      any( SchedulerResource.class ), argThat( throwMatcher ) );
+
+    Response response = mock( Response.class );
+    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
+    when( response.getEntity() ).thenReturn( "job id" );
+    ScheduleRequestMatcher goodMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
+    doReturn( response ).when( spyHandler ).createSchedulerJob( any( SchedulerResource.class ), argThat(
+      goodMatcher ) );
+
+    spyHandler.importSchedules( schedules );
+    verify( spyHandler, times( 2 ) ).createSchedulerJob( any( SchedulerResource.class ), any( JobScheduleRequest.class ) );
+    assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
+    System.setProperty( "file.separator", sep );
   }
 
   private class ScheduleRequestMatcher extends ArgumentMatcher<JobScheduleRequest> {
