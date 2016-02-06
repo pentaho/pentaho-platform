@@ -28,15 +28,6 @@
 	<log-level>DEBUG</log-level>
 
 	<!--
-		This flag indicates whether or not UserDetailsService is called during creation of user's principal.
-
-		If the service is external (e.g. LDAP or JDBC-based auth is used) then such calls can be expensive.
-		On the other hand, if user has been removed within external service, then it becomes impossible to
-		prevent principal creation when the verification is muted
-	-->
-	<verify-user-on-principal-creation>true</verify-user-on-principal-creation>
-
-	<!--
 		The configuration of publishers, system listeners, and session actions has been moved to
 		the systemListeners.xml, adminPlugins.xml, and sessionStartupActions.xml files which 
 		can be found in the "system" folder within your configured pentaho solution directory.

@@ -27,8 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.SimpleSystemSettings;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.security.userdetails.UserDetails;
@@ -48,6 +46,8 @@ import static org.mockito.Mockito.*;
  */
 public class SpringSecurityPrincipalProvider_PrincipalCreation_Test {
 
+  private final String SKIP_USER_VERIFICATION_PROP_KEY = "skipUserVerificationOnPrincipalCreation";
+
   private static final String ADMIN_ID = "notDefaultAdmin";
   private static final String ANONYMOUS_ID = "notDefaultAnonymous";
 
@@ -65,13 +65,7 @@ public class SpringSecurityPrincipalProvider_PrincipalCreation_Test {
     mp.defineInstance( "tenantedUserNameUtils", userResolver );
     mp.start();
 
-    Properties properties = new Properties();
-    properties.put( LoginModuleConfig.PARAM_ADMIN_ID, ADMIN_ID );
-    properties.put( LoginModuleConfig.PARAM_ANONYMOUS_ID, ANONYMOUS_ID );
-    provider = new SpringSecurityPrincipalProvider();
-    provider.init( properties );
-    // remove caching to avoid its impact
-    provider.setCacheManager( null );
+    setUpProvider( createBasicProperties() );
   }
 
   @After
@@ -113,35 +107,50 @@ public class SpringSecurityPrincipalProvider_PrincipalCreation_Test {
 
 
   @Test
-  public void getPrincipal_User_AccessesUserDetailsServiceByDefault() throws Exception {
+  public void getPrincipal_User_SkipsUserDetailsServiceByDefault() throws Exception {
     Principal principal = callGetPrincipalForUser( null, mock( UserDetails.class ) );
-    assertEquals( USERNAME, principal.getName() );
-    verify( provider, times( 1 ) ).internalGetUserDetails( USERNAME );
-  }
-
-  @Test
-  public void getPrincipal_User_SkipsAccessingUserDetailsServiceAccordingToProperty() throws Exception {
-    Principal principal = callGetPrincipalForUser( Boolean.FALSE, mock( UserDetails.class ) );
     assertEquals( USERNAME, principal.getName() );
     verify( provider, never() ).internalGetUserDetails( USERNAME );
   }
 
   @Test
-  public void getPrincipal_User_ReturnsNullIfUserDetailsAreAbsent() throws Exception {
-    Principal principal = callGetPrincipalForUser( Boolean.TRUE, null );
+  public void getPrincipal_User_SkipsAccessingUserDetailsServiceAccordingToProperty() throws Exception {
+    Principal principal = callGetPrincipalForUser( Boolean.TRUE, mock( UserDetails.class ) );
+    assertEquals( USERNAME, principal.getName() );
+    verify( provider, never() ).internalGetUserDetails( USERNAME );
+  }
+
+  @Test
+  public void getPrincipal_User_AccessesUserDetailsServiceAccordingToProperty() throws Exception {
+    Principal principal = callGetPrincipalForUser( Boolean.FALSE, null );
     assertNull( principal );
     verify( provider, times( 1 ) ).internalGetUserDetails( USERNAME );
+  }
+
+  protected void setUpProvider( Properties properties ) {
+    provider = new SpringSecurityPrincipalProvider();
+    provider.init( properties );
+    // remove caching to avoid its impact
+    provider.setCacheManager( null );
+  }
+
+  protected Properties createBasicProperties() {
+    Properties properties = new Properties();
+    properties.put( LoginModuleConfig.PARAM_ADMIN_ID, ADMIN_ID );
+    properties.put( LoginModuleConfig.PARAM_ANONYMOUS_ID, ANONYMOUS_ID );
+    return properties;
   }
 
   private Principal callGetPrincipalForUser( Boolean verifyUser, UserDetails dummyDetails ) throws Exception {
     when( userResolver.isValid( USERNAME ) ).thenReturn( true );
     when( userResolver.getTenant( USERNAME ) ).thenReturn( new Tenant( USERNAME, true ) );
 
-    SimpleSystemSettings settings = new SimpleSystemSettings();
-    if ( verifyUser != null ) {
-      settings.addSetting( "verify-user-on-principal-creation", verifyUser.toString() );
+    if( verifyUser != null ) {
+
+      Properties p = createBasicProperties();
+      p.put( SKIP_USER_VERIFICATION_PROP_KEY, verifyUser.toString() );
+      setUpProvider( p );
     }
-    PentahoSystem.setSystemSettingsService( settings );
 
     provider = spy( provider );
     doReturn( dummyDetails ).when( provider ).internalGetUserDetails( USERNAME );
