@@ -109,7 +109,7 @@ public class EventBusUtilGenerator extends Generator {
         .println( "public native void invokeEventBusJSO(final JavaScriptObject jso, final String parameterJSON)" );
     sourceWriter.println( "/*-{" );
     sourceWriter.indent();
-    sourceWriter.println( "var p = JSON.parse(parameterJSON);" );
+    sourceWriter.println( "eval('var p = ' + parameterJSON)" );
     sourceWriter.println( "jso.call(this, p)" );
     sourceWriter.outdent();
     sourceWriter.println( "}-*/;" );
@@ -290,9 +290,9 @@ public class EventBusUtilGenerator extends Generator {
               propertyName = propertyName.substring( 0, 1 ).toLowerCase() + propertyName.substring( 1 );
               String simpleType = implementingType.getField( propertyName ).getType().getSimpleSourceName();
               if ( "string".equalsIgnoreCase( simpleType ) ) {
-                parameterJSON += "\\\"" + propertyName + "\\\": \\\"\\\\\\\" + event." + eventMethod.getName() + "() + \\\\\\\"\\\",";
+                parameterJSON += "\'" + propertyName + "\': \'\" + event." + eventMethod.getName() + "() + \"\',";
               } else {
-                parameterJSON += "\\\"" + propertyName + "\\\": \\\" + event." + eventMethod.getName() + "() + \\\",";
+                parameterJSON += "\'" + propertyName + "\': \" + event." + eventMethod.getName() + "() + \",";
               }
             }
           }
