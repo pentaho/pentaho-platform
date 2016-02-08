@@ -21,10 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 
@@ -33,6 +30,8 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -109,6 +108,12 @@ public class UserRoleDaoResourceTest {
     String user = "testUser1";
     String roles = "testRole1";
 
+    userRoleResource = spy( userRoleResource );
+    IPentahoSession session = mock( IPentahoSession.class );
+    doReturn( user ).when( session ).getName();
+    doReturn( session ).when( userRoleResource ).getSession();
+    doNothing().when( userRoleResource ).updateRolesForCurrentSession();
+
     Response response = userRoleResource.assignRolesToUser( user, roles );
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
   }
@@ -160,6 +165,12 @@ public class UserRoleDaoResourceTest {
   public void testRemoveRolesFromUser() {
     String user = "testUser1";
     String roles = "testRole1";
+
+    userRoleResource = spy( userRoleResource );
+    IPentahoSession session = mock( IPentahoSession.class );
+    doReturn( user ).when( session ).getName();
+    doReturn( session ).when( userRoleResource ).getSession();
+    doNothing().when( userRoleResource ).updateRolesForCurrentSession();
 
     Response response = userRoleResource.removeRolesFromUser( user, roles );
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
