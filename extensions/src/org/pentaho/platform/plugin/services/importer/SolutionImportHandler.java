@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -332,6 +332,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             jobScheduleRequest.setInputFile( inputFileName );
             jobScheduleRequest.setOutputFile( outputFileName );
             try {
+              if ( File.separator != RepositoryFile.SEPARATOR ) {
+                // on windows systems, the backslashes will result in the file not being found in the repository
+                jobScheduleRequest.setInputFile( inputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
+                jobScheduleRequest.setOutputFile( outputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
+              }
               Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
               if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
                 if ( response.getEntity() != null ) {
