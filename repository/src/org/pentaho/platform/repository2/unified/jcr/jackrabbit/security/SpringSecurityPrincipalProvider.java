@@ -513,38 +513,38 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     return new SpringSecurityRolePrincipal( JcrTenantUtils.getTenantedRole( principal ) );
   }
 
-  private void initSkipUserVerification( final Properties prop ){
+  private void initSkipUserVerification( final Properties prop ) {
 
-      if( prop != null && prop.containsKey( SKIP_USER_VERIFICATION_PROP_KEY ) ){
+    if ( prop != null && prop.containsKey( SKIP_USER_VERIFICATION_PROP_KEY ) ) {
 
-        // reading property from the class initialization properties is useful for unit testing
-        skipUserVerification = Boolean.valueOf( prop.getProperty( SKIP_USER_VERIFICATION_PROP_KEY,
+      // reading property from the class initialization properties is useful for unit testing
+      skipUserVerification = Boolean.valueOf( prop.getProperty( SKIP_USER_VERIFICATION_PROP_KEY,
             String.valueOf( SKIP_USER_VERIFICATION_DEFAULT_VALUE ) ) );
 
-      } else if( systemConfig != null ){
+    } else if ( systemConfig != null ) {
 
-        try{
+      try {
 
-          // reading property from security.properties ( standard behaviour )
-          IConfiguration config = this.systemConfig.getConfiguration( "security" ); // security.properties
+        // reading property from security.properties ( standard behaviour )
+        IConfiguration config = this.systemConfig.getConfiguration( "security" ); // security.properties
 
-          if( config != null ){
+        if ( config != null ) {
 
-            skipUserVerification = Boolean.valueOf( config.getProperties().getProperty( SKIP_USER_VERIFICATION_PROP_KEY,
+          skipUserVerification = Boolean.valueOf( config.getProperties().getProperty( SKIP_USER_VERIFICATION_PROP_KEY,
                 String.valueOf( SKIP_USER_VERIFICATION_DEFAULT_VALUE ) ) );
-          }
-
-        } catch( Exception ex ){
-          logger.error( ex );
-
-          // safeguard / fallback behaviour
-          skipUserVerification = SKIP_USER_VERIFICATION_DEFAULT_VALUE;
         }
 
-      } else {
+      } catch ( Exception ex ) {
+        logger.error( ex );
+
         // safeguard / fallback behaviour
         skipUserVerification = SKIP_USER_VERIFICATION_DEFAULT_VALUE;
       }
+
+    } else {
+      // safeguard / fallback behaviour
+      skipUserVerification = SKIP_USER_VERIFICATION_DEFAULT_VALUE;
+    }
 
     logger.info( "Property '" + SKIP_USER_VERIFICATION_PROP_KEY + "' is '" + skipUserVerification + "'" );
   }
