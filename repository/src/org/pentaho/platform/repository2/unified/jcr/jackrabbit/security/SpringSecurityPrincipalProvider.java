@@ -40,6 +40,8 @@ import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalIteratorAdapter;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
 import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.engine.IConfiguration;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
@@ -113,6 +115,17 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   final boolean ACCOUNT_NON_LOCKED = true;
 
   /**
+   * flag indicating whether or not UserDetailsService is called during creation of user's principal
+   * @link http://jira.pentaho.com/browse/BACKLOG-6498
+   */
+  private boolean skipUserVerification;
+
+  private final String SKIP_USER_VERIFICATION_PROP_KEY = "skipUserVerificationOnPrincipalCreation";
+  private final boolean SKIP_USER_VERIFICATION_DEFAULT_VALUE = true;
+
+  private ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+
+  /**
    * flag indicating if the instance has not been {@link #close() closed}
    */
   private final AtomicBoolean initialized = new AtomicBoolean( false );
@@ -161,6 +174,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         cacheManager.addCacheRegion( ROLE_CACHE_REGION );
       }
     }
+
+    initSkipUserVerification( options );
 
     initialized.set( true );
   }
@@ -239,9 +254,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         // back-end user lookup
 
         // it may not be necessary to get user's details to emit principal,
-        boolean skipVerification =
-          !"true".equalsIgnoreCase( PentahoSystem.getSystemSetting( "verify-user-on-principal-creation", "true" ) );
-        if ( skipVerification || internalGetUserDetails( principalName ) != null ) {
+        if ( skipUserVerification || internalGetUserDetails( principalName ) != null ) {
           final Principal user = new UserPrincipal( principalName );
           if ( cacheManager != null ) {
             cacheManager.putInRegionCache( USER_CACHE_REGION, principalName, user );
@@ -498,6 +511,42 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   private SpringSecurityRolePrincipal createSpringSecurityRolePrincipal( String principal ) {
     return new SpringSecurityRolePrincipal( JcrTenantUtils.getTenantedRole( principal ) );
+  }
+
+  private void initSkipUserVerification( final Properties prop ){
+
+      if( prop != null && prop.containsKey( SKIP_USER_VERIFICATION_PROP_KEY ) ){
+
+        // reading property from the class initialization properties is useful for unit testing
+        skipUserVerification = Boolean.valueOf( prop.getProperty( SKIP_USER_VERIFICATION_PROP_KEY,
+            String.valueOf( SKIP_USER_VERIFICATION_DEFAULT_VALUE ) ) );
+
+      } else if( systemConfig != null ){
+
+        try{
+
+          // reading property from security.properties ( standard behaviour )
+          IConfiguration config = this.systemConfig.getConfiguration( "security" ); // security.properties
+
+          if( config != null ){
+
+            skipUserVerification = Boolean.valueOf( config.getProperties().getProperty( SKIP_USER_VERIFICATION_PROP_KEY,
+                String.valueOf( SKIP_USER_VERIFICATION_DEFAULT_VALUE ) ) );
+          }
+
+        } catch( Exception ex ){
+          logger.error( ex );
+
+          // safeguard / fallback behaviour
+          skipUserVerification = SKIP_USER_VERIFICATION_DEFAULT_VALUE;
+        }
+
+      } else {
+        // safeguard / fallback behaviour
+        skipUserVerification = SKIP_USER_VERIFICATION_DEFAULT_VALUE;
+      }
+
+    logger.info( "Property '" + SKIP_USER_VERIFICATION_PROP_KEY + "' is '" + skipUserVerification + "'" );
   }
 
 }
