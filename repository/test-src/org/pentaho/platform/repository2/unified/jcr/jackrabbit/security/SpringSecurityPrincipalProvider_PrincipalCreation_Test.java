@@ -121,6 +121,13 @@ public class SpringSecurityPrincipalProvider_PrincipalCreation_Test {
   }
 
   @Test
+  public void getPrincipal_User_SkipsAccessingUserDetailsServiceAccordingToEmptyProperty() throws Exception {
+    Principal principal = callGetPrincipalForUserString( "", mock( UserDetails.class ) );
+    assertEquals( USERNAME, principal.getName() );
+    verify( provider, never() ).internalGetUserDetails( USERNAME );
+  }
+
+  @Test
   public void getPrincipal_User_AccessesUserDetailsServiceAccordingToProperty() throws Exception {
     Principal principal = callGetPrincipalForUser( Boolean.FALSE, null );
     assertNull( principal );
@@ -142,13 +149,18 @@ public class SpringSecurityPrincipalProvider_PrincipalCreation_Test {
   }
 
   private Principal callGetPrincipalForUser( Boolean verifyUser, UserDetails dummyDetails ) throws Exception {
+    return verifyUser != null ? callGetPrincipalForUserString( verifyUser.toString(), dummyDetails )
+      : callGetPrincipalForUserString( null, dummyDetails );
+  }
+
+  private Principal callGetPrincipalForUserString( String verifyUser, UserDetails dummyDetails ) throws Exception {
     when( userResolver.isValid( USERNAME ) ).thenReturn( true );
     when( userResolver.getTenant( USERNAME ) ).thenReturn( new Tenant( USERNAME, true ) );
 
-    if( verifyUser != null ) {
+    if ( verifyUser != null ) {
 
       Properties p = createBasicProperties();
-      p.put( SKIP_USER_VERIFICATION_PROP_KEY, verifyUser.toString() );
+      p.put( SKIP_USER_VERIFICATION_PROP_KEY, verifyUser );
       setUpProvider( p );
     }
 

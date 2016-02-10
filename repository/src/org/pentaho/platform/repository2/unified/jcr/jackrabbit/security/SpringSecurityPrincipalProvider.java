@@ -515,7 +515,10 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   private void initSkipUserVerification( final Properties prop ) {
 
-    if ( prop != null && prop.containsKey( SKIP_USER_VERIFICATION_PROP_KEY ) ) {
+    skipUserVerification = SKIP_USER_VERIFICATION_DEFAULT_VALUE; // default behaviour
+
+    if ( prop != null && prop.containsKey( SKIP_USER_VERIFICATION_PROP_KEY )
+      && !prop.getProperty( SKIP_USER_VERIFICATION_PROP_KEY ).isEmpty() ) {
 
       // reading property from the class initialization properties is useful for unit testing
       skipUserVerification = Boolean.valueOf( prop.getProperty( SKIP_USER_VERIFICATION_PROP_KEY,
@@ -528,7 +531,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         // reading property from security.properties ( standard behaviour )
         IConfiguration config = this.systemConfig.getConfiguration( "security" ); // security.properties
 
-        if ( config != null ) {
+        if ( config != null && config.getProperties().containsKey( SKIP_USER_VERIFICATION_PROP_KEY )
+          && !config.getProperties().getProperty( SKIP_USER_VERIFICATION_PROP_KEY ).isEmpty() ) {
 
           skipUserVerification = Boolean.valueOf( config.getProperties().getProperty( SKIP_USER_VERIFICATION_PROP_KEY,
                 String.valueOf( SKIP_USER_VERIFICATION_DEFAULT_VALUE ) ) );
@@ -536,14 +540,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
       } catch ( Exception ex ) {
         logger.error( ex );
-
-        // safeguard / fallback behaviour
-        skipUserVerification = SKIP_USER_VERIFICATION_DEFAULT_VALUE;
       }
-
-    } else {
-      // safeguard / fallback behaviour
-      skipUserVerification = SKIP_USER_VERIFICATION_DEFAULT_VALUE;
     }
 
     logger.info( "Property '" + SKIP_USER_VERIFICATION_PROP_KEY + "' is '" + skipUserVerification + "'" );
