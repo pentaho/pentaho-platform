@@ -1282,9 +1282,31 @@ a:active, a:hover {
   padding: 10px;
 }
 
+#admin-roles-panel table {
+  height: 100%;
+}
+
+#users-panel table {
+  height: auto;
+}
+
 .users-roles-list {
-  height: 432px;
+  height: 100%;
   width: 200px;
+}
+
+.pentaho-tab-panel {
+  width: 715px;
+  height: 510px;
+}
+
+/* targetting IE 10 only */
+.IE10 .pentaho-tab-panel {
+  height:541px;
+}
+
+.IE10 .users-roles-list {
+  height: 480px;
 }
 
 .users-roles-selection-list {

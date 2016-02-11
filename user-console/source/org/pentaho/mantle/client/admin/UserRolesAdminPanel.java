@@ -83,8 +83,6 @@ public class UserRolesAdminPanel extends SimplePanel {
     mainPanel.add( vSpacer );
 
     mainTabPanel = new PentahoTabPanel();
-    mainTabPanel.setWidth( "715px" );
-    mainTabPanel.setHeight( "510px" );
     mainTabPanel.addTab( Messages.getString( "manageUsers" ), "", false, createUsersPanel() );
     mainTabPanel.addTab( Messages.getString( "manageRoles" ), "", false, createRolesPanel() );
     mainTabPanel.addTab( Messages.getString( "systemRoles" ), "", false, createSystemRolesPanel() );
@@ -295,6 +293,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 
     rolesListBox = new ListBox( true );
     availablePanel.add( rolesListBox );
+    availablePanel.setCellHeight( rolesListBox, "100%" );
     rolesListBox.setVisibleItemCount( 20 );
     rolesListBox.addStyleName( "users-roles-list" );
 
@@ -326,6 +325,7 @@ public class UserRolesAdminPanel extends SimplePanel {
     detailsPanel.add( usersLabelPanel );
 
     usersPanel = new HorizontalPanel();
+    usersPanel.getElement().setId( "users-panel" );
     detailsPanel.add( usersPanel );
 
     VerticalPanel availableMembersPanel = new VerticalPanel();
