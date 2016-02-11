@@ -1,4 +1,24 @@
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 1.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/fdl-1.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2012-2016 Pentaho Corporation..  All rights reserved.
+ */
+
 package org.pentaho.wadl;
+
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -6,8 +26,14 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.wadl.helpers.MockRootDoc;
+
+import com.sun.javadoc.AnnotationDesc;
+import com.sun.javadoc.AnnotationTypeDoc;
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.RootDoc;
 
 public class PentahoResourceDocletTest {
 
@@ -19,19 +45,51 @@ public class PentahoResourceDocletTest {
 
   private final String FILE_NAME = "wadlExtension.xml";
 
+  private RootDoc rootDoc;
+  private AnnotationTypeDoc annotationTypeDeprecated;
+  private AnnotationDesc annotationDescDeprecated;
+  private AnnotationDesc annotationDescPath;
+  private MethodDoc methodDoc;
+  private ClassDoc classDoc;
+
+  @Before
+  public void before() {
+    annotationTypeDeprecated = mock( AnnotationTypeDoc.class );
+    when( annotationTypeDeprecated.toString() ).thenReturn( "deprecated" );
+
+    annotationDescDeprecated = mock( AnnotationDesc.class );
+    when( annotationDescDeprecated.annotationType() ).thenReturn( annotationTypeDeprecated );
+    when( annotationDescDeprecated.toString() ).thenReturn( "@java.lang.Deprecated" );
+
+    annotationDescPath = mock( AnnotationDesc.class );
+    when( annotationDescPath.annotationType() ).thenReturn( annotationTypeDeprecated );
+    when( annotationDescPath.toString() ).thenReturn( "@javax.ws.rs.Path" );
+
+    methodDoc = mock( MethodDoc.class );
+    when( methodDoc.name() ).thenReturn( "methodName" );
+    when( methodDoc.commentText() ).thenReturn( "comment text" );
+    when( methodDoc.annotations() ).thenReturn( new AnnotationDesc[] { annotationDescDeprecated, annotationDescPath } );
+
+    classDoc = mock( ClassDoc.class );
+    when( classDoc.methods() ).thenReturn( new MethodDoc[] { methodDoc } );
+    when( classDoc.annotations() ).thenReturn( new AnnotationDesc[] { annotationDescDeprecated, annotationDescPath } );
+
+    rootDoc = mock( RootDoc.class );
+    when( rootDoc.classes() ).thenReturn( new ClassDoc[] { classDoc } );
+  }
+
   @Test
   public void testStart() {
-    PentahoResourceDoclet doclet = new PentahoResourceDoclet();
-    MockRootDoc rootDoc = new MockRootDoc();
-    doclet.start( rootDoc );
+    PentahoResourceDoclet.start( rootDoc );
 
     String valueFromFile = readFromFile();
     Assert.assertEquals( EXPECTED_WADL_FILE_CONTENT, valueFromFile );
   }
 
   private String readFromFile() {
+    BufferedReader reader = null;
     try {
-      BufferedReader reader = new BufferedReader( new FileReader( FILE_NAME ) );
+      reader = new BufferedReader( new FileReader( FILE_NAME ) );
       StringBuilder strBuilder = new StringBuilder();
 
       String line = reader.readLine();
@@ -45,8 +103,15 @@ public class PentahoResourceDocletTest {
       Assert.fail( "expected file not found" );
     } catch ( IOException e ) {
       e.printStackTrace();
+    } finally {
+      if ( reader != null ) {
+        try {
+          reader.close();
+        } catch ( IOException e ) {
+          // noop
+        }
+      }
     }
     return null;
   }
-
 }
