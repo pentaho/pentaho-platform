@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.rebind;
@@ -27,11 +27,13 @@ import com.google.gwt.core.ext.typeinfo.JMethod;
 import com.google.gwt.core.ext.typeinfo.JPackage;
 import com.google.gwt.core.ext.typeinfo.JPrimitiveType;
 import com.google.gwt.core.ext.typeinfo.JType;
+import com.google.gwt.core.ext.typeinfo.NotFoundException;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.mantle.client.events.EventBusUtil;
 
 import java.io.PrintWriter;
@@ -109,7 +111,18 @@ public class EventBusUtilGenerator extends Generator {
         .println( "public native void invokeEventBusJSO(final JavaScriptObject jso, final String parameterJSON)" );
     sourceWriter.println( "/*-{" );
     sourceWriter.indent();
-    sourceWriter.println( "eval('var p = ' + parameterJSON)" );
+    // unfortunately, we can obtain pairs like {"a":"undefined"} or even {"a":undefined}
+    // the latter will crash the procedure, so let's try to clean up the string
+    // by removing pairs with 'undefined'
+    sourceWriter.println( "var tmp = parameterJSON"
+      // replace ("a":undefined) and ("a":"undefined") with empty space
+      + ".replace(/\\\"[\\w]+\\\"\\:[ ]*(\\\")?undefined(\\\")?(,)?/g, '')"
+      // remove doubled commas
+      + ".replace(/,[ ]*,/, ',')"
+      // remove leading and trailing commas
+      + ".replace(/\\{[ ]*,/, '{')"
+      + ".replace(/,[ ]*\\}/, '}');" );
+    sourceWriter.println( "var p = JSON.parse(tmp);" );
     sourceWriter.println( "jso.call(this, p)" );
     sourceWriter.outdent();
     sourceWriter.println( "}-*/;" );
@@ -257,62 +270,14 @@ public class EventBusUtilGenerator extends Generator {
     sourceWriter.indent();
     try {
       // find Command implementors
-      ArrayList<JClassType> implementingTypes = new ArrayList<JClassType>();
       JPackage pack = typeOracle.getPackage( EventBusUtil.class.getPackage().getName() );
       JClassType eventSourceType = typeOracle.getType( GwtEvent.class.getName() );
 
+      sourceWriter.println( "if(false){}" ); // placeholder
       for ( JClassType type : pack.getTypes() ) {
         if ( type.isAssignableTo( eventSourceType ) ) {
-          implementingTypes.add( type );
+          addHandlerElseCondition( sourceWriter, type );
         }
-      }
-
-      sourceWriter.println( "if(false){}" ); // placeholder
-      for ( JClassType implementingType : implementingTypes ) {
-        sourceWriter.println( "else if(eventType.equals(\"" + implementingType.getSimpleSourceName() + "\")){" );
-        sourceWriter.indent();
-
-        JClassType handlerType =
-            typeOracle.getType( EventBusUtil.class.getPackage().getName() + "." + implementingType.getName()
-                + "Handler" );
-        sourceWriter.println( "EVENT_BUS.addHandler(" + implementingType.getName() + ".TYPE, new "
-            + implementingType.getName() + "Handler() {" );
-        sourceWriter.indent();
-        for ( JMethod handlerMethod : handlerType.getMethods() ) {
-
-          String parameterJSON = "\"{";
-          for ( int i = 0; i < implementingType.getMethods().length; i++ ) {
-            JMethod eventMethod = implementingType.getMethods()[i];
-            if ( eventMethod.isPublic() && !eventMethod.isStatic() && eventMethod.isConstructor() == null
-                && !"void".equalsIgnoreCase( eventMethod.getReturnType().getSimpleSourceName() )
-                && !eventMethod.getName().equals( "getAssociatedType" ) ) {
-              String propertyName = eventMethod.getName().substring( 3 );
-              propertyName = propertyName.substring( 0, 1 ).toLowerCase() + propertyName.substring( 1 );
-              String simpleType = implementingType.getField( propertyName ).getType().getSimpleSourceName();
-              if ( "string".equalsIgnoreCase( simpleType ) ) {
-                parameterJSON += "\'" + propertyName + "\': \'\" + event." + eventMethod.getName() + "() + \"\',";
-              } else {
-                parameterJSON += "\'" + propertyName + "\': \" + event." + eventMethod.getName() + "() + \",";
-              }
-            }
-          }
-          if ( parameterJSON.contains( "," ) ) {
-            parameterJSON = parameterJSON.substring( 0, parameterJSON.lastIndexOf( "," ) );
-          }
-          parameterJSON += "}\"";
-
-          sourceWriter.println( "public void " + handlerMethod.getName() + "(" + implementingType.getName()
-              + " event) {" );
-          sourceWriter.indent();
-          sourceWriter.println( "invokeEventBusJSO(handler," + parameterJSON + ");" );
-          sourceWriter.outdent();
-          sourceWriter.println( "}" );
-        }
-        sourceWriter.outdent();
-        sourceWriter.println( "});" );
-
-        sourceWriter.outdent();
-        sourceWriter.println( "}" );
       }
     } catch ( Exception e ) {
       // record to logger that Map generation threw an exception
@@ -321,6 +286,67 @@ public class EventBusUtilGenerator extends Generator {
 
     sourceWriter.outdent();
     sourceWriter.println( "}" );
+  }
+
+  private void addHandlerElseCondition( SourceWriter writer, JClassType type ) throws NotFoundException {
+    writer.println( "else if(eventType.equals(\"" + type.getSimpleSourceName() + "\")){" );
+    writer.indent();
+
+    JClassType handlerType =
+      typeOracle.getType( EventBusUtil.class.getPackage().getName() + "." + type.getName()
+        + "Handler" );
+    writer.println( "EVENT_BUS.addHandler(" + type.getName() + ".TYPE, new "
+      + type.getName() + "Handler() {" );
+    writer.indent();
+    for ( JMethod handlerMethod : handlerType.getMethods() ) {
+
+      String parameterJSON = addHandlerParamJson( type );
+
+      writer.println( "public void " + handlerMethod.getName() + "(" + type.getName()
+        + " event) {" );
+      writer.indent();
+      writer.println( "invokeEventBusJSO(handler," + parameterJSON + ");" );
+      writer.outdent();
+      writer.println( "}" );
+    }
+    writer.outdent();
+    writer.println( "});" );
+
+    writer.outdent();
+    writer.println( "}" );
+  }
+
+  // visible for testing purposes
+  String addHandlerParamJson( JClassType type ) {
+    StringBuilder json = new StringBuilder( 128 );
+    json.append( '"' ).append( '{' );
+    JMethod[] methods = type.getMethods();
+    for ( JMethod eventMethod : methods ) {
+
+      if ( eventMethod.isPublic()
+        && !eventMethod.isStatic()
+        && ( eventMethod.isConstructor() == null )
+        && !"void".equalsIgnoreCase( eventMethod.getReturnType().getSimpleSourceName() )
+        && !eventMethod.getName().equals( "getAssociatedType" ) ) {
+        // let's add the property to JSON object
+        String propertyName = StringUtils.uncapitalize( eventMethod.getName().substring( 3 ) );
+        String simpleType = type.getField( propertyName ).getType().getSimpleSourceName();
+        if ( "string".equalsIgnoreCase( simpleType ) ) {
+          json.append( "\\\"" + propertyName + "\\\":\\\"\" + event." + eventMethod.getName() + "() + \"\\\"" );
+        } else {
+          json.append( "\\\"" + propertyName + "\\\":\" + event." + eventMethod.getName() + "() + \"" );
+        }
+        json.append( ',' );
+      }
+    }
+
+    int lastIndex = json.lastIndexOf( "," );
+    if ( lastIndex == -1 ) {
+      json.append( '}' );
+    } else {
+      json.setCharAt( lastIndex, '}' );
+    }
+    return json.append( '"' ).toString();
   }
 
   private void generateConstructor( SourceWriter sourceWriter ) {
