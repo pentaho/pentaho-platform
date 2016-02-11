@@ -242,6 +242,17 @@
     <!-- CM-241 -->
     <exclude org="cglib"  module="cglib" />
 
+	<!-- Excluding test dependencies for the assembly -->
+    <exclude org="org.mockito"          module="mockito-all"/>
+    <exclude org="org.mockito"          module="mockito-core"/>
+    <exclude org="org.jmock"            module="jmock"/>
+    <exclude org="org.jmock"            module="jmock-junit4"/>
+    <exclude org="org.jmock"            module="jmock-legacy"/>
+    <exclude org="org.jmockit"          module="jmockit"/>
+    <exclude org="junit"                module="junit"/>
+    <exclude org="junit"                module="junit-dep"/>
+    <exclude org="org.springframework"  module="spring-mock"/>
+
     <!--  Make sure we get the correct version of kettle and pentaho-metadata -->
     <conflict org="pentaho-kettle" rev="${dependency.kettle.revision}" />
     <conflict org="pentaho" module="pentaho-platform-.*" matcher="regexp" rev="${project.revision}" />
