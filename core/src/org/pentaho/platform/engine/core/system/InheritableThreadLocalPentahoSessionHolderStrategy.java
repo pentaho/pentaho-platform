@@ -107,6 +107,9 @@ public class InheritableThreadLocalPentahoSessionHolderStrategy implements IPent
       // to it from other objects which may be holding on to it. We do this to prevent
       // memory leaks. In the future, this should not be necessary since objects
       // should not need to have setSesssion methods, but instead use PentahoSessionHolder.getSession()
+      //
+      // Disabled as this is one of the points why the Trusted User Filter stopped working
+      /*
       if ( sess instanceof StandaloneSession ) {
         if ( logger.isDebugEnabled() ) {
           logger.debug( Messages.getInstance().getString( "PentahoSessionHolder.DEBUG_DESTROY_STANDALONE_SESSION", //$NON-NLS-1$
@@ -114,6 +117,7 @@ public class InheritableThreadLocalPentahoSessionHolderStrategy implements IPent
         }
         ( (StandaloneSession) sess ).destroy();
       }
+      */
 
       perThreadSession.remove();
     }
