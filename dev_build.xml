@@ -23,6 +23,9 @@
           description="Creates a Pentaho-ready Tomcat instance."
           depends="clean-all, dev-update" />
 
+  <target name="dev-rebuild-merged-server"
+          description="Creates a Pentaho (merged) Server ready Tomcat instance."
+          depends="clean-all, dev-update-merged-server" />
 
   <target name="dev-update"
           description="Copy changed artifacts into Tomcat instance."
@@ -41,6 +44,26 @@
       <target name="clean-all" />
       <target name="resolve" />
       <target name="assemble" />
+    </ant>
+  </target>
+
+  <target name="dev-update-merged-server"
+          description="Copy changed artifacts into Tomcat instance."
+          depends="install-antcontrib">
+    <for list="${dev-project.list}" param="module" trim="true">
+      <sequential>
+        <ant antfile="build.xml" dir="@{module}" inheritall="false" >
+          <property name="ivy.use.symlinks" value="false"/>
+          <target name="resolve" />
+          <target name="compile" />
+          <target name="publish-local" />
+        </ant>
+      </sequential>
+    </for>
+    <ant antfile="assembly.xml" dir="${assembly.dir}" inheritall="false">
+      <target name="clean-all" />
+      <target name="resolve" />
+      <target name="assemble-merged-server" />
     </ant>
   </target>
 

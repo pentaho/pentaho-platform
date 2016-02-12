@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
+       default-lazy-init="true">
+
+  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+    <constructor-arg value="repository"/>
+    <constructor-arg value="repository.spring.properties"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <!--
+    default-lazy-init makes all of the beans in this file lazy-init=true which means they are not instantiated until
+    they are referenced; this allows PentahoSystem to be fully initialized (which is used internally in
+    SpringSecurityLoginModule and SpringSecurityPrincipalProvider (pentaho-third-party-security project)
+  -->
+
+  <!-- An access decision manager used by the business objects. -->
+  <bean id="businessAccessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
+    <property name="allowIfAllAbstainDecisions" value="false"/>
+    <property name="decisionVoters">
+      <list>
+        <ref local="authorizationPolicyVoter"/>
+      </list>
+    </property>
+  </bean>
+
+  <!-- 
+  	This transaction manager is responsible for starting jcr transactions using a jcr session. Notice that it uses the
+  	jcrSessionFactory bean, which creates jcr sessions using the credentials of the logged in user.
+  -->
+  <bean id="jcrTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager">
+    <property name="sessionFactory" ref="jcrSessionFactory"/>
+  </bean>
+
+  <!-- 
+  	This transaction manager is responsible for starting jcr transactions using a jcr session. Notice that it uses the
+  	jcrAdminSessionFactory bean, which creates jcr sessions using the credentials of the jcr repository admin. This transaction
+  	manager is intended for internal use only, when the system needs to perform a transaction as the jcr admin.
+  -->
+  <bean id="jcrAdminTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager">
+    <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
+  </bean>
+
+  <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton"/>
+
+  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService"
+        scope="singleton">
+    <constructor-arg ref="unifiedRepository"/>
+    <constructor-arg ref="IDatabaseDialectService"/>
+  </bean>
+
+  <!-- 
+  	This bean is the actual implementation of the unified repository. The biserver does not use this bean directory
+  	instead a proxy bean is defined that provides transaction, method level security and exception logging support using spring aop. If you wish 
+  	to bypass transaction and method level security for test purposes you can reference this bean directly.
+  -->
+  <bean id="unifiedRepositoryTarget" class="org.pentaho.platform.repository2.unified.DefaultUnifiedRepository">
+    <constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+  </bean>
+
+
+  <!-- 
+    This bean defines how jcr transactions are propagated when methods in IUnifiedRepository are called.
+  -->
+  <bean id="unifiedRepositoryTransactionInterceptor"
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    <property name="transactionManager" ref="jcrTransactionManager"/>
+    <property name="transactionAttributeSource">
+      <value>
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFile=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileAtVersion=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileById=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForRead=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForReadInBatch=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataAtVersionForRead=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForExecute=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForExecuteInBatch=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataAtVersionForExecute=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFolder=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFolder=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getChildren=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAcl=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.hasAccess=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getEffectiveAces=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateAcl=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.lockFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.unlockFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.canUnlockFile=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.restoreFileAtVersion=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getVersionSummary=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getVersionSummaryInBatch=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getVersionSummaries=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteFileAtVersion=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.undeleteFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDeletedFiles=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDeletedFiles=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.moveFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.copyFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getTree=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getReferrers=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setFileMetadata=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileMetadata=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileById=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileByPath=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFile=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileById=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileByPath=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFile=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileById=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileByPath=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteLocalePropertiesForFile=PROPAGATION_REQUIRED
+      </value>
+    </property>
+  </bean>
+
+  <!-- 
+  	This bean is used by spring aop to add method level security to the real unified repository implementation.
+  -->
+  <bean id="unifiedRepositoryMethodInterceptor"
+        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+    <property name="validateConfigAttributes">
+      <value>true</value>
+    </property>
+    <property name="authenticationManager">
+      <ref bean="authenticationManager"/>
+    </property>
+    <property name="accessDecisionManager">
+      <ref bean="businessAccessDecisionManager"/>
+    </property>
+    <property name="objectDefinitionSource">
+      <value>
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileAtVersion=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileById=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForRead=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForReadInBatch=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataAtVersionForRead=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForExecute=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForExecuteInBatch=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataAtVersionForExecute=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFolder=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFolder=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getChildren=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAcl=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.hasAccess=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getEffectiveAces=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateAcl=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.lockFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.unlockFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.canUnlockFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.restoreFileAtVersion=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getVersionSummary=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getVersionSummaryInBatch=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getVersionSummaries=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteFileAtVersion=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.undeleteFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDeletedFiles=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDeletedFiles=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.moveFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.copyFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getTree=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getReferrers=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setFileMetadata=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileMetadata=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileById=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileByPath=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileById=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileByPath=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileById=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileByPath=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteLocalePropertiesForFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+
+      </value>
+    </property>
+  </bean>
+
+  <!-- 
+    This bean serves as a proxy for the real IUnifiedRepository. It uses spring aop to add transaction management
+    and method level security on top of the real IUnifiedRepository implementation.
+  -->
+  <bean id="unifiedRepositoryProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target" ref="unifiedRepositoryTarget"/>
+    <property name="interceptorNames">
+      <list>
+        <idref local="unifiedRepositoryTransactionInterceptor"/>
+        <idref local="unifiedRepositoryMethodInterceptor"/>
+      </list>
+    </property>
+  </bean>
+
+  <!-- 
+    This bean is used by spring aop to add exception logging to the real unified repository implementation.
+  -->
+  <bean id="unifiedRepository" class="org.pentaho.platform.repository2.unified.ExceptionLoggingDecorator">
+    <constructor-arg ref="unifiedRepositoryProxy"/>
+    <constructor-arg>
+      <util:map>
+        <entry key="org.springframework.security.AccessDeniedException">
+          <bean class="org.pentaho.platform.repository2.unified.exception.AccessDeniedExceptionConverter" />
+        </entry>
+        <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoFileExistsException">
+          <bean class="org.pentaho.platform.repository2.unified.exception.FileExistsExceptionConverter" />
+        </entry>
+        <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoReferentialIntegrityException">
+          <bean class="org.pentaho.platform.repository2.unified.exception.ReferentialIntegrityExceptionConverter" />
+        </entry>
+        <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException">
+          <bean class="org.pentaho.platform.repository2.unified.exception.MalformedNameExceptionConverter" />
+        </entry>
+      </util:map>
+    </constructor-arg>
+  </bean>
+
+
+  <!-- 
+    This bean is the real implementation of the tenant manager. The biserver does not use this bean directly
+    instead a proxy bean is defined that provides transaction, and method level security support using spring aop. If you wish
+    to bypass transaction and method level security for test purposes you can reference this bean directly.
+  -->
+  <bean id="ITenantManager" class="org.pentaho.platform.repository2.mt.RepositoryTenantManager">
+    <constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="userRoleDao"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+    <!-- bypassing role binding dao layer for session management and method level security checks this stuff is managed by the tenant mgr-->
+    <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
+    <constructor-arg ref="jcrTemplate"/>
+    <constructor-arg ref="repositoryAdminUsername"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
+    <constructor-arg ref="tenantedRoleNameUtils"/>
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityRoleBindingList"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+
+  <bean id="tenantManagerMethodInterceptor"
+        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+    <property name="validateConfigAttributes">
+      <value>true</value>
+    </property>
+    <property name="authenticationManager">
+      <ref bean="authenticationManager"/>
+    </property>
+    <property name="accessDecisionManager">
+      <ref bean="businessAccessDecisionManager"/>
+    </property>
+    <property name="objectDefinitionSource">
+      <value>
+        org.pentaho.platform.api.mt.ITenantManager.createTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.getChildTenants=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.updateTentant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.deleteTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.enableTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.isSubTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.mt.ITenantManager.getTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.createUserHomeFolder=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.getUserHomeFolder=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+      </value>
+    </property>
+  </bean>
+
+  <!-- 
+    This bean defines how jcr transactions are propogated when methods in ITenantManager or IUnifiedRepository are called.
+  -->
+  <bean id="tenantManagerTransactionInterceptor"
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    <property name="transactionManager" ref="jcrTransactionManager"/>
+    <property name="transactionAttributeSource">
+      <value>
+        org.pentaho.platform.api.mt.ITenantManager.createTenant=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.mt.ITenantManager.getChildTenants=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.updateTentant=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.mt.ITenantManager.deleteTenant=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.mt.ITenantManager.deleteTenants=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.mt.ITenantManager.enableTenant=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.mt.ITenantManager.enableTenants=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.mt.ITenantManager.getTenantByRootFolderPath=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.isSubTenant=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.getTenant=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.createUserHomeFolder=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.mt.ITenantManager.getUserHomeFolder=PROPAGATION_REQUIRED
+      </value>
+    </property>
+  </bean>
+
+  <!-- 
+  	This bean serves as a proxy for the real tenant manager implementation. It uses spring aop to add transaction management
+  	and method level security on top of the real tenant manager implementation.
+  -->
+  <bean id="tenantMgrProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target" ref="ITenantManager"/>
+    <property name="interceptorNames">
+      <list>
+        <idref local="tenantManagerMethodInterceptor"/>
+        <idref local="tenantManagerTransactionInterceptor"/>
+      </list>
+    </property>
+  </bean>
+
+  <!-- 
+    This bean serves as a proxy for the real tenant manager implementation. It uses spring aop to add transaction management
+    on top of the real tenant manager implementation. Method level security can be bypassed by using this bean. The bean is
+    intended for internal use only.
+  -->
+  <bean id="tenantMgrTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target" ref="ITenantManager"/>
+    <property name="interceptorNames">
+      <list>
+        <idref local="tenantManagerTransactionInterceptor"/>
+      </list>
+    </property>
+  </bean>
+
+  <!-- IUserRoleDao implementation. The biserver does not use this bean directly
+     instead a proxy bean is defined that provides transaction, and method level security support using spring aop. If you wish
+     to bypass transaction and method level security for test purposes you can reference this bean directly.-->
+  <bean id="userRoleDao" class="org.pentaho.platform.security.userroledao.jackrabbit.JcrUserRoleDao">
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
+    <constructor-arg ref="tenantedRoleNameUtils"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg ref="repositoryAdminUsername"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="pathConversionHelper"/>
+    <constructor-arg ref="ILockHelper"/>
+    <constructor-arg ref="defaultAclHandler" />
+    <constructor-arg ref="singleTenantSystemAuthorities"/>
+    <constructor-arg ref="extraRoles"/>
+    <constructor-arg ref="ehCacheUserCache"/>
+  </bean>
+
+  <!-- 
+    This bean defines how jcr transactions are propogated, when methods in IUserRoleDao are called.
+  -->
+  <bean id="userRoleDaoTransactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    <property name="transactionManager" ref="jcrAdminTransactionManager"/>
+    <property name="transactionAttributeSource">
+      <value>
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createUser=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setPassword=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserDescription=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteUser=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUser=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUsers=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createRole=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleDescription=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteRole=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRole=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoles=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleMembers=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserRoles=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoleMembers=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUserRoles=PROPAGATION_REQUIRED,readOnly
+      </value>
+    </property>
+  </bean>
+
+
+  <!-- 
+    This bean is used by spring aop to add method level security to the real user role dao implementation.
+  -->
+  <bean id="userRoleDaoMethodInterceptor"
+        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+    <property name="validateConfigAttributes">
+      <value>true</value>
+    </property>
+    <property name="authenticationManager">
+      <ref bean="authenticationManager"/>
+    </property>
+    <property name="accessDecisionManager">
+      <ref bean="businessAccessDecisionManager"/>
+    </property>
+    <property name="objectDefinitionSource">
+      <value>
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createUser=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setPassword=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserDescription=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteUser=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUsers=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createRole=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleDescription=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteRole=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRole=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoles=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleMembers=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserRoles=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoleMembers=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+      </value>
+    </property>
+  </bean>
+
+  <!-- 
+    This bean serves as a proxy for the real user role dao implementation. It uses spring aop to add transaction management
+    and method level security on top of the real user role dao implementation.
+  -->
+  <bean id="userRoleDaoProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target" ref="userRoleDao"/>
+    <property name="interceptorNames">
+      <list>
+        <idref local="userRoleDaoMethodInterceptor"/>
+        <idref local="userRoleDaoTransactionInterceptor"/>
+      </list>
+    </property>
+    <pen:publish as-type="org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao">
+      <pen:attributes>
+        <pen:attr key="priority" value="50"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <!-- 
+  	This bean serves as a proxy for the real user role dao implementation. It uses spring aop to add transaction management
+  	on top of the real user role dao implementation. Method level security can be bypassed by using this bean. The bean is
+  	intended for internal use only.
+  -->
+  <bean id="userRoleDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target" ref="userRoleDao"/>
+    <property name="interceptorNames">
+      <list>
+        <idref local="userRoleDaoTransactionInterceptor"/>
+      </list>
+    </property>
+    <pen:publish as-type="org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao">
+      <pen:attributes>
+        <pen:attr key="nosecurity" value="true"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <!-- The username to use to do internal work for no particular user. -->
+  <!-- See Jackrabbit repository.xml adminId -->
+  <bean id="repositoryAdminUsername" class="java.lang.String">
+    <constructor-arg value="${repository.repositoryAdminUsername}"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <!-- This token allows Jackrabbit to trust that this application has already authenticated the user. -->
+  <bean id="jcrPreAuthenticationToken" class="java.lang.String">
+    <constructor-arg value="ZchBOvP8q9FQ"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <!-- The name of the authority which is granted to all authenticated users of a particular tenant. -->
+  <bean id="singleTenantAuthenticatedAuthorityName" class="java.lang.String">
+    <constructor-arg value="${repository.singleTenantAuthenticatedAuthorityName}"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
+  <bean id="singleTenantAdminAuthorityName" class="java.lang.String">
+    <constructor-arg value="${repository.singleTenantAdminAuthorityName}"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <!-- The name of the authority which is granted to all non-authenticated users of a particular tenant -->
+  <bean id="singleTenantAnonymousAuthorityName" class="java.lang.String">
+    <constructor-arg value="${repository.singleTenantAnonymousAuthorityName}"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <!-- The set of authorities that are considered system and cannot be removed -->
+  <bean class="java.util.ArrayList" id="singleTenantSystemAuthorities">
+     <constructor-arg>
+      <util:list list-class="java.util.ArrayList" value-type="java.lang.String">
+        <ref bean="singleTenantAuthenticatedAuthorityName" />
+        <ref bean="singleTenantAdminAuthorityName" />
+        <ref bean="singleTenantAnonymousAuthorityName" />
+      </util:list>
+     </constructor-arg>
+     <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <bean class="java.util.ArrayList" id="extraSystemAuthorities">
+     <constructor-arg>
+      <util:list list-class="java.util.ArrayList" value-type="java.lang.String">
+        <ref bean="singleTenantAuthenticatedAuthorityName" />
+        <ref bean="singleTenantAnonymousAuthorityName" />
+      </util:list>
+     </constructor-arg>
+     <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+
+  <bean id="superAdminAuthorityName" class="java.lang.String">
+    <constructor-arg value="${repository.superAdminAuthorityName}"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <bean id="superAdminUserName" class="java.lang.String">
+    <constructor-arg value="${repository.superAdminUserName}"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <bean id="systemTenantAdminUserName" class="java.lang.String">
+    <constructor-arg value="${repository.systemTenantAdminUserName}"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <bean id="systemTenantAdminPassword" class="java.lang.String">
+    <constructor-arg value="${repository.systemTenantAdminPassword}"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <bean id="singleTenantAdminUserName" class="java.lang.String">
+    <constructor-arg value="${repository.singleTenantAdminUserName}"/>
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <!-- Used in code that doesn't use Spring's transaction interception. -->
+  <!-- The code sets the propagation behavior to PROPAGATION_REQUIRES_NEW. -->
+  <bean id="jcrTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+    <constructor-arg ref="jcrTransactionManager"/>
+  </bean>
+
+  <bean id="defaultBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager">
+    <constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="repositoryAdminUsername"/>
+    <constructor-arg ref="systemTenantAdminUserName"/>
+    <constructor-arg ref="systemTenantAdminPassword"/>
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAnonymousAuthorityName" />
+    <constructor-arg ref="IPasswordService" />
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/>
+    <property name="tenantManager" ref="tenantMgrTxn"/>
+    <property name="userRoleDao" ref="userRoleDaoTxn"/>
+  </bean>
+
+  <bean id="metadataRepositoryLifecycleManager"
+        class="org.pentaho.platform.plugin.services.metadata.PentahoMetadataRepositoryLifecycleManager">
+    <constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="repositoryAdminUsername"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/> 
+  </bean>
+  
+  <bean id="defaultUserRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultUserRepositoryLifecycleManager">
+	<constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn" />
+	<constructor-arg ref="IPasswordService" />
+	<constructor-arg ref="userRoleDaoTxn" />
+	<constructor-arg ref="singleTenantAdminUserName"/>
+	<constructor-arg ref="singleTenantSystemAuthorities"/>
+    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/>    
+	<property name="roleMappings" ref="role-mappings" />
+	<property name="userRoleMappings" ref="defaultUserRoleMappings" />
+	<property name="singleTenantAdminPassword" ref="defaultAdminUserPassword" />
+	<property name="nonAdminPassword" ref="defaultNonAdminUserPassword" />
+  </bean>
+  
+  <bean id="mondrianBackingRepositoryLifecycleManager"
+        class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager">
+    <constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="repositoryAdminUsername"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/>
+  </bean>
+
+  <bean id="executePermissionRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.ExecutePermissionRepositoryLifecycleManager">
+    <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn" />
+    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="adminJcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/>
+    <property name="rolesNeedingExecutePermission">
+      <util:list>
+        <ref bean="singleTenantAuthenticatedAuthorityName"/>
+        <value>Power User</value>
+      </util:list>
+    </property>
+  </bean>
+
+  <bean id="backingRepositoryLifecycleManager"
+        class="org.pentaho.platform.repository2.unified.lifecycle.DelegatingBackingRepositoryLifecycleManager">
+    <constructor-arg>
+      <list>
+        <ref bean="defaultBackingRepositoryLifecycleManager"/>
+        <ref bean="defaultUserRepositoryLifecycleManager"/>
+        <ref bean="metadataRepositoryLifecycleManager"/>
+        <ref bean="mondrianBackingRepositoryLifecycleManager"/>
+        <ref bean="executePermissionRepositoryLifecycleManager"/>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <!-- 
+  	This bean is used to for controlling the whitelist of what can be downloaded without having ABS org.pentaho.security.publish
+   -->
+  <bean id="downloadWhitelist" class="org.pentaho.platform.repository.RepositoryDownloadWhitelist">
+  	<property name="extensions" value="gif,jpg,jpeg,png,bmp,tiff,csv,xls,xlsx,pdf,txt,css,htm,html,js,xml,doc,ppt" />
+  </bean>
+
+  <!-- 
+  	This bean is responsible for converting deriving a user's tenant and user name from a user id and visa-versa.
+   -->
+  <bean id="tenantedRoleNameUtils" class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">
+  	<property name="delimeter" value="_" />
+  </bean>
+
+  <!-- 
+   This bean is responsible for converting deriving a role's tenant and user name from a user id and visa-versa.
+  -->
+  <bean id="tenantedUserNameUtils" class="org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver">
+  </bean>
+
+  <!-- Jackrabbit repo automatically shut down when Spring application context closed (DisposableBean) -->
+  <bean id="jcrRepository" class="org.springframework.extensions.jcr.jackrabbit.RepositoryFactoryBean">
+    <property name="configuration" value="/jackrabbit/repository.xml"/>
+    <property name="homeDir" value="/jackrabbit/repository"/>
+  </bean>
+
+  <!-- 
+  	This bean always passes back the credentials of the jcr admin.
+  -->
+  <bean id="jcrAdminCredentialsStrategy" class="org.pentaho.platform.repository2.unified.jcr.sejcr.ConstantCredentialsStrategy">
+    <constructor-arg ref="repositoryAdminUsername" />
+    <constructor-arg ref="jcrPreAuthenticationToken" />
+  </bean>
+
+  <!-- 
+    This bean is responsible for creating new jcr session. It logs into the specified jcr repository using the
+    specified credentials strategy. At the time this comment was written the credentials strategy being used looked
+    at the pentaho session to get the credentials of the logged in user.
+  -->
+  <bean id="jcrSessionFactory"
+        class="org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory">
+    <constructor-arg ref="jcrRepository"/>
+    <constructor-arg>
+      <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoSessionCredentialsStrategy">
+        <constructor-arg ref="jcrPreAuthenticationToken"/>
+        <constructor-arg ref="tenantedUserNameUtils"/>
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="jcrAdminCredentialsStrategy"/>
+    <property name="namespaces">
+      <props>
+        <prop key="pho">http://www.pentaho.org/jcr/2.0</prop>
+        <prop key="pho_nt">http://www.pentaho.org/jcr/nt/2.0</prop>
+        <prop key="pho_mix">http://www.pentaho.org/jcr/mix/2.0</prop>
+      </props>
+    </property>
+    <!-- order matters! -->
+    <property name="nodeTypeDefinitionProviders">
+      <list>
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.InternalFolderNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LocalizedStringNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.HierarchyNodeNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.FileNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.FolderNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LockTokenStorageNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.VersionableNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LocaleNtdProvider" />
+      </list>
+    </property>
+    <property name="sessionFactory">
+      <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory">
+        <constructor-arg ref="jcrRepository"/>
+        <constructor-arg><null/></constructor-arg>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="jcrTemplate" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate">
+    <property name="sessionFactory" ref="jcrSessionFactory"/>
+    <property name="allowCreate" value="true"/>
+    <property name="exposeNativeSession" value="true"/>
+  </bean>
+  
+  <bean id="repositoryAccessVoterManager"
+          class="org.pentaho.platform.repository2.unified.RepositoryAccessVoterManager">
+      <constructor-arg ref="authorizationPolicy"/>
+      <constructor-arg ref="repositoryAdminUsername"/>
+  </bean>
+  <!--
+  	The repository file dao implementation. 
+   -->
+  <bean id="repositoryFileDao" class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileDao">
+    <constructor-arg ref="jcrTemplate"/>
+    <constructor-arg ref="transformers"/>
+    <constructor-arg ref="ILockHelper"/>
+    <constructor-arg>
+      <bean class="org.pentaho.platform.repository2.unified.jcr.DefaultDeleteHelper">
+        <constructor-arg ref="ILockHelper"/>
+        <constructor-arg ref="pathConversionHelper"/>
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="pathConversionHelper"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="defaultAclHandler" />
+    <constructor-arg ref="repositoryAccessVoterManager" />
+  </bean>
+
+  <util:list id="transformers">
+    <bean class="org.pentaho.platform.repository2.unified.jcr.transform.SampleRepositoryFileDataTransformer"/>
+    <bean class="org.pentaho.platform.repository2.unified.jcr.transform.SimpleRepositoryFileDataTransformer"/>
+    <bean class="org.pentaho.platform.repository2.unified.jcr.transform.NodeRepositoryFileDataTransformer"/>
+  </util:list>
+
+  <bean id="ILockHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultLockHelper">
+    <constructor-arg ref="tenantedUserNameUtils"/>
+  <pen:publish as-type="INTERFACES"/>
+  </bean>
+  <bean id="pathConversionHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultPathConversionHelper"/>
+
+  <bean class="org.pentaho.platform.repository2.unified.spring.BackingRepositoryLifecycleManagerAuthenticationSuccessListener"/>
+
+  <!-- <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler" /> -->
+  <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.SharedObjectsDefaultAclHandler" />
+
+  <bean id="repositoryFileAclDao"
+        class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclDao">
+    <constructor-arg ref="jcrTemplate"/>
+    <constructor-arg ref="pathConversionHelper"/>
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
+  </bean>
+
+  <!-- begin authorization policy -->
+
+  <bean id="authorizationPolicy" class="org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy">
+    <!--
+      authorization policy should not be blocked by security checks (because it is involved in doing the security
+      checks!)
+    -->
+    <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
+  </bean>
+
+  <util:map id="immutableRoleBindingMap">
+    <entry key-ref="singleTenantAdminAuthorityName">
+	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
+    </entry>
+    <entry key-ref="superAdminAuthorityName">
+	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
+    </entry>
+  </util:map>
+
+  <util:map id="bootstrapRoleBindingMap">
+    <entry key-ref="singleTenantAuthenticatedAuthorityName">
+      <util:list>
+        <value>org.pentaho.repository.read</value>
+        <value>org.pentaho.repository.create</value>
+        <value>org.pentaho.scheduler.manage</value>
+      </util:list>
+    </entry>
+    <!-- for single tenant mode -->
+  </util:map>
+
+  <util:list id="singleTenantAuthenticatedAuthorityRoleBindingList">
+       <value>org.pentaho.repository.read</value>
+  </util:list>
+  <!--
+   The actual implementation of the binding between runtime and logical roles. The biserver does not use this bean directly
+   instead a proxy bean is defined that provides transaction, and method level security support using spring aop. If you wish
+   to bypass transaction and method level security for test purposes you can reference this bean directly.
+  -->
+  <bean id="roleAuthorizationPolicyRoleBindingDaoTarget" class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicyRoleBindingDao">
+    <constructor-arg ref="jcrTemplate"/>
+    <constructor-arg ref="immutableRoleBindingMap"/>
+    <constructor-arg ref="bootstrapRoleBindingMap"/>
+    <constructor-arg ref="superAdminAuthorityName"/>
+    <constructor-arg ref="tenantedRoleNameUtils"/>
+    <constructor-arg>
+      <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
+    </constructor-arg>
+  </bean>
+
+  <!-- Built-In ABS Logical Roles -->
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="50"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="40"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="30"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="20"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.PublishAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="0"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.repository2.DefaultClientRepositoryPathsStrategy">
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
+  <!-- 
+  	This bean defines how jcr transactions are propogated, when methods in the role binding dao are called.
+  -->
+  <bean id="roleBindingDaoTransactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    <property name="transactionManager" ref="jcrTransactionManager"/>
+    <property name="transactionAttributeSource">
+      <value>
+        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getRoleBindingStruct=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.setRoleBindings=PROPAGATION_REQUIRED
+        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getBoundLogicalRoleNames=PROPAGATION_REQUIRED,readOnly
+      </value>
+    </property>
+  </bean>
+
+  <!-- 
+    This bean serves as a proxy for the real role binding dao implementation. It uses spring aop to add transaction management
+    on top of the real implementation. Method level security can be bypassed by using this bean. The bean is
+    intended for internal use only.
+  -->
+  <bean id="roleAuthorizationPolicyRoleBindingDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target" ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
+    <property name="interceptorNames">
+      <list>
+        <idref local="roleBindingDaoTransactionInterceptor"/>
+      </list>
+    </property>
+  </bean>
+
+  <!-- 
+    This bean serves as a proxy for the real role binding dao implementation. It uses spring aop to add method level security
+    on top of the real implementation. The bean is intended for internal use only.
+  -->
+  <bean id="roleAuthorizationPolicyRoleBindingDao" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target" ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
+    <property name="interceptorNames">
+      <list>
+        <idref local="roleAuthorizationPolicyRoleBindingDaoMethodInterceptor"/>
+      </list>
+    </property>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <!-- 
+  	This bean is used by spring aop to add method level security to the real role binding dao implementation.
+  -->
+  <bean id="roleAuthorizationPolicyRoleBindingDaoMethodInterceptor"
+        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+    <property name="validateConfigAttributes">
+      <value>true</value>
+    </property>
+    <property name="authenticationManager">
+      <ref bean="authenticationManager"/>
+    </property>
+    <property name="accessDecisionManager">
+      <ref bean="businessAccessDecisionManager"/>
+    </property>
+    <property name="objectDefinitionSource">
+      <value>
+        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getRoleBindingStruct=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.setRoleBindings=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+      </value>
+    </property>
+  </bean>
+
+  <!-- An access decision voter that reads VOTE_AUTHZ_POLICY_* configuration settings
+-->
+  <bean id="authorizationPolicyVoter"
+        class="org.pentaho.platform.security.policy.rolebased.springsecurity.AuthorizationPolicyVoter">
+    <constructor-arg ref="authorizationPolicy"/>
+    <constructor-arg value="VOTE_AUTHZ_POLICY_"/>
+  </bean>
+
+
+  <bean id="adminJcrTemplate" class="org.springframework.extensions.jcr.JcrTemplate">
+    <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
+    <property name="allowCreate" value="false"/>
+    <property name="exposeNativeSession" value="true"/>
+  </bean>
+
+
+
+
+  <bean id="jcrAdminSessionHolderProvider" class="org.springframework.extensions.jcr.jackrabbit.support.JackRabbitSessionHolderProvider">
+  </bean>
+
+  <bean id="jcrAdminSessionHolderProviderMgr" class="org.springframework.extensions.jcr.support.ListSessionHolderProviderManager">
+    <property name="providers">
+      <list>
+        <bean class="org.springframework.extensions.jcr.jackrabbit.support.JackRabbitSessionHolderProvider">
+        </bean>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="jcrAdminSessionFactory" class="org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory">
+    <constructor-arg ref="jcrRepository"/>
+    <constructor-arg ref="jcrAdminCredentialsStrategy"/>
+    <property name="sessionHolderProviderManager">
+      <ref bean="jcrAdminSessionHolderProviderMgr"/>
+    </property>
+
+    <property name="sessionFactory">
+      <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory">
+        <constructor-arg ref="jcrRepository"/>
+        <constructor-arg><null/></constructor-arg>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="RepositoryFileProxyFactory" class="org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory">
+    <constructor-arg ref="jcrTemplate"/>
+    <constructor-arg ref="repositoryFileDao"/>
+  </bean>
+  <!-- end authorization policy -->
+  
+  <!-- Property to enable of disable multi-byte encoding -->
+  <bean class="java.lang.Boolean" id="useMultiByteEncoding">
+    <constructor-arg value="${repository.useMultiByteEncoding}"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+</beans>
