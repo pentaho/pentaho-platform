@@ -124,6 +124,7 @@ public class UserRolesAdminPanel extends SimplePanel {
     usersListBox = new ListBox( true );
     usersListBox.addStyleName( "users-roles-list" );
     availablePanel.add( usersListBox );
+    availablePanel.setCellHeight( usersListBox, "100%" );
     usersListBox.setVisibleItemCount( 20 );
 
     hSpacer = new SimplePanel();
@@ -240,6 +241,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 
     systemRolesListBox = new ListBox( true );
     availablePanel.add( systemRolesListBox );
+    availablePanel.setCellHeight( systemRolesListBox, "100%" );
     systemRolesListBox.setVisibleItemCount( 20 );
     systemRolesListBox.addStyleName( "users-roles-list" );
 
@@ -248,8 +250,10 @@ public class UserRolesAdminPanel extends SimplePanel {
     mainSystemRolesPanel.add( hSpacer );
 
     VerticalPanel detailsPanel = new VerticalPanel();
-    mainSystemRolesPanel.add( detailsPanel );
+    detailsPanel.getElement().setId( "details-panel" );
+    mainSystemRolesPanel.add(detailsPanel );
     mainSystemRolesPanel.setCellWidth( detailsPanel, "100%" );
+
 
     hSpacer = new SimplePanel();
     hSpacer.setHeight( "15px" );
@@ -257,6 +261,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 
     systemRolesPermissionsPanel = new PermissionsPanel( systemRolesListBox );
     detailsPanel.add( systemRolesPermissionsPanel );
+    detailsPanel.setCellHeight( systemRolesPermissionsPanel, "100%" );
 
     return mainSystemRolesPanel;
   }

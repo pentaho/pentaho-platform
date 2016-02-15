@@ -1290,6 +1290,18 @@ a:active, a:hover {
   height: auto;
 }
 
+#admin-users-panel table {
+  height: 100%;
+}
+
+#admin-system-roles-panel table {
+    height: 100%;
+}
+
+#details-panel table {
+    height: auto;
+}
+
 .users-roles-list {
   height: 100%;
   width: 200px;
@@ -1302,11 +1314,19 @@ a:active, a:hover {
 
 /* targetting IE 10 only */
 .IE10 .pentaho-tab-panel {
-  height:541px;
+  height: 100%;
 }
 
 .IE10 .users-roles-list {
   height: 480px;
+}
+
+.IE10 #admin-users-panel .users-roles-list {
+    height: 428px;
+}
+
+.IE10 #admin-system-roles-panel .users-roles-list {
+    height: 100%;
 }
 
 .users-roles-selection-list {
