@@ -43,6 +43,7 @@ import java.util.UUID;
  * Created by nbaker on 7/29/14.
  */
 public class KarafBoot implements IPentahoSystemListener {
+  public static final String CLEAN_KARAF_CACHE = "org.pentaho.clean.karaf.cache";
   private Main main;
   Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -65,7 +66,7 @@ public class KarafBoot implements IPentahoSystemListener {
 
         String osxAppRootDir = System.getProperty( SYSTEM_PROP_OSX_APP_ROOT_DIR );
 
-        if ( !StringUtils.isEmpty( osxAppRootDir )  ) {
+        if ( !StringUtils.isEmpty( osxAppRootDir ) ) {
 
           logger.warn( "Given that the system property '" + SYSTEM_PROP_OSX_APP_ROOT_DIR + "' is set, we are in "
               + "a OSX .app context; we'll try looking for Karaf in the app's root dir '" + osxAppRootDir + "' " );
@@ -83,7 +84,8 @@ public class KarafBoot implements IPentahoSystemListener {
       if ( karafDir.exists() ) {
         // This test will let us know whether we need to make our own copy of Karaf before starting (happens in PMR)
         if ( !canOpenConfigPropertiesForEdit( root ) ) {
-          String newDir = new File( karafDir.getParentFile().getParentFile(), karafDir.getName() + "-copy" ).toURI().getPath();
+          String newDir =
+              new File( karafDir.getParentFile().getParentFile(), karafDir.getName() + "-copy" ).toURI().getPath();
           File destDir = new File( newDir );
           FileUtils.copyDirectory( karafDir, destDir );
           root = newDir;
@@ -92,13 +94,16 @@ public class KarafBoot implements IPentahoSystemListener {
 
       configureSystemProperties( solutionRootPath, root );
 
-      expandSystemPackages( root + "/etc/custom.properties" );
+      String customLocation = root + "/etc/custom.properties";
+      expandSystemPackages( customLocation );
 
       // Setup karaf instance configuration
       KarafInstance karafInstance = createAndProcessKarafInstance( root );
 
       //Define any additional karaf instance properties here using karafInstance.registerProperty
       karafInstance.start();
+
+      cleanCacheIfFlagSet( root );
 
       // Wrap the startup of Karaf in a child thread which has explicitly set a bogus authentication. This is
       // work-around and issue with Karaf inheriting the Authenticaiton set on the main system thread due to the
@@ -129,6 +134,47 @@ public class KarafBoot implements IPentahoSystemListener {
     return main != null;
   }
 
+  void cleanCacheIfFlagSet( String root ) throws IOException {
+    String customLocation = root + "/etc/custom.properties";
+
+    // Check to see if the clean cache property is set. If so delete data and recreate before launching.
+    logger.info( "Checking to see if " + CLEAN_KARAF_CACHE + " is enabled" );
+    Properties customProps = new Properties();
+    FileInputStream fileInputStream = null;
+    try {
+      fileInputStream = new FileInputStream( new File( customLocation ) );
+      customProps.load( fileInputStream );
+    } finally {
+      if ( fileInputStream != null ) {
+        IOUtils.closeQuietly( fileInputStream );
+      }
+    }
+    String cleanCache = customProps.getProperty( CLEAN_KARAF_CACHE, "false" );
+    fileInputStream.close();
+    if ( "true".equals( cleanCache ) ) {
+      logger.info( CLEAN_KARAF_CACHE + " is enabled. Karaf data directory will be deleted" );
+
+      // KarafInstance may have changed the data directory
+      String dataDirLocation = System.getProperty( "karaf.data" );
+      File dataDir = new File( dataDirLocation );
+      if ( dataDir.exists() ) {
+        FileUtils.deleteDirectory( dataDir );
+      }
+      customProps.setProperty( CLEAN_KARAF_CACHE, "false" );
+      FileOutputStream out = null;
+      try {
+        out = new FileOutputStream( customLocation );
+        logger.info( "Setting " + CLEAN_KARAF_CACHE + " back to false as this is a one-time action" );
+        customProps.store( out, "Turning of one-time cache clean setting" );
+      } finally {
+        if ( out != null ) {
+          IOUtils.closeQuietly( out );
+        }
+      }
+    }
+
+  }
+
   protected KarafInstance createAndProcessKarafInstance( String root ) throws FileNotFoundException {
     KarafInstance karafInstance = new KarafInstance( root );
     new KarafInstancePortFactory( root + "/etc/KarafPorts.yaml" ).process();
@@ -144,7 +190,7 @@ public class KarafBoot implements IPentahoSystemListener {
     fillMissedSystemProperty( "karaf.startLocalConsole", "false" );
     fillMissedSystemProperty( "karaf.startRemoteShell", "true" );
     fillMissedSystemProperty( "karaf.lock", "false" );
-    fillMissedSystemProperty( "karaf.etc", root + "/etc"  );
+    fillMissedSystemProperty( "karaf.etc", root + "/etc" );
 
     // When running in the PDI-Clients there are separate etc directories so that features can be customized for
     // the particular execution needs (Carte, Spoon, Pan, Kitchen)
@@ -152,7 +198,7 @@ public class KarafBoot implements IPentahoSystemListener {
     String extraKettleEtc = translateToExtraKettleEtc( clientType );
 
     if ( extraKettleEtc != null ) {
-      System.setProperty( "felix.fileinstall.dir", root + "/etc"  + "," + root + extraKettleEtc );
+      System.setProperty( "felix.fileinstall.dir", root + "/etc" + "," + root + extraKettleEtc );
     } else {
       System.setProperty( "felix.fileinstall.dir", root + "/etc" );
     }
@@ -175,7 +221,8 @@ public class KarafBoot implements IPentahoSystemListener {
 
   /**
    * If property with propertyName does not exist, than set property with value propertyValue
-   * @param propertyName - property for check
+   *
+   * @param propertyName  - property for check
    * @param propertyValue - value to set if property null
    */
   protected void fillMissedSystemProperty( String propertyName, String propertyValue ) {
@@ -244,7 +291,8 @@ public class KarafBoot implements IPentahoSystemListener {
       inStream = new FileInputStream( customFile );
       properties.load( inStream );
     } catch ( IOException e ) {
-      logger.error( "Not able to expand system.packages.extra properties due to an error loading custom.properties", e );
+      logger
+          .error( "Not able to expand system.packages.extra properties due to an error loading custom.properties", e );
       return;
     } finally {
       IOUtils.closeQuietly( inStream );
@@ -254,15 +302,15 @@ public class KarafBoot implements IPentahoSystemListener {
     System.setProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA,
         properties.getProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA ) );
 
-//    FileOutputStream out = null;
-//    try {
-//      out = new FileOutputStream( customFile );
-//      properties.store( out, "expanding osgi properties" );
-//    } catch ( IOException e ) {
-//      logger.error( "Not able to expand system.packages.extra properties due error saving custom.properties", e );
-//    } finally {
-//      IOUtils.closeQuietly( out );
-//    }
+    //    FileOutputStream out = null;
+    //    try {
+    //      out = new FileOutputStream( customFile );
+    //      properties.store( out, "expanding osgi properties" );
+    //    } catch ( IOException e ) {
+    //      logger.error( "Not able to expand system.packages.extra properties due error saving custom.properties", e );
+    //    } finally {
+    //      IOUtils.closeQuietly( out );
+    //    }
 
   }
 
