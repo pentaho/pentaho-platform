@@ -1091,11 +1091,11 @@ a:active, a:hover {
 }
 
 #admin-system-roles-panel table {
-    height: 100%;
+  height: 100%;
 }
 
 #details-panel table {
-    height: auto;
+  height: auto;
 }
 
 .users-roles-list {
@@ -1104,8 +1104,8 @@ a:active, a:hover {
 }
 
 .pentaho-tab-panel {
-    width: 715px;
-    height: 510px;
+  width: 715px;
+  height: 510px;
 }
 
 /* targetting IE 10 only */
