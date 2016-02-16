@@ -34,12 +34,16 @@ import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
@@ -175,6 +179,34 @@ public class KarafBootTest {
     karafBoot.configureSystemProperties( "solutionRootPath", "root" );
     //check that property does not everrided
     assertEquals( expected, System.getProperty( propertyName ) );
+  }
+
+
+  @Test
+  public void testClearDataCacheSetting() throws Exception {
+
+    PentahoSystem.init( new StandaloneApplicationContext( "test-res/karafBootTest", "." ) );
+    //set property
+    KarafBoot karafBoot = new KarafBoot();
+    karafBoot.configureSystemProperties( "test-res/osgiSystem/system", "test-res/karafBootTest/system/karaf" );
+
+    File nf = new File( "test-res/karafBootTest/system/karaf/data/testFile.txt" );
+    nf.mkdirs();
+    nf.createNewFile();
+    assertTrue( nf.exists() );
+
+    Properties config = new Properties();
+    File configFile = new File( "test-res/karafBootTest/system/karaf/etc/custom.properties" );
+    config.load( new FileInputStream( configFile ) );
+    config.setProperty( "org.pentaho.clean.karaf.cache", "true" );
+    config.store( new FileOutputStream( configFile ), "setting stage" );
+
+    karafBoot.cleanCacheIfFlagSet( "test-res/karafBootTest/system/karaf/" );
+    assertFalse( nf.exists() );
+
+    config.load( new FileInputStream( configFile ) );
+    assertEquals( "false", config.getProperty( "org.pentaho.clean.karaf.cache" ) );
+
   }
 
 }
