@@ -1295,11 +1295,11 @@ a:active, a:hover {
 }
 
 #admin-system-roles-panel table {
-    height: 100%;
+  height: 100%;
 }
 
 #details-panel table {
-    height: auto;
+  height: auto;
 }
 
 .users-roles-list {
@@ -1322,11 +1322,11 @@ a:active, a:hover {
 }
 
 .IE10 #admin-users-panel .users-roles-list {
-    height: 428px;
+  height: 428px;
 }
 
 .IE10 #admin-system-roles-panel .users-roles-list {
-    height: 100%;
+  height: 100%;
 }
 
 .users-roles-selection-list {

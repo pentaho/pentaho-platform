@@ -251,7 +251,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 
     VerticalPanel detailsPanel = new VerticalPanel();
     detailsPanel.getElement().setId( "details-panel" );
-    mainSystemRolesPanel.add(detailsPanel );
+    mainSystemRolesPanel.add( detailsPanel );
     mainSystemRolesPanel.setCellWidth( detailsPanel, "100%" );
 
 
