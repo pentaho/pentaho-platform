@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2014 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified;
@@ -39,7 +39,6 @@ import java.util.Locale;
 import javax.jcr.security.Privilege;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -429,27 +428,43 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
 
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
+    // Suzy gives Tiffany all rights to her home folder
+    final String parentFolderPath =
+        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
     RepositoryFile parentFolder =
-        repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() ) );
+        repo.getFile( parentFolderPath );
+    RepositoryFileAcl parentAcl = repo.getAcl( parentFolder.getId() );
+    RepositoryFileAcl newParentAcl =
+        new RepositoryFileAcl.Builder( parentAcl ).ace( userNameUtils.getPrincipleId( tenantAcme, USERNAME_TIFFANY ),
+            RepositoryFileSid.Type.USER, RepositoryFilePermission.ALL ).build();
+    repo.updateAcl( newParentAcl );
+
+    //suzy now creates a new folder inside of her home folder
     RepositoryFile newFolder = new RepositoryFile.Builder( "test" ).folder( true ).versioned( true ).build();
     final String testFolderPath =
-        ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() )
-            + RepositoryFile.SEPARATOR + "test";
+        parentFolderPath + RepositoryFile.SEPARATOR + "test";
     newFolder = repo.createFolder( parentFolder.getId(), newFolder, null );
     assertEquals( new RepositoryFileSid( USERNAME_SUZY ), repo.getAcl( newFolder.getId() ).getOwner() );
 
-    // set acl removing suzy's rights to this folder
-    login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
+    // tiffany will set acl removing suzy's rights to this folder
+    login( USERNAME_TIFFANY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
     RepositoryFileAcl testFolderAcl = repo.getAcl( newFolder.getId() );
-    RepositoryFileAcl newAcl =
-        new RepositoryFileAcl.Builder( testFolderAcl ).entriesInheriting( false ).clearAces().build();
-    repo.updateAcl( newAcl );
+    //do a new Ace List filtering suzy's rights out
+    List<RepositoryFileAce> newAceList = new ArrayList<RepositoryFileAce>();
+    for ( RepositoryFileAce ace : newParentAcl.getAces() ) {
+      if ( !ace.getSid().getName().equals( USERNAME_SUZY ) ) {
+        newAceList.add( ace );
+      }
+    }
+    RepositoryFileAcl newTestAcl =
+        new RepositoryFileAcl.Builder( testFolderAcl ).aces( newAceList ).build();
+    repo.updateAcl( newTestAcl );
     // but suzy is still the owner--she should be able to "acl" herself back into the folder
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
     assertNotNull( repo.getFile( testFolderPath ) );
-    // tiffany doesn't have permissions
+    // tiffany still have permissions
     login( USERNAME_TIFFANY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
-    assertNull( repo.getFile( testFolderPath ) );
+    assertNotNull( repo.getFile( testFolderPath ) );
   }
 
   @Test
