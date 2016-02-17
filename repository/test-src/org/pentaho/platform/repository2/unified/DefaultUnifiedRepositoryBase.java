@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2014 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified;
@@ -196,7 +196,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
   public static void setUpClass() throws Exception {
     // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
     // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
-    FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
+    FileUtils.deleteDirectory( new File( "/tmp/repository-future/jackrabbit-test-TRUNK" ) );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
 
     // register repository spring context for correct work of <pen:list>
