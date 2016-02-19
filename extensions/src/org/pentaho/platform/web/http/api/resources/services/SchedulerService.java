@@ -165,6 +165,18 @@ public class SchedulerService {
     return job;
   }
 
+  public Job updateJob( JobScheduleRequest scheduleRequest )
+    throws IllegalAccessException, IOException, SchedulerException {
+    Job job = getScheduler().getJob( scheduleRequest.getJobId() );
+    if ( job != null ) {
+      scheduleRequest.getJobParameters()
+        .add( new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, job.getUserName() ) );
+    }
+    Job newJob = createJob( scheduleRequest );
+    removeJob( scheduleRequest.getJobId() );
+    return newJob;
+  }
+
   public Job triggerNow( String jobId ) throws SchedulerException {
     Job job = getScheduler().getJob( jobId );
     if ( getPolicy().isAllowed( SchedulerAction.NAME ) ) {
