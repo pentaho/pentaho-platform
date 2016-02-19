@@ -25,6 +25,7 @@ import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 import org.pentaho.test.mock.MockPentahoUser;
@@ -32,9 +33,11 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class UserRoleDaoResource_RolesUpdatedTest {
@@ -50,16 +53,8 @@ public class UserRoleDaoResource_RolesUpdatedTest {
   private static final String ROLE_NAME_REPORT_AUTHOR = "Report Author";
   private static final String DEFAULT_STRING = "<def>";
 
-  private static final List<String> allRoles = new ArrayList<String>() {
-    private static final long serialVersionUID = -8595421204195219594L;
-
-    {
-      add( ROLE_NAME_DEVELOPER );
-      add( ROLE_NAME_POWER_USER );
-      add( ROLE_NAME_REPORT_AUTHOR );
-      add( ROLE_NAME_ADMINISTRATOR );
-    }
-  };
+  private static final List<String> allRoles =
+    Arrays.asList( ROLE_NAME_DEVELOPER, ROLE_NAME_POWER_USER, ROLE_NAME_REPORT_AUTHOR, ROLE_NAME_ADMINISTRATOR );
 
   @Before
   public void setUp() {
@@ -69,10 +64,9 @@ public class UserRoleDaoResource_RolesUpdatedTest {
       new UserRoleDaoResource( mock( IRoleAuthorizationPolicyRoleBindingDao.class ), mock( ITenantManager.class ),
         new ArrayList<String>(), ROLE_NAME_ADMINISTRATOR, service );
 
-    session = mock( IPentahoSession.class );
+    session = new StandaloneSession( SESSION_USER_NAME );
     resource = spy( resource );
     doReturn( session ).when( resource ).getSession();
-    doReturn( SESSION_USER_NAME ).when( session ).getName();
     userRoleDao = mock( IUserRoleDao.class );
     doReturn( new ArrayList<IPentahoRole>() ).when( userRoleDao ).getRoles( any( ITenant.class ) );
     doReturn( mock( ITenant.class ) ).when( resource ).getTenant( anyString() );
@@ -89,7 +83,8 @@ public class UserRoleDaoResource_RolesUpdatedTest {
       authoritys[ i ] = new GrantedAuthorityImpl( allRoles.get( i ) );
     }
 
-    verify( session ).setAttribute( eq( IPentahoSession.SESSION_ROLES ), eq( authoritys ) );
+    GrantedAuthority[] seessionAuthoritys = (GrantedAuthority[]) session.getAttribute( IPentahoSession.SESSION_ROLES );
+    assertTrue( Arrays.equals( authoritys, seessionAuthoritys ) );
   }
 
   @Test
@@ -204,14 +199,7 @@ public class UserRoleDaoResource_RolesUpdatedTest {
     final IPentahoUser nonSessionUser =
       new MockPentahoUser( tenant, NON_SESSION_USER_NAME, DEFAULT_STRING, DEFAULT_STRING, true );
 
-    List<IPentahoUser> users = new ArrayList<IPentahoUser>() {
-      private static final long serialVersionUID = -2545330937522265495L;
-
-      {
-        add( sessionUser );
-        add( nonSessionUser );
-      }
-    };
+    List<IPentahoUser> users = Arrays.asList( sessionUser, nonSessionUser );
 
     doReturn( users ).when( userRoleDao ).getUsers( tenant );
 
