@@ -19,6 +19,7 @@
 package org.pentaho.platform.plugin.services.metadata;
 
 import junit.framework.TestCase;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -785,7 +786,9 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     RepositoryFile domainFile = mock( RepositoryFile.class );
     doReturn( domainFileId ).when( domainFile ).getId();
-    assertEquals( "/etc/metadata/" + annotationsId, domainRepositorySpy.resolveAnnotationsFilePath( domainFile ) );
+
+    String actualPath = domainRepositorySpy.resolveAnnotationsFilePath( domainFile );
+    assertEquals( "/etc/metadata/" + annotationsId, FilenameUtils.separatorsToUnix( actualPath ) );
   }
 
   private InputStream toInputStream( final Properties newProperties ) {
