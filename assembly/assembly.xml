@@ -29,6 +29,7 @@
 
   <!-- custom platform assembly properties -->
   <property name="package.res.dir" value="package-res"/>
+  <property name="package.res.merged.server.dir" value="package-res-merged-server" />
   <property name="rdbms" value="hsqldb" description="Default database for open assembly is hsqldb" />
   <property name="stage.dir.server" value="${stage.dir}/${package.id}" />
   <property name="stage.dir.solutions" value="${stage.dir.server}/pentaho-solutions"/>
@@ -125,6 +126,22 @@
          ================================= -->
   <target name="assemble-no-plugins"
           depends="check-blacklist,assemble-tomcat,assemble-third-party,assemble-pentaho-webapp,install-resources,install-solutions,update-solutions">
+    <chmod perm="a+x" dir="${stage.dir}" includes="**/*.sh" />
+  </target>
+
+
+   <!-- ================================= 
+          target: assemble Pentaho (merged) server
+         ================================= -->
+  <target name="assemble-merged-server"
+          depends="assemble-merged-server-no-plugins,install-plugins,install-kettle-plugins"
+          description="Assembles an archive-based Pentaho (merged) Server community edition"/>
+
+   <!-- =================================
+          target: assemble-merged-server-no-plugins                      
+         ================================= -->
+  <target name="assemble-merged-server-no-plugins"
+          depends="check-blacklist,assemble-tomcat,assemble-third-party,assemble-merged-server-pentaho-webapp,install-resources,install-solutions,update-solutions">
     <chmod perm="a+x" dir="${stage.dir}" includes="**/*.sh" />
   </target>
 
@@ -370,6 +387,18 @@
 
   </target>
 
+  <!-- =================================
+          target: assemble-merged-server-pentaho-webapp
+         ================================= -->
+  <target name="assemble-merged-server-pentaho-webapp" depends="assemble-pentaho-webapp">
+    <!-- Copy the merged-server base configuration -->
+    <echo message="Copying merged-server specific files from [./${package.res.merged.server.dir}] to [${stage.dir.server}] ..." />
+    <copy todir="${stage.dir.server}" overwrite="true" verbose="true">
+      <fileset dir="${package.res.merged.server.dir}/biserver">
+        <include name="**/**" />
+      </fileset>
+    </copy>
+  </target>
 
   <!--====================================================
           macrodef: set-solution-visibility          
