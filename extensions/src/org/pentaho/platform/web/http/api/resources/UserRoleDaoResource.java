@@ -12,18 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.WILDCARD;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
-
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -34,6 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
@@ -60,6 +57,8 @@ import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService.ValidationFailedException;
 
 import com.sun.jersey.api.NotFoundException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 
 /**
  * UserRoleDao manages Pentaho Security user and roles in the BA platform.
@@ -129,13 +128,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/createUser" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully created new user." ),
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "Unable to create user." )
-  } )
+    } )
   public Response createUser( User user ) {
     try {
       userRoleDaoService.createUser( user );
@@ -164,12 +163,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/deleteUsers" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
-  } )
+    } )
   public Response deleteUsers( @QueryParam( "userNames" ) String userNames ) {
     try {
       userRoleDaoService.deleteUsers( userNames );
@@ -217,7 +216,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
     @ResponseCode( code = 403, condition = "Provided user name or password is incorrect." ),
     @ResponseCode( code = 412, condition = "An error occurred in the platform." )
-  } )
+    } )
   public Response changeUserPassword( ChangePasswordUser user ) {
     try {
       userRoleDaoService.changeUserPassword( user.getUserName(), user.getNewPassword(), user.getOldPassword() );
@@ -254,11 +253,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/users" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes( {
       @ResponseCode ( code = 200, condition = "Successfully returned the list of users." ),
       @ResponseCode ( code = 500, condition = "An error occurred in the platform while trying to access the list of users." )
-  } )
+    } )
   public UserListWrapper getUsers() throws WebApplicationException {
     try {
       return userRoleDaoService.getUsers();
@@ -286,11 +285,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/userRoles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of roles." ),
     @ResponseCode ( code = 500, condition = "Invalid user parameter." )
-  } )
+    } )
   public RoleListWrapper getRolesForUser( @QueryParam( "userName" ) String user ) throws Exception {
     try {
       return userRoleDaoService.getRolesForUser( user );
@@ -314,16 +313,19 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/assignRoleToUser" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully append the roles to the user." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
-  } )
+    } )
   public Response assignRolesToUser( @QueryParam( "userName" ) String userName,
                                      @QueryParam( "roleNames" ) String roleNames ) {
     try {
       userRoleDaoService.assignRolesToUser( userName, roleNames );
+      if ( userName.equals( getSession().getName() ) ) {
+        updateRolesForCurrentSession();
+      }
       return Response.ok().build();
     } catch ( org.pentaho.platform.api.engine.security.userroledao.NotFoundException e ) {
       throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
@@ -349,16 +351,19 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/removeRoleFromUser" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully removed the roles from the user." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
-  } )
+    } )
   public Response removeRolesFromUser( @QueryParam( "userName" ) String userName,
                                        @QueryParam( "roleNames" ) String roleNames ) {
     try {
       userRoleDaoService.removeRolesFromUser( userName, roleNames );
+      if ( userName.equals( getSession().getName() ) ) {
+        updateRolesForCurrentSession();
+      }
       return Response.ok().build();
     } catch ( org.pentaho.platform.api.engine.security.userroledao.NotFoundException e ) {
       throw new WebApplicationException( Response.status( Response.Status.NOT_FOUND ).entity( e.getLocalizedMessage() ).build() );
@@ -384,14 +389,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/createRole" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully created new role." ),
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "Unable to create role objects." )
-  } )
-  public Response createRole( @QueryParam( "roleName" ) String roleName) {
+    } )
+  public Response createRole( @QueryParam( "roleName" ) String roleName ) {
     try {
       userRoleDaoService.createRole( roleName );
     } catch ( SecurityException e ) {
@@ -418,12 +423,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/deleteRoles" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully deleted the list of roles." ),
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 500, condition = "The system was unable to delete the roles passed in." )
-  } )
+    } )
   public Response deleteRoles( @QueryParam( "roleNames" ) String roleNames ) {
     try {
       userRoleDaoService.deleteRoles( roleNames );
@@ -451,11 +456,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/roles" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of roles." ),
     @ResponseCode ( code = 500, condition = "The system was not able to return the list of roles." )
-  } )
+    } )
   public RoleListWrapper getRoles() throws Exception {
     try {
       return userRoleDaoService.getRoles();
@@ -482,12 +487,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/roleMembers" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of Users." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "The system was not able to return the list of users." )
-  } )
+    } )
   public UserListWrapper getRoleMembers( @QueryParam ( "roleName" ) String roleName ) throws Exception {
     try {
       return userRoleDaoService.getRoleMembers( roleName );
@@ -523,12 +528,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * @return Response code determining the success of the operation.
    */
   @PUT
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Consumes ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Path ( "/roleAssignments" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully applied the logical role assignment." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." )
-  } )
+    } )
   public Response setLogicalRoles( LogicalRoleAssignments roleAssignments ) {
     try {
       userRoleDaoService.setLogicalRoles( roleAssignments );
@@ -612,10 +617,10 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/logicalRoleMap" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." )
-  } )
+    } )
   public SystemRolesMap getRoleBindingStruct( @QueryParam ( "locale" ) String locale ) {
     try {
       return userRoleDaoService.getRoleBindingStruct( locale );
@@ -633,17 +638,21 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignAllRolesToUser" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignAllRolesToUser( @QueryParam ( "tenant" ) String tenantPath,
                                         @QueryParam ( "userName" ) String userName ) {
-    IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+    IUserRoleDao roleDao = getUserRoleDao();
     Set<String> assignedRoles = new HashSet<String>();
     for ( IPentahoRole pentahoRole : roleDao.getRoles( getTenant( tenantPath ) ) ) {
       assignedRoles.add( pentahoRole.getName() );
     }
-    roleDao.setUserRoles( getTenant( tenantPath ), userName, assignedRoles.toArray( new String[0] ) );
+    roleDao.setUserRoles( getTenant( tenantPath ), userName, assignedRoles.toArray( new String[ 0 ] ) );
+
+    if ( userName.equals( getSession().getName() ) ) {
+      updateRolesForCurrentSession();
+    }
+
     return Response.ok().build();
   }
 
@@ -656,21 +665,25 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeAllRolesFromUser" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeAllRolesFromUser( @QueryParam ( "tenant" ) String tenantPath,
                                           @QueryParam ( "userName" ) String userName ) {
     if ( canAdminister() ) {
       try {
-        IUserRoleDao roleDao =
-            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        IUserRoleDao roleDao = getUserRoleDao();
         roleDao.setUserRoles( getTenant( tenantPath ), userName, new String[0] );
+
+        if ( userName.equals( getSession().getName() ) ) {
+          updateRolesForCurrentSession();
+        }
+
         return Response.ok().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -684,13 +697,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignUserToRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignUserToRole( @QueryParam ( "tenant" ) String tenantPath,
                                     @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
-      IUserRoleDao roleDao =
-          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+      IUserRoleDao roleDao = getUserRoleDao();
       StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
       Set<String> assignedUserNames = new HashSet<String>();
       for ( IPentahoUser pentahoUser : roleDao.getRoleMembers( getTenant( tenantPath ), roleName ) ) {
@@ -701,12 +713,17 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       }
       try {
         roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[ 0 ] ) );
+
+        if ( assignedUserNames.contains( getSession().getName() ) ) {
+          updateRolesForCurrentSession();
+        }
+
         return Response.ok().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -720,14 +737,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeUserFromRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeUserFromRole( @QueryParam ( "tenant" ) String tenantPath,
                                       @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
       try {
-        IUserRoleDao roleDao =
-            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        IUserRoleDao roleDao = getUserRoleDao();
         StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
         Set<String> assignedUserNames = new HashSet<String>();
         for ( IPentahoUser pentahoUser : roleDao.getRoleMembers( getTenant( tenantPath ), roleName ) ) {
@@ -736,13 +752,16 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         while ( tokenizer.hasMoreTokens() ) {
           assignedUserNames.remove( tokenizer.nextToken() );
         }
-        roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[0] ) );
+        roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[ 0 ] ) );
+        if ( assignedUserNames.contains( getSession().getName() ) ) {
+          updateRolesForCurrentSession();
+        }
         return Response.ok().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -755,17 +774,21 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignAllUsersToRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignAllUsersToRole( @QueryParam ( "tenant" ) String tenantPath,
-                                        @QueryParam ( "roleName" ) String roleName ) {
-    IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+                                        @QueryParam( "roleName" ) String roleName ) {
+    IUserRoleDao roleDao = getUserRoleDao();
     Set<String> assignedUserNames = new HashSet<String>();
     for ( IPentahoUser pentahoUser : roleDao.getUsers( getTenant( tenantPath ) ) ) {
       assignedUserNames.add( pentahoUser.getUsername() );
     }
-    roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[0] ) );
+    roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[ 0 ] ) );
+
+    if ( assignedUserNames.contains( getSession().getName() ) ) {
+      updateRolesForCurrentSession();
+    }
+
     return Response.ok().build();
   }
 
@@ -778,21 +801,21 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeAllUsersFromRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeAllUsersFromRole( @QueryParam ( "tenant" ) String tenantPath,
                                           @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
       try {
-        IUserRoleDao roleDao =
-            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        IUserRoleDao roleDao = getUserRoleDao();
         roleDao.setRoleMembers( getTenant( tenantPath ), roleName, new String[0] );
+        updateRolesForCurrentSession();
         return Response.ok().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -823,12 +846,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/updatePassword" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
-  } )
+    } )
   public Response updatePassword( User user ) {
     try {
       userRoleDaoService.updatePassword( user );
@@ -838,7 +861,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     }
   }
 
-  private ITenant getTenant( String tenantId ) throws NotFoundException {
+  protected ITenant getTenant( String tenantId ) throws NotFoundException {
     ITenant tenant = null;
     if ( tenantId != null ) {
       tenant = tenantManager.getTenant( tenantId );
@@ -846,7 +869,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         throw new NotFoundException( "Tenant not found." );
       }
     } else {
-      IPentahoSession session = PentahoSessionHolder.getSession();
+      IPentahoSession session = getSession();
       String tenantPath = (String) session.getAttribute( IPentahoSession.TENANT_ID_KEY );
       if ( tenantPath != null ) {
         tenant = new Tenant( tenantPath, true );
@@ -868,9 +891,32 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok( errMessage ).build();
   }
 
-  private boolean canAdminister() {
+  protected boolean canAdminister() {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
       && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
+  }
+
+  protected void updateRolesForCurrentSession() {
+    List<String> userRoles = userRoleDaoService.getRolesForUser( getSession().getName() ).getRoles();
+    GrantedAuthority[] authoritys = new GrantedAuthority[ userRoles.size() ];
+
+    for ( int i = 0; i < authoritys.length; i++ ) {
+      authoritys[ i ] = new GrantedAuthorityImpl( userRoles.get( i ) );
+    }
+
+    getSession().setAttribute( IPentahoSession.SESSION_ROLES, authoritys );
+  }
+
+  protected IPentahoSession getSession() {
+    return PentahoSessionHolder.getSession();
+  }
+
+  /**
+   * For testing
+   *
+   **/
+  protected IUserRoleDao getUserRoleDao() {
+    return PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", getSession() );
   }
 }
