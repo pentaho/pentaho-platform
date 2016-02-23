@@ -1113,7 +1113,7 @@ a:active, a:hover {
 }
 
 /* targetting IE 10 only */
-.IE10 #userRolesAdminPanel .pentaho-tab-panel {
+.IE10 .pentaho-tab-panel, .IE10 #userRolesAdminPanel .pentaho-tab-panel {
   height: 100%;
 }
 
