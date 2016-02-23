@@ -19,11 +19,12 @@
 package org.pentaho.platform.security.policy.rolebased;
 
 import com.google.common.collect.HashMultimap;
-import org.apache.commons.collections.map.LRUMap;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
@@ -56,6 +57,7 @@ import java.util.TreeSet;
 
 public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizationPolicyRoleBindingDao {
 
+  private final ICacheManager cacheManager;
   protected ITenantedPrincipleNameResolver tenantedRoleNameUtils;
 
   protected Map<String, List<IAuthorizationAction>> immutableRoleBindings;
@@ -72,23 +74,36 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   public static final String FOLDER_NAME_ROLEBASED = "roleBased"; //$NON-NLS-1$
 
   public static final String FOLDER_NAME_RUNTIMEROLES = "runtimeRoles"; //$NON-NLS-1$
-  /**
-   * Key: runtime role name; value: list of logical role names
-   */
-  @SuppressWarnings( "unchecked" )
-  protected Map boundLogicalRoleNamesCache = Collections.synchronizedMap( new LRUMap() );
 
-  public AbstractJcrBackedRoleBindingDao(final Map<String, List<IAuthorizationAction>> immutableRoleBindings,
-      final Map<String, List<String>> bootstrapRoleBindings, final String superAdminRoleName,
-      final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> authorizationActions ) {
-    super();
+  private static final String LOGICAL_ROLE_BINDINGS_REGION = "roleBindingCache";
+
+  public AbstractJcrBackedRoleBindingDao() {
+
+    cacheManager = PentahoSystem.getCacheManager( null );
+    if ( cacheManager == null ) {
+      throw new IllegalStateException( "No Cache Manager configured" );
+    }
+
+    if ( !cacheManager.cacheEnabled( LOGICAL_ROLE_BINDINGS_REGION ) ) {
+      cacheManager.addCacheRegion( LOGICAL_ROLE_BINDINGS_REGION );
+    }
+
+  }
+
+
+  public AbstractJcrBackedRoleBindingDao( final Map<String, List<IAuthorizationAction>> immutableRoleBindings,
+                                          final Map<String, List<String>> bootstrapRoleBindings,
+                                          final String superAdminRoleName,
+                                          final ITenantedPrincipleNameResolver tenantedRoleNameUtils,
+                                          final List<IAuthorizationAction> authorizationActions ) {
+    this();
     // TODO: replace with IllegalArgumentException
     Assert.notNull( immutableRoleBindings );
     Assert.notNull( bootstrapRoleBindings );
     Assert.notNull( superAdminRoleName );
     Assert.notNull( authorizationActions );
 
-    this.authorizationActions.addAll(authorizationActions);  
+    this.authorizationActions.addAll(authorizationActions);
 
     this.immutableRoleBindings = immutableRoleBindings;
     this.bootstrapRoleBindings = bootstrapRoleBindings;
@@ -148,8 +163,9 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     for ( String runtimeRoleName : runtimeRoleNames ) {
       String roleName = tenantedRoleNameUtils.getPrincipleName( runtimeRoleName );
       String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
-      if ( boundLogicalRoleNamesCache.containsKey( roleId ) ) {
-        cachedBoundLogicalRoleNames.addAll( (Collection<String>) boundLogicalRoleNamesCache.get( roleId ) );
+      Object fromRegionCache = cacheManager.getFromRegionCache( LOGICAL_ROLE_BINDINGS_REGION, roleId );
+      if ( fromRegionCache != null ) {
+        cachedBoundLogicalRoleNames.addAll( (Collection<String>) fromRegionCache );
       } else {
         uncachedRuntimeRoleNames.add( roleName );
       }
@@ -196,12 +212,18 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     }
 
     // update cache
-    boundLogicalRoleNamesCache.putAll( boundLogicalRoleNames.asMap() );
+    Map<String, Collection<String>> stringCollectionMap = boundLogicalRoleNames.asMap();
+    for ( Entry<String, Collection<String>> stringCollectionEntry : stringCollectionMap.entrySet() ) {
+      cacheManager.putInRegionCache( LOGICAL_ROLE_BINDINGS_REGION, stringCollectionEntry.getKey(),
+          stringCollectionEntry.getValue() );
+    }
+
     // now add in those runtime roles that have no bindings to the cache
     for ( String runtimeRoleName : uncachedRuntimeRoleNames ) {
       String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
-      if ( !boundLogicalRoleNamesCache.containsKey( roleId ) ) {
-        boundLogicalRoleNamesCache.put( roleId, Collections.emptyList() );
+
+      if ( cacheManager.getFromRegionCache( LOGICAL_ROLE_BINDINGS_REGION, roleId ) == null ) {
+        cacheManager.putInRegionCache( LOGICAL_ROLE_BINDINGS_REGION, roleId, Collections.emptyList() );
       }
     }
 
@@ -253,7 +275,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
 
     // update cache
     String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );
-    boundLogicalRoleNamesCache.put( roleId, logicalRoleNames );
+    cacheManager.putInRegionCache( LOGICAL_ROLE_BINDINGS_REGION, roleId, logicalRoleNames );
   }
 
   private String getPrincipalName( String principalId ) {
@@ -315,7 +337,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   protected Map<String, String> getMapForLocale( final String localeString ) {
     Map<String, String> map = new HashMap<String, String>();
     for ( IAuthorizationAction authorizationAction : authorizationActions ) {
-      map.put( authorizationAction.getName(), authorizationAction.getLocalizedDisplayName(localeString) );
+      map.put( authorizationAction.getName(), authorizationAction.getLocalizedDisplayName( localeString ) );
     }
     return map;
   }
