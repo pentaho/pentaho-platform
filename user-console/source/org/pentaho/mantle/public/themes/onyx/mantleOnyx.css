@@ -1090,6 +1090,10 @@ a:active, a:hover {
   height: 100%;
 }
 
+#groups-panel table {
+  height: auto;
+}
+
 #admin-system-roles-panel table {
   height: 100%;
 }
@@ -1103,26 +1107,22 @@ a:active, a:hover {
   width: 200px;
 }
 
-.pentaho-tab-panel {
+.pentaho-tab-panel, #userRolesAdminPanel .pentaho-tab-panel {
   width: 715px;
   height: 510px;
 }
 
 /* targetting IE 10 only */
-.IE10 .pentaho-tab-panel {
-  height:100%;
+.IE10 .pentaho-tab-panel, .IE10 #userRolesAdminPanel .pentaho-tab-panel {
+  height: 100%;
 }
 
 .IE10 .users-roles-list {
   height: 471px;
 }
 
-.IE10 #admin-users-panel .users-roles-list {
+.IE10 #admin-users-panel .users-roles-list, .IE10 #admin-system-roles-panel .users-roles-list {
   height: 428px;
-}
-
-.IE10 #admin-system-roles-panel .users-roles-list {
-  height: 100%;
 }
 
 #admin-roles-panel .users-roles-selection-list {
