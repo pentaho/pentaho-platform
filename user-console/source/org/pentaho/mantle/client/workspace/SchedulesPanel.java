@@ -12,12 +12,20 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.workspace;
 
 import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
@@ -36,14 +44,6 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.column.HtmlColumn;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -72,7 +72,6 @@ import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -256,7 +255,7 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void
-  updateControlSchedulerButtonState( final ToolbarButton controlSchedulerButton, final boolean isScheduler ) {
+    updateControlSchedulerButtonState( final ToolbarButton controlSchedulerButton, final boolean isScheduler ) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/state"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
     builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
