@@ -76,9 +76,6 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   public AbstractJcrBackedRoleBindingDao() {
 
     cacheManager = PentahoSystem.getCacheManager( null );
-    if ( cacheManager == null ) {
-      throw new IllegalStateException( "No Cache Manager configured" );
-    }
 
     if ( !cacheManager.cacheEnabled( LOGICAL_ROLE_BINDINGS_REGION ) ) {
       cacheManager.addCacheRegion( LOGICAL_ROLE_BINDINGS_REGION );
