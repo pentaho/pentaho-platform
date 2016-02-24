@@ -295,6 +295,8 @@ public class KarafBootTest {
 
   @Test
   public void testClearDataCacheSetting() throws Exception {
+    // clear Karaf's property to avoid tests' interdependency
+    System.clearProperty( "karaf.data" );
 
     PentahoSystem.init( new StandaloneApplicationContext( "test-res/karafBootTest", "." ) );
     //set property
