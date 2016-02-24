@@ -311,7 +311,8 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testDeleteRole() {
     String roleList = "role1\trole2";
-
+    userRoleResource = spy( userRoleResource );
+    doNothing().when( userRoleResource ).updateRolesForCurrentSession();
     assertEquals( Response.Status.OK.getStatusCode(), userRoleResource.deleteRoles( roleList ).getStatus() );
   }
 

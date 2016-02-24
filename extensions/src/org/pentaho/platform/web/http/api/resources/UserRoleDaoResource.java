@@ -432,6 +432,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public Response deleteRoles( @QueryParam( "roleNames" ) String roleNames ) {
     try {
       userRoleDaoService.deleteRoles( roleNames );
+      updateRolesForCurrentSession();
       return Response.ok().build();
     } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
