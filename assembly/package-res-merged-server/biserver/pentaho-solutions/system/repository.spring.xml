@@ -949,6 +949,18 @@
   </bean>
   <!-- end authorization policy -->
   
+  <!-- Set global versioning flag for DefaultRepositoryVersionManager -->
+  <bean class="java.lang.Boolean" id="versioningEnabled">
+    <constructor-arg value="${repository.versioningEnabled}"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <!-- Set global versioning flag for DefaultRepositoryVersionManager -->
+  <bean class="java.lang.Boolean" id="versionCommentsEnabled">
+    <constructor-arg value="${repository.versionCommentsEnabled}"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+  
   <!-- Property to enable of disable multi-byte encoding -->
   <bean class="java.lang.Boolean" id="useMultiByteEncoding">
     <constructor-arg value="${repository.useMultiByteEncoding}"/>
