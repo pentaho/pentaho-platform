@@ -214,4 +214,12 @@ public class UserRoleDaoResource_RolesUpdatedTest {
     resource.removeAllUsersFromRole( DEFAULT_STRING, ROLE_NAME_DEVELOPER );
     verify( resource ).updateRolesForCurrentSession();
   }
+
+
+  @Test
+  public void rolesUpdated_WhenAnyRoleIsDeleted() {
+    resource.deleteRoles( ROLE_NAME_DEVELOPER );
+
+    verify( resource ).updateRolesForCurrentSession();
+  }
 }
