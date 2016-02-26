@@ -26,7 +26,11 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.kettle.KettleSystemListener;
 
 import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class KettleSystemListenerTest {
   private IApplicationContext mockApplicationContext;
@@ -48,5 +52,24 @@ public class KettleSystemListenerTest {
   public void testStartup() {
     KettleSystemListener ksl = new KettleSystemListener();
     assertTrue( ksl.startup( null ) );
+  }
+
+  @Test
+  public void testDefaultDIHome() throws Exception {
+    System.setProperty( "DI_HOME", "" );
+    when( mockApplicationContext.getSolutionPath( anyString() ) ).thenReturn( "/kettle" );
+
+    KettleSystemListener ksl = new KettleSystemListener();
+    ksl.startup( null );
+    assertThat( "Empty DI_HOME should be defaulted", System.getProperty( "DI_HOME" ), equalTo( "/kettle" ) );
+
+
+    System.setProperty( "DI_HOME", "custom" );
+    ksl = new KettleSystemListener();
+    ksl.startup( null );
+
+    assertThat( "Validly set DI_HOME not preserved", System.getProperty( "DI_HOME" ), equalTo( "custom" ) );
+
+
   }
 }
