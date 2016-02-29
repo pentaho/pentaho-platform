@@ -9,7 +9,7 @@
 
 $('document').ready(function(){
 
-   var docBase = "https://help.pentaho.com/Documentation/6.0/";
+   var docBase = "https://help.pentaho.com/Documentation/6.1/";
 
    $('#getting_started_pdi').attr("href", docBase + '0J0/0C0');
    $('#getting_started_prd').attr("href", docBase + '0J0/0E0');
