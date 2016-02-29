@@ -36,6 +36,8 @@ import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -202,8 +204,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public Response assignRoleToUser( @QueryParam ( "tenant" ) String tenantPath,
                                     @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
-      IUserRoleDao roleDao =
-          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+      IUserRoleDao roleDao = getUserRoleDao();
       StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
       Set<String> assignedRoles = new HashSet<String>();
       for ( IPentahoRole pentahoRole : roleDao.getUserRoles( getTenant( tenantPath ), userName ) ) {
@@ -214,6 +215,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       }
       try {
         roleDao.setUserRoles( getTenant( tenantPath ), userName, assignedRoles.toArray( new String[0] ) );
+        if ( userName.equals( getSession().getName() ) ) {
+          updateRolesForCurrentSession();
+        }
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
@@ -239,8 +243,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
                                       @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
       try {
-        IUserRoleDao roleDao =
-            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        IUserRoleDao roleDao = getUserRoleDao();
         StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
         Set<String> assignedRoles = new HashSet<String>();
         for ( IPentahoRole pentahoRole : roleDao.getUserRoles( getTenant( tenantPath ), userName ) ) {
@@ -250,6 +253,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
           assignedRoles.remove( tokenizer.nextToken() );
         }
         roleDao.setUserRoles( getTenant( tenantPath ), userName, assignedRoles.toArray( new String[0] ) );
+        if ( userName.equals( getSession().getName() ) ) {
+          updateRolesForCurrentSession();
+        }
         return Response.ok().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
@@ -272,13 +278,17 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   public Response assignAllRolesToUser( @QueryParam ( "tenant" ) String tenantPath,
                                         @QueryParam ( "userName" ) String userName ) {
-    IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+    IUserRoleDao roleDao = getUserRoleDao();
     Set<String> assignedRoles = new HashSet<String>();
     for ( IPentahoRole pentahoRole : roleDao.getRoles( getTenant( tenantPath ) ) ) {
       assignedRoles.add( pentahoRole.getName() );
     }
     roleDao.setUserRoles( getTenant( tenantPath ), userName, assignedRoles.toArray( new String[0] ) );
+
+    if ( userName.equals( getSession().getName() ) ) {
+      updateRolesForCurrentSession();
+    }
+
     return Response.ok().build();
   }
 
@@ -297,9 +307,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
                                           @QueryParam ( "userName" ) String userName ) {
     if ( canAdminister() ) {
       try {
-        IUserRoleDao roleDao =
-            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        IUserRoleDao roleDao = getUserRoleDao();
         roleDao.setUserRoles( getTenant( tenantPath ), userName, new String[0] );
+
+        if ( userName.equals( getSession().getName() ) ) {
+          updateRolesForCurrentSession();
+        }
+
         return Response.ok().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
@@ -324,8 +338,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public Response assignUserToRole( @QueryParam ( "tenant" ) String tenantPath,
                                     @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
-      IUserRoleDao roleDao =
-          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+      IUserRoleDao roleDao = getUserRoleDao();
       StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
       Set<String> assignedUserNames = new HashSet<String>();
       for ( IPentahoUser pentahoUser : roleDao.getRoleMembers( getTenant( tenantPath ), roleName ) ) {
@@ -336,6 +349,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       }
       try {
         roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[0] ) );
+
+        if ( assignedUserNames.contains( getSession().getName() ) ) {
+          updateRolesForCurrentSession();
+        }
+
         return Response.ok().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
@@ -361,17 +379,22 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
                                       @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
       try {
-        IUserRoleDao roleDao =
-            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        IUserRoleDao roleDao = getUserRoleDao();
         StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
         Set<String> assignedUserNames = new HashSet<String>();
         for ( IPentahoUser pentahoUser : roleDao.getRoleMembers( getTenant( tenantPath ), roleName ) ) {
           assignedUserNames.add( pentahoUser.getUsername() );
         }
+        boolean rolesChangedForSessionUser = assignedUserNames.contains( getSession().getName() );
         while ( tokenizer.hasMoreTokens() ) {
           assignedUserNames.remove( tokenizer.nextToken() );
         }
         roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[0] ) );
+
+        if ( rolesChangedForSessionUser ) {
+          updateRolesForCurrentSession();
+        }
+
         return Response.ok().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
@@ -394,13 +417,17 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   public Response assignAllUsersToRole( @QueryParam ( "tenant" ) String tenantPath,
                                         @QueryParam ( "roleName" ) String roleName ) {
-    IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+    IUserRoleDao roleDao = getUserRoleDao();
     Set<String> assignedUserNames = new HashSet<String>();
     for ( IPentahoUser pentahoUser : roleDao.getUsers( getTenant( tenantPath ) ) ) {
       assignedUserNames.add( pentahoUser.getUsername() );
     }
     roleDao.setRoleMembers( getTenant( tenantPath ), roleName, assignedUserNames.toArray( new String[0] ) );
+
+    if ( assignedUserNames.contains( getSession().getName() ) ) {
+      updateRolesForCurrentSession();
+    }
+
     return Response.ok().build();
   }
 
@@ -419,9 +446,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
                                           @QueryParam ( "roleName" ) String roleName ) {
     if ( canAdminister() ) {
       try {
-        IUserRoleDao roleDao =
-            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        IUserRoleDao roleDao = getUserRoleDao();
         roleDao.setRoleMembers( getTenant( tenantPath ), roleName, new String[0] );
+        updateRolesForCurrentSession();
         return Response.ok().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
@@ -494,8 +521,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public Response deleteRole( @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
       try {
-        IUserRoleDao roleDao =
-            PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
+        IUserRoleDao roleDao = getUserRoleDao();
         StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
         while ( tokenizer.hasMoreTokens() ) {
           IPentahoRole role = roleDao.getRole( null, tokenizer.nextToken() );
@@ -503,6 +529,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
             roleDao.deleteRole( role );
           }
         }
+        updateRolesForCurrentSession();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
@@ -636,7 +663,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok().build();
   }
 
-  private ITenant getTenant( String tenantId ) throws NotFoundException {
+  protected ITenant getTenant( String tenantId ) throws NotFoundException {
     ITenant tenant = null;
     if ( tenantId != null ) {
       tenant = tenantManager.getTenant( tenantId );
@@ -666,10 +693,32 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.ok( errMessage ).build();
   }
 
-  private boolean canAdminister() {
+  protected boolean canAdminister() {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
         && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
   }
 
+  protected void updateRolesForCurrentSession() {
+    List<IPentahoRole> roles = getUserRoleDao().getUserRoles( getTenant( null ), getSession().getName() );
+    List<String> userRoles = new RoleListWrapper( roles ).getRoles();
+    GrantedAuthority[] authoritys = new GrantedAuthority[ userRoles.size() ];
+
+    for ( int i = 0; i < authoritys.length; i++ ) {
+      authoritys[ i ] = new GrantedAuthorityImpl( userRoles.get( i ) );
+    }
+
+    getSession().setAttribute( IPentahoSession.SESSION_ROLES, authoritys );
+  }
+
+  protected IPentahoSession getSession() {
+    return PentahoSessionHolder.getSession();
+  }
+
+  /**
+   * For testing
+   **/
+  protected IUserRoleDao getUserRoleDao() {
+    return PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", getSession() );
+  }
 }
