@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.HashSet;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -61,7 +60,7 @@ public class KarafInstanceTest {
     KarafInstancePortFactory.karafInstance = null;
     PortAssigner.getInstance().clear();
     ServerPortRegistry.clear();
-    
+
     //Now start up the instance
     KarafInstance instance = new KarafInstance( TEST_CACHE_FOLDER );
     new KarafInstancePortFactory( "./test-res/KarafInstanceTest/KarafPorts.yaml" ).process();

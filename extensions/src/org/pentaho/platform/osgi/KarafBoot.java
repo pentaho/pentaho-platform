@@ -198,8 +198,8 @@ public class KarafBoot implements IPentahoSystemListener {
     KettleClientEnvironment.ClientType clientType = getClientType();
     String extraKettleEtc = translateToExtraKettleEtc( clientType );
 
-    if( extraKettleEtc != null ){
-      System.setProperty( "felix.fileinstall.dir", root + "/etc"  + "," + root + extraKettleEtc );
+    if ( extraKettleEtc != null ) {
+      System.setProperty( "felix.fileinstall.dir", root + "/etc" + "," + root + extraKettleEtc );
     } else {
       System.setProperty( "felix.fileinstall.dir", root + "/etc" );
     }
@@ -215,7 +215,7 @@ public class KarafBoot implements IPentahoSystemListener {
     if ( file.exists() ) {
       System.setProperty( "log4j.configuration", file.toURI().toString() );
     } else {
-      logger.warn( file.toURI().toString() +" file not exist" );
+      logger.warn( file.toURI().toString() + " file not exist" );
     }
     // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
     // same one used when instatiating appenders.
@@ -225,7 +225,7 @@ public class KarafBoot implements IPentahoSystemListener {
   protected String translateToExtraKettleEtc( KettleClientEnvironment.ClientType clientType ) {
     String extraKettleEtc = null;
     if ( clientType != null ) {
-      switch( clientType ) {
+      switch ( clientType ) {
         case SPOON:
           extraKettleEtc = "/etc-spoon";
           break;

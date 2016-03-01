@@ -88,7 +88,9 @@ public class KarafBootTest {
 
   @Test
   public void testStartup_noKarafPortsYaml() throws Exception {
-    assertFalse( boot.startup( session ) );
+    KarafBoot karafBoot = spy( boot );
+    doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
+    assertFalse( karafBoot.startup( session ) );
   }
 
   @Test
