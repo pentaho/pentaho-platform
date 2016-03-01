@@ -167,11 +167,6 @@ public class KarafBootTest {
     testConfigureSystemProperties( "karaf.lock", "karaf.lock" );
   }
 
-  @Test
-  public void testConfigureSystemProperties_karafData() throws Exception {
-    testConfigureSystemProperties( "karaf.data", "karaf.data" );
-  }
-
   private void testConfigureSystemProperties( String propertyName, String expected ) throws Exception {
     //set property
     System.setProperty( propertyName, expected );
@@ -191,8 +186,9 @@ public class KarafBootTest {
     //set property
     KarafBoot karafBoot = new KarafBoot();
     karafBoot.configureSystemProperties( "test-res/osgiSystem/system", "test-res/karafBootTest/system/karaf" );
+    System.setProperty( "karaf.data", "test-res/karafBootTest/system/karaf/data" );
 
-    File nf = new File( "test-res/karafBootTest/system/karaf/data/testFile.txt" );
+    File nf = new File( System.getProperty( "karaf.data" ) + "/testFile.txt" );
     nf.mkdirs();
     nf.createNewFile();
     assertTrue( nf.exists() );

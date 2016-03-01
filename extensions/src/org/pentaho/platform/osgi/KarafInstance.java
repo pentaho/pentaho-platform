@@ -55,8 +55,10 @@ public class KarafInstance {
   private String cachePath;
   private FileLock fileLock;
   private String root;
+  private String cacheParentFolder;
   private HashMap<String, KarafInstancePort> instancePorts = new HashMap<String, KarafInstancePort>();
   private static final int MAX_NUMBER_OF_KARAF_INSTANCES = 50;
+  public static final String KARAF_CACHE_PARENT_FOLDER_PROPERTY = "pentaho.karaf.data.parent.folder";
   private static final int BANNER_WIDTH = 79;
   private static final String CACHE_DIR_PREFIX = "data";
   private static final String USED_PORT_FILENAME = "PortsAssigned.txt";
@@ -69,8 +71,10 @@ public class KarafInstance {
   KarafInstance( String root ) {
     KarafInstance.instance = this;
     this.root = root;
-    String presetedCache = System.getProperty( "karaf.data" );
-    updateKarafDataPath(  presetedCache == null ? root + "/" + CACHE_DIR_PREFIX : presetedCache );
+    cacheParentFolder = System.getProperty( KARAF_CACHE_PARENT_FOLDER_PROPERTY, root + "/caches" );
+    assignInstanceNumber();
+    cachePath = cacheParentFolder + "/data" + instanceNumber;
+    System.setProperty( "karaf.data", cachePath );
   }
 
   public static KarafInstance getInstance() {
@@ -112,10 +116,10 @@ public class KarafInstance {
     logger.info( banner.toString() );
   }
 
-  private void updateKarafDataPath( String karafDataPath ) {
+  private void assignInstanceNumber( ) {
     int testInstance = 1;
     while ( testInstance <= MAX_NUMBER_OF_KARAF_INSTANCES ) {
-      cachePath = karafDataPath + testInstance;
+      cachePath = cacheParentFolder + "/" + CACHE_DIR_PREFIX + testInstance;
       File cacheFolder = new File( cachePath );
       if ( !cacheFolder.exists() ) {
         cacheFolder.mkdirs();
@@ -139,7 +143,7 @@ public class KarafInstance {
     // Pull in any remaining externally reserved ports. Can't keep incrementing
     // because someone might have manually erased one of the cache folders (maybe to fix corruption, for instance).
 
-    File file = new File( root );
+    File file = new File( cacheParentFolder );
     String[] folders = file.list( new FilenameFilter() {
       @Override
       public boolean accept( File current, String name ) {
@@ -152,7 +156,7 @@ public class KarafInstance {
 
           //int testInstance = Integer.valueOf( name.substring( CACHE_DIR_PREFIX.length() ) );
           if ( testInstance > instanceNumber ) {
-            String folderName = root + "/" + name;
+            String folderName = cacheParentFolder + "/" + name;
             FileLock lock = testLock( folderName );
             if ( lock != null ) {
               // We could get a lock so this instance is no in use
@@ -168,7 +172,7 @@ public class KarafInstance {
     } );
 
     for ( String folder : folders ) {
-      processExternalPorts( root + "/" + folder );
+      processExternalPorts( cacheParentFolder + "/" + folder );
     }
   }
 
