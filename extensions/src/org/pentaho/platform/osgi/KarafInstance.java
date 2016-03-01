@@ -12,8 +12,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2016 Pentaho Corporation. All rights reserved.
+ * Copyright 2015 Pentaho Corporation. All rights reserved.
  */
+
 package org.pentaho.platform.osgi;
 
 import java.io.File;
@@ -69,8 +70,10 @@ public class KarafInstance {
   KarafInstance( String root ) {
     KarafInstance.instance = this;
     this.root = root;
-    String presetedCache = System.getProperty( "karaf.data" );
-    updateKarafDataPath(  presetedCache == null ? root + "/" + CACHE_DIR_PREFIX : presetedCache );
+    assignInstanceNumber();
+    cachePath = root + "/data" + instanceNumber;
+
+    System.setProperty( "karaf.data", cachePath );
   }
 
   public static KarafInstance getInstance() {
@@ -112,10 +115,10 @@ public class KarafInstance {
     logger.info( banner.toString() );
   }
 
-  private void updateKarafDataPath( String karafDataPath ) {
+  private void assignInstanceNumber() {
     int testInstance = 1;
     while ( testInstance <= MAX_NUMBER_OF_KARAF_INSTANCES ) {
-      cachePath = karafDataPath + testInstance;
+      cachePath = root + "/" + CACHE_DIR_PREFIX + testInstance;
       File cacheFolder = new File( cachePath );
       if ( !cacheFolder.exists() ) {
         cacheFolder.mkdirs();
@@ -136,6 +139,7 @@ public class KarafInstance {
     }
 
     instanceNumber = testInstance;
+
     // Pull in any remaining externally reserved ports. Can't keep incrementing
     // because someone might have manually erased one of the cache folders (maybe to fix corruption, for instance).
 
@@ -148,7 +152,7 @@ public class KarafInstance {
           //String pattern = CACHE_DIR_PREFIX + "\\d+";
           Pattern r = Pattern.compile( "(" + CACHE_DIR_PREFIX + ")(\\d+)$" );
           Matcher m = r.matcher( name );
-          int testInstance = m.find() ? Integer.valueOf( m.group( 2 ) ) : 0;
+          int testInstance = m.find() ? Integer.valueOf( m.group(2) ): 0;
 
           //int testInstance = Integer.valueOf( name.substring( CACHE_DIR_PREFIX.length() ) );
           if ( testInstance > instanceNumber ) {
@@ -180,24 +184,15 @@ public class KarafInstance {
     }
   }
 
+  @SuppressWarnings( "resource" )
   private FileLock testLock( String testFolder ) {
     File lockFile = new File( testFolder + "/LOCKFILE" );
-    RandomAccessFile accessFile = null;
     FileLock lock = null;
     try {
-      accessFile = new RandomAccessFile( lockFile, "rw" );
-      FileChannel channel = accessFile.getChannel();
+      FileChannel channel = new RandomAccessFile( lockFile, "rw" ).getChannel();
       lock = channel.tryLock();
     } catch ( OverlappingFileLockException e ) {
       // File is already locked in this thread or virtual machine. This should not happen.
-      logger.error( "File is already locked" + e.getStackTrace() );
-      try {
-        if ( accessFile != null ) {
-          accessFile.close();
-        }
-      } catch ( IOException e1 ) {
-        logger.error( "Could not close resource LOCKFILE " + e.getStackTrace() );
-      }
     } catch ( IOException e ) {
       // If we get an IO error here, there is probably something going on in the OS.
       logger.error( "Could not get lock on " + testFolder + "/LOCKFILE", e );

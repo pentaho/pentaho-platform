@@ -12,8 +12,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2016 Pentaho Corporation. All rights reserved.
+ * Copyright 2015 Pentaho Corporation. All rights reserved.
  */
+
 package org.pentaho.platform.settings;
 
 import java.io.File;
@@ -186,7 +187,6 @@ public class PortAssigner {
 
     // Write it to file.
     File usedPortFile = new File( filePath );
-    usedPortFile.getParentFile().mkdirs();
     RandomAccessFile fileStore = new RandomAccessFile( usedPortFile, "rw" );
     try {
       getLock( fileStore );
