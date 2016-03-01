@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -47,6 +47,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -56,9 +57,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-
-import static javax.ws.rs.core.MediaType.*;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  * UserRoleDao manage pentaho security user and roles in the platform.
@@ -103,7 +101,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/users" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Facet( name = "Unsupported" )
   public UserListWrapper getUsers() throws Exception {
     if ( canAdminister() ) {
@@ -127,7 +125,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/roles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
   public RoleListWrapper getRoles() throws Exception {
     if ( canAdminister() ) {
@@ -153,7 +151,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/userRoles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
   public RoleListWrapper getUserRoles( @QueryParam ( "tenant" ) String tenantPath,
                                        @QueryParam ( "userName" ) String userName ) throws Exception {
@@ -180,7 +178,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/roleMembers" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
   public UserListWrapper getRoleMembers( @QueryParam ( "tenant" ) String tenantPath,
                                          @QueryParam ( "roleName" ) String roleName ) throws Exception {
@@ -199,7 +197,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignRoleToUser" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignRoleToUser( @QueryParam ( "tenant" ) String tenantPath,
                                     @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
@@ -223,7 +221,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       }
       return Response.ok().build();
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -237,7 +235,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeRoleFromUser" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeRoleFromUser( @QueryParam ( "tenant" ) String tenantPath,
                                       @QueryParam ( "userName" ) String userName, @QueryParam ( "roleNames" ) String roleNames ) {
@@ -261,7 +259,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -274,7 +272,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignAllRolesToUser" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignAllRolesToUser( @QueryParam ( "tenant" ) String tenantPath,
                                         @QueryParam ( "userName" ) String userName ) {
@@ -301,14 +299,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeAllRolesFromUser" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeAllRolesFromUser( @QueryParam ( "tenant" ) String tenantPath,
                                           @QueryParam ( "userName" ) String userName ) {
     if ( canAdminister() ) {
       try {
         IUserRoleDao roleDao = getUserRoleDao();
-        roleDao.setUserRoles( getTenant( tenantPath ), userName, new String[0] );
+        roleDao.setUserRoles( getTenant( tenantPath ), userName, new String[ 0 ] );
 
         if ( userName.equals( getSession().getName() ) ) {
           updateRolesForCurrentSession();
@@ -319,7 +317,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -333,7 +331,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignUserToRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignUserToRole( @QueryParam ( "tenant" ) String tenantPath,
                                     @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
@@ -359,7 +357,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -373,7 +371,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeUserFromRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeUserFromRole( @QueryParam ( "tenant" ) String tenantPath,
                                       @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
@@ -400,7 +398,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -413,7 +411,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignAllUsersToRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignAllUsersToRole( @QueryParam ( "tenant" ) String tenantPath,
                                         @QueryParam ( "roleName" ) String roleName ) {
@@ -440,7 +438,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeAllUsersFromRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeAllUsersFromRole( @QueryParam ( "tenant" ) String tenantPath,
                                           @QueryParam ( "roleName" ) String roleName ) {
@@ -454,7 +452,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -467,7 +465,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/createUser" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response createUser( @QueryParam ( "tenant" ) String tenantPath, User user ) {
     IUserRoleDao roleDao =
@@ -499,7 +497,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/createRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response createRole( @QueryParam ( "tenant" ) String tenantPath, @QueryParam ( "roleName" ) String roleName ) {
     IUserRoleDao roleDao =
@@ -516,7 +514,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/deleteRoles" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response deleteRole( @QueryParam ( "roleNames" ) String roleNames ) {
     if ( canAdminister() ) {
@@ -535,7 +533,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       }
       return Response.ok().build();
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -547,7 +545,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/deleteUsers" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response deleteUser( @QueryParam ( "userNames" ) String userNames ) {
     if ( canAdminister() ) {
@@ -566,7 +564,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       }
       return Response.ok().build();
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -578,7 +576,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/updatePassword" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response updatePassword( User user ) {
     if ( canAdminister() ) {
@@ -608,7 +606,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         throw new WebApplicationException( t );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -620,7 +618,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/logicalRoleMap" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
   public SystemRolesMap getRoleBindingStruct( @QueryParam ( "locale" ) String locale ) {
     if ( canAdminister() ) {
@@ -653,7 +651,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * @return
    */
   @PUT
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Consumes ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Path ( "/roleAssignments" )
   @Facet ( name = "Unsupported" )
   public Response setLogicalRoles( LogicalRoleAssignments roleAssignments ) {
@@ -702,13 +700,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   protected void updateRolesForCurrentSession() {
     List<IPentahoRole> roles = getUserRoleDao().getUserRoles( getTenant( null ), getSession().getName() );
     List<String> userRoles = new RoleListWrapper( roles ).getRoles();
-    GrantedAuthority[] authoritys = new GrantedAuthority[ userRoles.size() ];
+    GrantedAuthority[] authorities = new GrantedAuthority[ userRoles.size() ];
 
-    for ( int i = 0; i < authoritys.length; i++ ) {
-      authoritys[ i ] = new GrantedAuthorityImpl( userRoles.get( i ) );
+    for ( int i = 0; i < authorities.length; i++ ) {
+      authorities[ i ] = new GrantedAuthorityImpl( userRoles.get( i ) );
     }
 
-    getSession().setAttribute( IPentahoSession.SESSION_ROLES, authoritys );
+    getSession().setAttribute( IPentahoSession.SESSION_ROLES, authorities );
   }
 
   protected IPentahoSession getSession() {
