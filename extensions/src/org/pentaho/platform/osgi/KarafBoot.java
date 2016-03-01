@@ -184,7 +184,6 @@ public class KarafBoot implements IPentahoSystemListener {
   protected void configureSystemProperties( String solutionRootPath, String root ) {
     fillMissedSystemProperty( "karaf.home", root );
     fillMissedSystemProperty( "karaf.base", root );
-    fillMissedSystemProperty( "karaf.data", root + "/data" );
     fillMissedSystemProperty( "karaf.history", root + "/data/history.txt" );
     fillMissedSystemProperty( "karaf.instances", root + "/instances" );
     fillMissedSystemProperty( "karaf.startLocalConsole", "false" );
