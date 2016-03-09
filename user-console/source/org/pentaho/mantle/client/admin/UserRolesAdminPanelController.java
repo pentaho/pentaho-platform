@@ -17,6 +17,15 @@
 
 package org.pentaho.mantle.client.admin;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.messages.Messages;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -35,14 +44,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.messages.Messages;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel,
     UpdatePasswordController {
@@ -424,23 +425,26 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          usingPentahoSecurity = response.getText().contains( "jackrabbit" );
-          usersLabelPanel.setVisible( usingPentahoSecurity );
-          usersPanel.setVisible( usingPentahoSecurity );
-          newRoleButton.setVisible( usingPentahoSecurity );
-          deleteRoleButton.setVisible( usingPentahoSecurity );
-
-          if ( usingPentahoSecurity ) {
-            mainTabPanel.getTab( 0 ).setVisible( true );
-            mainTabPanel.selectTab( 0 );
-          } else {
-            mainTabPanel.getTab( 0 ).setVisible( false );
-            mainTabPanel.selectTab( 1 );
-          }
+          String resText = response.getText();
+          usingPentahoSecurity = resText.contains( "\"jackrabbit\"" ) || resText.contains( "\"super\"" );
+          userRolePermissions( usingPentahoSecurity );
         }
       } );
     } catch ( RequestException e ) {
-      //ignored
+      userRolePermissions( false );
+    }
+  }
+  
+  private void userRolePermissions( boolean visible ) {
+    usersLabelPanel.setVisible( visible );
+    usersPanel.setVisible( visible );
+    newRoleButton.setVisible( visible );
+    deleteRoleButton.setVisible( visible );
+    mainTabPanel.getTab( 0 ).setVisible( visible );
+    if ( visible ) {
+      mainTabPanel.selectTab( 0 );
+    } else {
+      mainTabPanel.selectTab( 1 );
     }
   }
 
