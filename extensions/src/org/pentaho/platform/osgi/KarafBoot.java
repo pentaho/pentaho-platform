@@ -79,18 +79,7 @@ public class KarafBoot implements IPentahoSystemListener {
         }
       }
 
-      String root = karafDir.toURI().getPath();
-
-      if ( karafDir.exists() ) {
-        // This test will let us know whether we need to make our own copy of Karaf before starting (happens in PMR)
-        if ( !canOpenConfigPropertiesForEdit( root ) ) {
-          String newDir =
-              new File( karafDir.getParentFile().getParentFile(), karafDir.getName() + "-copy" ).toURI().getPath();
-          File destDir = new File( newDir );
-          FileUtils.copyDirectory( karafDir, destDir );
-          root = newDir;
-        }
-      }
+      final String root = karafDir.toURI().getPath();
 
       configureSystemProperties( solutionRootPath, root );
 

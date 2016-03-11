@@ -16,6 +16,16 @@
  */
 package org.pentaho.platform.osgi;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.settings.PortAssigner;
+import org.pentaho.platform.settings.ServerPort;
+import org.pentaho.platform.settings.ServerPortRegistry;
+import org.pentaho.platform.settings.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -32,15 +42,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.settings.PortAssigner;
-import org.pentaho.platform.settings.ServerPort;
-import org.pentaho.platform.settings.ServerPortRegistry;
-import org.pentaho.platform.settings.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * This class assigns and configures property settings for separate karaf instances so that multiple client/server
  * applications can run simultaneously on the same host. It assigns/creates a unique cache folder for each karaf
@@ -55,9 +56,10 @@ public class KarafInstance {
   private String cachePath;
   private FileLock fileLock;
   private String root;
-  private String cacheParentFolder;
+  private final String cacheParentFolder;
   private HashMap<String, KarafInstancePort> instancePorts = new HashMap<String, KarafInstancePort>();
   private static final int MAX_NUMBER_OF_KARAF_INSTANCES = 50;
+  public static final String WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER = "pentaho.working.dir.as.karaf.data.parent.folder";
   public static final String KARAF_CACHE_PARENT_FOLDER_PROPERTY = "pentaho.karaf.data.parent.folder";
   private static final int BANNER_WIDTH = 79;
   private static final String CACHE_DIR_PREFIX = "data";
@@ -71,7 +73,11 @@ public class KarafInstance {
   KarafInstance( String root ) {
     KarafInstance.instance = this;
     this.root = root;
-    cacheParentFolder = System.getProperty( KARAF_CACHE_PARENT_FOLDER_PROPERTY, root + "/caches" );
+    if ( Boolean.parseBoolean( System.getProperty( WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER, "false" ) ) ) {
+      cacheParentFolder = new File( "." ).toURI().getPath();
+    } else {
+      cacheParentFolder = System.getProperty( KARAF_CACHE_PARENT_FOLDER_PROPERTY, root + "/caches" );
+    }
     assignInstanceNumber();
     cachePath = cacheParentFolder + "/data" + instanceNumber;
     System.setProperty( "karaf.data", cachePath );
@@ -273,4 +279,8 @@ public class KarafInstance {
     return l;
   }
 
+  @VisibleForTesting
+  String getCacheParentFolder() {
+    return cacheParentFolder;
+  }
 }
