@@ -16,18 +16,17 @@
  */
 package org.pentaho.platform.osgi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.settings.PortAssigner;
 import org.pentaho.platform.settings.ServerPortRegistry;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * 
@@ -45,7 +44,7 @@ public class KarafInstanceTest {
       FileUtils.deleteDirectory( folder );
     }
   }
-  
+
   @After
   public void tearDown() throws IOException {
     // clean up
@@ -54,7 +53,7 @@ public class KarafInstanceTest {
       FileUtils.deleteDirectory( folder );
     }
   }
-  
+
   @Test
   public void testKarafInstance() throws Exception {
     KarafInstance karafInstance1 = createTestInstance( 1 );
@@ -73,12 +72,26 @@ public class KarafInstanceTest {
     karafInstance4.close();
   }
 
+  @Test
+  public void testWorkingDirAsKarafDataParentFolder() {
+    String property = System.getProperty( KarafInstance.WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER );
+    try {
+      System.setProperty( KarafInstance.WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER, "false" );
+      assertNotEquals( new File( "." ).toURI().getPath(),
+        new KarafInstance( TEST_CACHE_FOLDER ).getCacheParentFolder() );
+      System.setProperty( KarafInstance.WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER, "true" );
+      assertEquals( new File( "." ).toURI().getPath(), new KarafInstance( TEST_CACHE_FOLDER ).getCacheParentFolder() );
+    } finally {
+      System.setProperty( KarafInstance.WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER, property );
+    }
+  }
+
   private KarafInstance createTestInstance( int expectedInstanceNumber ) throws Exception {
     //Simulate a new JVM
     KarafInstancePortFactory.karafInstance = null;
     PortAssigner.getInstance().clear();
     ServerPortRegistry.clear();
-    
+
     //Now start up the instance
     KarafInstance instance = new KarafInstance( TEST_CACHE_FOLDER );
     new KarafInstancePortFactory( "./test-res/KarafInstanceTest/KarafPorts.yaml" ).process();
