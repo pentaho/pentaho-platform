@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
@@ -55,6 +56,7 @@ import static org.mockito.Mockito.*;
 @RunWith( MockitoJUnitRunner.class )
 public class KarafBootTest {
 
+  private static File configProps;
   KarafBoot boot;
 
   @Mock IApplicationContext appContext;
@@ -67,6 +69,13 @@ public class KarafBootTest {
   public static void init() throws Exception {
     Path karafBootTest = Files.createTempDirectory( "KarafBootTest", new FileAttribute[ 0 ] );
     tmpDir = karafBootTest.toFile();
+    configProps = new File( tmpDir, "system/karaf/etc/config.properties" );
+    configProps.getParentFile().mkdirs();
+    new File( tmpDir, "system/karaf/system" ).mkdirs();
+    new File( tmpDir, "system/karaf/caches" ).mkdirs();
+    try ( FileOutputStream fileOutputStream = new FileOutputStream( configProps ) ) {
+      fileOutputStream.write( "Hello props".getBytes( Charset.forName( "UTF-8" ) ) );
+    }
   }
 
   @AfterClass
@@ -98,13 +107,120 @@ public class KarafBootTest {
 
   @Test
   public void testStartup() throws Exception {
-    KarafBoot karafBoot = spy( boot );
-    doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
+    String origKarafHome = System.getProperty( "karaf.home" );
+    try {
+      System.getProperties().remove( "karaf.home" );
+      KarafBoot karafBoot = spy( boot );
+      doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
 
-    boolean startup = karafBoot.startup( session );
-    verify( karafInstance ).start();
-    // can't see if it started since we aren't actually starting up karaf, return value will be false
-    assertFalse( startup );
+      boolean startup = karafBoot.startup( session );
+      verify( karafInstance ).start();
+      // can't see if it started since we aren't actually starting up karaf, return value will be false
+      assertFalse( startup );
+      assertEquals( tmpDir, new File( System.getProperty( "karaf.home" ) ).getParentFile().getParentFile() );
+    } finally {
+      if ( origKarafHome == null ) {
+        System.getProperties().remove( "karaf.home" );
+      } else {
+        System.setProperty( "karaf.home", origKarafHome );
+      }
+    }
+  }
+
+  @Test
+  public void testStartupNotWritableConfigProps() throws Exception {
+    String origKarafHome = System.getProperty( "karaf.home" );
+    try {
+      System.getProperties().remove( "karaf.home" );
+      configProps.setWritable( false );
+      try ( FileOutputStream fileOutputStream = new FileOutputStream(
+        new File( tmpDir, "system/karaf/etc/custom.properties" ) ) ) {
+        fileOutputStream
+          .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
+      }
+      KarafBoot karafBoot = spy( boot );
+      doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
+
+      boolean startup = karafBoot.startup( session );
+      verify( karafInstance ).start();
+      // can't see if it started since we aren't actually starting up karaf, return value will be false
+      assertFalse( startup );
+      assertNotEquals( tmpDir, new File( System.getProperty( "karaf.home" ) ).getParentFile().getParentFile() );
+    } finally {
+      if ( origKarafHome == null ) {
+        System.getProperties().remove( "karaf.home" );
+      } else {
+        System.setProperty( "karaf.home", origKarafHome );
+      }
+      configProps.setWritable( true );
+    }
+  }
+
+  @Test
+  public void testStartupSetKarafDestFolder() throws Exception {
+    String origKarafHome = System.getProperty( "karaf.home" );
+    File tempDirectory = Files.createTempDirectory( "test" ).toFile();
+    tempDirectory.delete();
+    try {
+      System.getProperties().remove( "karaf.home" );
+      System.setProperty( KarafBoot.PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER, tempDirectory.getAbsolutePath() );
+      try ( FileOutputStream fileOutputStream = new FileOutputStream(
+        new File( tmpDir, "system/karaf/etc/custom.properties" ) ) ) {
+        fileOutputStream
+          .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
+      }
+      KarafBoot karafBoot = spy( boot );
+      doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
+
+      boolean startup = karafBoot.startup( session );
+      verify( karafInstance ).start();
+      // can't see if it started since we aren't actually starting up karaf, return value will be false
+      assertFalse( startup );
+      assertEquals( tempDirectory, new File( System.getProperty( "karaf.home" ) ) );
+    } finally {
+      if ( origKarafHome == null ) {
+        System.getProperties().remove( "karaf.home" );
+      } else {
+        System.setProperty( "karaf.home", origKarafHome );
+      }
+      System.getProperties().remove( KarafBoot.PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER );
+      FileUtils.deleteDirectory( tempDirectory );
+    }
+  }
+
+  @Test
+  public void testStartupSetKarafDestFolderTransient() throws Exception {
+    String origKarafHome = System.getProperty( "karaf.home" );
+    File tempDirectory = Files.createTempDirectory( "test" ).toFile();
+    try {
+      System.getProperties().remove( "karaf.home" );
+      System.setProperty( KarafBoot.PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER, tempDirectory.getAbsolutePath() );
+      System.setProperty( KarafBoot.PENTAHO_KARAF_ROOT_TRANSIENT, "true" );
+      try ( FileOutputStream fileOutputStream = new FileOutputStream(
+        new File( tmpDir, "system/karaf/etc/custom.properties" ) ) ) {
+        fileOutputStream
+          .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
+      }
+      KarafBoot karafBoot = spy( boot );
+      doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
+
+      boolean startup = karafBoot.startup( session );
+      verify( karafInstance ).start();
+      // can't see if it started since we aren't actually starting up karaf, return value will be false
+      assertFalse( startup );
+      File karafHome = new File( System.getProperty( "karaf.home" ) );
+      assertEquals( tempDirectory.getParent(), karafHome.getParent() );
+      assertTrue( karafHome.getName().startsWith( tempDirectory.getName() ) );
+    } finally {
+      if ( origKarafHome == null ) {
+        System.getProperties().remove( "karaf.home" );
+      } else {
+        System.setProperty( "karaf.home", origKarafHome );
+      }
+      System.getProperties().remove( KarafBoot.PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER );
+      System.getProperties().remove( KarafBoot.PENTAHO_KARAF_ROOT_TRANSIENT );
+      FileUtils.deleteDirectory( tempDirectory );
+    }
   }
 
   @Test
