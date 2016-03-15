@@ -12,15 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
-
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.WILDCARD;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,6 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
@@ -132,13 +128,13 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/createUser" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully created new user." ),
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "Unable to create user." )
-  } )
+    } )
   public Response createUser( User user ) {
     try {
       userRoleDaoService.createUser( user );
@@ -167,12 +163,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/deleteUsers" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
-  } )
+    } )
   public Response deleteUsers( @QueryParam( "userNames" ) String userNames ) {
     try {
       userRoleDaoService.deleteUsers( userNames );
@@ -220,7 +216,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
     @ResponseCode( code = 403, condition = "Provided user name or password is incorrect." ),
     @ResponseCode( code = 412, condition = "An error occurred in the platform." )
-  } )
+    } )
   public Response changeUserPassword( ChangePasswordUser user ) {
     try {
       userRoleDaoService.changeUserPassword( user.getUserName(), user.getNewPassword(), user.getOldPassword() );
@@ -257,11 +253,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/users" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes( {
       @ResponseCode ( code = 200, condition = "Successfully returned the list of users." ),
       @ResponseCode ( code = 500, condition = "An error occurred in the platform while trying to access the list of users." )
-  } )
+    } )
   public UserListWrapper getUsers() throws WebApplicationException {
     try {
       return userRoleDaoService.getUsers();
@@ -289,11 +285,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/userRoles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of roles." ),
     @ResponseCode ( code = 500, condition = "Invalid user parameter." )
-  } )
+    } )
   public RoleListWrapper getRolesForUser( @QueryParam( "userName" ) String user ) throws Exception {
     try {
       return userRoleDaoService.getRolesForUser( user );
@@ -317,12 +313,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/assignRoleToUser" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully append the roles to the user." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
-  } )
+    } )
   public Response assignRolesToUser( @QueryParam( "userName" ) String userName,
                                      @QueryParam( "roleNames" ) String roleNames ) {
     try {
@@ -355,12 +351,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/removeRoleFromUser" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully removed the roles from the user." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
-  } )
+    } )
   public Response removeRolesFromUser( @QueryParam( "userName" ) String userName,
                                        @QueryParam( "roleNames" ) String roleNames ) {
     try {
@@ -393,14 +389,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/createRole" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully created new role." ),
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "Unable to create role objects." )
-  } )
-  public Response createRole( @QueryParam( "roleName" ) String roleName) {
+    } )
+  public Response createRole( @QueryParam( "roleName" ) String roleName ) {
     try {
       userRoleDaoService.createRole( roleName );
     } catch ( SecurityException e ) {
@@ -427,12 +423,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/deleteRoles" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully deleted the list of roles." ),
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 500, condition = "The system was unable to delete the roles passed in." )
-  } )
+    } )
   public Response deleteRoles( @QueryParam( "roleNames" ) String roleNames ) {
     try {
       userRoleDaoService.deleteRoles( roleNames );
@@ -461,11 +457,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/roles" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of roles." ),
     @ResponseCode ( code = 500, condition = "The system was not able to return the list of roles." )
-  } )
+    } )
   public RoleListWrapper getRoles() throws Exception {
     try {
       return userRoleDaoService.getRoles();
@@ -492,12 +488,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/roleMembers" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of Users." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "The system was not able to return the list of users." )
-  } )
+    } )
   public UserListWrapper getRoleMembers( @QueryParam ( "roleName" ) String roleName ) throws Exception {
     try {
       return userRoleDaoService.getRoleMembers( roleName );
@@ -533,12 +529,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * @return Response code determining the success of the operation.
    */
   @PUT
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Consumes ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Path ( "/roleAssignments" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully applied the logical role assignment." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." )
-  } )
+    } )
   public Response setLogicalRoles( LogicalRoleAssignments roleAssignments ) {
     try {
       userRoleDaoService.setLogicalRoles( roleAssignments );
@@ -622,10 +618,10 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/logicalRoleMap" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." )
-  } )
+    } )
   public SystemRolesMap getRoleBindingStruct( @QueryParam ( "locale" ) String locale ) {
     try {
       return userRoleDaoService.getRoleBindingStruct( locale );
@@ -643,7 +639,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignAllRolesToUser" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignAllRolesToUser( @QueryParam ( "tenant" ) String tenantPath,
                                         @QueryParam ( "userName" ) String userName ) {
@@ -670,7 +666,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeAllRolesFromUser" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeAllRolesFromUser( @QueryParam ( "tenant" ) String tenantPath,
                                           @QueryParam ( "userName" ) String userName ) {
@@ -688,7 +684,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -702,7 +698,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignUserToRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignUserToRole( @QueryParam ( "tenant" ) String tenantPath,
                                     @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
@@ -728,7 +724,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -742,7 +738,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeUserFromRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeUserFromRole( @QueryParam ( "tenant" ) String tenantPath,
                                       @QueryParam ( "userNames" ) String userNames, @QueryParam ( "roleName" ) String roleName ) {
@@ -756,7 +752,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         }
 
         boolean rolesChangedForSessionUser = assignedUserNames.contains( getSession().getName() );
-        
+
         while ( tokenizer.hasMoreTokens() ) {
           assignedUserNames.remove( tokenizer.nextToken() );
         }
@@ -770,7 +766,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -783,7 +779,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/assignAllUsersToRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response assignAllUsersToRole( @QueryParam ( "tenant" ) String tenantPath,
                                         @QueryParam ( "roleName" ) String roleName ) {
@@ -810,7 +806,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/removeAllUsersFromRole" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   public Response removeAllUsersFromRole( @QueryParam ( "tenant" ) String tenantPath,
                                           @QueryParam ( "roleName" ) String roleName ) {
@@ -824,7 +820,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         return processErrorResponse( th.getLocalizedMessage() );
       }
     } else {
-      return Response.status( UNAUTHORIZED ).build();
+      return Response.status( Response.Status.UNAUTHORIZED ).build();
     }
   }
 
@@ -855,12 +851,12 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/updatePassword" )
-  @Consumes( { WILDCARD } )
-  @StatusCodes ( {
+  @Consumes( { MediaType.WILDCARD } )
+  @StatusCodes( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
-  } )
+    } )
   public Response updatePassword( User user ) {
     try {
       userRoleDaoService.updatePassword( user );

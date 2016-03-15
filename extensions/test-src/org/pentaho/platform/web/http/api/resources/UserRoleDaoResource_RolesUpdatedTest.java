@@ -84,7 +84,7 @@ public class UserRoleDaoResource_RolesUpdatedTest {
     }
 
     GrantedAuthority[] sessionAuthoritys = (GrantedAuthority[]) session.getAttribute( IPentahoSession.SESSION_ROLES );
-    assertTrue(Arrays.equals( authorities, sessionAuthoritys ));
+    assertTrue( Arrays.equals( authorities, sessionAuthoritys ) );
   }
 
   @Test
