@@ -1,3 +1,20 @@
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ */
+
 package org.pentaho.platform.config;
 
 import org.junit.Before;
@@ -27,15 +44,20 @@ public class SystemConfigFolderTest {
 
   @Test
   public void testGetters() throws Exception {
-    assertEquals( path + "/systemListeners.xml", systemConfigFolder.getSystemListenersConfigFile().getPath() );
-    assertEquals( path + "/pentaho.xml", systemConfigFolder.getPentahoXmlFile().getPath() );
-    assertEquals( path + "/adminPlugins.xml", systemConfigFolder.getAdminPluginsFile().getPath() );
-    assertEquals( path + "/pentahoObjects.spring.xml", systemConfigFolder.getPentahoObjectsConfigFile().getPath() );
-    assertEquals( path + "/sessionStartupActions.xml", systemConfigFolder.getSessionStartupActionsFile().getPath() );
-    assertEquals( path + "/applicationContext-spring-security.xml", systemConfigFolder.getSpringSecurityXmlFile().getPath() );
-    assertEquals( path + "/applicationContext-pentaho-security-ldap.xml", systemConfigFolder.getPentahoSecurityXmlFile().getPath() );
-    assertEquals( path + "/applicationContext-spring-security-ldap.xml", systemConfigFolder.getSpringSecurityLdapXmlFile().getPath() );
-    assertEquals( path + "/applicationContext-common-authorization.xml", systemConfigFolder.getCommonAuthorizationXmlFile().getPath() );
+    assertPathsAreEqual( "systemListeners.xml", systemConfigFolder.getSystemListenersConfigFile() );
+    assertPathsAreEqual( "pentaho.xml", systemConfigFolder.getPentahoXmlFile() );
+    assertPathsAreEqual( "adminPlugins.xml", systemConfigFolder.getAdminPluginsFile() );
+    assertPathsAreEqual( "pentahoObjects.spring.xml", systemConfigFolder.getPentahoObjectsConfigFile() );
+    assertPathsAreEqual( "sessionStartupActions.xml", systemConfigFolder.getSessionStartupActionsFile() );
+    assertPathsAreEqual( "applicationContext-spring-security.xml", systemConfigFolder.getSpringSecurityXmlFile() );
+    assertPathsAreEqual( "applicationContext-pentaho-security-ldap.xml", systemConfigFolder.getPentahoSecurityXmlFile() );
+    assertPathsAreEqual( "applicationContext-spring-security-ldap.xml", systemConfigFolder.getSpringSecurityLdapXmlFile() );
+    assertPathsAreEqual( "applicationContext-common-authorization.xml", systemConfigFolder.getCommonAuthorizationXmlFile() );
+  }
+
+  private void assertPathsAreEqual( String expectedFile, File actual ) {
+    String expectedPath = path + File.separatorChar + expectedFile;
+    assertEquals( actual.getPath(), expectedPath );
   }
 
   @Test

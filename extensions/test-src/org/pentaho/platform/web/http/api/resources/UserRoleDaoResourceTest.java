@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -21,10 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 
@@ -33,6 +30,7 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -109,6 +107,12 @@ public class UserRoleDaoResourceTest {
     String user = "testUser1";
     String roles = "testRole1";
 
+    userRoleResource = spy( userRoleResource );
+    IPentahoSession session = mock( IPentahoSession.class );
+    doReturn( user ).when( session ).getName();
+    doReturn( session ).when( userRoleResource ).getSession();
+    doNothing().when( userRoleResource ).updateRolesForCurrentSession();
+
     Response response = userRoleResource.assignRolesToUser( user, roles );
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
   }
@@ -160,6 +164,12 @@ public class UserRoleDaoResourceTest {
   public void testRemoveRolesFromUser() {
     String user = "testUser1";
     String roles = "testRole1";
+
+    userRoleResource = spy( userRoleResource );
+    IPentahoSession session = mock( IPentahoSession.class );
+    doReturn( user ).when( session ).getName();
+    doReturn( session ).when( userRoleResource ).getSession();
+    doNothing().when( userRoleResource ).updateRolesForCurrentSession();
 
     Response response = userRoleResource.removeRolesFromUser( user, roles );
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
@@ -301,7 +311,8 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testDeleteRole() {
     String roleList = "role1\trole2";
-
+    userRoleResource = spy( userRoleResource );
+    doNothing().when( userRoleResource ).updateRolesForCurrentSession();
     assertEquals( Response.Status.OK.getStatusCode(), userRoleResource.deleteRoles( roleList ).getStatus() );
   }
 
@@ -356,21 +367,21 @@ public class UserRoleDaoResourceTest {
 
   @Test
   public void testSetLogicalRoles() {
-    LogicalRoleAssignments logicalRoles = mock(LogicalRoleAssignments.class);
+    LogicalRoleAssignments logicalRoles = mock( LogicalRoleAssignments.class );
     userRoleResource.setLogicalRoles( logicalRoles );
     verify( userRoleService ).setLogicalRoles( logicalRoles );
   }
 
   @Test
   public void testSetLogicalRolesSecurityException() {
-    LogicalRoleAssignments logicalRoles = mock(LogicalRoleAssignments.class);
+    LogicalRoleAssignments logicalRoles = mock( LogicalRoleAssignments.class );
     try {
       userRoleResource.setLogicalRoles( logicalRoles );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }
   }
-  
+
   @Test
   public void testCreateUser() throws Exception {
     Response response = userRoleResource.createUser( new User( "name", "password" ) );
@@ -382,7 +393,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
     doThrow( new SecurityException() ).when( mockService ).createUser( any( User.class ) );
     UserRoleDaoResource resource =
-        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+      new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
       resource.createUser( new User( "not", "admin" ) );
     } catch ( WebApplicationException e ) {
@@ -395,7 +406,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
     doThrow( new UserRoleDaoService.ValidationFailedException() ).when( mockService ).createUser( any( User.class ) );
     UserRoleDaoResource resource =
-        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+      new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
       resource.createUser( new User( "\\/validation", "failed" ) );
     } catch ( WebApplicationException e ) {
@@ -408,7 +419,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
     doThrow( new AlreadyExistsException( "message" ) ).when( mockService ).createUser( any( User.class ) );
     UserRoleDaoResource resource =
-        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+      new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
       resource.createUser( new User( "user", "duplicate" ) );
     } catch ( WebApplicationException e ) {
@@ -421,7 +432,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
     doThrow( ex ).when( mockService ).changeUserPassword( anyString(), anyString(), anyString() );
     UserRoleDaoResource resource =
-        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+      new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
       resource.changeUserPassword( new ChangePasswordUser( name, newPass, oldPass ) );
     } catch ( WebApplicationException exception ) {
@@ -438,27 +449,27 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testChangePasswordWrongName() throws Exception {
     changePassException( new SecurityException(), Response.Status.FORBIDDEN.getStatusCode(), "wrong_name",
-        "newPass", "oldPass" );
+      "newPass", "oldPass" );
   }
 
   @Test
   public void testChangePasswordWrongPass() throws Exception {
     changePassException( new SecurityException(), Response.Status.FORBIDDEN.getStatusCode(), "name",
-        "wrong_newPass", "oldPass" );
+      "wrong_newPass", "oldPass" );
   }
 
   @Test
   public void testChangePasswordInvalidInput() throws Exception {
     changePassException( new UserRoleDaoService.ValidationFailedException(), Response.Status.BAD_REQUEST
-        .getStatusCode(), null, null, "oldPass" );
+      .getStatusCode(), null, null, "oldPass" );
   }
-  
+
   @Test
   public void testChangePasswordInternalError() throws Exception {
     changePassException( new Exception(), Response.Status.PRECONDITION_FAILED
-        .getStatusCode(), null, null, "oldPass" );
+      .getStatusCode(), null, null, "oldPass" );
   }
-  
+
   @Test
   public void testCreateRole() throws Exception {
     Response response = userRoleResource.createRole( "newRole" );
@@ -470,7 +481,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
     doThrow( new SecurityException() ).when( mockService ).createRole( anyString() );
     UserRoleDaoResource resource =
-        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+      new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
       resource.createRole( "anyRoleName" );
     } catch ( WebApplicationException e ) {
@@ -483,14 +494,14 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
     doThrow( new UserRoleDaoService.ValidationFailedException() ).when( mockService ).createRole( anyString() );
     UserRoleDaoResource resource =
-        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+      new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
       resource.createRole( "" );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus() );
     }
   }
-  
+
   @Test
   public void testUpdatePassword() throws Exception {
     Response response = userRoleResource.updatePassword( new User( "name", "newPassword" ) );
@@ -502,7 +513,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
     doThrow( new SecurityException() ).when( mockService ).updatePassword( any( User.class ) );
     UserRoleDaoResource resource =
-        new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
+      new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
       resource.updatePassword( new User( "name", "newPassword" ) );
     } catch ( WebApplicationException e ) {

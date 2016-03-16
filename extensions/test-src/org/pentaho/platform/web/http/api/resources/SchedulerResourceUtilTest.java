@@ -21,6 +21,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,13 +62,24 @@ public class SchedulerResourceUtilTest {
   ComplexJobTriggerProxy complex;
   Date now;
 
+  private TimeZone system;
+
   @Before
   public void setUp() throws Exception {
+    // this makes the test non-deterministic!
     now = new Date();
 
     complex = new ComplexJobTriggerProxy();
     complex.setStartTime( now );
 
+    system = TimeZone.getDefault();
+    TimeZone.setDefault( TimeZone.getTimeZone( "EST" ) );
+  }
+
+  @After
+  public void tearDown() {
+    TimeZone.setDefault( system );
+    system = null;
   }
 
   @Test
