@@ -72,20 +72,6 @@ public class KarafInstanceTest {
     karafInstance4.close();
   }
 
-  @Test
-  public void testWorkingDirAsKarafDataParentFolder() {
-    String property = System.getProperty( KarafInstance.WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER );
-    try {
-      System.setProperty( KarafInstance.WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER, "false" );
-      assertNotEquals( new File( "." ).toURI().getPath(),
-        new KarafInstance( TEST_CACHE_FOLDER ).getCacheParentFolder() );
-      System.setProperty( KarafInstance.WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER, "true" );
-      assertEquals( new File( "." ).toURI().getPath(), new KarafInstance( TEST_CACHE_FOLDER ).getCacheParentFolder() );
-    } finally {
-      System.setProperty( KarafInstance.WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER, property );
-    }
-  }
-
   private KarafInstance createTestInstance( int expectedInstanceNumber ) throws Exception {
     //Simulate a new JVM
     KarafInstancePortFactory.karafInstance = null;

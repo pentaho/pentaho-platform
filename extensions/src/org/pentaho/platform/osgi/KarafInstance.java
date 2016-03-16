@@ -59,8 +59,6 @@ public class KarafInstance {
   private final String cacheParentFolder;
   private HashMap<String, KarafInstancePort> instancePorts = new HashMap<String, KarafInstancePort>();
   private static final int MAX_NUMBER_OF_KARAF_INSTANCES = 50;
-  public static final String WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER = "pentaho.working.dir.as.karaf.data.parent.folder";
-  public static final String KARAF_CACHE_PARENT_FOLDER_PROPERTY = "pentaho.karaf.data.parent.folder";
   private static final int BANNER_WIDTH = 79;
   private static final String CACHE_DIR_PREFIX = "data";
   private static final String USED_PORT_FILENAME = "PortsAssigned.txt";
@@ -73,11 +71,7 @@ public class KarafInstance {
   KarafInstance( String root ) {
     KarafInstance.instance = this;
     this.root = root;
-    if ( Boolean.parseBoolean( System.getProperty( WORKING_DIR_AS_KARAF_DATA_PARENT_FOLDER, "false" ) ) ) {
-      cacheParentFolder = new File( "." ).toURI().getPath();
-    } else {
-      cacheParentFolder = System.getProperty( KARAF_CACHE_PARENT_FOLDER_PROPERTY, root + "/caches" );
-    }
+    this.cacheParentFolder = root + "/caches";
     assignInstanceNumber();
     cachePath = cacheParentFolder + "/data" + instanceNumber;
     System.setProperty( "karaf.data", cachePath );

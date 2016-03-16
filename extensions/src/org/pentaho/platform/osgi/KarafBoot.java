@@ -18,6 +18,7 @@ package org.pentaho.platform.osgi;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.AbstractFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.main.Main;
 import org.pentaho.di.core.KettleClientEnvironment;
@@ -34,7 +35,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -46,6 +52,14 @@ public class KarafBoot implements IPentahoSystemListener {
   public static final String CLEAN_KARAF_CACHE = "org.pentaho.clean.karaf.cache";
   private Main main;
   Logger logger = LoggerFactory.getLogger( getClass() );
+
+  public static final String PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER = "pentaho.karaf.root.copy.dest.folder";
+
+  public static final String PENTAHO_KARAF_ROOT_TRANSIENT = "pentaho.karaf.root.transient";
+
+  public static final String PENTAHO_KARAF_ROOT_TRANSIENT_DIRECTORY_ATTEMPTS = "pentaho.karaf.root.transient.directory.attempts";
+
+  public static final String PENTAHO_KARAF_ROOT_COPY_FOLDER_SYMLINK_FILES = "pentaho.karaf.root.copy.folder.symlink.files";
 
   public static final String ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA = "org.osgi.framework.system.packages.extra";
 
@@ -79,7 +93,89 @@ public class KarafBoot implements IPentahoSystemListener {
         }
       }
 
-      final String root = karafDir.toURI().getPath();
+      String root = karafDir.toURI().getPath();
+
+      // See if user specified a karaf folder they would like to use
+      String rootCopyFolderString = System.getProperty( PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER );
+
+      // Use a transient folder (will be deleted on exit) if user says to or cannot open config.properties
+      boolean transientRoot = Boolean.parseBoolean( System.getProperty( PENTAHO_KARAF_ROOT_TRANSIENT, "false" ) );
+      if ( rootCopyFolderString == null && !canOpenConfigPropertiesForEdit( root ) ) {
+        transientRoot = true;
+      }
+
+      final File destDir;
+      if ( transientRoot ) {
+        if ( rootCopyFolderString == null ) {
+          destDir = Files.createTempDirectory( "karaf" ).toFile();
+        } else {
+          int directoryAttempts =
+            Integer.parseInt( System.getProperty( PENTAHO_KARAF_ROOT_TRANSIENT_DIRECTORY_ATTEMPTS, "250" ) );
+          File candidate = new File( rootCopyFolderString );
+          if ( transientRoot ) {
+            int i = 1;
+            while ( candidate.exists() || !candidate.mkdirs() ) {
+              if ( i > directoryAttempts ) {
+                candidate = Files.createTempDirectory( "karaf" ).toFile();
+                logger.warn( "Unable to create " + rootCopyFolderString + " after " + i + " attempts, using temp dir "
+                  + candidate );
+                break;
+              }
+              candidate = new File( rootCopyFolderString + ( i++ ) );
+            }
+          }
+          destDir = candidate;
+        }
+
+        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
+          @Override public void run() {
+            try {
+              FileUtils.deleteDirectory( destDir );
+            } catch ( IOException e ) {
+              logger.error( "Unable to delete karaf directory " + destDir, e );
+            }
+          }
+        } ) );
+      } else if ( rootCopyFolderString != null ) {
+        destDir = new File( rootCopyFolderString );
+      } else {
+        destDir = null;
+      }
+
+      // Copy karaf (symlinking allowed files/folders if possible)
+      if ( destDir != null && ( transientRoot || !destDir.exists() ) ) {
+        final Set<String> symlinks = new HashSet<String>();
+        String symlinkFiles = System.getProperty( PENTAHO_KARAF_ROOT_COPY_FOLDER_SYMLINK_FILES, "lib,system" );
+        if ( symlinkFiles != null ) {
+          for ( String symlink : symlinkFiles.split( "," ) ) {
+            symlinks.add( symlink );
+          }
+        }
+        final Path karafDirPath = Paths.get( karafDir.toURI() );
+        FileUtils.copyDirectory( karafDir, destDir, new AbstractFileFilter() {
+          @Override public boolean accept( File file ) {
+            Path filePath = Paths.get( file.toURI() );
+            String relativePath = karafDirPath.relativize( filePath ).toString();
+            if ( symlinks.contains( relativePath ) ) {
+              File linkFile = new File( destDir, relativePath );
+              linkFile.getParentFile().mkdirs();
+              Path link = Paths.get( linkFile.toURI() );
+              try {
+                // Try to create a symlink and skip the copy if successful
+                if ( Files.createSymbolicLink( link, filePath ) != null ) {
+                  return false;
+                }
+              } catch ( IOException e ) {
+                logger
+                  .error(
+                    "Unable to create symlink " + linkFile.getAbsolutePath() + " -> " + file.getAbsolutePath(), e );
+              }
+            }
+            return true;
+          }
+        } );
+        root = destDir.toURI().getPath();
+      }
 
       configureSystemProperties( solutionRootPath, root );
 
