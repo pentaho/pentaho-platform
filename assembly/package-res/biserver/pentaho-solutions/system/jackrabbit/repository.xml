@@ -470,10 +470,16 @@ value="{0}/etc/pdi/databases;org.pentaho.platform.dataaccess.datasource.security
       Search index for content that is shared repository wide
       (/jcr:system tree, contains mainly versions)
   -->
+  <!--
+    In the platform, jackrabbit's lucene is trying to index all the text from every file in the repository. 
+    This is just to do a natural language search. This, however, is a feature neither BA nor DI servers support.
+  <--
+  <!--
   <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
     <param name="path" value="${rep.home}/repository/index"/>
     <param name="supportHighlighting" value="true"/>
   </SearchIndex>
+  -->
 
   <!--
       Run with a cluster journal
