@@ -473,7 +473,7 @@ value="{0}/etc/pdi/databases;org.pentaho.platform.dataaccess.datasource.security
   <!--
     In the platform, jackrabbit's lucene is trying to index all the text from every file in the repository. 
     This is just to do a natural language search. This, however, is a feature neither BA nor DI servers support.
-  <--
+  -->
   <!--
   <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
     <param name="path" value="${rep.home}/repository/index"/>
