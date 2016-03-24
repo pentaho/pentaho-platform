@@ -12,9 +12,8 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
-
 package org.pentaho.platform.plugin.services.connections.sql;
 
 import org.apache.commons.logging.Log;
@@ -50,7 +49,7 @@ public class SQLResultSet implements IPentahoResultSet, IPeekable {
 
   private static final Log log = LogFactory.getLog( SQLResultSet.class );
 
-  private IPentahoMetaData metadata;
+  private IPentahoMetaData metaData;
 
   /**
    * 
@@ -62,7 +61,7 @@ public class SQLResultSet implements IPentahoResultSet, IPeekable {
   }
 
   public void setMetaData( final IPentahoMetaData metadata ) {
-    this.metadata = metadata;
+    this.metaData = metadata;
   }
 
   /*
@@ -71,9 +70,9 @@ public class SQLResultSet implements IPentahoResultSet, IPeekable {
    * @see org.pentaho.connection.IPentahoResultSet#getMetaData()
    */
   public IPentahoMetaData getMetaData() {
-    if ( metadata == null ) {
+    if ( metaData == null ) {
       try {
-        metadata = new SQLMetaData( nativeResultSet.getMetaData() );
+        metaData = new SQLMetaData( nativeResultSet.getMetaData() );
       } catch ( SQLException e ) {
         // TODO Auto-generated catch block
         SQLResultSet.log.error( Messages.getInstance().getErrorString( "SQLResultSet.ERROR_0004_GET_METADATA" ), e ); //$NON-NLS-1$
@@ -81,7 +80,7 @@ public class SQLResultSet implements IPentahoResultSet, IPeekable {
         throw new RuntimeException( e );
       }
     }
-    return metadata;
+    return metaData;
   }
 
   public Object[] peek() {
@@ -281,9 +280,16 @@ public class SQLResultSet implements IPentahoResultSet, IPeekable {
 
   public IPentahoResultSet memoryCopy() {
     try {
-      IPentahoMetaData meta = getMetaData();
-      Object[][] columnHeaders = meta.getColumnHeaders();
-      MemoryMetaData cachedMetaData = new MemoryMetaData( columnHeaders, null );
+      IPentahoMetaData cachedMetaData = null;
+
+      if ( getMetaData() instanceof MemoryMetaData ) {
+        cachedMetaData = new MemoryMetaData( (MemoryMetaData) getMetaData() );
+      } else {
+        IPentahoMetaData metadata = getMetaData();
+        Object[][] columnHeaders = metadata.getColumnHeaders();
+        cachedMetaData = new MemoryMetaData( columnHeaders, null );
+      }
+
       MemoryResultSet cachedResultSet = new MemoryResultSet( cachedMetaData );
       Object[] rowObjects = next();
       while ( rowObjects != null ) {
