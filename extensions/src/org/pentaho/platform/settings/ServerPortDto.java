@@ -17,21 +17,16 @@
 
 package org.pentaho.platform.settings;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 /**
- * 
  * @author tkafalas
- *
  */
-@XmlRootElement(name="ServerPort")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement( name = "ServerPort" )
+@XmlAccessorType( XmlAccessType.FIELD )
 public class ServerPortDto implements Serializable {
   private static final long serialVersionUID = 0;
   private String id;
@@ -45,7 +40,7 @@ public class ServerPortDto implements Serializable {
 
   public ServerPortDto( ServerPort serverPort ) {
     this.id = serverPort.getId();
-    this.value = serverPort.getValue();
+    this.value = serverPort.getAssignedPort();
     this.friendlyName = serverPort.getFriendlyName();
   }
 

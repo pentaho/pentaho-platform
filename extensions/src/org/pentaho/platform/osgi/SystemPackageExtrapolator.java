@@ -49,7 +49,7 @@ public class SystemPackageExtrapolator {
 
     @Override public Set<String> getPackages() {
       Set<String> exportedPaths = null;
-      if( module == null ) { // assume we're in the module
+      if ( module == null ) { // assume we're in the module
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         // String comparison as we may not have the JBoss Modules classes.
         if ( classLoader.getClass().getName().equals( "org.jboss.modules.ModuleClassLoader" ) ) {
@@ -60,7 +60,7 @@ public class SystemPackageExtrapolator {
       }
 
       Set<String> packages = new HashSet<String>();
-      if( exportedPaths != null ) {
+      if ( exportedPaths != null ) {
         for ( String exportedPath : exportedPaths ) {
           packages.add( exportedPath.replaceAll( "/", "." ) );
         }
