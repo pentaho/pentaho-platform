@@ -53,12 +53,6 @@ public class PortAssigner {
   private PortAssigner() {
   }
 
-  public static PortAssigner getInstance() {
-    if ( instance == null ) {
-      instance = new PortAssigner();
-    }
-    return instance;
-  }
 
   public int[] assignPorts( int numberOfPorts ) throws IOException {
 
@@ -171,30 +165,7 @@ public class PortAssigner {
    * @return A cloned list of ports assigned by external server instances (other JVMs).
    */
   public HashSet<Integer> getUsedPortsExternal() {
-    return new HashSet<Integer>( usedPortsExternal );
-  }
-
-  public void writeUsedPortFile( String filePath ) throws FileNotFoundException, IOException {
-    // Create a list of comma separated port numbers
-    StringBuilder sb = new StringBuilder();
-    for ( Integer port : usedPorts ) {
-      if ( sb.length() > 0 ) {
-        sb.append( "," );
-      }
-      sb.append( port.toString() );
-    }
-
-    // Write it to file.
-    File usedPortFile = new File( filePath );
-    usedPortFile.getParentFile().mkdirs();
-    RandomAccessFile fileStore = new RandomAccessFile( usedPortFile, "rw" );
-    try {
-      getLock( fileStore );
-      fileStore.writeUTF( sb.toString() );
-    } finally {
-      fileStore.close();
-    }
-    return;
+    return new HashSet<>( usedPortsExternal );
   }
 
   // Try to get a lock for 20 seconds
@@ -244,5 +215,9 @@ public class PortAssigner {
   public void clear() {
     usedPorts.clear();
     usedPortsExternal.clear();
+  }
+
+  public static Integer getFreePortStartingAt( Integer startPort ) {
+    return null;
   }
 }

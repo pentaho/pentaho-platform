@@ -18,39 +18,29 @@
 package org.pentaho.platform.osgi;
 
 import org.pentaho.platform.settings.ServerPort;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
- * 
  * @author tkafalas
- *
  */
 public class KarafInstancePort extends ServerPort {
 
   private String propertyName; // property name associated with the port
+  private KarafInstance karafInstance;
 
-  public KarafInstancePort( String id, String propertyName, String friendlyName, int startPort, int endPort, String serviceName ) {
-    super( id, friendlyName, startPort, endPort, serviceName );
+  public KarafInstancePort( KarafInstance karafInstance, String id, String propertyName, String friendlyName,
+                            int startPort, String serviceName ) {
+    super( id, friendlyName, startPort, serviceName );
     this.propertyName = propertyName;
+    this.karafInstance = karafInstance;
   }
 
   public String getPropertyName() {
     return propertyName;
   }
-  
-  /**
-   * Assigns an port number from the range defined. If no port number is available from the defined range an arbitrary
-   * free port will be assigned.
-   * 
-   * @return The port number allocated.
-   */
-  @Override
-  public Integer assignPort() {
-    super.assignPort();
-    System.setProperty( propertyName, "" + getValue() );
-    return getValue();
+
+  @Override public void setAssignedPort( Integer assignedPort ) {
+    super.setAssignedPort( assignedPort );
+    System.setProperty( propertyName, getAssignedPort().toString() );
   }
 
   /**

@@ -57,11 +57,15 @@ public class KarafBoot implements IPentahoSystemListener {
 
   public static final String PENTAHO_KARAF_ROOT_TRANSIENT = "pentaho.karaf.root.transient";
 
-  public static final String PENTAHO_KARAF_ROOT_TRANSIENT_DIRECTORY_ATTEMPTS = "pentaho.karaf.root.transient.directory.attempts";
+  public static final String PENTAHO_KARAF_ROOT_TRANSIENT_DIRECTORY_ATTEMPTS =
+      "pentaho.karaf.root.transient.directory.attempts";
 
-  public static final String PENTAHO_KARAF_ROOT_COPY_FOLDER_SYMLINK_FILES = "pentaho.karaf.root.copy.folder.symlink.files";
+  public static final String PENTAHO_KARAF_ROOT_COPY_FOLDER_SYMLINK_FILES =
+      "pentaho.karaf.root.copy.folder.symlink.files";
 
   public static final String ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA = "org.osgi.framework.system.packages.extra";
+
+  public static final String PENTAHO_KARAF_INSTANCE_RESOLVER_CLASS = "pentaho.karaf.instance.resolver.class";
 
   private static final String SYSTEM_PROP_OSX_APP_ROOT_DIR = "osx.app.root.dir";
 
@@ -110,20 +114,19 @@ public class KarafBoot implements IPentahoSystemListener {
           destDir = Files.createTempDirectory( "karaf" ).toFile();
         } else {
           int directoryAttempts =
-            Integer.parseInt( System.getProperty( PENTAHO_KARAF_ROOT_TRANSIENT_DIRECTORY_ATTEMPTS, "250" ) );
+              Integer.parseInt( System.getProperty( PENTAHO_KARAF_ROOT_TRANSIENT_DIRECTORY_ATTEMPTS, "250" ) );
           File candidate = new File( rootCopyFolderString );
-          if ( transientRoot ) {
-            int i = 1;
-            while ( candidate.exists() || !candidate.mkdirs() ) {
-              if ( i > directoryAttempts ) {
-                candidate = Files.createTempDirectory( "karaf" ).toFile();
-                logger.warn( "Unable to create " + rootCopyFolderString + " after " + i + " attempts, using temp dir "
+          int i = 1;
+          while ( candidate.exists() || !candidate.mkdirs() ) {
+            if ( i > directoryAttempts ) {
+              candidate = Files.createTempDirectory( "karaf" ).toFile();
+              logger.warn( "Unable to create " + rootCopyFolderString + " after " + i + " attempts, using temp dir "
                   + candidate );
-                break;
-              }
-              candidate = new File( rootCopyFolderString + ( i++ ) );
+              break;
             }
+            candidate = new File( rootCopyFolderString + ( i++ ) );
           }
+
           destDir = candidate;
         }
 
@@ -167,8 +170,8 @@ public class KarafBoot implements IPentahoSystemListener {
                 }
               } catch ( IOException e ) {
                 logger
-                  .error(
-                    "Unable to create symlink " + linkFile.getAbsolutePath() + " -> " + file.getAbsolutePath(), e );
+                    .error(
+                        "Unable to create symlink " + linkFile.getAbsolutePath() + " -> " + file.getAbsolutePath(), e );
               }
             }
             return true;
@@ -185,8 +188,6 @@ public class KarafBoot implements IPentahoSystemListener {
       // Setup karaf instance configuration
       KarafInstance karafInstance = createAndProcessKarafInstance( root );
 
-      //Define any additional karaf instance properties here using karafInstance.registerProperty
-      karafInstance.start();
 
       cleanCacheIfFlagSet( root );
 
@@ -260,11 +261,14 @@ public class KarafBoot implements IPentahoSystemListener {
 
   }
 
-  protected KarafInstance createAndProcessKarafInstance( String root ) throws FileNotFoundException {
-    KarafInstance karafInstance = new KarafInstance( root );
-    new KarafInstancePortFactory( root + "/etc/KarafPorts.yaml" ).process();
+  protected KarafInstance createAndProcessKarafInstance( String root )
+      throws FileNotFoundException, KarafInstanceResolverException {
+    String clientType = new ExceptionBasedClientTypeProvider().getClientType();
+    KarafInstance karafInstance = new KarafInstance( root, clientType );
+    karafInstance.assignPortsAndCreateCache();
     return karafInstance;
   }
+
 
   protected void configureSystemProperties( String solutionRootPath, String root ) {
     fillMissedSystemProperty( "karaf.home", root );
@@ -318,7 +322,7 @@ public class KarafBoot implements IPentahoSystemListener {
   protected String translateToExtraKettleEtc( KettleClientEnvironment.ClientType clientType ) {
     String extraKettleEtc = null;
     if ( clientType != null ) {
-      switch ( clientType ) {
+      switch( clientType ) {
         case SPOON:
           extraKettleEtc = "/etc-spoon";
           break;
@@ -385,16 +389,6 @@ public class KarafBoot implements IPentahoSystemListener {
     properties = new SystemPackageExtrapolator().expandProperties( properties );
     System.setProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA,
         properties.getProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA ) );
-
-    //    FileOutputStream out = null;
-    //    try {
-    //      out = new FileOutputStream( customFile );
-    //      properties.store( out, "expanding osgi properties" );
-    //    } catch ( IOException e ) {
-    //      logger.error( "Not able to expand system.packages.extra properties due error saving custom.properties", e );
-    //    } finally {
-    //      IOUtils.closeQuietly( out );
-    //    }
 
   }
 
