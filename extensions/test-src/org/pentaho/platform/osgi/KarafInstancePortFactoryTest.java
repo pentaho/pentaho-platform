@@ -35,6 +35,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.pentaho.platform.settings.ServerPort;
+import org.pentaho.platform.settings.ServerPortRegistry;
 import org.pentaho.platform.settings.Service;
 import org.yaml.snakeyaml.Yaml;
 
@@ -44,34 +46,30 @@ import org.yaml.snakeyaml.Yaml;
  *
  */
 public class KarafInstancePortFactoryTest {
-  KarafInstance mockInstance = mock( KarafInstance.class );
+
 
   @Before
   public void initialize() {
-    KarafInstancePortFactory.karafInstance = mockInstance;
+    ServerPortRegistry.clear();
   }
 
   @Test
-  public void processTest() throws FileNotFoundException, IOException {
-    ArgumentCaptor<KarafInstancePort> portCaptor = ArgumentCaptor.forClass( KarafInstancePort.class );
+  public void processTest() throws IOException, KarafInstanceResolverException {
     ArgumentCaptor<Service> serviceCaptor = ArgumentCaptor.forClass( Service.class );
 
-    KarafInstancePortFactory importer = new KarafInstancePortFactory( "./test-res/KarafInstanceTest/KarafPorts.yaml" );
-    importer.process();
-    verify( mockInstance, times( 2 ) ).registerService( serviceCaptor.capture() );
-    verify( mockInstance, times( 4 ) ).registerPort( portCaptor.capture() );
+    KarafInstance instance = new KarafInstance( "./test-res/KarafInstanceTest", "./test-res/KarafInstanceTest/KarafPorts.yaml", "default" );
 
     boolean port1, port2, port3, port4;
     port1 = port2 = port3 = port4 = false;
-    for ( KarafInstancePort prop : portCaptor.getAllValues() ) {
+    for ( ServerPort port : ServerPortRegistry.getPorts() ) {
+      KarafInstancePort prop = (KarafInstancePort) port;
       switch ( prop.getId() ) {
         case "KARAF_PORT":
           port1 = true;
           assertEquals( "karaf.port", prop.getPropertyName() );
           assertEquals( "Karaf Port", prop.getFriendlyName() );
-          KarafInstancePort portProp = (KarafInstancePort) prop;
-          assertEquals( new Integer( 8801 ), portProp.getStartPort() );
-          assertEquals( new Integer( 8899 ), portProp.getEndPort() );
+          KarafInstancePort portProp = prop;
+          assertEquals( new Integer( 18801 ), portProp.getStartPort() );
           assertEquals( "karaf", prop.getServiceName() );
           break;
 
@@ -97,7 +95,7 @@ public class KarafInstancePortFactoryTest {
 
     boolean service1, service2;
     service1 = service2 = false;
-    for ( Service service : serviceCaptor.getAllValues() ) {
+    for ( Service service : ServerPortRegistry.getServices() ) {
       switch ( service.getServiceName() ) {
         case "karaf":
           service1 = true;

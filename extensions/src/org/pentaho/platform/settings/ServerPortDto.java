@@ -45,7 +45,7 @@ public class ServerPortDto implements Serializable {
 
   public ServerPortDto( ServerPort serverPort ) {
     this.id = serverPort.getId();
-    this.value = serverPort.getValue();
+    this.value = serverPort.getAssignedPort();
     this.friendlyName = serverPort.getFriendlyName();
   }
 

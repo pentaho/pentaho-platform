@@ -114,7 +114,6 @@ public class KarafBootTest {
       doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
 
       boolean startup = karafBoot.startup( session );
-      verify( karafInstance ).start();
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
       assertEquals( tmpDir, new File( System.getProperty( "karaf.home" ) ).getParentFile().getParentFile() );
@@ -142,7 +141,6 @@ public class KarafBootTest {
       doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
 
       boolean startup = karafBoot.startup( session );
-      verify( karafInstance ).start();
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
       assertNotEquals( tmpDir, new File( System.getProperty( "karaf.home" ) ).getParentFile().getParentFile() );
@@ -173,7 +171,6 @@ public class KarafBootTest {
       doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
 
       boolean startup = karafBoot.startup( session );
-      verify( karafInstance ).start();
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
       assertEquals( tempDirectory, new File( System.getProperty( "karaf.home" ) ) );
@@ -205,7 +202,6 @@ public class KarafBootTest {
       doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
 
       boolean startup = karafBoot.startup( session );
-      verify( karafInstance ).start();
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
       File karafHome = new File( System.getProperty( "karaf.home" ) );
@@ -232,7 +228,6 @@ public class KarafBootTest {
     doReturn( KettleClientEnvironment.ClientType.KITCHEN ).when( karafBoot ).getClientType();
 
     boolean startup = karafBoot.startup( session );
-    verify( karafInstance ).start();
 
     // can't see if it started since we aren't actually starting up karaf, return value will be false
     assertFalse( startup );
