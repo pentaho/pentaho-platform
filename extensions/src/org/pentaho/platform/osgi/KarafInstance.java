@@ -17,219 +17,173 @@
 package org.pentaho.platform.osgi;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.settings.PortAssigner;
 import org.pentaho.platform.settings.ServerPort;
 import org.pentaho.platform.settings.ServerPortRegistry;
 import org.pentaho.platform.settings.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
+import java.io.InputStream;
+import java.net.ServerSocket;
 import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This class assigns and configures property settings for separate karaf instances so that multiple client/server
  * applications can run simultaneously on the same host. It assigns/creates a unique cache folder for each karaf
  * instance and maintains what folders are in use by implementing a lock file.
- * 
- * @author tkafalas
  *
+ * @author tkafalas
  */
 public class KarafInstance {
-  Logger logger = LoggerFactory.getLogger( getClass() );
-  private int instanceNumber;
+  private static final String YAML_FILE_NAME = "KarafPorts.yaml";
+
+  private static Logger logger = LoggerFactory.getLogger( KarafInstance.class );
+  private int instanceNumber = 0;
+  private ServerSocket instanceSocket;
   private String cachePath;
-  private FileLock fileLock;
   private String root;
   private final String cacheParentFolder;
   private HashMap<String, KarafInstancePort> instancePorts = new HashMap<String, KarafInstancePort>();
-  private static final int MAX_NUMBER_OF_KARAF_INSTANCES = 50;
+
   private static final int BANNER_WIDTH = 79;
   private static final String CACHE_DIR_PREFIX = "data";
   private static final String USED_PORT_FILENAME = "PortsAssigned.txt";
-  private final PortAssigner portAssigner = PortAssigner.getInstance();
   private boolean started;
-  private static KarafInstance instance; // Not final because unit test creates multiple instances
 
   private StringBuilder banner = new StringBuilder();
 
-  KarafInstance( String root ) {
-    KarafInstance.instance = this;
+  private String instanceFilePath;
+  private String clientType;
+  private FileLock cacheLock;
+
+  public KarafInstance( String root, String clientType ) {
+    this( root, System.getProperty( "karaf.etc" ) + "/" + YAML_FILE_NAME, "default" );
+    this.clientType = clientType;
+  }
+
+  public KarafInstance( String root, String instanceFilePath, String clientType ) {
     this.root = root;
     this.cacheParentFolder = root + "/caches";
-    assignInstanceNumber();
-    cachePath = cacheParentFolder + "/data" + instanceNumber;
+    this.instanceFilePath = instanceFilePath;
+
+    try {
+      processConfigFile();
+    } catch ( FileNotFoundException e ) {
+      throw new IllegalStateException( "Port Config file (" + this.instanceFilePath + ") not found", e );
+    }
+  }
+
+  public void setCachePath( String cachePath ) {
+    this.cachePath = cachePath;
     System.setProperty( "karaf.data", cachePath );
   }
 
-  public static KarafInstance getInstance() {
-    if ( instance == null ) {
-      throw new IllegalStateException( "Karaf instance has not yet been instantiated" );
+  @SuppressWarnings( "unchecked" )
+  public void processConfigFile() throws FileNotFoundException {
+
+    try ( InputStream input = new FileInputStream( new File( instanceFilePath ) ) ) {
+
+      Yaml yaml = new Yaml();
+      Map<String, Object> map = (Map<String, Object>) yaml.load( input );
+      List<Map<String, Object>> serviceList = (List<Map<String, Object>>) map.get( "Service" );
+      for ( Map<String, Object> serviceMap : serviceList ) {
+        Service service =
+            new Service( serviceMap.get( "serviceName" ).toString(),
+                serviceMap.get( "serviceDescription" ).toString() );
+        ServerPortRegistry.addService( service );
+      }
+
+      List<Map<String, Object>> portList = (List<Map<String, Object>>) map.get( "ServerPort" );
+      for ( Map<String, Object> portMap : portList ) {
+        KarafInstancePort karafPort =
+            new KarafInstancePort( this, portMap.get( "id" ).toString(), portMap.get( "property" ).toString(),
+                portMap.get(
+                    "friendlyName" ).toString(), (Integer) portMap.get( "startPort" ),
+                portMap.get( "serviceName" ).toString() );
+        this.registerPort( karafPort );
+      }
+
+    } catch ( FileNotFoundException e ) {
+      throw new FileNotFoundException( "File " + instanceFilePath
+          + " does not exist.  Could not determine karaf port assignment" );
+    } catch ( Exception e ) {
+      throw new RuntimeException( "Could not parse file " + instanceFilePath
+          + ".", e );
     }
-    return instance;
   }
 
-  public void start() {
+  protected static IKarafInstanceResolver resolver;
+
+  protected static IKarafInstanceResolver getResolver() {
+    if ( resolver == null ) {
+      String clazz = System.getProperty( KarafBoot.PENTAHO_KARAF_INSTANCE_RESOLVER_CLASS );
+      if ( clazz != null ) {
+        try {
+          resolver = (IKarafInstanceResolver) Class.forName( clazz ).newInstance();
+        } catch ( Exception e ) {
+          logger.error( "Error instantiating user defined Karaf Instance Resolver: " + clazz, e );
+        }
+      }
+      if ( resolver == null ) {
+        // Something went wrong or we're using the default
+        resolver = new ServerSocketBasedKarafInstanceResolver();
+      }
+    }
+    return resolver;
+  }
+
+  public void assignPortsAndCreateCache() throws KarafInstanceResolverException {
+
+    getResolver().resolveInstance( this );
+
     if ( started ) {
       throw new IllegalStateException( "Attempt to start a karaf instance that is already started" );
     }
     started = true;
-    for ( KarafInstancePort instancePort : instancePorts.values() ) {
-      instancePort.assignPort();
-    }
 
-    // Writing the used ports may need to be moved somewhere after other plugins initialize. Here for now because the
-    // sooner we write the file the lower the odds of another karaf instance grabbing the port.
-    String usedPortFilePath = cachePath + "/" + USED_PORT_FILENAME;
-    try {
-      portAssigner.writeUsedPortFile( usedPortFilePath );
-    } catch ( Exception e ) {
-      // If the ports couldn't be written, log it, but
-      logger.error( "Could not write " + usedPortFilePath
-          + ".  This may cause port conflicts if multiple server instances are started on this host.", e );
-    }
-
-    banner.append( "\n" + StringUtils.repeat( "*", BANNER_WIDTH ) );
+    banner.append( "\n" ).append( StringUtils.repeat( "*", BANNER_WIDTH ) );
     bannerLine( "Karaf Instance Number: " + instanceNumber + " at " + cachePath );
-    SortedSet<String> ids = new TreeSet<String>( instancePorts.keySet() );
+    SortedSet<String> ids = new TreeSet<>( instancePorts.keySet() );
     for ( String id : ids ) {
       ServerPort propertyInstance = instancePorts.get( id );
-      bannerLine( propertyInstance.getFriendlyName() + ":" + propertyInstance.getValue() );
+      bannerLine( propertyInstance.getFriendlyName() + ":" + propertyInstance.getAssignedPort() );
     }
-    banner.append( "\n" + StringUtils.repeat( "*", BANNER_WIDTH ) );
+    banner.append( "\n" ).append( StringUtils.repeat( "*", BANNER_WIDTH ) );
 
     logger.info( banner.toString() );
   }
 
-  private void assignInstanceNumber( ) {
-    int testInstance = 1;
-    while ( testInstance <= MAX_NUMBER_OF_KARAF_INSTANCES ) {
-      cachePath = cacheParentFolder + "/" + CACHE_DIR_PREFIX + testInstance;
-      File cacheFolder = new File( cachePath );
-      if ( !cacheFolder.exists() ) {
-        cacheFolder.mkdirs();
-      }
-
-      fileLock = testLock( cachePath );
-      if ( fileLock != null ) {
-        break; // Could get a lock, so we have an unused instance
-      } else {
-        processExternalPorts( cachePath );
-      }
-
-      testInstance++;
-    }
-    if ( testInstance > MAX_NUMBER_OF_KARAF_INSTANCES ) {
-      throw new RuntimeException( "Could not determine karaf instance number.  Limit of "
-          + MAX_NUMBER_OF_KARAF_INSTANCES + " Karaf instances exceeded." );
-    }
-
-    instanceNumber = testInstance;
-    // Pull in any remaining externally reserved ports. Can't keep incrementing
-    // because someone might have manually erased one of the cache folders (maybe to fix corruption, for instance).
-
-    File file = new File( cacheParentFolder );
-    String[] folders = file.list( new FilenameFilter() {
-      @Override
-      public boolean accept( File current, String name ) {
-        boolean result = false;
-        if ( name.startsWith( CACHE_DIR_PREFIX ) && new File( current, name ).isDirectory() ) {
-          //String pattern = CACHE_DIR_PREFIX + "\\d+";
-          Pattern r = Pattern.compile( "(" + CACHE_DIR_PREFIX + ")(\\d+)$" );
-          Matcher m = r.matcher( name );
-          int testInstance = m.find() ? Integer.valueOf( m.group( 2 ) ) : 0;
-
-          //int testInstance = Integer.valueOf( name.substring( CACHE_DIR_PREFIX.length() ) );
-          if ( testInstance > instanceNumber ) {
-            String folderName = cacheParentFolder + "/" + name;
-            FileLock lock = testLock( folderName );
-            if ( lock != null ) {
-              // We could get a lock so this instance is no in use
-              IOUtils.closeQuietly( lock.channel() );
-            } else {
-              // This instance is in use.
-              result = true;
-            }
-          }
-        }
-        return result;
-      }
-    } );
-
-    for ( String folder : folders ) {
-      processExternalPorts( cacheParentFolder + "/" + folder );
-    }
-  }
-
-  private void processExternalPorts( String externalCacheFolder ) {
-    try {
-      portAssigner.readUsedPortFile( externalCacheFolder + "/" + USED_PORT_FILENAME );
-    } catch ( IOException e ) {
-      logger.error( "No used port file " + externalCacheFolder + "/" + USED_PORT_FILENAME + " was found.", e );
-    }
-  }
-
-  private FileLock testLock( String testFolder ) {
-    File lockFile = new File( testFolder + "/LOCKFILE" );
-    RandomAccessFile accessFile = null;
-    FileLock lock = null;
-    try {
-      accessFile = new RandomAccessFile( lockFile, "rw" );
-      FileChannel channel = accessFile.getChannel();
-      lock = channel.tryLock();
-    } catch ( OverlappingFileLockException e ) {
-      // File is already locked in this thread or virtual machine. This should not happen.
-      logger.error( "File is already locked" + e.getStackTrace() );
-      try {
-        if ( accessFile != null ) {
-          accessFile.close();
-        }
-      } catch ( IOException e1 ) {
-        logger.error( "Could not close resource LOCKFILE " + e.getStackTrace() );
-      }
-    } catch ( IOException e ) {
-      // If we get an IO error here, there is probably something going on in the OS.
-      logger.error( "Could not get lock on " + testFolder + "/LOCKFILE", e );
-    }
-    return lock;
-  }
 
   private void bannerLine( String line ) {
     if ( line.length() > BANNER_WIDTH - 8 ) {
       bannerLine( line.substring( 0, BANNER_WIDTH - 8 ) );
       line = "  " + line.substring( BANNER_WIDTH - 8 );
     }
-    banner.append( "\n*** " + line + StringUtils.repeat( " ", BANNER_WIDTH - line.length() - 7 ) + "***" );
+    banner.append( "\n*** " ).append( line ).append( StringUtils.repeat( " ", BANNER_WIDTH - line.length() - 7 ) )
+        .append( "***" );
   }
 
   /**
    * Used for unit tests. Normally the lock is release when the JVM closes
-   * 
+   *
    * @throws IOException
    */
   public void close() throws IOException {
-    FileChannel channel = fileLock.channel();
-    fileLock.release();
-    channel.close();
-  }
-
-  public String getBanner() {
-    return banner.toString();
+    instanceSocket.close();
+    cacheLock.release();
   }
 
   public int getInstanceNumber() {
@@ -242,17 +196,13 @@ public class KarafInstance {
 
   public void registerPort( KarafInstancePort instancePort ) {
     if ( started ) {
-      throw new IllegalStateException( "Must define properties before the karaf instance is started" );
+      throw new IllegalStateException( "Ports must be added Before the Karaf instance is started" );
     }
     if ( instancePorts.containsKey( instancePort.getId() ) ) {
       throw new IllegalStateException( "Id " + instancePort.getId() + " already defined." );
     }
     instancePorts.put( instancePort.getId(), instancePort );
     ServerPortRegistry.addPort( instancePort );
-  }
-
-  public void registerService( Service service ) {
-    ServerPortRegistry.addService( service );
   }
 
   public KarafInstancePort getPort( String id ) {
@@ -263,18 +213,27 @@ public class KarafInstance {
     return instancePorts.keySet();
   }
 
-  public PortAssigner getPortAssigner() {
-    return portAssigner;
+  public List<KarafInstancePort> getPorts() {
+    return new ArrayList<>( instancePorts.values() );
   }
 
-  public List<ServerPort> getProperties() {
-    ArrayList<ServerPort> l = new ArrayList<ServerPort>();
-    l.addAll( instancePorts.values() );
-    return l;
-  }
-
-  @VisibleForTesting
-  String getCacheParentFolder() {
+  @VisibleForTesting String getCacheParentFolder() {
     return cacheParentFolder;
+  }
+
+  public void setInstanceNumber( Integer instanceNumber ) {
+    this.instanceNumber = instanceNumber;
+  }
+
+  public void setInstanceSocket( ServerSocket instanceSocket ) {
+    this.instanceSocket = instanceSocket;
+  }
+
+  public String getClientType() {
+    return clientType;
+  }
+
+  public void setCacheLock( FileLock cacheLock ) {
+    this.cacheLock = cacheLock;
   }
 }

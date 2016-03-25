@@ -114,7 +114,6 @@ public class KarafBootTest {
       doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
 
       boolean startup = karafBoot.startup( session );
-      verify( karafInstance ).start();
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
       assertEquals( tmpDir, new File( System.getProperty( "karaf.home" ) ).getParentFile().getParentFile() );
@@ -134,15 +133,14 @@ public class KarafBootTest {
       System.getProperties().remove( "karaf.home" );
       configProps.setWritable( false );
       try ( FileOutputStream fileOutputStream = new FileOutputStream(
-        new File( tmpDir, "system/karaf/etc/custom.properties" ) ) ) {
+          new File( tmpDir, "system/karaf/etc/custom.properties" ) ) ) {
         fileOutputStream
-          .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
+            .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
       }
       KarafBoot karafBoot = spy( boot );
       doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
 
       boolean startup = karafBoot.startup( session );
-      verify( karafInstance ).start();
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
       assertNotEquals( tmpDir, new File( System.getProperty( "karaf.home" ) ).getParentFile().getParentFile() );
@@ -165,15 +163,14 @@ public class KarafBootTest {
       System.getProperties().remove( "karaf.home" );
       System.setProperty( KarafBoot.PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER, tempDirectory.getAbsolutePath() );
       try ( FileOutputStream fileOutputStream = new FileOutputStream(
-        new File( tmpDir, "system/karaf/etc/custom.properties" ) ) ) {
+          new File( tmpDir, "system/karaf/etc/custom.properties" ) ) ) {
         fileOutputStream
-          .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
+            .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
       }
       KarafBoot karafBoot = spy( boot );
       doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
 
       boolean startup = karafBoot.startup( session );
-      verify( karafInstance ).start();
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
       assertEquals( tempDirectory, new File( System.getProperty( "karaf.home" ) ) );
@@ -197,15 +194,14 @@ public class KarafBootTest {
       System.setProperty( KarafBoot.PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER, tempDirectory.getAbsolutePath() );
       System.setProperty( KarafBoot.PENTAHO_KARAF_ROOT_TRANSIENT, "true" );
       try ( FileOutputStream fileOutputStream = new FileOutputStream(
-        new File( tmpDir, "system/karaf/etc/custom.properties" ) ) ) {
+          new File( tmpDir, "system/karaf/etc/custom.properties" ) ) ) {
         fileOutputStream
-          .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
+            .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
       }
       KarafBoot karafBoot = spy( boot );
       doReturn( karafInstance ).when( karafBoot ).createAndProcessKarafInstance( anyString() );
 
       boolean startup = karafBoot.startup( session );
-      verify( karafInstance ).start();
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
       File karafHome = new File( System.getProperty( "karaf.home" ) );
@@ -232,7 +228,6 @@ public class KarafBootTest {
     doReturn( KettleClientEnvironment.ClientType.KITCHEN ).when( karafBoot ).getClientType();
 
     boolean startup = karafBoot.startup( session );
-    verify( karafInstance ).start();
 
     // can't see if it started since we aren't actually starting up karaf, return value will be false
     assertFalse( startup );
