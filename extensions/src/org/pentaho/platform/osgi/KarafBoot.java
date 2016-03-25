@@ -174,6 +174,9 @@ public class KarafBoot implements IPentahoSystemListener {
             return true;
           }
         } );
+      }
+
+      if ( destDir != null ) {
         root = destDir.toURI().getPath();
       }
 
