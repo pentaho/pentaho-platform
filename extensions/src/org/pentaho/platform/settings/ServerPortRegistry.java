@@ -49,7 +49,7 @@ public class ServerPortRegistry {
    * @param serverPort
    */
   public static void addPort( ServerPort serverPort ) {
-    if ( serverPorts.get( serverPort.getId() ) != null && serverPorts.get( serverPort.getId() ).getValue() != null ) {
+    if ( serverPorts.get( serverPort.getId() ) != null && serverPorts.get( serverPort.getId() ).getAssignedPort() != null ) {
       throw new IllegalStateException( "Another port has already been assigned with this ID." );
     }
 
