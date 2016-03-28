@@ -213,9 +213,9 @@
     <dependency org="${library.group}" name="libxml" rev="${dependency.reporting-library.revision}" transitive="false" changing="true"/>
     <dependency org="${library.group}" name="libswing" rev="${dependency.reporting-library.revision}" transitive="false" changing="true"/>
     <dependency org="${library.group}" name="flute" rev="${dependency.reporting-library.revision}" transitive="false" changing="true" />
-    
-    
-    
+
+
+
     <dependency org="com.lowagie" name="itext-rtf" rev="${dependency.itextrtf.revision}" changing="true" transitive="false"/>
     <dependency org="org.codehaus.groovy"  name="groovy"  rev="1.8.0"  changing="true" transitive="false"/>
 
@@ -261,7 +261,7 @@
                 transitive="false"/>
     <dependency org="org.postgresql" name="postgresql" rev="9.3-1102-jdbc4" conf="default->default" transitive="false"/>
     <dependency org="org.hsqldb" name="hsqldb" rev="2.3.2" conf="default->default" transitive="false"/>
-    
+
     <dependency org="com.h2database" name="h2" rev="1.2.131" conf="default->default" />
 
 
@@ -276,7 +276,7 @@
     <dependency org="luciddb" name="LucidDbClient-minimal" rev="0.9.4" conf="default->default" transitive="false"/>
     <dependency org="pentaho" name="pentaho-hadoop-hive-jdbc-shim" rev="${dependency.pentaho-hadoop-hive-jdbc-shim.revision}" changing="true"
                 transitive="false"/>
-    <dependency org="pentaho" name="pdi-dataservice-client-plugin" rev="${project.revision}" />
+    <dependency org="pentaho" name="pdi-dataservice-client-plugin" rev="${dependency.pdi-dataservice-client-plugin.revision}" />
 
     <dependency org="net.sf.kosmosfs" name="kfs" rev="0.3" transitive="false"/>
     <dependency org="xmlenc" name="xmlenc" rev="0.52" transitive="false"/>
