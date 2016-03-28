@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -30,6 +30,7 @@ import org.pentaho.metadata.util.SecurityHelper;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -58,8 +59,8 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
    */
   public static String CACHE_REGION = "metadata-domain-repository"; //$NON-NLS-1$
 
-  private ICacheManager cacheManager;
-
+  ICacheManager cacheManager;
+  boolean domainIdsCacheEnabled = true;
   private final IMetadataDomainRepository delegate;
   private static final String DOMAIN_CACHE_KEY_PREDICATE = "domain-id-cache-for-session:";
 
@@ -136,6 +137,11 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
         getClass().getSimpleName() + " (" + CACHE_REGION + ") cannot be initialized" ); //$NON-NLS-1$ //$NON-NLS-2$
     }
     PentahoSystem.addLogoutListener( this ); // So you can remove a users' region when their session disappears
+    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    if ( systemConfig != null ) {
+      String enableDomainIdCache = systemConfig.getProperty( "system.enableDomainIdCache" );
+      domainIdsCacheEnabled = ( enableDomainIdCache == null ) || Boolean.valueOf( enableDomainIdCache );
+    }
   }
 
   /**
@@ -238,7 +244,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     if ( domain != null ) {
 
       if ( logger.isDebugEnabled() ) {
-        logger.debug( "Requested Domain wasn't in Session Cache, but was found in the delegating repository: " +id );
+        logger.debug( "Requested Domain wasn't in Session Cache, but was found in the delegating repository: " + id );
       }
 
       SecurityHelper helper = new SecurityHelper();
@@ -390,28 +396,34 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     final IPentahoSession session = PentahoSessionHolder.getSession();
 
     final String domainKey = generateDomainIdCacheKeyForSession( session );
-    Set<String> domainIds = (Set<String>) cacheManager.getFromRegionCache( CACHE_REGION, domainKey );
-    if ( domainIds != null ) {
-      boolean dirtyCache = false;
-
-      for ( String domain : domainIds ) {
-        if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( domain ) ) {
-          domainIds.remove( domain );
-          removeDomainFromIDCache( domain );
-          dirtyCache = true;
+    Set<String> domainIds;
+    if ( domainIdsCacheEnabled ) {
+      domainIds = (Set<String>) cacheManager.getFromRegionCache( CACHE_REGION, domainKey );
+      if ( domainIds != null ) {
+        boolean dirtyCache = false;
+        for ( String domain : domainIds ) {
+          if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( domain ) ) {
+            domainIds.remove( domain );
+            removeDomainFromIDCache( domain );
+            dirtyCache = true;
+          }
         }
-      }
 
-      if ( dirtyCache ) {
-        cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
+        if ( dirtyCache ) {
+          cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
+        }
+        // We've previously cached domainIds available for this session
+        return domainIds;
       }
-      // We've previously cached domainIds available for this session
-      return domainIds;
+    } else {
+      delegate.reloadDomains();
     }
     // Domains are accessible by anyone. What they contain may be different so rely on the lookup to be
     // session-specific.
     domainIds = delegate.getDomainIds();
-    cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
+    if ( domainIdsCacheEnabled ) {
+      cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
+    }
     return domainIds;
   }
 
