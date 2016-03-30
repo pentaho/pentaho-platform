@@ -12,16 +12,20 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation. All rights reserved.
+ * Copyright 2016 Pentaho Corporation. All rights reserved.
  */
-
 package org.pentaho.platform.osgi;
 
 /**
- * This {@link org.pentaho.platform.api.engine.IPentahoSystemListener} is a facade for another {@link KarafBoot}.
- * It exists solely to prevent configuration change.
- *
- * @Deprecated This class will be removed in the next major version (6.0). Use KarafBoot instead.
+ * Implementations return a PDI client-type identifier (spoon,pan,carte,kitchen) or "default" if not one of those.
+ * <p/>
+ * Created by nbaker on 3/24/16.
  */
-public class OSGIBoot extends KarafBoot {
+public interface IClientTypeProvider {
+  /**
+   * Get the PDI client type associated with this running instance
+   *
+   * @return a PDI client-type identifier (spoon,pan,carte,kitchen) or "default"
+   */
+  String getClientType();
 }
