@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2014 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified;
@@ -911,8 +911,12 @@ public class DefaultUnifiedRepositoryAuthorizationTest extends DefaultUnifiedRep
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
 
-    assertEquals( Arrays.asList( new String[] { RepositoryReadAction.NAME, SchedulerAction.NAME,
-      RepositoryCreateAction.NAME } ), roleBindingDao.getBoundLogicalRoleNames( Arrays.asList( AUTHENTICATED_ROLE_NAME, "ceo" ) ) );
+    List<String> actualRoles = roleBindingDao.getBoundLogicalRoleNames(
+            Arrays.asList( AUTHENTICATED_ROLE_NAME, "ceo" ) );
+    List<String> expectedRoles = Arrays.asList( RepositoryReadAction.NAME, SchedulerAction.NAME,
+            RepositoryCreateAction.NAME );
+    assertEquals( expectedRoles.size(), actualRoles.size() );
+    assertTrue( expectedRoles.containsAll( actualRoles ) );
   }
 
   @Test
