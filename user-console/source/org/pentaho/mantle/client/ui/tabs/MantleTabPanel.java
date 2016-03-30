@@ -96,7 +96,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       }
     } );
 
-    setIsAsyncModeEnabled();
+    fetchAsyncModeEnabledStatus();
   }
 
   public void addTab( String text, String tooltip, boolean closeable, Widget content ) {
@@ -784,7 +784,13 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
   }-*/;
 
-  public void setIsAsyncModeEnabled() {
+  /**
+   * Queries the server once to see whether report-viewer async-mode is enabled. If it is enabled,
+   * the report-viewer provides it own loading screen and the default "please wait" screen interferes
+   * with the user experience of that. Therefore we disable the wait-screen that comes up when a new
+   * page opens. @see case BACKLOG-7180 for details.
+   */
+  public void fetchAsyncModeEnabledStatus() {
     final String moduleBaseURL = GWT.getModuleBaseURL();
     final String moduleName = GWT.getModuleName();
     final String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
