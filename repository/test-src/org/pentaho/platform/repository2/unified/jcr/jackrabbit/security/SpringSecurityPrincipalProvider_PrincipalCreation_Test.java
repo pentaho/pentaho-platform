@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
@@ -25,6 +25,7 @@ import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -60,6 +61,7 @@ public class SpringSecurityPrincipalProvider_PrincipalCreation_Test {
   @Before
   public void setUp() throws Exception {
     userResolver = mock( ITenantedPrincipleNameResolver.class );
+    ICacheManager cacheManager = mock( ICacheManager.class );
 
     mp = new MicroPlatform();
     mp.defineInstance( "tenantedUserNameUtils", userResolver );
@@ -70,6 +72,7 @@ public class SpringSecurityPrincipalProvider_PrincipalCreation_Test {
     properties.put( LoginModuleConfig.PARAM_ANONYMOUS_ID, ANONYMOUS_ID );
     provider = new SpringSecurityPrincipalProvider();
     provider.init( properties );
+    provider.setCacheManager( cacheManager );
   }
 
   @After
