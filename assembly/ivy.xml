@@ -200,6 +200,12 @@
     <dependency org="pentaho-kettle" name="pdi-pur-plugin" rev="${project.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
       <artifact name="pdi-pur-plugin" type="zip"/>
     </dependency>
+    <dependency org="pentaho-kettle" name="kettle-json-plugin" rev="${dependency.kettle-json-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+      <artifact name="kettle-json-plugin" type="zip"/>
+    </dependency>
+    <dependency org="pentaho-kettle" name="kettle-xml-plugin" rev="${dependency.kettle-xml-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+      <artifact name="kettle-xml-plugin" type="zip"/>
+    </dependency>    
 
     <dependency org="xalan" name="xalan" rev="2.7.1"  changing="true" transitive="false"/>
     <dependency org="xalan" name="serializer" rev="2.7.1"  changing="true" transitive="false"/>
