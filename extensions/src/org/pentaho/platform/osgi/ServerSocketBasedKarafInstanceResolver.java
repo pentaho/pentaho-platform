@@ -203,16 +203,16 @@ class ServerSocketBasedKarafInstanceResolver implements IKarafInstanceResolver {
       } catch ( ConnectException e ) {
         // port not in-use
 
-        instanceNo = testInstance;
         try {
           ServerSocket ssocket = new ServerSocket( candidate );
+          instanceNo = testInstance;
           instance.setInstanceSocket( ssocket );
+          instance.setInstanceNumber( instanceNo );
+          logger.debug( "Karaf instance resolved to: " + instanceNo );
         } catch ( IOException e1 ) {
           logger.error( "Error creating ServerSocket", e1 );
         }
 
-        logger.debug( "Karaf instance resolved to: " + instanceNo );
-        instance.setInstanceNumber( instanceNo );
 
       } catch ( IOException ignored ) {
         // Some other error, move to next candidate
