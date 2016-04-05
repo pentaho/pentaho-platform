@@ -17,15 +17,11 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import org.apache.jackrabbit.api.security.principal.PrincipalManager;
-import org.apache.jackrabbit.core.NodeImpl;
-import org.apache.jackrabbit.core.SessionImpl;
-import org.apache.jackrabbit.core.id.NodeId;
-import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
-import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -36,10 +32,16 @@ import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.Privilege;
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+
+import org.apache.jackrabbit.api.security.principal.PrincipalManager;
+import org.apache.jackrabbit.core.NodeImpl;
+import org.apache.jackrabbit.core.SessionImpl;
+import org.apache.jackrabbit.core.id.NodeId;
+import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Customization of {@link ACLProvider}.
@@ -68,32 +70,32 @@ public class PentahoACLProvider extends ACLProvider {
    */
   @Override
   public void init( final Session systemSession, final Map conf ) throws RepositoryException {
-    this.configuration = conf;
+    // this.configuration = conf; (from when we got it from repository.xml, we now override it on next line)
+    overrideConf();
     ISystemConfig settings = PentahoSystem.get( ISystemConfig.class );
     if ( settings != null ) {
       useCachingEntryCollector = "true".equals( settings.getProperty( "system.cachingEntryCollector" ) );
     }
     super.init( systemSession, conf );
     // original initRootACL should run during super.init call above
-    updateRootAcl( (SessionImpl) systemSession, new ACLEditor( session, this, false /* allowUnknownPrincipals */ ) );
+    updateRootAcl( (SessionImpl) systemSession, new ACLEditor( session, this, false /* allowUnknownPrincipals */) );
     this.initialized = true;
     registerEntryCollectorWithObservationManager( systemSession );
   }
 
-  protected void registerEntryCollectorWithObservationManager( Session systemSession ) throws RepositoryException{
+  protected void registerEntryCollectorWithObservationManager( Session systemSession ) throws RepositoryException {
     // Register Entry Collector to receive node events
-    if( entryCollector != null  && this.initialized ){
+    if ( entryCollector != null && this.initialized ) {
       ObservationManager observationMgr = systemSession.getWorkspace().getObservationManager();
-      observationMgr
-        .addEventListener( entryCollector, Event.NODE_ADDED | Event.NODE_REMOVED | Event.NODE_REMOVED, "/", true, null, null,
-          false );
+      observationMgr.addEventListener( entryCollector, Event.NODE_ADDED | Event.NODE_REMOVED | Event.NODE_REMOVED, "/",
+          true, null, null, false );
     }
 
   }
 
   /**
-   * Adds ACE so that everyone can read access control. This allows Jackrabbit's default collectAcls to work
-   * without change. Otherwise, you have to be an admin to call acMgr.getEffectivePolicies.
+   * Adds ACE so that everyone can read access control. This allows Jackrabbit's default collectAcls to work without
+   * change. Otherwise, you have to be an admin to call acMgr.getEffectivePolicies.
    */
   protected void updateRootAcl( SessionImpl systemSession, ACLEditor editor ) throws RepositoryException {
     String rootPath = session.getRootNode().getPath();
@@ -127,7 +129,7 @@ public class PentahoACLProvider extends ACLProvider {
    */
   @Override
   protected EntryCollector createEntryCollector( SessionImpl systemSession ) throws RepositoryException {
-    if( entryCollector != null ){
+    if ( entryCollector != null ) {
       return entryCollector;
     }
     // keep our own private reference; the one in ACLProvider is private
@@ -204,6 +206,33 @@ public class PentahoACLProvider extends ACLProvider {
   private NodeId getRootNodeId() throws RepositoryException {
     // TODO: how expensive is this? Should we keep a reference?
     return ( (NodeImpl) session.getRootNode() ).getNodeId();
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private void overrideConf() {
+    this.configuration = new Properties();
+    // this magic ace gives admins full permission to their tenant root and all children
+    configuration.put( "magicAceDefinition0", "{0};org.pentaho.security.administerSecurity;jcr:all;true;true;false" );
+    // this magic ace gives abs read role permission to read all ancestors of the tenant, necessary for access of
+    // repository
+    configuration.put( "magicAceDefinition1",
+        "{0};org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;true" );
+    // this magic ace gives abs read role permission to read all /etc and children of /etc (except shared database
+    // objects)
+    configuration.put( "magicAceDefinition2",
+        "{0}/etc;org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;true;false;{0}/etc/pdi/databases" );
+    // this magic ace gives abs create role permission to read/write/acl all /etc and children of /etc (except shared
+    // database objects)
+    configuration.put( "magicAceDefinition3",
+        "{0}/etc;org.pentaho.repository.create;jcr:read,jcr:readAccessControl,jcr:write,"
+            + "jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,"
+            + "jcr:nodeTypeManagement;true;true;false;{0}/etc/pdi/databases" );
+    // this magic ace gives abs publish role permission to read/write/acl all /etc and children of /etc (except shared
+    // database objects)
+    configuration.put( "magicAceDefinition4",
+        "{0}/etc;org.pentaho.security.publish;jcr:read,jcr:readAccessControl,jcr:write,"
+            + "jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,"
+            + "jcr:nodeTypeManagement;true;true;false;{0}/etc/pdi/databases" );
   }
 
 }
