@@ -21,7 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.commons.connection.IPeekable;
 import org.pentaho.commons.connection.IPentahoMetaData;
 import org.pentaho.commons.connection.IPentahoResultSet;
-import org.pentaho.commons.connection.memory.MemoryMetaData;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.platform.plugin.services.messages.Messages;
 
@@ -278,19 +277,17 @@ public class SQLResultSet implements IPentahoResultSet, IPeekable {
     return null;
   }
 
+  /**
+   * <b>Attention: </b> It does not clone data!  It is create the shallow copy of metadata! 
+   * It is create the shallow copy of data. You must avoid to use this method. 
+   * @return new instance the {@link MemoryResultSet} with same metadata
+   */
   public IPentahoResultSet memoryCopy() {
     try {
-      IPentahoMetaData cachedMetaData = null;
-
-      if ( getMetaData() instanceof MemoryMetaData ) {
-        cachedMetaData = new MemoryMetaData( (MemoryMetaData) getMetaData() );
-      } else {
-        IPentahoMetaData metadata = getMetaData();
-        Object[][] columnHeaders = metadata.getColumnHeaders();
-        cachedMetaData = new MemoryMetaData( columnHeaders, null );
-      }
-
-      MemoryResultSet cachedResultSet = new MemoryResultSet( cachedMetaData );
+      // we have the {@link #setMetaData(IPentahoMetaData)} so the metadata can be any 
+      // class which implements IPentahoMetaData, we should not lost data from metadata, so we must use metadata from original result set,
+      // or clone metadata. The IPentahoMetaData does not implement Cloneable and we unable to clone data. So keep the shallow copy of metadata.
+      MemoryResultSet cachedResultSet = new MemoryResultSet( getMetaData() );
       Object[] rowObjects = next();
       while ( rowObjects != null ) {
         cachedResultSet.addRow( rowObjects );
