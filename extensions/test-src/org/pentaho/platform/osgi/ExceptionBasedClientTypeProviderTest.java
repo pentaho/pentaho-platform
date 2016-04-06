@@ -47,6 +47,15 @@ public class ExceptionBasedClientTypeProviderTest {
     assertEquals( "default", clientType );
   }
 
+  @Test
+  public void testDefaultUsingDisregardClassName() throws Exception {
+    provider = new ExceptionBasedClientTypeProvider();
+    provider.setTargetClass( ExceptionBasedClientTypeProviderTest.class );
+    provider.setDisregardClass( ExceptionBasedClientTypeProviderTest.class );
+    ExceptionBasedHelper helper = new ExceptionBasedHelper();
+    helper.callme( this );
+  }
+
   public void callback() {
     String clientType = provider.getClientType();
     assertEquals( "exceptionbasedhelper", clientType );
