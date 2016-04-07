@@ -106,6 +106,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   public Response setUserSetting( @PathParam( "setting" ) String setting, String settingValue ) {
     IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
+    settingValue = settingValue.replaceAll( "&", "&amp;" ).replaceAll( "\"", "&quot;" ).replaceAll( "<", "&lt;" ).replaceAll( ">", "&gt;" );
     settingsService.setUserSetting( setting, settingValue );
     return Response.ok( settingValue ).build();
   }
