@@ -18,6 +18,7 @@ package org.pentaho.platform.osgi;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.settings.PortFileManager;
 import org.pentaho.platform.settings.ServerPort;
 import org.pentaho.platform.settings.ServerPortRegistry;
 import org.pentaho.platform.settings.Service;
@@ -164,6 +165,15 @@ public class KarafInstance {
     banner.append( "\n" ).append( StringUtils.repeat( "*", BANNER_WIDTH ) );
 
     logger.info( banner.toString() );
+
+    // Writing the used ports
+    String usedPortFilePath = cachePath + "/" + USED_PORT_FILENAME;
+    try {
+      PortFileManager.getInstance().writeUsedPortFile( usedPortFilePath );
+    } catch ( Exception e ) {
+      // If the ports couldn't be written, log it
+      logger.warn( "Could not write " + usedPortFilePath + ".", e );
+    }
   }
 
 

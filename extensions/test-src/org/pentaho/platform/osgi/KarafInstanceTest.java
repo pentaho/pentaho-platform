@@ -20,10 +20,14 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.settings.PortFileManager;
+import org.pentaho.platform.settings.PortFileManagerTest;
 import org.pentaho.platform.settings.ServerPortRegistry;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -35,6 +39,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class KarafInstanceTest {
   private String TEST_CACHE_FOLDER = "./bin/test/cacheTest";
+  private String USED_PORT_FILENAME = "PortsAssigned.txt";
 
   @Before
   public void setUp() throws IOException {
@@ -75,6 +80,7 @@ public class KarafInstanceTest {
   private KarafInstance createTestInstance( int expectedInstanceNumber ) throws Exception {
     //Simulate a new JVM
     ServerPortRegistry.clear();
+    PortFileManager.getInstance().clear();
 
     //Now start up the instance
     final KarafInstance instance = new KarafInstance( TEST_CACHE_FOLDER, "./test-res/KarafInstanceTest/KarafPorts.yaml", "default" );
@@ -88,6 +94,17 @@ public class KarafInstanceTest {
     }
     File cacheFolder = new File( instance.getCachePath() );
     assertTrue( cacheFolder.exists() );
+
+    testPortFile( instance );
     return instance;
+  }
+
+  private void testPortFile( KarafInstance instance ) throws IOException {
+    List<Integer> instancePorts = new ArrayList<Integer>();
+    for ( KarafInstancePort port : instance.getPorts() ) {
+      instancePorts.add( port.getAssignedPort() );
+    }
+    PortFileManagerTest.testPortsWereWrittenToPortFile( instance.getCachePath() + "/" + USED_PORT_FILENAME,
+        instancePorts );
   }
 }
