@@ -1,0 +1,67 @@
+MagicAces:
+- id: 0
+  path: "{0}"
+  logicalRole: org.pentaho.security.administerSecurity
+  privileges: 
+  -  jcr:all
+  applyToTarget: true
+  applyToChildren: true
+  applyToAncestors: false
+  exceptChildren:
+
+- id: 1
+  path: "{0}"
+  logicalRole: org.pentaho.repository.read
+  privileges:
+  -  jcr:read
+  -  jcr:readAccessControl
+  applyToTarget: true
+  applyToChildren: false
+  applyToAncestors: true
+  exceptChildren:
+  
+- id: 2
+  path: "{0}/etc"
+  logicalRole: org.pentaho.repository.read
+  privileges:
+  -  jcr:read
+  -  jcr:readAccessControl
+  applyToTarget: true
+  applyToChildren: true
+  applyToAncestors: false
+  exceptChildren: 
+     - "{0}/etc/pdi/databases"
+     
+- id: 3
+  path: "{0}/etc"
+  logicalRole: org.pentaho.repository.create
+  privileges:
+  -  jcr:read
+  -  jcr:readAccessControl
+  -  jcr:write
+  -  jcr:modifyAccessControl
+  -  jcr:lockManagement
+  -  jcr:versionManagement
+  -  jcr:nodeTypeManagement
+  applyToTarget: true
+  applyToChildren: true
+  applyToAncestors: false
+  exceptChildren: 
+     - "{0}/etc/pdi/databases"
+     
+- id: 4
+  path: "{0}/etc"
+  logicalRole: org.pentaho.security.publish
+  privileges:
+  -  jcr:read
+  -  jcr:readAccessControl
+  -  jcr:write
+  -  jcr:modifyAccessControl
+  -  jcr:lockManagement
+  -  jcr:versionManagement
+  -  jcr:nodeTypeManagement
+  applyToTarget: true
+  applyToChildren: true
+  applyToAncestors: false
+  exceptChildren: 
+     - "{0}/etc/pdi/databases"

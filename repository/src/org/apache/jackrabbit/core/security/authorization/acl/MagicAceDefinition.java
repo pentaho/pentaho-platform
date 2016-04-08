@@ -1,5 +1,5 @@
 /*!
- * Copyright 2010 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2010 - 2016 Pentaho Corporation.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,17 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import javax.jcr.security.Privilege;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.security.Privilege;
+
+import org.apache.jackrabbit.core.SessionImpl;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * A configuration entry that defines a "magic ACE" rule. This is the object representation of rules that reside in
@@ -119,5 +128,51 @@ public class MagicAceDefinition {
     return "MagicAceDefinition [path=" + path + ", logicalRole=" + logicalRole + ", privileges="
         + Arrays.toString( privileges ) + ", applyToTarget=" + applyToTarget + ", applyToChildren=" + applyToChildren
         + ", applyToAncestors=" + applyToAncestors + "]";
+  }
+
+  @SuppressWarnings( "unchecked" )
+  public static List<MagicAceDefinition> parseYamlMagicAceDefinitions( InputStream yamlFileInputStream,
+      SessionImpl systemSession ) throws RepositoryException {
+    List<MagicAceDefinition> magicAceDefinitions = new ArrayList<MagicAceDefinition>();
+    try {
+      Yaml yaml = new Yaml();
+      Map<String, Object> map = (Map<String, Object>) yaml.load( yamlFileInputStream );
+      List<Map<String, Object>> magicAceList = (List<Map<String, Object>>) map.get( "MagicAces" );
+      for ( Map<String, Object> magicAceMap : magicAceList ) {
+        MagicAceDefinition pam = parseMagicAceDefinition( magicAceMap, systemSession );
+        magicAceDefinitions.add( pam );
+      }
+    } catch ( Exception e ) {
+      throw new RuntimeException( "Could not parse magic ace configurations from Yaml file.", e );
+    }
+    return magicAceDefinitions;
+  }
+
+  /**
+   * Parses a single magic ACE definition from a yaml file.
+   */
+  @SuppressWarnings( "unchecked" )
+  private static MagicAceDefinition
+      parseMagicAceDefinition( Map<String, Object> magicAceMap, SessionImpl systemSession ) throws RepositoryException {
+    String path = magicAceMap.get( "path" ).toString();
+    String logicalRole = magicAceMap.get( "logicalRole" ).toString();
+    boolean applyToTarget = Boolean.valueOf( magicAceMap.get( "applyToTarget" ).toString() );
+    boolean applyToChildren = Boolean.valueOf( magicAceMap.get( "applyToChildren" ).toString() );
+    boolean applyToAncestors = Boolean.valueOf( magicAceMap.get( "applyToAncestors" ).toString() );
+
+    List<String> privilegeList = (List<String>) magicAceMap.get( "privileges" );
+    List<Privilege> privileges = new ArrayList<Privilege>();
+    for ( String privilegeToken : privilegeList ) {
+      privileges.add( systemSession.getAccessControlManager().privilegeFromName( privilegeToken ) );
+    }
+
+    String[] exceptChildren = null;
+    List<String> exceptChildrenArray = (List<String>) magicAceMap.get( "exceptChildren" );
+    if ( exceptChildrenArray != null ) {
+      exceptChildren = exceptChildrenArray.toArray( new String[0] );
+    }
+
+    return new MagicAceDefinition( path, logicalRole, privileges.toArray( new Privilege[0] ), applyToTarget,
+        applyToChildren, applyToAncestors, exceptChildren );
   }
 }
