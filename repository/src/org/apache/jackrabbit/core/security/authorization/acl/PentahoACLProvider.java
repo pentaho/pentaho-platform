@@ -1,5 +1,5 @@
 /*!
- * Copyright 2010 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2010 - 2016 Pentaho Corporation.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,10 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import org.apache.jackrabbit.api.security.principal.PrincipalManager;
-import org.apache.jackrabbit.core.NodeImpl;
-import org.apache.jackrabbit.core.SessionImpl;
-import org.apache.jackrabbit.core.id.NodeId;
-import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
-import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -36,10 +31,16 @@ import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.Privilege;
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+
+import org.apache.jackrabbit.api.security.principal.PrincipalManager;
+import org.apache.jackrabbit.core.NodeImpl;
+import org.apache.jackrabbit.core.SessionImpl;
+import org.apache.jackrabbit.core.id.NodeId;
+import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Customization of {@link ACLProvider}.
@@ -48,6 +49,7 @@ import java.util.Set;
  */
 public class PentahoACLProvider extends ACLProvider {
 
+  @SuppressWarnings( "rawtypes" )
   private Map configuration;
 
   // Overrides to CompiledPermissions creation require we keep an extra reference
@@ -67,6 +69,7 @@ public class PentahoACLProvider extends ACLProvider {
    * </ul>
    */
   @Override
+  @SuppressWarnings( "rawtypes" )
   public void init( final Session systemSession, final Map conf ) throws RepositoryException {
     this.configuration = conf;
     ISystemConfig settings = PentahoSystem.get( ISystemConfig.class );
@@ -80,20 +83,19 @@ public class PentahoACLProvider extends ACLProvider {
     registerEntryCollectorWithObservationManager( systemSession );
   }
 
-  protected void registerEntryCollectorWithObservationManager( Session systemSession ) throws RepositoryException{
+  protected void registerEntryCollectorWithObservationManager( Session systemSession ) throws RepositoryException {
     // Register Entry Collector to receive node events
-    if( entryCollector != null  && this.initialized ){
+    if ( entryCollector != null && this.initialized ) {
       ObservationManager observationMgr = systemSession.getWorkspace().getObservationManager();
-      observationMgr
-        .addEventListener( entryCollector, Event.NODE_ADDED | Event.NODE_REMOVED | Event.NODE_REMOVED, "/", true, null, null,
-          false );
+      observationMgr.addEventListener( entryCollector, Event.NODE_ADDED | Event.NODE_REMOVED | Event.NODE_REMOVED, "/",
+          true, null, null, false );
     }
 
   }
 
   /**
-   * Adds ACE so that everyone can read access control. This allows Jackrabbit's default collectAcls to work
-   * without change. Otherwise, you have to be an admin to call acMgr.getEffectivePolicies.
+   * Adds ACE so that everyone can read access control. This allows Jackrabbit's default collectAcls to work without
+   * change. Otherwise, you have to be an admin to call acMgr.getEffectivePolicies.
    */
   protected void updateRootAcl( SessionImpl systemSession, ACLEditor editor ) throws RepositoryException {
     String rootPath = session.getRootNode().getPath();
@@ -127,7 +129,7 @@ public class PentahoACLProvider extends ACLProvider {
    */
   @Override
   protected EntryCollector createEntryCollector( SessionImpl systemSession ) throws RepositoryException {
-    if( entryCollector != null ){
+    if ( entryCollector != null ) {
       return entryCollector;
     }
     // keep our own private reference; the one in ACLProvider is private
@@ -205,5 +207,4 @@ public class PentahoACLProvider extends ACLProvider {
     // TODO: how expensive is this? Should we keep a reference?
     return ( (NodeImpl) session.getRootNode() ).getNodeId();
   }
-
 }
