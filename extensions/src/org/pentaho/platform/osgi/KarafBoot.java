@@ -31,10 +31,13 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -70,6 +73,11 @@ public class KarafBoot implements IPentahoSystemListener {
   private static final String SYSTEM_PROP_OSX_APP_ROOT_DIR = "osx.app.root.dir";
 
   protected static final String KARAF_DIR = "/system/karaf";
+  private static FileFilter directoryFilter = new FileFilter() {
+    @Override public boolean accept( File pathname ) {
+      return pathname.isDirectory();
+    }
+  };;
 
   @Override public boolean startup( IPentahoSession session ) {
 
@@ -185,11 +193,11 @@ public class KarafBoot implements IPentahoSystemListener {
       String customLocation = root + "/etc/custom.properties";
       expandSystemPackages( customLocation );
 
+      cleanCachesIfFlagSet( root );
+
       // Setup karaf instance configuration
       KarafInstance karafInstance = createAndProcessKarafInstance( root );
 
-
-      cleanCacheIfFlagSet( root );
 
       // Wrap the startup of Karaf in a child thread which has explicitly set a bogus authentication. This is
       // work-around and issue with Karaf inheriting the Authenticaiton set on the main system thread due to the
@@ -220,7 +228,7 @@ public class KarafBoot implements IPentahoSystemListener {
     return main != null;
   }
 
-  void cleanCacheIfFlagSet( String root ) throws IOException {
+  void cleanCachesIfFlagSet( String root ) throws IOException {
     String customLocation = root + "/etc/custom.properties";
 
     // Check to see if the clean cache property is set. If so delete data and recreate before launching.
@@ -236,16 +244,30 @@ public class KarafBoot implements IPentahoSystemListener {
       }
     }
     String cleanCache = customProps.getProperty( CLEAN_KARAF_CACHE, "false" );
-    fileInputStream.close();
     if ( "true".equals( cleanCache ) ) {
-      logger.info( CLEAN_KARAF_CACHE + " is enabled. Karaf data directory will be deleted" );
+      logger.info( CLEAN_KARAF_CACHE + " is enabled. Karaf data directories will be deleted" );
 
-      // KarafInstance may have changed the data directory
-      String dataDirLocation = System.getProperty( "karaf.data" );
-      File dataDir = new File( dataDirLocation );
-      if ( dataDir.exists() ) {
-        FileUtils.deleteDirectory( dataDir );
+      File cacheParent = new File( root + "/caches" );
+
+      File[] clientCacheFolders = cacheParent.listFiles( directoryFilter );
+      for ( File clientCacheFolder : clientCacheFolders ) {
+        File[] cacheDirs = clientCacheFolder.listFiles( directoryFilter );
+        for ( File cacheDir : cacheDirs ) {
+          File lockFile = new File( cacheDir, ".lock" );
+          FileOutputStream fileOutputStream = new FileOutputStream( lockFile );
+          try{
+            FileLock fileLock = fileOutputStream.getChannel().tryLock();
+            fileLock.release();
+            IOUtils.closeQuietly( fileOutputStream );
+            FileUtils.deleteDirectory( cacheDir );
+          } catch( Exception ignored ){
+            // lock active by another program
+          } finally {
+            IOUtils.closeQuietly( fileOutputStream );
+          }
+        }
       }
+
       customProps.setProperty( CLEAN_KARAF_CACHE, "false" );
       FileOutputStream out = null;
       try {

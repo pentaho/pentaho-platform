@@ -46,6 +46,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.util.Properties;
 
+import static org.hamcrest.Matchers.emptyArray;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -296,22 +297,43 @@ public class KarafBootTest {
     PentahoSystem.init( new StandaloneApplicationContext( "test-res/karafBootTest", "." ) );
     //set property
     KarafBoot karafBoot = new KarafBoot();
-    karafBoot.configureSystemProperties( "test-res/osgiSystem/system", "test-res/karafBootTest/system/karaf" );
-    System.setProperty( "karaf.data", "test-res/karafBootTest/system/karaf/data" );
 
-    File nf = new File( System.getProperty( "karaf.data" ) + "/testFile.txt" );
-    nf.mkdirs();
-    nf.createNewFile();
-    assertTrue( nf.exists() );
+    File root = Files.createTempDirectory( "root" ).toFile();
+    File caches = new File( root, "caches" );
+    caches.mkdir();
+    for ( int i = 0; i < 5; i++ ) {
+      File clientTypeFolder = new File( caches, "client" + i );
+      clientTypeFolder.mkdir();
+      for ( int y = 0; y < 3; y++ ) {
+        new File( clientTypeFolder, "data-"+y ).mkdir();
+      }
+    }
+
+    File lock = new File( caches, "client4/data-2/.lock" );
+    lock.createNewFile();
+    FileOutputStream out = new FileOutputStream( lock );
+    out.getChannel().tryLock();
+
+    FileUtils.copyDirectory( new File( "test-res/karafBootTest/system/karaf/etc" ), new File( root, "etc" ) );
 
     Properties config = new Properties();
-    File configFile = new File( "test-res/karafBootTest/system/karaf/etc/custom.properties" );
+    File configFile = new File( root +  "/etc/custom.properties" );
     config.load( new FileInputStream( configFile ) );
     config.setProperty( "org.pentaho.clean.karaf.cache", "true" );
     config.store( new FileOutputStream( configFile ), "setting stage" );
 
-    karafBoot.cleanCacheIfFlagSet( "test-res/karafBootTest/system/karaf/" );
-    assertFalse( nf.exists() );
+    karafBoot.cleanCachesIfFlagSet( root.getPath() );
+    // Check that all data directories are gone
+    for ( int i = 0; i < 4; i++ ) {
+      File clientTypeFolder = new File( caches, "client" + i );
+      File[] files = clientTypeFolder.listFiles();
+      assertEquals( files.length, 0 );
+    }
+
+    // Check that 5 still has a cache folder
+    File clientTypeFolder = new File( caches, "client4" );
+    File[] files = clientTypeFolder.listFiles();
+    assertEquals( files.length, 1 );
 
     config.load( new FileInputStream( configFile ) );
     assertEquals( "false", config.getProperty( "org.pentaho.clean.karaf.cache" ) );
