@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2015 Pentaho Corporation. All rights reserved.
+ * Copyright 2015-2016 Pentaho Corporation. All rights reserved.
  */
 
 package org.pentaho.platform.settings;
@@ -73,6 +73,9 @@ public class ServerPort {
   }
 
   public void setAssignedPort( Integer assignedPort ) {
+    // Removes the old port and adds the new one into the PortFileManager
+    PortFileManager.getInstance().removePort( this.assignedPort );
+    PortFileManager.getInstance().addPort( assignedPort );
     this.assignedPort = assignedPort;
   }
 
@@ -96,6 +99,7 @@ public class ServerPort {
    * Free's up the port resource for re-use. Call this method when the port can be reused.
    */
   public void releasePort() {
+    PortFileManager.getInstance().removePort( assignedPort );
     assignedPort = null;
   }
 
