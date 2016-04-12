@@ -13,17 +13,30 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
 
 import org.junit.Test;
+
+import org.pentaho.metadata.model.Domain;
+import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.test.platform.plugin.services.metadata.MockSessionAwareMetadataDomainRepository;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import org.pentaho.test.platform.plugin.services.metadata.MockSessionAwareMetadataDomainRepository;
+import static org.mockito.Mockito.when;
 
 public class SessionCachingMetadataDomainRepositoryTest {
 
@@ -58,5 +71,50 @@ public class SessionCachingMetadataDomainRepositoryTest {
     repo = spy( new SessionCachingMetadataDomainRepository( delegate ) ); // use a valid delegate
     repo.loadAnnotationsXml( domainId );
     verify( delegate, times( 1 ) ).loadAnnotationsXml( domainId );
+  }
+
+  @Test
+  public void shouldNotUseDomainIdsCacheIfDisabled() throws Exception {
+    MockSessionAwareMetadataDomainRepository mock = spy( new MockSessionAwareMetadataDomainRepository() );
+    PentahoSessionHolder.setSession( new StandaloneSession( "session", "1" ) );
+    SessionCachingMetadataDomainRepository repo = new SessionCachingMetadataDomainRepository( mock );
+    Domain domain = new Domain();
+    domain.setId( "id" );
+    mock.setPersistedDomains( domain );
+
+    ICacheManager manager = mock( ICacheManager.class );
+    repo.cacheManager = manager;
+    repo.domainIdsCacheEnabled = false;
+
+    Set<String> domainIds = repo.getDomainIds();
+
+    assertEquals( 1, domainIds.size() );
+    assertTrue( domainIds.contains( "id" ) );
+    verify( mock, times( 1 ) ).getDomainIds();
+    verify( mock, times( 1 ) ).reloadDomains();
+    verify( manager, times( 0 ) ).getFromRegionCache( "metadata-domain-repository", "domain-id-cache-for-session:1" );
+    verify( manager, times( 0 ) ).addCacheRegion( "domain-id-cache-for-session:1" );
+  }
+
+  @Test
+  public void shouldUseDomainIdsCacheIfEnabled() throws Exception {
+    MockSessionAwareMetadataDomainRepository mock = spy( new MockSessionAwareMetadataDomainRepository() );
+    PentahoSessionHolder.setSession( new StandaloneSession( "session", "1" ) );
+    SessionCachingMetadataDomainRepository repo = new SessionCachingMetadataDomainRepository( mock );
+    Domain domain = new Domain();
+    domain.setId( "id" );
+    mock.setPersistedDomains( domain );
+
+    ICacheManager manager = mock( ICacheManager.class );
+    Set<String> ids = new HashSet<>( Arrays.asList( "domainId1", "domainId2" ) );
+    when( manager.getFromRegionCache( "metadata-domain-repository", "domain-id-cache-for-session:1" ) ).thenReturn( ids );
+
+    repo.cacheManager = manager;
+    repo.domainIdsCacheEnabled = true;
+
+    Set<String> domainIds = repo.getDomainIds();
+    assertEquals( ids, domainIds );
+    verify( mock, times( 0 ) ).reloadDomains();
+    verify( manager, times( 1 ) ).getFromRegionCache( "metadata-domain-repository", "domain-id-cache-for-session:1" );
   }
 }

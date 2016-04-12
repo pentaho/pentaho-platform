@@ -36,6 +36,7 @@
 		<dependency org="log4j"                  name="log4j"              rev="1.2.17"  transitive="false"/>
 		<dependency org="cglib"                  name="cglib-nodep"        rev="2.2"     transitive="false"/>
     <dependency org="com.google.guava" name="guava" rev="17.0" conf="default->default"/>
+        <dependency org="org.yaml" name="snakeyaml" rev="1.7" conf="default->default" transitive="false"/>
 
     	<!-- jersey -->
     	<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.16"/>
