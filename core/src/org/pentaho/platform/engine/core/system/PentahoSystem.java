@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -55,10 +56,6 @@ import org.pentaho.platform.api.engine.IPentahoRegistrableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
-import org.pentaho.platform.api.engine.IPlatformPlugin;
-import org.pentaho.platform.api.engine.IPlatformReadyListener;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.IServerStatusProvider;
 import org.pentaho.platform.api.engine.ISessionStartupAction;
@@ -67,14 +64,12 @@ import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PentahoSystemException;
-import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.OSGIRuntimeObjectFactory;
-import org.pentaho.platform.engine.core.system.status.PeriodicStatusLogger;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -427,11 +422,51 @@ public class PentahoSystem {
       SecurityContextHolder.setContext( originalContext );
     }
   }
+  
+  private static List<IPentahoSystemListener> changeOrderOfListeners( List<IPentahoSystemListener> listeners,
+      String[] orderOfListeners ) {
+    LinkedList<IPentahoSystemListener> listenerList = new LinkedList<IPentahoSystemListener>( listeners );
+    searchElement: for ( int i = orderOfListeners.length - 1; i > -1; i-- ) {
+      String listenerClassName = orderOfListeners[i];
+      try {
+        Class<?> listenerClass = Class.forName( listenerClassName );
+        if ( IPentahoSystemListener.class.isAssignableFrom( listenerClass ) ) {
+          for ( int j = 0; j < listenerList.size(); j++ ) {
+            IPentahoSystemListener listener = listenerList.get( j );
+            if ( listenerClass.isInstance( listener ) ) {
+              listenerList.remove( j );
+              listenerList.add( 0, listener );
+              continue searchElement;
+            }
+          }
+          Logger.warn( PentahoSystem.class, listenerClass.getCanonicalName()
+              + " hasn't been set. order of system listeners not changed" );
+          return listeners;
+        } else {
+          Logger.warn( PentahoSystem.class, listenerClass.getCanonicalName() + " is not instance of "
+              + IPentahoSystemListener.class.getCanonicalName() + ". order of system listeners not changed" );
+          return listeners;
+        }
+      } catch ( ClassNotFoundException e ) {
+        Logger.warn( PentahoSystem.class, listenerClassName
+            + " class can't be found. order of system listeners not changed", e );
+        return listeners;
+      }
+    }
 
+    return listenerList;
+  }
+  
   private static void notifySystemListenersOfStartup( final IPentahoSession session ) throws PentahoSystemException {
     if ( listeners != null && listeners.size() > 0 ) {
-
-      for ( final IPentahoSystemListener systemListener : listeners ) {
+      
+      String[] orderOfListeners =
+          new String[] { "org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter",
+            "org.pentaho.platform.plugin.services.security.userrole.SecuritySystemListener",
+            "org.pentaho.platform.osgi.OSGIBoot" };
+      List<IPentahoSystemListener> listenerList = changeOrderOfListeners( listeners, orderOfListeners );
+		
+      for ( final IPentahoSystemListener systemListener : listenerList ) {
         try {
           // ensure that the Authentication/IPentahoSession is correct between ISystemListeners
           runAsSystem( new Callable<Void>() {
@@ -1237,6 +1272,7 @@ public class PentahoSystem {
       final String host = tmphost;
 
       javax.net.ssl.HostnameVerifier myHv = new javax.net.ssl.HostnameVerifier() {
+        @Override
         public boolean verify( String hostName, javax.net.ssl.SSLSession session ) {
           if ( hostName.equals( host ) || hostName.equals( LOCALHOST ) ) {
             return true;

@@ -18,6 +18,18 @@
 
 package org.pentaho.platform.engine.core.system;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.dom4j.Node;
 import org.junit.After;
 import org.junit.Assert;
@@ -26,18 +38,11 @@ import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ISystemSettings;
 
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import mockit.Deencapsulation;
 
 public class PentahoSystemTest {
   private final String testSystemPropertyName = "testSystemPropertyName";
@@ -111,5 +116,42 @@ public class PentahoSystemTest {
     PentahoSystem.registerObjectFactory( objectFactory );
 
     PentahoSystem.init();
+  }
+  
+  @Test
+  public void changeOrderOfListenersTest() {
+    List<IPentahoSystemListener> listeners = new ArrayList<IPentahoSystemListener>();
+    
+    listeners.add( new PentahoSystemListenerMock2() );
+    listeners.add( new PentahoSystemListenerMock1() );
+    listeners.add( new PentahoSystemListenerMock3() );
+    
+    List<IPentahoSystemListener> listenersRes =
+        Deencapsulation.invoke( PentahoSystem.class, "changeOrderOfListeners", new Class<?>[] { List.class,
+          String[].class }, listeners, new String[] { PentahoSystemListenerMock1.class.getName(),
+            PentahoSystemListenerMock1.class.getName() } );
+
+    Assert.assertTrue( PentahoSystemListenerMock1.class.isInstance( listenersRes.get( 0 ) ) );
+    Assert.assertTrue( PentahoSystemListenerMock2.class.isInstance( listenersRes.get( 1 ) ) );
+    Assert.assertTrue( PentahoSystemListenerMock3.class.isInstance( listenersRes.get( 2 ) ) );
+  }
+
+  public static class PentahoSystemListenerMock implements IPentahoSystemListener {
+    @Override
+    public void shutdown() {
+    }
+    @Override
+    public boolean startup( IPentahoSession arg0 ) {
+      return false;
+    }
+  }
+
+  public static class PentahoSystemListenerMock1 extends PentahoSystemListenerMock {
+  }
+
+  public static class PentahoSystemListenerMock2 extends PentahoSystemListenerMock {
+  }
+
+  public static class PentahoSystemListenerMock3 extends PentahoSystemListenerMock {
   }
 }
