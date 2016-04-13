@@ -18,7 +18,6 @@ package org.pentaho.platform.osgi;
 
 import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.reporting.engine.classic.extensions.datasources.kettle.KettleDataFactoryModuleInitializer;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -37,7 +36,9 @@ public class ExceptionBasedClientTypeProvider implements IClientTypeProvider {
     Arrays.asList( KettleEnvironment.class.getName(), KettleClientEnvironment.class.getName() );
 
   // if we run into these classNames, we'll reset environmentInitFound and carry on
-  protected List<String> disregardClassNames = Arrays.asList( KettleDataFactoryModuleInitializer.class.getName() ); // PRD
+  // @see http://jira.pentaho.com/browse/BACKLOG-7784 for removal of KettleDataFactoryModuleInitializer class hard dependency
+  protected List<String> disregardClassNames =
+    Arrays.asList( "org.pentaho.reporting.engine.classic.extensions.datasources.kettle.KettleDataFactoryModuleInitializer" ); // PRD
 
   // Useful for unit testing
   public void setTargetClass( Class targetClass ) {
