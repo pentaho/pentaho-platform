@@ -31,6 +31,7 @@ import com.google.gwt.core.ext.typeinfo.NotFoundException;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import org.apache.commons.lang.StringUtils;
@@ -87,6 +88,7 @@ public class EventBusUtilGenerator extends Generator {
     composer.addImport( GwtEvent.class.getName() );
     composer.addImport( JavaScriptObject.class.getName() );
     composer.addImport( EventBus.class.getName() );
+    composer.addImport( HandlerRegistration.class.getName() );
 
     SourceWriter sourceWriter = null;
     sourceWriter = composer.createSourceWriter( context, printWriter );
@@ -266,14 +268,14 @@ public class EventBusUtilGenerator extends Generator {
     // ADD HANDLER
     // *********************
     sourceWriter.println();
-    sourceWriter.println( "public void addHandler(final String eventType, final JavaScriptObject handler) { " );
+    sourceWriter.println( "public HandlerRegistration addHandler(final String eventType, final JavaScriptObject handler) { " );
     sourceWriter.indent();
     try {
       // find Command implementors
       JPackage pack = typeOracle.getPackage( EventBusUtil.class.getPackage().getName() );
       JClassType eventSourceType = typeOracle.getType( GwtEvent.class.getName() );
 
-      sourceWriter.println( "if(false){}" ); // placeholder
+      sourceWriter.println( "if(false){return null;}" ); // placeholder
       for ( JClassType type : pack.getTypes() ) {
         if ( type.isAssignableTo( eventSourceType ) ) {
           addHandlerElseCondition( sourceWriter, type );
@@ -283,6 +285,9 @@ public class EventBusUtilGenerator extends Generator {
       // record to logger that Map generation threw an exception
       logger.log( TreeLogger.ERROR, "Error generating BindingContext!!!", e );
     }
+
+    sourceWriter.indent();
+    sourceWriter.println( "return null;" );
 
     sourceWriter.outdent();
     sourceWriter.println( "}" );
@@ -295,7 +300,7 @@ public class EventBusUtilGenerator extends Generator {
     JClassType handlerType =
       typeOracle.getType( EventBusUtil.class.getPackage().getName() + "." + type.getName()
         + "Handler" );
-    writer.println( "EVENT_BUS.addHandler(" + type.getName() + ".TYPE, new "
+    writer.println( "HandlerRegistration handlerRegistration = EVENT_BUS.addHandler(" + type.getName() + ".TYPE, new "
       + type.getName() + "Handler() {" );
     writer.indent();
     for ( JMethod handlerMethod : handlerType.getMethods() ) {
@@ -311,6 +316,9 @@ public class EventBusUtilGenerator extends Generator {
     }
     writer.outdent();
     writer.println( "});" );
+
+    writer.indent();
+    writer.println( "return handlerRegistration;" );
 
     writer.outdent();
     writer.println( "}" );

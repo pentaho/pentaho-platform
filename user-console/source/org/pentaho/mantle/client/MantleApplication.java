@@ -21,6 +21,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -136,7 +137,12 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
       $wnd.mantle_addHandler = function (type, handler) {
           //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, handler);
+          return @org.pentaho.mantle.client.MantleApplication::addHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, handler);
+      }
+
+      $wnd.mantle_removeHandler = function (handler) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          @org.pentaho.mantle.client.MantleApplication::removeHandler(Lcom/google/gwt/event/shared/HandlerRegistration;)(handler);
       }
 
       $wnd.mantle_fireEvent = function (type, parameterMap) {
@@ -151,8 +157,12 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       }
   }-*/;
 
-  public static void addHandler( final String type, final JavaScriptObject handler ) {
-    eventBusUtil.addHandler( type, handler );
+  public static HandlerRegistration addHandler( final String type, final JavaScriptObject handler ) {
+    return eventBusUtil.addHandler( type, handler );
+  }
+
+  public static void removeHandler( final HandlerRegistration handler ) {
+    handler.removeHandler();
   }
 
   private static void fireEvent( final String eventType, final JavaScriptObject parametersMap ) {
