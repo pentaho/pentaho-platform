@@ -13,14 +13,33 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.security.policy.rolebased;
 
-import com.google.common.collect.HashMultimap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.jcr.NamespaceException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IPluginManagerListener;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
@@ -34,22 +53,7 @@ import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.springframework.util.Assert;
 
-import javax.jcr.NamespaceException;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Value;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import com.google.common.collect.HashMultimap;
 
 public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizationPolicyRoleBindingDao {
 
@@ -63,7 +67,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
 
   protected String superAdminRoleName;
 
-  private List<IAuthorizationAction> authorizationActions = new ArrayList<IAuthorizationAction>();
+  private List<IAuthorizationAction> authorizationActions = Collections.emptyList();
 
   public static final String FOLDER_NAME_AUTHZ = ".authz"; //$NON-NLS-1$
 
@@ -96,7 +100,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     Assert.notNull( superAdminRoleName );
     Assert.notNull( authorizationActions );
 
-    this.authorizationActions.addAll( authorizationActions );
+    setAuthorizationActions( authorizationActions );
 
     this.immutableRoleBindings = immutableRoleBindings;
     this.bootstrapRoleBindings = bootstrapRoleBindings;
@@ -112,8 +116,35 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
       immutableRoleBindingNames.put( entry.getKey(), roles );
     }
 
+    // TODO this code can be replaced for 7.0 version by commit
+    // https://github.com/AliaksandrDrebenchuk/pentaho-platform/commit/3adf0df3a337b6dc1b864e74b62143510d0381ee
+    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
+    if ( pluginManager != null ) {
+      pluginManager.addPluginManagerListener( new IPluginManagerListener() {
+
+        @Override
+        public void onReload() {
+          setAuthorizationActions( PentahoSystem.getAll( IAuthorizationAction.class ) );
+          updateImmutableRoleBindingNames();
+        }
+      } );
+    }
   }
 
+  public void updateImmutableRoleBindingNames() {
+    for ( List<String> roles : immutableRoleBindingNames.values() ) {
+      roles.clear();
+      for ( final IAuthorizationAction action : authorizationActions ) {
+        roles.add( action.getName() );
+      }
+    }
+  }
+
+  public void setAuthorizationActions( final List<IAuthorizationAction> authorizationActions ) {
+    this.authorizationActions = authorizationActions;
+  }
+
+  @Override
   public List<String> getBoundLogicalRoleNames( Session session, List<String> runtimeRoleNames )
       throws NamespaceException, RepositoryException {
     Set<String> boundRoleNames = new HashSet<String>();
@@ -141,6 +172,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     return new ArrayList<String>( boundRoleNames );
   }
 
+  @Override
   public List<String> getBoundLogicalRoleNames( Session session, ITenant tenant, List<String> runtimeRoleNames )
       throws NamespaceException, RepositoryException {
     if ( ( tenant == null ) || ( tenant.getId() == null ) ) {
