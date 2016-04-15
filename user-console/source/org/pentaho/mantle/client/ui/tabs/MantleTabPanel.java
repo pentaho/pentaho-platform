@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.ui.tabs;
@@ -350,6 +350,10 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       }
   }-*/;
 
+  public static native void fireCloseTab( String frameId ) /*-{
+    $wnd.mantle_fireEvent('GenericEvent', {"eventSubType": "tabClosing", "stringParam": frameId});
+  }-*/;
+
   public void showLoadingIndicator() {
     WaitPopup.getInstance().setVisible( true );
   }
@@ -546,6 +550,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   public void closeTab( final PentahoTab closeTab, final boolean invokePreTabCloseHook ) {
     if ( closeTab.getContent() instanceof IFrameTabPanel ) {
       final Element frameElement = ( (IFrameTabPanel) closeTab.getContent() ).getFrame().getElement();
+      final String frameId = frameElement.getAttribute( "id" );
       if ( invokePreTabCloseHook && hasUnsavedChanges( frameElement ) ) {
         // prompt user
         VerticalPanel vp = new VerticalPanel();
@@ -558,6 +563,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
           }
 
           public void okPressed() {
+            fireCloseTab( frameId );
             ( (CustomFrame) ( (IFrameTabPanel) closeTab.getContent() ).getFrame() ).removeEventListeners( frameElement );
             clearClosingFrame( frameElement );
             MantleTabPanel.super.closeTab( closeTab, invokePreTabCloseHook );
@@ -577,6 +583,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         return;
       }
 
+      fireCloseTab( frameId );
       ( (CustomFrame) ( (IFrameTabPanel) closeTab.getContent() ).getFrame() ).removeEventListeners( frameElement );
       clearClosingFrame( frameElement );
     }
