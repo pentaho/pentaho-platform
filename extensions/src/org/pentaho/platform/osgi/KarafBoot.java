@@ -35,7 +35,6 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.channels.FileLock;
 import java.nio.file.Files;
@@ -65,6 +64,9 @@ public class KarafBoot implements IPentahoSystemListener {
 
   public static final String PENTAHO_KARAF_ROOT_COPY_FOLDER_SYMLINK_FILES =
       "pentaho.karaf.root.copy.folder.symlink.files";
+
+  public static final String PENTAHO_KARAF_ROOT_COPY_FOLDER_EXCLUDE_FILES =
+    "pentaho.karaf.root.copy.folder.exclude.files";
 
   public static final String ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA = "org.osgi.framework.system.packages.extra";
 
@@ -155,11 +157,18 @@ public class KarafBoot implements IPentahoSystemListener {
 
       // Copy karaf (symlinking allowed files/folders if possible)
       if ( destDir != null && ( transientRoot || !destDir.exists() ) ) {
-        final Set<String> symlinks = new HashSet<String>();
+        final Set<String> symlinks = new HashSet<>();
         String symlinkFiles = System.getProperty( PENTAHO_KARAF_ROOT_COPY_FOLDER_SYMLINK_FILES, "lib,system" );
         if ( symlinkFiles != null ) {
           for ( String symlink : symlinkFiles.split( "," ) ) {
-            symlinks.add( symlink );
+            symlinks.add( symlink.trim() );
+          }
+        }
+        final Set<String> excludes = new HashSet<>();
+        String excludeFiles = System.getProperty( PENTAHO_KARAF_ROOT_COPY_FOLDER_EXCLUDE_FILES, "caches" );
+        if ( excludeFiles != null ) {
+          for ( String exclude : excludeFiles.split( "," ) ) {
+            excludes.add( exclude.trim() );
           }
         }
         final Path karafDirPath = Paths.get( karafDir.toURI() );
@@ -167,7 +176,9 @@ public class KarafBoot implements IPentahoSystemListener {
           @Override public boolean accept( File file ) {
             Path filePath = Paths.get( file.toURI() );
             String relativePath = karafDirPath.relativize( filePath ).toString();
-            if ( symlinks.contains( relativePath ) ) {
+            if ( excludes.contains( relativePath ) ) {
+              return false;
+            } else if ( symlinks.contains( relativePath ) ) {
               File linkFile = new File( destDir, relativePath );
               linkFile.getParentFile().mkdirs();
               Path link = Paths.get( linkFile.toURI() );
@@ -258,12 +269,12 @@ public class KarafBoot implements IPentahoSystemListener {
         for ( File cacheDir : cacheDirs ) {
           File lockFile = new File( cacheDir, ".lock" );
           FileOutputStream fileOutputStream = new FileOutputStream( lockFile );
-          try{
+          try {
             FileLock fileLock = fileOutputStream.getChannel().tryLock();
             fileLock.release();
             IOUtils.closeQuietly( fileOutputStream );
             FileUtils.deleteDirectory( cacheDir );
-          } catch( Exception ignored ){
+          } catch ( Exception ignored ) {
             // lock active by another program
           } finally {
             IOUtils.closeQuietly( fileOutputStream );
