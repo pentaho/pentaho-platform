@@ -48,7 +48,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang.StringUtils;
@@ -56,6 +55,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -277,13 +277,10 @@ public class FileServiceTest {
   @Test
   public void doCopyFilesException() throws Exception {
 
-    String destinationPath = "/path/to/destination";
     String destinationPathColon = ":path:to:destination";
 
-    String filePath1 = "/path/to/source/file1.ext";
     String fileId1 = "file1";
 
-    String filePath2 = "/path/to/source/file2.ext";
     String fileId2 = "file2";
 
     when( fileService.policy.isAllowed( anyString() ) ).thenReturn( false );
@@ -395,7 +392,6 @@ public class FileServiceTest {
     RepositoryFileOutputStream mockOutputStream = mock( RepositoryFileOutputStream.class );
     doReturn( mockOutputStream ).when( fileService ).getRepositoryFileOutputStream( anyString() );
 
-    HttpServletRequest mockRequest = mock( HttpServletRequest.class );
     InputStream mockInputStream = mock( InputStream.class );
 
     doReturn( 1 ).when( fileService ).copy( mockInputStream, mockOutputStream );
@@ -410,7 +406,6 @@ public class FileServiceTest {
 
   @Test
   public void testDoCreateFileException() {
-    RepositoryFileOutputStream mockOutputStream = mock( RepositoryFileOutputStream.class );
     doThrow( new IllegalArgumentException() ).when( fileService ).idToPath( anyString() );
 
     try {
@@ -977,7 +972,8 @@ public class FileServiceTest {
     throws Throwable {
 
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
-    doReturn( true ).when( mockAuthPolicy ).isAllowed( anyString() );
+
+    when( mockAuthPolicy.isAllowed( anyString() ) ).thenReturn( true );
 
     BaseExportProcessor mockExportProcessor = mock( BaseExportProcessor.class );
     File mockExportFile = mock( File.class );
@@ -999,6 +995,10 @@ public class FileServiceTest {
       fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, withManifest );
 
     verify( fileService.repository, times( 1 ) ).getFile( anyString() );
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass( String.class );
+    verify( mockAuthPolicy, times( 2 ) ).isAllowed( captor.capture() );
+    assertTrue( captor.getAllValues().contains( RepositoryReadAction.NAME ) );
+    assertTrue( captor.getAllValues().contains( RepositoryCreateAction.NAME ) );
 
     assertEquals( mockStream, wrapper.getOutputStream() );
     assertEquals( expectedEncodedFileName, wrapper.getEncodedFileName() );
@@ -1013,8 +1013,7 @@ public class FileServiceTest {
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
 
     try {
-      FileService.DownloadFileWrapper wrapper =
-        fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
+      fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
       fail();
     } catch ( GeneralSecurityException e ) {
       // Expected
@@ -1227,7 +1226,6 @@ public class FileServiceTest {
   @Test
   public void testDoGetGeneratedContent() {
     String pathId = "test.prpt",
-      user = "admin",
       userFolder = "public/admin";
 
     RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
@@ -1533,7 +1531,6 @@ public class FileServiceTest {
     } catch ( FileNotFoundException e ) {
       // Should catch exception
     }
-
     verify( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
   }
 

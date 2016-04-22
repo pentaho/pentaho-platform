@@ -554,9 +554,9 @@ public class FileService {
 
   public DownloadFileWrapper doGetFileOrDirAsDownload( String userAgent, String pathId, String strWithManifest )
     throws Throwable {
-
-    // you have to have PublishAction in order to download
-    if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
+    IAuthorizationPolicy  policy = getPolicy();
+    // you have to have ReadAction and CreateAction in order to download
+    if ( !policy.isAllowed( RepositoryReadAction.NAME ) & !policy.isAllowed( RepositoryCreateAction.NAME ) ) {
       throw new GeneralSecurityException();
     }
 
