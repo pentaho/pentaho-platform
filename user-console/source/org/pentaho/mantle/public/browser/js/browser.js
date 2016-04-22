@@ -339,7 +339,7 @@ define([
          * 2) has 'Read Content' permission
          * 3) has 'Create Content' permission
          */
-        var inHomeFolder = ( folderPath == userHomePath );
+        var inHomeFolder = ( folderPath == userHomePath ) || folderPath.indexOf( userHomePath ) > -1;
         var canUploadAndDownload = this.get("canDownload") && this.get("canPublish");
         
         if( !canUploadAndDownload && inHomeFolder ) {
