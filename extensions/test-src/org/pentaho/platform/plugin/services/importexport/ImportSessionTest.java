@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport;
@@ -74,7 +74,7 @@ public class ImportSessionTest {
 
   @Test
   public void fileHiddenPropertyIsNullWhenAclIsDisabled() {
-    importSession.setAclProperties( false, false, false );
+    importSession.setAclProperties( false, true, false );
     assertNull( importSession.isFileHidden( PATH ) );
   }
 
