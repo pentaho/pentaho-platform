@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport;
@@ -55,6 +55,7 @@ public class ImportSession {
 
   private final HashSet<RepositoryFile> importedRepositoryFiles = new HashSet<RepositoryFile>();
   private final List<String> importedScheduleJobIds = new ArrayList<String>();
+  public static IPlatformImporter iPlatformImporter; //This variable allows injection on unit tests
 
   public static ImportSession getSession() {
     ImportSession session = sessions.get();
@@ -77,7 +78,10 @@ public class ImportSession {
 
   public Log getLogger() {
     if ( log == null ) {
-      IRepositoryImportLogger logger = PentahoSystem.get( IPlatformImporter.class ).getRepositoryImportLogger();
+      if ( iPlatformImporter == null ) {
+        iPlatformImporter = PentahoSystem.get( IPlatformImporter.class );
+      }
+      IRepositoryImportLogger logger = iPlatformImporter.getRepositoryImportLogger();
       if ( logger != null && logger.hasLogger() ) {
         // An import is running from the /repo/file/import endpoint
         log = logger;
@@ -101,8 +105,8 @@ public class ImportSession {
    * @return
    */
   public Boolean isFileHidden( String filePath ) {
-    if ( ( applyAclSettings || retainOwnership ) && manifest != null
-      && manifest.getExportManifestEntity( filePath ) != null ) {
+    if ( ( applyAclSettings || !retainOwnership ) && manifest != null
+        && manifest.getExportManifestEntity( filePath ) != null ) {
       return manifest.getExportManifestEntity( filePath ).getRepositoryFile().isHidden();
     }
     return null;
@@ -113,7 +117,7 @@ public class ImportSession {
     // If we are writing ACL's we'll have to check later in RepositoryFileImportHandler whether to overwrite
     // based on the isOverwriteAcl setting and whether we are creating or updating the RepositoryFile.
     RepositoryFileAcl acl = null;
-    if ( applyAclSettings || retainOwnership ) {
+    if ( applyAclSettings || !retainOwnership ) {
       try {
         if ( manifest != null ) {
           ExportManifestEntity entity = manifest.getExportManifestEntity( filePath );
