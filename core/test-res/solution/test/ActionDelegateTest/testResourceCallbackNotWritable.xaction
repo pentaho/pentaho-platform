@@ -11,32 +11,29 @@
     <icon>HelloWorld.png</icon> 
   </documentation>
 
-  <inputs> 
-    <messages type="string-list"> 
-      <default-value type="string-list">
-        <list-item>message0</list-item>
-        <list-item>message1</list-item>
-        <list-item>message2</list-item>
-      </default-value> 
-    </messages>  
-    <scalarMessage type="string"> 
-      <default-value>scalar message text</default-value> 
-    </scalarMessage> 
-  </inputs>
+  <inputs/>
 
   <outputs/>
 
-  <resources/>
+  <resources> 
+    <xmlResource> 
+      <xml> 
+        <location> 
+          <test-xml/> 
+        </location>  
+        <mime-type>text/text</mime-type> 
+      </xml> 
+    </xmlResource> 
+  </resources>
   
   <actions> 
     <action-definition> 
       <component-name>TestAction</component-name>
       <action-type>JUnit Test Action 1</action-type>
-      <action-inputs> 
-        <messages type="string-list"/>  
-        <scalarMessage type="string"/> 
-      </action-inputs>
-      <action-resources/>
+      <action-inputs/>
+      <action-resources>
+        <xmlResource type="resource"/>
+      </action-resources>
       <action-outputs/>
       <component-definition/>  
       <action-name>TestAction 1</action-name>  

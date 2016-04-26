@@ -13,9 +13,8 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
-
 package org.pentaho.platform.engine.services.actions;
 
 import org.apache.commons.logging.Log;
@@ -23,7 +22,6 @@ import org.pentaho.platform.api.action.ILoggingAction;
 import org.pentaho.platform.api.action.ISessionAwareAction;
 import org.pentaho.platform.api.engine.IPentahoSession;
 
-@SuppressWarnings( "nls" )
 public class TestLoggingSessionAwareAction implements ILoggingAction, ISessionAwareAction {
 
   private Log logger;
@@ -37,7 +35,6 @@ public class TestLoggingSessionAwareAction implements ILoggingAction, ISessionAw
 
   public void execute() throws Exception {
     executeWasCalled = true;
-    logger.error( "Test Error Message" );
   }
 
   public void setMessage( String message ) {
@@ -50,7 +47,6 @@ public class TestLoggingSessionAwareAction implements ILoggingAction, ISessionAw
 
   public void setLogger( Log logger ) {
     this.logger = logger;
-    logger.warn( "Test Warning Message" );
   }
 
   public Log getLogger() {

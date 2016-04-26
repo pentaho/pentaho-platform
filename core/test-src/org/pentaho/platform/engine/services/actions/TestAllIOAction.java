@@ -13,9 +13,8 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
-
 package org.pentaho.platform.engine.services.actions;
 
 import org.pentaho.platform.api.action.IStreamingAction;
@@ -28,7 +27,7 @@ import java.util.Map;
 @SuppressWarnings( "nls" )
 public class TestAllIOAction implements IStreamingAction {
 
-  private OutputStream myContentOutput;
+  private OutputStream outputstream;
   private String message;
   private InputStream embeddedXmlResource;
   private List<String> addressees;
@@ -37,16 +36,21 @@ public class TestAllIOAction implements IStreamingAction {
   private List<Map<String, String>> fruitData;
   private boolean executeWasCalled = false;
 
-  public OutputStream getMyContentOutput() {
-    return myContentOutput;
+  public OutputStream getOutputstream() {
+    return outputstream;
   }
 
+  public OutputStream getOutputStream() {
+    return outputstream;
+  }
+
+  @Override
   public void setOutputStream( OutputStream outputStream ) {
-    setMyContentOutputStream( outputStream );
+    this.outputstream = outputStream;
   }
 
-  public void setMyContentOutputStream( OutputStream outputStream ) {
-    this.myContentOutput = outputStream;
+  public void setOutputstream( OutputStream outputStream ) {
+    this.outputstream = outputStream;
   }
 
   public String getMessage() {
