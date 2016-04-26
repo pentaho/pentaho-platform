@@ -385,6 +385,25 @@ define([
       var filePath = clickedFile.obj.attr("path");
       filePath = Encoder.encodeRepositoryPath(filePath);
 
+      /* 
+       * BACKLOG-7846: a non-admin user will be granted upload/download permissions when:
+       * 1) is located in his home folder
+       * 2) has 'Read Content' permission
+       * 3) has 'Create Content' permission
+       */
+      var userHomePath = Encoder.encodeRepositoryPath( window.parent.HOME_FOLDER );
+      var inHomeFolder = filePath.indexOf( userHomePath ) > -1;
+      var canDownload = this.get("canDownload");
+
+      if( !canDownload && inHomeFolder ) {
+        var hasReadPermission = this.get("canRead");
+        var hasCreatePermission = this.get("canCreate")
+
+        if( hasReadPermission && hasCreatePermission ) {
+          fileButtons.canDownload(true); // enable download button
+        }
+      }
+
       //Ajax request to check write permissions for file
       $.ajax({
         url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(filePath) + '/canAccessMap',
