@@ -13,18 +13,16 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
-
 package org.pentaho.platform.engine.services.actions;
 
-import org.apache.commons.logging.LogFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.ActionSequenceException;
-import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -80,14 +78,14 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings( "nls" )
 public class ActionDelegateTest {
+
+  public static final String SOLUTION_PATH = "test-res/solution";
+
   private MicroPlatform booter;
 
   private ByteArrayOutputStream out;
 
   IOutputHandler outputHandler;
-
-  // this list is here merely to provide a static accessor to the test action object
-  public static List<IAction> actionList = new ArrayList<IAction>();
 
   private static Map<String, String> veggieDataExpected = new HashMap<String, String>();
 
@@ -121,20 +119,17 @@ public class ActionDelegateTest {
   }
 
   @Before
-  public void init() throws PlatformInitializationException {
-    System.setProperty( "log4j.logger.org.pentaho", "INFO" );
-    LogFactory.getLog( "test" ).info( "i'm here" );
-
-    booter = new MicroPlatform();
+  public void setUp() throws PlatformInitializationException {
+    booter = new MicroPlatform( SOLUTION_PATH );
     booter.define( ISolutionEngine.class, SolutionEngine.class, Scope.GLOBAL );
     booter.define( IPluginManager.class, TestPluginManager.class, Scope.GLOBAL );
     booter.define( "contentrepo", TestOutputHandler.class, Scope.GLOBAL );
-
-    actionList.clear();
-    actionList.add( new TestAllIOAction() );
-
     booter.start();
-    PentahoSystem.get( ISolutionEngine.class ).setLoggingLevel( ILogger.DEBUG );
+  }
+
+  @After
+  public void tearDown() {
+    booter.stop();
   }
 
   @Test
@@ -143,18 +138,11 @@ public class ActionDelegateTest {
 
     execute( "testIndexedInputs.xaction", action1 );
 
-    assertTrue( "messages list should have elements", action1.getAllMessages().size() > 0 );
-    assertTrue( "otherMessages list should have elements", action1.getOtherMessages().size() > 0 );
-
+    assertTrue( "messages list should have elements", action1.getMessages().size() > 0 );
     for ( int i = 0; i < 3; i++ ) {
-      assertEquals( "action string type input \"messages_" + i + "\" is incorrect/not set", "indexed messages_" + i
-          + " text", action1.getMessages( i ) );
-      assertEquals( "action string type input \"otherMessages_" + i + "\" is incorrect/not set",
-          "other indexed messages_" + i + " text", action1.getOtherMessages().get( i ) );
+      assertEquals( "action string type input \"messages_" + i + "\" is incorrect/not set", "message" + i, action1.getMessages().get( i ) );
     }
-
-    assertEquals( "action string type input \"scalarMessage\" is incorrect/not set", "scalar message text", action1
-        .getTextOfScalarMessage() );
+    assertEquals( "action string type input \"scalarMessage\" is incorrect/not set", "scalar message text", action1.getTextOfScalarMessage() );
   }
 
   @Test
@@ -166,8 +154,7 @@ public class ActionDelegateTest {
     execute( "testMappedInput.xaction", action1, action2 );
 
     assertEquals( "action1 string type input \"message\" is incorrect/not set", "message text", action1.getMessage() );
-    assertEquals( "action2 string type input \"message\" is incorrect/not set", "internalMessage text", action2
-        .getMessage() );
+    assertEquals( "action2 string type input \"message\" is incorrect/not set", "internalMessage text", action2.getMessage() );
     assertEquals( "should see the message from action1 here", "Action 1 was here!", action2.getMessageBoard() );
   }
 
@@ -184,10 +171,11 @@ public class ActionDelegateTest {
     assertNotNull( "varArgs not set", action.getVarArgs() );
     assertTrue( "varArg1 was not set", action.getVarArgs().containsKey( "varArg1" ) );
     assertEquals( "varArg1 has incorrect value", "varArg1 text", action.getVarArgs().get( "varArg1" ) );
-    assertFalse( "varArg2 was set. We expect null values to be skipped.  See BeanUtil.setValue", action.getVarArgs()
-        .containsKey( "varArg2" ) );
+    assertFalse( "varArg2 was set. We expect null values to be skipped.  See BeanUtil.setValue",
+        action.getVarArgs().containsKey( "varArg2" ) );
   }
 
+  //TO-DO reduce a log for this method
   @Test
   public void testComponentDefinitionInputs() {
     TestAction action = new TestAction();
@@ -198,12 +186,10 @@ public class ActionDelegateTest {
       // ignore errors here. we expect an error but want to check it with an assert
     }
 
-    assertEquals( "string type input \"embeddedMessage\" is incorrect/not set", "embedded message text", action
-        .getEmbeddedMessage() );
-    assertEquals( "numeric type input \"embeddedNumber\" is incorrect/not set", new Integer( 2001 ), action
-        .getEmbeddedNumber() );
-    assertNull( "bad numeric \"badEmbeddedNumber\" should not have been set, is [" + action.getBadEmbeddedNumber()
-        + "]", action.getBadEmbeddedNumber() );
+    assertEquals( "string type input \"embeddedMessage\" is incorrect/not set", "embedded message text", action.getEmbeddedMessage() );
+    assertEquals( "numeric type input \"embeddedNumber\" is incorrect/not set", new Integer( 2001 ), action.getEmbeddedNumber() );
+    assertNull( "bad numeric \"badEmbeddedNumber\" should not have been set, is [" + action.getBadEmbeddedNumber() + "]",
+        action.getBadEmbeddedNumber() );
 
     /*
      * Elements with only a text node and no sub-elements are treated by ASD as normal inputs. However, if an
@@ -242,11 +228,8 @@ public class ActionDelegateTest {
     execute( "testCompatibilityMode.xaction", action );
 
     assertEquals( "string type input \"message\" is incorrect/not set", "Test 1..2..3", action.getMessage() );
-
     assertNotNull( "property-map type input \"veggie-data\" is not set", action.getVeggieData() );
-
     assertNotNull( "resource \"embedded-xml-resource\" is incorrect/not set", action.getEmbeddedXmlResource() );
-
     assertEquals( "output \"echo-message\" is not set or incorrect", "Test String Output", action.getEchoMessage() );
   }
 
@@ -302,13 +285,9 @@ public class ActionDelegateTest {
     execute( "testStreaming.xaction", action1 );
 
     assertNotNull( "output stream was not set on action1", action1.getMyContentOutputStream() );
-
-    assertTrue(
-        "the fact that we are executing an IStreamingAction should have caused the responseExpected flag to be set",
+    assertTrue( "the fact that we are executing an IStreamingAction should have caused the responseExpected flag to be set",
         outputHandler.isResponseExpected() );
-
     assertEquals( "string type input \"message\" is incorrect/not set", "message input text", action1.getMessage() );
-
     assertTrue( "output stream should contain this text", out.toString().contains( "message input text" ) );
   }
 
@@ -352,9 +331,33 @@ public class ActionDelegateTest {
     TestStreamingAction action1 = new TestStreamingAction();
 
     assertNull( action1.getMyContentOutputStream() );
-
     execute( "testUnsupportedContentOutput.xaction", action1 );
     // by this point, we should see a nice stack trace in the log indicating the (expected) error
+  }
+
+  @Test( expected = ActionSequenceException.class )
+  public void testInputErrorCallbackFailedToSet() throws PlatformInitializationException, FileNotFoundException,
+    ActionSequenceException {
+    InputErrorCallbackFailedToSet action = new InputErrorCallbackFailedToSet();
+    execute( "testInputErrorCallbackFailedToSet.xaction", action );
+  }
+
+  @Test
+  public void testInputErrorCallbackNotWritable() throws PlatformInitializationException, FileNotFoundException,
+    ActionSequenceException {
+    InputErrorCallbackNotWritable action = new InputErrorCallbackNotWritable();
+    execute( "testInputErrorCallbackNotWritable.xaction", action );
+    assertNull( action.getInputNames() );
+    assertNull( action.getOutputNames() );
+  }
+
+  @Test
+  public void testResourceCallbackNotWritable() throws PlatformInitializationException, FileNotFoundException,
+    ActionSequenceException {
+    ResourceCallbackNotWritable action = new ResourceCallbackNotWritable();
+    execute( "testResourceCallbackNotWritable.xaction", action );
+    assertNull( action.getInputNames() );
+    assertNull( action.getInputNames() );
   }
 
   @Test
@@ -367,11 +370,9 @@ public class ActionDelegateTest {
     // Check inputs
     //
     assertEquals( "string type input \"message\" is incorrect/not set", "Test 1..2..3", action.getMessage() );
-
     assertArrayEquals( "addresseess input is incorrect/not set", new String[] { "admin", "suzy", "fred", "sam" },
         action.getAddressees().toArray() );
     assertEquals( "long type input \"count\" is incorrect/not set", new Long( 99 ), action.getCount() );
-
     assertNotNull( "property-map type input \"veggieData\" is not set", action.getVeggieData() );
     assertMapsEquivalent( "property-map type input \"veggieData\" is incorrect", veggieDataExpected, action
         .getVeggieData() );
@@ -384,34 +385,24 @@ public class ActionDelegateTest {
           fruitDataExpected.get( i ), action.getFruitData().get( i ) );
     }
 
-    //
     // Check resources
-    //
     assertNotNull( "resource \"embeddedXmlResource\" is incorrect/not set", action.getEmbeddedXmlResource() );
 
-    //
     // Check outputs
-    //
     assertEquals( "output \"echoMessage\" is not set or incorrect", "Test String Output", action.getEchoMessage() );
 
-    //
     // Check that that the various methods were invoked
-    //
     assertTrue( "execute method was not invoked", action.isExecuteWasCalled() );
-
   }
 
-  private static boolean
-  assertMapsEquivalent( String comment, Map<String, String> expected, Map<String, String> actual ) {
+  private static boolean assertMapsEquivalent( String comment, Map<String, String> expected, Map<String, String> actual ) {
     for ( Map.Entry<String, String> entry : expected.entrySet() ) {
       String expectedKey = entry.getKey();
       String expectedVal = entry.getValue();
-      assertNotNull( comment + ": entry for key [" + expectedKey + "] was expect and not found", actual
-          .get( expectedKey ) );
+      assertNotNull( comment + ": entry for key [" + expectedKey + "] was expect and not found", actual.get( expectedKey ) );
       assertEquals( comment, expectedVal, actual.get( expectedKey ) );
     }
     return true;
-
   }
 
   public static class TestPluginManager extends PluginManagerAdapter {
@@ -452,9 +443,7 @@ public class ActionDelegateTest {
     // content outputs will write to this stream
     out = new ByteArrayOutputStream();
 
-    /*
-     * create SimpleOutputHandler (to handle outputs of type "response.content")
-     */
+    // create SimpleOutputHandler (to handle outputs of type "response.content")
     outputHandler = new SimpleOutputHandler( out, false );
     outputHandler.setOutputPreference( IOutputHandler.OUTPUT_TYPE_DEFAULT );
 
@@ -464,11 +453,8 @@ public class ActionDelegateTest {
 
     String xactionStr = ServiceTestHelper.getXAction( "test-res/solution/test/ActionDelegateTest", actionSequenceFile );
 
-    /*
-     * execute the action sequence, providing the outputHandler created above
-     */
-    IRuntimeContext rc =
-        solutionEngine.execute( xactionStr, actionSequenceFile, "action sequence to test the TestAction", false, true,
+    // execute the action sequence, providing the outputHandler created above
+    IRuntimeContext rc = solutionEngine.execute( xactionStr, actionSequenceFile, "action sequence to test the TestAction", false, true,
             null, false, new HashMap(), outputHandler, null, new SimpleUrlFactory( "" ), new ArrayList() );
     int status = rc.getStatus();
     if ( status == IRuntimeContext.PARAMETERS_FAIL || status == IRuntimeContext.RUNTIME_CONTEXT_RESOLVE_FAIL
@@ -484,48 +470,35 @@ public class ActionDelegateTest {
     private IContentItem contentItem = new IContentItem() {
 
       public void setName( String name ) {
-        // TODO Auto-generated method stub
-
       }
 
       public void setMimeType( String mimeType ) {
-        // TODO Auto-generated method stub
-
       }
 
       @SuppressWarnings( "unused" )
       public void removeVersion( String fileId ) {
-        // TODO Auto-generated method stub
-
       }
 
       @SuppressWarnings( "unused" )
       public void removeAllVersions() {
-        // TODO Auto-generated method stub
-
       }
 
       @SuppressWarnings( "unused" )
       public void makeTransient() {
-        // TODO Auto-generated method stub
-
       }
 
       @SuppressWarnings( "unused" )
       public String getUrl() {
-        // TODO Auto-generated method stub
         return null;
       }
 
       @SuppressWarnings( "unused" )
       public String getTitle() {
-        // TODO Auto-generated method stub
         return null;
       }
 
       @SuppressWarnings( "unused" )
       public Reader getReader() throws ContentException {
-        // TODO Auto-generated method stub
         return null;
       }
 

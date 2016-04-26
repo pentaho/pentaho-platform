@@ -12,16 +12,9 @@
   </documentation>
 
   <inputs> 
-    <messages type="string-list"> 
-      <default-value type="string-list">
-        <list-item>message0</list-item>
-        <list-item>message1</list-item>
-        <list-item>message2</list-item>
-      </default-value> 
-    </messages>  
-    <scalarMessage type="string"> 
-      <default-value>scalar message text</default-value> 
-    </scalarMessage> 
+    <unableNotWritable type="string"> 
+      <default-value><![CDATA[unsupportedInputs]]></default-value> 
+    </unableNotWritable> 
   </inputs>
 
   <outputs/>
@@ -33,8 +26,7 @@
       <component-name>TestAction</component-name>
       <action-type>JUnit Test Action 1</action-type>
       <action-inputs> 
-        <messages type="string-list"/>  
-        <scalarMessage type="string"/> 
+        <unableNotWritable type="string"/> 
       </action-inputs>
       <action-resources/>
       <action-outputs/>

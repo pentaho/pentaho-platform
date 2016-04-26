@@ -13,9 +13,8 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
-
 package org.pentaho.platform.engine.services.actions;
 
 import org.pentaho.platform.api.action.IAction;
@@ -33,7 +32,6 @@ public class TestAction implements IAction {
 
   @SuppressWarnings( "nls" )
   public TestAction() {
-    System.out.println( "new action created " + this );
   }
 
   public CustomType getCustom() {
@@ -61,12 +59,10 @@ public class TestAction implements IAction {
   }
 
   public void setMessageBoard( String messageBoard ) {
-    System.out.println( "setMessageBoard " + this + ": " + messageBoard );
     this.messageBoard = messageBoard;
   }
 
   public String getMessageBoard() {
-    System.out.println( "getMessageBoard " + this + ": " + messageBoard );
     return messageBoard;
   }
 

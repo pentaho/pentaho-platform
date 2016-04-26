@@ -22,28 +22,19 @@ import org.pentaho.platform.api.action.IAction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestIndexedInputsAction implements IAction {
+public class InputErrorCallbackFailedToSet implements IAction {
 
-  private List<String> messages = new ArrayList<String>();
-  private String scalarMessage;
+  private List<String> inputs = new ArrayList<String>();
 
-  public void setMessages( List<String> messages ) {
-    this.messages = messages;
+  public void setInputs( List<String> messages ) {
+    this.inputs = messages;
   }
 
-  public List<String> getMessages() {
-    return messages;
+  public List<String> getInputs() {
+    return inputs;
   }
-
 
   public void execute() throws Exception {
   }
 
-  public void setScalarMessage( String s ) {
-    scalarMessage = s;
-  }
-
-  public String getTextOfScalarMessage() {
-    return scalarMessage;
-  }
 }
