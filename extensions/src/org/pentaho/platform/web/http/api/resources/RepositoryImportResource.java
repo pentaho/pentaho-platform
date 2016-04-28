@@ -34,8 +34,9 @@ import org.apache.log4j.Logger;
 import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -181,7 +182,7 @@ public class RepositoryImportResource {
     }
 
     try {
-      validateAccess( importDir );
+      validateUserPermissions( importDir );
 
       boolean overwriteFileFlag = ( "false".equals( overwriteFile ) ? false : true );
       boolean overwriteAclSettingsFlag = ( "true".equals( overwriteAclPermissions ) ? true : false );
@@ -234,6 +235,8 @@ public class RepositoryImportResource {
       mondrianCatalogService.reInit( PentahoSessionHolder.getSession() );
     } catch ( PentahoAccessControlException e ) {
       return Response.serverError().entity( e.toString() ).build();
+    } catch ( UnifiedRepositoryAccessDeniedException e ) {
+      return Response.status( Response.Status.FORBIDDEN ).entity( e.toString() ).build();
     } catch ( Exception e ) {
       return Response.serverError().entity( e.toString() ).build();
     } finally {
@@ -251,12 +254,13 @@ public class RepositoryImportResource {
     return Response.ok( responseBody, MediaType.TEXT_HTML ).build();
   }
 
-  protected void validateAccess( String importDir ) throws PentahoAccessControlException {
+  protected void validateUserPermissions( String importDir ) throws PentahoAccessControlException {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-    //check if we are admin or have publish permisson
-    boolean isAdmin = policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
-                    && ( policy.isAllowed( AdministerSecurityAction.NAME ) || policy.isAllowed( PublishAction.NAME ) );
-    if ( !isAdmin ) {
+    // check if we are admin or have publish permisson
+    boolean canPublish =
+        policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME ) && ( policy
+            .isAllowed( AdministerSecurityAction.NAME ) || policy.isAllowed( PublishAction.NAME ) );
+    if ( !canPublish ) {
       //the user does not have admin or publish permisson, so we will check if the user imports to their home folder
       boolean importingToHomeFolder = false;
       String tenatedUserName = PentahoSessionHolder.getSession().getName();

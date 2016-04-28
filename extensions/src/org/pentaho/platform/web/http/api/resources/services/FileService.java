@@ -184,6 +184,7 @@ public class FileService {
     final FileInputStream inputStream = new FileInputStream( zipFile );
 
     return new StreamingOutput() {
+      @Override
       public void write( OutputStream output ) throws IOException {
         IOUtils.copy( inputStream, output );
       }
@@ -575,12 +576,19 @@ public class FileService {
       throw new IllegalSelectorException();
     }
 
-    // check if entity exists in repo
     RepositoryFile repositoryFile = getRepository().getFile( path );
 
     if ( repositoryFile == null ) {
-      // file does not exist or is not readable but we can't tell at this point
-      throw new FileNotFoundException( path );
+      if ( getRepository().isFileExist( path ) ) {
+        throw new UnifiedRepositoryAccessDeniedException( path );
+      } else {
+        throw new FileNotFoundException( path );
+      }
+    }
+
+    // require WRITE permission for export
+    if ( !getRepository().hasAccess( path, EnumSet.of( RepositoryFilePermission.WRITE ) ) ) {
+      throw new UnifiedRepositoryAccessDeniedException( path );
     }
 
    // send zip with manifest by default
@@ -1539,6 +1547,7 @@ public class FileService {
    * @return            A jax-rs Response object with the appropriate status code, header, and body.
    * @deprecated use {@link #doCreateDirSafe(String)} instead
    */
+  @Deprecated
   public boolean doCreateDir( String pathId ) {
     String path = idToPath( pathId );
     return doCreateDirFor( path );
@@ -1650,6 +1659,7 @@ public class FileService {
 
   public StreamingOutput getStreamingOutput( final InputStream is ) {
     return new StreamingOutput() {
+      @Override
       public void write( OutputStream output ) throws IOException {
         copy( is, output );
       }
@@ -1693,6 +1703,7 @@ public class FileService {
     final FileInputStream is = new FileInputStream( zipFile );
     // copy streaming output
     return new StreamingOutput() {
+      @Override
       public void write( OutputStream output ) throws IOException {
         IOUtils.copy( is, output );
       }

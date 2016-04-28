@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -28,8 +28,8 @@ import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.mimetype.IMimeType;
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
@@ -95,6 +95,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   /**
    * this is the main method that uses the mime time (from Spring) to determine which handler to invoke.
    */
+  @Override
   public void importFile( IPlatformImportBundle file ) throws PlatformImportException {
     String mime = file.getMimeType() != null ? file.getMimeType() : mimeResolver.resolveMimeForBundle( file );
     try {
@@ -160,7 +161,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
         }
       }
       if ( e.getCause() instanceof UnifiedRepositoryAccessDeniedException ) {
-        throw new UnifiedRepositoryAccessDeniedException();
+        throw (UnifiedRepositoryAccessDeniedException) e.getCause();
       }
     }
   }
@@ -183,6 +184,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     return bundlePath;
   }
 
+  @Override
   public IRepositoryImportLogger getRepositoryImportLogger() {
     return repositoryImportLogger;
   }
@@ -191,6 +193,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     this.repositoryImportLogger = repositoryImportLogger;
   }
 
+  @Override
   public Map<String, IPlatformImportHandler> getHandlers() {
     return importHandlers;
   }

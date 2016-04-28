@@ -18,7 +18,29 @@
 
 package org.pentaho.platform.plugin.services.metadata;
 
-import junit.framework.TestCase;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -48,17 +70,7 @@ import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
-import static org.mockito.Mockito.*;
+import junit.framework.TestCase;
 
 /**
  * Class Description
@@ -85,6 +97,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     return new PentahoMetadataDomainRepository( repository, repositoryUtils, xmiParser, localizationUtil );
   }
 
+  @Override
   @Before
   public void setUp() throws Exception {
     // File tempDir = File.createTempFile("test", "");
@@ -117,6 +130,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     }
   }
 
+  @Override
   @After
   public void tearDown() throws Exception {
     repository = null;
@@ -725,7 +739,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     // Found
     String annotationsFilePath =
-        "/etc/metadata/" + domainFileId
+        getMetadataDir() + domainFileId
             + IModelAnnotationsAwareMetadataDomainRepositoryImporter.ANNOTATIONS_FILE_ID_POSTFIX;
     doReturn( domainFile ).when( repository ).getFile( annotationsFilePath );
     assertNotNull( domainRepositorySpy.getAnnotationsXmlFile( domainFile ) );
@@ -734,6 +748,10 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     doThrow( new RuntimeException() ).when( domainRepositorySpy ).getRepository();
     assertNull( domainRepositorySpy.getAnnotationsXmlFile( domainFile ) );
     verify( logger, times( 1 ) ).warn( "Unable to find annotations xml file for: " + domainFile.getId() );
+  }
+
+  private String getMetadataDir() {
+    return domainRepositorySpy.getMetadataDir().getPath() + "/";
   }
 
   @Test
@@ -760,7 +778,8 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     doReturn( domainFileId ).when( domainFile ).getId();
 
     RepositoryFile annotationsFile = mock( RepositoryFile.class );
-    doReturn( annotationsFile ).when( repository ).getFile( "/etc/metadata/" + annotationsId );
+    String annotationsFilePath = getMetadataDir() + annotationsId;
+    doReturn( annotationsFile ).when( repository ).getFile( annotationsFilePath );
     doReturn( annotationsId ).when( annotationsFile ).getId();
 
     SimpleRepositoryFileData data = mock( SimpleRepositoryFileData.class );
@@ -816,10 +835,12 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       locals = new ArrayList<LocaleType>();
     }
 
+    @Override
     public String getId() {
       return id;
     }
 
+    @Override
     public List<LogicalModel> getLogicalModels() {
       return logicalModels;
     }
@@ -835,6 +856,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
         this.modelId = modelId;
       }
 
+      @Override
       public String getId() {
         return modelId;
       }
@@ -845,6 +867,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
    * Mock XMI Parser for testing
    */
   private class MockXmiParser extends XmiParser {
+    @Override
     public String generateXmi( final Domain domain ) {
       if ( domain.getId().equals( "exception" ) ) {
         throw new NullPointerException();
@@ -859,6 +882,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       return sb.toString();
     }
 
+    @Override
     public Domain parseXmi( final InputStream xmi ) throws Exception {
       String[] lines = IOUtils.toString( xmi ).split( "\\|" );
 
@@ -894,10 +918,12 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
    *
    */
   private class MockUserProvider implements MockUnifiedRepository.ICurrentUserProvider {
+    @Override
     public String getUser() {
       return MockUnifiedRepository.root().getName();
     }
 
+    @Override
     public List<String> getRoles() {
       return new ArrayList<String>();
     }

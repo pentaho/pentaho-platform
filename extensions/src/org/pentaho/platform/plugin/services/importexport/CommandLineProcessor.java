@@ -18,18 +18,22 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.api.json.JSONConfiguration;
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataMultiPart;
-import com.sun.org.apache.xml.internal.security.encryption.EncryptedData;
-import com.sun.xml.ws.developer.JAXWSProperties;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.ws.rs.core.MediaType;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Service;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -41,32 +45,25 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.di.core.encryption.KettleTwoWayPasswordEncoder;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.util.RepositoryPathEncoder;
-import org.pentaho.di.core.encryption.KettleTwoWayPasswordEncoder;
 
-import javax.ws.rs.core.MediaType;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
-import javax.xml.ws.soap.SOAPBinding;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.sun.jersey.api.json.JSONConfiguration;
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataMultiPart;
+import com.sun.xml.ws.developer.JAXWSProperties;
 
 /**
  * Handles the parsing of command line arguments and creates an import process based upon them
@@ -349,18 +346,6 @@ public class CommandLineProcessor {
     clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
     client = Client.create( clientConfig );
     client.addFilter( new HTTPBasicAuthFilter( username, password ) );
-
-    // check if the user has permissions to upload/download data
-    String contextURL =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
-    WebResource resource = client.resource( contextURL + "/api/authorization/action/isauthorized?authAction="
-        + AdministerSecurityAction.NAME );
-    String response = resource.get( String.class );
-    if ( !response.equals( "true" ) ) {
-      throw new InitializationException( Messages.getInstance().getString(
-          "CommandLineProcessor.ERROR_0006_NON_ADMIN_CREDENTIALS" ) );
-    }
   }
 
   /**
@@ -691,15 +676,7 @@ public class CommandLineProcessor {
 
         // Response response
         ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
-        if ( response != null ) {
-          String message = response.getEntity( String.class );
-          System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-              message ) );
-          if ( logFile != null && !"".equals( logFile ) ) {
-            writeFile( message, logFile );
-          }
-          response.close();
-        }
+        handleResponse( response, logFile );
       } catch ( Exception e ) {
         System.err.println( e.getMessage() );
         log.error( e.getMessage() );
@@ -710,6 +687,18 @@ public class CommandLineProcessor {
         part.cleanup();
         in.close();
       }
+    }
+  }
+
+  private void handleResponse( ClientResponse response, String logFile ) {
+    if ( response != null ) {
+      String message = response.getEntity( String.class );
+      System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
+          message ) );
+      if ( logFile != null && !"".equals( logFile ) ) {
+        writeFile( message, logFile );
+      }
+      response.close();
     }
   }
 
@@ -878,11 +867,7 @@ public class CommandLineProcessor {
         writeFile( message, logFile );
       }
     } else {
-      System.out.println( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" ) );
-      if ( response != null && response.getStatus() == 404 ) {
-        throw new ParseException( Messages.getInstance().getErrorString(
-            "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path ) );
-      }
+      handleResponse( response, logFile );
     }
   }
 

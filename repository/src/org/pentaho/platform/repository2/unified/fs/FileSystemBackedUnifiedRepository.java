@@ -21,7 +21,6 @@ package org.pentaho.platform.repository2.unified.fs;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -59,43 +58,52 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     this.repositoryFileDao = repositoryFileDao;
   }
 
+  @Override
   public boolean canUnlockFile( Serializable fileId ) {
     return repositoryFileDao.canUnlockFile( fileId );
   }
 
+  @Override
   public RepositoryFile createFile( Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
       String versionMessage ) {
     return repositoryFileDao.createFile( parentFolderId, file, data, null, versionMessage );
   }
 
+  @Override
   public RepositoryFile createFile( Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
       RepositoryFileAcl acl, String versionMessage ) {
     return repositoryFileDao.createFile( parentFolderId, file, data, acl, versionMessage );
   }
 
+  @Override
   public RepositoryFile createFolder( Serializable parentFolderId, RepositoryFile file, String versionMessage ) {
     return repositoryFileDao.createFolder( parentFolderId, file, null, versionMessage );
   }
 
+  @Override
   public RepositoryFile createFolder( Serializable parentFolderId, RepositoryFile file, RepositoryFileAcl acl,
       String versionMessage ) {
     return repositoryFileDao.createFolder( parentFolderId, file, acl, versionMessage );
   }
 
+  @Override
   public void deleteFile( Serializable fileId, boolean permanent, String versionMessage ) {
     repositoryFileDao.deleteFile( fileId, versionMessage );
 
   }
 
+  @Override
   public void deleteFile( Serializable fileId, String versionMessage ) {
     repositoryFileDao.deleteFile( fileId, versionMessage );
 
   }
 
+  @Override
   public void deleteFileAtVersion( Serializable fileId, Serializable versionId ) {
     repositoryFileDao.deleteFileAtVersion( fileId, versionId );
   }
 
+  @Override
   public RepositoryFileAcl getAcl( Serializable fileId ) {
     throw new UnsupportedOperationException();
   }
@@ -105,35 +113,42 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     return repositoryFileDao.getChildren( repositoryRequest );
   }
 
+  @Override
   @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId ) {
     return repositoryFileDao.getChildren( folderId, "", false );
   }
 
+  @Override
   @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter) {
     return repositoryFileDao.getChildren( folderId, filter, false);
   }
   
+  @Override
   @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
     return repositoryFileDao.getChildren( new RepositoryRequest( folderId.toString(), showHiddenFiles, -1, filter ) );
   }
 
+  @Override
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute( Serializable fileId, Serializable versionId,
       Class<T> dataClass ) {
     return repositoryFileDao.getData( fileId, versionId, dataClass );
   }
 
+  @Override
   public <T extends IRepositoryFileData> T getDataAtVersionForRead( Serializable fileId, Serializable versionId,
       Class<T> dataClass ) {
     return repositoryFileDao.getData( fileId, versionId, dataClass );
   }
 
+  @Override
   public <T extends IRepositoryFileData> T getDataForExecute( Serializable fileId, Class<T> dataClass ) {
     return repositoryFileDao.getData( fileId, null, dataClass );
   }
 
+  @Override
   public <T extends IRepositoryFileData> T getDataForRead( Serializable fileId, Class<T> dataClass ) {
     return repositoryFileDao.getData( fileId, null, dataClass );
   }
@@ -146,20 +161,24 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     return repositoryFileDao.getDeletedFiles( folderId, filter );
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles() {
     return repositoryFileDao.getDeletedFiles();
   }
 
+  @Override
   public List<RepositoryFileAce> getEffectiveAces( Serializable fileId ) {
     // TODO Auto-generated method stub
     return null;
   }
 
+  @Override
   public List<RepositoryFileAce> getEffectiveAces( Serializable fileId, boolean forceEntriesInheriting ) {
     // TODO Auto-generated method stub
     return null;
   }
 
+  @Override
   public RepositoryFile getFile( String path ) {
     RepositoryFile result = repositoryFileDao.getFile( path );
     if ( result == null && path.matches( "^/[A-z]:/.*" ) ) {
@@ -169,18 +188,32 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     return result;
   }
 
+  @Override
+  public boolean isFileExist( String path ) {
+    boolean result = repositoryFileDao.isFileExist( path );
+    if ( !result && path.matches( "^/[A-z]:/.*" ) ) {
+      // Handle leading slash on windows style path with drive letter (eg. /c:/folder1/file1)
+      return repositoryFileDao.isFileExist( path.substring( 1 ) );
+    }
+    return result;
+  }
+
+  @Override
   public RepositoryFile getFile( String path, boolean loadLocaleMaps ) {
     return repositoryFileDao.getFile( path, loadLocaleMaps );
   }
 
+  @Override
   public RepositoryFile getFileAtVersion( Serializable fileId, Serializable versionId ) {
     return repositoryFileDao.getFile( fileId, versionId );
   }
 
+  @Override
   public RepositoryFile getFileById( Serializable fileId ) {
     return repositoryFileDao.getFile( fileId, null );
   }
 
+  @Override
   public RepositoryFile getFileById( Serializable fileId, boolean loadLocaleMaps ) {
     return repositoryFileDao.getFileById( fileId, loadLocaleMaps );
   }
@@ -210,14 +243,17 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     return repositoryFileDao.getTree( repositoryRequest);
   }
 
+  @Override
   public RepositoryFileTree getTree( String path, int depth, String filter, boolean showHidden ) {
     return repositoryFileDao.getTree( new RepositoryRequest( path, showHidden, depth, filter ) );
   }
 
+  @Override
   public List<VersionSummary> getVersionSummaries( Serializable fileId ) {
     return repositoryFileDao.getVersionSummaries( fileId );
   }
 
+  @Override
   public VersionSummary getVersionSummary( Serializable fileId, Serializable versionId ) {
     return repositoryFileDao.getVersionSummary( fileId, versionId );
   }
@@ -226,47 +262,58 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     repositoryFileDao.setRootDir( rootDir );
   }
 
+  @Override
   public boolean hasAccess( String path, EnumSet<RepositoryFilePermission> permissions ) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public void lockFile( Serializable fileId, String message ) {
     repositoryFileDao.lockFile( fileId, message );
   }
 
+  @Override
   public void moveFile( Serializable fileId, String destAbsPath, String versionMessage ) {
     repositoryFileDao.moveFile( fileId, destAbsPath, versionMessage );
   }
 
+  @Override
   public void restoreFileAtVersion( Serializable fileId, Serializable versionId, String versionMessage ) {
     repositoryFileDao.restoreFileAtVersion( fileId, versionId, versionMessage );
   }
 
+  @Override
   public void undeleteFile( Serializable fileId, String versionMessage ) {
     repositoryFileDao.undeleteFile( fileId, versionMessage );
   }
 
+  @Override
   public void unlockFile( Serializable fileId ) {
     repositoryFileDao.unlockFile( fileId );
   }
 
+  @Override
   public RepositoryFileAcl updateAcl( RepositoryFileAcl acl ) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public RepositoryFile updateFile( RepositoryFile file, IRepositoryFileData data, String versionMessage ) {
     return repositoryFileDao.updateFile( file, data, versionMessage );
   }
 
+  @Override
   public List<RepositoryFile> getReferrers( Serializable arg0 ) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch( List<RepositoryFile> files,
       Class<T> dataClass ) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public <T extends IRepositoryFileData> List<T> getDataForReadInBatch( List<RepositoryFile> files,
                                                                         Class<T> dataClass ) {
     Assert.notNull( files );
@@ -278,6 +325,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     return data;
   }
 
+  @Override
   public List<VersionSummary> getVersionSummaryInBatch( List<RepositoryFile> files ) {
     
     Assert.notNull( files );
@@ -290,22 +338,27 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     return versionSummaryList;
   }
 
+  @Override
   public void setFileMetadata( final Serializable fileId, Map<String, Serializable> metadataMap ) {
     repositoryFileDao.setFileMetadata( fileId, metadataMap );
   }
 
+  @Override
   public Map<String, Serializable> getFileMetadata( final Serializable fileId ) {
     return repositoryFileDao.getFileMetadata( fileId );
   }
 
+  @Override
   public void copyFile( Serializable fileId, String destAbsPath, String versionMessage ) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles( String origParentFolderPath, String filter ) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles( String origParentFolderPath ) {
     throw new UnsupportedOperationException();
   }

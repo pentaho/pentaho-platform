@@ -1295,16 +1295,17 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     } );
   }
 
-  private String extractNameFromPath( String path ) {
-    int startIndex = path.lastIndexOf( RepositoryFile.SEPARATOR );
-    if ( startIndex >= 0 ) {
-      int endIndex = path.indexOf( '.', startIndex );
-      if ( endIndex > startIndex ) {
-        return path.substring( startIndex + 1, endIndex );
-      }
-    }
-    return null;
-  }
+  // never used
+  // private String extractNameFromPath( String path ) {
+  // int startIndex = path.lastIndexOf( RepositoryFile.SEPARATOR );
+  // if ( startIndex >= 0 ) {
+  // int endIndex = path.indexOf( '.', startIndex );
+  // if ( endIndex > startIndex ) {
+  // return path.substring( startIndex + 1, endIndex );
+  // }
+  // }
+  // return null;
+  // }
 
   private boolean isKioskEnabled() {
     if ( PentahoSystem.getInitializedOK() ) {
@@ -1313,4 +1314,28 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       return false;
     }
   }
+
+  @Override
+  public boolean isFileExist( String relPath ) {
+    Assert.hasText( relPath );
+    Assert.isTrue( relPath.startsWith( RepositoryFile.SEPARATOR ) );
+    return (boolean) jcrTemplate.execute( new JcrCallback() {
+      @Override
+      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+        String absPath = pathConversionHelper.relToAbs( relPath );
+        return internalIsFileExist( session, absPath );
+      }
+    } );
+  }
+
+  private boolean internalIsFileExist( final Session session, String absPath ) throws RepositoryException {
+    try {
+      // session.itemExists(String path) method returns 'false' for a folder without 'read' permission
+      session.getAccessControlManager().getPrivileges( absPath );
+      return true;
+    } catch ( PathNotFoundException e ) {
+      return false;
+    }
+  }
+
 }
