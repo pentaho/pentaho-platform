@@ -49,6 +49,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
@@ -187,6 +188,13 @@ public class RepositoryImportResource {
       boolean overwriteAclSettingsFlag = ( "true".equals( overwriteAclPermissions ) ? true : false );
       boolean applyAclSettingsFlag = ( "true".equals( applyAclPermission ) ? true : false );
       boolean retainOwnershipFlag = ( "true".equals( retainOwnership ) ? true : false );
+
+      //Non-admins cannot process a manifest
+      FileService fileService = new FileService();
+      if ( !fileService.doCanAdminister() ) {
+        applyAclSettingsFlag = false;
+        retainOwnershipFlag = true;
+      }
 
       Level level = Level.toLevel( logLevel );
       ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
