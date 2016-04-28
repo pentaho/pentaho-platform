@@ -85,6 +85,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     this.rootDir = baseDir;
   }
 
+  @Override
   public boolean canUnlockFile( Serializable fileId ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
@@ -108,6 +109,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     return out.toByteArray();
   }
 
+  @Override
   public RepositoryFile createFile( Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
       RepositoryFileAcl acl, String versionMessage ) {
     String fileNameWithPath = RepositoryFilenameUtils.concat( parentFolderId.toString(), file.getName() );
@@ -134,6 +136,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     return internalGetFile( f );
   }
 
+  @Override
   public RepositoryFile createFolder( Serializable parentFolderId, RepositoryFile file, RepositoryFileAcl acl,
       String versionMessage ) {
     try {
@@ -147,6 +150,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     }
   }
 
+  @Override
   public void deleteFile( Serializable fileId, String versionMessage ) {
     try {
       File f = new File( fileId.toString() );
@@ -157,6 +161,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   }
 
+  @Override
   public void deleteFileAtVersion( Serializable fileId, Serializable versionId ) {
     deleteFile( fileId, null );
   }
@@ -167,7 +172,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     File folder = new File( getPhysicalFileLocation( repositoryRequest.getPath() ) );
     for ( Iterator<File> iterator = FileUtils.listFiles( folder, new WildcardFileFilter( repositoryRequest.getChildNodeFilter() ), null ).iterator(); iterator
         .hasNext(); ) {
-      children.add( internalGetFile( (File) iterator.next() ) );
+      children.add( internalGetFile( iterator.next() ) );
     }
     return children;
   }
@@ -182,11 +187,13 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     return getChildren(folderId, filter, false);
   }
   
+  @Override
   @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
     return getChildren(new RepositoryRequest(folderId.toString(), showHiddenFiles, -1, filter));
   }
 
+  @Override
   @SuppressWarnings( "unchecked" )
   public <T extends IRepositoryFileData> T getData( Serializable fileId, Serializable versionId, Class<T> dataClass ) {
     File f = new File( fileId.toString() );
@@ -209,6 +216,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles() {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
@@ -231,6 +239,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   }
 
+  @Override
   public RepositoryFile getFile( String relPath ) {
     return internalGetFile( new File( getPhysicalFileLocation( relPath ) ) );
   }
@@ -240,22 +249,27 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     return relPath.replaceFirst( "^/?([A-z])/[/\\\\](.*)", "$1:/$2" );
   }
 
+  @Override
   public RepositoryFile getFile( Serializable fileId, Serializable versionId ) {
     return getFile( fileId.toString() );
   }
 
+  @Override
   public RepositoryFile getFileByAbsolutePath( String absPath ) {
     return getFile( absPath );
   }
 
+  @Override
   public RepositoryFile getFileById( Serializable fileId ) {
     return getFile( fileId.toString() );
   }
 
+  @Override
   public RepositoryFile getFile( String relPath, boolean loadLocaleMaps ) {
     return getFile( relPath );
   }
 
+  @Override
   public RepositoryFile getFileById( Serializable fileId, boolean loadLocaleMaps ) {
     return getFile( fileId.toString() );
   }
@@ -291,6 +305,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
         repositoryRequest.getChildNodeFilter(), repositoryRequest.getTypes() );
   }
   
+  @Override
   @Deprecated
   public RepositoryFileTree getTree( String relPath, int depth, String filter, boolean showHidden ) {
     
@@ -338,10 +353,12 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     return new RepositoryFileTree( rootFile, children );
   }  
 
+  @Override
   public List<VersionSummary> getVersionSummaries( Serializable fileId ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
 
+  @Override
   public VersionSummary getVersionSummary( Serializable fileId, Serializable versionId ) {
     RepositoryFile file = getFile( fileId, versionId );
     List<String> labels = new ArrayList<String>();
@@ -349,10 +366,12 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
         false, file.getCreatedDate(), file.getCreatorId(), StringUtils.EMPTY,  labels );
   }
 
+  @Override
   public void lockFile( Serializable fileId, String message ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
 
+  @Override
   public void moveFile( Serializable fileId, String destRelPath, String versionMessage ) {
     RepositoryFile file = getFileById( fileId );
     SimpleRepositoryFileData data = getData( fileId, null, SimpleRepositoryFileData.class );
@@ -360,22 +379,27 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     createFile( null, file, data, null, versionMessage );
   }
 
+  @Override
   public void permanentlyDeleteFile( Serializable fileId, String versionMessage ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
 
+  @Override
   public void restoreFileAtVersion( Serializable fileId, Serializable versionId, String versionMessage ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
 
+  @Override
   public void undeleteFile( Serializable fileId, String versionMessage ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
 
+  @Override
   public void unlockFile( Serializable fileId ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
 
+  @Override
   public RepositoryFile updateFile( RepositoryFile file, IRepositoryFileData data, String versionMessage ) {
     File f = new File( file.getId().toString() );
     FileOutputStream fos = null;
@@ -398,6 +422,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     return getFile( file.getPath() );
   }
 
+  @Override
   public List<RepositoryFile> getReferrers( Serializable fileId ) {
     throw new UnsupportedOperationException();
   }
@@ -406,6 +431,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     this.rootDir = rootDir;
   }
 
+  @Override
   public void setFileMetadata( final Serializable fileId, Map<String, Serializable> metadataMap ) {
     final File targetFile = new File( fileId.toString() );
     if ( targetFile.exists() ) {
@@ -440,6 +466,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     }
   }
 
+  @Override
   public Map<String, Serializable> getFileMetadata( final Serializable fileId ) {
     final String metadataFilename =
         FilenameUtils.concat( FilenameUtils.concat( FilenameUtils.getFullPathNoEndSeparator( fileId.toString() ),
@@ -468,10 +495,12 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     return metadata;
   }
 
+  @Override
   public void copyFile( Serializable fileId, String destAbsPath, String versionMessage ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles( String origParentFolderPath, String filter ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
@@ -558,5 +587,10 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     }
     
     return physicalFileLocation; 
+  }
+
+  @Override
+  public boolean isFileExist( String relPath ) {
+    return ( new File( getPhysicalFileLocation( relPath ) ) ).exists();
   }
 }

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository2.unified;
@@ -696,4 +696,6 @@ public interface IUnifiedRepository {
   void setLocalePropertiesForFile( final RepositoryFile repoFile, final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale );
+
+  boolean isFileExist( final String path );
 }

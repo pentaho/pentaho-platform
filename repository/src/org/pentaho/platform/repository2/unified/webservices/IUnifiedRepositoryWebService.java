@@ -160,4 +160,6 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   void setLocalePropertiesForFileByFileId( final String fileId, final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final String fileId, final String locale );
+
+  boolean isFileExist( final String path );
 }

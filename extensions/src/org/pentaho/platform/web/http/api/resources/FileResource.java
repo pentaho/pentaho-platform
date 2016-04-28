@@ -59,8 +59,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import com.sun.jersey.multipart.FormDataParam;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,6 +74,7 @@ import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
@@ -93,7 +92,9 @@ import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.FileVersioningConfiguration;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
@@ -101,13 +102,17 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.sun.jersey.multipart.FormDataParam;
 
 /**
  * This service provides methods for listing, creating, downloading, uploading, and removal of files.
@@ -627,25 +632,55 @@ public class FileResource extends AbstractJaxRSResource {
   // have to accept anything for browsers to work
   public Response doGetFileOrDirAsDownload( @HeaderParam ( "user-agent" ) String userAgent,
                                             @PathParam ( "pathId" ) String pathId, @QueryParam ( "withManifest" ) String strWithManifest ) {
-    FileService.DownloadFileWrapper wrapper;
     try {
-      wrapper = fileService.doGetFileOrDirAsDownload( userAgent, pathId, strWithManifest );
+      String path = fileService.idToPath( pathId );
+      FileService.DownloadFileWrapper wrapper =
+          fileService.doGetFileOrDirAsDownload( userAgent, pathId, strWithManifest );
       return buildZipOkResponse( wrapper );
     } catch ( InvalidParameterException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
-      return buildStatusResponse( BAD_REQUEST );
+      return buildStatusResponse( BAD_REQUEST, e.toString() );
     } catch ( IllegalSelectorException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( FORBIDDEN, e.toString() );
     } catch ( GeneralSecurityException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( FORBIDDEN, e.toString() );
+    } catch ( UnifiedRepositoryAccessDeniedException e ) {
+      logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
+      return buildStatusResponse( FORBIDDEN, e.toString() );
     } catch ( FileNotFoundException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
-      return buildStatusResponse( NOT_FOUND );
+      return buildStatusResponse( NOT_FOUND, e.toString() );
     } catch ( Throwable e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", pathId + " " + e.getMessage() ), e );
-      return buildStatusResponse( INTERNAL_SERVER_ERROR );
+      return buildStatusResponse( INTERNAL_SERVER_ERROR, e.toString() );
+    }
+  }
+
+  protected void validateUserPermissions( String importDir ) throws PentahoAccessControlException {
+    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
+    // check if we are admin or have publish permisson
+    boolean canPublish =
+        policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME ) && ( policy
+            .isAllowed( AdministerSecurityAction.NAME ) || policy.isAllowed( PublishAction.NAME ) );
+    if ( !canPublish ) {
+      // the user does not have admin or publish permisson, so we will check if the user imports to their home folder
+      boolean importingToHomeFolder = false;
+      String tenatedUserName = PentahoSessionHolder.getSession().getName();
+      // get user home home folder path
+      String userHomeFolderPath =
+          ServerRepositoryPaths.getUserHomeFolderPath( JcrTenantUtils.getUserNameUtils().getTenant( tenatedUserName ),
+              JcrTenantUtils.getUserNameUtils().getPrincipleName( tenatedUserName ) );
+      if ( userHomeFolderPath != null && userHomeFolderPath.length() > 0 ) {
+        // we pass the relative path so add serverside root folder for every home folder
+        importingToHomeFolder =
+            ( ServerRepositoryPaths.getTenantRootFolderPath() + importDir ).contains( userHomeFolderPath );
+      }
+      if ( !( importingToHomeFolder && policy.isAllowed( RepositoryCreateAction.NAME ) && policy.isAllowed(
+          RepositoryReadAction.NAME ) ) ) {
+        throw new PentahoAccessControlException( "Access Denied" );
+      }
     }
   }
 
@@ -2141,6 +2176,10 @@ public class FileResource extends AbstractJaxRSResource {
     return Response.status( status ).build();
   }
 
+  protected Response buildStatusResponse( Response.Status status, String message ) {
+    return Response.status( status ).entity( message ).build();
+  }
+
   protected Response buildServerErrorResponse( Throwable t ) {
     return buildServerErrorResponse( t.getMessage() );
   }
@@ -2184,6 +2223,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   protected StreamingOutput getStreamingOutput( final InputStream is ) {
     return new StreamingOutput() {
+      @Override
       public void write( OutputStream output ) throws IOException {
         IOUtils.copy( is, output );
       }

@@ -76,6 +76,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     return importSession.get();
   }
 
+  @Override
   public void importFile( IPlatformImportBundle bnd ) throws PlatformImportException {
     if ( bnd instanceof RepositoryFileImportBundle == false ) {
       throw new PlatformImportException( "Error importing bundle. RepositoryFileImportBundle expected" );
@@ -353,7 +354,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
             parentFile = createFolderJustInTime( parentPath, parentManifestKey );
           } catch ( Exception e ) {
             throw new PlatformImportException( messages.getString(
-                "DefaultImportHandler.ERROR_0010_JUST_IN_TIME_FOLDER_CREATION", repositoryPath ) );
+                "DefaultImportHandler.ERROR_0010_JUST_IN_TIME_FOLDER_CREATION", parentPath ), e );
           }
         }
         Serializable parentFileId = parentFile.getId();

@@ -75,6 +75,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<RepositoryFileAce> getEffectiveAces( final Serializable fileId ) {
     return getEffectiveAces( fileId, false );
   }
@@ -82,6 +83,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<RepositoryFileAce> getEffectiveAces( final Serializable fileId, final boolean forceEntriesInheriting ) {
     return repositoryFileAclDao.getEffectiveAces( fileId, forceEntriesInheriting );
   }
@@ -89,6 +91,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean hasAccess( final String path, final EnumSet<RepositoryFilePermission> permissions ) {
     return repositoryFileAclDao.hasAccess( path, permissions );
   }
@@ -96,6 +99,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile getFile( final String path ) {
     Assert.hasText( path );
     return repositoryFileDao.getFile( path, false );
@@ -104,6 +108,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile getFileById( final Serializable fileId ) {
     Assert.notNull( fileId );
     return repositoryFileDao.getFileById( fileId, false );
@@ -112,6 +117,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile getFile( final String path, final boolean loadMaps ) {
     Assert.hasText( path );
     return repositoryFileDao.getFile( path, loadMaps );
@@ -120,6 +126,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile getFileById( final Serializable fileId, final boolean loadMaps ) {
     Assert.notNull( fileId );
     return repositoryFileDao.getFileById( fileId, loadMaps );
@@ -160,6 +167,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile createFile( final Serializable parentFolderId, final RepositoryFile file,
       final IRepositoryFileData data, final String versionMessage ) {
     return createFile( parentFolderId, file, data, null, versionMessage );
@@ -168,6 +176,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile createFolder( final Serializable parentFolderId, final RepositoryFile file,
       final String versionMessage ) {
     return createFolder( parentFolderId, file, null, versionMessage );
@@ -176,6 +185,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile createFile( final Serializable parentFolderId, final RepositoryFile file,
       final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage ) {
     Assert.notNull( file );
@@ -189,6 +199,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile createFolder( final Serializable parentFolderId, final RepositoryFile file,
       final RepositoryFileAcl acl, final String versionMessage ) {
     Assert.notNull( file );
@@ -214,6 +225,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * 
    * @see #getDataForRead(RepositoryFile, Class)
    */
+  @Override
   public <T extends IRepositoryFileData> T getDataForExecute( final Serializable fileId, final Class<T> dataClass ) {
     return getDataAtVersionForExecute( fileId, null, dataClass );
   }
@@ -221,6 +233,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute( final Serializable fileId,
       final Serializable versionId, final Class<T> dataClass ) {
     return getDataAtVersionForRead( fileId, versionId, dataClass );
@@ -229,6 +242,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public <T extends IRepositoryFileData> T getDataForRead( final Serializable fileId, final Class<T> dataClass ) {
     return getDataAtVersionForRead( fileId, null, dataClass );
   }
@@ -236,6 +250,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public <T extends IRepositoryFileData> T getDataAtVersionForRead( final Serializable fileId,
       final Serializable versionId, final Class<T> dataClass ) {
     Assert.notNull( fileId );
@@ -245,6 +260,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public <T extends IRepositoryFileData> List<T> getDataForReadInBatch( final List<RepositoryFile> files,
       final Class<T> dataClass ) {
     Assert.notNull( files );
@@ -259,6 +275,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch( final List<RepositoryFile> files,
       final Class<T> dataClass ) {
     return getDataForReadInBatch( files, dataClass );
@@ -272,6 +289,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<RepositoryFile> getChildren( final Serializable folderId ) {
     return getChildren( folderId, null, null);
   }
@@ -279,6 +297,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter) {
     return getChildren( folderId, filter, null );
   }
@@ -286,6 +305,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles ) {
     Assert.notNull( folderId );
     return repositoryFileDao.getChildren( new RepositoryRequest( folderId.toString(), showHiddenFiles, -1, filter ) );
@@ -294,6 +314,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile updateFile( final RepositoryFile file, final IRepositoryFileData data,
       final String versionMessage ) {
     Assert.notNull( file );
@@ -305,6 +326,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void deleteFile( final Serializable fileId, final boolean permanent, final String versionMessage ) {
     Assert.notNull( fileId );
     if ( permanent ) {
@@ -318,6 +340,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void deleteFile( final Serializable fileId, final String versionMessage ) {
     deleteFile( fileId, false, versionMessage );
   }
@@ -325,6 +348,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void deleteFileAtVersion( final Serializable fileId, final Serializable versionId ) {
     Assert.notNull( fileId );
     Assert.notNull( versionId );
@@ -334,6 +358,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<RepositoryFile> getDeletedFiles( final String origParentFolderPath ) {
     return getDeletedFiles( origParentFolderPath, null );
   }
@@ -341,6 +366,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<RepositoryFile> getDeletedFiles( final String origParentFolderPath, final String filter ) {
     Assert.hasLength( origParentFolderPath );
     return repositoryFileDao.getDeletedFiles( origParentFolderPath, filter );
@@ -349,6 +375,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<RepositoryFile> getDeletedFiles() {
     return repositoryFileDao.getDeletedFiles();
   }
@@ -356,6 +383,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void undeleteFile( final Serializable fileId, final String versionMessage ) {
     Assert.notNull( fileId );
     repositoryFileDao.undeleteFile( fileId, versionMessage );
@@ -364,6 +392,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFileAcl getAcl( final Serializable fileId ) {
     Assert.notNull( fileId );
     return repositoryFileAclDao.getAcl( fileId );
@@ -372,6 +401,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void lockFile( final Serializable fileId, final String message ) {
     Assert.notNull( fileId );
     repositoryFileDao.lockFile( fileId, message );
@@ -380,6 +410,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void unlockFile( final Serializable fileId ) {
     Assert.notNull( fileId );
     repositoryFileDao.unlockFile( fileId );
@@ -388,6 +419,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public VersionSummary getVersionSummary( Serializable fileId, Serializable versionId ) {
     Assert.notNull( fileId );
     return repositoryFileDao.getVersionSummary( fileId, versionId );
@@ -396,6 +428,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<VersionSummary> getVersionSummaryInBatch( final List<RepositoryFile> files ) {
     Assert.notNull( files );
     List<VersionSummary> summaries = new ArrayList<VersionSummary>( files.size() );
@@ -409,6 +442,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<VersionSummary> getVersionSummaries( final Serializable fileId ) {
     Assert.notNull( fileId );
     return repositoryFileDao.getVersionSummaries( fileId );
@@ -417,6 +451,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFile getFileAtVersion( final Serializable fileId, final Serializable versionId ) {
     Assert.notNull( fileId );
     Assert.notNull( versionId );
@@ -426,6 +461,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public RepositoryFileAcl updateAcl( final RepositoryFileAcl acl ) {
     Assert.notNull( acl );
     RepositoryFile file = getFileById( acl.getId() );
@@ -441,6 +477,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void moveFile( final Serializable fileId, final String destAbsPath, final String versionMessage ) {
     Assert.notNull( fileId );
     Assert.hasText( destAbsPath );
@@ -450,6 +487,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void copyFile( final Serializable fileId, final String destAbsPath, final String versionMessage ) {
     Assert.notNull( fileId );
     Assert.hasText( destAbsPath );
@@ -459,6 +497,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void
   restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     Assert.notNull( fileId );
@@ -469,6 +508,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean canUnlockFile( final Serializable fileId ) {
     Assert.notNull( fileId );
     return repositoryFileDao.canUnlockFile( fileId );
@@ -487,6 +527,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * 
    * {@inheritDoc}
    */
+  @Override
   @Deprecated
   public RepositoryFileTree getTree( final String path, final int depth, final String filter,
                                      final boolean showHidden ) {
@@ -519,21 +560,25 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     return repositoryFileDao.updateFile( file, data, versionMessage );
   }
 
+  @Override
   public List<RepositoryFile> getReferrers( Serializable fileId ) {
     Assert.notNull( fileId );
     return repositoryFileDao.getReferrers( fileId );
   }
 
+  @Override
   public void setFileMetadata( final Serializable fileId, Map<String, Serializable> metadataMap ) {
     Assert.notNull( fileId );
     repositoryFileDao.setFileMetadata( fileId, metadataMap );
   }
 
+  @Override
   public Map<String, Serializable> getFileMetadata( final Serializable fileId ) {
     Assert.notNull( fileId );
     return repositoryFileDao.getFileMetadata( fileId );
   }
 
+  @Override
   public List<Character> getReservedChars() {
     return repositoryFileDao.getReservedChars();
   }
@@ -609,5 +654,11 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   public RepositoryFile updateFolder( RepositoryFile folder, String versionMessage ) {
     Assert.notNull( folder );
     return internalUpdateFolder( folder, versionMessage );
+  }
+
+  @Override
+  public boolean isFileExist( String path ) {
+    Assert.hasText( path );
+    return repositoryFileDao.isFileExist( path );
   }
 }

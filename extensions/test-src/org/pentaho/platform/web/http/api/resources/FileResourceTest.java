@@ -13,6 +13,44 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.channels.IllegalSelectorException;
+import java.security.GeneralSecurityException;
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.junit.After;
@@ -42,28 +80,6 @@ import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.StreamingOutput;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.channels.IllegalSelectorException;
-import java.security.GeneralSecurityException;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static javax.ws.rs.core.Response.Status.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Mockito.*;
 
 public class FileResourceTest {
   private static final String XML_EXTENSION = "xml";
@@ -692,16 +708,17 @@ public class FileResourceTest {
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
 
     Response mockBadRequestResponse = mock( Response.class );
-    doReturn( mockBadRequestResponse ).when( fileResource ).buildStatusResponse( BAD_REQUEST );
+    doReturn( mockBadRequestResponse ).when( fileResource ).buildStatusResponse( eq( BAD_REQUEST ), anyString() );
 
     Response mockForbiddenResponse = mock( Response.class );
-    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
+    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( eq( FORBIDDEN ), anyString() );
 
     Response mockNotFoundResponse = mock( Response.class );
-    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( NOT_FOUND );
+    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( eq( NOT_FOUND ), anyString() );
 
     Response mockInternalServerErrorResponse = mock( Response.class );
-    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( eq( INTERNAL_SERVER_ERROR ),
+        anyString() );
 
     String exceptionMessage = "exception";
 

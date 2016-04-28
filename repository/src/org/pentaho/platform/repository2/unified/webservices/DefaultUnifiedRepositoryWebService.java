@@ -89,27 +89,32 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return marshalFiles( repo.getChildren( repositoryRequest ), repositoryRequest );
   }
 
+  @Override
   @Deprecated
   public List<RepositoryFileDto> getChildren( String folderId ) {
     return getChildrenWithFilter( folderId, null );
   }
 
+  @Override
   @Deprecated
   public List<RepositoryFileDto> getChildrenWithFilter( String folderId, String filter ) {
     return getChildrenWithFilterAndHidden( folderId, filter, false );
   }
 
+  @Override
   @Deprecated
   public List<RepositoryFileDto>
     getChildrenWithFilterAndHidden( String folderId, String filter, Boolean showHiddenFiles ) {
     return marshalFiles( repo.getChildren( new RepositoryRequest( folderId, showHiddenFiles, 0, filter ) ) );
   }
 
+  @Override
   public NodeRepositoryFileDataDto getDataAsNodeForRead( final String fileId ) {
     NodeRepositoryFileData fileData = repo.getDataForRead( fileId, NodeRepositoryFileData.class );
     return fileData != null ? nodeRepositoryFileDataAdapter.marshal( fileData ) : null;
   }
 
+  @Override
   public List<NodeRepositoryFileDataDto> getDataAsNodeForReadInBatch( final List<RepositoryFileDto> files ) {
     List<NodeRepositoryFileDataDto> data = new ArrayList<NodeRepositoryFileDataDto>( files.size() );
     for ( RepositoryFileDto f : files ) {
@@ -147,6 +152,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return file != null ? this.repositoryFileAdapter.marshal( file ) : null;
   }
 
+  @Override
   public RepositoryFileTreeDto getTree( final String path, final int depth, final String filter,
       final boolean showHidden ) {
 
@@ -154,6 +160,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return getTreeFromRequest( repositoryRequest );
   }
 
+  @Override
   public RepositoryFileTreeDto getTreeFromRequest( final RepositoryRequest repositoryRequest ) {
     // RepositoryFileTree tree = repo.getTree( path, depth, filter, showHidden );
 
@@ -207,12 +214,14 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return aceDtos;
   }
 
+  @Override
   public RepositoryFileDto createFolder( String parentFolderId, RepositoryFileDto file, String versionMessage ) {
     RepositoryFile newFile =
         repo.createFolder( parentFolderId, repositoryFileAdapter.unmarshal( file ), versionMessage );
     return newFile != null ? repositoryFileAdapter.marshal( newFile ) : null;
   }
 
+  @Override
   public RepositoryFileDto createFolderWithAcl( String parentFolderId, RepositoryFileDto file,
       RepositoryFileAclDto acl, String versionMessage ) {
     RepositoryFile newFile =
@@ -221,50 +230,62 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return newFile != null ? repositoryFileAdapter.marshal( newFile ) : null;
   }
 
+  @Override
   public void deleteFile( String fileId, String versionMessage ) {
     repo.deleteFile( fileId, versionMessage );
   }
 
+  @Override
   public void deleteFileAtVersion( String fileId, String versionId ) {
     repo.deleteFileAtVersion( fileId, versionId );
   }
 
+  @Override
   public void deleteFileWithPermanentFlag( String fileId, boolean permanent, String versionMessage ) {
     repo.deleteFile( fileId, permanent, versionMessage );
   }
 
+  @Override
   public List<RepositoryFileDto> getDeletedFiles() {
     return marshalFiles( repo.getDeletedFiles() );
   }
 
+  @Override
   public List<RepositoryFileDto> getDeletedFilesInFolder( String folderPath ) {
     return marshalFiles( repo.getDeletedFiles( folderPath ) );
   }
 
+  @Override
   public List<RepositoryFileDto> getDeletedFilesInFolderWithFilter( String folderPath, String filter ) {
     return marshalFiles( repo.getDeletedFiles( folderPath, filter ) );
   }
 
+  @Override
   public void lockFile( String fileId, String message ) {
     repo.lockFile( fileId, message );
   }
 
+  @Override
   public void moveFile( String fileId, String destAbsPath, String versionMessage ) {
     repo.moveFile( fileId, destAbsPath, versionMessage );
   }
 
+  @Override
   public void copyFile( String fileId, String destAbsPath, String versionMessage ) {
     repo.copyFile( fileId, destAbsPath, versionMessage );
   }
 
+  @Override
   public void undeleteFile( String fileId, String versionMessage ) {
     repo.undeleteFile( fileId, versionMessage );
   }
 
+  @Override
   public void unlockFile( String fileId ) {
     repo.unlockFile( fileId );
   }
 
+  @Override
   public RepositoryFileDto createFile( String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data,
       String versionMessage ) {
     validateEtcWriteAccess( parentFolderId );
@@ -272,6 +293,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
         nodeRepositoryFileDataAdapter.unmarshal( data ), versionMessage ) );
   }
 
+  @Override
   public RepositoryFileDto createFileWithAcl( String parentFolderId, RepositoryFileDto file,
       NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, String versionMessage ) {
     validateEtcWriteAccess( parentFolderId );
@@ -279,15 +301,18 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
         nodeRepositoryFileDataAdapter.unmarshal( data ), repositoryFileAclAdapter.unmarshal( acl ), versionMessage ) );
   }
 
+  @Override
   public RepositoryFileDto updateFile( RepositoryFileDto file, NodeRepositoryFileDataDto data, String versionMessage ) {
     return repositoryFileAdapter.marshal( repo.updateFile( repositoryFileAdapter.unmarshal( file ),
         nodeRepositoryFileDataAdapter.unmarshal( data ), versionMessage ) );
   }
 
+  @Override
   public boolean canUnlockFile( String fileId ) {
     return repo.canUnlockFile( fileId );
   }
 
+  @Override
   public RepositoryFileAclDto getAcl( String fileId ) {
     if( repo == null ){
       // many tests do not have a repo setup.
@@ -296,31 +321,38 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return repositoryFileAclAdapter.marshal( repo.getAcl( fileId ) );
   }
 
+  @Override
   public NodeRepositoryFileDataDto getDataAsNodeForReadAtVersion( String fileId, String versionId ) {
     return nodeRepositoryFileDataAdapter.marshal( repo.getDataAtVersionForRead( fileId, versionId,
         NodeRepositoryFileData.class ) );
   }
 
+  @Override
   public List<RepositoryFileAclAceDto> getEffectiveAces( String fileId ) {
     return marshalAces( repo.getEffectiveAces( fileId ) );
   }
 
+  @Override
   public List<RepositoryFileAclAceDto> getEffectiveAcesWithForceFlag( String fileId, boolean forceEntriesInheriting ) {
     return marshalAces( repo.getEffectiveAces( fileId, forceEntriesInheriting ) );
   }
 
+  @Override
   public RepositoryFileDto getFileAtVersion( String fileId, String versionId ) {
     return repositoryFileAdapter.marshal( repo.getFileAtVersion( fileId, versionId ) );
   }
 
+  @Override
   public void restoreFileAtVersion( String fileId, String versionId, String versionMessage ) {
     repo.restoreFileAtVersion( fileId, versionId, versionMessage );
   }
 
+  @Override
   public RepositoryFileAclDto updateAcl( RepositoryFileAclDto acl ) {
     return repositoryFileAclAdapter.marshal( repo.updateAcl( repositoryFileAclAdapter.unmarshal( acl ) ) );
   }
 
+  @Override
   public List<VersionSummaryDto> getVersionSummaries( String fileId ) {
     return marshalVersionSummaries( repo.getVersionSummaries( fileId ) );
   }
@@ -333,10 +365,12 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return versionSummaryDtos;
   }
 
+  @Override
   public VersionSummaryDto getVersionSummary( String fileId, String versionId ) {
     return versionSummaryAdapter.marshal( repo.getVersionSummary( fileId, versionId ) );
   }
 
+  @Override
   public List<VersionSummaryDto> getVersionSummaryInBatch( final List<RepositoryFileDto> files ) {
     List<VersionSummaryDto> versions = new ArrayList<VersionSummaryDto>( files.size() );
     for ( RepositoryFileDto file : files ) {
@@ -345,10 +379,12 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return versions;
   }
 
+  @Override
   public boolean hasAccess( String path, List<Integer> permissions ) {
     return repo.hasAccess( path, RepositoryFileAclAceAdapter.toPerms( permissions ) );
   }
 
+  @Override
   public List<RepositoryFileDto> getReferrers( String fileId ) {
     List<RepositoryFileDto> fileList = new ArrayList<RepositoryFileDto>();
 
@@ -434,4 +470,8 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
         .marshal( repo.updateFolder( repositoryFileAdapter.unmarshal( folder ), versionMessage ) );
   }
 
+  @Override
+  public boolean isFileExist( String path ) {
+    return repo.isFileExist( path );
+  }
 }

@@ -542,4 +542,8 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
         versionMessage ) );
   }
 
+  @Override
+  public boolean isFileExist( String path ) {
+    return this.repoWebService.isFileExist( path );
+  }
 }

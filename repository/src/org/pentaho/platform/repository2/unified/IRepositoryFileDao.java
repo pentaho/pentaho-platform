@@ -141,4 +141,6 @@ public interface IRepositoryFileDao {
   setLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale );
+
+  boolean isFileExist( final String relPath );
 }

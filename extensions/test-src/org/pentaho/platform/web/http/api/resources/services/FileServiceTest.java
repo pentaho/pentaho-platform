@@ -25,11 +25,20 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -990,6 +999,8 @@ public class FileServiceTest {
       anyBoolean() );
     doReturn( mockExportHandler ).when( fileService ).getDownloadExportHandler();
     doReturn( mockStream ).when( fileService ).getDownloadStream( mockRepoFile, mockExportProcessor );
+    // allow WRITE
+    doReturn( true ).when( fileService.repository ).hasAccess( anyString(), any() );
 
     FileService.DownloadFileWrapper wrapper =
       fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, withManifest );
