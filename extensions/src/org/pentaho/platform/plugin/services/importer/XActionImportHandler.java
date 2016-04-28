@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -59,9 +59,14 @@ public class XActionImportHandler extends RepositoryFileImportFileHandler implem
         boolean isHidden = "none".equals( resultType.getTextContent() );
         importBundle.setHidden( isHidden );
       }
-      super.importFile( importBundle );
+      importBundle( importBundle );
     } catch ( Exception e ) {
       throw new PlatformImportException( e.getMessage(), e );
     }
+  }
+
+  // useful for unit testing
+  protected void importBundle( RepositoryFileImportBundle importBundle ) throws PlatformImportException {
+    super.importFile( importBundle );
   }
 }
