@@ -25,6 +25,10 @@
 
   <set-property name="gwt.suppressNonStaticFinalFieldWarnings" value="true"/>
 
+  <!-- Redefining standard IFrameLinker with an extended one,
+  which adds json2 dependency to wrapper html for ie8 and ie9 browsers,
+  as they don't provide JSON object in Quirks Mode -->
+  <define-linker name="std" class="org.pentaho.mantle.rebind.JsonDependencyAddingLinker" />
 
 <!-- **SuperDevMode** == Uncomment this and re-build to get a SuperDevMode compatible build
   <add-linker name="xsiframe"/>
