@@ -81,6 +81,7 @@
 
         <!--  Testing dependencies -->
         <dependency org="junit"          name="junit"          rev="4.4" conf="test->default" />
+        <dependency org="org.mockito" name="mockito-all" rev="1.8.5" conf="test->default"/>
 
     </dependencies>    
 </ivy-module>
