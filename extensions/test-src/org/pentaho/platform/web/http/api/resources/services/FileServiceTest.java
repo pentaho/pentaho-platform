@@ -28,6 +28,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -56,8 +57,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -65,6 +74,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
@@ -100,14 +111,57 @@ public class FileServiceTest {
   private static String FOLDER_HOME = "home";
   private static String SEPARATOR = "/";
   private static String PATH_USER_HOME_FOLDER = SEPARATOR + FOLDER_HOME + SEPARATOR + USER_NAME;
+  private static final String REAL_USER = "testUser";
 
+  private static final String IMPORT_DIR = "/home/" + REAL_USER;
+
+  private IPentahoObjectFactory pentahoObjectFactory;
+
+  private IAuthorizationPolicy policy;
+
+  private ITenantedPrincipleNameResolver resolver;
+  
   @Before
-  public void setUp() {
+  public void setUp() throws ObjectFactoryException {
     fileService = spy( new FileService() );
     fileService.defaultUnifiedRepositoryWebService = mock( DefaultUnifiedRepositoryWebService.class );
     fileService.repository = mock( IUnifiedRepository.class );
     fileService.policy = mock( IAuthorizationPolicy.class );
+
+    PentahoSystem.init();
+    ITenant tenat = mock( ITenant.class );
+
+    resolver = mock( ITenantedPrincipleNameResolver.class );
+    doReturn( tenat ).when( resolver ).getTenant( anyString() );
+    doReturn( REAL_USER ).when( resolver ).getPrincipleName( anyString() );
+    policy = mock( IAuthorizationPolicy.class );
+    pentahoObjectFactory = mock( IPentahoObjectFactory.class );
+    when( pentahoObjectFactory.objectDefined( anyString() ) ).thenReturn( true );
+    when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer(
+        new Answer<Object>() {
+          @Override
+          public Object answer( InvocationOnMock invocation ) throws Throwable {
+            if ( invocation.getArguments()[0].equals( IAuthorizationPolicy.class ) ) {
+              return policy;
+            }
+            if ( invocation.getArguments()[0].equals( ITenantedPrincipleNameResolver.class ) ) {
+              return resolver;
+            }
+            return null;
+          }
+        } );
+    PentahoSystem.registerObjectFactory( pentahoObjectFactory );
+    IPentahoSession session = mock( IPentahoSession.class );
+    doReturn( "sampleSession" ).when( session ).getName();
+    PentahoSessionHolder.setSession( session );
   }
+
+  @After
+  public void tearDown() {
+    PentahoSystem.deregisterObjectFactory( pentahoObjectFactory );
+    PentahoSystem.shutdown();
+  }
+
 
   @After
   public void cleanup() {
@@ -996,7 +1050,7 @@ public class FileServiceTest {
 
     verify( fileService.repository, times( 1 ) ).getFile( anyString() );
     ArgumentCaptor<String> captor = ArgumentCaptor.forClass( String.class );
-    verify( mockAuthPolicy, times( 2 ) ).isAllowed( captor.capture() );
+    verify( mockAuthPolicy, times( 3 ) ).isAllowed( captor.capture() );
     assertTrue( captor.getAllValues().contains( RepositoryReadAction.NAME ) );
     assertTrue( captor.getAllValues().contains( RepositoryCreateAction.NAME ) );
 
@@ -1015,7 +1069,7 @@ public class FileServiceTest {
     try {
       fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
       fail();
-    } catch ( GeneralSecurityException e ) {
+    } catch ( PentahoAccessControlException e ) {
       // Expected
     } catch ( Throwable t ) {
       fail();
@@ -1991,6 +2045,17 @@ public class FileServiceTest {
       fileService.doCreateDir( pathId );
     } catch ( InternalError e ) {
       assertEquals( e.getMessage(), "negativetest" );
+    }
+  }
+  
+  private Class<?> anyClass() {
+    return argThat( new AnyClassMatcher() );
+  }
+
+  private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
+    @Override
+    public boolean matches( final Object arg ) {
+      return true;
     }
   }
 }
