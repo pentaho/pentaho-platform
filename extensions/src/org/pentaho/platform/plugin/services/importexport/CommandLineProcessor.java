@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport;
@@ -176,13 +176,13 @@ public class CommandLineProcessor {
 
     //backup
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_BACKUP_KEY" ), Messages
-      .getInstance().getString( "CommandLineProcessor.INFO_OPTION_BACKUP_NAME" ), false, Messages.getInstance()
-      .getString( "CommandLineProcessor.INFO_OPTION_BACKUP_DESCRIPTION" ) );
+        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_BACKUP_NAME" ), false, Messages.getInstance()
+        .getString( "CommandLineProcessor.INFO_OPTION_BACKUP_DESCRIPTION" ) );
 
     //restore
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESTORE_KEY" ), Messages
-      .getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESTORE_NAME" ), false, Messages.getInstance()
-      .getString( "CommandLineProcessor.INFO_OPTION_RESTORE_DESCRIPTION" ) );
+        .getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESTORE_NAME" ), false, Messages.getInstance()
+        .getString( "CommandLineProcessor.INFO_OPTION_RESTORE_DESCRIPTION" ) );
 
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_SERVICE_KEY" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_SERVICE_NAME" ), true, Messages.getInstance()
@@ -350,17 +350,6 @@ public class CommandLineProcessor {
     client = Client.create( clientConfig );
     client.addFilter( new HTTPBasicAuthFilter( username, password ) );
 
-    // check if the user has permissions to upload/download data
-    String contextURL =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
-    WebResource resource = client.resource( contextURL + "/api/authorization/action/isauthorized?authAction="
-        + AdministerSecurityAction.NAME );
-    String response = resource.get( String.class );
-    if ( !response.equals( "true" ) ) {
-      throw new InitializationException( Messages.getInstance().getString(
-          "CommandLineProcessor.ERROR_0006_NON_ADMIN_CREDENTIALS" ) );
-    }
   }
 
   /**
@@ -391,9 +380,11 @@ public class CommandLineProcessor {
           || commandLine.hasOption( Messages.getInstance().
             getString( "CommandLineProcessor.INFO_OPTION_REST_KEY" ) ) ) {
         requestType = RequestType.REST;
-      } else if( commandLine.hasOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_BACKUP_KEY" ) ) ) {
-          requestType = RequestType.BACKUP;
-      } else if( commandLine.hasOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESTORE_KEY" ) ) ) {
+      } else if ( commandLine.hasOption( Messages.getInstance().getString(
+          "CommandLineProcessor.INFO_OPTION_BACKUP_KEY" ) ) ) {
+        requestType = RequestType.BACKUP;
+      } else if ( commandLine.hasOption( Messages.getInstance().getString(
+          "CommandLineProcessor.INFO_OPTION_RESTORE_KEY" ) ) ) {
         requestType = RequestType.RESTORE;
       } else {
         final boolean importRequest =
@@ -666,14 +657,14 @@ public class CommandLineProcessor {
 
         String overwrite =
             getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY" ),
-                Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME" ), true, false );
+                Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME" ), false, true );
         String retainOwnership =
             getOptionValue(
                 Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_KEY" ), Messages
-                    .getInstance().getString( "CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_NAME" ), true, false );
+                    .getInstance().getString( "CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_NAME" ), false, true );
         String permission =
             getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_PERMISSION_KEY" ),
-                Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_PERMISSION_NAME" ), true, false );
+                Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_PERMISSION_NAME" ), false, true );
 
         part.field( "importDir", path, MediaType.MULTIPART_FORM_DATA_TYPE );
         part.field( "overwriteAclPermissions", "true".equals( overwrite ) ? "true" : "false",
@@ -691,15 +682,7 @@ public class CommandLineProcessor {
 
         // Response response
         ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
-        if ( response != null ) {
-          String message = response.getEntity( String.class );
-          System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-              message ) );
-          if ( logFile != null && !"".equals( logFile ) ) {
-            writeFile( message, logFile );
-          }
-          response.close();
-        }
+        handleResponse( response, logFile );
       } catch ( Exception e ) {
         System.err.println( e.getMessage() );
         log.error( e.getMessage() );
@@ -723,14 +706,24 @@ public class CommandLineProcessor {
    */
   private void performBackup() throws ParseException, InitializationException, IOException {
     String contextURL =
-      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
+        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_KEY" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
     String logFile =
-      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_KEY" ), Messages
+        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_KEY" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_NAME" ), false, true );
     String backupURL = contextURL + "/api/repo/files/backup";
 
     initRestService();
+
+    // check if the user has permissions to upload/download data
+    WebResource authResource = client.resource( contextURL + "/api/authorization/action/isauthorized?authAction="
+        + AdministerSecurityAction.NAME );
+    String authResponse = authResource.get( String.class );
+    if ( !authResponse.equals( "true" ) ) {
+      System.err.println( Messages.getInstance().getString(
+          "CommandLineProcessor.ERROR_0006_NON_ADMIN_CREDENTIALS" ) );
+      return;
+    }
     WebResource resource = client.resource( backupURL );
 
     // Response response
@@ -738,7 +731,7 @@ public class CommandLineProcessor {
     ClientResponse response = builder.get( ClientResponse.class );
     if ( response != null && response.getStatus() == 200 ) {
       String filename =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
+          getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
           .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
       final InputStream input = response.getEntityInputStream();
       createZipFile( filename, input );
@@ -766,14 +759,14 @@ public class CommandLineProcessor {
    */
   private void performRestore() throws ParseException, IOException {
     String contextURL =
-      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_Key" ), Messages
+        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_Key" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_URL_NAME" ), true, false );
     String filePath =
-      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
+        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_KEY" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_FILEPATH_NAME" ), true, false );
 
     String logFile =
-      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_KEY" ), Messages
+        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_KEY" ), Messages
         .getInstance().getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_NAME" ), false, true );
 
     String importURL = contextURL + "/api/repo/files/systemRestore";
@@ -782,21 +775,29 @@ public class CommandLineProcessor {
     FormDataMultiPart part = new FormDataMultiPart().field( "fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE );
     try {
       initRestService();
+      // check if the user has permissions to upload/download data
+      WebResource authResource = client.resource( contextURL + "/api/authorization/action/isauthorized?authAction="
+          + AdministerSecurityAction.NAME );
+      String authResponse = authResource.get( String.class );
+      if ( !authResponse.equals( "true" ) ) {
+        System.err.println( Messages.getInstance().getString(
+            "CommandLineProcessor.ERROR_0006_NON_ADMIN_CREDENTIALS" ) );
+        return;
+      }
+
       WebResource resource = client.resource( importURL );
 
       String overwrite =
-        getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY" ),
-          Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME" ), true, false );
-
-      part.field( "overwriteFile", "true".equals( overwrite ) ? "true" : "false",
-        MediaType.MULTIPART_FORM_DATA_TYPE );
+          getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY" ),
+              Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME" ), true, false );
+      part.field( "overwriteFile", "true".equals( overwrite ) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE );
 
       // Response response
       ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
       if ( response != null ) {
         String message = response.getEntity( String.class );
         System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-          message ) );
+            message ) );
         if ( logFile != null && !"".equals( logFile ) ) {
           writeFile( message, logFile );
         }
@@ -878,11 +879,7 @@ public class CommandLineProcessor {
         writeFile( message, logFile );
       }
     } else {
-      System.out.println( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" ) );
-      if ( response != null && response.getStatus() == 404 ) {
-        throw new ParseException( Messages.getInstance().getErrorString(
-            "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path ) );
-      }
+      handleResponse( response, logFile );
     }
   }
 
@@ -1085,6 +1082,17 @@ public class CommandLineProcessor {
       ex.printStackTrace();
     }
 
+  }
+  private void handleResponse( ClientResponse response, String logFile ) {
+    if ( response != null ) {
+      String message = response.getEntity( String.class );
+      System.out.println( Messages.getInstance()
+          .getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message ) );
+      if ( logFile != null && !"".equals( logFile ) ) {
+        writeFile( message, logFile );
+      }
+      response.close();
+    }
   }
 
   /**
