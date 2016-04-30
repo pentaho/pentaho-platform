@@ -38,7 +38,6 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.plugin.services.messages.Messages;
@@ -163,7 +162,6 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    */
   protected boolean copyFileToRepository( final RepositoryFileImportBundle bundle, final String repositoryPath,
       final RepositoryFile file ) throws PlatformImportException {
-    Log log = getLogger();
     // Compute the file extension
     final String name = bundle.getName();
     final String ext = RepositoryFilenameUtils.getExtension( name );
@@ -254,7 +252,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       if ( getImportSession().isRetainOwnership() ) {
         if ( newFile ) {
           getLogger().debug( "Getting Owner from Session" );
-          newOwner = new RepositoryFileSid( PentahoSessionHolder.getSession().getName(), RepositoryFileSid.Type.USER );
+          newOwner = getDefaultAcl( repositoryFile ).getOwner();
         } else {
           getLogger().debug( "Getting Owner from existing file" );
           newOwner = originalAcl.getOwner();

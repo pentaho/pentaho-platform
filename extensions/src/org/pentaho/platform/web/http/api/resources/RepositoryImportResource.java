@@ -49,6 +49,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
@@ -190,6 +191,13 @@ public class RepositoryImportResource {
       // If logLevel is null then we will default to ERROR
       if ( logLevel == null || logLevel.length() <= 0 ) {
         logLevel = "ERROR";
+      }
+
+      //Non-admins cannot process a manifest
+      FileService fileService = new FileService();
+      if ( !fileService.doCanAdminister() ) {
+        applyAclSettingsFlag = false;
+        retainOwnershipFlag = true;
       }
 
       Level level = Level.toLevel( logLevel );
