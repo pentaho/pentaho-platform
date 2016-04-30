@@ -271,7 +271,7 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
+          <hashTree/>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4 /pentaho/api/repo/files/import" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -1889,7 +1889,7 @@ vars.put(&quot;fileAces&quot;, null);</stringProp>
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="51512">404</stringProp>
+                <stringProp name="51511">403</stringProp>
               </collectionProp>
               <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
@@ -1897,7 +1897,7 @@ vars.put(&quot;fileAces&quot;, null);</stringProp>
             </ResponseAssertion>
             <hashTree/>
             <BeanShellAssertion guiclass="BeanShellAssertionGui" testclass="BeanShellAssertion" testname="BeanShell Assertion" enabled="true">
-              <stringProp name="BeanShellAssertion.query">if (ResponseCode.equals(&quot;404&quot;) == true) { 
+              <stringProp name="BeanShellAssertion.query">if (ResponseCode.equals(&quot;403&quot;) == true) { 
     SampleResult.setResponseOK();  
 }</stringProp>
               <stringProp name="BeanShellAssertion.filename"></stringProp>
