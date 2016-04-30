@@ -76,6 +76,7 @@ import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
@@ -637,7 +638,7 @@ public class FileResource extends AbstractJaxRSResource {
     } catch ( IllegalSelectorException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
       return buildStatusResponse( FORBIDDEN );
-    } catch ( GeneralSecurityException e ) {
+    } catch ( PentahoAccessControlException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
       return buildStatusResponse( FORBIDDEN );
     } catch ( FileNotFoundException e ) {

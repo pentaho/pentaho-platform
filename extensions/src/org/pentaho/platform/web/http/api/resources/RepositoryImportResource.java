@@ -187,9 +187,14 @@ public class RepositoryImportResource {
       boolean overwriteAclSettingsFlag = ( "true".equals( overwriteAclPermissions ) ? true : false );
       boolean applyAclSettingsFlag = ( "true".equals( applyAclPermission ) ? true : false );
       boolean retainOwnershipFlag = ( "true".equals( retainOwnership ) ? true : false );
+      // If logLevel is null then we will default to ERROR
+      if ( logLevel == null || logLevel.length() <= 0 ) {
+        logLevel = "ERROR";
+      }
 
       Level level = Level.toLevel( logLevel );
-      ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
+      ImportSession.getSession().setAclProperties( applyAclSettingsFlag,
+          retainOwnershipFlag, overwriteAclSettingsFlag );
 
       //The fileNameOverride was added because the formDataContentDispositionfile object cannot reliable
       //contain non US-ASCII characters.  See RFC283 section 2.3 for details
@@ -261,14 +266,17 @@ public class RepositoryImportResource {
       boolean importingToHomeFolder = false;
       String tenatedUserName = PentahoSessionHolder.getSession().getName();
       //get user home home folder path
-      String userHomeFolderPath = ServerRepositoryPaths.getUserHomeFolderPath( JcrTenantUtils.getUserNameUtils().getTenant( tenatedUserName ),
-          JcrTenantUtils.getUserNameUtils().getPrincipleName( tenatedUserName ) );
+      String userHomeFolderPath = ServerRepositoryPaths.getUserHomeFolderPath(
+          JcrTenantUtils.getUserNameUtils().getTenant( tenatedUserName ),
+            JcrTenantUtils.getUserNameUtils().getPrincipleName( tenatedUserName ) );
       if ( userHomeFolderPath != null && userHomeFolderPath.length() > 0 ) {
         //we pass the relative path so add serverside root folder for every home folder
-        importingToHomeFolder = ( ServerRepositoryPaths.getTenantRootFolderPath() + importDir ).contains( userHomeFolderPath );
+        importingToHomeFolder = ( ServerRepositoryPaths.getTenantRootFolderPath() + importDir )
+            .contains( userHomeFolderPath );
       }
-      if ( !( importingToHomeFolder && policy.isAllowed( RepositoryCreateAction.NAME ) && policy.isAllowed( RepositoryReadAction.NAME ) ) ) {
-        throw new PentahoAccessControlException( "Access Denied" );
+      if ( !( importingToHomeFolder && policy.isAllowed( RepositoryCreateAction.NAME )
+          && policy.isAllowed( RepositoryReadAction.NAME ) ) ) {
+        throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
       }
     }
   }
