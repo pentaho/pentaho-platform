@@ -1,5 +1,5 @@
 /*
- * Copyright 2002 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2002 - 2016 Pentaho Corporation.  All rights reserved.
  *
  * This software was developed by Pentaho Corporation and is provided under the terms
  * of the Mozilla Public License, Version 1.1, or any later version. You may not use
@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -724,10 +725,10 @@ public class FileResourceTest {
     assertEquals( mockForbiddenResponse, testResponse );
 
     // Test 3
-    Exception mockGeneralSecurityException = mock( GeneralSecurityException.class );
-    doThrow( mockGeneralSecurityException ).when( fileResource.fileService ).doGetFileOrDirAsDownload( userAgent,
+    Exception mockPentahoAccessControlException = mock( PentahoAccessControlException.class );
+    doThrow( mockPentahoAccessControlException ).when( fileResource.fileService ).doGetFileOrDirAsDownload( userAgent,
       PATH_ID, strWithManifest );
-    doReturn( exceptionMessage ).when( mockGeneralSecurityException ).getMessage();
+    doReturn( exceptionMessage ).when( mockPentahoAccessControlException ).getMessage();
 
     testResponse = fileResource.doGetFileOrDirAsDownload( userAgent, PATH_ID, strWithManifest );
     assertEquals( mockForbiddenResponse, testResponse );
