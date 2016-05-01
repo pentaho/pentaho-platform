@@ -1059,6 +1059,65 @@ public class FileServiceTest {
   }
 
   @Test
+  public void testDoGetFileOrDirAsDownloadNonAdminUserHomeFolder() throws Throwable {
+
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME ); /* user has 'Read Content' */
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME ); /* user has 'Create Content' */
+
+    /* non-admin user */
+    doReturn( false ).when( mockAuthPolicy ).isAllowed( AdministerSecurityAction.NAME );
+
+    doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
+
+    // Test 1: in the home-folder
+    try {
+      fileService.doGetFileOrDirAsDownload( "", "home:testUser:test_file", "true" );
+      fail();
+    } catch ( FileNotFoundException ex ) {
+      /* expected; this is a mock test, we don't actually have a 'test_file' to download :) */
+    } catch ( Throwable t ) {
+      fail();
+    }
+
+    // Test 2: in some home-folder sub-folders
+    try {
+      fileService.doGetFileOrDirAsDownload( "", "home:testUser:subFolder1:subFolder2:test_file", "true" );
+      fail();
+    } catch ( FileNotFoundException ex ) {
+      /* expected; this is a mock test, we don't actually have a 'test_file' to download :) */
+    } catch ( Throwable t ) {
+      fail();
+    }
+
+    // Test 3: while still being on the user's home folder, user loses 'Read Content' permission
+    try {
+      doReturn( false ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
+      fileService.doGetFileOrDirAsDownload( "", "home:testUser:test_file", "true" );
+      fail();
+    } catch ( PentahoAccessControlException e ) {
+      /* expected */
+    } catch ( Throwable t ) {
+      fail();
+    } finally {
+      doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
+    }
+
+    // Test 4: while still being on the user's home folder, user loses 'Create Content' permission
+    try {
+      doReturn( false ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+      fileService.doGetFileOrDirAsDownload( "", "home:testUser:test_file", "true" );
+      fail();
+    } catch ( PentahoAccessControlException e ) {
+      /* expected */
+    } catch ( Throwable t ) {
+      fail();
+    } finally {
+      doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    }
+  }
+
+  @Test
   public void testDoGetFileOrDirAsDownloadException() {
     // Test 1
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
