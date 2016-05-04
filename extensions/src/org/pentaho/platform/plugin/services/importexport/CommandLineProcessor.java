@@ -88,6 +88,8 @@ public class CommandLineProcessor {
 
   private static Exception exception;
 
+  private static String errorMessage;
+
   private CommandLine commandLine;
 
   private RequestType requestType;
@@ -681,6 +683,24 @@ public class CommandLineProcessor {
         // Response response
         ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
         if ( response != null ) {
+          if ( response.getStatus() == 200 ) {
+            errorMessage = Messages.getInstance().getString(
+                "CommandLineProcessor.INFO_IMPORT_SUCCESSFUL" );
+            System.out.println( errorMessage );
+            return;
+          }
+          if ( response.getStatus() == 403 ) {
+            errorMessage = Messages.getInstance().getErrorString(
+                "CommandLineProcessor.ERROR_0007_FORBIDDEN", path );
+            System.out.println( errorMessage );
+            return;
+          }
+          if ( response.getStatus() == 404 ) {
+            errorMessage = Messages.getInstance().getErrorString(
+                "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
+            System.out.println( errorMessage );
+            return;
+          }
           String message = response.getEntity( String.class );
           System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
               message ) );
@@ -882,12 +902,13 @@ public class CommandLineProcessor {
         System.out.println( message );
         writeFile( message, logFile );
       }
-    } else {
-      System.out.println( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" ) );
-      if ( response != null && response.getStatus() == 404 ) {
-        throw new ParseException( Messages.getInstance().getErrorString(
-            "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path ) );
-      }
+      System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_EXPORT_SUCCESSFUL" ) );
+    } else if ( response != null && response.getStatus() == 403 ) {
+      errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0007_FORBIDDEN", path );
+      System.out.println( errorMessage );
+    } else if ( response != null && response.getStatus() == 404 ) {
+      errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
+      System.out.println( errorMessage );
     }
   }
 
@@ -1072,6 +1093,10 @@ public class CommandLineProcessor {
           longOption ) );
     }
     return value;
+  }
+
+  public static String getErrorMessage() {
+    return errorMessage;
   }
 
   /**

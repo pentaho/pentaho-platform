@@ -40,6 +40,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
@@ -78,7 +79,8 @@ public class CommandLineProcessorIT extends JerseyTest {
 
     mp.setFullyQualifiedServerUrl( getBaseURI() + webAppDescriptor.getContextPath() + "/" );
     mp.define( ISolutionEngine.class, SolutionEngine.class );
-    mp.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, IPentahoDefinableObjectFactory.Scope.GLOBAL );
+    mp.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class,
+        IPentahoDefinableObjectFactory.Scope.GLOBAL );
     mp.define( IAuthorizationPolicy.class, TestAuthorizationPolicy.class );
     mp.define( IAuthorizationAction.class, AdministerSecurityAction.class );
     mp.define( DefaultExportHandler.class, DefaultExportHandler.class );
@@ -177,7 +179,8 @@ public class CommandLineProcessorIT extends JerseyTest {
     //path that doesn't exist
     pathOption = "-f \"/path_that_not_exists\"";
     CommandLineProcessor.main( toStringArray( baseOptions, pathOption ) );
-    assertEquals( ParseException.class, CommandLineProcessor.getException().getClass() );
+    assertEquals( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE",
+        "/path_that_not_exists" ), CommandLineProcessor.getErrorMessage() );
   }
 
   @Test
