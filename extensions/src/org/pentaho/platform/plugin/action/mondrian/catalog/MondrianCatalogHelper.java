@@ -633,8 +633,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS" ), //$NON-NLS-1$
           Reason.XMLA_SCHEMA_NAME_EXISTS );
     }
+    MondrianCatalogRepositoryHelper helper = getMondrianCatalogRepositoryHelper();
     try {
-      MondrianCatalogRepositoryHelper helper = getMondrianCatalogRepositoryHelper();
       helper.addHostedCatalog( schemaInputStream, catalog.getName(), catalog.getDataSourceInfo() );
     } catch ( Exception e ) {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
@@ -646,12 +646,18 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       MondrianCatalogHelper.logger
           .debug( "refreshing from dataSourcesConfig (" + dataSourcesConfig + ")" ); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    reInit( pentahoSession );
+    try {
+      reInit( pentahoSession );
 
-    setAclFor( catalog.getName(), acl );
+      setAclFor( catalog.getName(), acl );
 
-    if ( catalogExistsWithSameDatasource || catalogExistsWithDifferentDatasource ) {
-      flushCacheForCatalog( catalog.getName(), pentahoSession );
+      if ( catalogExistsWithSameDatasource || catalogExistsWithDifferentDatasource ) {
+        flushCacheForCatalog( catalog.getName(), pentahoSession );
+      }
+    } catch ( MondrianException e ) {
+      helper.deleteHostedCatalog( catalog.getName() );
+      reInit( pentahoSession );
+      throw e;
     }
   }
 
