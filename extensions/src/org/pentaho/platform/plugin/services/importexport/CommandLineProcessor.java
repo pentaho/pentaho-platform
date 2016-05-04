@@ -96,15 +96,15 @@ public class CommandLineProcessor {
 
   private IUnifiedRepository repository;
 
-  private static enum RequestType {
+  public static enum RequestType {
     HELP, IMPORT, EXPORT, REST, BACKUP, RESTORE
   }
 
-  private static enum DatasourceType {
+  public static enum DatasourceType {
     JDBC, METADATA, ANALYSIS
   }
 
-  private static enum ResourceType {
+  public static enum ResourceType {
     SOLUTIONS, DATASOURCE
   }
 
@@ -1056,7 +1056,7 @@ public class CommandLineProcessor {
       throw new ParseException( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0001_MISSING_ARG",
           option ) );
     }
-    return value;
+    return StringUtils.removeStart( value, "=" );
   }
 
   /**
@@ -1076,6 +1076,7 @@ public class CommandLineProcessor {
    * @throws ParseException
    *           indicates the required or non-blank value was not provided
    */
+  // TODO no sense to execute this method with both options. shortOption and longOption are interchangeably.
   protected String getOptionValue( final String shortOption, final String longOption, final boolean required,
       final boolean emptyOk ) throws ParseException {
     // first try the short option parameter
@@ -1092,7 +1093,7 @@ public class CommandLineProcessor {
       throw new ParseException( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0001_MISSING_ARG",
           longOption ) );
     }
-    return value;
+    return StringUtils.removeStart( value, "=" );
   }
 
   public static String getErrorMessage() {
