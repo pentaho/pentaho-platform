@@ -37,7 +37,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.pentaho.platform.engine.core.output.MultiOutputStream;
 import org.pentaho.platform.plugin.services.importexport.CommandLineProcessor.RequestType;
@@ -46,16 +45,14 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import mockit.Deencapsulation;
 import mockit.Mock;
 import mockit.MockUp;
-import mockit.integration.junit4.JMockit;
 
-@RunWith( JMockit.class )
 @FixMethodOrder( MethodSorters.NAME_ASCENDING )
 public class CommandLineProcessorTest extends Assert {
 
-  private final static String MESSAGE = "message";
+  private static final String MESSAGE = "message";
 
-  private final static PrintStream CONSOLE_OUT = System.out;
-  private final static ByteArrayOutputStream CONSOLE_BUFFER = new ByteArrayOutputStream();
+  private static final PrintStream CONSOLE_OUT = System.out;
+  private static final ByteArrayOutputStream CONSOLE_BUFFER = new ByteArrayOutputStream();
 
   private static CommandLineProcessor clpMock;
 
