@@ -316,6 +316,7 @@ not directly from the PentahoObjectFactory. -->
     <constructor-arg index="0" type="java.util.Map">
       <map key-type="java.lang.String" value-type="java.lang.String">
         <entry key="mondrian4" value="mondrian"/>
+        <entry key="mondrian" value="none"/>
       </map>
     </constructor-arg>
   </bean>
