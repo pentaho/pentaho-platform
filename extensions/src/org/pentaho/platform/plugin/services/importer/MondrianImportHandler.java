@@ -12,9 +12,8 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
-
 package org.pentaho.platform.plugin.services.importer;
 
 /**
@@ -44,7 +43,6 @@ import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IAclAwareMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -55,14 +53,17 @@ import org.xml.sax.SAXException;
 
 public class MondrianImportHandler implements IPlatformImportHandler {
 
-  private static final String PARAMETERS = "parameters";
+  protected static final String PARAMETERS = "parameters";
 
-  private static final String ENABLE_XMLA = "EnableXmla";
+  protected static final String ENABLE_XMLA = "EnableXmla";
 
-  private static final String DOMAIN_ID = "domain-id";
+  protected static final String DOMAIN_ID = "domain-id";
 
-  private static final String DATA_SOURCE = "DataSource";
-  private static final String PROVIDER = "Provider";
+  protected static final String DATA_SOURCE = "DataSource";
+
+  protected static final String PROVIDER = "Provider";
+
+  protected static final String DEFAULT_PROVIDER = "mondrian";
 
   private List<IMimeType> mimeTypes;
   IMondrianCatalogService mondrianRepositoryImporter;
@@ -183,7 +184,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       provider = findParameterPropertyValue( bundle, PROVIDER );
     } else {
       // Defaults to 'mondrian'
-      provider = "mondrian";
+      provider = DEFAULT_PROVIDER;
     }
 
     StringBuilder sb = new StringBuilder();
