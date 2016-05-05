@@ -12,13 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import mondrian.olap.CacheControl;
 import mondrian.olap.Connection;
+import mondrian.olap.MondrianException;
 import mondrian.olap.Schema;
 import mondrian.olap.Util.PropertyList;
 import mondrian.spi.DynamicSchemaProcessor;
@@ -180,7 +181,29 @@ public class MondrianCatalogHelperIT {
     IPentahoSession session = mock( IPentahoSession.class );
     doNothing().when( helper ).init( session );
 
-    helper.addCatalog( new ByteArrayInputStream( new byte[ 0 ] ), cat, false, null, session );
+    helper.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, false, null, session );
+  }
+
+  @Test( expected = MondrianException.class )
+  public void testAddCatalogWithException() {
+    initMondrianCatalogsCache();
+    MondrianCatalogHelper helperSpy = spy( helper );
+    doThrow( new MondrianException() ).when( helperSpy ).reInit( any( IPentahoSession.class ) );
+
+    IPentahoSession session = mock( IPentahoSession.class );
+    doNothing().when( helperSpy ).init( session );
+
+    MondrianCatalog cat = createTestCatalog();
+    MondrianCatalogRepositoryHelper repositoryHelper = mock( MondrianCatalogRepositoryHelper.class );
+    doReturn( repositoryHelper ).when( helperSpy ).getMondrianCatalogRepositoryHelper();
+    try {
+      helperSpy.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, true, null, session );
+    } catch ( MondrianException e ) {
+      // verifying the repository rolled back and the cache reinitialized
+      verify( repositoryHelper, times( 1 ) ).deleteHostedCatalog( anyString() );
+      verify( helperSpy, times( 2 ) ).reInit( any( IPentahoSession.class ) );
+    }
+    helperSpy.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, true, null, session );
   }
 
   @Test
