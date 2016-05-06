@@ -12,13 +12,16 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.ws.test;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.TreeMap;
 import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
@@ -49,13 +52,18 @@ public class ComplianceJaxBTest {
     params.put( "testStringkey", new StringParamValue( "testStringVal" ) );
     params.put( "testListKey", listValue );
     params.put( "testMapKey", mapValue );
-    JaxBSafeMap map = new JaxBSafeMap( params );
+
+    // TreeMap implements java.util.SortedMap; applies a natural ordering of its keys;
+    Map<String, ParamValue> sortedParams = new TreeMap( params );
+    List paramsList = java.util.Arrays.asList( sortedParams.keySet().toArray() );
+
+    JaxBSafeMap map = new JaxBSafeMap( sortedParams );
 
     JaxBSafeMap unmarshalled = JaxBUtil.outin( map, JaxBSafeMap.class, JaxBSafeEntry.class, StringParamValue.class );
 
-    Assert.assertEquals( "testStringVal", unmarshalled.entry.get( 0 ).getStringValue().toString() );
-    Assert.assertEquals( "testListVal0", unmarshalled.entry.get( 1 ).getListValue().get( 0 ) );
-    Assert.assertEquals( "testMapVal", unmarshalled.entry.get( 2 ).getMapValue().get( "testMapValueKey" ) );
+    Assert.assertEquals( "testStringVal", unmarshalled.entry.get( paramsList.indexOf( "testStringkey" ) ).getStringValue().toString() );
+    Assert.assertEquals( "testListVal0", unmarshalled.entry.get( paramsList.indexOf( "testListKey" ) ).getListValue().get( 0 ) );
+    Assert.assertEquals( "testMapVal", unmarshalled.entry.get( paramsList.indexOf( "testMapKey" ) ).getMapValue().get( "testMapValueKey" ) );
   }
 
   @Test

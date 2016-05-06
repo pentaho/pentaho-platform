@@ -46,7 +46,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.util.Properties;
 
-import static org.hamcrest.Matchers.emptyArray;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -144,7 +143,10 @@ public class KarafBootTest {
       boolean startup = karafBoot.startup( session );
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
-      assertNotEquals( tmpDir, new File( System.getProperty( "karaf.home" ) ).getParentFile().getParentFile() );
+      File karafHome = new File( System.getProperty( "karaf.home" ) );
+      assertNotEquals( tmpDir, karafHome.getParentFile().getParentFile() );
+      assertTrue( new File( karafHome, "system" ).exists() );
+      assertFalse( new File( karafHome, "caches" ).exists() );
     } finally {
       if ( origKarafHome == null ) {
         System.getProperties().remove( "karaf.home" );
@@ -174,7 +176,10 @@ public class KarafBootTest {
       boolean startup = karafBoot.startup( session );
       // can't see if it started since we aren't actually starting up karaf, return value will be false
       assertFalse( startup );
-      assertEquals( tempDirectory, new File( System.getProperty( "karaf.home" ) ) );
+      File karafHome = new File( System.getProperty( "karaf.home" ) );
+      assertEquals( tempDirectory, karafHome );
+      assertTrue( new File( karafHome, "system" ).exists() );
+      assertFalse( new File( karafHome, "caches" ).exists() );
     } finally {
       if ( origKarafHome == null ) {
         System.getProperties().remove( "karaf.home" );
@@ -208,6 +213,8 @@ public class KarafBootTest {
       File karafHome = new File( System.getProperty( "karaf.home" ) );
       assertEquals( tempDirectory.getParent(), karafHome.getParent() );
       assertTrue( karafHome.getName().startsWith( tempDirectory.getName() ) );
+      assertTrue( new File( karafHome, "system" ).exists() );
+      assertFalse( new File( karafHome, "caches" ).exists() );
     } finally {
       if ( origKarafHome == null ) {
         System.getProperties().remove( "karaf.home" );
@@ -305,7 +312,7 @@ public class KarafBootTest {
       File clientTypeFolder = new File( caches, "client" + i );
       clientTypeFolder.mkdir();
       for ( int y = 0; y < 3; y++ ) {
-        new File( clientTypeFolder, "data-"+y ).mkdir();
+        new File( clientTypeFolder, "data-" + y ).mkdir();
       }
     }
 

@@ -79,7 +79,7 @@
 
   var FileBrowser = null;
 
-  function initBrowser(canDownload, showHiddenFiles, showDescriptions, canPublish) {
+  function initBrowser(canDownload, showHiddenFiles, showDescriptions, canPublish, canRead, canCreate) {
     require(["js/browser"], function (pentahoFileBrowser) {
       FileBrowser = pentahoFileBrowser;
       FileBrowser.setOpenFileHandler(openRepositoryFile);
@@ -88,6 +88,8 @@
       FileBrowser.setShowDescriptions(showDescriptions);
       FileBrowser.setCanDownload(canDownload);
       FileBrowser.setCanPublish(canPublish);
+      FileBrowser.setCanRead(canRead);
+      FileBrowser.setCanCreate(canCreate);
       
       var open_dir = window.parent.HOME_FOLDER;
       
@@ -332,10 +334,38 @@
       type: "GET",
       async: true,
       success: function (response) {
-        initBrowser(canDownload, showHiddenFiles, showDescriptions, (response == "true"));
+        checkCanRead(canDownload, showHiddenFiles, showDescriptions, (response == "true"));
       },
       error: function (response) {
-        initBrowser(canDownload, showHiddenFiles, showDescriptions, false);
+        checkCanRead(canDownload, showHiddenFiles, showDescriptions, false);
+      }
+    });
+  }
+
+  function checkCanRead(canDownload, showHiddenFiles, showDescriptions, canPublish) {
+    $.ajax({
+      url: CONTEXT_PATH + "api/authorization/action/isauthorized?authAction=org.pentaho.repository.read",
+      type: "GET",
+      async: true,
+      success: function (response) {
+        checkCanCreate(canDownload, showHiddenFiles, showDescriptions, canPublish, (response == "true") );
+      },
+      error: function (response) {
+        checkCanCreate(canDownload, showHiddenFiles, showDescriptions, canPublish, false);
+      }
+    });
+  }
+
+  function checkCanCreate(canDownload, showHiddenFiles, showDescriptions, canPublish, canRead) {
+    $.ajax({
+      url: CONTEXT_PATH + "api/authorization/action/isauthorized?authAction=org.pentaho.repository.create",
+      type: "GET",
+      async: true,
+      success: function (response) {
+        initBrowser(canDownload, showHiddenFiles, showDescriptions, canPublish, canRead, (response == "true") );
+      },
+      error: function (response) {
+        initBrowser(canDownload, showHiddenFiles, showDescriptions, canPublish, canRead, false);
       }
     });
   }

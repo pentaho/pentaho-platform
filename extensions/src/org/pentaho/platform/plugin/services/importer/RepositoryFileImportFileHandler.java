@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -38,7 +38,6 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.plugin.services.messages.Messages;
@@ -163,7 +162,6 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    */
   protected boolean copyFileToRepository( final RepositoryFileImportBundle bundle, final String repositoryPath,
       final RepositoryFile file ) throws PlatformImportException {
-    Log log = getLogger();
     // Compute the file extension
     final String name = bundle.getName();
     final String ext = RepositoryFilenameUtils.getExtension( name );
@@ -245,7 +243,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private void updateAcl( boolean newFile, RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl ) {
     getLogger().debug( "File " + ( newFile ? "is new" : "already exists" ) );
     if ( repositoryFileAcl != null
-        && ( getImportSession().isApplyAclSettings() || getImportSession().isRetainOwnership() ) ) {
+        && ( getImportSession().isApplyAclSettings() || !getImportSession().isRetainOwnership() ) ) {
       RepositoryFileAcl manifestAcl = repositoryFileAcl;
       RepositoryFileAcl originalAcl = repository.getAcl( repositoryFile.getId() );
 
@@ -254,7 +252,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       if ( getImportSession().isRetainOwnership() ) {
         if ( newFile ) {
           getLogger().debug( "Getting Owner from Session" );
-          newOwner = new RepositoryFileSid( PentahoSessionHolder.getSession().getName(), RepositoryFileSid.Type.USER );
+          newOwner = getDefaultAcl( repositoryFile ).getOwner();
         } else {
           getLogger().debug( "Getting Owner from existing file" );
           newOwner = originalAcl.getOwner();

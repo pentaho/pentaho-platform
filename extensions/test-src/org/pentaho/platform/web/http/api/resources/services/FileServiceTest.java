@@ -28,6 +28,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -48,7 +49,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang.StringUtils;
@@ -56,8 +56,17 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -65,6 +74,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
@@ -100,14 +111,56 @@ public class FileServiceTest {
   private static String FOLDER_HOME = "home";
   private static String SEPARATOR = "/";
   private static String PATH_USER_HOME_FOLDER = SEPARATOR + FOLDER_HOME + SEPARATOR + USER_NAME;
+  private static final String REAL_USER = "testUser";
 
+  private static final String IMPORT_DIR = "/home/" + REAL_USER;
+
+  private IPentahoObjectFactory pentahoObjectFactory;
+
+  private IAuthorizationPolicy policy;
+
+  private ITenantedPrincipleNameResolver resolver;
   @Before
-  public void setUp() {
+  public void setUp() throws ObjectFactoryException {
     fileService = spy( new FileService() );
     fileService.defaultUnifiedRepositoryWebService = mock( DefaultUnifiedRepositoryWebService.class );
     fileService.repository = mock( IUnifiedRepository.class );
     fileService.policy = mock( IAuthorizationPolicy.class );
+
+    PentahoSystem.init();
+    ITenant tenat = mock( ITenant.class );
+
+    resolver = mock( ITenantedPrincipleNameResolver.class );
+    doReturn( tenat ).when( resolver ).getTenant( anyString() );
+    doReturn( REAL_USER ).when( resolver ).getPrincipleName( anyString() );
+    policy = mock( IAuthorizationPolicy.class );
+    pentahoObjectFactory = mock( IPentahoObjectFactory.class );
+    when( pentahoObjectFactory.objectDefined( anyString() ) ).thenReturn( true );
+    when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer(
+        new Answer<Object>() {
+          @Override
+          public Object answer( InvocationOnMock invocation ) throws Throwable {
+            if ( invocation.getArguments()[0].equals( IAuthorizationPolicy.class ) ) {
+              return policy;
+            }
+            if ( invocation.getArguments()[0].equals( ITenantedPrincipleNameResolver.class ) ) {
+              return resolver;
+            }
+            return null;
+          }
+        } );
+    PentahoSystem.registerObjectFactory( pentahoObjectFactory );
+    IPentahoSession session = mock( IPentahoSession.class );
+    doReturn( "sampleSession" ).when( session ).getName();
+    PentahoSessionHolder.setSession( session );
   }
+
+  @After
+  public void tearDown() {
+    PentahoSystem.deregisterObjectFactory( pentahoObjectFactory );
+    PentahoSystem.shutdown();
+  }
+
 
   @After
   public void cleanup() {
@@ -277,13 +330,10 @@ public class FileServiceTest {
   @Test
   public void doCopyFilesException() throws Exception {
 
-    String destinationPath = "/path/to/destination";
     String destinationPathColon = ":path:to:destination";
 
-    String filePath1 = "/path/to/source/file1.ext";
     String fileId1 = "file1";
 
-    String filePath2 = "/path/to/source/file2.ext";
     String fileId2 = "file2";
 
     when( fileService.policy.isAllowed( anyString() ) ).thenReturn( false );
@@ -395,7 +445,6 @@ public class FileServiceTest {
     RepositoryFileOutputStream mockOutputStream = mock( RepositoryFileOutputStream.class );
     doReturn( mockOutputStream ).when( fileService ).getRepositoryFileOutputStream( anyString() );
 
-    HttpServletRequest mockRequest = mock( HttpServletRequest.class );
     InputStream mockInputStream = mock( InputStream.class );
 
     doReturn( 1 ).when( fileService ).copy( mockInputStream, mockOutputStream );
@@ -410,7 +459,6 @@ public class FileServiceTest {
 
   @Test
   public void testDoCreateFileException() {
-    RepositoryFileOutputStream mockOutputStream = mock( RepositoryFileOutputStream.class );
     doThrow( new IllegalArgumentException() ).when( fileService ).idToPath( anyString() );
 
     try {
@@ -977,7 +1025,8 @@ public class FileServiceTest {
     throws Throwable {
 
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
-    doReturn( true ).when( mockAuthPolicy ).isAllowed( anyString() );
+
+    when( mockAuthPolicy.isAllowed( anyString() ) ).thenReturn( true );
 
     BaseExportProcessor mockExportProcessor = mock( BaseExportProcessor.class );
     File mockExportFile = mock( File.class );
@@ -999,10 +1048,73 @@ public class FileServiceTest {
       fileService.doGetFileOrDirAsDownload( "", "mock:path:" + fileName, withManifest );
 
     verify( fileService.repository, times( 1 ) ).getFile( anyString() );
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass( String.class );
+    verify( mockAuthPolicy, times( 3 ) ).isAllowed( captor.capture() );
+    assertTrue( captor.getAllValues().contains( RepositoryReadAction.NAME ) );
+    assertTrue( captor.getAllValues().contains( RepositoryCreateAction.NAME ) );
 
     assertEquals( mockStream, wrapper.getOutputStream() );
     assertEquals( expectedEncodedFileName, wrapper.getEncodedFileName() );
     assertEquals( "attachment; filename=\"" + expectedFileName + "\"", wrapper.getAttachment() );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownloadNonAdminUserHomeFolder() throws Throwable {
+
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME ); /* user has 'Read Content' */
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME ); /* user has 'Create Content' */
+
+    /* non-admin user */
+    doReturn( false ).when( mockAuthPolicy ).isAllowed( AdministerSecurityAction.NAME );
+
+    doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
+
+    // Test 1: in the home-folder
+    try {
+      fileService.doGetFileOrDirAsDownload( "", "home:testUser:test_file", "true" );
+      fail();
+    } catch ( FileNotFoundException ex ) {
+      /* expected; this is a mock test, we don't actually have a 'test_file' to download :) */
+    } catch ( Throwable t ) {
+      fail();
+    }
+
+    // Test 2: in some home-folder sub-folders
+    try {
+      fileService.doGetFileOrDirAsDownload( "", "home:testUser:subFolder1:subFolder2:test_file", "true" );
+      fail();
+    } catch ( FileNotFoundException ex ) {
+      /* expected; this is a mock test, we don't actually have a 'test_file' to download :) */
+    } catch ( Throwable t ) {
+      fail();
+    }
+
+    // Test 3: while still being on the user's home folder, user loses 'Read Content' permission
+    try {
+      doReturn( false ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
+      fileService.doGetFileOrDirAsDownload( "", "home:testUser:test_file", "true" );
+      fail();
+    } catch ( PentahoAccessControlException e ) {
+      /* expected */
+    } catch ( Throwable t ) {
+      fail();
+    } finally {
+      doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
+    }
+
+    // Test 4: while still being on the user's home folder, user loses 'Create Content' permission
+    try {
+      doReturn( false ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+      fileService.doGetFileOrDirAsDownload( "", "home:testUser:test_file", "true" );
+      fail();
+    } catch ( PentahoAccessControlException e ) {
+      /* expected */
+    } catch ( Throwable t ) {
+      fail();
+    } finally {
+      doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    }
   }
 
   @Test
@@ -1013,10 +1125,9 @@ public class FileServiceTest {
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
 
     try {
-      FileService.DownloadFileWrapper wrapper =
-        fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
+      fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );
       fail();
-    } catch ( GeneralSecurityException e ) {
+    } catch ( PentahoAccessControlException e ) {
       // Expected
     } catch ( Throwable t ) {
       fail();
@@ -1227,7 +1338,6 @@ public class FileServiceTest {
   @Test
   public void testDoGetGeneratedContent() {
     String pathId = "test.prpt",
-      user = "admin",
       userFolder = "public/admin";
 
     RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
@@ -1533,7 +1643,6 @@ public class FileServiceTest {
     } catch ( FileNotFoundException e ) {
       // Should catch exception
     }
-
     verify( fileService.defaultUnifiedRepositoryWebService ).getFile( anyString() );
   }
 
@@ -1994,6 +2103,16 @@ public class FileServiceTest {
       fileService.doCreateDir( pathId );
     } catch ( InternalError e ) {
       assertEquals( e.getMessage(), "negativetest" );
+    }
+  }
+  private Class<?> anyClass() {
+    return argThat( new AnyClassMatcher() );
+  }
+
+  private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
+    @Override
+    public boolean matches( final Object arg ) {
+      return true;
     }
   }
 }

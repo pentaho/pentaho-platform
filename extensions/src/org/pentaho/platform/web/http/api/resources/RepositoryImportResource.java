@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -43,10 +43,13 @@ import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
@@ -174,20 +177,32 @@ public class RepositoryImportResource {
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
 
-    if (StringUtils.isBlank( charSet )) {
+    if ( StringUtils.isBlank( charSet ) ) {
       charSet =  DEFAULT_CHAR_SET;
     }
 
     try {
-      validateAccess();
+      validateAccess( importDir );
 
       boolean overwriteFileFlag = ( "false".equals( overwriteFile ) ? false : true );
       boolean overwriteAclSettingsFlag = ( "true".equals( overwriteAclPermissions ) ? true : false );
       boolean applyAclSettingsFlag = ( "true".equals( applyAclPermission ) ? true : false );
       boolean retainOwnershipFlag = ( "true".equals( retainOwnership ) ? true : false );
+      // If logLevel is null then we will default to ERROR
+      if ( logLevel == null || logLevel.length() <= 0 ) {
+        logLevel = "ERROR";
+      }
+
+      //Non-admins cannot process a manifest
+      FileService fileService = new FileService();
+      if ( !fileService.doCanAdminister() ) {
+        applyAclSettingsFlag = false;
+        retainOwnershipFlag = true;
+      }
 
       Level level = Level.toLevel( logLevel );
-      ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
+      ImportSession.getSession().setAclProperties( applyAclSettingsFlag,
+          retainOwnershipFlag, overwriteAclSettingsFlag );
 
       //The fileNameOverride was added because the formDataContentDispositionfile object cannot reliable
       //contain non US-ASCII characters.  See RFC283 section 2.3 for details
@@ -249,13 +264,28 @@ public class RepositoryImportResource {
     return Response.ok( responseBody, MediaType.TEXT_HTML ).build();
   }
 
-  private void validateAccess() throws PentahoAccessControlException {
+  protected void validateAccess( String importDir ) throws PentahoAccessControlException {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-    boolean isAdmin =
-        policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
-            && ( policy.isAllowed( AdministerSecurityAction.NAME ) || policy.isAllowed( PublishAction.NAME ) );
+    //check if we are admin or have publish permisson
+    boolean isAdmin = policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
+                    && ( policy.isAllowed( AdministerSecurityAction.NAME ) || policy.isAllowed( PublishAction.NAME ) );
     if ( !isAdmin ) {
-      throw new PentahoAccessControlException( "Access Denied" );
+      //the user does not have admin or publish permisson, so we will check if the user imports to their home folder
+      boolean importingToHomeFolder = false;
+      String tenatedUserName = PentahoSessionHolder.getSession().getName();
+      //get user home home folder path
+      String userHomeFolderPath = ServerRepositoryPaths.getUserHomeFolderPath(
+          JcrTenantUtils.getUserNameUtils().getTenant( tenatedUserName ),
+            JcrTenantUtils.getUserNameUtils().getPrincipleName( tenatedUserName ) );
+      if ( userHomeFolderPath != null && userHomeFolderPath.length() > 0 ) {
+        //we pass the relative path so add serverside root folder for every home folder
+        importingToHomeFolder = ( ServerRepositoryPaths.getTenantRootFolderPath() + importDir )
+            .contains( userHomeFolderPath );
+      }
+      if ( !( importingToHomeFolder && policy.isAllowed( RepositoryCreateAction.NAME )
+          && policy.isAllowed( RepositoryReadAction.NAME ) ) ) {
+        throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
+      }
     }
   }
 }

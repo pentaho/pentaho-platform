@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.audit;
@@ -78,4 +78,5 @@ public class MessageTypes {
 
   public static String ACTION_SEQUENCE_EXECUTE_CONDITIONAL = "condition"; //$NON-NLS-1$
 
+  public static final String CANCELLED = "cancelled"; //$NON-NLS-1$
 }

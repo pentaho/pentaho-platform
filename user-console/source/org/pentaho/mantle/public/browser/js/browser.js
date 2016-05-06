@@ -81,6 +81,8 @@ define([
   FileBrowser.showDescriptions = false;
   FileBrowser.canDownload = false;
   FileBrowser.canPublish = false;
+  FileBrowser.canRead = false;
+  FileBrowser.canCreate = false;
 
   /**
    * Encode a path that has the slashes converted to colons
@@ -103,6 +105,14 @@ define([
 
   FileBrowser.setCanPublish = function (value) {
     this.canPublish = value;
+  }
+
+  FileBrowser.setCanRead = function (value) {
+    this.canRead = value;
+  }
+
+  FileBrowser.setCanCreate = function (value) {
+    this.canCreate = value;
   }
 
   FileBrowser.updateShowDescriptions = function (value) {
@@ -175,6 +185,8 @@ define([
       showDescriptions: _showDescriptions,
       canDownload: myself.canDownload,
       canPublish: myself.canPublish,
+      canRead: myself.canRead,
+      canCreate: myself.canCreate,
 	  startFolder: initialPath,
 	  clickedFolder: _clikedFolder,
       clickedFile: _clickedFile,
@@ -321,6 +333,25 @@ define([
         //Leaving this here...if UX decides they want the hiddenFileLabel style preserved when switching folders
         //model.get('browserUtils').applyCutItemsStyle();
 
+        /* 
+         * BACKLOG-7846: a non-admin user will be granted upload/download permissions when:
+         * 1) is located in his home folder
+         * 2) has 'Read Content' permission
+         * 3) has 'Create Content' permission
+         */
+        var inHomeFolder = ( folderPath == userHomePath ) || folderPath.indexOf( userHomePath ) > -1;
+        var canUploadAndDownload = this.get("canDownload") && this.get("canPublish");
+        
+        if( !canUploadAndDownload && inHomeFolder ) {
+          var hasReadPermission = this.get("canRead");
+          var hasCreatePermission = this.get("canCreate")
+
+          if( hasReadPermission && hasCreatePermission ) {
+            folderButtons.canPublish(true); // enable upload button
+            folderButtons.canDownload(true); // enable download button
+          }
+        }
+
         //Ajax request to check write permissions for folder
       $.ajax({
         url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
@@ -353,6 +384,25 @@ define([
       //TODO handle file button press
       var filePath = clickedFile.obj.attr("path");
       filePath = Encoder.encodeRepositoryPath(filePath);
+
+      /* 
+       * BACKLOG-7846: a non-admin user will be granted upload/download permissions when:
+       * 1) is located in his home folder
+       * 2) has 'Read Content' permission
+       * 3) has 'Create Content' permission
+       */
+      var userHomePath = Encoder.encodeRepositoryPath( window.parent.HOME_FOLDER );
+      var inHomeFolder = filePath.indexOf( userHomePath ) > -1;
+      var canDownload = this.get("canDownload");
+
+      if( !canDownload && inHomeFolder ) {
+        var hasReadPermission = this.get("canRead");
+        var hasCreatePermission = this.get("canCreate")
+
+        if( hasReadPermission && hasCreatePermission ) {
+          fileButtons.canDownload(true); // enable download button
+        }
+      }
 
       //Ajax request to check write permissions for file
       $.ajax({
@@ -1400,6 +1450,8 @@ define([
     setShowDescriptions: FileBrowser.setShowDescriptions,
     setCanDownload: FileBrowser.setCanDownload,
     setCanPublish: FileBrowser.setCanPublish,
+    setCanRead: FileBrowser.setCanRead,
+    setCanCreate: FileBrowser.setCanCreate,
     updateShowDescriptions: FileBrowser.updateShowDescriptions,
     update: FileBrowser.update,
     updateData: FileBrowser.updateData,

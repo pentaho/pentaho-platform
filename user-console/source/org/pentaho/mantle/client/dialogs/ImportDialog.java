@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.dialogs;
@@ -64,7 +64,7 @@ public class ImportDialog extends PromptDialogBox {
   /**
    * @param repositoryFile
    */
-  public ImportDialog( RepositoryFile repositoryFile ) {
+  public ImportDialog( RepositoryFile repositoryFile, boolean allowAdvancedDialog ) {
     super( Messages.getString( "import" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     form = new FormPanel();
@@ -129,7 +129,7 @@ public class ImportDialog extends PromptDialogBox {
     final TextBox fileTextBox = new TextBox();
     fileTextBox.setHeight( "26px" );
     fileTextBox.setEnabled( false );
-    
+
     //We use an fileNameOverride because FileUpload can only handle US character set reliably.
     final Hidden fileNameOverride = new Hidden( "fileNameOverride" );
 
@@ -193,7 +193,7 @@ public class ImportDialog extends PromptDialogBox {
 
     final Hidden retainOwnership = new Hidden( "retainOwnership" );
     retainOwnership.setValue( "true" );
-    
+
     rootPanel.add( applyAclPermissions );
     rootPanel.add( overwriteAclPermissions );
     rootPanel.add( overwriteFile );
@@ -207,6 +207,7 @@ public class ImportDialog extends PromptDialogBox {
 
     DisclosurePanel disclosurePanel = new DisclosurePanel( Messages.getString( "advancedOptions" ) );
     disclosurePanel.getHeader().setStyleName( "gwt-Label" );
+    disclosurePanel.setVisible( allowAdvancedDialog );
     HorizontalPanel mainPanel = new HorizontalPanel();
     mainPanel.add( new HTML( "&nbsp;" ) );
     VerticalPanel disclosureContent = new VerticalPanel();

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -68,9 +68,13 @@ public class AuthorizationActionResource {
   @Produces ( { MediaType.TEXT_PLAIN } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Returns a boolean response." )
-  } )
+    } )
   public Response validateAuth( @QueryParam ( "authAction" ) String authAction ) {
-    return Response.ok( ( String.valueOf( authorizationActionService.validateAuth( authAction ) ) ) ).build();
+    return Response.ok( ( String.valueOf( getAuthorizationActionService().validateAuth( authAction ) ) ) ).build();
   }
 
+  /* useful for unit test mocks */
+  protected AuthorizationActionService getAuthorizationActionService() {
+    return authorizationActionService;
+  }
 }

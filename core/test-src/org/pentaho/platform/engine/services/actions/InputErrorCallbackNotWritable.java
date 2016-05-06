@@ -17,33 +17,32 @@
  */
 package org.pentaho.platform.engine.services.actions;
 
-import org.pentaho.platform.api.action.IAction;
-
-import java.util.ArrayList;
 import java.util.List;
 
-public class TestIndexedInputsAction implements IAction {
+import org.pentaho.platform.api.action.IAction;
 
-  private List<String> messages = new ArrayList<String>();
-  private String scalarMessage;
+public class InputErrorCallbackNotWritable implements IAction {
 
-  public void setMessages( List<String> messages ) {
-    this.messages = messages;
+  private List<String> inputNames;
+  private List<String> outputNames;
+
+  public List<String> getInputNames() {
+    return inputNames;
   }
 
-  public List<String> getMessages() {
-    return messages;
+  public void setInputNames( List<String> inputNames ) {
+    this.inputNames = inputNames;
   }
 
+  public List<String> getOutputNames() {
+    return outputNames;
+  }
+
+  public void setOutputNames( List<String> outputNames ) {
+    this.outputNames = outputNames;
+  }
 
   public void execute() throws Exception {
   }
 
-  public void setScalarMessage( String s ) {
-    scalarMessage = s;
-  }
-
-  public String getTextOfScalarMessage() {
-    return scalarMessage;
-  }
 }
