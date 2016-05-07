@@ -595,7 +595,7 @@
     <constructor-arg ref="pathConversionHelper"/>
     <property name="rolesNeedingExecutePermission">
       <util:list>
-        <ref bean="singleTenantAuthenticatedAuthorityName"/>
+        <ref bean="singleTenantAuthenticatedAuthorityName"/> <!-- this bean ignored inside -->
         <value>Power User</value>
       </util:list>
     </property>
