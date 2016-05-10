@@ -13,17 +13,10 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
-
-import java.util.Map;
-import java.util.Properties;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.AbandonedConfig;
 import org.apache.commons.dbcp.AbandonedObjectPool;
@@ -53,6 +46,12 @@ import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.logging.Logger;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.Isolation;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.util.Map;
+import java.util.Properties;
 
 public class PooledDatasourceHelper {
 
@@ -158,7 +157,11 @@ public class PooledDatasourceHelper {
       }
 
       poolingDataSource = new PoolingDataSource();
-      Class.forName( driverClass );
+      if ( !dialect.initialize( driverClass ) ) {
+        throw new RuntimeException( Messages.getInstance()
+          .getErrorString( "PooledDatasourceHelper.ERROR_0009_UNABLE_TO_POOL_DATASOURCE_CANT_INITIALIZE",
+            databaseConnection.getName(), driverClass ) );
+      }
       // As the name says, this is a generic pool; it returns basic Object-class objects.
       GenericObjectPool pool = new GenericObjectPool( null );
 
@@ -205,7 +208,7 @@ public class PooledDatasourceHelper {
        * because that essentially uses DriverManager as the source of connections.
        */
       ConnectionFactory factory = null;
-      if( url.startsWith( "jdbc:mysql:" ) ) {
+      if ( url.startsWith( "jdbc:mysql:" ) ) {
         Properties props = new Properties();
         props.put( "user", databaseConnection.getUsername() );
         props.put( "password", databaseConnection.getPassword() );
