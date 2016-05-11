@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.admin;
@@ -155,15 +155,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
   private void checkForError( String title, Response response ) {
     if ( response != null && response.getText() != null && response.getText().length() > 0 ) {
-      MessageDialogBox messageBox = new MessageDialogBox( title, response.getText(), false, false, true
-          , Messages.getString( "close" ) );
+      MessageDialogBox messageBox =
+          new MessageDialogBox( title, response.getText(), false, false, true, Messages.getString( "close" ) );
       messageBox.center();
     }
   }
 
   private void displayErrorInMessageBox( String title, String message ) {
-    MessageDialogBox messageBox = new MessageDialogBox( title, message, false, false, true
-        , Messages.getString( "close" ) );
+    MessageDialogBox messageBox =
+        new MessageDialogBox( title, message, false, false, true, Messages.getString( "close" ) );
     messageBox.center();
   }
 
@@ -245,8 +245,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     initializeList( "users", defaultValue, "api/userroledao/users", usersListBox );
   }
 
-  private void initializeList( final String type, final String defaultValue, String serviceUrl
-      , final ListBox listBox ) {
+  private void initializeList( final String type, final String defaultValue, String serviceUrl, final ListBox listBox ) {
     final String url = GWT.getHostPageBaseURL() + serviceUrl;
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -409,7 +408,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
       } );
     } catch ( RequestException e ) {
-      //ignored
+      // ignored
     }
   }
 
@@ -434,7 +433,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       userRolePermissions( false );
     }
   }
-  
+
   private void userRolePermissions( boolean visible ) {
     usersLabelPanel.setVisible( visible );
     usersPanel.setVisible( visible );
@@ -509,7 +508,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         public void onResponseReceived( Request request, Response response ) {
           boolean usingPentahoSecurity = response.getText().contains( "jackrabbit" );
           if ( !usingPentahoSecurity ) {
-            initializeRoles( null, "api/userrolelist/roles", rolesListBox );
+            initializeRoles( null, "api/userrolelist/roles?addExtraRoles=false", rolesListBox );
           } else {
             initializeRoles( null, "api/userroledao/roles", rolesListBox );
           }
@@ -518,7 +517,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
       } );
     } catch ( RequestException e ) {
-      //ignored
+      // ignored
     }
   }
 
@@ -527,7 +526,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   }
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
-    if (usingPentahoSecurity ) {
+    if ( usingPentahoSecurity ) {
       mainTabPanel.selectTab( 0 );
     } else {
       mainTabPanel.selectTab( 1 );
@@ -642,8 +641,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       }
 
       String serviceUrl =
-          GWT.getHostPageBaseURL() + "api/userroledao/assignUserToRole?userNames=" + userNames.toString() + "&roleName="
-              + encodeUri( roleName );
+          GWT.getHostPageBaseURL() + "api/userroledao/assignUserToRole?userNames=" + userNames.toString()
+              + "&roleName=" + encodeUri( roleName );
       modifyRoleUsers( roleName, serviceUrl );
     }
   }
@@ -660,8 +659,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       }
 
       String serviceUrl =
-          GWT.getHostPageBaseURL() + "api/userroledao/removeUserFromRole?userNames=" + userNames.toString() + "&roleName="
-              + encodeUri( roleName );
+          GWT.getHostPageBaseURL() + "api/userroledao/removeUserFromRole?userNames=" + userNames.toString()
+              + "&roleName=" + encodeUri( roleName );
       modifyRoleUsers( roleName, serviceUrl );
     }
   }
@@ -694,9 +693,9 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class DeleteRoleListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       if ( rolesListBox.getSelectedIndex() != -1 ) {
-        MessageDialogBox warning = new MessageDialogBox( Messages.getString( "deleteRoleTitle" )
-            , Messages.getString( "deleteRoleMessage" ), false, false, true, Messages.getString( "yesDelete" ), null
-            , Messages.getString( "no" ) );
+        MessageDialogBox warning =
+            new MessageDialogBox( Messages.getString( "deleteRoleTitle" ), Messages.getString( "deleteRoleMessage" ),
+                false, false, true, Messages.getString( "yesDelete" ), null, Messages.getString( "no" ) );
         warning.setCallback( new IDialogCallback() {
           @Override
           public void okPressed() {
@@ -722,9 +721,9 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   class DeleteUserListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
       if ( usersListBox.getSelectedIndex() != -1 ) {
-        MessageDialogBox warning = new MessageDialogBox( Messages.getString( "deleteUserTitle" )
-            , Messages.getString( "deleteUserMessage" ), false, false, true, Messages.getString( "yesDelete" ), null
-            , Messages.getString( "no" ) );
+        MessageDialogBox warning =
+            new MessageDialogBox( Messages.getString( "deleteUserTitle" ), Messages.getString( "deleteUserMessage" ),
+                false, false, true, Messages.getString( "yesDelete" ), null, Messages.getString( "no" ) );
         warning.setCallback( new IDialogCallback() {
           @Override
           public void okPressed() {

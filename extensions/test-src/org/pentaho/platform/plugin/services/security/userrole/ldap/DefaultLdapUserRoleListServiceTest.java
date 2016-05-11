@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -54,7 +54,7 @@ public class DefaultLdapUserRoleListServiceTest {
   DefaultLdapUserRoleListService service;
 
   @Mock Comparator<String> usernameComparator;
-  @Mock Comparator<String> roleComparator;
+  Comparator<String> roleComparator = String.CASE_INSENSITIVE_ORDER;
   @Mock LdapSearch usernameSearch;
   @Mock LdapSearch authSearch;
   @Mock LdapSearch usersInRoleSearch;
@@ -69,13 +69,16 @@ public class DefaultLdapUserRoleListServiceTest {
   List<GrantedAuthority> auths;
   List<String> extraRoles;
   GrantedAuthority grantedAuthority;
+  GrantedAuthority extraRoleGrantedAuthority;
 
   @Before
   public void setUp() throws Exception {
     service = new DefaultLdapUserRoleListService();
     auths = new ArrayList<>();
     grantedAuthority = new GrantedAuthorityImpl( "Administrator" );
+    extraRoleGrantedAuthority = new GrantedAuthorityImpl( "Authenticated" );
     auths.add( grantedAuthority );
+    auths.add( extraRoleGrantedAuthority );
     extraRoles = new ArrayList<>();
     extraRoles.add( "Authenticated" );
   }
@@ -106,7 +109,6 @@ public class DefaultLdapUserRoleListServiceTest {
 
     List<String> allRoles = service.getAllRoles();
     assertEquals( auths.size(), allRoles.size() );
-    verify( roleComparator ).compare( anyString(), anyString() );
   }
 
   @Test( expected = UnsupportedOperationException.class )
@@ -152,8 +154,7 @@ public class DefaultLdapUserRoleListServiceTest {
     when( authSearch.search( any( filterArgs.getClass() ) ) ).thenReturn( auths );
 
     List<String> allRoles = service.getAllRoles();
-    assertEquals( 2, allRoles.size() );
-    verify( roleComparator, never() ).compare( anyString(), anyString() );
+    assertEquals( 3, allRoles.size() );
   }
 
   @Test
@@ -205,18 +206,17 @@ public class DefaultLdapUserRoleListServiceTest {
     service = new DefaultLdapUserRoleListService( usernameComparator, roleComparator, roleMapper );
     service.setUserDetailsService( userDetailService );
     service.setUserNameUtils( userNameUtils );
+    service.setExtraRoles( extraRoles );
     assertEquals( userNameUtils, service.getUserNameUtils() );
     when( userDetailService.loadUserByUsername( "joe" ) ).thenReturn( userDetails );
     when( userNameUtils.getPrincipleName( anyString() ) ).thenReturn( "joe" );
 
     auths.add( new GrantedAuthorityImpl( "test" ) );
-    auths.add( new GrantedAuthorityImpl( "Authenticated" ) );
 
     when( userDetails.getAuthorities() ).thenReturn( auths.toArray( new GrantedAuthority[]{} ) );
 
     List<String> foundRoles = service.getRolesForUser( JcrTenantUtils.getDefaultTenant(), "admin" );
     assertNotNull( foundRoles );
     assertEquals( 3, foundRoles.size() );
-    verify( roleComparator, times( 2 ) ).compare( anyString(), anyString() );
   }
 }
