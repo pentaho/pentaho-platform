@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -29,7 +29,9 @@ import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UserRoleListService {
 
@@ -69,13 +71,36 @@ public class UserRoleListService {
   }
 
   public RoleListWrapper getRoles() {
-    return new RoleListWrapper( getUserRoleListService().getAllRoles() );
+    return getRoles( true );
+  }
+
+  public RoleListWrapper getRoles( boolean includeExtraRoles ) {
+    List<String> roles = getUserRoleListService().getAllRoles();
+    /* If we need to exclude extra roles from the list of roles, we will remove it here.
+    /  One thing to note that if a user has a role which is same as the extra role, that
+    /  role will be removed as well. So we do not recommend user having same roles as the
+    /  extra roles */
+    if ( !includeExtraRoles ) {
+      for ( String role : getExtraRoles() ) {
+        roles.remove( role );
+      }
+    }
+    return new RoleListWrapper( roles );
   }
 
   public RoleListWrapper getAllRoles() {
-    List<String> roles = getUserRoleListService().getAllRoles();
-    roles.addAll( getExtraRoles() );
-    return new RoleListWrapper( roles );
+    Set<String> existingRoles = new HashSet<>( getUserRoleListService().getAllRoles() );
+    List<String> extraRoles = getExtraRoles();
+    if ( extraRoles == null ) {
+      extraRoles = new ArrayList<>();
+    }
+    if ( systemRoles != null ) {
+      extraRoles.addAll( systemRoles );
+    }
+
+    existingRoles.addAll( extraRoles );
+
+    return new RoleListWrapper( existingRoles );
   }
 
   public RoleListWrapper getSystemRoles() {

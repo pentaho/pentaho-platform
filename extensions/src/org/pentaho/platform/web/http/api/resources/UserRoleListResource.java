@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -43,7 +43,7 @@ import org.pentaho.platform.web.http.api.resources.services.UserRoleListService.
 /**
  * The UserRoleListResource service lists roles, permissions, and users. Provides a list of users per role and roles per user.
  */
-@Path ( "/userrolelist/" )
+@Path( "/userrolelist/" )
 public class UserRoleListResource extends AbstractJaxRSResource {
 
   private ArrayList<String> systemRoles;
@@ -95,12 +95,10 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/permission-users" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of User objects." ),
-      @ResponseCode ( code = 500, condition = "Unable to retrieve User objects." )
-  } )
+  @Path( "/permission-users" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of User objects." ),
+    @ResponseCode( code = 500, condition = "Unable to retrieve User objects." ) } )
   public UserListWrapper getPermissionUsers() throws Exception {
     return getUsers();
   }
@@ -120,11 +118,9 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/permission-roles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of permission roles." )
-  } )
+  @Path( "/permission-roles" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of permission roles." ) } )
   public RoleListWrapper getPermissionRoles() throws Exception {
     return userRoleListService.getPermissionRoles( adminRole );
   }
@@ -144,12 +140,10 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/users" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of User objects." ),
-      @ResponseCode ( code = 500, condition = "Unable to retrieve User objects." )
-  } )
+  @Path( "/users" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of User objects." ),
+    @ResponseCode( code = 500, condition = "Unable to retrieve User objects." ) } )
   public UserListWrapper getUsers() throws Exception {
     return userRoleListService.getUsers();
   }
@@ -169,13 +163,16 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/roles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of Role objects." ),
-  } )
-  public RoleListWrapper getRoles() {
-    return userRoleListService.getRoles();
+  @Path( "/roles" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of Role objects." ), } )
+  public RoleListWrapper getRoles( @QueryParam( "addExtraRoles" ) String addExtraRoles ) {
+    boolean includeExtraRoles = true;
+
+    if ( addExtraRoles != null && addExtraRoles.length() > 0 ) {
+      includeExtraRoles = Boolean.parseBoolean( addExtraRoles );
+    }
+    return userRoleListService.getRoles( includeExtraRoles );
   }
 
   /**
@@ -193,11 +190,9 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/allRoles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of Role objects." ),
-  } )
+  @Path( "/allRoles" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of Role objects." ), } )
   public RoleListWrapper getAllRoles() throws Exception {
     return userRoleListService.getAllRoles();
   }
@@ -217,11 +212,9 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/systemRoles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully returns system role list." )
-  } )
+  @Path( "/systemRoles" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully returns system role list." ) } )
   public RoleListWrapper getSystemRoles() {
     return userRoleListService.getSystemRoles();
   }
@@ -241,11 +234,9 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/extraRoles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully returns extra role list." )
-  } )
+  @Path( "/extraRoles" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully returns extra role list." ) } )
   public RoleListWrapper getExtraRoles() {
     return userRoleListService.getExtraRolesList();
   }
@@ -267,13 +258,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/getRolesForUser" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of Role objects." ),
-      @ResponseCode ( code = 500, condition = "Invalid user parameter." )
-  } )
-  public Response getRolesForUser( @QueryParam ( "user" ) String user ) throws Exception {
+  @Path( "/getRolesForUser" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of Role objects." ),
+    @ResponseCode( code = 500, condition = "Invalid user parameter." ) } )
+  public Response getRolesForUser( @QueryParam( "user" ) String user ) throws Exception {
     try {
       String roles = userRoleListService.doGetRolesForUser( user );
       return buildOkResponse( roles, MediaType.APPLICATION_XML );
@@ -301,13 +290,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/getUsersInRole" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of User objects." ),
-      @ResponseCode ( code = 500, condition = "Missing the role parameter." )
-  } )
-  public Response getUsersInRole( @QueryParam ( "role" ) String role ) throws Exception {
+  @Path( "/getUsersInRole" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of User objects." ),
+    @ResponseCode( code = 500, condition = "Missing the role parameter." ) } )
+  public Response getUsersInRole( @QueryParam( "role" ) String role ) throws Exception {
     try {
       String roles = userRoleListService.doGetUsersInRole( role );
       return buildOkResponse( roles, MediaType.APPLICATION_XML );
