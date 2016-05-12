@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -71,8 +71,8 @@ public class UserRoleListResourceTest {
 
 
     // Test 1
-    UserRoleListService.UnauthorizedException mockUnauthorizedException = mock(
-      UserRoleListService.UnauthorizedException.class );
+    UserRoleListService.UnauthorizedException mockUnauthorizedException =
+        mock( UserRoleListService.UnauthorizedException.class );
     doThrow( mockUnauthorizedException ).when( userRoleListResource.userRoleListService ).doGetRolesForUser( user );
 
     Response testResponse = userRoleListResource.getRolesForUser( user );
@@ -140,8 +140,8 @@ public class UserRoleListResourceTest {
     doReturn( mockResponse ).when( userRoleListResource ).buildStatusResponse( UNAUTHORIZED );
 
     // Test 1
-    UserRoleListService.UnauthorizedException mockUnauthorizedException = mock(
-      UserRoleListService.UnauthorizedException.class );
+    UserRoleListService.UnauthorizedException mockUnauthorizedException =
+        mock( UserRoleListService.UnauthorizedException.class );
     doThrow( mockUnauthorizedException ).when( userRoleListResource.userRoleListService ).doGetUsersInRole( role );
 
     Response testResponse = userRoleListResource.getUsersInRole( role );
@@ -162,12 +162,13 @@ public class UserRoleListResourceTest {
   @Test
   public void testGetRoles() throws Exception {
     RoleListWrapper mockWrapper = mock( RoleListWrapper.class );
-    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getRoles();
+    boolean includeExtraRoles = true;
+    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getRoles( includeExtraRoles );
 
-    RoleListWrapper testWrapper = userRoleListResource.getRoles();
+    RoleListWrapper testWrapper = userRoleListResource.getRoles( "true" );
     assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).getRoles();
+    verify( userRoleListResource.userRoleListService, times( 1 ) ).getRoles( includeExtraRoles );
   }
 
   @Test
