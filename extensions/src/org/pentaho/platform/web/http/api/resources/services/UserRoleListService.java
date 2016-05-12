@@ -89,10 +89,10 @@ public class UserRoleListService {
   }
 
   public RoleListWrapper getAllRoles() {
-    Set<String> existingRoles = new HashSet<>( getUserRoleListService().getAllRoles() );
+    Set<String> existingRoles = new HashSet<String>( getUserRoleListService().getAllRoles() );
     List<String> extraRoles = getExtraRoles();
     if ( extraRoles == null ) {
-      extraRoles = new ArrayList<>();
+      extraRoles = new ArrayList<String>();
     }
     if ( systemRoles != null ) {
       extraRoles.addAll( systemRoles );
