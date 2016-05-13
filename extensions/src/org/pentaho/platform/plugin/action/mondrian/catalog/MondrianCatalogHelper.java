@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
@@ -22,6 +22,7 @@ import com.google.common.annotations.VisibleForTesting;
 import mondrian.i18n.LocalizingDynamicSchemaProcessor;
 import mondrian.olap.Connection;
 import mondrian.olap.MondrianDef;
+import mondrian.olap.MondrianException;
 import mondrian.olap.Util;
 import mondrian.olap.Util.PropertyList;
 import mondrian.rolap.RolapConnectionProperties;
@@ -630,8 +631,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS" ), //$NON-NLS-1$
           Reason.XMLA_SCHEMA_NAME_EXISTS );
     }
+    MondrianCatalogRepositoryHelper helper = getMondrianCatalogRepositoryHelper();
     try {
-      MondrianCatalogRepositoryHelper helper = getMondrianCatalogRepositoryHelper();
       helper.addHostedCatalog( schemaInputStream, catalog.getName(), catalog.getDataSourceInfo() );
     } catch ( Exception e ) {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
@@ -643,12 +644,18 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       MondrianCatalogHelper.logger
           .debug( "refreshing from dataSourcesConfig (" + dataSourcesConfig + ")" ); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    reInit( pentahoSession );
+    try {
+      reInit( pentahoSession );
 
-    setAclFor( catalog.getName(), acl );
+      setAclFor( catalog.getName(), acl );
 
-    if ( catalogExistsWithSameDatasource || catalogExistsWithDifferentDatasource ) {
-      flushCacheForCatalog( catalog.getName(), pentahoSession );
+      if ( catalogExistsWithSameDatasource || catalogExistsWithDifferentDatasource ) {
+        flushCacheForCatalog( catalog.getName(), pentahoSession );
+      }
+    } catch ( MondrianException e ) {
+      helper.deleteHostedCatalog( catalog.getName() );
+      reInit( pentahoSession );
+      throw e;
     }
   }
 
@@ -855,6 +862,9 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
           } catch ( Exception e ) {
             MondrianCatalogHelper.logger.error( Messages.getInstance().getErrorString(
                 "MondrianCatalogHelper.ERROR_0013_FAILED_TO_LOAD_SCHEMA", catalog.definition ), e ); //$NON-NLS-1$
+            if ( e instanceof MondrianException ) {
+              throw (MondrianException) e;
+            }
           }
           MondrianCatalog mondrianCatalog = null;
           if ( schema == null ) {

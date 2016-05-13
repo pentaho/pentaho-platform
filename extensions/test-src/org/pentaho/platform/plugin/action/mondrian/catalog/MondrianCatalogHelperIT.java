@@ -12,13 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import mondrian.olap.CacheControl;
 import mondrian.olap.Connection;
+import mondrian.olap.MondrianException;
 import mondrian.olap.Schema;
 import mondrian.olap.Util.PropertyList;
 import mondrian.spi.DynamicSchemaProcessor;
@@ -55,6 +56,7 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.cache.CacheManager;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils;
 import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -65,20 +67,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
 
 @SuppressWarnings( "nls" )
 public class MondrianCatalogHelperIT {
@@ -180,23 +181,45 @@ public class MondrianCatalogHelperIT {
     IPentahoSession session = mock( IPentahoSession.class );
     doNothing().when( helper ).init( session );
 
-    helper.addCatalog( new ByteArrayInputStream( new byte[ 0 ] ), cat, false, null, session );
+    helper.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, false, null, session );
+  }
+
+  @Test( expected = MondrianException.class )
+  public void testAddCatalogWithException() {
+    initMondrianCatalogsCache();
+    MondrianCatalogHelper helperSpy = spy( helper );
+    doThrow( new MondrianException() ).when( helperSpy ).reInit( any( IPentahoSession.class ) );
+
+    IPentahoSession session = mock( IPentahoSession.class );
+    doNothing().when( helperSpy ).init( session );
+
+    MondrianCatalog cat = createTestCatalog();
+    MondrianCatalogRepositoryHelper repositoryHelper = mock( MondrianCatalogRepositoryHelper.class );
+    doReturn( repositoryHelper ).when( helperSpy ).getMondrianCatalogRepositoryHelper();
+    try {
+      helperSpy.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, true, null, session );
+    } catch ( MondrianException e ) {
+      // verifying the repository rolled back and the cache reinitialized
+      verify( repositoryHelper, times( 1 ) ).deleteHostedCatalog( anyString() );
+      verify( helperSpy, times( 2 ) ).reInit( any( IPentahoSession.class ) );
+    }
+    helperSpy.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, true, null, session );
   }
 
   @Test
   public void testAddCatalog() throws Exception {
     final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
-    stubGetFolder( repo, mondrianFolderPath );
-    stubGetChildren( repo, mondrianFolderPath ); // return no children
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, mondrianFolderPath );
+    UnifiedRepositoryTestUtils.stubGetChildren( repo, mondrianFolderPath ); // return no children
     final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + CATALOG_NAME;
-    stubGetFileDoesNotExist( repo, steelWheelsFolderPath );
-    stubCreateFolder( repo, steelWheelsFolderPath );
+    UnifiedRepositoryTestUtils.stubGetFileDoesNotExist( repo, steelWheelsFolderPath );
+    UnifiedRepositoryTestUtils.stubCreateFolder( repo, steelWheelsFolderPath );
     final String metadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
-    stubCreateFile( repo, metadataPath );
+    UnifiedRepositoryTestUtils.stubCreateFile( repo, metadataPath );
 
     final String olapFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
-    stubGetFolder( repo, olapFolderPath );
-    stubGetChildren( repo, olapFolderPath ); // return no children
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, olapFolderPath );
+    UnifiedRepositoryTestUtils.stubGetChildren( repo, olapFolderPath ); // return no children
 
     IPentahoSession session = new StandaloneSession( "admin" );
 
@@ -214,14 +237,14 @@ public class MondrianCatalogHelperIT {
     helperSpy.addCatalog( cat, true, session );
 
     verify( repo ).createFile(
-        eq( makeIdObject( steelWheelsFolderPath ) ),
-        argThat( isLikeFile( makeFileObject( metadataPath ) ) ),
-        argThat( hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + cat.getName() ), pathPropertyPair(
+        eq( UnifiedRepositoryTestUtils.makeIdObject( steelWheelsFolderPath ) ),
+        argThat( UnifiedRepositoryTestUtils.isLikeFile( UnifiedRepositoryTestUtils.makeFileObject( metadataPath ) ) ),
+        argThat( UnifiedRepositoryTestUtils.hasData( UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/definition", "mondrian:/" + cat.getName() ), UnifiedRepositoryTestUtils.pathPropertyPair(
             "/catalog/datasourceInfo", cat.getDataSourceInfo() ) ) ), anyString()
     );
 
-    verify( repo ).createFile( eq( makeIdObject( steelWheelsFolderPath ) ),
-        argThat( isLikeFile( makeFileObject( steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
+    verify( repo ).createFile( eq( UnifiedRepositoryTestUtils.makeIdObject( steelWheelsFolderPath ) ),
+        argThat( UnifiedRepositoryTestUtils.isLikeFile( UnifiedRepositoryTestUtils.makeFileObject( steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
         any( IRepositoryFileData.class ), anyString() );
 
 
@@ -272,17 +295,17 @@ public class MondrianCatalogHelperIT {
     final String sampleDataFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "super bacon";
     final String metadataPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "metadata";
 
-    stubGetFolder( repo, mondrianFolderPath );
-    stubGetChildren( repo, mondrianFolderPath ); // return no children
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, mondrianFolderPath );
+    UnifiedRepositoryTestUtils.stubGetChildren( repo, mondrianFolderPath ); // return no children
 
-    stubGetFileDoesNotExist( repo, sampleDataFolderPath );
-    stubCreateFolder( repo, sampleDataFolderPath );
+    UnifiedRepositoryTestUtils.stubGetFileDoesNotExist( repo, sampleDataFolderPath );
+    UnifiedRepositoryTestUtils.stubCreateFolder( repo, sampleDataFolderPath );
 
-    stubCreateFile( repo, metadataPath );
+    UnifiedRepositoryTestUtils.stubCreateFile( repo, metadataPath );
 
     final String olapFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
-    stubGetFolder( repo, olapFolderPath );
-    stubGetChildren( repo, olapFolderPath ); // return no children
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, olapFolderPath );
+    UnifiedRepositoryTestUtils.stubGetChildren( repo, olapFolderPath ); // return no children
 
     helper.importSchema( mondrianFile, "super bacon", "" );
 
@@ -301,27 +324,27 @@ public class MondrianCatalogHelperIT {
     final String sampleDataFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SampleData";
     final String metadataPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "metadata";
 
-    stubGetFolder( repo, mondrianFolderPath );
-    stubGetChildren( repo, mondrianFolderPath ); // return no children
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, mondrianFolderPath );
+    UnifiedRepositoryTestUtils.stubGetChildren( repo, mondrianFolderPath ); // return no children
 
-    stubGetFileDoesNotExist( repo, sampleDataFolderPath );
-    stubCreateFolder( repo, sampleDataFolderPath );
+    UnifiedRepositoryTestUtils.stubGetFileDoesNotExist( repo, sampleDataFolderPath );
+    UnifiedRepositoryTestUtils.stubCreateFolder( repo, sampleDataFolderPath );
 
-    stubCreateFile( repo, metadataPath );
+    UnifiedRepositoryTestUtils.stubCreateFile( repo, metadataPath );
 
     final String olapFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
-    stubGetFolder( repo, olapFolderPath );
-    stubGetChildren( repo, olapFolderPath ); // return no children
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, olapFolderPath );
+    UnifiedRepositoryTestUtils.stubGetChildren( repo, olapFolderPath ); // return no children
 
     helper.importSchema( mondrianFile, "SampleData", "" );
 
-    verify( repo ).createFile( eq( makeIdObject( sampleDataFolderPath ) ),
-        argThat( isLikeFile( makeFileObject( metadataPath ) ) ), argThat(
-            hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + "SampleData" ),
-                pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ),
+    verify( repo ).createFile( eq( UnifiedRepositoryTestUtils.makeIdObject( sampleDataFolderPath ) ),
+        argThat( UnifiedRepositoryTestUtils.isLikeFile( UnifiedRepositoryTestUtils.makeFileObject( metadataPath ) ) ), argThat(
+                    UnifiedRepositoryTestUtils.hasData( UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/definition", "mondrian:/" + "SampleData" ),
+                            UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ),
         anyString() );
-    verify( repo ).createFile( eq( makeIdObject( sampleDataFolderPath ) ),
-        argThat( isLikeFile( makeFileObject( sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
+    verify( repo ).createFile( eq( UnifiedRepositoryTestUtils.makeIdObject( sampleDataFolderPath ) ),
+        argThat( UnifiedRepositoryTestUtils.isLikeFile( UnifiedRepositoryTestUtils.makeFileObject( sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
         any( IRepositoryFileData.class ), anyString() );
 
     // cache should be cleared for this schema only
@@ -337,35 +360,35 @@ public class MondrianCatalogHelperIT {
     String mondrianSchema2 = IOUtils.toString( new FileInputStream( file2 ) );
 
     final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
-    stubGetFolder( repo, mondrianFolderPath );
-    stubGetChildren( repo, mondrianFolderPath, "SampleData/", "SteelWheels/" ); // return two child folders
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, mondrianFolderPath );
+    UnifiedRepositoryTestUtils.stubGetChildren( repo, mondrianFolderPath, "SampleData/", "SteelWheels/" ); // return two child folders
 
     final String olapFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
-    stubGetFolder( repo, olapFolderPath );
-    stubGetChildren( repo, olapFolderPath ); // return no children
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, olapFolderPath );
+    UnifiedRepositoryTestUtils.stubGetChildren( repo, olapFolderPath ); // return no children
 
     final String sampleDataFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SampleData";
     final String sampleDataMetadataPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "metadata";
     final String sampleDataSchemaPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
-    stubGetFile( repo, sampleDataMetadataPath );
-    stubGetData( repo, sampleDataMetadataPath, "catalog", pathPropertyPair( "/catalog/definition",
-        "mondrian:/SampleData" ), pathPropertyPair( "/catalog/datasourceInfo",
+    UnifiedRepositoryTestUtils.stubGetFile( repo, sampleDataMetadataPath );
+    UnifiedRepositoryTestUtils.stubGetData( repo, sampleDataMetadataPath, "catalog", UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/definition",
+        "mondrian:/SampleData" ), UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/datasourceInfo",
         "Provider=mondrian;DataSource=SampleData;" ) );
-    stubGetFile( repo, sampleDataSchemaPath );
-    stubGetData( repo, sampleDataSchemaPath, mondrianSchema2 );
+    UnifiedRepositoryTestUtils.stubGetFile( repo, sampleDataSchemaPath );
+    UnifiedRepositoryTestUtils.stubGetData( repo, sampleDataSchemaPath, mondrianSchema2 );
 
     final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
     final String steelWheelsMetadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
     final String steelWheelsSchemaPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
     final String steelWheelsAnnotationsPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "annotations.xml";
-    stubGetFile( repo, steelWheelsMetadataPath );
-    stubGetData( repo, steelWheelsMetadataPath, "catalog", pathPropertyPair( "/catalog/definition",
-        "mondrian:/SteelWheels" ), pathPropertyPair( "/catalog/datasourceInfo",
+    UnifiedRepositoryTestUtils.stubGetFile( repo, steelWheelsMetadataPath );
+    UnifiedRepositoryTestUtils.stubGetData( repo, steelWheelsMetadataPath, "catalog", UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/definition",
+        "mondrian:/SteelWheels" ), UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/datasourceInfo",
         "Provider=mondrian;DataSource=SteelWheels;" ) );
-    stubGetFile( repo, steelWheelsSchemaPath );
-    stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
-    stubGetFile( repo, steelWheelsAnnotationsPath );
-    stubGetData( repo, steelWheelsAnnotationsPath, "<annotations></annotations>" );
+    UnifiedRepositoryTestUtils.stubGetFile( repo, steelWheelsSchemaPath );
+    UnifiedRepositoryTestUtils.stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
+    UnifiedRepositoryTestUtils.stubGetFile( repo, steelWheelsAnnotationsPath );
+    UnifiedRepositoryTestUtils.stubGetData( repo, steelWheelsAnnotationsPath, "<annotations></annotations>" );
 
     IPentahoSession session = new StandaloneSession( "admin" );
 
@@ -378,7 +401,7 @@ public class MondrianCatalogHelperIT {
     MondrianCatalog[] testCatalogs = new MondrianCatalog[] { spy( createTestCatalog() ), spy( createTestCatalog() ) };
     doReturn( true ).when( testCatalogs[ 0 ] ).isJndi();
     doReturn( false ).when( testCatalogs[ 1 ] ).isJndi();
-    doReturn( asList( testCatalogs ) ).when( helper ).getCatalogs( session );
+    doReturn( Arrays.asList( testCatalogs ) ).when( helper ).getCatalogs( session );
     Answer<String> answer = new Answer<String>() {
       @Override public String answer( final InvocationOnMock invocation ) throws Throwable {
         try {
@@ -405,20 +428,20 @@ public class MondrianCatalogHelperIT {
     String mondrianSchema1 = IOUtils.toString( new FileInputStream( file1 ) );
 
     final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
-    stubGetFolder( repo, mondrianFolderPath );
-    stubGetChildren( repo, mondrianFolderPath, "SteelWheels/" );
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, mondrianFolderPath );
+    UnifiedRepositoryTestUtils.stubGetChildren( repo, mondrianFolderPath, "SteelWheels/" );
 
     final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
     final String steelWheelsMetadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
     final String steelWheelsSchemaPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
-    stubGetFile( repo, steelWheelsMetadataPath );
-    stubGetData( repo, steelWheelsMetadataPath, "catalog",
-        pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
-        pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
-    stubGetFile( repo, steelWheelsSchemaPath );
-    stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
+    UnifiedRepositoryTestUtils.stubGetFile( repo, steelWheelsMetadataPath );
+    UnifiedRepositoryTestUtils.stubGetData( repo, steelWheelsMetadataPath, "catalog",
+            UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/definition", "mondrian:/SteelWheels" ),
+            UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;" ) );
+    UnifiedRepositoryTestUtils.stubGetFile( repo, steelWheelsSchemaPath );
+    UnifiedRepositoryTestUtils.stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
 
-    stubGetFolder( repo, steelWheelsFolderPath );
+    UnifiedRepositoryTestUtils.stubGetFolder( repo, steelWheelsFolderPath );
 
     IPentahoSession session = new StandaloneSession( "admin" );
 
@@ -432,7 +455,7 @@ public class MondrianCatalogHelperIT {
 
     helper.removeCatalog( "mondrian:/SteelWheels", session );
 
-    verify( repo ).deleteFile( eq( makeIdObject( steelWheelsFolderPath ) ), eq( true ), anyString() );
+    verify( repo ).deleteFile( eq( UnifiedRepositoryTestUtils.makeIdObject( steelWheelsFolderPath ) ), eq( true ), anyString() );
 
     // cache should be cleared for this schema only
     verify( olapService, times( 1 ) ).getConnection( CATALOG_NAME, session );
