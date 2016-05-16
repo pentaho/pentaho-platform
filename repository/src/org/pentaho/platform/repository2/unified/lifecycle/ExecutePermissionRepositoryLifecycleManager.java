@@ -17,6 +17,9 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.mt.ITenant;
@@ -25,9 +28,6 @@ import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class ExecutePermissionRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
 
@@ -89,7 +89,8 @@ public class ExecutePermissionRepositoryLifecycleManager extends AbstractBacking
 
         if ( roleNeedingExecutePermissionAsList != null ) {
           roleNeedingExecutePermissionAsList.add( EXECUTE_PERMISSION_NAME );
-          roleBindingDao.setRoleBindings( DEFAULT_TENANT, roleNeedingExecutePermission, roleNeedingExecutePermissionAsList );
+          roleBindingDao.setRoleBindings( DEFAULT_TENANT, roleNeedingExecutePermission,
+              roleNeedingExecutePermissionAsList );
           if ( logger.isDebugEnabled() ) {
             logger.debug( "Adding Execute permission to role: " + roleNeedingExecutePermission );
           }
@@ -100,9 +101,15 @@ public class ExecutePermissionRepositoryLifecycleManager extends AbstractBacking
 
   public void setRolesNeedingExecutePermission( List<String> rolesNeedingExecutePermission ) {
     this.rolesNeedingExecutePermission = rolesNeedingExecutePermission;
+
+    // Role 'Authenticated' is a spring bean 'singleTenantAuthenticatedAuthorityName' wich don't must setted here
+    if ( !this.rolesNeedingExecutePermission.remove( "Authenticated" ) ) {
+      logger.error( "Authenticated role" );
+    }
   }
 
   public List<String> getRolesNeedingExecutePermission() {
     return rolesNeedingExecutePermission;
   }
+
 }
