@@ -102,6 +102,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
   private final IUnifiedRepository repo;
 
   private final MondrianCatalogHelper mondrianCatalogService;
+  private CatalogLocator catalogLocator;
 
   // - Constructors ================================
 
@@ -263,7 +264,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
           String catalogName,
           String roleName,
           Properties props )
-        throws SQLException {
+          throws SQLException {
         // What we do here is to filter the role names with the mapper.
         // First, get a user role mapper, if one is configured.
         final IPentahoSession session =
@@ -322,7 +323,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
                       ? null
                       : roleName,
                   props
-          );
+              );
 
         } else {
           //We create a connection differently so we can ensure that
@@ -347,7 +348,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
           Connection con =
               DriverManager.getConnection(
                   mc.getDataSourceInfo() + ";Catalog=" + mc.getDefinition(),
-                  makeCatalogLocator( servletConfig ) );
+                  catalogLocator );
 
           try {
             final MondrianServer server = MondrianServer.forConnection( con );
@@ -355,15 +356,25 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
             FileRepository fr =
                 new FileRepository(
                     makeContentFinder( makeDataSourcesUrl( servletConfig ) ),
-                    makeCatalogLocator( servletConfig ) );
+                    catalogLocator );
 
-            return fr.getConnection(
+            OlapConnection connection = fr.getConnection(
                 server, databaseName, catalogName, roleName, props );
+            fr.shutdown();
+            return connection;
           } finally {
             con.close();
           }
         }
       }
     };
+  }
+
+  @Override public void init( ServletConfig servletConfig ) throws ServletException {
+    super.init( servletConfig );
+
+    catalogLocator = makeCatalogLocator( servletConfig );
+
+
   }
 }
