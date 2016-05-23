@@ -31,6 +31,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.MenuBar;
@@ -875,6 +876,15 @@ public class MantleController extends AbstractXulEventHandler {
    * Notifies currently active Javascript callback of an edit event.
    */
   public void editContentClicked() {
+    // set delay for edit/view mode switching
+    setContentEditEnabled( false );
+    Timer loadOverlayTimer = new Timer() {
+      public void run() {
+        setContentEditEnabled( true );
+      }
+    };
+    loadOverlayTimer.schedule( 800 );
+
     model.setContentEditToggled();
 
     executeEditContentCallback( SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().getFrame()
