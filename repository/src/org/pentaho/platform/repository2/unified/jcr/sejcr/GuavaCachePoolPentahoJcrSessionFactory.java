@@ -21,13 +21,13 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * JCR Session Factory which caches Sessions by Credentials per Thread. The size of the cache and TTL of the entries
- * can be configured with repository.spring.properties
- *
+ * JCR Session Factory which caches Sessions by Credentials per Thread. The size of the cache and TTL of the entries can
+ * be configured with repository.spring.properties
+ * <p>
  * Created by nbaker on 6/9/14.
  */
 class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFactory
-  implements PentahoJcrSessionFactory {
+    implements PentahoJcrSessionFactory {
 
   private CredentialsStrategySessionFactory credentialsStrategySessionFactory;
   private int cacheDuration = 300;
@@ -42,13 +42,13 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     if ( systemConfig != null && systemConfig.getConfiguration( "repository" ) != null ) {
       try {
         this.cacheDuration =
-          Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
-            "cache-ttl", "300" ) );
+            Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
+                "cache-ttl", "300" ) );
 
 
         this.cacheSize =
-          Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
-            "cache-size", "100" ) );
+            Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
+                "cache-size", "100" ) );
       } catch ( IOException e ) {
         logger.info( "Could not find repository.cache-duration" );
       }
@@ -60,30 +60,30 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
    * use the same Session.
    */
   private LoadingCache<CacheKey, Session> sessionCache =
-    CacheBuilder.newBuilder().expireAfterAccess( cacheDuration, TimeUnit.SECONDS ).maximumSize(
-      cacheSize ).removalListener( new RemovalListener<CacheKey, Session>() {
+      CacheBuilder.newBuilder().expireAfterAccess( cacheDuration, TimeUnit.SECONDS ).maximumSize(
+          cacheSize ).removalListener( new RemovalListener<CacheKey, Session>() {
 
-      @Override public void onRemoval( RemovalNotification<CacheKey, Session> objectObjectRemovalNotification ) {
+        @Override public void onRemoval( RemovalNotification<CacheKey, Session> objectObjectRemovalNotification ) {
 
-        // We're not logging out on cache purge as someone may have obtained it from the cache already.
-        // TODO: implement reference tracking (checkin/checkout) in order to condition the logout.
-        //        Session value = objectObjectRemovalNotification.getValue();
-        //        if ( value != null && value.isLive() ) {
-        //          value.logout();
-        //        }
-      }
-    } ).recordStats().build( new CacheLoader<CacheKey, Session>() {
-      @Override public Session load( CacheKey credKey ) throws Exception {
-        return GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
-      }
-    } );
+          // We're not logging out on cache purge as someone may have obtained it from the cache already.
+          // TODO: implement reference tracking (checkin/checkout) in order to condition the logout.
+          //        Session value = objectObjectRemovalNotification.getValue();
+          //        if ( value != null && value.isLive() ) {
+          //          value.logout();
+          //        }
+        }
+      } ).recordStats().build( new CacheLoader<CacheKey, Session>() {
+        @Override public Session load( CacheKey credKey ) throws Exception {
+          return GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
+        }
+      } );
 
   @Override public Session getSession( Credentials creds ) throws RepositoryException {
 
 
     // Aquire from cache
     Session session;
-    if ( !TransactionSynchronizationManager.isSynchronizationActive() ) {
+    if ( !TransactionSynchronizationManager.isActualTransactionActive() ) {
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Thread is not transacted, checking cache for session: " + creds );
       }
@@ -102,10 +102,10 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
         if ( SessionFactoryUtils.isSessionThreadBound( session, credentialsStrategySessionFactory ) ) {
           if ( logger.isDebugEnabled() ) {
             logger.debug(
-              "Session is bound to a transaction. This should never happen, ignoring this session and creating a new "
-                +
-                "session: "
-                + creds );
+                "Session is bound to a transaction. This should never happen, ignoring this session and creating a new "
+                    +
+                    "session: "
+                    + creds );
           }
           sessionCache.invalidate( key );
           session = sessionCache.get( key );

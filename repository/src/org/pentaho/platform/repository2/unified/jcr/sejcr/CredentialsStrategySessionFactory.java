@@ -18,6 +18,8 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
+import org.apache.jackrabbit.api.XASession;
+import org.apache.jackrabbit.core.SessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -30,6 +32,7 @@ import org.springframework.extensions.jcr.SessionHolder;
 import org.springframework.extensions.jcr.SessionHolderProvider;
 import org.springframework.extensions.jcr.SessionHolderProviderManager;
 import org.springframework.extensions.jcr.support.GenericSessionHolderProvider;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
 import javax.jcr.Credentials;
@@ -42,6 +45,10 @@ import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeTypeDefinition;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.observation.ObservationManager;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -353,8 +360,22 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
       LOG.debug( "using credentials:" + creds );
     }
     Session session = getSessionFactory().getSession( creds );
+    session = createSessionProxy( session );
     return addListeners( session );
   }
+
+  /**
+   * We create a proxy wraper around the actualy session to prevent it from being closed. This
+   * allows it to be re-used for subsequent requests.
+   *
+   * @param session
+   * @return
+   */
+  protected Session createSessionProxy( Session session ) {
+    return (Session) Proxy.newProxyInstance( this.getClass().getClassLoader(), new Class[] { Session.class, XASession.class },
+        new LogoutSuppressingInvocationHandler( session ) );
+  }
+
 
   /**
    * @see org.springframework.extensions.jcr.SessionFactory#getSessionHolder(javax.jcr.Session)
@@ -595,5 +616,41 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
     return workspaceName;
   }
 
+  public class LogoutSuppressingInvocationHandler implements InvocationHandler {
+    private final Session target;
 
+    public LogoutSuppressingInvocationHandler( Session target ) {
+      this.target = target;
+    }
+
+    public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
+      if ( method.getName().equals( "equals" ) ) {
+        return proxy == args[ 0 ] ? Boolean.TRUE : Boolean.FALSE;
+      } else if ( method.getName().equals( "hashCode" ) ) {
+        return this.hashCode();
+      } else if ( method.getName().equals( "logout" ) ) {
+        if( TransactionSynchronizationManager.isActualTransactionActive() ){
+          target.logout();
+        }
+        return null;
+      } else {
+        try {
+          Object ex = method.invoke( this.target, args );
+          return ex;
+        } catch ( InvocationTargetException ex ) {
+          throw ex.getTargetException();
+        }
+      }
+    }
+
+    public SessionImpl getSession() {
+      return (SessionImpl) target;
+    }
+
+    @Override protected void finalize() throws Throwable {
+      if( target.isLive() ) {
+        //        target.logout();
+      }
+    }
+  }
 }

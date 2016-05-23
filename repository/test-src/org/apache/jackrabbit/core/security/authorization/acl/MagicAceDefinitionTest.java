@@ -32,6 +32,7 @@ import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -100,7 +101,7 @@ public class MagicAceDefinitionTest {
     AccessControlManager mockAccessControlManager = mock( AccessControlManager.class );
     Privilege mockPrivilege = mock( Privilege.class );
     when( mockSessionImpl.getAccessControlManager() ).thenReturn( mockAccessControlManager );
-    when( mockAccessControlManager.privilegeFromName( any() ) ).thenReturn( mockPrivilege );
+    when( mockAccessControlManager.privilegeFromName( anyString() ) ).thenReturn( mockPrivilege );
 
     InputStream input = new FileInputStream( new File( filePath ) );
     return MagicAceDefinition.parseYamlMagicAceDefinitions( input, mockSessionImpl );
