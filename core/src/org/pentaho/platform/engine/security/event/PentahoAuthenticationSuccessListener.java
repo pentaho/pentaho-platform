@@ -77,6 +77,7 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
         // audit session creation
         AuditHelper.audit( pentahoSession.getId(), pentahoSession.getName(), pentahoSession.getActionName(),
             pentahoSession.getObjectName(), "", MessageTypes.SESSION_START, "", "", 0, null ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        logger.info( "The user \"" + pentahoSession.getName() +"\"" + " connected to server with session ID " + pentahoSession.getId() );
       } catch ( Exception e ) {
         logger.error( e.getLocalizedMessage(), e );
       }
