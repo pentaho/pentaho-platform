@@ -131,6 +131,7 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
       } catch ( Exception e ) {
         logger.error( e.getLocalizedMessage(), e );
       }
+      logger.info( "The user \"" + principalName +"\"" + " connected to repository" );
     }
   }
 
