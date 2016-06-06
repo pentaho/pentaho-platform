@@ -74,7 +74,15 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
       }
     } ).recordStats().build( new CacheLoader<CacheKey, Session>() {
       @Override public Session load( CacheKey credKey ) throws Exception {
-        return GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
+        try {
+          return GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
+        } catch ( RepositoryException e ) {
+          if ( e.getCause() instanceof InterruptedException ) {
+            // do not mask interruptions from caller.
+            throw new InterruptedException( "session cache interrupted" );
+          }
+          throw e;
+        }
       }
     } );
 
