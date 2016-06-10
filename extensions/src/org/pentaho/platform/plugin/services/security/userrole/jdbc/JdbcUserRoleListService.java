@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.security.userrole.jdbc;
@@ -31,12 +31,16 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.sql.DataSource;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRoleListService {
@@ -71,6 +75,8 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   private List<String> systemRoles;
 
+  private List<String> extraRoles;
+
   private IAuthenticationRoleMapper roleMapper;
 
   // ~ Constructors
@@ -82,6 +88,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
     allUsernamesInRoleQuery = JdbcUserRoleListService.DEF_ALL_USERNAMES_IN_ROLE_QUERY;
     this.userDetailsService = userDetailsService;
     this.systemRoles = systemRoles;
+    this.extraRoles = PentahoSystem.get( ArrayList.class, "extraSystemAuthorities", PentahoSessionHolder.getSession() );
   }
 
   // ~ Methods
@@ -121,8 +128,8 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   /**
    * Allows the default query string used to retrieve all user names to be overriden, if default table or column names
-   * need to be changed. The default query is {@link #DEF_ALL_USERNAMES_IN_ROLE_QUERY}; when modifying this query, ensure
-   * that all returned columns are mapped back to the same column names as in the default query.
+   * need to be changed. The default query is {@link #DEF_ALL_USERNAMES_IN_ROLE_QUERY}; when modifying this query,
+   * ensure that all returned columns are mapped back to the same column names as in the default query.
    * 
    * @param queryString
    *          The query string to set
@@ -137,16 +144,21 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   public List<String> getAllRoles() throws DataAccessException {
     List<GrantedAuthority> allAuths = allAuthoritiesMapping.execute();
-    List<String> roles = new ArrayList<String>( allAuths.size() );
+    LinkedHashSet<String> roles = new LinkedHashSet<String>( allAuths.size() );
     for ( GrantedAuthority role : allAuths ) {
       if ( roleMapper != null ) {
         roles.add( roleMapper.toPentahoRole( role.getAuthority() ) );
       } else {
         roles.add( role.getAuthority() );
       }
-
     }
-    return roles;
+
+    // Now add extra role if it does not exist in the list
+    for ( String extraRole : extraRoles ) {
+      roles.add( extraRole );
+    }
+
+    return new ArrayList<String>( roles );
   }
 
   public List<String> getAllUsers() throws DataAccessException {
@@ -232,7 +244,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   public List<String> getRolesForUser( final String username ) throws UsernameNotFoundException, DataAccessException {
     UserDetails user = userDetailsService.loadUserByUsername( username );
-    List<String> roles = new ArrayList<String>( user.getAuthorities().length );
+    LinkedHashSet<String> roles = new LinkedHashSet<String>( user.getAuthorities().length );
     for ( GrantedAuthority role : user.getAuthorities() ) {
       if ( roleMapper != null ) {
         roles.add( roleMapper.toPentahoRole( role.getAuthority() ) );
@@ -241,7 +253,12 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
       }
     }
 
-    return roles;
+    // Now add extra role if it does not exist in the list
+    for ( String extraRole : extraRoles ) {
+      roles.add( extraRole );
+    }
+
+    return new ArrayList<String>( roles );
   }
 
   public void setRolePrefix( final String rolePrefix ) {

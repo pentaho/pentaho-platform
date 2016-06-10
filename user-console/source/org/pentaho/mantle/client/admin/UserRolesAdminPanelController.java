@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.admin;
@@ -505,7 +505,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         public void onResponseReceived( Request request, Response response ) {
           boolean usingPentahoSecurity = response.getText().contains( "jackrabbit" );
           if ( !usingPentahoSecurity ) {
-            initializeRoles( null, "api/userrolelist/roles", rolesListBox );
+            initializeRoles( null, "api/userrolelist/roles?addExtraRoles=false", rolesListBox );
           } else {
             initializeRoles( null, "api/userroledao/roles", rolesListBox );
           }
