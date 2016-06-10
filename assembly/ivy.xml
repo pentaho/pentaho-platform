@@ -20,7 +20,7 @@
     <dependency org="pentaho" name="pentaho-platform-extensions" rev="${dependency.pentaho-platform.revision}" changing="true">
 		<exclude org="pentaho-reporting-engine" module="pentaho-reporting-engine-classic-core-test" />
     </dependency>
-    
+
     <!-- Pentaho Commons  -->
     <dependency org="pentaho" name="pentaho-database-model" rev="${dependency.pentaho-database-model.revision}" changing="true" transitive="false"/>
 
@@ -205,7 +205,7 @@
     </dependency>
     <dependency org="pentaho-kettle" name="kettle-xml-plugin" rev="${dependency.kettle-xml-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
       <artifact name="kettle-xml-plugin" type="zip"/>
-    </dependency>    
+    </dependency>
 
     <dependency org="xalan" name="xalan" rev="2.7.1"  changing="true" transitive="false"/>
     <dependency org="xalan" name="serializer" rev="2.7.1"  changing="true" transitive="false"/>
@@ -220,15 +220,15 @@
     <dependency org="org.apache.felix" name="org.apache.felix.http.api" rev="2.3.0"  transitive="false"/>
     <dependency org="org.apache.felix" name="org.apache.felix.http.base" rev="2.3.0"  transitive="false"/>
     <dependency org="org.apache.felix" name="org.apache.felix.http.proxy" rev="2.3.0"  transitive="false"/>
-    
+
     <dependency org="org.apache.felix" name="org.apache.felix.fileinstall" rev="3.4.2"  transitive="false"/>
-	<dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.4.1"  transitive="false"/>    
+	<dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.4.1"  transitive="false"/>
 
 	<dependency org="org.osgi" name="org.osgi.compendium" rev="5.0.0"  transitive="false"/>
 
     <dependency org="pentaho" name="pentaho-proxy-factory" rev="${project.revision}"/>
-    <dependency org="pentaho.weka" name="pdm-3.7-ce" rev="3.7.11.1" transitive="false" conf="default->default" changing="true" />
-    
+    <dependency org="pentaho.weka" name="pdm-ce" rev="${dependency.weka.revision}" transitive="false" conf="default->default" changing="true" />
+
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.
