@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -169,13 +169,16 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * </pre>
    */
   @GET
-  @Path ( "/roles" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the list of Role objects." ),
-  } )
-  public RoleListWrapper getRoles() {
-    return userRoleListService.getRoles();
+  @Path( "/roles" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of Role objects." ), } )
+  public RoleListWrapper getRoles( @QueryParam( "addExtraRoles" ) String addExtraRoles ) {
+    boolean includeExtraRoles = true;
+
+    if ( addExtraRoles != null && addExtraRoles.length() > 0 ) {
+      includeExtraRoles = Boolean.parseBoolean( addExtraRoles );
+    }
+    return userRoleListService.getRoles( includeExtraRoles );
   }
 
   /**
