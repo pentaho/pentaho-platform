@@ -31,7 +31,7 @@ define(["common-ui/handlebars"],
               "<div class='dialog-content'>{{{dialog.content.body}}}</div>" +
               "</div>" +
               "<div class='footer'>" +
-              "{{{dialog.content.footer}}" +
+              "{{{dialog.content.footer}}}" +
               "</div>" +
               "</div>");
 
