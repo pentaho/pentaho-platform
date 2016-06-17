@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.filters;
@@ -23,6 +23,8 @@ import org.owasp.esapi.ESAPI;
 import org.owasp.esapi.Encoder;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -70,7 +72,7 @@ public class PentahoWebContextFilter implements Filter {
   private static final String CONTEXT = "context"; //$NON-NLS-1$
   private static final String GLOBAL = "global"; //$NON-NLS-1$
   private static final byte[] REQUIRE_JS_CFG_START =
-      "var requireCfg = {waitSeconds: 30, paths: {}, shim: {}, map: {\"*\": {}}, bundles: {}, config: {service: {}}, packages: []};\n".getBytes(); //$NON-NLS-1$
+      "var requireCfg = {waitSeconds: 30, paths: {}, shim: {}, map: {\"*\": {}}, bundles: {}, config: {\"pentaho/service\": {}}, packages: []};\n".getBytes(); //$NON-NLS-1$
   private static final String REQUIRE_JS = "requirejs"; //$NON-NLS-1$
   // Changed to not do so much work for every request
   private static final ThreadLocal<byte[]> THREAD_LOCAL_CONTEXT_PATH = new ThreadLocal<byte[]>();
@@ -78,7 +80,6 @@ public class PentahoWebContextFilter implements Filter {
 
   public void destroy() {
     // TODO Auto-generated method stub
-
   }
 
   protected void close( OutputStream out ) {
@@ -144,6 +145,13 @@ public class PentahoWebContextFilter implements Filter {
           effectiveLocale = new Locale( request.getParameter( "locale" ) );
         }
 
+        // context name variable
+        String contextName = request.getParameter( CONTEXT );
+        printContextName( contextName, out );
+
+        // active_theme variable
+        printActiveTheme( httpRequest, out );
+
         // setup the RequireJS config object for plugins to extend
         out.write( REQUIRE_JS_CFG_START );
 
@@ -166,7 +174,6 @@ public class PentahoWebContextFilter implements Filter {
           printResourcesForContext( GLOBAL, out, httpRequest, false );
 
           // print out external-resources defined in plugins if a context has been passed in
-          String contextName = request.getParameter( CONTEXT );
           boolean cssOnly = "true".equals( request.getParameter( "cssOnly" ) );
           if ( StringUtils.isNotEmpty( contextName ) ) {
             printResourcesForContext( contextName, out, httpRequest, cssOnly );
@@ -188,7 +195,7 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   private void printHomeFolder( OutputStream out ) throws IOException {
-    StringBuilder sb = new StringBuilder( "<!-- Providing home folder location for UI defaults -->\n" );
+    StringBuilder sb = new StringBuilder( "// Providing home folder location for UI defaults\n" );
     if ( PentahoSessionHolder.getSession() != null ) {
       String homePath = ClientRepositoryPaths.getUserHomeFolderPath( StringEscapeUtils
           .escapeJavaScript( PentahoSessionHolder.getSession().getName() ) );
@@ -248,7 +255,7 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   private void printSessionName( OutputStream out ) throws IOException {
-    StringBuilder sb = new StringBuilder( "<!-- Providing name for session -->\n" );
+    StringBuilder sb = new StringBuilder( "// Providing name for session\n" );
     if ( PentahoSessionHolder.getSession() == null ) {
       sb.append( "var SESSION_NAME = null;\n" ); // Global variable
     } else {
@@ -260,13 +267,59 @@ public class PentahoWebContextFilter implements Filter {
 
   private void printLocale( Locale effectiveLocale, OutputStream out ) throws IOException {
     StringBuilder sb =
-        new StringBuilder( "<!-- Providing computed Locale for session -->\n" ).append(
+        new StringBuilder( "// Providing computed Locale for session\n" ).append(
           "var SESSION_LOCALE = '" + effectiveLocale.toString() + "';\n" ) // Global variable
             // If RequireJs is available, supply a module
             .append(
               "if(typeof(pen) != 'undefined' && pen.define){pen.define('Locale', {locale:'"
                 + effectiveLocale.toString() + "'})};" );
     out.write( sb.toString().getBytes() );
+  }
+
+  private void printContextName( String contextName, OutputStream out ) throws IOException {
+    StringBuilder sb = new StringBuilder( "// Providing name for context\n" );
+
+    sb.append( "var PENTAHO_CONTEXT_NAME = '"
+            + StringEscapeUtils.escapeJavaScript( contextName ) + "';\n\n" ); // Global variable
+
+    out.write(  sb.toString().getBytes() );
+  }
+
+  private void printActiveTheme( HttpServletRequest request, OutputStream out ) throws IOException {
+
+    // NOTE: this code should be kept in sync with that of ThemeServlet.java
+
+    StringBuilder sb = new StringBuilder( "// Providing active theme\n" );
+
+    IPentahoSession session = PentahoSessionHolder.getSession();
+
+    String activeTheme = (String) session.getAttribute( "pentaho-user-theme" );
+
+    String ua = request.getHeader( "User-Agent" );
+    // check if we're coming from a mobile device, if so, lock to system default (crystal)
+    if ( !StringUtils.isEmpty( ua ) && ua.matches( ".*(?i)(iPad|iPod|iPhone|Android).*" ) ) {
+      activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
+    }
+
+    if ( activeTheme == null ) {
+      IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, session );
+
+      try {
+        activeTheme = settingsService.getUserSetting( "pentaho-user-theme", null ).getSettingValue();
+      } catch ( Exception ignored ) {
+        // the user settings service is not valid in the agile-bi deployment of the server
+      }
+
+      if ( activeTheme == null ) {
+        activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
+      }
+    }
+
+    sb.append( "var active_theme = '"
+            + StringEscapeUtils.escapeJavaScript( activeTheme )
+            + "';\n\n" ); // Global variable
+
+    out.write(  sb.toString().getBytes() );
   }
 
   private void printResourcesForContext( String contextName, OutputStream out, HttpServletRequest request,
