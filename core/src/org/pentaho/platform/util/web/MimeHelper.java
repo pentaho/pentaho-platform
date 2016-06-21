@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.util.web;
@@ -58,6 +58,7 @@ public class MimeHelper {
     MimeHelper.mimes.put( "text/xml", ".xml" ); //$NON-NLS-1$ //$NON-NLS-2$
     MimeHelper.mimes.put( "application/x-shockwave-flash", ".swf" ); //$NON-NLS-1$ //$NON-NLS-2$
     MimeHelper.mimes.put( "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx" ); //$NON-NLS-1$ //$NON-NLS-2$
+    MimeHelper.mimes.put( "mime-message/text/html", ".eml" );
 
     MimeHelper.extensions.put( ".rtf", "application/rtf" ); //$NON-NLS-1$ //$NON-NLS-2$
     MimeHelper.extensions.put( ".doc", "application/msword" ); //$NON-NLS-1$ //$NON-NLS-2$
@@ -92,6 +93,7 @@ public class MimeHelper {
     MimeHelper.extensions.put( ".swf", "application/x-shockwave-flash" ); //$NON-NLS-1$ //$NON-NLS-2$
     MimeHelper.extensions.put( ".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ); //$NON-NLS-1$ //$NON-NLS-2$
     MimeHelper.extensions.put( ".properties", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
+    MimeHelper.extensions.put( ".eml", "mime-message/text/html" );
 
     MimeHelper.defaultCharset.put( "text/html", "UTF-8" ); //$NON-NLS-1$ //$NON-NLS-2$
     MimeHelper.defaultCharset.put( "text/plain", "UTF-8" ); //$NON-NLS-1$ //$NON-NLS-2$
