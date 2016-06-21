@@ -92,7 +92,7 @@
     <!-- Hibernate and dependencies -->
     <dependency org="org.hibernate" name="hibernate-core" rev="3.6.9.Final" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-c3p0" rev="3.6.9.Final" transitive="false"/>
-    <dependency org="org.antlr" name="antlr" rev="3.4-complete" transitive="false"/>
+    <dependency org="antlr" name="antlr" rev="2.7.6" transitive="false"/>
     <dependency org="asm" name="asm" rev="3.1" transitive="false"/>
     <dependency org="asm" name="asm-attrs" rev="1.5.3" transitive="false"/>
     <dependency org="javax.transaction" name="jta" rev="1.1" transitive="false"/>
@@ -290,6 +290,7 @@
     <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1" conf="default->default"
                 transitive="false"/>
     <dependency org="jsonpath" name="jsonpath" rev="1.0" conf="default->default" transitive="false"/>
+    <dependency org="org.antlr" name="antlr-runtime" rev="3.1.1" conf="default->default" transitive="false"/>
     <dependency org="org.drools" name="drools-api" rev="5.0.1" conf="default->default" transitive="false"/>
     <dependency org="org.drools" name="drools-compiler" rev="5.0.1" conf="default->default" transitive="false"/>
     <dependency org="org.drools" name="drools-core" rev="5.0.1" conf="default->default" transitive="false"/>
@@ -416,7 +417,6 @@
 
     <!-- CM-241 -->
     <exclude org="cglib" module="cglib"/>
-    <exclude org="antlr" module="antlr"/>
 
     <override org="junit" module="junit" rev="4.12"/>
     <override org="asm" module="asm" rev="3.1"/>
