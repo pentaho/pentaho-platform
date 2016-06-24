@@ -21,11 +21,14 @@
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder" %>
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSystem" %>
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction" %>
+<%@page import="org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction" %>
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction" %>
 <%@page import="java.util.List" %>
 <%@page import="java.util.Locale"%>
 <%@page import="javax.servlet.http.HttpServletRequest"%>
 <%
+  boolean canReadContent = PentahoSystem.get( IAuthorizationPolicy.class, PentahoSessionHolder.getSession() )
+      .isAllowed( RepositoryReadAction.NAME );
   boolean canCreateContent = PentahoSystem.get( IAuthorizationPolicy.class, PentahoSessionHolder.getSession() )
       .isAllowed( RepositoryCreateAction.NAME );
   boolean canAdminister = PentahoSystem.get( IAuthorizationPolicy.class, PentahoSessionHolder.getSession() )
@@ -95,6 +98,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
       }];
 
       // Define permissions
+      ContextProvider.addProperty("canReadContent", <%=canReadContent%>);
       ContextProvider.addProperty("canCreateContent", <%=canCreateContent%>);
       ContextProvider.addProperty("canAdminister", <%=canAdminister%>);
       ContextProvider.addProperty("hasAnalyzerPlugin", <%=pluginIds.contains("analyzer")%>);
@@ -126,9 +130,11 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
       <div class='row-fluid'>
         <script type="text/x-handlebars-template">
           <div class="well sidebar">
+            {{#if canReadContent}}
             <button class="btn btn-large btn-block" onclick="window.parent.mantle_setPerspective('browser.perspective')">
               {{i18n.browse}}
             </button>
+            {{/if}}
 
             <!-- Only show create button if user is allowed -->
 
