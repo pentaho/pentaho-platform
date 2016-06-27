@@ -128,13 +128,6 @@ public class PentahoWebContextFilter implements Filter {
           }
         }
 
-        String basicAuthFlag = (String) httpRequest.getSession().getAttribute( "BasicAuth" );
-        if ( basicAuthFlag != null && basicAuthFlag.equals( "true" ) ) {
-          out.write( ( "document.write(\"<script type='text/javascript' src='"
-            + contextPath + "js/postAuth.js'></scr\"+\"ipt>\");\n" )
-              .getBytes( "UTF-8" ) );
-        }
-
         out.write( contextPathBytes );
         out.write( fullyQualifiedUrl.getBytes() );
         out.write( serverProtocol.getBytes() );
