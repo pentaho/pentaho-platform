@@ -102,6 +102,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </fileset>
   </path>
 
+  <!-- Setup the classpath used for testing -->
+  <path id="inttest.classpath">
+    <pathelement path="${inttestclasses.dir}" />
+    <pathelement path="${classes.dir}" />
+    <pathelement path="${inttestsrc.dir}" />
+    <pathelement path="${src.dir}" />
+    <fileset dir="${devlib.dir}">
+      <include name="**/*.jar" />
+    </fileset>
+    <fileset dir="${inttestlib.dir}">
+      <include name="**/*.jar" />
+    </fileset>
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar" />
+    </fileset>
+  </path>
+	
 
   <!--=======================================================================
       init (override)
