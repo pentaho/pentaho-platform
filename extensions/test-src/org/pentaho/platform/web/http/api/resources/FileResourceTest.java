@@ -45,25 +45,25 @@ import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.ws.rs.core.Response.Status.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class FileResourceTest {
@@ -188,11 +188,11 @@ public class FileResourceTest {
     doThrow( mock( FileNotFoundException.class ) ).when( fileResource.fileService ).doMoveFiles( PATH_ID, params );
 
     Response mockNotFoundResponse = mock( Response.class );
-    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( NOT_FOUND );
+    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( Response.Status.NOT_FOUND );
 
     Response mockInternalServerErrorResponse = mock( Response.class );
     doReturn( mockInternalServerErrorResponse ).when( fileResource )
-      .buildStatusResponse( INTERNAL_SERVER_ERROR );
+      .buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
 
     Response testResponse = fileResource.doMove( PATH_ID, params );
 
@@ -229,13 +229,13 @@ public class FileResourceTest {
     doThrow( mock( InternalError.class ) ).when( fileResource.fileService ).doRestoreFiles( params );
 
     Response mockInternalErrorResponse = mock( Response.class );
-    doReturn( mockInternalErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
 
     Response testResponse = fileResource.doRestore( params, null );
 
     assertEquals( mockInternalErrorResponse, testResponse );
     verify( fileResource.fileService, times( 1 ) ).doRestoreFiles( params );
-    verify( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
+    verify( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
   }
 
   @Test
@@ -246,7 +246,7 @@ public class FileResourceTest {
     doReturn( false ).when( fileResource.fileService ).canRestoreToFolderWithNoConflicts( anyString(), eq( FILE_ID ) );
 
     Response response = fileResource.doRestore( FILE_ID, null );
-    assertNotEquals( response.getStatus(), INTERNAL_SERVER_ERROR.getStatusCode() );
+    assertNotEquals( response.getStatus(), Response.Status.INTERNAL_SERVER_ERROR.getStatusCode() );
   }
 
 
@@ -363,7 +363,7 @@ public class FileResourceTest {
 
     Response testResponse = fileResource.doCopyFiles( PATH_ID, mode, params );
 
-    assertEquals( FORBIDDEN.getStatusCode(), testResponse.getStatus() );
+    assertEquals( Response.Status.FORBIDDEN.getStatusCode(), testResponse.getStatus() );
     verify( fileResource, times( 0 ) ).buildSafeHtmlServerErrorResponse( illegalArgument );
     verify( fileResource.fileService ).doCopyFiles( PATH_ID, mode, params );
   }
@@ -389,12 +389,12 @@ public class FileResourceTest {
     doThrow( mockFileNotFoundException ).when( fileResource.fileService ).doGetFileOrDir( PATH_ID );
 
     Response mockNotFoundResponse = mock( Response.class );
-    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( NOT_FOUND );
+    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( Response.Status.NOT_FOUND );
 
     Response testResponse = fileResource.doGetFileOrDir( PATH_ID );
 
     assertEquals( mockNotFoundResponse, testResponse );
-    verify( fileResource, times( 1 ) ).buildStatusResponse( NOT_FOUND );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.NOT_FOUND );
     verify( fileResource.fileService, times( 1 ) ).doGetFileOrDir( PATH_ID );
 
     // Test 2
@@ -402,12 +402,12 @@ public class FileResourceTest {
     doThrow( mockIllegalArgumentException ).when( fileResource.fileService ).doGetFileOrDir( PATH_ID );
 
     Response mockForbiddenResponse = mock( Response.class );
-    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
+    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
 
     testResponse = fileResource.doGetFileOrDir( PATH_ID );
 
     assertEquals( mockForbiddenResponse, testResponse );
-    verify( fileResource, times( 1 ) ).buildStatusResponse( NOT_FOUND );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.NOT_FOUND );
     verify( fileResource.fileService, times( 2 ) ).doGetFileOrDir( PATH_ID );
   }
 
@@ -444,12 +444,12 @@ public class FileResourceTest {
     doReturn( false ).when( fileResource ).isPathValid( path );
 
     Response mockForbiddenResponse = mock( Response.class );
-    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
+    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
 
     Response testResponse = fileResource.doGetDirAsZip( PATH_ID );
 
     assertEquals( mockForbiddenResponse, testResponse );
-    verify( fileResource, times( 1 ) ).buildStatusResponse( FORBIDDEN );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.FORBIDDEN );
     verify( fileResource, times( 1 ) ).isPathValid( path );
 
     // Test 2
@@ -459,7 +459,7 @@ public class FileResourceTest {
     testResponse = fileResource.doGetDirAsZip( PATH_ID );
 
     assertEquals( mockForbiddenResponse, testResponse );
-    verify( fileResource, times( 2 ) ).buildStatusResponse( FORBIDDEN );
+    verify( fileResource, times( 2 ) ).buildStatusResponse( Response.Status.FORBIDDEN );
     verify( fileResource, times( 2 ) ).isPathValid( path );
     verify( fileResource.policy, times( 1 ) ).isAllowed( PublishAction.NAME );
 
@@ -468,12 +468,12 @@ public class FileResourceTest {
     doReturn( null ).when( fileResource.repository ).getFile( path );
 
     Response mockNotFoundResponse = mock( Response.class );
-    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( NOT_FOUND );
+    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( Response.Status.NOT_FOUND );
 
     testResponse = fileResource.doGetDirAsZip( PATH_ID );
 
     assertEquals( mockNotFoundResponse, testResponse );
-    verify( fileResource, times( 1 ) ).buildStatusResponse( NOT_FOUND );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.NOT_FOUND );
     verify( fileResource, times( 3 ) ).isPathValid( path );
     verify( fileResource.policy, times( 2 ) ).isAllowed( PublishAction.NAME );
   }
@@ -693,16 +693,16 @@ public class FileResourceTest {
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
 
     Response mockBadRequestResponse = mock( Response.class );
-    doReturn( mockBadRequestResponse ).when( fileResource ).buildStatusResponse( BAD_REQUEST );
+    doReturn( mockBadRequestResponse ).when( fileResource ).buildStatusResponse( Response.Status.BAD_REQUEST );
 
     Response mockForbiddenResponse = mock( Response.class );
-    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
+    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
 
     Response mockNotFoundResponse = mock( Response.class );
-    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( NOT_FOUND );
+    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( Response.Status.NOT_FOUND );
 
     Response mockInternalServerErrorResponse = mock( Response.class );
-    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
 
     String exceptionMessage = "exception";
 
@@ -777,13 +777,13 @@ public class FileResourceTest {
 
 
     Response mockForbiddenResponse = mock( Response.class );
-    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
+    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
 
     Response mockNotFoundResponse = mock( Response.class );
-    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( NOT_FOUND );
+    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( Response.Status.NOT_FOUND );
 
     Response mockInternalServereErrorResponse = mock( Response.class );
-    doReturn( mockInternalServereErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalServereErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
 
     Messages mockMessages = mock( Messages.class );
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
@@ -838,7 +838,7 @@ public class FileResourceTest {
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
 
     Response mockInternalServerErrorResponse = mock( Response.class );
-    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
 
     Exception mockRuntimeException = mock( RuntimeException.class );
     doThrow( mockRuntimeException ).when( fileResource.fileService ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
@@ -847,7 +847,7 @@ public class FileResourceTest {
     assertEquals( mockInternalServerErrorResponse, testResponse );
 
     verify( fileResource, times( 1 ) ).getMessagesInstance();
-    verify( fileResource, times( 1 ) ).buildStatusResponse( INTERNAL_SERVER_ERROR );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     verify( fileResource.fileService, times( 1 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
   }
 
@@ -874,10 +874,10 @@ public class FileResourceTest {
     RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
 
     Response mockNotFoundResponse = mock( Response.class );
-    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( NOT_FOUND );
+    doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( Response.Status.NOT_FOUND );
 
     Response mockInternalServerErrorResponse = mock( Response.class );
-    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
 
     Messages mockMessages = mock( Messages.class );
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
@@ -897,8 +897,8 @@ public class FileResourceTest {
     testResponse = fileResource.doSetContentCreator( PATH_ID, mockRepositoryFileDto );
     assertEquals( mockInternalServerErrorResponse, testResponse );
 
-    verify( fileResource, times( 1 ) ).buildStatusResponse( NOT_FOUND );
-    verify( fileResource, times( 1 ) ).buildStatusResponse( INTERNAL_SERVER_ERROR );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.NOT_FOUND );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     verify( fileResource.fileService, times( 2 ) ).doSetContentCreator( PATH_ID, mockRepositoryFileDto );
     verify( mockMessages, times( 1 ) ).getErrorString( "FileResource.FILE_NOT_FOUND", PATH_ID );
     verify( mockMessages, times( 1 ) ).getString( "SystemResource.GENERAL_ERROR" );
@@ -1434,7 +1434,7 @@ public class FileResourceTest {
     List<StringKeyStringValueDto> metadata = mock( List.class );
 
     Response mockUnauthorizedResponse = mock( Response.class );
-    doReturn( mockUnauthorizedResponse ).when( fileResource ).buildStatusResponse( UNAUTHORIZED );
+    doReturn( mockUnauthorizedResponse ).when( fileResource ).buildStatusResponse( Response.Status.UNAUTHORIZED );
 
     Throwable mockThrowable = mock( RuntimeException.class );
 
@@ -1458,8 +1458,26 @@ public class FileResourceTest {
     assertEquals( mockThrowableResponse, testResponse );
 
     verify( fileResource.fileService, times( 2 ) ).doSetMetadata( PATH_ID, metadata );
-    verify( fileResource, times( 1 ) ).buildStatusResponse( UNAUTHORIZED );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.UNAUTHORIZED );
     verify( mockThrowable, times( 1 ) ).getMessage();
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( errMsg );
+  }
+
+
+  @Test
+  public void testCustomMime() {
+    FileResource fileResource = new FileResource();
+    final FileService.RepositoryFileToStreamWrapper mock = mock( FileService.RepositoryFileToStreamWrapper.class );
+    when( mock.getOutputStream() ).thenReturn( new StreamingOutput() {
+      @Override public void write( OutputStream outputStream ) throws IOException, WebApplicationException {
+
+      }
+    } );
+    when( mock.getMimetype() ).thenReturn( "mime-message/text/html" );
+    final RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    when( repositoryFile.getName() ).thenReturn( "test" );
+    when( mock.getRepositoryFile() ).thenReturn( repositoryFile );
+    final Response response = fileResource.buildOkResponse( mock );
+    final MultivaluedMap<String, Object> metadata = response.getMetadata();
   }
 }

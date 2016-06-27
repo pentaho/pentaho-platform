@@ -1,0 +1,2 @@
+protocol=smtp; type=transport; class=org.pentaho.platform.scheduler2.email.MockMail;
+

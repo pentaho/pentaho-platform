@@ -12,18 +12,25 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.email;
 
-import java.io.InputStream;
-import java.util.Date;
-import java.util.Properties;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.email.IEmailService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.scheduler2.messsages.Messages;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 import javax.activation.DataHandler;
 import javax.mail.AuthenticationFailedException;
 import javax.mail.Authenticator;
+import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
@@ -36,21 +43,15 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.email.IEmailService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.scheduler2.messsages.Messages;
-import org.pentaho.platform.util.messages.LocaleHelper;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.Properties;
 
 public class Emailer {
 
   private static final Log logger = LogFactory.getLog( Emailer.class );
   private static final String MAILER = "smtpsend"; //$NON-NLS-1$
+  private static final String EMBEDDED_HTML = "mime-message/text/html";
 
   private Properties props = new Properties();
   private InputStream attachment = null;
@@ -166,6 +167,7 @@ public class Emailer {
       props.put( "mail.smtp.ssl", ObjectUtils.toString( service.getEmailConfig().isUseSsl() ) );
       props.put( "mail.smtp.quitwait", ObjectUtils.toString( service.getEmailConfig().isSmtpQuitWait() ) );
       props.put( "mail.from.default", service.getEmailConfig().getDefaultFrom() );
+
       String fromName = service.getEmailConfig().getFromName();
       if ( StringUtils.isEmpty( fromName ) ) {
         fromName = Messages.getInstance().getString( "schedulerEmailFromName" );
@@ -229,9 +231,66 @@ public class Emailer {
         session.setDebug( false );
       }
 
-      // construct the message
-      MimeMessage msg = new MimeMessage( session );
-      Multipart multipart = new MimeMultipart();
+      final MimeMessage msg;
+
+      if ( EMBEDDED_HTML.equals( attachmentMimeType ) ) {
+
+        //Message is ready
+        msg = new MimeMessage( session, attachment );
+
+        if ( body != null ) {
+          //We need to add message to the top of the email body
+          final MimeMultipart oldMultipart = (MimeMultipart) msg.getContent();
+          final MimeMultipart newMultipart = new MimeMultipart( "related" );
+
+
+          for ( int i = 0; i < oldMultipart.getCount(); i++ ) {
+            BodyPart bodyPart = oldMultipart.getBodyPart( i );
+
+            final Object content = bodyPart.getContent();
+            //Main HTML body
+            if ( content instanceof String ) {
+              final String newContent = body + "<br/><br/>" + content;
+              final MimeBodyPart part = new MimeBodyPart();
+              part.setText( newContent, "UTF-8", "html" );
+              newMultipart.addBodyPart( part );
+            } else {
+              //CID attachments
+              newMultipart.addBodyPart( bodyPart );
+            }
+          }
+
+
+          msg.setContent( newMultipart );
+        }
+      } else {
+
+        // construct the message
+        msg = new MimeMessage( session );
+        Multipart multipart = new MimeMultipart();
+
+        if ( attachment == null ) {
+          logger.error( "Email.ERROR_0015_ATTACHMENT_FAILED" ); //$NON-NLS-1$
+          return false;
+        }
+
+        ByteArrayDataSource dataSource = new ByteArrayDataSource( attachment, attachmentMimeType );
+
+        if ( body != null ) {
+          MimeBodyPart bodyMessagePart = new MimeBodyPart();
+          bodyMessagePart.setText( body, LocaleHelper.getSystemEncoding() );
+          multipart.addBodyPart( bodyMessagePart );
+        }
+
+        // attach the file to the message
+        MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+        attachmentBodyPart.setDataHandler( new DataHandler( dataSource ) );
+        attachmentBodyPart.setFileName( MimeUtility.encodeText( attachmentName, "UTF-8", null ) );
+        multipart.addBodyPart( attachmentBodyPart );
+
+        // add the Multipart to the message
+        msg.setContent( multipart );
+      }
 
       if ( from != null ) {
         msg.setFrom( new InternetAddress( from, fromName ) );
@@ -254,27 +313,6 @@ public class Emailer {
         msg.setSubject( subject, LocaleHelper.getSystemEncoding() );
       }
 
-      if ( attachment == null ) {
-        logger.error( "Email.ERROR_0015_ATTACHMENT_FAILED" ); //$NON-NLS-1$
-        return false;
-      }
-
-      ByteArrayDataSource dataSource = new ByteArrayDataSource( attachment, attachmentMimeType );
-
-      if ( body != null ) {
-        MimeBodyPart bodyMessagePart = new MimeBodyPart();
-        bodyMessagePart.setText( body, LocaleHelper.getSystemEncoding() );
-        multipart.addBodyPart( bodyMessagePart );
-      }
-
-      // attach the file to the message
-      MimeBodyPart attachmentBodyPart = new MimeBodyPart();
-      attachmentBodyPart.setDataHandler( new DataHandler( dataSource ) );
-      attachmentBodyPart.setFileName( MimeUtility.encodeText( attachmentName, "UTF-8", null ) );
-      multipart.addBodyPart( attachmentBodyPart );
-
-      // add the Multipart to the message
-      msg.setContent( multipart );
 
       msg.setHeader( "X-Mailer", Emailer.MAILER ); //$NON-NLS-1$
       msg.setSentDate( new Date() );
