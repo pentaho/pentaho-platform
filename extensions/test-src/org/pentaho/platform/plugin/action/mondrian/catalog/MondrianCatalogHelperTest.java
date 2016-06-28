@@ -12,18 +12,60 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
-import mondrian.olap.CacheControl;
-import mondrian.olap.Connection;
-import mondrian.olap.Schema;
-import mondrian.olap.Util.PropertyList;
-import mondrian.spi.DynamicSchemaProcessor;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeFileObject;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeIdObject;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.pathPropertyPair;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFolder;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetChildren;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFileDoesNotExist;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFolder;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.olap4j.OlapConnection;
@@ -35,6 +77,7 @@ import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -48,31 +91,27 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.cache.CacheManager;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.plugin.UserRoleMapperTest.TestUserRoleListService;
 
-import java.io.*;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
+import mockit.MockUp;
+import mockit.NonStrictExpectations;
+import mondrian.olap.CacheControl;
+import mondrian.olap.Connection;
+import mondrian.olap.Schema;
+import mondrian.olap.Util.PropertyList;
+import mondrian.spi.DynamicSchemaProcessor;
+import mondrian.xmla.DataSourcesConfig;
+import mondrian.xmla.DataSourcesConfig.Catalog;
+import mondrian.xmla.DataSourcesConfig.Catalogs;
+import mondrian.xmla.DataSourcesConfig.DataSource;
 
 @SuppressWarnings( "nls" )
 public class MondrianCatalogHelperTest {
 
+  private static final String DEFINITION = "mondrian:";
   private static final String CATALOG_NAME = "SteelWheels";
 
   // ~ Instance fields
@@ -519,5 +558,62 @@ public class MondrianCatalogHelperTest {
 
     String result = helperMock.generateInMemoryDatasourcesXml( unifiedRepositoryMock );
     assertNull( result, null );
+  }
+
+  @Test
+  public void testLoadCatalogsIntoCache() {
+    DataSourcesConfig.DataSources dsList = new DataSourcesConfig.DataSources();
+
+    dsList.dataSources = new DataSource[1];
+    DataSource ds = new DataSource();
+    dsList.dataSources[0] = ds;
+
+    ds.catalogs = new Catalogs();
+    ds.catalogs.catalogs = new Catalog[1];
+
+    Catalog ct = new Catalog();
+    ct.definition = DEFINITION;
+
+    ds.catalogs.catalogs[0] = ct;
+
+    MockUp<ICacheManager> cmMock = new MockUp<ICacheManager>() {
+
+      Object cacheValue;
+
+      @mockit.Mock
+      public boolean cacheEnabled( String s ) {
+        return true;
+      }
+
+      @mockit.Mock
+      public Object getFromRegionCache( String s, Object obj ) {
+        return cacheValue;
+      }
+
+      @mockit.Mock
+      public void putInRegionCache( String s, Object obj, Object obj1 ) {
+        cacheValue = obj1;
+      }
+    };
+    final ICacheManager cm = cmMock.getMockInstance();
+
+    new NonStrictExpectations( PentahoSystem.class ) {
+      {
+        PentahoSystem.getCacheManager( null );
+        result = cm;
+      }
+    };
+
+    helper.loadCatalogsIntoCache( dsList, null );
+
+    Object cacheValue = cm.getFromRegionCache( null, null );
+    Assert.assertTrue( Map.class.isInstance( cacheValue ) );
+    Map<?, ?> map = (Map<?, ?>) cacheValue;
+
+    for ( Object item : map.values() ) {
+      Assert.assertTrue( MondrianCatalog.class.isInstance( item ) );
+      MondrianCatalog catalog = (MondrianCatalog) item;
+      Assert.assertEquals( DEFINITION, catalog.getDefinition() );
+    }
   }
 }
