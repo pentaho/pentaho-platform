@@ -57,10 +57,11 @@
       		<exclude org="dom4j" name="dom4j" />
       		<exclude org="net.sf.ehcache" name="ehcache" />
       		<!-- CM-241 -->
-      		<exclude org="cglib" name="cglib" />      
+      		<exclude org="cglib" name="cglib" />
+					<exclude org="antlr" name="antlr" />
     	</dependency>
     		<!-- CM-241 -->
-		<dependency org="antlr"             name="antlr"     rev="2.7.6"    transitive="false"/>
+		<dependency org="org.antlr"         name="antlr-complete"     rev="3.5.2"    transitive="false"/>
 		<dependency org="asm"               name="asm"       rev="3.1"    transitive="false"/>
 		<dependency org="asm"               name="asm-attrs" rev="2.2.3"    transitive="false"/>
     	<dependency org="cglib" name="cglib-nodep" rev="2.2" transitive="false" />
