@@ -48,6 +48,7 @@
 			<util:map id="convertersMap">
 				<entry key="mondrian.xml" value-ref="streamConverter"/>
 				<entry key="jpeg" value-ref="streamConverter"/>
+				<entry key="eml" value-ref="streamConverter"/>
 			</util:map>
 		</constructor-arg>
 	</bean>

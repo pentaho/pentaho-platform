@@ -62,7 +62,10 @@
         <extension>xjpivot</extension>
         <extension>xml</extension>
         <extension>xreportspec</extension>
-      </MimeTypeDefinition>      
+      </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/octet-stream" hidden="false">
+        <extension>eml</extension>
+      </MimeTypeDefinition>
     </MimeTypeDefinitions>
   </ImportHandler>
   
