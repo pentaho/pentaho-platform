@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -23,6 +23,7 @@ import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.web.http.api.resources.utils.EscapeUtils;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,6 +31,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -108,7 +110,8 @@ public class UserSettingsResource extends AbstractJaxRSResource {
     IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
 
     //preventing stored XSS(PPP-3464)
-    settingValue = settingValue.replaceAll( "&", "&amp;" ).replaceAll( "\"", "&quot;" ).replaceAll( "<", "&lt;" ).replaceAll( ">", "&gt;" );
+
+    settingValue = EscapeUtils.escapeJsonOrRaw( settingValue );
     settingsService.setUserSetting( setting, settingValue );
     return Response.ok( settingValue ).build();
   }
