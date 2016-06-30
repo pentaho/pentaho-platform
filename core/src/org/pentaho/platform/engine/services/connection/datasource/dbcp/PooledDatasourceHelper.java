@@ -332,7 +332,12 @@ public class PooledDatasourceHelper {
       String driverClassName =
           databaseConnection.getAttributes().get( GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS );
       if ( !StringUtils.isEmpty( driverClassName ) ) {
-        basicDatasource.setDriverClassName( driverClassName );
+        try {
+          basicDatasource.setDriverClassName( driverClassName );
+        } catch ( Throwable th ) {
+          throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
+              "PooledDatasourceHelper.ERROR_0002_DATASOURCE_CREATE_ERROR_NO_CLASSNAME", databaseConnection.getName() ), th );
+        }
       } else {
         // We do not have enough information to create a DataSource. Throwing exception
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
@@ -341,13 +346,17 @@ public class PooledDatasourceHelper {
 
     } else {
       if ( !StringUtils.isEmpty( dialect.getNativeDriver() ) ) {
-        basicDatasource.setDriverClassName( dialect.getNativeDriver() );
+        try {
+          basicDatasource.setDriverClassName( dialect.getNativeDriver() );
+        } catch ( Throwable th ) {
+          throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
+              "PooledDatasourceHelper.ERROR_0002_DATASOURCE_CREATE_ERROR_NO_CLASSNAME", databaseConnection.getName() ), th );
+        }
       } else {
         // We do not have enough information to create a DataSource. Throwing exception
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
             "PooledDatasourceHelper.ERROR_0003_DATASOURCE_CREATE_ERROR_NO_DRIVER", databaseConnection.getName() ) );
       }
-
     }
     try {
       basicDatasource.setUrl( dialect.getURLWithExtraOptions( databaseConnection ) );
