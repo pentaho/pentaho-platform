@@ -20,7 +20,6 @@ package org.pentaho.platform.web.http.api.resources;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.web.http.api.resources.UserSettingsResource;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
@@ -49,6 +48,6 @@ public class UserSettingsResourceTest {
     PentahoSystem.registerObject( userSettingService );
     Response response = userSettingsResource.setUserSetting( "favorites", "[{\"fullPath\":\"/public/Steel Wheels/Top Customers (report).prpt\", \"title\":\"<script>if(true&&'str'!='str2')alert(1)</script>\", \"lastUse\":0}]" );
 
-    verify( userSettingService ).setUserSetting( "favorites", "[{&quot;fullPath&quot;:&quot;/public/Steel Wheels/Top Customers (report).prpt&quot;, &quot;title&quot;:&quot;&lt;script&gt;if(true&amp;&amp;'str'!='str2')alert(1)&lt;/script&gt;&quot;, &quot;lastUse&quot;:0}]" );
+    verify( userSettingService ).setUserSetting( "favorites", "[{\"fullPath\":\"/public/Steel Wheels/Top Customers (report).prpt\",\"title\":\"\\u003Cscript\\u003Eif(true\\u0026\\u0026\\u0027str\\u0027!=\\u0027str2\\u0027)alert(1)\\u003C/script\\u003E\",\"lastUse\":0}]" );
   }
 }
