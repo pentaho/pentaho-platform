@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.ui.xul;
@@ -883,7 +883,7 @@ public class MantleController extends AbstractXulEventHandler {
         setContentEditEnabled( true );
       }
     };
-    loadOverlayTimer.schedule( 800 );
+    loadOverlayTimer.schedule( 1800 );
 
     model.setContentEditToggled();
 
