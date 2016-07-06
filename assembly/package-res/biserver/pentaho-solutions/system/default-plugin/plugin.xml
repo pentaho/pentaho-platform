@@ -44,5 +44,16 @@
     <static-path url="/default-plugin/resources" localFolder="resources"/>
   </static-paths>
 
+   <!-- Adds a new menu item 'Kettle Status' under Tools menu. This menuitem makes the Data Integration status page available in Pentaho server. -->
+
+	<!-- overlays>
+	<overlay id="startup_tools_kettle_status" resourcebundle="content/default-plugin/resources/messages/messages">
+	   <menubar id="toolsmenu">
+	        <menuitem id="kettleStatusPageMenuItemId" label="${kettle.status.page}"
+	              command="mantleXulHandler.openUrl('${kettle.status.page}','${kettle.status.page}', 'kettle/status')"	>
+	        </menuitem>
+	   </menubar>
+	</overlay>
+	</overlays -->
 
 </plugin>
