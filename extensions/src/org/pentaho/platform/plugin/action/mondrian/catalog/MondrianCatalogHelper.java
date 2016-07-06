@@ -17,19 +17,28 @@
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
-import mondrian.i18n.LocalizingDynamicSchemaProcessor;
-import mondrian.olap.Connection;
-import mondrian.olap.MondrianDef;
-import mondrian.olap.MondrianException;
-import mondrian.olap.Util;
-import mondrian.olap.Util.PropertyList;
-import mondrian.rolap.RolapConnectionProperties;
-import mondrian.spi.DynamicSchemaProcessor;
-import mondrian.util.ClassResolver;
-import mondrian.xmla.DataSourcesConfig;
-import mondrian.xmla.DataSourcesConfig.DataSources;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.io.IOUtils;
@@ -41,7 +50,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
-
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -84,28 +92,19 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import com.google.common.annotations.VisibleForTesting;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import mondrian.i18n.LocalizingDynamicSchemaProcessor;
+import mondrian.olap.Connection;
+import mondrian.olap.MondrianDef;
+import mondrian.olap.MondrianException;
+import mondrian.olap.Util;
+import mondrian.olap.Util.PropertyList;
+import mondrian.rolap.RolapConnectionProperties;
+import mondrian.spi.DynamicSchemaProcessor;
+import mondrian.util.ClassResolver;
+import mondrian.xmla.DataSourcesConfig;
+import mondrian.xmla.DataSourcesConfig.DataSources;
 
 /**
  * Reads in file containing Mondrian data sources and catalogs. (Contains code copied from <code>XmlaServlet</code>.)
@@ -165,6 +164,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     }
     // Sort
     Collections.sort( catalogs, new Comparator<MondrianCatalog>() {
+      @Override
       public int compare( MondrianCatalog o1, MondrianCatalog o2 ) {
         return o1.getName().compareTo( o2.getName() );
       }
@@ -225,6 +225,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    *
    * @deprecated Please use PentahoSystem.get to get the Mondrian Catalog Service
    */
+  @Deprecated
   public static MondrianCatalogHelper getInstance() {
     // IMondrianCatalogService is a singleton; IPentahoSession not required
     return (MondrianCatalogHelper) PentahoSystem
@@ -273,6 +274,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     loadCatalogsIntoCache( makeDataSources(), PentahoSessionHolder.getSession() );
   }
 
+  @Override
   public synchronized void reInit( final IPentahoSession pentahoSession ) {
     final ICacheManager cacheMgr = PentahoSystem.getCacheManager( pentahoSession );
     if ( cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION ) ) {
@@ -550,6 +552,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     this.dataSourcesConfig = dataSourcesConfig;
   }
 
+  @Override
   public List<MondrianCatalog> listCatalogs( final IPentahoSession pentahoSession, final boolean jndiOnly ) {
     if ( MondrianCatalogHelper.logger.isDebugEnabled() ) {
       MondrianCatalogHelper.logger.debug( "listCatalogs" ); //$NON-NLS-1$
@@ -563,6 +566,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   /**
    * use the in memory session value of input stream (used by test harness)
    */
+  @Override
   public synchronized void addCatalog( final MondrianCatalog catalog, final boolean overwrite,
       final IPentahoSession pentahoSession ) throws MondrianCatalogServiceException {
     String mondrianSchema = (String) pentahoSession.getAttribute( "MONDRIAN_SCHEMA_XML_CONTENT" ); //$NON-NLS-1$
@@ -573,6 +577,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void addCatalog( InputStream inputStream, MondrianCatalog catalog, boolean overwriteInRepossitory,
                                     IPentahoSession session ) {
     addCatalog( inputStream, catalog, overwriteInRepossitory, null, session );
@@ -588,6 +593,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    * @param pentahoSession
    * @throws MondrianCatalogServiceException
    */
+  @Override
   public synchronized void addCatalog( InputStream schemaInputStream, final MondrianCatalog catalog,
       final boolean overwrite, RepositoryFileAcl acl, final IPentahoSession pentahoSession )
     throws MondrianCatalogServiceException {
@@ -797,6 +803,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     IOUtils.closeQuietly( sxml );
   }
 
+  @Override
   public MondrianCatalog getCatalog( final String context, final IPentahoSession pentahoSession ) {
     if ( MondrianCatalogHelper.logger.isDebugEnabled() ) {
       MondrianCatalogHelper.logger.debug( "getCatalog" ); //$NON-NLS-1$
@@ -827,17 +834,19 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   protected void loadCatalogsIntoCache( final DataSourcesConfig.DataSources dataSources,
       final IPentahoSession pentahoSession ) {
-
     // Create the cache region if necessary.
     ICacheManager cacheMgr = PentahoSystem.getCacheManager( pentahoSession );
     if ( !cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION ) ) {
       // Create the region
       cacheMgr.addCacheRegion( MONDRIAN_CATALOG_CACHE_REGION );
     }
-    if ( cacheMgr.getFromRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() ) == null ) {
-      // Put the map in the region
-      cacheMgr.putInRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString(),
-          new HashMap<String, List<MondrianCatalog>>() );
+    Map<String, MondrianCatalog> catalogs =
+        (Map<String, MondrianCatalog>) cacheMgr.getFromRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale()
+            .toString() );
+    if ( catalogs == null ) {
+      catalogs = new HashMap<String, MondrianCatalog>();
+    } else {
+      return;
     }
 
     for ( DataSourcesConfig.DataSource dataSource : dataSources.dataSources ) {
@@ -846,13 +855,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
         catalogNames.add( catalog.name );
       }
 
-      Map<String, MondrianCatalog> catalogs =
-          (Map<String, MondrianCatalog>) cacheMgr.getFromRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale()
-              .toString() );
-
       for ( DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs ) {
-        if ( catalog.definition.startsWith( "mondrian:" ) || catalog.definition
-            .startsWith( "solution:" ) ) { //$NON-NLS-1$
+        if ( catalog.definition.startsWith( "mondrian:" ) || catalog.definition.startsWith( "solution:" ) ) { //$NON-NLS-2$
 
           // try catch here so the whole thing doesn't blow up if one datasource is configured incorrectly.
           MondrianSchema schema = null;
@@ -884,6 +888,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
         }
       }
     }
+
+    cacheMgr.putInRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString(), catalogs );
   }
 
   protected String applyDSP( IPentahoSession ps, String catalogDsInfo, String catalogDefinition ) throws Exception {
@@ -966,6 +972,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    * @param pentahoSession   current session object
    * @return Mondrian Schema object.
    */
+  @Override
   public MondrianSchema loadMondrianSchema( final String solutionLocation, final IPentahoSession pentahoSession ) {
     return makeSchema( docAtUrlToString( solutionLocation, pentahoSession ) );
   }
@@ -1176,6 +1183,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   /**
    * This method removes a mondrian catalog from the JCR repository.
    */
+  @Override
   public void removeCatalog( final String catalogName, final IPentahoSession pentahoSession )
     throws MondrianCatalogServiceException {
 
