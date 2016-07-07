@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mdx;
@@ -20,7 +20,9 @@ package org.pentaho.platform.plugin.action.mdx;
 import mondrian.olap.Util;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.util.Pair;
+
 import org.apache.commons.logging.Log;
+import org.apache.commons.vfs2.FileObject;
 import org.pentaho.actionsequence.dom.ActionInputConstant;
 import org.pentaho.actionsequence.dom.IActionOutput;
 import org.pentaho.actionsequence.dom.actions.MdxConnectionAction;
@@ -40,6 +42,7 @@ import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXResultSet;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -478,18 +481,21 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
       if ( ( catalog == null ) && ( connAction.getCatalogResource() != null ) ) {
         IActionSequenceResource resource = getResource( connAction.getCatalogResource().getName() );
         catalog = resource.getAddress();
-        if ( ( resource.getSourceType() == IActionSequenceResource.URL_RESOURCE )
-            && ( catalog.indexOf( "solution:" ) != 0 ) ) { //$NON-NLS-1$
-          // Extra step to make sure that remote mondrian models
-          // fully qualified aren't munged
-          // MB
-          if ( !catalog.startsWith( "http:" ) ) { //$NON-NLS-1$ 
-            catalog = "solution:" + catalog; //$NON-NLS-1$
-          }
-        } else if ( ( resource.getSourceType() == IActionSequenceResource.SOLUTION_FILE_RESOURCE )
-            || ( resource.getSourceType() == IActionSequenceResource.FILE_RESOURCE ) ) {
-          if ( !catalog.startsWith( "solution:" ) ) {
-            catalog = "solution:" + catalog; //$NON-NLS-1$
+
+        if ( !isCatalogVfsAccepted( catalog ) ) {
+          if ( ( resource.getSourceType() == IActionSequenceResource.URL_RESOURCE )
+              && ( catalog.indexOf( "solution:" ) != 0 ) ) { //$NON-NLS-1$
+            // Extra step to make sure that remote mondrian models
+            // fully qualified aren't munged
+            // MB
+            if ( !catalog.startsWith( "http:" ) ) { //$NON-NLS-1$ 
+              catalog = "solution:" + catalog; //$NON-NLS-1$
+            }
+          } else if ( ( resource.getSourceType() == IActionSequenceResource.SOLUTION_FILE_RESOURCE )
+              || ( resource.getSourceType() == IActionSequenceResource.FILE_RESOURCE ) ) {
+            if ( !catalog.startsWith( "solution:" ) ) {
+              catalog = "solution:" + catalog; //$NON-NLS-1$
+            }
           }
         }
       }
@@ -527,9 +533,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
 
             connectStr = "dataSource=" + jndiStr + "; Catalog=" + catalog; //$NON-NLS-1$ //$NON-NLS-2$
             // Add extra definitions from platform mondrian metadata
-            MondrianCatalog mc =
-                org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper.getInstance().getCatalog(
-                  catalog, getSession() );
+            MondrianCatalog mc = MondrianCatalogHelper.getInstance().getCatalog( catalog, getSession() );
             try {
               connectStr += ";" + mc.getDataSourceInfo();
             } catch ( Exception e ) {
@@ -593,4 +597,18 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
   protected String applyInputsToFormat( String format ) {
     return super.applyInputsToFormat( format );
   }
+
+  boolean isCatalogVfsAccepted( String catalog ) {
+    try {
+      FileObject f = org.apache.commons.vfs2.VFS.getManager().resolveFile( catalog );
+      return ( f != null );
+    } catch ( Exception e ) {
+      Log logger = getLogger();
+      if ( logger != null ) {
+        logger.trace( "Catalog is not accessible: " + catalog, e );
+      }
+      return false;
+    }
+  }
+
 }

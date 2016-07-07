@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -23,6 +23,7 @@ package org.pentaho.platform.plugin.action.mdx;
 
 import org.apache.commons.logging.Log;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +50,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXResultSet;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -551,6 +553,69 @@ public class MDXBaseComponentTest {
     IPentahoConnection connectionOrig = mdxBaseComponent.getConnectionOrig();
     assertNotNull( connectionOrig );
     assertEquals( mdxConnection, connectionOrig );
+  }
+
+  @Test
+  public void testGetConnectionOrig_nullConnectionProps_noConnString2() throws Exception {
+    doReturn( connAction ).when( mdxBaseComponent ).getActionDefinition();
+    when( connAction.getMdxConnectionString() ).thenReturn( connectionStringAction );
+    when( connectionStringAction.getStringValue() ).thenReturn( null );
+    when( connAction.getConnectionProps() ).thenReturn( actionInput );
+    when( actionInput.getValue() ).thenReturn( null );
+
+    when( connAction.getConnection() ).thenReturn( jdbcAction );
+    when( jdbcAction.getStringValue() ).thenReturn( "psql://localhost:5432" );
+
+    when( connAction.getJndi() ).thenReturn( jndiAction );
+    when( jndiAction.getStringValue() ).thenReturn( "jndi string" );
+
+    when( connAction.getLocation() ).thenReturn( locationAction );
+    when( locationAction.getStringValue() ).thenReturn( "location string" );
+
+    when( connAction.getRole() ).thenReturn( roleAction );
+    when( roleAction.getStringValue() ).thenReturn( "role string" );
+
+    when( connAction.getCatalog() ).thenReturn( catalog );
+    //    when( catalog.getStringValue() ).thenReturn( "<catalog></catalog>" );
+    when( catalog.getStringValue() ).thenReturn( null );
+
+    when( connAction.getCatalogResource() ).thenReturn( catalogResource );
+    when( catalogResource.getName() ).thenReturn( "catalog name" );
+
+    when( connAction.getUserId() ).thenReturn( userAction );
+    when( connAction.getPassword() ).thenReturn( userAction );
+    when( userAction.getStringValue() ).thenReturn( "user/pass" );
+
+    PentahoSystem.registerObject( mdxConnection );
+    PentahoSystem.registerPrimaryObjectFactory( objFactory );
+    PentahoSessionHolder.setSession( session );
+
+    when( objFactory.get( any( Class.class ), anyString(), any( IPentahoSession.class ) ) ).thenReturn( mdxConnection );
+
+    mdxBaseComponent.setRuntimeContext( runtimeContext );
+    when( runtimeContext.getResourceDefintion( "catalog name" ) ).thenReturn( catalogActionSeqRes );
+
+    when( catalogActionSeqRes.getSourceType() ).thenReturn( IActionSequenceResource.URL_RESOURCE );
+
+    final String urlFileExists = ( new File( "test-res/MDXBaseComponentTest/SampleData.mondrian.xml" ) ).toURL().toString();
+    when( catalogActionSeqRes.getAddress() ).thenReturn( urlFileExists );
+
+    when( connAction.getExtendedColumnNames() ).thenReturn( ActionInputConstant.NULL_INPUT );
+
+    IPentahoConnection connectionOrig = mdxBaseComponent.getConnectionOrig();
+    assertNotNull( connectionOrig );
+    assertEquals( mdxConnection, connectionOrig );
+  }
+
+  @Test
+  public void testIsCatalogVfsAccepted() throws Exception {
+
+    final String urlValidExists = ( new File( "test-res/MDXBaseComponentTest/SampleData.mondrian.xml" ) ).toURL().toString();
+    final String urlValidNotExists = ( new File( "test-res/MDXBaseComponentTest/000000000" ) ).toURL().toString();
+    final String urlInvalid = "---abracadabra---";
+    Assert.assertEquals( true, mdxBaseComponent.isCatalogVfsAccepted( urlValidExists ) );
+    Assert.assertEquals( true, mdxBaseComponent.isCatalogVfsAccepted( urlValidNotExists ) );
+    Assert.assertEquals( false, mdxBaseComponent.isCatalogVfsAccepted( urlInvalid ) );
   }
 
   @After
