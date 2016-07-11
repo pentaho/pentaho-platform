@@ -1284,12 +1284,10 @@ a:active, a:hover {
 
 .users-roles-list {
   height: 432px;
-  width: 200px;
 }
 
 .users-roles-selection-list {
   height: 317px;
-  width: 200px;
 }
 
 #admin-roles-panel .users-roles-selection-list {

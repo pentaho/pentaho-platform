@@ -70,3 +70,29 @@ function translateInnerMouseEvent(element, srcEvent) {
   }
   return event;
 }
+
+function prepareHorizontalScroll( id ) {
+    var outerDivId = '#' + id;
+    var selectSelector = outerDivId + ' select';
+    var helperDivSelector = outerDivId + ' div:last';
+    $(helperDivSelector).css('width', $(selectSelector).outerWidth());
+    $(selectSelector).css('width', $(outerDivId).outerWidth());
+    $(outerDivId).scroll(function() {
+        $(selectSelector).css('width', $(this).outerWidth() + $(this).scrollLeft());
+    });
+}
+
+function updateHelperDiv( id ) {
+    var outerDivId = '#' + id;
+    var selectSelector = outerDivId + ' select';
+    var helperDivSelector = outerDivId + ' div:last';
+    var selectStyle = $(selectSelector).prop('style');
+    if( selectStyle != null ) {
+        //remove width to get element client width
+        selectStyle.removeProperty('width');
+        //set select full width
+        $(helperDivSelector).css('width', $(selectSelector).outerWidth());
+        //restore select width to fixed
+        $(selectSelector).css('width', $(outerDivId).outerWidth());
+    }
+}

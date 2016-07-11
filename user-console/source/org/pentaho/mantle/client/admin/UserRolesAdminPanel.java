@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.admin;
@@ -28,6 +28,8 @@ import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.buttons.ThemeableImageButton;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.ui.custom.HorizontalScrollWrapper;
+import org.pentaho.mantle.client.ui.custom.ListBoxTitle;
 
 public class UserRolesAdminPanel extends SimplePanel {
 
@@ -83,8 +85,6 @@ public class UserRolesAdminPanel extends SimplePanel {
     mainPanel.add( vSpacer );
 
     mainTabPanel = new PentahoTabPanel();
-    mainTabPanel.setWidth( "715px" );
-    mainTabPanel.setHeight( "510px" );
     mainTabPanel.addTab( Messages.getString( "manageUsers" ), "", false, createUsersPanel() );
     mainTabPanel.addTab( Messages.getString( "manageRoles" ), "", false, createRolesPanel() );
     mainTabPanel.addTab( Messages.getString( "systemRoles" ), "", false, createSystemRolesPanel() );
@@ -123,9 +123,10 @@ public class UserRolesAdminPanel extends SimplePanel {
     deleteUserButton = new ThemeableImageButton( removeButtonStyles, null, Messages.getString( "delete" ) );
     labelAndButtonsPanel.add( deleteUserButton );
 
-    usersListBox = new ListBox( true );
+    usersListBox = new ListBoxTitle( true );
     usersListBox.addStyleName( "users-roles-list" );
-    availablePanel.add( usersListBox );
+    HorizontalScrollWrapper usersListBoxWrapper = new HorizontalScrollWrapper( usersListBox );
+    availablePanel.add( usersListBoxWrapper );
     usersListBox.setVisibleItemCount( 20 );
 
     hSpacer = new SimplePanel();
@@ -173,8 +174,9 @@ public class UserRolesAdminPanel extends SimplePanel {
     VerticalPanel availableRolesPanel = new VerticalPanel();
     groupsPanel.add( availableRolesPanel );
     availableRolesPanel.add( new Label( Messages.getString( "available" ) + ":" ) );
-    availableRolesListBox = new ListBox( true );
-    availableRolesPanel.add( availableRolesListBox );
+    availableRolesListBox = new ListBoxTitle( true );
+    HorizontalScrollWrapper availableRolesListBoxWrapper = new HorizontalScrollWrapper( availableRolesListBox );
+    availableRolesPanel.add( availableRolesListBoxWrapper );
     availableRolesListBox.setVisibleItemCount( 20 );
     availableRolesListBox.addStyleName( "users-roles-selection-list" );
 
@@ -214,8 +216,9 @@ public class UserRolesAdminPanel extends SimplePanel {
     VerticalPanel selectedRolesPanel = new VerticalPanel();
     groupsPanel.add( selectedRolesPanel );
     selectedRolesPanel.add( new Label( Messages.getString( "selected" ) + ":" ) );
-    selectedRolesListBox = new ListBox( true );
-    selectedRolesPanel.add( selectedRolesListBox );
+    selectedRolesListBox = new ListBoxTitle( true );
+    HorizontalScrollWrapper selectedRolesListBoxWrapper = new HorizontalScrollWrapper( selectedRolesListBox );
+    selectedRolesPanel.add( selectedRolesListBoxWrapper );
     selectedRolesListBox.setVisibleItemCount( 20 );
     selectedRolesListBox.addStyleName( "users-roles-selection-list" );
 
@@ -240,8 +243,9 @@ public class UserRolesAdminPanel extends SimplePanel {
     labelAndButtonsPanel.add( new Label( Messages.getString( "rolesColon" ) ) );
     labelAndButtonsPanel.setStyleName( "pentaho-fieldgroup-minor" );
 
-    systemRolesListBox = new ListBox( true );
-    availablePanel.add( systemRolesListBox );
+    systemRolesListBox = new ListBoxTitle( true );
+    HorizontalScrollWrapper systemRolesListBoxWrapper = new HorizontalScrollWrapper( systemRolesListBox );
+    availablePanel.add( systemRolesListBoxWrapper );
     systemRolesListBox.setVisibleItemCount( 20 );
     systemRolesListBox.addStyleName( "users-roles-list" );
 
@@ -293,8 +297,9 @@ public class UserRolesAdminPanel extends SimplePanel {
     deleteRoleButton = new ThemeableImageButton( removeButtonStyles, null, Messages.getString( "delete" ) );
     labelAndButtonsPanel.add( deleteRoleButton );
 
-    rolesListBox = new ListBox( true );
-    availablePanel.add( rolesListBox );
+    rolesListBox = new ListBoxTitle( true );
+    HorizontalScrollWrapper rolesListBoxWrapper = new HorizontalScrollWrapper( rolesListBox );
+    availablePanel.add( rolesListBoxWrapper );
     rolesListBox.setVisibleItemCount( 20 );
     rolesListBox.addStyleName( "users-roles-list" );
 
@@ -332,8 +337,9 @@ public class UserRolesAdminPanel extends SimplePanel {
     usersPanel.add( availableMembersPanel );
 
     availableMembersPanel.add( new Label( Messages.getString( "available" ) + ":" ) );
-    availableMembersListBox = new ListBox( true );
-    availableMembersPanel.add( availableMembersListBox );
+    availableMembersListBox = new ListBoxTitle( true );
+    HorizontalScrollWrapper availableMembersListBoxWrapper = new HorizontalScrollWrapper( availableMembersListBox );
+    availableMembersPanel.add( availableMembersListBoxWrapper );
     availableMembersListBox.setVisibleItemCount( 20 );
     availableMembersListBox.addStyleName( "users-roles-selection-list" );
 
@@ -373,8 +379,9 @@ public class UserRolesAdminPanel extends SimplePanel {
     VerticalPanel selectedMembersPanel = new VerticalPanel();
     usersPanel.add( selectedMembersPanel );
     selectedMembersPanel.add( new Label( Messages.getString( "selected" ) + ":" ) );
-    selectedMembersListBox = new ListBox( true );
-    selectedMembersPanel.add( selectedMembersListBox );
+    selectedMembersListBox = new ListBoxTitle( true );
+    HorizontalScrollWrapper selectedMembersListBoxWrapper = new HorizontalScrollWrapper( selectedMembersListBox );
+    selectedMembersPanel.add( selectedMembersListBoxWrapper );
     selectedMembersListBox.setVisibleItemCount( 20 );
     selectedMembersListBox.addStyleName( "users-roles-selection-list" );
 
