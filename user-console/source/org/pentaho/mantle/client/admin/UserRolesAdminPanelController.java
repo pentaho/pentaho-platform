@@ -44,6 +44,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import org.pentaho.mantle.client.ui.custom.HorizontalScrollWrapper;
 
 public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel,
     UpdatePasswordController {
@@ -144,6 +145,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
           checkForError( Messages.getString( "Error" ), response );
           availableMembersListBox.clear();
           selectedMembersListBox.clear();
+          updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( availableMembersListBox ) );
+          updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( selectedMembersListBox ) );
           initializeRoles( null, "api/userroledao/roles", rolesListBox );
           initializeAvailableUsers( usersListBox.getValue( usersListBox.getSelectedIndex() ) );
         }
@@ -190,6 +193,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
           userPasswordTextBox.setText( "" );
           availableRolesListBox.clear();
           selectedRolesListBox.clear();
+          updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( availableMembersListBox ) );
+          updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( selectedMembersListBox ) );
           editPasswordButton.setEnabled( false );
           initializeAvailableUsers( null );
           initializeRoles( rolesListBox.getValue( rolesListBox.getSelectedIndex() ), "api/userroledao/roles",
@@ -274,6 +279,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
             listBox.setSelectedIndex( 0 );
             DomEvent.fireNativeEvent( event, listBox );
           }
+          updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( listBox ) );
         }
       } );
     } catch ( RequestException e ) {
@@ -312,6 +318,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
           for ( String role : getSortedItems( "roles", response ) ) {
             selectedRolesListBox.addItem( role );
           }
+          updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( selectedRolesListBox ) );
 
           Timer t = new Timer() {
             public void run() {
@@ -331,6 +338,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
                     availableRolesListBox.addItem( role );
                   }
                 }
+                updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( availableRolesListBox ) );
               }
             }
           };
@@ -360,7 +368,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
           for ( String user : getSortedItems( "users", response ) ) {
             selectedMembersListBox.addItem( user );
           }
-
+          updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( selectedMembersListBox ) );
           Timer t = new Timer() {
             public void run() {
               if ( usersListBox.getItemCount() > 0 ) {
@@ -379,6 +387,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
                     availableMembersListBox.addItem( user );
                   }
                 }
+                updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( availableMembersListBox ) );
               }
             }
           };
@@ -543,6 +552,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         editPasswordButton.setEnabled( false );
         availableRolesListBox.clear();
         selectedRolesListBox.clear();
+        updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( availableRolesListBox ) );
+        updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( selectedRolesListBox ) );
       } else {
         String user = usersListBox.getValue( usersListBox.getSelectedIndex() );
         if ( !StringUtils.isEmpty( user ) ) {
@@ -559,6 +570,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       if ( hasMultiselection( rolesListBox ) ) {
         availableMembersListBox.clear();
         selectedMembersListBox.clear();
+        updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( availableRolesListBox ) );
+        updateHelperDiv( HorizontalScrollWrapper.getListBoxWrapperUIId( selectedRolesListBox ) );
       } else {
         String role = rolesListBox.getValue( rolesListBox.getSelectedIndex() );
         if ( !StringUtils.isEmpty( role ) ) {
@@ -749,5 +762,12 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   private final native String encodeUri( String URI )
   /*-{
     return encodeURIComponent(URI);
+  }-*/;
+
+  /**
+   * Update helper div width if listbox is updated
+   */
+  private static native void updateHelperDiv( String id ) /*-{
+      $wnd.updateHelperDiv( id );
   }-*/;
 }
