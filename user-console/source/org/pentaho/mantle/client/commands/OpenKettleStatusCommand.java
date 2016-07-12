@@ -51,11 +51,7 @@ public class OpenKettleStatusCommand extends AbstractCommand {
           ? GWT.getHostPageBaseURL() : ( GWT.getHostPageBaseURL() + "/" );
         String kettleStatusUrl = hostBaseUrl + KETTLE_STATUS_URL;
 
-        /*
-         * Open in a named tab as in opposed to '_blank' or '_self';
-         * We want to keep PUC open and in addition to that we want to have one single 'Kettle Status' page open
-         */
-        openNewWindow( kettleStatusUrl, "KettleStatus", true );
+        openNewWindow( kettleStatusUrl, "_blank", false );
       }
 
       public void onFailure( Throwable caught ) {
