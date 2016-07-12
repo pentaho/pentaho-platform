@@ -30,7 +30,6 @@ import com.google.gwt.xml.client.XMLParser;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
-import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
@@ -126,7 +125,6 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
 
 
   private RequestBuilder createTreeRequest() {
-    MantleApplication.log( "Tree : " + getOutputLocationPath() );
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, contextURL + "api/repo/files/"
       + NameUtils.encodeRepositoryPath( getOutputLocationPath() ) + "/tree?depth=1" );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
