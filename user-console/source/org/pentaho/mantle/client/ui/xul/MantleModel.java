@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.ui.xul;
@@ -26,6 +26,7 @@ import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.NewDropdownCommand;
 import org.pentaho.mantle.client.commands.OpenDocCommand;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
+import org.pentaho.mantle.client.commands.OpenKettleStatusCommand;
 import org.pentaho.mantle.client.commands.PrintCommand;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
@@ -301,6 +302,12 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   @Bindable
   public void openDocumentation() {
     OpenDocCommand cmd = new OpenDocCommand();
+    cmd.execute();
+  }
+
+  @Bindable
+  public void openKettleStatusPage() {
+    OpenKettleStatusCommand cmd = new OpenKettleStatusCommand();
     cmd.execute();
   }
 

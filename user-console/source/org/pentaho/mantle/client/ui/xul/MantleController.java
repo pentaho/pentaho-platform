@@ -992,6 +992,11 @@ public class MantleController extends AbstractXulEventHandler {
     model.openDocumentation();
   }
 
+  @Bindable
+  public void kettleStatusPageClicked() {
+    model.openKettleStatusPage();
+  }
+
   public void loadOverlay( String id ) {
     // TODO We need to convert ths to use the common interface method,
     // once they become available

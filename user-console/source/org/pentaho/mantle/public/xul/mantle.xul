@@ -49,6 +49,10 @@
         <menuitem id="purgeReportingDataCacheMenuItem" label="${purgeReportingDataCache}"
                   command="mantleXulHandler.executeMantleCommand('PurgeReportingDataCacheCommand')"/>
       </menubar>
+
+      <!-- Uncomment line below to enable 'PDI Status page' menu item -->
+      <!-- <menuitem id="kettleStatusMenuItem" label="${kettleStatusMenuItem}" command="mantleXulHandler.kettleStatusPageClicked()"/> -->
+
     </menubar>
 
     <menubar id="helpmenu" label="${help}" layout="vertical">
