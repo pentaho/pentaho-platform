@@ -13,10 +13,18 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -32,14 +40,6 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.platform.util.messages.LocaleHelper;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * This Object represents the information stored in the ExportManifest for one file or folder. The
@@ -68,10 +68,11 @@ public class ExportManifestEntity {
     rawExportManifestProperty.setEntityAcl( entityAcl );
   }
 
-  protected ExportManifestEntity( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) {
+  protected ExportManifestEntity( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden,
+      Boolean isSchedulable ) {
     this();
     ExportManifestProperty rawExportManifestProperty = new ExportManifestProperty();
-    createEntityMetaData( file, userId, projectId, isFolder, isHidden );
+    createEntityMetaData( file, userId, projectId, isFolder, isHidden, isSchedulable );
     createEntityAcl( userId );
     rawExportManifestProperty.setEntityMetaData( entityMetaData );
     rawExportManifestProperty.setEntityAcl( entityAcl );
@@ -82,7 +83,8 @@ public class ExportManifestEntity {
     entityAcl.setEntriesInheriting( true );
   }
 
-  private void createEntityMetaData( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) {
+  private void createEntityMetaData( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden,
+      Boolean isSchedulable ) {
     if ( LocaleHelper.getLocale() == null ) {
       LocaleHelper.setLocale( Locale.getDefault() );
     }
@@ -90,7 +92,8 @@ public class ExportManifestEntity {
     entityMetaData.setCreatedBy( userId );
     entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar( new Date() ) );
     entityMetaData.setDescription( "Project folder for AgileBi Project named: " + projectId );
-    entityMetaData.setIsHidden( isHidden );
+    entityMetaData.setHidden( isHidden );
+    entityMetaData.setSchedulable( isSchedulable );
     entityMetaData.setIsFolder( isFolder );
     entityMetaData.setLocale( LocaleHelper.getLocale().toString() );
     entityMetaData.setName( file.getName() );
@@ -109,7 +112,8 @@ public class ExportManifestEntity {
     entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar( repositoryFile
         .getCreatedDate() ) );
     entityMetaData.setDescription( repositoryFile.getDescription() );
-    entityMetaData.setIsHidden( repositoryFile.isHidden() );
+    entityMetaData.setHidden( repositoryFile.isHidden() );
+    entityMetaData.setSchedulable( repositoryFile.isSchedulable() );
     entityMetaData.setIsFolder( repositoryFile.isFolder() );
     entityMetaData.setLocale( LocaleHelper.getLocale().toString() );
     entityMetaData.setName( repositoryFile.getName() );
@@ -170,7 +174,8 @@ public class ExportManifestEntity {
     if ( entityMetaData == null ) {
       return null;
     }
-    return new RepositoryFile( null, emd.getName(), emd.isIsFolder(), emd.isIsHidden(), false, null, emd.getPath(),
+    return new RepositoryFile( null, emd.getName(), emd.isIsFolder(), emd.isHidden(), emd.isSchedulable(), false,
+        null, emd.getPath(),
         XmlGregorianCalendarConverter.asDate( emd.getCreatedDate() ), null, false, null, null, null, "en-US", emd
         .getTitle(), emd.getDescription(), null, null, 0, emd.getOwner(), null
     );
