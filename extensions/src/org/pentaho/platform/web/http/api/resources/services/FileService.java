@@ -51,6 +51,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -157,7 +158,8 @@ public class FileService {
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileUpload );
       bundleBuilder.charSet( "UTF-8" );
-      bundleBuilder.hidden( true );
+      bundleBuilder.hidden( RepositoryFile.HIDDEN_BY_DEFAULT );
+      bundleBuilder.schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
       bundleBuilder.path( importDirectory );
       bundleBuilder.overwriteFile( overwriteFileFlag );
       bundleBuilder.name( "SystemBackup.zip" );
@@ -187,6 +189,7 @@ public class FileService {
     final FileInputStream inputStream = new FileInputStream( zipFile );
 
     return new StreamingOutput() {
+      @Override
       public void write( OutputStream output ) throws IOException {
         IOUtils.copy( inputStream, output );
       }
@@ -976,18 +979,18 @@ public class FileService {
     if ( list != null ) {
       boolean hasSchedulable = false;
       for ( StringKeyStringValueDto value : list ) {
-        if ( value.getKey().equals( "_PERM_SCHEDULABLE" ) ) {
+        if ( value.getKey().equals( RepositoryFile.SCHEDULABLE_KEY ) ) {
           hasSchedulable = true;
           break;
         }
       }
       if ( !hasSchedulable ) {
-        StringKeyStringValueDto schedPerm = new StringKeyStringValueDto( "_PERM_SCHEDULABLE", "true" );
+        StringKeyStringValueDto schedPerm = new StringKeyStringValueDto( RepositoryFile.SCHEDULABLE_KEY, "true" );
         list.add( schedPerm );
       }
 
       // check file object for hidden value and add it to the list
-      list.add( new StringKeyStringValueDto( "_PERM_HIDDEN", String.valueOf( file.isHidden() ) ) );
+      list.add( new StringKeyStringValueDto( RepositoryFile.HIDDEN_KEY, String.valueOf( file.isHidden() ) ) );
     }
 
     return list;
@@ -1031,12 +1034,16 @@ public class FileService {
 
     if ( canManage ) {
       Map<String, Serializable> fileMetadata = getRepository().getFileMetadata( file.getId() );
-      boolean isHidden = false;
+      boolean isHidden = RepositoryFile.HIDDEN_BY_DEFAULT;
+      boolean isSchedulable = RepositoryFile.SCHEDULABLE_BY_DEFAULT;
 
       for ( StringKeyStringValueDto nv : metadata ) {
         // don't add hidden to the list because it is not actually part of the metadata node
-        if ( ( nv.getKey().contentEquals( "_PERM_HIDDEN" ) ) ) {
-          isHidden = Boolean.parseBoolean( nv.getValue() );
+        String key = nv.getKey();
+        if ( RepositoryFile.HIDDEN_KEY.equalsIgnoreCase( key ) ) {
+          isHidden = BooleanUtils.toBoolean( nv.getValue() );
+        } else if ( RepositoryFile.SCHEDULABLE_KEY.equalsIgnoreCase( key ) ) {
+          isSchedulable = BooleanUtils.toBoolean( nv.getValue() );
         } else {
           fileMetadata.put( nv.getKey(), nv.getValue() );
         }
@@ -1050,6 +1057,7 @@ public class FileService {
       // handle hidden flag if it is different
       if ( file.isHidden() != isHidden ) {
         file.setHidden( isHidden );
+        file.setSchedulable( isSchedulable );
 
           /*
            * Since we cannot simply set the new value, use the RepositoryFileAdapter to create a new instance and then
@@ -1059,6 +1067,7 @@ public class FileService {
         RepositoryFileDto destFileDto = toFileDto( sourceFile, null, false );
 
         destFileDto.setHidden( isHidden );
+        destFileDto.setSchedulable( isSchedulable );
 
         RepositoryFile destFile = toFile( destFileDto );
 
@@ -1538,6 +1547,7 @@ public class FileService {
    * @return            A jax-rs Response object with the appropriate status code, header, and body.
    * @deprecated use {@link #doCreateDirSafe(String)} instead
    */
+  @Deprecated
   public boolean doCreateDir( String pathId ) {
     String path = idToPath( pathId );
     return doCreateDirFor( path );
@@ -1637,6 +1647,7 @@ public class FileService {
 
   public StreamingOutput getStreamingOutput( final InputStream is ) {
     return new StreamingOutput() {
+      @Override
       public void write( OutputStream output ) throws IOException {
         copy( is, output );
       }
@@ -1680,6 +1691,7 @@ public class FileService {
     final FileInputStream is = new FileInputStream( zipFile );
     // copy streaming output
     return new StreamingOutput() {
+      @Override
       public void write( OutputStream output ) throws IOException {
         IOUtils.copy( is, output );
       }
