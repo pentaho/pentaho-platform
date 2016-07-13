@@ -18,6 +18,10 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -27,10 +31,6 @@ import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestEntity;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * General purpose objects whose lifecycle is that of an formal import session
@@ -100,12 +100,36 @@ public class ImportSession {
    * @param filePath
    * @return
    */
+  @Deprecated
   public Boolean isFileHidden( String filePath ) {
-    if ( ( applyAclSettings || retainOwnership ) && manifest != null
-      && manifest.getExportManifestEntity( filePath ) != null ) {
-      return manifest.getExportManifestEntity( filePath ).getRepositoryFile().isHidden();
+    return getManifestFile( filePath, true ).isFileHidden();
+  }
+
+  public ManifestFile getManifestFile( String filePath, boolean isFileExist ) {
+    return new ManifestFile( filePath, isFileExist );
+  }
+
+
+  public class ManifestFile {
+
+    private RepositoryFile rf;
+
+    private ManifestFile( String filePath, boolean isFileExist ) {
+      if ( ( !isFileExist || ( applyAclSettings || !retainOwnership ) ) && manifest != null ) {
+        ExportManifestEntity entity = manifest.getExportManifestEntity( filePath );
+        if ( entity != null ) {
+          rf = entity.getRepositoryFile();
+        }
+      }
     }
-    return null;
+
+    public Boolean isFileHidden() {
+      return rf == null ? null : rf.isHidden();
+    }
+
+    public Boolean isFileSchedulable() {
+      return rf == null ? null : rf.isSchedulable();
+    }
   }
 
   public RepositoryFileAcl processAclForFile( String filePath ) {
