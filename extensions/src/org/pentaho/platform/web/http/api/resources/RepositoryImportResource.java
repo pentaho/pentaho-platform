@@ -34,8 +34,8 @@ import org.apache.log4j.Logger;
 import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -196,7 +196,6 @@ public class RepositoryImportResource {
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileUpload );
       bundleBuilder.charSet( charSet );
-      bundleBuilder.hidden( false );
       bundleBuilder.path( importDir );
       bundleBuilder.overwriteFile( overwriteFileFlag );
       bundleBuilder.applyAclSettings( applyAclSettingsFlag );

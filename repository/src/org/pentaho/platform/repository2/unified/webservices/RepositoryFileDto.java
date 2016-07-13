@@ -13,10 +13,12 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.webservices;
+
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -24,6 +26,23 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ */
 
 /**
  * JAXB-safe version of {@code RepositoryFile}. ({@code RepositoryFile} has no zero-arg constructor and no public
@@ -53,7 +72,9 @@ public class RepositoryFileDto implements Serializable {
 
   String path;
 
-  boolean hidden;
+  boolean hidden = RepositoryFile.HIDDEN_BY_DEFAULT;
+
+  boolean notSchedulable = !RepositoryFile.SCHEDULABLE_BY_DEFAULT;
 
   boolean aclNode;
 
@@ -73,13 +94,12 @@ public class RepositoryFileDto implements Serializable {
   String owner;
 
   String ownerTenantPath;
-  
-  //If versioning currently enabled for this file (Will be null if not loaded)
+
+  // If versioning currently enabled for this file (Will be null if not loaded)
   Boolean versioningEnabled;
-  
-  //If version Comments are enabled for this file (Will be null if not loaded)
+
+  // If version Comments are enabled for this file (Will be null if not loaded)
   Boolean versionCommentEnabled;
-  
 
   /**
    * RepositoryFileSid.Type enum.
@@ -97,7 +117,7 @@ public class RepositoryFileDto implements Serializable {
   Date deletedDate;
 
   List<LocaleMapDto> localePropertiesMapEntries;
-  
+
   RepositoryFileAclDto repositoryFileAclDto;
 
   public RepositoryFileDto() {
@@ -185,6 +205,14 @@ public class RepositoryFileDto implements Serializable {
 
   public void setHidden( boolean hidden ) {
     this.hidden = hidden;
+  }
+
+  public boolean isNotSchedulable() {
+    return notSchedulable;
+  }
+
+  public void setNotSchedulable( boolean notSchedulable ) {
+    this.notSchedulable = notSchedulable;
   }
 
   public boolean isAclNode() {
@@ -300,7 +328,7 @@ public class RepositoryFileDto implements Serializable {
   public void setDeletedDate( Date deletedDate ) {
     this.deletedDate = deletedDate;
   }
-  
+
   public RepositoryFileAclDto getRepositoryFileAclDto() {
     return repositoryFileAclDto;
   }
@@ -320,15 +348,65 @@ public class RepositoryFileDto implements Serializable {
   @SuppressWarnings( "nls" )
   @Override
   public String toString() {
-    return "RepositoryFileDto [id=" + id + ", name=" + name + ", path=" + path + ", folder=" + folder + ", size="
-        + fileSize + ", createdDate=" + createdDate + ", creatorId=" + creatorId + ", deletedDate=" + deletedDate
-        + ", description=" + description + ", hidden=" + hidden + ", aclNode=" + aclNode + ", lastModifiedDate="
-        + lastModifiedDate + ", locale=" + locale + ", lockDate=" + lockDate + ", lockMessage=" + lockMessage
-        + ", lockOwner=" + lockOwner + ", locked=" + locked + ", originalParentFolderPath=" + originalParentFolderPath
-        + ", owner=" + owner + ", ownerType=" + ownerType + ", title=" + title + ", localePropertiesMapEntries="
-        + localePropertiesMapEntries + ", versionId=" + versionId + ", versioned=" + versioned + ", versioningEnabled="
-        + versioningEnabled + ", versionCommentEnabled=" + versionCommentEnabled + ", hasAcl="
-        + ( repositoryFileAclDto != null ) + "]";
+    StringBuilder sb = new StringBuilder();
+    sb.append( "RepositoryFileDto [id=" );
+    sb.append( id );
+    sb.append( ", name=" );
+    sb.append( name );
+    sb.append( ", path=" );
+    sb.append( path );
+    sb.append( ", folder=" );
+    sb.append( folder );
+    sb.append( ", size=" );
+    sb.append( fileSize );
+    sb.append( ", createdDate=" );
+    sb.append( createdDate );
+    sb.append( ", creatorId=" );
+    sb.append( creatorId );
+    sb.append( ", deletedDate=" );
+    sb.append( deletedDate );
+    sb.append( ", description=" );
+    sb.append( description );
+    sb.append( ", hidden=" );
+    sb.append( hidden );
+    sb.append( ", notSchedulable=" );
+    sb.append( notSchedulable );
+    sb.append( ", aclNode=" );
+    sb.append( aclNode );
+    sb.append( ", lastModifiedDate=" );
+    sb.append( lastModifiedDate );
+    sb.append( ", locale=" );
+    sb.append( locale );
+    sb.append( ", lockDate=" );
+    sb.append( lockDate );
+    sb.append( ", lockMessage=" );
+    sb.append( lockMessage );
+    sb.append( ", lockOwner=" );
+    sb.append( lockOwner );
+    sb.append( ", locked=" );
+    sb.append( locked );
+    sb.append( ", originalParentFolderPath=" );
+    sb.append( originalParentFolderPath );
+    sb.append( ", owner=" );
+    sb.append( owner );
+    sb.append( ", ownerType=" );
+    sb.append( ownerType );
+    sb.append( ", title=" );
+    sb.append( title );
+    sb.append( ", localePropertiesMapEntries=" );
+    sb.append( localePropertiesMapEntries );
+    sb.append( ", versionId=" );
+    sb.append( versionId );
+    sb.append( ", versioned=" );
+    sb.append( versioned );
+    sb.append( ", versioningEnabled=" );
+    sb.append( versioningEnabled );
+    sb.append( ", versionCommentEnabled=" );
+    sb.append( versionCommentEnabled );
+    sb.append( ", hasAcl=" );
+    sb.append( ( repositoryFileAclDto != null ) );
+    sb.append( "]" );
+    return sb.toString();
   }
 
   public Boolean getVersioningEnabled() {

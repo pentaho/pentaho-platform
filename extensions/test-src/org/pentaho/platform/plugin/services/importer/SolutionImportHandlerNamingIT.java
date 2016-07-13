@@ -12,14 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
-package org.pentaho.platform.plugin.services.importer;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+package org.pentaho.platform.plugin.services.importer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,10 +34,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
@@ -52,6 +53,7 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
@@ -65,11 +67,11 @@ import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedReposi
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 /**
- * 
+ *
  * Checks that SolutionImportHandler processes file names correctly
  *
  */
-public class SolutionImportHandlerNamingIT {
+public class SolutionImportHandlerNamingIT extends Assert {
 
   private static final String SOLUTION_PATH = "test-res/SolutionImportHandlerNamingTest";
   private static final String REPO_PATH = "/repo";
@@ -96,6 +98,7 @@ public class SolutionImportHandlerNamingIT {
   private File repoRoot;
   private FileSystemBackedUnifiedRepository repo;
   private MicroPlatform microPlatform;
+  private AnswerTest<RepositoryFile> answer;
 
   // private PentahoPlatformImporter importer;
 
@@ -120,11 +123,12 @@ public class SolutionImportHandlerNamingIT {
   public void init() throws IOException, PlatformInitializationException, PlatformImportException,
     DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
     // repository
-    File repoDir = new File( tempDir.getAbsolutePath() + REPO_PATH );
+    final File repoDir = new File( tempDir.getAbsolutePath() + REPO_PATH );
     FileUtils.forceMkdir( repoDir );
     FileUtils.cleanDirectory( repoDir );
     repoRoot = repoDir;
     repo = new FileSystemBackedUnifiedRepository();
+    repo = Mockito.spy( repo );
     repo.setRootDir( repoRoot );
 
     // mimeResolver
@@ -132,17 +136,17 @@ public class SolutionImportHandlerNamingIT {
 
     final List<IMimeType> solutionMimeList = java.util.Collections.singletonList( MIME_SOLUTION );
     final List<IMimeType> contentMimeList = java.util.Arrays.asList( new IMimeType[] { MIME_PRPT, MIME_XML } );
-    final List<IMimeType> allMimeTypes = new ArrayList<IMimeType>( solutionMimeList.size() + contentMimeList.size() );
+    final List<IMimeType> allMimeTypes = new ArrayList<>( solutionMimeList.size() + contentMimeList.size() );
     {
       allMimeTypes.addAll( solutionMimeList );
       allMimeTypes.addAll( contentMimeList );
-      for ( IMimeType mimeType : allMimeTypes ) {
+      for ( final IMimeType mimeType : allMimeTypes ) {
         mimeType.setConverter( defaultConverter );
       }
     }
 
     final IPlatformMimeResolver mimeResolver = new NameBaseMimeResolver();
-    for ( IMimeType mimeType : allMimeTypes ) {
+    for ( final IMimeType mimeType : allMimeTypes ) {
       mimeResolver.addMimeType( mimeType );
     }
 
@@ -154,18 +158,18 @@ public class SolutionImportHandlerNamingIT {
     microPlatform.defineInstance( ISolutionEngine.class, Mockito.mock( SolutionEngine.class ) );
     microPlatform.defineInstance( IDatasourceMgmtService.class, Mockito.mock( IDatasourceMgmtService.class ) );
 
-    IRepositoryContentConverterHandler converterHandler =
+    final IRepositoryContentConverterHandler converterHandler =
         new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
 
-    RepositoryFileImportFileHandler contentImportFileHandler = new RepositoryFileImportFileHandler( contentMimeList );
+    final RepositoryFileImportFileHandler contentImportFileHandler = new RepositoryFileImportFileHandler( contentMimeList );
     contentImportFileHandler.setRepository( repo );
     solutionImportHandler = new SolutionImportHandler( solutionMimeList );
 
-    List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
+    final List<IPlatformImportHandler> handlers = new ArrayList<>();
     handlers.add( contentImportFileHandler );
     handlers.add( solutionImportHandler );
 
-    PentahoPlatformImporter importer = new PentahoPlatformImporter( handlers, converterHandler );
+    final PentahoPlatformImporter importer = new PentahoPlatformImporter( handlers, converterHandler );
     importer.setDefaultHandler( contentImportFileHandler );
     importer.setRepositoryImportLogger( new Log4JRepositoryImportLogger() );
 
@@ -184,7 +188,7 @@ public class SolutionImportHandlerNamingIT {
     return SOLUTION_PATH;
   }
 
-  private void assertFileContentEquals( File expected, RepositoryFile actual ) throws IOException {
+  private void assertFileContentEquals( final File expected, final RepositoryFile actual ) throws IOException {
     FileInputStream inExp = null;
     InputStream inAct = null;
     try {
@@ -207,7 +211,7 @@ public class SolutionImportHandlerNamingIT {
 
   /**
    * Import has to be launched in a separate thread because importSession is thread-local.
-   * 
+   *
    * @param solutionImportHandler
    * @param bundle
    * @throws InterruptedException
@@ -215,17 +219,16 @@ public class SolutionImportHandlerNamingIT {
   private void runImport( final SolutionImportHandler solutionImportHandler, final IPlatformImportBundle bundle )
     throws InterruptedException {
 
-    Thread thr = new Thread() {
-
+    final Thread thr = new Thread() {
       @Override
       public void run() {
         try {
           solutionImportHandler.importFile( bundle );
-        } catch ( Error e ) {
+        } catch ( Error | RuntimeException e ) {
+          e.printStackTrace();
           throw e;
-        } catch ( RuntimeException e ) {
-          throw e;
-        } catch ( Exception e ) {
+        } catch ( final Exception e ) {
+          e.printStackTrace();
           throw new RuntimeException( e );
         }
       }
@@ -247,7 +250,7 @@ public class SolutionImportHandlerNamingIT {
     try {
       tmpOS = new ByteArrayOutputStream();
 
-      ZipOutputStream zipOS = new ZipOutputStream( tmpOS );
+      final ZipOutputStream zipOS = new ZipOutputStream( tmpOS );
 
       zipOS.putNextEntry( new ZipEntry( ZIPENTRY_CONTENT_FILE_NOMANIFEST ) );
       FileUtils.copyFile( srcContentFile, zipOS );
@@ -261,26 +264,15 @@ public class SolutionImportHandlerNamingIT {
       }
     }
 
-    final RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
-    bundleBuilder.input( solutionInputStream );
-    bundleBuilder.charSet( DEFAULT_ENCODING );
-    bundleBuilder.hidden( false );
-    bundleBuilder.path( IMPORT_REPO_DIR );
-    bundleBuilder.overwriteFile( false );
-    bundleBuilder.applyAclSettings( false );
-    bundleBuilder.overwriteAclSettings( false );
-    bundleBuilder.retainOwnership( false );
-    bundleBuilder.name( "testSrc.zip" );
-    bundleBuilder.mime( "application/vnd.pentaho.solution-repository" );
-    final IPlatformImportBundle bundle = bundleBuilder.build();
+    final IPlatformImportBundle bundle = buildBundle( solutionInputStream );
 
     runImport( solutionImportHandler, bundle );
 
     { // files with correct names do exist
-      RepositoryFile dir = repo.getFile( IMPORT_REPO_DIR + "/two words%25" );
+      final RepositoryFile dir = repo.getFile( IMPORT_REPO_DIR + "/two words%25" );
       assertNotNull( dir );
       assertTrue( dir.isFolder() );
-      RepositoryFile file = repo.getFile( IMPORT_REPO_DIR + "/two words%25/eval (+)%25.prpt" );
+      final RepositoryFile file = repo.getFile( IMPORT_REPO_DIR + "/two words%25/eval (+)%25.prpt" );
       assertNotNull( file );
       assertFalse( file.isFolder() );
       assertFileContentEquals( srcContentFile, file );
@@ -301,56 +293,24 @@ public class SolutionImportHandlerNamingIT {
     DomainAlreadyExistsException, DomainStorageException, IOException, PlatformInitializationException,
     InterruptedException {
 
-    ByteArrayInputStream solutionInputStream = null;
+    final ZipBuilder zipBuilder = new ZipBuilder();
+    zipBuilder.addFile( solutionDir + SRC_EXPORTMANIFEST, ZIPENTRY_EXPORTMANIFEST );
+    zipBuilder.addFile( solutionDir + SRC_CONTENT_FILE, ZIPENTRY_CONTENT_FILE );
+    final ByteArrayOutputStream out = zipBuilder.build();
+    final ByteArrayInputStream solutionInputStream = new ByteArrayInputStream( out.toByteArray() );
 
-    final File srcExportmanifestFile = new File( solutionDir + SRC_EXPORTMANIFEST );
-    final File srcContentFile = new File( solutionDir + SRC_CONTENT_FILE );
-
-    ByteArrayOutputStream tmpOS = null;
-    try {
-      tmpOS = new ByteArrayOutputStream();
-
-      ZipOutputStream zipOS = new ZipOutputStream( tmpOS );
-
-      zipOS.putNextEntry( new ZipEntry( ZIPENTRY_EXPORTMANIFEST ) );
-      FileUtils.copyFile( srcExportmanifestFile, zipOS );
-      zipOS.closeEntry();
-
-      zipOS.putNextEntry( new ZipEntry( ZIPENTRY_CONTENT_FILE ) );
-      FileUtils.copyFile( srcContentFile, zipOS );
-      zipOS.closeEntry();
-
-      zipOS.close();
-      solutionInputStream = new ByteArrayInputStream( tmpOS.toByteArray() );
-    } finally {
-      if ( tmpOS != null ) {
-        tmpOS.close();
-      }
-    }
-
-    final RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
-    bundleBuilder.input( solutionInputStream );
-    bundleBuilder.charSet( DEFAULT_ENCODING );
-    bundleBuilder.hidden( false );
-    bundleBuilder.path( IMPORT_REPO_DIR );
-    bundleBuilder.overwriteFile( false );
-    bundleBuilder.applyAclSettings( false );
-    bundleBuilder.overwriteAclSettings( false );
-    bundleBuilder.retainOwnership( false );
-    bundleBuilder.name( "testSrc.zip" );
-    bundleBuilder.mime( "application/vnd.pentaho.solution-repository" );
-    final IPlatformImportBundle bundle = bundleBuilder.build();
+    final IPlatformImportBundle bundle = buildBundle( solutionInputStream );
 
     runImport( solutionImportHandler, bundle );
 
     { // files with correct names do exist
-      RepositoryFile dir = repo.getFile( IMPORT_REPO_DIR + "/two words%25" );
+      final RepositoryFile dir = repo.getFile( IMPORT_REPO_DIR + "/two words%25" );
       assertNotNull( dir );
       assertTrue( dir.isFolder() );
-      RepositoryFile file = repo.getFile( IMPORT_REPO_DIR + "/two words%25/eval (+)%25.prpt" );
+      final RepositoryFile file = repo.getFile( IMPORT_REPO_DIR + "/two words%25/eval (+)%25.prpt" );
       assertNotNull( file );
       assertFalse( file.isFolder() );
-      assertFileContentEquals( srcContentFile, file );
+      assertFileContentEquals( new File( solutionDir + SRC_CONTENT_FILE ), file );
     }
     { // exportManifest.xml does not exist
       assertNull( repo.getFile( IMPORT_REPO_DIR + "/exportManifest.xml" ) );
@@ -366,4 +326,95 @@ public class SolutionImportHandlerNamingIT {
     }
   }
 
+  private static class ZipBuilder {
+
+    private final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    private final ZipOutputStream zip = new ZipOutputStream( out );
+
+    public void addFile( final String filePath, final String fileName ) throws IOException {
+      final File file = new File( filePath );
+      assertTrue( file.getAbsolutePath() + " didn't found.", file.exists() );
+      zip.putNextEntry( new ZipEntry( fileName ) );
+      FileUtils.copyFile( file, zip );
+      zip.closeEntry();
+    }
+
+    public ByteArrayOutputStream build() throws IOException {
+      zip.close();
+      out.close();
+      return out;
+    }
+  }
+
+  private IPlatformImportBundle buildBundle( final InputStream solutionInputStream ) {
+    final RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
+    bundleBuilder.input( solutionInputStream );
+    bundleBuilder.charSet( DEFAULT_ENCODING );
+    bundleBuilder.hidden( RepositoryFile.HIDDEN_BY_DEFAULT );
+    bundleBuilder.schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
+    bundleBuilder.path( IMPORT_REPO_DIR );
+    bundleBuilder.overwriteFile( false );
+    bundleBuilder.applyAclSettings( false );
+    bundleBuilder.overwriteAclSettings( false );
+    bundleBuilder.retainOwnership( true );
+    bundleBuilder.name( "testSrc.zip" );
+    bundleBuilder.mime( "application/vnd.pentaho.solution-repository" );
+    return bundleBuilder.build();
+  }
+
+  @Test
+  public void testImportHiddenFileByManifest() throws IOException, InterruptedException {
+    repo.deleteFile( SRC_CONTENT_FILE, "" );
+
+    answer = new AnswerTest<RepositoryFile>() {
+      @Override
+      public RepositoryFile answer( final InvocationOnMock invocation ) throws Throwable {
+        obj = invocation.getArgumentAt( 1, RepositoryFile.class );
+        return null;
+      }
+    };
+
+    Mockito.doAnswer( answer ).when( repo ).createFile( Matchers.any( Serializable.class ), Matchers.any(
+        RepositoryFile.class ), Matchers.any( IRepositoryFileData.class ), Matchers
+        .anyString() );
+
+    // isHidden="true" isSchedulable="true"
+    RepositoryFile file = importFile( "/manifestFileHidden.xml" );
+    assertTrue( file.isHidden() );
+    assertTrue( file.isSchedulable() );
+
+    // isHidden="false" isSchedulable="false"
+    file = importFile( "/manifestFileNotHidden.xml" );
+    assertFalse( file.isHidden() );
+    assertFalse( file.isSchedulable() );
+
+    // nothing
+    file = importFile( "/manifestHiddenByDefault.xml" );
+    assertEquals( file.isHidden(), RepositoryFile.HIDDEN_BY_DEFAULT );
+    assertEquals( file.isSchedulable(), RepositoryFile.SCHEDULABLE_BY_DEFAULT );
+  }
+
+  private RepositoryFile importFile( final String manifest ) throws IOException,
+    InterruptedException {
+    final ZipBuilder zipBuilder = new ZipBuilder();
+    zipBuilder.addFile( solutionDir + SRC_ROOT + manifest, "exportManifest.xml" );
+    zipBuilder.addFile( solutionDir + SRC_CONTENT_FILE, SRC_CONTENT_FILE );
+    final ByteArrayOutputStream out = zipBuilder.build();
+    final ByteArrayInputStream solutionInputStream = new ByteArrayInputStream( out.toByteArray() );
+
+    final IPlatformImportBundle bundle = buildBundle( solutionInputStream );
+
+    runImport( solutionImportHandler, bundle );
+
+    return answer != null ? answer.getObj() : null;
+  }
+
+  private abstract static class AnswerTest<T> implements Answer<T> {
+
+    protected T obj;
+
+    public T getObj() {
+      return obj;
+    }
+  }
 }

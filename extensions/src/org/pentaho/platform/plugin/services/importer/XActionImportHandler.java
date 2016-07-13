@@ -30,6 +30,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class XActionImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   public XActionImportHandler( List<IMimeType> mimeTypes ) {
@@ -53,11 +55,13 @@ public class XActionImportHandler extends RepositoryFileImportFileHandler implem
       DocumentBuilder builder = factory.newDocumentBuilder();
       Document document = builder.parse( new ByteArrayInputStream( bytes ) );
 
-      NodeList resultTypes = document.getElementsByTagName( "result-type" );
-      if ( resultTypes.getLength() > 0 ) {
-        Node resultType = resultTypes.item( 0 );
-        boolean isHidden = "none".equals( resultType.getTextContent() );
-        importBundle.setHidden( isHidden );
+      if ( importBundle.isHidden() == null ) {
+        NodeList resultTypes = document.getElementsByTagName( "result-type" );
+        if ( resultTypes.getLength() > 0 ) {
+          Node resultType = resultTypes.item( 0 );
+          boolean isHidden = "none".equals( resultType.getTextContent() );
+          importBundle.setHidden( isHidden );
+        }
       }
       super.importFile( importBundle );
     } catch ( Exception e ) {

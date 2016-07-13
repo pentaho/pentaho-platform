@@ -18,6 +18,10 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -28,10 +32,6 @@ import org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHan
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestEntity;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
 /**
  * General purpose objects whose lifecycle is that of an formal import session
  *
@@ -39,10 +39,10 @@ import java.util.List;
  */
 public class ImportSession {
 
-  private static final ThreadLocal<ImportSession> sessions = new ThreadLocal<ImportSession>();
+  private static final ThreadLocal<ImportSession> sessions = new ThreadLocal<>();
 
-  private HashSet<String> skippedFiles = new HashSet<String>(); // Files skipped due to overwriteFlag = false
-  private final HashSet<String> foldersCreatedImplicitly = new HashSet<String>(); // Folders created implicitly
+  private HashSet<String> skippedFiles = new HashSet<>(); // Files skipped due to overwriteFlag = false
+  private final HashSet<String> foldersCreatedImplicitly = new HashSet<>(); // Folders created implicitly
 
   private Log log;
   private Boolean isNotRunningImport = true;
@@ -53,8 +53,8 @@ public class ImportSession {
   private boolean overwriteAclSettings;
   private String currentManifestKey;
 
-  private final HashSet<RepositoryFile> importedRepositoryFiles = new HashSet<RepositoryFile>();
-  private final List<String> importedScheduleJobIds = new ArrayList<String>();
+  private final HashSet<RepositoryFile> importedRepositoryFiles = new HashSet<>();
+  private final List<String> importedScheduleJobIds = new ArrayList<>();
 
   public static ImportSession getSession() {
     ImportSession session = sessions.get();
@@ -77,8 +77,8 @@ public class ImportSession {
 
   public Log getLogger() {
     if ( log == null ) {
-      IRepositoryImportLogger logger = PentahoSystem.get( IPlatformImporter.class ).getRepositoryImportLogger();
-      if ( logger != null && logger.hasLogger() ) {
+      final IRepositoryImportLogger logger = PentahoSystem.get( IPlatformImporter.class ).getRepositoryImportLogger();
+      if ( ( logger != null ) && logger.hasLogger() ) {
         // An import is running from the /repo/file/import endpoint
         log = logger;
         isNotRunningImport = false;
@@ -100,15 +100,39 @@ public class ImportSession {
    * @param filePath
    * @return
    */
-  public Boolean isFileHidden( String filePath ) {
-    if ( ( applyAclSettings || retainOwnership ) && manifest != null
-      && manifest.getExportManifestEntity( filePath ) != null ) {
-      return manifest.getExportManifestEntity( filePath ).getRepositoryFile().isHidden();
-    }
-    return null;
+  @Deprecated
+  public Boolean isFileHidden( final String filePath ) {
+    return getManifestFile( filePath, true ).isFileHidden();
   }
 
-  public RepositoryFileAcl processAclForFile( String filePath ) {
+  public ManifestFile getManifestFile( final String filePath, final boolean isFileExist ) {
+    return new ManifestFile( filePath, isFileExist );
+  }
+
+
+  public class ManifestFile {
+
+    private RepositoryFile rf;
+
+    private ManifestFile( final String filePath, final boolean isFileExist ) {
+      if ( ( !isFileExist || ( applyAclSettings || retainOwnership ) ) && ( manifest != null ) ) {
+        final ExportManifestEntity entity = manifest.getExportManifestEntity( filePath );
+        if ( entity != null ) {
+          rf = entity.getRepositoryFile();
+        }
+      }
+    }
+
+    public Boolean isFileHidden() {
+      return rf == null ? null : rf.isHidden();
+    }
+
+    public Boolean isFileSchedulable() {
+      return rf == null ? null : rf.isSchedulable();
+    }
+  }
+
+  public RepositoryFileAcl processAclForFile( final String filePath ) {
     // If we are not overwriting ACL's or owners then return null.
     // If we are writing ACL's we'll have to check later in RepositoryFileImportHandler whether to overwrite
     // based on the isOverwriteAcl setting and whether we are creating or updating the RepositoryFile.
@@ -116,12 +140,12 @@ public class ImportSession {
     if ( applyAclSettings || retainOwnership ) {
       try {
         if ( manifest != null ) {
-          ExportManifestEntity entity = manifest.getExportManifestEntity( filePath );
+          final ExportManifestEntity entity = manifest.getExportManifestEntity( filePath );
           if ( entity != null ) {
             acl = entity.getRepositoryFileAcl();
           }
         }
-      } catch ( Exception e ) {
+      } catch ( final Exception e ) {
         getLogger().trace( e );
       }
     }
@@ -138,7 +162,7 @@ public class ImportSession {
   /**
    * @param skippedFiles the skippedFiles to set
    */
-  public void setSkippedFiles( HashSet<String> skippedFiles ) {
+  public void setSkippedFiles( final HashSet<String> skippedFiles ) {
     this.skippedFiles = skippedFiles;
   }
 
@@ -159,7 +183,7 @@ public class ImportSession {
   /**
    * @param manifest the manifest to set
    */
-  public void setManifest( ExportManifest manifest ) {
+  public void setManifest( final ExportManifest manifest ) {
     this.manifest = manifest;
   }
 
@@ -173,7 +197,7 @@ public class ImportSession {
   /**
    * @param applyAclSettings the applyAclSettings to set
    */
-  public void setApplyAclSettings( boolean applyAclSettings ) {
+  public void setApplyAclSettings( final boolean applyAclSettings ) {
     this.applyAclSettings = applyAclSettings;
   }
 
@@ -187,7 +211,7 @@ public class ImportSession {
   /**
    * @param retainOwnership the retainOwnership to set
    */
-  public void setRetainOwnership( boolean retainOwnership ) {
+  public void setRetainOwnership( final boolean retainOwnership ) {
     this.retainOwnership = retainOwnership;
   }
 
@@ -201,7 +225,7 @@ public class ImportSession {
   /**
    * @param overwriteAclSettings the overwriteAclSettings to set
    */
-  public void setOverwriteAclSettings( boolean overwriteAclSettings ) {
+  public void setOverwriteAclSettings( final boolean overwriteAclSettings ) {
     this.overwriteAclSettings = overwriteAclSettings;
   }
 
@@ -215,7 +239,7 @@ public class ImportSession {
   /**
    * @param Set the key for looking up the current file in the manifest
    */
-  public void setCurrentManifestKey( String currentManifestKey ) {
+  public void setCurrentManifestKey( final String currentManifestKey ) {
     this.currentManifestKey = currentManifestKey;
   }
 
@@ -235,8 +259,8 @@ public class ImportSession {
    * @param retainOwnershipFlag
    * @param overwriteAclSettingsFlag
    */
-  public void setAclProperties( boolean applyAclSettingsFlag, boolean retainOwnershipFlag,
-                                boolean overwriteAclSettingsFlag ) {
+  public void setAclProperties( final boolean applyAclSettingsFlag, final boolean retainOwnershipFlag,
+                                final boolean overwriteAclSettingsFlag ) {
     setApplyAclSettings( applyAclSettingsFlag );
     setRetainOwnership( retainOwnershipFlag );
     setOverwriteAclSettings( overwriteAclSettingsFlag );
@@ -245,7 +269,7 @@ public class ImportSession {
   /**
    * @param repositoryFile
    */
-  public void addImportedRepositoryFile( RepositoryFile repositoryFile ) {
+  public void addImportedRepositoryFile( final RepositoryFile repositoryFile ) {
     importedRepositoryFiles.add( repositoryFile );
   }
 
@@ -259,7 +283,7 @@ public class ImportSession {
   /**
    * @param jobId
    */
-  public void addImportedScheduleJobId( String jobId ) {
+  public void addImportedScheduleJobId( final String jobId ) {
     importedScheduleJobIds.add( jobId );
   }
 
@@ -274,7 +298,7 @@ public class ImportSession {
    * Removes the current thread's value for this thread-local variable
    * */
   public static void clearSession() {
-    ImportSession session = sessions.get();
+    final ImportSession session = sessions.get();
     if ( session != null ) {
       sessions.remove();
     }
