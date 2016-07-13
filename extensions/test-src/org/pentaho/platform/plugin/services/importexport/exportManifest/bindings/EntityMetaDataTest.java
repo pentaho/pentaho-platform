@@ -1,32 +1,29 @@
 /*
- * ******************************************************************************
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * ******************************************************************************
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
-
-import org.junit.Test;
 
 import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSettersExcluding;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
+
+import org.junit.Test;
 
 /**
  * Created by rfellows on 10/26/15.
@@ -37,6 +34,7 @@ public class EntityMetaDataTest {
     String[] excludes = new String[] {
       "isFolder",
       "isHidden",
+      "schedulable",
       "runAfterImport"
     };
     assertThat( EntityMetaData.class, hasValidGettersAndSettersExcluding( excludes ) );
