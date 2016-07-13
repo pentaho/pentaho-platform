@@ -26,7 +26,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
@@ -35,6 +34,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.google.common.annotations.VisibleForTesting;
 
 public class XActionImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
@@ -57,11 +58,13 @@ public class XActionImportHandler extends RepositoryFileImportFileHandler implem
 
       Document document = getImportBundleDocument( new ByteArrayInputStream( bytes ) );
 
-      NodeList resultTypes = document.getElementsByTagName( "result-type" );
-      if ( resultTypes.getLength() > 0 ) {
-        Node resultType = resultTypes.item( 0 );
-        boolean isHidden = "none".equals( resultType.getTextContent() );
-        importBundle.setHidden( isHidden );
+      if ( importBundle.isHidden() == null ) {
+        NodeList resultTypes = document.getElementsByTagName( "result-type" );
+        if ( resultTypes.getLength() > 0 ) {
+          Node resultType = resultTypes.item( 0 );
+          boolean isHidden = "none".equals( resultType.getTextContent() );
+          importBundle.setHidden( isHidden );
+        }
       }
       importBundle( importBundle );
     } catch ( Exception e ) {
