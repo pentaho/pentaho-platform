@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository2.unified;
@@ -54,6 +54,12 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   // ~ Instance fields
   // =================================================================================================
 
+  public static final boolean HIDDEN_BY_DEFAULT = false;
+  public static final boolean SCHEDULABLE_BY_DEFAULT = true;
+
+  public static final String HIDDEN_KEY = "_PERM_HIDDEN";
+  public static final String SCHEDULABLE_KEY = "_PERM_SCHEDULABLE";
+
   private final String name;
 
   private final Serializable id;
@@ -78,6 +84,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   private final String path;
 
   private final boolean hidden;
+
+  private final boolean schedulable;
 
   private final boolean versioned;
 
@@ -156,7 +164,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   /*
    * This assumes all Serializables are immutable (because they are not defensively copied).
    */
-  public RepositoryFile( Serializable id, String name, boolean folder, boolean hidden, boolean versioned,
+  public RepositoryFile( Serializable id, String name, boolean folder, boolean hidden, boolean schedulable,
+      boolean versioned,
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
       String lockMessage, Date lockDate, String locale, String title, String description,
       String originalParentFolderPath, Date deletedDate, long fileSize, String creatorId,
@@ -166,6 +175,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     this.name = name;
     this.folder = folder;
     this.hidden = hidden;
+    this.schedulable = schedulable;
     this.versioned = versioned;
     this.versionId = versionId;
     this.path = path;
@@ -192,14 +202,27 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   /*
    * This assumes all Serializables are immutable (because they are not defensively copied).
    */
+  public RepositoryFile( Serializable id, String name, boolean folder, boolean hidden, boolean schedulable,
+      boolean versioned,
+      Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
+      String lockMessage, Date lockDate, String locale, String title, String description,
+      String originalParentFolderPath, Date deletedDate, long fileSize, String creatorId,
+      Map<String, Properties> localePropertiesMap ) {
+    this( id, name, folder, hidden, schedulable, versioned, versionId, path, createdDate, lastModifiedDate, locked,
+        lockOwner,
+        lockMessage, lockDate, locale, title, description, originalParentFolderPath, deletedDate, fileSize, creatorId,
+        localePropertiesMap, false );
+  }
+
+  @Deprecated
   public RepositoryFile( Serializable id, String name, boolean folder, boolean hidden, boolean versioned,
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
       String lockMessage, Date lockDate, String locale, String title, String description,
       String originalParentFolderPath, Date deletedDate, long fileSize, String creatorId,
       Map<String, Properties> localePropertiesMap ) {
-    this( id, name, folder, hidden, versioned, versionId, path, createdDate, lastModifiedDate, locked, lockOwner,
-        lockMessage, lockDate, locale, title, description, originalParentFolderPath, deletedDate, fileSize, creatorId,
-        localePropertiesMap, false );
+    this( id, name, folder, hidden, SCHEDULABLE_BY_DEFAULT, versioned, versionId, path, createdDate, lastModifiedDate,
+        locked, lockOwner, lockMessage, lockDate, locale, title, description, originalParentFolderPath, deletedDate,
+        fileSize, creatorId, localePropertiesMap, false );
   }
 
   // ~ Methods
@@ -241,6 +264,10 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
   public boolean isHidden() {
     return hidden;
+  }
+
+  public boolean isSchedulable() {
+    return schedulable;
   }
 
   public boolean isVersioned() {
@@ -333,6 +360,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     private boolean hidden;
 
+    private boolean schedulable;
+
     private boolean versioned;
 
     private Serializable versionId;
@@ -373,7 +402,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       this( other.getName() );
       this.id( other.getId() ).path( other.getPath() ).createdDate( other.getCreatedDate() ).creatorId(
           other.getCreatorId() ).fileSize( other.getFileSize() ).folder( other.isFolder() ).lastModificationDate(
-          other.getLastModifiedDate() ).versioned( other.isVersioned() ).hidden( other.isHidden() ).versionId(
+              other.getLastModifiedDate() ).versioned( other.isVersioned() ).hidden( other.isHidden() ).schedulable(
+                  other.isSchedulable() ).versionId(
           other.getVersionId() ).locked( other.isLocked() ).lockDate( other.getLockDate() ).lockOwner(
           other.getLockOwner() ).lockMessage( other.getLockMessage() ).title( other.getTitle() ).description(
           other.getDescription() ).locale( other.getLocale() ).originalParentFolderPath(
@@ -382,7 +412,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     }
 
     public RepositoryFile build() {
-      return new RepositoryFile( id, name, this.folder, this.hidden, this.versioned, this.versionId, this.path,
+      return new RepositoryFile( id, name, this.folder, this.hidden, this.schedulable, this.versioned, this.versionId,
+          this.path,
           this.createdDate, this.lastModifiedDate, this.locked, this.lockOwner, this.lockMessage, this.lockDate,
           this.locale, this.title, this.description, this.originalParentFolderPath, this.deletedDate, this.fileSize,
           this.creatorId, this.localePropertiesMap, this.aclNode );
@@ -435,6 +466,11 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     public Builder hidden( final boolean hidden1 ) {
       this.hidden = hidden1;
+      return this;
+    }
+
+    public Builder schedulable( final boolean schedulable1 ) {
+      this.schedulable = schedulable1;
       return this;
     }
 
@@ -564,6 +600,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
   }
 
+  @Override
   public int compareTo( final RepositoryFile other ) {
     if ( other == null ) {
       throw new NullPointerException(); // per Comparable contract
@@ -625,6 +662,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     return true;
   }
 
+  @Override
   public RepositoryFile clone() {
     RepositoryFile.Builder builder = new RepositoryFile.Builder( this );
     builder.localePropertiesMap( localePropertiesMap != null ? new HashMap<String, Properties>( localePropertiesMap )

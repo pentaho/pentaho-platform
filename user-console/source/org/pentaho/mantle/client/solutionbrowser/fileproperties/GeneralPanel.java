@@ -17,6 +17,15 @@
 
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.commands.RestoreFileCommand;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -37,14 +46,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.commands.RestoreFileCommand;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -163,10 +164,12 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
   /**
    *
    */
+  @Override
   public void apply() {
     // not used
   }
 
+  @Override
   public List<RequestBuilder> prepareRequests() {
     ArrayList<RequestBuilder> requestBuilders = new ArrayList<RequestBuilder>();
     String moduleBaseURL = GWT.getModuleBaseURL();
@@ -187,7 +190,9 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
       Set<String> keys = metadataPerms.get( i ).keySet();
       for ( String key : keys ) {
         if ( key != null && SolutionBrowserPanel.getInstance().isAdministrator() ) {
-          if ( key.equals( "_PERM_SCHEDULABLE" ) && !fileSummary.isFolder() || key.equals( "_PERM_HIDDEN" ) ) {
+          if ( key.equals( org.pentaho.platform.api.repository2.unified.RepositoryFile.SCHEDULABLE_KEY ) && !fileSummary
+              .isFolder() || key.equals(
+                  org.pentaho.platform.api.repository2.unified.RepositoryFile.HIDDEN_KEY ) ) {
             JSONObject obj = new JSONObject();
             obj.put( "key", new JSONString( key ) );
             obj.put( "value", metadataPerms.get( i ).get( key ).isString() );
@@ -269,7 +274,9 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
         JSONValue arrVal = arr.get( i );
         String key = arrVal.isObject().get( "key" ).isString().stringValue();
         if ( key != null && SolutionBrowserPanel.getInstance().isAdministrator() ) {
-          if ( key.equals( "_PERM_SCHEDULABLE" ) && !fileSummary.isFolder() || key.equals( "_PERM_HIDDEN" ) ) {
+          if ( key.equals( org.pentaho.platform.api.repository2.unified.RepositoryFile.SCHEDULABLE_KEY ) && !fileSummary
+              .isFolder() || key.equals(
+                  org.pentaho.platform.api.repository2.unified.RepositoryFile.HIDDEN_KEY ) ) {
             String value = arrVal.isObject().get( "value" ).isString().stringValue();
             if ( key.startsWith( METADATA_PERM_PREFIX ) ) {
               JSONObject nv = new JSONObject();
@@ -283,12 +290,15 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
         Set<String> keys = nv.keySet();
         for ( final String key : keys ) {
           if ( key != null && SolutionBrowserPanel.getInstance().isAdministrator() ) {
-            if ( key.equals( "_PERM_SCHEDULABLE" ) && !fileSummary.isFolder() || key.equals( "_PERM_HIDDEN" ) ) {
+            if ( key.equals( org.pentaho.platform.api.repository2.unified.RepositoryFile.SCHEDULABLE_KEY )
+                && !fileSummary.isFolder() || key.equals(
+                    org.pentaho.platform.api.repository2.unified.RepositoryFile.HIDDEN_KEY ) ) {
               final CheckBox cb =
                   new CheckBox( Messages.getString( key.substring( METADATA_PERM_PREFIX.length() ).toLowerCase() ) );
               cb.setWordWrap( false );
               cb.setValue( Boolean.parseBoolean( nv.get( key ).isString().stringValue() ) );
               cb.addClickHandler( new ClickHandler() {
+                @Override
                 public void onClick( ClickEvent event ) {
                   dirty = true;
                   nv.put( key, new JSONString( cb.getValue().toString() ) );
