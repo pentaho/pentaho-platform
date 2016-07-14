@@ -30,12 +30,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.util.ArrayList;
-
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
 /**
  * This resource manages the user settings of the platform
@@ -60,7 +58,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/list" )
-  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
   @Facet ( name = "Unsupported" )
   public ArrayList<Setting> getUserSettings() {
     try {
