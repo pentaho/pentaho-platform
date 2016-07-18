@@ -22,6 +22,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -43,6 +44,8 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
 
   private String jobId = null;
 
+  private String recalculateFinished = null;
+
   private String solutionPath = null;
 
   @Override
@@ -61,6 +64,14 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
 
   public String getJobId() {
     return jobId;
+  }
+
+  public String getRecalculateFinished() {
+    return recalculateFinished;
+  }
+
+  public void setRecalculateFinished( String recalculateFinished ) {
+    this.recalculateFinished = recalculateFinished;
   }
 
   @Override
@@ -105,6 +116,7 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
     };
 
     outputLocationDialog.setOkButtonText( Messages.getString( "ok" ) );
+    outputLocationDialog.setScheduleNameText( Messages.getString( "scheduleNameColonReportviewer" ) );
     outputLocationDialog.center();
   }
 
@@ -120,9 +132,11 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
 
   public static native void onAttach()
   /*-{
-    $wnd.mantle_fireEvent('GenericEvent', {eventSubType: 'locationPromptAttached'});
-  }-*/;
+git  }-*/;
 
+  private static native void onFinished( String uuid )/*-{
+    $wnd.mantle_fireEvent('GenericEvent', {eventSubType: 'locationPromptFinish', stringParam: uuid});
+  }-*/;
 
   private RequestBuilder createTreeRequest() {
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder( RequestBuilder.GET, contextURL + "api/repo/files/"
@@ -160,6 +174,14 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
                 public void onResponseReceived( Request request, Response response ) {
                   if ( response.getStatusCode() != Response.SC_OK ) {
                     AdhocRunInBackgroundCommand.this.onError( response );
+                  } else {
+                    try {
+                      onFinished( JSONParser.
+                        parseStrict( response.getText() ).isObject()
+                        .get( "uuid" ).isString().stringValue() );
+                    } catch ( Exception e ) {
+                      AdhocRunInBackgroundCommand.this.onError( e );
+                    }
                   }
                 }
 
@@ -193,7 +215,7 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
 
     RequestBuilder scheduleFileRequestBuilder =
       new RequestBuilder( RequestBuilder.POST, contextURL + "plugin/reporting/api/jobs/"
-        + jobId + "/schedule?confirm=true&folderId=" + folderId + "&newName=" + getOutputName() );
+        + jobId + "/schedule?confirm=true&folderId=" + folderId + "&newName=" + getOutputName() + "&recalculateFinished=" + getRecalculateFinished() );
     scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     return scheduleFileRequestBuilder;
