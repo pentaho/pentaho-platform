@@ -60,7 +60,7 @@
 		<!-- Hibernate and dependencies -->
 		<dependency org="org.hibernate"     name="hibernate-core"    rev="3.6.9.Final" transitive="false"/>
     <dependency org="org.hibernate"     name="hibernate-ehcache"    rev="3.6.0.Final" transitive="false"/>
-		<dependency org="antlr"             name="antlr"        rev="2.7.6"    transitive="false"/>
+		<dependency org="org.antlr"         name="antlr-complete"     rev="3.5.2"    transitive="false"/>
 		<dependency org="asm"               name="asm"          rev="3.1"    transitive="false"/>
 		<dependency org="asm"               name="asm-attrs"    rev="2.2.3"    transitive="false"/>
 		<dependency org="javax.transaction" name="jta"          rev="1.1"   transitive="false"/>
@@ -158,6 +158,8 @@
 		<dependency org="org.jmock" 			name="jmock-junit4" rev="2.5.1" conf="test->default"/>
 	    <dependency org="org.jmock" 			name="jmock-legacy" rev="2.5.1" conf="test->default" />
 	    <dependency org="com.sun.jersey" 		name="jersey-test-framework" rev="1.8" conf="test->default"/>
+
+				<exclude org="antlr" module="antlr"/>
 
         <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
 	</dependencies>
