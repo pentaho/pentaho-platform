@@ -17,11 +17,24 @@
 
 package org.pentaho.mantle.client.ui.tabs;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.ClosingEvent;
+import com.google.gwt.user.client.Window.ClosingHandler;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
@@ -41,32 +54,22 @@ import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel.CustomFrame;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.Window.ClosingEvent;
-import com.google.gwt.user.client.Window.ClosingHandler;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel {
 
   final PopupPanel waitPopup = new PopupPanel( false, true );
 
+  private static final String REPORT_VIEWER_ASYNC_CONFIG_PATH = "plugin/reporting/api/jobs/config";
+  private static final String PIR_ASYNC_CONFIG_PATH = "plugin/pentaho-interactive-reporting/api/jobs/config";
+
   private static final String FRAME_ID_PRE = "frame_"; //$NON-NLS-1$
   private static int frameIdCount = 0;
-  private boolean isAsyncModeEnabled = false;
+  private boolean isReportViewerAsyncModeEnabled = false;
+  private boolean isPIRAsyncModeEnabled = false;
 
   private HashSet<IFrameTabPanel> freeFrames = new HashSet<IFrameTabPanel>();
 
@@ -96,7 +99,8 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       }
     } );
 
-    fetchAsyncModeEnabledStatus();
+    fetchAsyncModeEnabledStatus( REPORT_VIEWER_ASYNC_CONFIG_PATH );
+    fetchAsyncModeEnabledStatus( PIR_ASYNC_CONFIG_PATH );
   }
 
   public void addTab( String text, String tooltip, boolean closeable, Widget content ) {
@@ -111,7 +115,8 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   public void showNewURLTab( String tabName, String tabTooltip, String url, boolean setFileInfoInFrame, String frameName ) {
-    if ( !isAsyncModeEnabled || !url.contains( ".prpt" ) ) {
+    if ( !( isReportViewerAsyncModeEnabled && url.contains( ".prpt/" ) )
+            && !( isPIRAsyncModeEnabled && url.contains( ".prpti/" ) ) ) {
       showLoadingIndicator();
     }
     PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
@@ -792,16 +797,16 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }-*/;
 
   /**
-   * Queries the server once to see whether report-viewer async-mode is enabled. If it is enabled,
-   * the report-viewer provides it own loading screen and the default "please wait" screen interferes
+   * Queries the server once to see whether report-viewer or PIR async-mode is enabled. If it is enabled,
+   * the report-viewer and PIR provides it own loading screen and the default "please wait" screen interferes
    * with the user experience of that. Therefore we disable the wait-screen that comes up when a new
-   * page opens. @see case BACKLOG-7180 for details.
+   * page opens. @see case BACKLOG-7180, BACKLOG-9340 for details.
    */
-  public void fetchAsyncModeEnabledStatus() {
+  public void fetchAsyncModeEnabledStatus( final String path ) {
     final String moduleBaseURL = GWT.getModuleBaseURL();
     final String moduleName = GWT.getModuleName();
     final String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
-    final String url = contextURL + "plugin/reporting/api/jobs/config";
+    final String url = contextURL + path;
 
     RequestBuilder isAsyncModeEnabledRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     isAsyncModeEnabledRequestBuilder.setHeader( "accept", "application/json" );
@@ -815,11 +820,10 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          if ( response.getStatusCode() == Response.SC_OK ) {
-            JSONObject jsonObject = (JSONObject) JSONParser.parseLenient( response.getText() );
-            if ( jsonObject != null ) {
-              isAsyncModeEnabled = jsonObject.get( "supportAsync" ).isBoolean().booleanValue();
-            }
+          if ( path.equals( REPORT_VIEWER_ASYNC_CONFIG_PATH ) ) {
+            isReportViewerAsyncModeEnabled = isAsyncModeEnabled( response );
+          } else {
+            isPIRAsyncModeEnabled = isAsyncModeEnabled( response );
           }
         }
       } );
@@ -827,4 +831,15 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       // showError(e);
     }
   }
+
+  private boolean isAsyncModeEnabled( Response response ) {
+    try {
+      JSONObject jsonObject = (JSONObject) JSONParser.parseLenient( response.getText() );
+      return jsonObject.get( "supportAsync" ).isBoolean().booleanValue();
+
+    } catch ( Exception e ) {
+      return false;
+    }
+  }
+
 }
