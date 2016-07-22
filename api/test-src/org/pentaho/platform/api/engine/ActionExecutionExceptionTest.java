@@ -12,14 +12,19 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.engine;
 
-import org.junit.Test;
-
+import static org.junit.Assert.fail;
 import static org.pentaho.platform.api.test.ExceptionTester.hasValidExceptionConstructors;
+
+import java.lang.reflect.Constructor;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.pentaho.actionsequence.dom.IActionDefinition;
 
 /**
  * Created by bgroves on 11/9/15.
@@ -30,4 +35,28 @@ public class ActionExecutionExceptionTest {
   public void testExceptionClasses() {
     hasValidExceptionConstructors( ActionExecutionException.class );
   }
+
+  @Test
+  public void testCustomizedConstructors() {
+    IActionDefinition actionDef = Mockito.mock( IActionDefinition.class );
+
+    try {
+      Constructor<ActionExecutionException> constructor = ActionExecutionException.class.getDeclaredConstructor( String.class, Throwable.class, String.class, String.class,
+          String.class, IActionDefinition.class );
+      constructor.setAccessible( true );
+      constructor.newInstance( "msg", new Exception( "cause" ), "sessionName", "instanceId", "actionSequenceName", actionDef );
+    } catch ( Exception e ) {
+      fail( ActionExecutionException.class.getSimpleName() + " Does not have a constructor with String, Throwable, String, String, String, IActionDefinition " );
+    }
+
+    try {
+      Constructor<ActionExecutionException> constructor = ActionExecutionException.class.getDeclaredConstructor( String.class, String.class, String.class,
+          String.class, IActionDefinition.class );
+      constructor.setAccessible( true );
+      constructor.newInstance( "msg", "sessionName", "instanceId", "actionSequenceName", actionDef  );
+    } catch ( Exception e ) {
+      fail( ActionExecutionException.class.getSimpleName() + " Does not have a constructor with String, String, String, String, IActionDefinition " );
+    }
+  }
+
 }

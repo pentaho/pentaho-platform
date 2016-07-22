@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.engine;
@@ -206,8 +206,6 @@ public class ActionSequenceException extends Exception {
       String actionDesc = StringUtils.defaultString( ( (IActionDefinition) statement ).getDescription(), "" );
       s.println( prefix + "EXECUTING ACTION: " + actionDesc + " ("
           + ( (IActionDefinition) statement ).getComponentName() + ")" );
-    } else if ( statement instanceof IActionControlStatement ) {
-      s.println( prefix + "UNKNOWN CONTROL STATEMENT" );
     } else if ( statement instanceof IActionControlStatement ) {
       s.println( prefix + "UNKNOWN CONTROL STATEMENT" );
     } else {
