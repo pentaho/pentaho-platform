@@ -49,7 +49,11 @@ public class Tenant implements ITenant {
 
   @Override
   public String getName() {
-    return rootFolderAbsolutePath.substring( rootFolderAbsolutePath.lastIndexOf( "/" ) + 1 );
+    if ( rootFolderAbsolutePath != null ) {
+      return rootFolderAbsolutePath.substring( rootFolderAbsolutePath.lastIndexOf( "/" ) + 1 );
+    }
+
+    return null;
   }
 
   @Override
