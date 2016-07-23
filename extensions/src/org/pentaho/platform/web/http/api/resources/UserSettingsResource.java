@@ -33,6 +33,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
@@ -64,8 +65,8 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   public ArrayList<Setting> getUserSettings() {
     try {
-      IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
-      ArrayList<IUserSetting> userSettings = (ArrayList<IUserSetting>) settingsService.getUserSettings();
+      IUserSettingService settingsService = getUserSettingService();
+      List<IUserSetting> userSettings =  settingsService.getUserSettings();
 
       ArrayList<Setting> settings = new ArrayList<Setting>();
       for ( IUserSetting userSetting : userSettings ) {
@@ -90,7 +91,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @Path( "{setting : .+}" )
   @Facet ( name = "Unsupported" )
   public Response getUserSetting( @PathParam( "setting" ) String setting ) {
-    IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
+    IUserSettingService settingsService = getUserSettingService();
     IUserSetting userSetting = settingsService.getUserSetting( setting, null );
     return Response.ok( userSetting != null ? userSetting.getSettingValue() : null ).build();
   }
@@ -107,13 +108,17 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @Path( "{setting : .+}" )
   @Facet ( name = "Unsupported" )
   public Response setUserSetting( @PathParam( "setting" ) String setting, String settingValue ) {
-    IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
+    IUserSettingService settingsService = getUserSettingService();
 
     //preventing stored XSS(PPP-3464)
 
     settingValue = EscapeUtils.escapeJsonOrRaw( settingValue );
     settingsService.setUserSetting( setting, settingValue );
     return Response.ok( settingValue ).build();
+  }
+
+  IUserSettingService getUserSettingService() {
+    return PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
   }
 
 }
