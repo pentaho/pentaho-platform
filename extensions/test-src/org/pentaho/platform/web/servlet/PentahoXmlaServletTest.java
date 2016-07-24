@@ -18,21 +18,45 @@
 package org.pentaho.platform.web.servlet;
 
 import junit.framework.TestCase;
+import mondrian.olap.Connection;
+import mondrian.olap.DriverManager;
 import mondrian.olap.MondrianException;
+import mondrian.rolap.RolapConnection;
+import mondrian.xmla.XmlaHandler;
 import org.dom4j.Document;
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.ISecurityHelper;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import javax.servlet.ServletConfig;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
-
-public class PentahoXmlaServletTest extends TestCase {
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(DriverManager.class)
+@PowerMockIgnore("javax.management.*")
+public class PentahoXmlaServletTest  {
 
   private static final String DATASOURCE_XML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -71,12 +95,12 @@ public class PentahoXmlaServletTest extends TestCase {
           + "</DataSources>\n";
 
 
-  @Override
-  protected void tearDown() throws Exception {
-    super.tearDown();
+  @After
+  public void tearDown() throws Exception {
     SecurityHelper.setMockInstance( null );
   }
 
+  @Test
   public void testMakeContentFinderHandlesXmlaEnablement() throws Exception {
     ISecurityHelper securityHelper = mock( ISecurityHelper.class );
     SecurityHelper.setMockInstance( securityHelper );
@@ -93,8 +117,10 @@ public class PentahoXmlaServletTest extends TestCase {
         "/DataSources/DataSource/Catalogs/Catalog[@name='EnabledCatalog']" ) );
     assertNotNull( content.selectNodes(
         "/DataSources/DataSource/Catalogs/Catalog[@name='FoodMart']" ) );
+
   }
 
+  @Test
   public void testInvalidDataSourceInfo() throws Exception {
     ISecurityHelper securityHelper = mock( ISecurityHelper.class );
     SecurityHelper.setMockInstance( securityHelper );
@@ -130,4 +156,46 @@ public class PentahoXmlaServletTest extends TestCase {
     fail( "Did not throw expected exception." );
   }
 
+  @Test
+  public void createConnectionFactory() throws Exception {
+    ISecurityHelper securityHelper = mock( ISecurityHelper.class );
+    SecurityHelper.setMockInstance( securityHelper );
+    when( securityHelper.runAsSystem( any( ( Callable.class ) ) ) ).thenReturn( DATASOURCE_XML );
+
+    IMondrianCatalogService catalogService = mock( MondrianCatalogHelper.class );
+    MondrianCatalog mondrianCatalog = mock( MondrianCatalog.class );
+    when( mondrianCatalog.getDataSourceInfo() ).thenReturn( "DataSource=foo" );
+
+
+    doReturn( mondrianCatalog ).when( catalogService ).getCatalog(  anyString(), anyObject() );
+    PowerMockito.mockStatic(DriverManager.class);
+
+    when(DriverManager.getConnection(anyString(), anyObject())).thenReturn( mock( RolapConnection.class ));
+
+
+    PentahoSystem.registerObject( catalogService );
+
+    PentahoXmlaServlet xmlaServlet = spy( new PentahoXmlaServlet() );
+
+    XmlaHandler.ConnectionFactory connectionFactory =
+        xmlaServlet.createConnectionFactory( mock( ServletConfig.class ) );
+
+    Properties properties = new Properties();
+    properties.put("DataSource", "bogus");
+    try {
+      connectionFactory.getConnection( "SampleData", "SampleData", "baz", properties );
+    } catch( MondrianException exception ){
+      //ignored
+    }
+
+    try {
+      connectionFactory.getConnection( "SampleData", "SampleData", "baz", properties );
+    } catch( MondrianException exception ){
+      //ignored
+    }
+
+    // We verify that only one Catalog Locator is created for multiple requests
+    verify( xmlaServlet, times(1) ).makeCatalogLocator( anyObject() );
+
+  }
 }

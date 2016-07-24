@@ -38,7 +38,7 @@ import java.util.concurrent.Callable;
  * {@link OrderedAuthenticationListener} that invokes {@link IBackingRepositoryLifecycleManager#newTenant()} and
  * {@link IBackingRepositoryLifecycleManager#newUser()}. This listener fires either on interactive or
  * non-interactive logins.
- * 
+ *
  * @author mlowery
  */
 public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener implements ApplicationListener, Ordered {
@@ -150,12 +150,12 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
   public IBackingRepositoryLifecycleManager getLifecycleManager() {
     // Check ... if we haven't been injected with a lifecycle manager, get one from PentahoSystem
     return ( null != lifecycleManager ? lifecycleManager
-      : PentahoSystem.get( IBackingRepositoryLifecycleManager.class ) );
+        : PentahoSystem.get( IBackingRepositoryLifecycleManager.class ) );
   }
 
   /**
    * Sets the {@link IBackingRepositoryLifecycleManager} to be used by this instance
-   * 
+   *
    * @param lifecycleManager
    *          the lifecycle manager to use (can not be null)
    */
@@ -174,7 +174,7 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
 
   /**
    * Sets the {@link ISecurityHelper} to be used by this instance. This can not be {@code null}
-   * 
+   *
    * @param securityHelper
    *          the {@link ISecurityHelper} to be used by this instance
    */
