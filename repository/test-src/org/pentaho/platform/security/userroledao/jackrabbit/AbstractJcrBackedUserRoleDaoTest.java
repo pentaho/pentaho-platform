@@ -20,23 +20,27 @@ package org.pentaho.platform.security.userroledao.jackrabbit;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.jackrabbit.api.security.user.User;
+import org.apache.jackrabbit.core.SessionImpl;
 import org.junit.Test;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory;
 
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
- * Tests for {@link org.pentaho.platform.security.userroledao.jackrabbit.AbstractJcrBackedUserRoleDao}
- * Class is created in order to have access to package-private methods.
+ * Tests for {@link org.pentaho.platform.security.userroledao.jackrabbit.AbstractJcrBackedUserRoleDao} Class is created
+ * in order to have access to package-private methods.
  *
  * @author Yury_Bakhmutski
  */
@@ -80,4 +84,15 @@ public class AbstractJcrBackedUserRoleDaoTest {
     verify( cacheMock, never() ).put( anyObject(), anyString() );
   }
 
+
+  @Test
+  public void getSessionImplTest() throws Exception {
+
+    CredentialsStrategySessionFactory factory =
+        new CredentialsStrategySessionFactory( mock( Repository.class ), mock( CredentialsStrategy.class ) );
+    Session sessionProxy = factory.createSessionProxy( mock( SessionImpl.class ) );
+    SessionImpl sessionImpl = AbstractJcrBackedUserRoleDao.getSessionImpl( sessionProxy );
+    assertThat( sessionImpl, is( notNullValue() ) );
+
+  }
 }

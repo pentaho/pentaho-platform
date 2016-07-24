@@ -102,7 +102,7 @@ public class ConditionalExecution implements IConditionalExecution {
         return ( (Boolean) actualObject ).booleanValue();
       } else if ( actualObject instanceof String ) {
         return ( "true".equalsIgnoreCase( actualObject.toString() ) ) || ( "yes".equalsIgnoreCase(
-          actualObject.toString() ) ); //$NON-NLS-1$ //$NON-NLS-2$
+            actualObject.toString() ) ); //$NON-NLS-1$ //$NON-NLS-2$
       } else if ( actualObject instanceof Number ) {
         return ( (Number) actualObject ).intValue() > 0;
       } else if ( actualObject instanceof IPentahoResultSet ) {

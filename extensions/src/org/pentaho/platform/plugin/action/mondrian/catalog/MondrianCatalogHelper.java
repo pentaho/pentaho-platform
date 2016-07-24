@@ -17,29 +17,18 @@
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import com.google.common.annotations.VisibleForTesting;
+import mondrian.i18n.LocalizingDynamicSchemaProcessor;
+import mondrian.olap.Connection;
+import mondrian.olap.MondrianDef;
+import mondrian.olap.MondrianException;
+import mondrian.olap.Util;
+import mondrian.olap.Util.PropertyList;
+import mondrian.rolap.RolapConnectionProperties;
+import mondrian.spi.DynamicSchemaProcessor;
+import mondrian.util.ClassResolver;
+import mondrian.xmla.DataSourcesConfig;
+import mondrian.xmla.DataSourcesConfig.DataSources;
 import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -92,19 +81,27 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
 
-import com.google.common.annotations.VisibleForTesting;
-
-import mondrian.i18n.LocalizingDynamicSchemaProcessor;
-import mondrian.olap.Connection;
-import mondrian.olap.MondrianDef;
-import mondrian.olap.MondrianException;
-import mondrian.olap.Util;
-import mondrian.olap.Util.PropertyList;
-import mondrian.rolap.RolapConnectionProperties;
-import mondrian.spi.DynamicSchemaProcessor;
-import mondrian.util.ClassResolver;
-import mondrian.xmla.DataSourcesConfig;
-import mondrian.xmla.DataSourcesConfig.DataSources;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Reads in file containing Mondrian data sources and catalogs. (Contains code copied from <code>XmlaServlet</code>.)
@@ -132,11 +129,9 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   private Map<String, MondrianCatalogComplementInfo> catalogComplementInfoMap;
 
   /**
-   * Tells the MCH to generate datasources.xml with a DB name
-   * equals to that of the 4.X servers. This is necessary until
-   * the next release of olap4j-xmla. Using the legacy DB name
-   * allows requests of MDSCHEMA_MEMBERS to be batched.
-   * See MONDRIAN-2229.
+   * Tells the MCH to generate datasources.xml with a DB name equals to that of the 4.X servers. This is necessary until
+   * the next release of olap4j-xmla. Using the legacy DB name allows requests of MDSCHEMA_MEMBERS to be batched. See
+   * MONDRIAN-2229.
    */
   private final boolean useLegacyDbName;
 
@@ -362,7 +357,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   @VisibleForTesting
   protected void appendCatalogsSection( IUnifiedRepository unifiedRepository, String etcMondrian,
-      RepositoryFile etcMondrianFolder, StringBuffer datasourcesXML ) {
+                                        RepositoryFile etcMondrianFolder, StringBuffer datasourcesXML ) {
     datasourcesXML.append( "<Catalogs>\n" ); //$NON-NLS-1$
     Encoder encoder = ESAPI.encoder();
     // Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
@@ -459,12 +454,12 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
     if ( doc.getElementChildren().length > 0 ) {
 
-      DOMWrapper dataSource = doc.getElementChildren()[0];
+      DOMWrapper dataSource = doc.getElementChildren()[ 0 ];
       DOMWrapper catalogs = null;
 
       // Search Catalogs
       for ( int i = 0; i < dataSource.getElementChildren().length; i++ ) {
-        DOMWrapper element = dataSource.getElementChildren()[i];
+        DOMWrapper element = dataSource.getElementChildren()[ i ];
         if ( element.getTagName().equals( "Catalogs" ) ) { //$NON-NLS-1$
           catalogs = element;
           break;
@@ -473,7 +468,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
       // Generate the map. We need the name and the variables
       for ( int i = 0; i < catalogs.getElementChildren().length; i++ ) {
-        final DOMWrapper catalog = catalogs.getElementChildren()[i];
+        final DOMWrapper catalog = catalogs.getElementChildren()[ i ];
         if ( !"Catalog".equals( catalog.getTagName() ) ) { //$NON-NLS-1$
           continue;
         }
@@ -482,7 +477,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
         // Iterate through whereConditions
         for ( int j = 0; j < catalog.getElementChildren().length; j++ ) {
-          final DOMWrapper whereNode = catalog.getElementChildren()[j];
+          final DOMWrapper whereNode = catalog.getElementChildren()[ j ];
           if ( "WhereCondition".equals( whereNode.getTagName() ) ) { //$NON-NLS-1$
             complementInfo.addWhereCondition( whereNode.getAttribute( "cube" ), whereNode.getText() ); //$NON-NLS-1$
           }
@@ -499,7 +494,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   private String getDOMWrapperElementText( final DOMWrapper element, final String name ) {
 
     for ( int i = 0; i < element.getElementChildren().length; i++ ) {
-      DOMWrapper child = element.getElementChildren()[i];
+      DOMWrapper child = element.getElementChildren()[ i ];
       if ( child.getTagName().equals( name ) ) {
         return child.getText();
       }
@@ -568,7 +563,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    */
   @Override
   public synchronized void addCatalog( final MondrianCatalog catalog, final boolean overwrite,
-      final IPentahoSession pentahoSession ) throws MondrianCatalogServiceException {
+                                       final IPentahoSession pentahoSession ) throws MondrianCatalogServiceException {
     String mondrianSchema = (String) pentahoSession.getAttribute( "MONDRIAN_SCHEMA_XML_CONTENT" ); //$NON-NLS-1$
     InputStream schemaInputStream = IOUtils.toInputStream( mondrianSchema );
     addCatalog( schemaInputStream, catalog, overwrite, pentahoSession );
@@ -579,7 +574,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    */
   @Override
   public void addCatalog( InputStream inputStream, MondrianCatalog catalog, boolean overwriteInRepossitory,
-                                    IPentahoSession session ) {
+                          IPentahoSession session ) {
     addCatalog( inputStream, catalog, overwriteInRepossitory, null, session );
   }
 
@@ -589,14 +584,15 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    * @param schemaInputStream
    * @param catalog
    * @param overwrite
-   * @param acl                 catalog ACL
+   * @param acl               catalog ACL
    * @param pentahoSession
    * @throws MondrianCatalogServiceException
    */
   @Override
   public synchronized void addCatalog( InputStream schemaInputStream, final MondrianCatalog catalog,
-      final boolean overwrite, RepositoryFileAcl acl, final IPentahoSession pentahoSession )
-    throws MondrianCatalogServiceException {
+                                       final boolean overwrite, RepositoryFileAcl acl,
+                                       final IPentahoSession pentahoSession )
+      throws MondrianCatalogServiceException {
     if ( MondrianCatalogHelper.logger.isDebugEnabled() ) {
       MondrianCatalogHelper.logger.debug( "addCatalog" ); //$NON-NLS-1$
     }
@@ -623,11 +619,11 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     final boolean catalogExistsWithDifferentDatasource;
     try {
       catalogExistsWithDifferentDatasource =
-        fileLocationCatalogTest != null
-        && definitionEquals(
-          fileLocationCatalogTest.getDefinition(),
-          "mondrian:/"
-          + URLEncoder.encode( catalog.getName(), "UTF-8" ) );
+          fileLocationCatalogTest != null
+              && definitionEquals(
+              fileLocationCatalogTest.getDefinition(),
+              "mondrian:/"
+                  + URLEncoder.encode( catalog.getName(), "UTF-8" ) );
     } catch ( UnsupportedEncodingException e ) {
       throw new MondrianCatalogServiceException( e );
     }
@@ -667,7 +663,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   private void flushCacheForCatalog( String catalogName, IPentahoSession pentahoSession ) {
     IOlapService olapService =
-          PentahoSystem.get( IOlapService.class, "IOlapService", pentahoSession );
+        PentahoSystem.get( IOlapService.class, "IOlapService", pentahoSession );
     Connection unwrap = null;
     try {
       OlapConnection connection = olapService.getConnection( catalogName, pentahoSession );
@@ -676,7 +672,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     } catch ( Throwable e ) {
       MondrianCatalogHelper.logger.warn(
           Messages.getInstance().getErrorString(
-          "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", catalogName ), e );
+              "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", catalogName ), e );
     } finally {
       if ( unwrap != null ) {
         unwrap.close();
@@ -834,6 +830,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   protected void loadCatalogsIntoCache( final DataSourcesConfig.DataSources dataSources,
       final IPentahoSession pentahoSession ) {
+
     // Create the cache region if necessary.
     ICacheManager cacheMgr = PentahoSystem.getCacheManager( pentahoSession );
     if ( !cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION ) ) {
@@ -856,7 +853,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       }
 
       for ( DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs ) {
-        if ( catalog.definition.startsWith( "mondrian:" ) || catalog.definition.startsWith( "solution:" ) ) { //$NON-NLS-2$
+        if ( catalog.definition.startsWith( "mondrian:" ) || catalog.definition
+            .startsWith( "solution:" ) ) { //$NON-NLS-1$
 
           // try catch here so the whole thing doesn't blow up if one datasource is configured incorrectly.
           MondrianSchema schema = null;
@@ -920,7 +918,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   @Deprecated
   protected List<MondrianCatalog> transformIntoCatalogList( final DataSourcesConfig.DataSources dataSources,
-      final IPentahoSession pentahoSession ) {
+                                                            final IPentahoSession pentahoSession ) {
     List<MondrianCatalog> localCatalogs = new ArrayList<MondrianCatalog>();
     for ( DataSourcesConfig.DataSource dataSource : dataSources.dataSources ) {
       List<String> catalogNames = new ArrayList<String>();
@@ -1018,7 +1016,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     if ( MondrianCatalogHelper.logger.isDebugEnabled() ) {
       MondrianCatalogHelper.logger
           .debug( "makeSchema (catalogStr=" + catalogStr.substring( 0, Math.min( 40, catalogStr.length() ) ) + "...)"
-      );
+          );
     }
     MondrianSchema schema = null;
     try {
@@ -1051,9 +1049,9 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       String[] roleNames = null;
 
       if ( ( roles != null ) && ( roles.length > 0 ) ) {
-        roleNames = new String[roles.length];
+        roleNames = new String[ roles.length ];
         for ( int i = 0; i < roles.length; i++ ) {
-          roleNames[i] = roles[i].name; // Note - getName() doesn't return the role name, it returns the word Role
+          roleNames[ i ] = roles[ i ].name; // Note - getName() doesn't return the role name, it returns the word Role
         }
       }
 
@@ -1075,7 +1073,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   protected List<MondrianCatalog> filter( final List<MondrianCatalog> origList, final IPentahoSession pentahoSession,
-      final boolean jndiOnly ) {
+                                          final boolean jndiOnly ) {
     List<MondrianCatalog> filtered = new ArrayList<MondrianCatalog>();
     for ( MondrianCatalog orig : origList ) {
       if ( hasAccess( orig, RepositoryFilePermission.READ ) && ( !jndiOnly || orig.isJndi() ) ) {
@@ -1093,7 +1091,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    * Why is this class even enforcing security anyway!?
    */
   protected boolean hasAccess( MondrianCatalog cat, RepositoryFilePermission permission ) {
-    return getAclHelper().canAccess( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( cat.getName() ), EnumSet.of( permission ) );
+    return getAclHelper().canAccess( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( cat.getName() ),
+        EnumSet.of( permission ) );
   }
 
   protected String getSolutionRepositoryRelativePath( final String path, final IPentahoSession pentahoSession ) {
@@ -1117,7 +1116,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   public static int addToCatalog( String baseUrl, boolean enableXmla, String schemaSolutionPath,
-      IPentahoSession session, String jndiName, boolean overwrite ) {
+                                  IPentahoSession session, String jndiName, boolean overwrite ) {
 
     IMondrianCatalogService mondrianCatalogService =
         PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", session ); //$NON-NLS-1$
@@ -1185,7 +1184,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    */
   @Override
   public void removeCatalog( final String catalogName, final IPentahoSession pentahoSession )
-    throws MondrianCatalogServiceException {
+      throws MondrianCatalogServiceException {
 
     //
     // find the catalog to be removed
