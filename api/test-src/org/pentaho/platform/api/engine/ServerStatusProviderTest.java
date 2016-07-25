@@ -13,8 +13,9 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.api.engine;
 
 import org.junit.Test;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.times;
  */
 public class ServerStatusProviderTest {
   private IServerStatusProvider serverStatusProvider;
-  final static String MESSAGE1 = "This is a test";
+  static final String MESSAGE1 = "This is a test";
   private static final String PROVIDER_CLASS = "org.pentaho.platform.api.engine.IServerStatusProvider.class";
 
   private void setup() {
@@ -60,28 +61,54 @@ public class ServerStatusProviderTest {
     serverStatusProvider.registerServerStatusChangeListener( mockListener );
     serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STOPPING );
     verify( mockListener, times( 1 ) ).onStatusChange();
-    
+
     serverStatusProvider.removeServerStatusChangeListener( mockListener );
   }
-  
+
   @Test
   public void testExceptions() {
     IServerStatusProvider.LOCATOR.instance = null;
-    System.setProperty(PROVIDER_CLASS, "foo");
+    System.setProperty( PROVIDER_CLASS, "foo" );
     serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
     assertNotNull( serverStatusProvider );
     assertTrue( serverStatusProvider instanceof ServerStatusProvider );
   }
-  
+
   @Test
-  public void testPluggableClass() {
+  public void testInstantiationExceptionException() {
     IServerStatusProvider.LOCATOR.instance = null;
-    System.setProperty(PROVIDER_CLASS, MockPluggedInProvider.class.getName() );
+    System.setProperty( PROVIDER_CLASS, "org.pentaho.platform.api.engine.IServerStatusProvider" );
+    serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
+    assertNotNull( serverStatusProvider );
+    assertTrue( serverStatusProvider instanceof ServerStatusProvider );
+  }
+
+  @Test
+  public void testLocatorInstanceNotNull() {
+    IServerStatusProvider.LOCATOR.instance = new MockPluggedInProvider();
     serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
     assertNotNull( serverStatusProvider );
     assertTrue( serverStatusProvider instanceof MockPluggedInProvider );
   }
-  
+
+  @Test
+  public void testServerStatusEnum() {
+    assertNotNull( IServerStatusProvider.ServerStatus.valueOf( "DOWN" ) );
+    assertNotNull( IServerStatusProvider.ServerStatus.valueOf( "STARTING" ) );
+    assertNotNull( IServerStatusProvider.ServerStatus.valueOf( "STARTED" ) );
+    assertNotNull( IServerStatusProvider.ServerStatus.valueOf( "STOPPING" ) );
+    assertNotNull( IServerStatusProvider.ServerStatus.valueOf( "ERROR" ) );
+  }
+
+  @Test
+  public void testPluggableClass() {
+    IServerStatusProvider.LOCATOR.instance = null;
+    System.setProperty( PROVIDER_CLASS, MockPluggedInProvider.class.getName() );
+    serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
+    assertNotNull( serverStatusProvider );
+    assertTrue( serverStatusProvider instanceof MockPluggedInProvider );
+  }
+
   public static class MockPluggedInProvider implements IServerStatusProvider {
 
     @Override
@@ -91,7 +118,7 @@ public class ServerStatusProviderTest {
 
     @Override
     public void setStatus( ServerStatus serverStatus ) {
-      
+
     }
 
     @Override
@@ -101,18 +128,18 @@ public class ServerStatusProviderTest {
 
     @Override
     public void setStatusMessages( String[] messages ) {
-      
+
     }
 
     @Override
     public void registerServerStatusChangeListener( IServerStatusChangeListener serverStatusChangeListener ) {
-     
+
     }
 
     @Override
     public void removeServerStatusChangeListener( IServerStatusChangeListener serverStatusChangeListener ) {
-  
+
     }
-    
+
   }
 }

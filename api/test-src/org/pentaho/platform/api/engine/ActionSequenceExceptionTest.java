@@ -12,19 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.engine;
-
-import org.junit.Test;
-import org.pentaho.actionsequence.dom.IActionControlStatement;
-import org.pentaho.actionsequence.dom.IActionDefinition;
-import org.pentaho.actionsequence.dom.IActionIfStatement;
-import org.pentaho.actionsequence.dom.IActionLoop;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -34,6 +25,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
+
+import org.junit.Test;
+import org.pentaho.actionsequence.dom.IActionControlStatement;
+import org.pentaho.actionsequence.dom.IActionDefinition;
+import org.pentaho.actionsequence.dom.IActionIfStatement;
+import org.pentaho.actionsequence.dom.IActionLoop;
+import org.pentaho.actionsequence.dom.IActionSequenceExecutableStatement;
 
 /**
  * Created by bgroves on 10/28/15.
@@ -163,14 +164,14 @@ public class ActionSequenceExceptionTest {
     verify( actionDef ).getDescription();
     verify( actionDef ).getComponentName();
     exception.printActionExecutionStack( writer );
-    verify( ( IActionIfStatement ) actionDef ).getCondition();
+    verify( (IActionIfStatement) actionDef ).getCondition();
     assertNotEquals( "", stream.toString() );
 
     actionDef = mock( IActionDefinition.class, withSettings().extraInterfaces( IActionLoop.class ) );
     exception.setActionDefinition( actionDef );
     writer = new PrintWriter( stream, true );
     exception.printActionExecutionStack( writer );
-    verify( ( IActionLoop ) actionDef ).getLoopOn();
+    verify( (IActionLoop) actionDef ).getLoopOn();
     assertNotEquals( "", stream.toString() );
 
     actionDef = mock( IActionDefinition.class );
@@ -181,4 +182,21 @@ public class ActionSequenceExceptionTest {
     verify( actionDef, times( 2 ) ).getComponentName();
     assertNotEquals( "", stream.toString() );
   }
+
+  @Test
+  public void testPrintStack() {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    PrintWriter writer = new PrintWriter( stream, true );
+    ActionSequenceException exception = new ActionSequenceException( MSG );
+
+    IActionSequenceExecutableStatement statement = mock( IActionControlStatement.class );
+    exception._printStack( statement, writer, "" );
+    assertNotEquals( "", stream.toString() );
+
+    statement = mock( IActionSequenceExecutableStatement.class );
+    exception._printStack( statement, writer, "" );
+    assertNotEquals( "", stream.toString() );
+
+  }
+
 }
