@@ -39,15 +39,28 @@
         <dependency org="org.yaml" name="snakeyaml" rev="1.7" conf="default->default" transitive="false"/>
 
     	<!-- jersey -->
-    	<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.16"/>
-    	<dependency org="com.sun.jersey.contribs" name="jersey-apache-client" rev="1.16" transitive="false"/>
-    	<dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.16" transitive="false"/>
+      <dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" transitive="false"/>
+    	<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.19.1" transitive="false"/>
+      <dependency org="org.jvnet.mimepull" name="mimepull" rev="1.9.3" transitive="false"/> 
+    	<dependency org="com.sun.jersey.contribs" name="jersey-apache-client" rev="1.19.1" transitive="false"/>
+    	<dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.19.1" transitive="false"/>
 
-    	<dependency org="com.sun.jersey" name="jersey-core" rev="1.16"    transitive="false"/>
-    	<dependency org="com.sun.jersey" name="jersey-json" rev="1.16"    transitive="true"/>
-    	<dependency org="com.sun.jersey" name="jersey-client" rev="1.16"  transitive="false"/>
-    	<dependency org="com.sun.jersey" name="jersey-server" rev="1.16"  transitive="false"/>
-    	<dependency org="com.sun.jersey" name="jersey-servlet" rev="1.16" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-core" rev="1.19.1"    transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-json" rev="1.19.1"    transitive="false"/>
+      <!--here jersey-json transitive dependencies started-->
+      <dependency org="org.codehaus.jackson" name="jackson-xc" rev="1.9.2" transitive="false"/>
+      <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.9.2" transitive="false"/>
+      <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.9.2" transitive="false"/>
+      <dependency org="org.codehaus.jackson" name="jackson-jaxrs" rev="1.9.2" transitive="false"/>
+      <dependency org="org.codehaus.jettison" name="jettison" rev="1.1" transitive="false"/>
+      <dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2.3-1" transitive="false"/>
+      <dependency org="javax.xml.bind" name="jaxb-api" rev="2.2.2" transitive="false"/>
+      <dependency org="javax.xml.stream" name="stax-api" rev="1.0-2" transitive="false"/>
+      <dependency org="javax.activation" name="activation" rev="1.1" transitive="false"/>
+      <!--here jersey-json transitive dependencies finished-->
+    	<dependency org="com.sun.jersey" name="jersey-client" rev="1.19.1"  transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-server" rev="1.19.1"  transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-servlet" rev="1.19.1" transitive="false"/>
 
 
 		<!-- metro -->
@@ -159,7 +172,7 @@
 	    <dependency org="org.mockito"          	name="mockito-all"  rev="1.10.19"   conf="test->default"/>
 		<dependency org="org.jmock" 			name="jmock-junit4" rev="2.5.1" conf="test->default"/>
 	    <dependency org="org.jmock" 			name="jmock-legacy" rev="2.5.1" conf="test->default" />
-	    <dependency org="com.sun.jersey" 		name="jersey-test-framework" rev="1.8" conf="test->default"/>
+	    <dependency org="com.sun.jersey" 		name="jersey-test-framework" rev="1.19.1" conf="test->default" transitive="false"/>
 
 		<exclude org="javassist" module="javassist"/>
         <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
