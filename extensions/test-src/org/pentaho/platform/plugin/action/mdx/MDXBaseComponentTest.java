@@ -195,96 +195,9 @@ public class MDXBaseComponentTest {
   }
 
   @Test
-  public void testExecuteAction_queryAction() throws Exception {
-    mdxBaseComponent.setActionDefinition( queryAction );
-
-    when( queryAction.getMdxConnection() ).thenReturn( actionInput );
-    when( actionInput.getValue() ).thenReturn( preparedComponent );
-    when( preparedComponent.shareConnection() ).thenReturn( conn );
-    when( conn.getDatasourceType() ).thenReturn( IPentahoConnection.MDX_DATASOURCE );
-
-    when( queryAction.getQuery() ).thenReturn( queryActionInput );
-    when( queryActionInput.getStringValue() ).thenReturn( "select * from table" );
-    when( queryAction.getOutputPreparedStatement() ).thenReturn( outputResultSet );
-
-    doReturn( true ).when( mdxBaseComponent ).prepareQuery( anyString() );
-    doNothing().when( mdxBaseComponent ).setOutputValue( anyString(), anyString() );
-
-    assertTrue( mdxBaseComponent.executeAction() );
-    verify( mdxBaseComponent ).prepareQuery( "select * from table" );
-    verify( mdxBaseComponent ).setOutputValue( anyString(), anyString() );
-
-  }
-
-  @Test
-  public void testExecuteAction_mdxConnectionAction() throws Exception {
-    mdxBaseComponent.setActionDefinition( connAction );
-    doReturn( conn ).when( mdxBaseComponent ).getDatasourceConnection();
-    doNothing().when( mdxBaseComponent ).setOutputValue( anyString(), anyString() );
-
-    assertTrue( mdxBaseComponent.executeAction() );
-  }
-
-  @Test
-  public void testPrepareQuery() throws Exception {
-    mdxBaseComponent.setConnection( conn );
-    when( conn.initialized() ).thenReturn( true );
-    doReturn( "yes" ).when( mdxBaseComponent ).applyInputsToFormat( anyString() );
-    assertTrue( mdxBaseComponent.prepareQuery( "select * from table" ) );
-  }
-
-  @Test
-  public void testPrepareQuery_nullConn() throws Exception {
-    mdxBaseComponent.setConnection( null );
-    assertFalse( mdxBaseComponent.prepareQuery( "select * from table" ) );
-  }
-
-  @Test
-  public void testPrepareQuery_notInitialized() throws Exception {
-    mdxBaseComponent.setConnection( conn );
-    when( conn.initialized() ).thenReturn( false );
-    assertFalse( mdxBaseComponent.prepareQuery( "select * from table" ) );
-  }
-
-  @Test
-  public void testShareConnection() throws Exception {
-    mdxBaseComponent.setConnection( conn );
-    assertEquals( conn, mdxBaseComponent.shareConnection() );
-  }
-
-  @Test
   public void testExecutePrepared_nullConnection() throws Exception {
     Map params = new HashMap();
     assertNull( mdxBaseComponent.executePrepared( params ) );
-  }
-
-  @Test
-  public void testExecutePrepared_connectionNoInit() throws Exception {
-    Map params = new HashMap();
-    when( conn.initialized() ).thenReturn( false );
-    mdxBaseComponent.setConnection( conn );
-
-    assertNull( mdxBaseComponent.executePrepared( params ) );
-  }
-
-  @Test
-  public void testExecutePrepared() throws Exception {
-    Map params = new HashMap();
-    when( conn.initialized() ).thenReturn( true );
-    mdxBaseComponent.setConnection( conn );
-    mdxBaseComponent.preparedQuery = "select * from table where x = ?";
-
-    when( conn.executeQuery( anyString() ) ).thenReturn( resultSet );
-    doReturn( runtimeContext ).when( mdxBaseComponent ).getRuntimeContext();
-    Set inputs = new HashSet();
-    when( runtimeContext.getInputNames() ).thenReturn( inputs );
-    when( runtimeContext.getParameterManager() ).thenReturn( paramManager );
-    when( paramManager.getCurrentInputNames() ).thenReturn( inputs );
-
-    IPentahoResultSet result = mdxBaseComponent.executePrepared( params );
-    assertNotNull( result );
-    assertEquals( resultSet, result );
-    assertEquals( resultSet, mdxBaseComponent.getResultSet() );
   }
 
   @Test
@@ -333,7 +246,7 @@ public class MDXBaseComponentTest {
     when( conn.initialized() ).thenReturn( true );
 
     mdxBaseComponent.setRuntimeContext( runtimeContext );
-    HashSet<String> inputs = new HashSet<>();
+    HashSet<String> inputs = new HashSet<String>();
     inputs.add( MDXBaseComponent.FORMATTED_CELL_VALUES );
     when( runtimeContext.getInputNames() ).thenReturn( inputs );
     mdxBaseComponent.setActionDefinition( queryAction );

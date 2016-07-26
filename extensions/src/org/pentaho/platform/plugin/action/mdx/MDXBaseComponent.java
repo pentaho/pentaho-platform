@@ -22,7 +22,7 @@ import mondrian.rolap.RolapConnectionProperties;
 import mondrian.util.Pair;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs.FileObject;
 import org.pentaho.actionsequence.dom.ActionInputConstant;
 import org.pentaho.actionsequence.dom.IActionOutput;
 import org.pentaho.actionsequence.dom.actions.MdxConnectionAction;
@@ -584,7 +584,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
 
   boolean isCatalogVfsAccepted( String catalog ) {
     try {
-      FileObject f = org.apache.commons.vfs2.VFS.getManager().resolveFile( catalog );
+      FileObject f = org.apache.commons.vfs.VFS.getManager().resolveFile( catalog );
       return ( f != null );
     } catch ( Exception e ) {
       Log logger = getLogger();
