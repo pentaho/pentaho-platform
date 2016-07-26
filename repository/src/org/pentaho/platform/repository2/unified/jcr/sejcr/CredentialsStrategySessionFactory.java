@@ -618,11 +618,27 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
     return workspaceName;
   }
 
-  public class LogoutSuppressingInvocationHandler implements InvocationHandler {
+  public static class LogoutSuppressingInvocationHandler implements InvocationHandler {
+    public interface LogoutDelegate {
+      boolean shouldLogout();
+
+      LogoutDelegate DefaultLogoutDelegate = new LogoutDelegate() {
+        @Override public boolean shouldLogout() {
+          return !TransactionSynchronizationManager.isCurrentTransactionReadOnly();
+        }
+      };
+    }
+
+    private LogoutDelegate logoutDelegate = LogoutDelegate.DefaultLogoutDelegate;
     private final Session target;
 
     public LogoutSuppressingInvocationHandler( Session target ) {
       this.target = target;
+    }
+
+    public void setLogoutDelegate(
+        LogoutDelegate delegate ) {
+      this.logoutDelegate = delegate;
     }
 
     public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
@@ -631,7 +647,7 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
       } else if ( method.getName().equals( "hashCode" ) ) {
         return this.hashCode();
       } else if ( method.getName().equals( "logout" ) ) {
-        if ( TransactionSynchronizationManager.isActualTransactionActive() ) {
+        if ( logoutDelegate.shouldLogout() ) {
           target.logout();
         }
         return null;
