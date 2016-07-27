@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -36,7 +36,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.mockito.Mockito.*;
-import static org.pentaho.platform.plugin.services.importer.ArchiveLoader.ZIPS_FILTER;
 
 /**
  * Created with IntelliJ IDEA. User: kwalker Date: 6/20/13 Time: 12:37 PM
@@ -60,10 +59,10 @@ public class ArchiveLoaderTest {
     String reportsName = "reports.zip";
     when( reports.getName() ).thenReturn( reportsName );
     when( reports.getPath() ).thenReturn( "/root/path/" + reportsName );
-    when( directory.listFiles( ZIPS_FILTER ) ).thenReturn( new File[] { jobs, reports } );
+    when( directory.listFiles( ArchiveLoader.ZIPS_FILTER ) ).thenReturn( new File[] { jobs, reports } );
     IRepositoryImportLogger logger = mock( IRepositoryImportLogger.class );
     when( importer.getRepositoryImportLogger() ).thenReturn( logger );
-    loader.loadAll( directory, ZIPS_FILTER );
+    loader.loadAll( directory, ArchiveLoader.ZIPS_FILTER );
     verify( importer ).importFile( argThat( bundleMatcher( jobsName, inputStream ) ) );
     verify( jobs ).renameTo( argThat( fileMatcher( jobs ) ) );
     verify( importer ).importFile( argThat( bundleMatcher( reportsName, inputStream ) ) );
@@ -84,12 +83,12 @@ public class ArchiveLoaderTest {
     String reportsName = "reports.zip";
     when( reports.getName() ).thenReturn( reportsName );
     when( reports.getPath() ).thenReturn( "/root/path/" + reportsName );
-    when( directory.listFiles( ZIPS_FILTER ) ).thenReturn( new File[] { jobs, reports } );
+    when( directory.listFiles( ArchiveLoader.ZIPS_FILTER ) ).thenReturn( new File[] { jobs, reports } );
     Exception exception = new RuntimeException( "exception thrown on purpose from testWillContinueToLoadOnException" );
     doThrow( exception ).when( importer ).importFile( argThat( bundleMatcher( jobsName, inputStream ) ) );
     IRepositoryImportLogger logger = mock( IRepositoryImportLogger.class );
     when( importer.getRepositoryImportLogger() ).thenReturn( logger );
-    loader.loadAll( directory, ZIPS_FILTER );
+    loader.loadAll( directory, ArchiveLoader.ZIPS_FILTER );
     verify( importer ).importFile( argThat( bundleMatcher( jobsName, inputStream ) ) );
     verify( importer ).importFile( argThat( bundleMatcher( reportsName, inputStream ) ) );
     verify( jobs ).renameTo( argThat( fileMatcher( jobs ) ) );
@@ -112,8 +111,8 @@ public class ArchiveLoaderTest {
     final IPlatformImporter importer = mock( IPlatformImporter.class );
     final ArchiveLoader loader = new ArchiveLoader( importer );
     final File directory = mock( File.class );
-    when( directory.listFiles( ZIPS_FILTER ) ).thenReturn( new File[] {} );
-    loader.loadAll( directory, ZIPS_FILTER );
+    when( directory.listFiles( ArchiveLoader.ZIPS_FILTER ) ).thenReturn( new File[] {} );
+    loader.loadAll( directory, ArchiveLoader.ZIPS_FILTER );
   }
 
   private ArchiveLoader createArchiveLoader( final IPlatformImporter importer, final FileInputStream inputStream ) {
