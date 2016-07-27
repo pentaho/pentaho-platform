@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.mockito.Mockito.*;
@@ -41,6 +42,8 @@ import static org.pentaho.platform.plugin.services.importer.ArchiveLoader.ZIPS_F
 public class ArchiveLoaderTest {
 
   private static final Date LOAD_STAMP = new Date( 123456789 );
+  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( ".yyyyMMddHHmm" );
+  private static final String TIMESTAMP =  DATE_FORMAT.format( LOAD_STAMP );
 
   @Test
   public void testWillImportAllZipsInADirectory() throws Exception {
@@ -137,10 +140,10 @@ public class ArchiveLoaderTest {
   }
 
   private Matcher<File> fileMatcher( final File origFile ) {
-    return new BaseMatcher<File>() {
+    BaseMatcher<File> baseMatcher = new BaseMatcher<File>() {
       @Override
       public boolean matches( final Object item ) {
-        return ( (File) item ).getName().equals( origFile.getName() + ".197001020517" );
+        return ( (File) item ).getName().equals( origFile.getName() + TIMESTAMP );
       }
 
       @Override
@@ -148,5 +151,6 @@ public class ArchiveLoaderTest {
 
       }
     };
+    return baseMatcher;
   }
 }
