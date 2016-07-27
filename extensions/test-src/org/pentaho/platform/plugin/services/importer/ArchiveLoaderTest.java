@@ -32,6 +32,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.mockito.Mockito.*;
@@ -43,6 +44,7 @@ import static org.pentaho.platform.plugin.services.importer.ArchiveLoader.ZIPS_F
 public class ArchiveLoaderTest {
 
   private static final Date LOAD_STAMP = new Date( 123456789 );
+  private static final String LOAD_STAMP_SUFFIX = ( new SimpleDateFormat( ".yyyyMMddHHmm" ) ).format( LOAD_STAMP );
 
   @Test
   public void testWillImportAllZipsInADirectory() throws Exception {
@@ -142,7 +144,7 @@ public class ArchiveLoaderTest {
     return new BaseMatcher<File>() {
       @Override
       public boolean matches( final Object item ) {
-        return ( (File) item ).getName().equals( origFile.getName() + ".197001020517" );
+        return ( (File) item ).getName().equals( origFile.getName() + LOAD_STAMP_SUFFIX );
       }
 
       @Override
