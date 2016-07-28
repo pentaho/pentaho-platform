@@ -93,8 +93,12 @@ public class MDXOlap4jConnection implements IPentahoConnection {
         url = connectProperties.toString();
       }
 
-      // Make sure the driver is loaded into the local classloader.
-      Class.forName( driver );
+      // Make sure the driver is loaded into the thread's classloader.
+      ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+      if( contextClassLoader == null ) {
+        contextClassLoader = getClass().getClassLoader();
+      }
+      contextClassLoader.loadClass( driver );
 
       // Create the connection through JDBC.
       java.sql.Connection sqlConnection = DriverManager.getConnection( url, user, password );
