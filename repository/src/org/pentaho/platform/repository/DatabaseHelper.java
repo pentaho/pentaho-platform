@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository;
@@ -67,6 +67,8 @@ public class DatabaseHelper {
 
   private static final String NODE_EXTRA_OPTIONS = "extraOptions"; //$NON-NLS-1$
 
+  private static final String NODE_EXTRA_OPTIONS_ORDER = "extraOptionsOrder"; //$NON-NLS-1$
+
   private static final String PROP_CONNECT_SQL = "connectionSQL"; //$NON-NLS-1$
 
   private static final String PROP_INITIAL_POOL_SIZE = "initialPoolSize"; //$NON-NLS-1$
@@ -84,7 +86,7 @@ public class DatabaseHelper {
   private static final String PROP_IS_DECIMAL_SEPERATOR = "isUsingDecimalSeperator"; //$NON-NLS-1$
 
   private static final String ATTRIBUTE_PORT_NUMBER = "PORT_NUMBER";
-  
+
   private DatabaseTypeHelper databaseTypeHelper;
 
   public DatabaseHelper( IDatabaseDialectService databaseDialectService ) {
@@ -105,7 +107,7 @@ public class DatabaseHelper {
     rootNode.setProperty( PROP_DATABASE_NAME, setNull( databaseConnection.getDatabaseName() ) );
     rootNode.setProperty( PROP_PORT, new Long( port ) );
     rootNode.setProperty( PROP_USERNAME, setNull( databaseConnection.getUsername() ) );
-    rootNode.setProperty( PROP_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(databaseConnection.getPassword()));
+    rootNode.setProperty( PROP_PASSWORD, encryptPassword( databaseConnection.getPassword() ) );
     rootNode.setProperty( PROP_SERVERNAME, setNull( databaseConnection.getInformixServername() ) );
     rootNode.setProperty( PROP_DATA_TBS, setNull( databaseConnection.getDataTablespace() ) );
     rootNode.setProperty( PROP_INDEX_TBS, setNull( databaseConnection.getIndexTablespace() ) );
@@ -126,8 +128,8 @@ public class DatabaseHelper {
       String value = attributes.get( key );
       attrNode.setProperty( key, value );
     }
-    
-    attrNode.setProperty(ATTRIBUTE_PORT_NUMBER, new Long(port).longValue());
+
+    attrNode.setProperty( ATTRIBUTE_PORT_NUMBER, new Long( port ).longValue() );
 
     // Now store the pooling parameters
     attrNode = rootNode.addNode( NODE_POOLING_PROPS );
@@ -145,14 +147,32 @@ public class DatabaseHelper {
       String value = attributes.get( key );
       attrNode.setProperty( key, value );
     }
+
+    // Store the extra options order
+    attrNode = rootNode.addNode( NODE_EXTRA_OPTIONS_ORDER );
+    Map<String, String> extraOptionsOrder = databaseConnection.getExtraOptionsOrder();
+    for ( String key : extraOptionsOrder.keySet() ) {
+      String value = extraOptionsOrder.get( key );
+      attrNode.setProperty( key, value );
+    }
+
     return rootNode;
   }
 
-  public IDatabaseConnection databaseMetaToDatabaseConnection( final DatabaseMeta databaseMeta) {
-    
+  //for testing
+  String encryptPassword( String password ) {
+    return Encr.encryptPasswordIfNotUsingVariables( password );
+  }
+
+  String decryptPassword( String passwordEncr ) {
+    return Encr.decryptPasswordOptionallyEncrypted( passwordEncr );
+  }
+
+  public IDatabaseConnection databaseMetaToDatabaseConnection( final DatabaseMeta databaseMeta ) {
+
     IDatabaseConnection databaseConnection = new DatabaseConnection();
     databaseConnection.setDatabaseType( databaseTypeHelper
-        .getDatabaseTypeByShortName( databaseMeta.getDatabaseTypeDesc() ));
+        .getDatabaseTypeByShortName( databaseMeta.getDatabaseTypeDesc() ) );
     databaseConnection.setName( databaseMeta.getName() );
     if ( databaseMeta.getObjectId() != null ) {
       databaseConnection.setId( databaseMeta.getObjectId().getId() );
@@ -160,15 +180,15 @@ public class DatabaseHelper {
     String accessType = databaseMeta.getAccessTypeDesc();
 
     // This is a special case with some PDI connections
-    if(accessType != null && accessType.contains( "Native")) {
+    if ( accessType != null && accessType.contains( "Native" ) ) {
       accessType = DatabaseAccessType.NATIVE.getName();
-    } else if(accessType != null && accessType.equals(", ")) {
+    } else if ( accessType != null && accessType.equals( ", " ) ) {
       accessType = DatabaseAccessType.JNDI.getName();
     }
-    
+
     databaseConnection.setAccessType( accessType != null
       ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
-    databaseConnection.setHostname(databaseMeta.getHostname() );
+    databaseConnection.setHostname( databaseMeta.getHostname() );
     databaseConnection.setDatabaseName( databaseMeta.getDatabaseName() );
     databaseConnection.setDatabasePort( databaseMeta.getDatabasePortNumberString() );
     databaseConnection.setUsername( databaseMeta.getUsername() );
@@ -184,26 +204,26 @@ public class DatabaseHelper {
     databaseConnection.setForcingIdentifiersToUpperCase( databaseMeta.isForcingIdentifiersToUpperCase() );
     databaseConnection.setQuoteAllFields( databaseMeta.isQuoteAllFields() );
     databaseConnection.setUsingDoubleDecimalAsSchemaTableSeparator( databaseMeta.isUsingDoubleDecimalAsSchemaTableSeparator() );
-    
-    Map<String,String> attributeMap = new HashMap<String, String>();
-    
-    for(Entry<Object, Object> entry:databaseMeta.getAttributes().entrySet()) {
-      attributeMap.put( (String)entry.getKey(), (String)entry.getValue() );
+
+    Map<String, String> attributeMap = new HashMap<String, String>();
+
+    for ( Entry<Object, Object> entry:databaseMeta.getAttributes().entrySet() ) {
+      attributeMap.put( (String) entry.getKey(), (String) entry.getValue() );
     }
-    databaseConnection.setAttributes(attributeMap);
-    
-    Map<String,String> connectionPoolingMap = new HashMap<String, String>();
-    for(Entry<Object, Object> entry:databaseMeta.getConnectionPoolingProperties().entrySet()) {
-      connectionPoolingMap.put( (String)entry.getKey(), (String)entry.getValue() );
+    databaseConnection.setAttributes( attributeMap );
+
+    Map<String, String> connectionPoolingMap = new HashMap<String, String>();
+    for ( Entry<Object, Object> entry:databaseMeta.getConnectionPoolingProperties().entrySet() ) {
+      connectionPoolingMap.put( (String) entry.getKey(), (String) entry.getValue() );
     }
-    databaseConnection.setConnectionPoolingProperties(connectionPoolingMap);
-    
-    databaseConnection.setExtraOptions(databaseMeta.getExtraOptions());
+    databaseConnection.setConnectionPoolingProperties( connectionPoolingMap );
+
+    databaseConnection.setExtraOptions( databaseMeta.getExtraOptions() );
 
     return databaseConnection;
 
   }
-  
+
   public IDatabaseConnection dataNodeToDatabaseConnection( final Serializable id, final String name,
       final DataNode rootNode ) {
     IDatabaseConnection databaseConnection = new DatabaseConnection();
@@ -217,19 +237,19 @@ public class DatabaseHelper {
     String accessType = getString( rootNode, PROP_CONTYPE );
 
     // This is a special case with some PDI connections
-    if(accessType != null && accessType.contains( "Native")) {
+    if ( accessType != null && accessType.contains( "Native" ) ) {
       accessType = DatabaseAccessType.NATIVE.getName();
-    } else if(accessType != null && accessType.equals(", ")) {
+    } else if ( accessType != null && accessType.equals( ", " ) ) {
       accessType = DatabaseAccessType.JNDI.getName();
     }
-    
+
     databaseConnection.setAccessType( accessType != null
       ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
     databaseConnection.setHostname( getString( rootNode, PROP_HOST_NAME ) );
     databaseConnection.setDatabaseName( getString( rootNode, PROP_DATABASE_NAME ) );
     databaseConnection.setDatabasePort( getString( rootNode, PROP_PORT ) );
     databaseConnection.setUsername( getString( rootNode, PROP_USERNAME ) );
-    databaseConnection.setPassword( Encr.decryptPasswordOptionallyEncrypted(getString(rootNode, PROP_PASSWORD)));
+    databaseConnection.setPassword( decryptPassword( getString( rootNode, PROP_PASSWORD ) ) );
     databaseConnection.setInformixServername( getString( rootNode, PROP_SERVERNAME ) );
     databaseConnection.setDataTablespace( getString( rootNode, PROP_DATA_TBS ) );
     databaseConnection.setIndexTablespace( getString( rootNode, PROP_INDEX_TBS ) );
@@ -272,6 +292,16 @@ public class DatabaseHelper {
         String attribute = property.getString();
         databaseConnection.getExtraOptions().put( code,
             ( attribute == null || attribute.length() == 0 ) ? "" : attribute ); //$NON-NLS-1$
+      }
+    }
+
+    attrNode = rootNode.getNode( NODE_EXTRA_OPTIONS_ORDER );
+    if ( attrNode != null ) {
+      for ( DataProperty property : attrNode.getProperties() ) {
+        String code = property.getName();
+        String attribute = property.getString();
+        databaseConnection.getExtraOptionsOrder().put( code,
+          ( attribute == null || attribute.length() == 0 ) ? "" : attribute ); //$NON
       }
     }
 
