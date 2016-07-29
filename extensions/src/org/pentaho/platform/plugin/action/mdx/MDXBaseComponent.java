@@ -481,21 +481,20 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
       if ( ( catalog == null ) && ( connAction.getCatalogResource() != null ) ) {
         IActionSequenceResource resource = getResource( connAction.getCatalogResource().getName() );
         catalog = resource.getAddress();
-
-        if ( !isCatalogVfsAccepted( catalog ) ) {
-          if ( ( resource.getSourceType() == IActionSequenceResource.URL_RESOURCE )
-              && ( catalog.indexOf( "solution:" ) != 0 ) ) { //$NON-NLS-1$
-            // Extra step to make sure that remote mondrian models
-            // fully qualified aren't munged
-            // MB
-            if ( !catalog.startsWith( "http:" ) ) { //$NON-NLS-1$ 
+        if ( resource.getSourceType() == IActionSequenceResource.URL_RESOURCE ) {
+          if ( !isCatalogVfsAccepted( catalog ) ) {
+            if ( !catalog.startsWith( "solution:" ) && !catalog.startsWith( "http:" ) ) { //$NON-NLS-1$
+              // About allowed "solution:"
+              // Extra step to make sure that remote mondrian models
+              // fully qualified aren't munged
+              // MB
               catalog = "solution:" + catalog; //$NON-NLS-1$
             }
-          } else if ( ( resource.getSourceType() == IActionSequenceResource.SOLUTION_FILE_RESOURCE )
-              || ( resource.getSourceType() == IActionSequenceResource.FILE_RESOURCE ) ) {
-            if ( !catalog.startsWith( "solution:" ) ) {
-              catalog = "solution:" + catalog; //$NON-NLS-1$
-            }
+          }
+        } else if ( ( resource.getSourceType() == IActionSequenceResource.SOLUTION_FILE_RESOURCE )
+            || ( resource.getSourceType() == IActionSequenceResource.FILE_RESOURCE ) ) {
+          if ( !catalog.startsWith( "solution:" ) ) {
+            catalog = "solution:" + catalog; //$NON-NLS-1$
           }
         }
       }
