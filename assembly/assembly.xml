@@ -159,7 +159,7 @@
 	  </target>
 
 	  <target name="package-merged-zip">
-	    <zip destfile="${dist.dir}/biserver-merged-ce-${project.revision}.zip">
+	    <zip destfile="${dist.dir}/pentaho-server-ce-${project.revision}.zip">
 	      <zipfileset dir="${stage.dir}" filemode="755">
 	        <include name="**/*.sh" />
 	        <include name="**/JavaApplicationStub" />
@@ -176,10 +176,10 @@
 	<!-- ===================================================================
 	       target: package-manual-merged-server
 
-	       Create the biserver-merged-manual-ce-${project.revision}.zip
+	       Create the pentaho-server-manual-ce-${project.revision}.zip
 	      =================================================================== -->
 	<target name="package-manual-merged-server" depends="war-pentaho, zip-pentaho-data, zip-pentaho-solutions, resolve-oss-licenses">
-	    <zip destfile="${dist.dir}/biserver-merged-manual-ce-${project.revision}.zip">
+	    <zip destfile="${dist.dir}/pentaho-server-manual-ce-${project.revision}.zip">
 	        <zipfileset dir="${dist.dir}" filemode="755" prefix="">
 	          <include name="**/MANIFEST.MF" />
 	          <include name="**/pentaho-data.zip" />
