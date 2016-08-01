@@ -17,12 +17,12 @@
 
 package org.pentaho.platform.plugin.action.mdx;
 
+import com.google.common.annotations.VisibleForTesting;
 import mondrian.olap.Util;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.util.Pair;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.vfs2.FileObject;
 import org.pentaho.actionsequence.dom.ActionInputConstant;
 import org.pentaho.actionsequence.dom.IActionOutput;
 import org.pentaho.actionsequence.dom.actions.MdxConnectionAction;
@@ -33,6 +33,8 @@ import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.data.IDataComponent;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
@@ -482,8 +484,8 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
         IActionSequenceResource resource = getResource( connAction.getCatalogResource().getName() );
         catalog = resource.getAddress();
         if ( resource.getSourceType() == IActionSequenceResource.URL_RESOURCE ) {
-          if ( !isCatalogVfsAccepted( catalog ) ) {
-            if ( !catalog.startsWith( "solution:" ) && !catalog.startsWith( "http:" ) ) { //$NON-NLS-1$
+          if ( !catalog.startsWith( "solution:" ) && !catalog.startsWith( "http:" ) ) { //$NON-NLS-1$
+            if ( fileExistsInRepository( catalog ) ) {
               // About allowed "solution:"
               // Extra step to make sure that remote mondrian models
               // fully qualified aren't munged
@@ -532,7 +534,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
 
             connectStr = "dataSource=" + jndiStr + "; Catalog=" + catalog; //$NON-NLS-1$ //$NON-NLS-2$
             // Add extra definitions from platform mondrian metadata
-            MondrianCatalog mc = MondrianCatalogHelper.getInstance().getCatalog( catalog, getSession() );
+            MondrianCatalog mc = getMondrianCatalog( catalog );
             try {
               connectStr += ";" + mc.getDataSourceInfo();
             } catch ( Exception e ) {
@@ -597,15 +599,20 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
     return super.applyInputsToFormat( format );
   }
 
-  boolean isCatalogVfsAccepted( String catalog ) {
+  @VisibleForTesting
+  MondrianCatalog getMondrianCatalog( String catalog ) {
+    return MondrianCatalogHelper.getInstance().getCatalog( catalog, getSession() );
+  }
+
+  @VisibleForTesting
+  boolean fileExistsInRepository( String catalog ) {
     try {
-      FileObject f = org.apache.commons.vfs2.VFS.getManager().resolveFile( catalog );
-      return ( f != null );
-    } catch ( Exception e ) {
-      Log logger = getLogger();
-      if ( logger != null ) {
-        logger.trace( "Catalog is not accessible: " + catalog, e );
-      }
+      IUnifiedRepository unifiedRepository =
+        PentahoSystem.get( IUnifiedRepository.class, PentahoSessionHolder.getSession() );
+      return unifiedRepository.getFile( catalog ) != null;
+    } catch ( UnifiedRepositoryException e ) {
+      // this can happen if file name does not start from "/",
+      // for example, in windows os
       return false;
     }
   }
