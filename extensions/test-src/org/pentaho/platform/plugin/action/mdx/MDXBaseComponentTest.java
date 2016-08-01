@@ -23,7 +23,6 @@ package org.pentaho.platform.plugin.action.mdx;
 
 import org.apache.commons.logging.Log;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,12 +36,15 @@ import org.pentaho.actionsequence.dom.actions.MdxConnectionAction;
 import org.pentaho.actionsequence.dom.actions.MdxQueryAction;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IParameterManager;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -50,6 +52,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXResultSet;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -113,6 +116,7 @@ public class MDXBaseComponentTest {
     mdxBaseComponent.setActionName( "action name" );
     doNothing().when( mdxBaseComponent ).error( anyString(), any( Throwable.class ) );
     doNothing().when( mdxBaseComponent ).error( anyString() );
+    doReturn( false ).when( mdxBaseComponent ).fileExistsInRepository( anyString() );
   }
 
   @Test
@@ -521,14 +525,69 @@ public class MDXBaseComponentTest {
   }
 
   @Test
-  public void testIsCatalogVfsAccepted() throws Exception {
+  @SuppressWarnings( "unchecked" )
+  public void shouldAddSolutionPrefixIfFileExistsInRepository()
+    throws ObjectFactoryException, DBDatasourceServiceException {
+    mdxBaseComponent.setActionDefinition( connAction );
+    when( connAction.getMdxConnectionString() ).thenReturn( IActionInput.NULL_INPUT );
+    when( connAction.getConnectionProps() ).thenReturn( IActionInput.NULL_INPUT );
+    when( connAction.getConnection() ).thenReturn( IActionInput.NULL_INPUT );
+    when( connAction.getJndi() ).thenReturn( new ActionInputConstant( "", null ) );
+    when( connAction.getLocation() ).thenReturn( new ActionInputConstant( "", null ) );
+    when( connAction.getRole() ).thenReturn( IActionInput.NULL_INPUT );
+    when( connAction.getCatalog() ).thenReturn( IActionInput.NULL_INPUT );
+    when( connAction.getUserId() ).thenReturn( IActionInput.NULL_INPUT );
+    when( connAction.getPassword() ).thenReturn( IActionInput.NULL_INPUT );
+    when( connAction.getCatalogResource() ).thenReturn( catalogResource );
+    when( catalogResource.getName() ).thenReturn( "catalog name" );
 
-    final String urlValidExists = ( new File( "test-res/MDXBaseComponentTest/SampleData.mondrian.xml" ) ).toURL().toString();
-    final String urlValidNotExists = ( new File( "test-res/MDXBaseComponentTest/000000000" ) ).toURL().toString();
-    final String urlInvalid = "---abracadabra---";
-    Assert.assertEquals( true, mdxBaseComponent.isCatalogVfsAccepted( urlValidExists ) );
-    Assert.assertEquals( true, mdxBaseComponent.isCatalogVfsAccepted( urlValidNotExists ) );
-    Assert.assertEquals( false, mdxBaseComponent.isCatalogVfsAccepted( urlInvalid ) );
+    PentahoSystem.registerObject( mdxConnection );
+    PentahoSystem.registerPrimaryObjectFactory( objFactory );
+    PentahoSessionHolder.setSession( session );
+
+    when( objFactory.get( any( Class.class ), anyString(), any( IPentahoSession.class ) ) ).thenReturn( mdxConnection );
+    IDBDatasourceService datasourceService = mock( IDBDatasourceService.class );
+    when( objFactory.objectDefined( "IDBDatasourceService" ) ).thenReturn( true );
+    when( objFactory.get( any( Class.class ), eq( "IDBDatasourceService" ), any( IPentahoSession.class ) ) )
+      .thenReturn( datasourceService );
+    DataSource dataSource = mock( DataSource.class );
+    when( datasourceService.getDataSource( anyString() ) ).thenReturn( dataSource );
+
+    mdxBaseComponent.setRuntimeContext( runtimeContext );
+    when( runtimeContext.getResourceDefintion( "catalog name" ) ).thenReturn( catalogActionSeqRes );
+
+    when( catalogActionSeqRes.getSourceType() ).thenReturn( IActionSequenceResource.URL_RESOURCE );
+
+    MondrianCatalog mc = mock( MondrianCatalog.class );
+    doReturn( mc ).when( mdxBaseComponent ).getMondrianCatalog( anyString() );
+
+    // using the same prepared environment for several checks...
+
+    // if file exists in repository, then the "solution:" prefix should be added
+    when( catalogActionSeqRes.getAddress() ).thenReturn( "fileName" );
+    doReturn( true ).when( mdxBaseComponent ).fileExistsInRepository( "fileName" );
+    mdxBaseComponent.getConnectionOrig();
+    verify( mdxBaseComponent ).getMondrianCatalog( "solution:fileName" );
+    verify( mdxBaseComponent, times( 1 ) ).fileExistsInRepository( anyString() );
+
+    // if file exists in repository, then the "solution:" prefix should NOT be added,
+    // and the file therefore should be read from file system further
+    when( catalogActionSeqRes.getAddress() ).thenReturn( "fileName" );
+    doReturn( false ).when( mdxBaseComponent ).fileExistsInRepository( "fileName" );
+    mdxBaseComponent.getConnectionOrig();
+    verify( mdxBaseComponent ).getMondrianCatalog( "fileName" );
+    verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( anyString() );
+
+    // if filename already starts from "solution:" prefix,
+    // then no need to check file existence in repository
+    when( catalogActionSeqRes.getAddress() ).thenReturn( "solution:fileName" );
+    mdxBaseComponent.getConnectionOrig();
+    verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( anyString() );
+
+    // same here: if the resource is http link, then no need to check it in repository
+    when( catalogActionSeqRes.getAddress() ).thenReturn( "http:fileName" );
+    mdxBaseComponent.getConnectionOrig();
+    verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( anyString() );
   }
 
   @After
