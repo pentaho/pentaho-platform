@@ -17,12 +17,12 @@
 
 package org.pentaho.platform.plugin.action.mdx;
 
+import com.google.common.annotations.VisibleForTesting;
 import mondrian.olap.Util;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.util.Pair;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.vfs2.FileObject;
 import org.pentaho.actionsequence.dom.ActionInputConstant;
 import org.pentaho.actionsequence.dom.IActionOutput;
 import org.pentaho.actionsequence.dom.actions.MdxConnectionAction;
@@ -33,6 +33,8 @@ import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.data.IDataComponent;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
@@ -117,14 +119,14 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
     } catch ( Exception e ) {
       actionValidated = false;
       error(
-          Messages.getInstance().getErrorString( "MDXBaseComponent.ERROR_0004_VALIDATION_FAILED", getActionName() ), e ); //$NON-NLS-1$        
+          Messages.getInstance().getErrorString( "MDXBaseComponent.ERROR_0004_VALIDATION_FAILED", getActionName() ), e ); //$NON-NLS-1$
     }
 
     return actionValidated;
   }
 
   /*
-   * 
+   *
    */
   private boolean isConnectionInfoSpecified( final MdxConnectionAction connAction ) {
     boolean value = true;
@@ -163,10 +165,10 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
     /*
      * This is the query part. You would need a connection to execute the query. The connection will either come in as
      * an INPUT (prepared_component) or will be specified right there.
-     * 
+     *
      * So check if a prepared component exists, if not create a new connection. If connection is not null, proceed to
      * work on the query part.
-     * 
+     *
      * In the query section you can either execute the query right away or prepare it to be used later by a sub report.
      */
     try {
@@ -183,7 +185,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
               connection = conn;
             } else {
               error( Messages.getInstance().getErrorString(
-                  "IPreparedComponent.ERROR_0001_INVALID_CONNECTION_TYPE", getActionName() ) ); //$NON-NLS-1$            
+                  "IPreparedComponent.ERROR_0001_INVALID_CONNECTION_TYPE", getActionName() ) ); //$NON-NLS-1$
             }
           } else {
             error( Messages.getInstance().getErrorString(
@@ -231,7 +233,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
   /**
    * called when in prepared-component mode, this method populates the preparedQuery string and preparedParameters
    * object.
-   * 
+   *
    * @param rawQuery
    * @return
    */
@@ -274,7 +276,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
   /**
    * return this class's connection. This implements the IPreparedComponent interface, which may share its connection
    * with others.
-   * 
+   *
    * @return connection object
    */
   public IPentahoConnection shareConnection() {
@@ -284,7 +286,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
   /**
    * executes a prepared method that returns a result set executePrepared looks up any "PREPARELATER" params in the
    * preparedParams map.
-   * 
+   *
    * @param preparedParams
    *          a map of possible parameters.
    * @return result set
@@ -380,7 +382,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
 
   /**
    * attempt to aquire a connection. if connection isn't available, wait a certain period of time before trying again.
-   * 
+   *
    * @return connection
    */
   public IPentahoConnection getDatasourceConnection() {
@@ -482,8 +484,8 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
         IActionSequenceResource resource = getResource( connAction.getCatalogResource().getName() );
         catalog = resource.getAddress();
         if ( resource.getSourceType() == IActionSequenceResource.URL_RESOURCE ) {
-          if ( !isCatalogVfsAccepted( catalog ) ) {
-            if ( !catalog.startsWith( "solution:" ) && !catalog.startsWith( "http:" ) ) { //$NON-NLS-1$
+          if ( !catalog.startsWith( "solution:" ) && !catalog.startsWith( "http:" ) ) { //$NON-NLS-1$
+            if ( fileExistsInRepository( catalog ) ) {
               // About allowed "solution:"
               // Extra step to make sure that remote mondrian models
               // fully qualified aren't munged
@@ -491,13 +493,10 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
               catalog = "solution:" + catalog; //$NON-NLS-1$
             }
           }
-        } else if ( resource.getSourceType() == IActionSequenceResource.SOLUTION_FILE_RESOURCE ) {
+        } else if ( ( resource.getSourceType() == IActionSequenceResource.SOLUTION_FILE_RESOURCE )
+          || ( resource.getSourceType() == IActionSequenceResource.FILE_RESOURCE ) ) {
           if ( !catalog.startsWith( "solution:" ) ) {
             catalog = "solution:" + catalog; //$NON-NLS-1$
-          }
-        } else if ( resource.getSourceType() == IActionSequenceResource.FILE_RESOURCE ) {
-          if ( !catalog.startsWith( "solution:" ) && !catalog.startsWith( "file:" ) ) {
-            catalog = "file:" + catalog; //$NON-NLS-1$
           }
         }
       }
@@ -535,7 +534,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
 
             connectStr = "dataSource=" + jndiStr + "; Catalog=" + catalog; //$NON-NLS-1$ //$NON-NLS-2$
             // Add extra definitions from platform mondrian metadata
-            MondrianCatalog mc = MondrianCatalogHelper.getInstance().getCatalog( catalog, getSession() );
+            MondrianCatalog mc = getMondrianCatalog( catalog );
             try {
               connectStr += ";" + mc.getDataSourceInfo();
             } catch ( Exception e ) {
@@ -600,15 +599,20 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
     return super.applyInputsToFormat( format );
   }
 
-  boolean isCatalogVfsAccepted( String catalog ) {
+  @VisibleForTesting
+  MondrianCatalog getMondrianCatalog( String catalog ) {
+    return MondrianCatalogHelper.getInstance().getCatalog( catalog, getSession() );
+  }
+
+  @VisibleForTesting
+  boolean fileExistsInRepository( String catalog ) {
     try {
-      FileObject f = org.apache.commons.vfs2.VFS.getManager().resolveFile( catalog );
-      return ( f != null );
-    } catch ( Exception e ) {
-      Log logger = getLogger();
-      if ( logger != null ) {
-        logger.trace( "Catalog is not accessible: " + catalog, e );
-      }
+      IUnifiedRepository unifiedRepository =
+        PentahoSystem.get( IUnifiedRepository.class, PentahoSessionHolder.getSession() );
+      return unifiedRepository.getFile( catalog ) != null;
+    } catch ( UnifiedRepositoryException e ) {
+      // this can happen if file name does not start from "/",
+      // for example, in windows os
       return false;
     }
   }
