@@ -58,7 +58,7 @@ define([
     BootstrappedTabLoader.init({
       parentSelector: "#getting-started",
       tabContentPattern: "content/getting_started_tab{{contentNumber}}_content.html",
-      defaultTabSelector: "#tab1",
+      defaultTabSelector: "tab1",
       before: function () {
         ContextProvider.get(function (context) {
 
@@ -76,7 +76,7 @@ define([
         });
 
         // Remove embedded youtube since it shows through the other tabs
-        $("a[href=#tab2], a[href=#tab3]").bind("click", disableWelcomeVideo);
+        $("a[href=\\#tab2], a[href=\\#tab3]").bind("click", disableWelcomeVideo);
       },
       postLoad: function ($html, tabSelector) {
         var tabId = $(tabSelector).attr("id");
