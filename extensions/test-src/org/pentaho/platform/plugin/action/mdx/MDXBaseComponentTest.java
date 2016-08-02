@@ -45,6 +45,9 @@ import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -588,6 +591,33 @@ public class MDXBaseComponentTest {
     when( catalogActionSeqRes.getAddress() ).thenReturn( "http:fileName" );
     mdxBaseComponent.getConnectionOrig();
     verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( anyString() );
+  }
+
+  @Test
+  @SuppressWarnings( "unchecked" )
+  public void shouldUseUnifiedRepositoryWhenCheckingFileExistence() throws ObjectFactoryException {
+    PentahoSystem.registerPrimaryObjectFactory( objFactory );
+    PentahoSessionHolder.setSession( session );
+
+    IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    when( objFactory.objectDefined( "IUnifiedRepository" ) ).thenReturn( true );
+    when( objFactory.get( any( Class.class ), eq( "IUnifiedRepository" ), any( IPentahoSession.class ) ) )
+      .thenReturn( repository );
+    doCallRealMethod().when( mdxBaseComponent ).fileExistsInRepository( anyString() );
+    RepositoryFile file = mock( RepositoryFile.class );
+    doReturn( file ).when( repository ).getFile( "fileNameExisting" );
+    doReturn( null ).when( repository ).getFile( "fileNameNonExisting" );
+    // checking bad file name for pentaho repository, e.g. windows os file names
+    doThrow( new UnifiedRepositoryException() ).when( repository ).getFile( "fileNameBad" );
+
+    boolean fileExists = mdxBaseComponent.fileExistsInRepository( "fileNameExisting" );
+    assertTrue( fileExists );
+
+    boolean fileDoesNotExist = mdxBaseComponent.fileExistsInRepository( "fileNameNonExisting" );
+    assertFalse( fileDoesNotExist );
+
+    boolean fileBad = mdxBaseComponent.fileExistsInRepository( "fileNameBad" );
+    assertFalse( fileBad );
   }
 
   @After
