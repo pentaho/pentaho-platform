@@ -162,6 +162,7 @@
 	    <dependency org="com.sun.jersey" 		name="jersey-test-framework" rev="1.8" conf="test->default"/>
 
 		<exclude org="javassist" module="javassist"/>
+		<exclude org="antlr" module="antlr"/>
         <override org="pentaho-kettle" rev="${dependency.kettle.revision}" />
 	</dependencies>
 </ivy-module>
