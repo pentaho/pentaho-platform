@@ -128,15 +128,18 @@
     </dependency>
 
     <!-- jersey -->
-    <dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.16"/>
-    <dependency org="com.sun.jersey.contribs" name="jersey-apache-client" rev="1.14" transitive="false"/>
-    <dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.16" transitive="false"/>
+    <dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" transitive="false"/>
+    <dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.19.1" transitive="false"/>
+    <dependency org="org.jvnet.mimepull" name="mimepull" rev="1.9.3" transitive="false"/>
+    <dependency org="com.sun.jersey.contribs" name="jersey-apache-client" rev="1.19.1" transitive="false"/>
+    <dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.19.1" transitive="false"/>
 
-    <dependency org="com.sun.jersey" name="jersey-core" rev="1.16" transitive="false"/>
-    <dependency org="com.sun.jersey" name="jersey-json" rev="1.16" transitive="false"/>
-    <dependency org="com.sun.jersey" name="jersey-client" rev="1.16" transitive="false"/>
-    <dependency org="com.sun.jersey" name="jersey-server" rev="1.16" transitive="false" />
-    <dependency org="com.sun.jersey" name="jersey-servlet" rev="1.16" transitive="false"/>
+    <dependency org="com.sun.jersey" name="jersey-core" rev="1.19.1" transitive="false"/>
+    <dependency org="com.sun.jersey" name="jersey-bundle" rev="1.19.1" transitive="false"/>
+    <dependency org="com.sun.jersey" name="jersey-json" rev="1.19.1" transitive="false"/>
+    <dependency org="com.sun.jersey" name="jersey-client" rev="1.19.1" transitive="false"/>
+    <dependency org="com.sun.jersey" name="jersey-server" rev="1.19.1" transitive="false" />
+    <dependency org="com.sun.jersey" name="jersey-servlet" rev="1.19.1" transitive="false"/>
 
     <!-- END JAX-WS (Service extension) dependencies -->
     <dependency org="org.codehaus.jettison" name="jettison" rev="${dependency.jettison.revision}"/>
@@ -384,11 +387,22 @@
     </dependency>
     <!-- end security test dependencies -->
 
-    <dependency org="com.sun.jersey.jersey-test-framework" name="jersey-test-framework-core" rev="1.16"
-                conf="test->default"/>
-    <dependency org="com.sun.jersey.jersey-test-framework" name="jersey-test-framework-grizzly" rev="1.16"
-                conf="test->default"/>
-    <dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.16" conf="test->default"/>
+    <dependency org="com.sun.jersey.jersey-test-framework" name="jersey-test-framework-core" rev="1.19.1"
+                conf="test->default" transitive="false"/>
+    <dependency org="com.sun.jersey.jersey-test-framework" name="jersey-test-framework-grizzly" rev="1.19.1"
+                conf="test->default" transitive="false"/>
+    <!-- here jersey-test-framework-grizzly transitive dependecies start -->
+    <dependency org="com.sun.grizzly" name="grizzly-framework" rev="1.9.45" transitive="false" conf="test->default"/>
+    <dependency org="com.sun.grizzly" name="grizzly-lzma" rev="1.9.45" transitive="false" conf="test->default"/>
+    <dependency org="com.sun.grizzly" name="grizzly-portunif" rev="1.9.45" transitive="false" conf="test->default"/>
+    <dependency org="com.sun.grizzly" name="grizzly-rcm" rev="1.9.45" transitive="false" conf="test->default"/>
+    <dependency org="com.sun.grizzly" name="grizzly-servlet-webserver" rev="1.9.45" transitive="false" conf="test->default"/>
+    <dependency org="com.sun.grizzly" name="grizzly-utils" rev="1.9.45" transitive="false" conf="test->default"/>
+    <dependency org="com.sun.grizzly" name="grizzly-http" rev="1.9.45" transitive="false" conf="test->default"/>
+    <dependency org="com.sun.grizzly" name="grizzly-http-servlet" rev="1.9.45" transitive="false" conf="test->default"/>
+    <!-- here jersey-test-framework-grizzly transitive dependecies finish -->
+    
+    <dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.19.1" conf="test->default" transitive="false"/>
 
     <dependency org="org.springframework" name="spring-test" rev="${dependency.spring.framework.revision}" conf="test->default"/>
 
@@ -402,7 +416,7 @@
       <exclude org="log4j" name="log4j"/>
     </dependency>
 
-    <dependency org="com.sun.jersey.contribs" name="wadl-resourcedoc-doclet" rev="1.19" transitive="false" />
+    <dependency org="com.sun.jersey.contribs" name="wadl-resourcedoc-doclet" rev="1.19.1" transitive="false" />
 
     <dependency org="com.google.guava" name="guava" rev="17.0" conf="test->default"/>
 
