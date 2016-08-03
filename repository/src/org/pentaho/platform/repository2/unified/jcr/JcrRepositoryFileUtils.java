@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr;
@@ -547,10 +547,9 @@ public class JcrRepositoryFileUtils {
     if ( folder.getTitle() != folder.getName() ) { // Title is different from the name
       localeNodes = folderNode.addNode( pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE() );
       Map<String, Properties> localPropertiesMap = new HashMap<String, Properties>();
-      String defaultLocale = LocaleHelper.getLocale().toString();
       Properties titleProps = new Properties();
       titleProps.put( "file.title", folder.getTitle() );
-      localPropertiesMap.put( defaultLocale, titleProps );
+      localPropertiesMap.put( LocalizationUtil.DEFAULT, titleProps );
       setLocalePropertiesMap( session, pentahoJcrConstants, localeNodes, localPropertiesMap );
     }
     if ( folder.isVersioned() ) {
