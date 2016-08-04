@@ -17,8 +17,10 @@
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
+import java.io.IOException;
 import java.util.Map;
 
+import com.sun.xml.bind.StringInputStream;
 import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -31,12 +33,19 @@ import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.Catalog;
 import mondrian.xmla.DataSourcesConfig.Catalogs;
 import mondrian.xmla.DataSourcesConfig.DataSource;
+import org.pentaho.platform.util.XmlTestConstants;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class MondrianCatalogHelperTest {
 
   private static final String DEFINITION = "mondrian:";
 
-  MondrianCatalogHelper mch = new MondrianCatalogHelper();
+  private MondrianCatalogHelper mch = new MondrianCatalogHelper();
 
   @Test
   public void testLoadCatalogsIntoCache() {
@@ -95,4 +104,18 @@ public class MondrianCatalogHelperTest {
     }
   }
 
+  @Test( timeout = 2000, expected = SAXException.class )
+  public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws IOException, ParserConfigurationException, SAXException {
+    mch.getMondrianXmlDocument( new StringInputStream( XmlTestConstants.MALICIOUS_XML ) );
+    fail();
+  }
+
+  @Test
+  public void shouldNotFailAndReturnNotNullWhenLegalXmlIsGiven() throws Exception {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<slave_config>"
+      + "</slave_config>";
+
+    assertNotNull( mch.getMondrianXmlDocument( new StringInputStream( xml ) ) );
+  }
 }

@@ -16,6 +16,7 @@
  */
 package org.pentaho.platform.plugin.action.kettle;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.di.cluster.SlaveServer;
 import org.pentaho.di.core.KettleEnvironment;
@@ -30,11 +31,13 @@ import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -86,8 +89,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
           new File( PentahoSystem.getApplicationContext().getSolutionPath( slaveServerConfigFilename ) );
       if ( slaveServerConfigFile.exists() ) {
         InputStream is = new FileInputStream( slaveServerConfigFile );
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse( is );
-        Node configNode = XMLHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
+        Node configNode = getSlaveServerConfigNode( is );
         SlaveServerConfig config = new DIServerConfig( new LogChannel( "Slave server config" ), configNode );
         config.setFilename( slaveServerConfigFile.getAbsolutePath() );
         SlaveServer slaveServer = new SlaveServer();
@@ -176,4 +178,10 @@ public class KettleSystemListener implements IPentahoSystemListener {
     this.usePlatformLogFile = usePlatformLogFile;
   }
 
+  @VisibleForTesting
+  Node getSlaveServerConfigNode( InputStream is )
+    throws SAXException, IOException, ParserConfigurationException {
+    Document document = XMLParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder().parse( is );
+    return XMLHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
+  }
 }

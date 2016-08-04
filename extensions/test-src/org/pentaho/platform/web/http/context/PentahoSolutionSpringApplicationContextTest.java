@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -21,18 +21,21 @@
 
 package org.pentaho.platform.web.http.context;
 
-import org.apache.commons.io.FileUtils;
+import com.sun.xml.bind.StringInputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.pentaho.platform.util.XmlTestConstants;
 import org.springframework.core.io.Resource;
+import org.xml.sax.SAXException;
 
 import javax.servlet.ServletContext;
+import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
-import java.nio.file.Files;
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -64,6 +67,20 @@ public class PentahoSolutionSpringApplicationContextTest {
     Resource resourceByPath = appContext.getResourceByPath( tempFile.getName() );
     assertNotNull( resourceByPath );
     assertEquals( tempFile.getName(), resourceByPath.getFilename() );
+  }
 
+  @Test( timeout = 2000, expected = SAXException.class )
+  public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws IOException, ParserConfigurationException, SAXException {
+    appContext.getResourceDocument( new StringInputStream( XmlTestConstants.MALICIOUS_XML ) );
+    fail();
+  }
+
+  @Test
+  public void shouldNotFailAndReturnNotNullWhenLegalXmlIsGiven() throws Exception {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<slave_config>"
+      + "</slave_config>";
+
+    assertNotNull( appContext.getResourceDocument( new StringInputStream( xml ) ) );
   }
 }

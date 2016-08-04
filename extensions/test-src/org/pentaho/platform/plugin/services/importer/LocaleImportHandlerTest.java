@@ -13,11 +13,12 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
 
+import com.sun.xml.bind.StringInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.junit.Before;
@@ -31,11 +32,16 @@ import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
+import org.pentaho.platform.util.XmlTestConstants;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -207,5 +213,23 @@ public class LocaleImportHandlerTest {
     RepositoryFileBundle repoFileBundle =
         new RepositoryFileBundle( file, null, StringUtils.EMPTY, null, DEFAULT_ENCODING, null );
     return localeFilesProcessor.isLocaleFile( repoFileBundle, "/", localeContent.toString().getBytes() );
+  }
+
+  @Test( timeout = 2000, expected = SAXException.class )
+  public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws IOException, ParserConfigurationException, SAXException {
+    LocaleImportHandler lih = new LocaleImportHandler( Collections.emptyList(), null );
+
+    lih.getLocalBundleDocument( new StringInputStream( XmlTestConstants.MALICIOUS_XML ) );
+    fail();
+  }
+
+  @Test
+  public void shouldNotFailAndReturnNotNullWhenLegalXmlIsGiven() throws Exception {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<slave_config>"
+      + "</slave_config>";
+    LocaleImportHandler lih = new LocaleImportHandler( Collections.emptyList(), null );
+
+    assertNotNull( lih.getLocalBundleDocument( new StringInputStream( xml ) ) );
   }
 }

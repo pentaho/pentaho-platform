@@ -12,12 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -25,9 +27,11 @@ import java.util.PropertyResourceBundle;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +42,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class LocaleImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
@@ -253,11 +259,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     String fileTitle = localeBundle.getName();
 
     if ( ( LOCALE_FOLDER + XML_LOCALE_EXT ).equals( fileTitle ) ) {
-      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = null;
       try {
-        builder = builderFactory.newDocumentBuilder();
-        Document document = builder.parse( localeBundle.getInputStream() );
+        Document document = getLocalBundleDocument( localeBundle.getInputStream() );
         XPath xPath = XPathFactory.newInstance().newXPath();
 
         String name = xPath.compile( "/index/name" ).evaluate( document );
@@ -274,6 +277,13 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
       }
     }
     return properties;
+  }
+
+  @VisibleForTesting
+  Document getLocalBundleDocument( InputStream is ) throws ParserConfigurationException, SAXException, IOException {
+    DocumentBuilderFactory builderFactory = XMLParserFactoryProducer.createSecureDocBuilderFactory();
+    DocumentBuilder builder = builderFactory.newDocumentBuilder();
+    return builder.parse( is );
   }
 
 }

@@ -12,11 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -45,9 +48,22 @@ public class ContextDiscoveryServlet extends HttpServlet {
 
   private static final long serialVersionUID = -8747147437664663719L;
 
-  private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+  private static final Log logger = LogFactory.getLog( ContextDiscoveryServlet.class );
+
+  private final DocumentBuilderFactory factory;
 
   private final TransformerFactory tf = TransformerFactory.newInstance();
+
+  public ContextDiscoveryServlet() {
+    DocumentBuilderFactory documentBuilderFactory;
+    try {
+      documentBuilderFactory = XMLParserFactoryProducer.createSecureDocBuilderFactory();
+    } catch ( ParserConfigurationException e ) {
+      logger.error( e.getLocalizedMessage() );
+      documentBuilderFactory = DocumentBuilderFactory.newInstance();
+    }
+    factory = documentBuilderFactory;
+  }
 
   @Override
   public void doGet( final HttpServletRequest request, final HttpServletResponse response ) throws ServletException {

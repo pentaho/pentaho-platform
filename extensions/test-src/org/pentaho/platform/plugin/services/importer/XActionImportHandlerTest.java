@@ -17,17 +17,24 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import com.sun.xml.bind.StringInputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.core.util.Assert;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.util.XmlTestConstants;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +50,7 @@ public class XActionImportHandlerTest {
   private final String XACTION_HIDDEN_FLAG_FALSE = "/solution/test/platform/HelloWorld.xaction"; //$NON-NLS-1$
 
   IMimeType mimeType;
-  IPlatformImportHandler handler;
+  XActionImportHandler handler;
   IPlatformImportBundle bundle;
 
   @Before
@@ -73,6 +80,21 @@ public class XActionImportHandlerTest {
 
     Assert.assertNotNull( ( (XActionImportHandlerForTesting) handler ).getResultingImportBundle() );
     Assert.assertTrue( ( (XActionImportHandlerForTesting) handler ).getResultingImportBundle().isHidden() );
+  }
+
+  @Test( timeout = 2000, expected = SAXException.class )
+  public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws IOException, ParserConfigurationException, SAXException {
+    handler.getImportBundleDocument( new StringInputStream( XmlTestConstants.MALICIOUS_XML ) );
+    fail();
+  }
+
+  @Test
+  public void shouldNotFailAndReturnNotNullWhenLegalXmlIsGiven() throws Exception {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<slave_config>"
+      + "</slave_config>";
+
+    assertNotNull( handler.getImportBundleDocument( new StringInputStream( xml ) ) );
   }
 
   private InputStream getXactionAsInputStream( String xactionTestFilePath ) {

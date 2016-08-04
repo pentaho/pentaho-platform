@@ -13,38 +13,41 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.util;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
+import org.junit.Test;
 import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
 import org.w3c.dom.Document;
 
-public class XmlW3CHelperTest extends TestCase {
+import static org.junit.Assert.*;
 
-  public void testValidXmlW3C() throws FileNotFoundException, IOException {
+public class XmlW3CHelperTest {
+
+  @Test
+  public void testValidXmlW3C() throws IOException {
     String domString = "<root><subroot>this is sub root</subroot></root>";
 
     Document doc = XmlW3CHelper.getDomFromString( domString );
     assertNotNull( doc );
   }
 
-  public void testNotValidXmlW3C() throws FileNotFoundException, IOException {
+  @Test
+  public void testNotValidXmlW3C() throws IOException {
     String domString = "<root>this is sub root</subroot></root>";
 
     Document doc = XmlW3CHelper.getDomFromString( domString );
     assertNull( doc );
   }
 
-  public void testXmlW3C() throws FileNotFoundException, IOException {
+  @Test
+  public void testXmlW3C() throws IOException {
     String path = "test-res/solution/test/xml/query_without_connection.xaction";
 
     byte[] encoded = IOUtils.toByteArray( new FileInputStream( path ) );
@@ -54,6 +57,7 @@ public class XmlW3CHelperTest extends TestCase {
     assertNotNull( doc );
   }
 
+  @Test
   public void testXmlW3CError() {
     try {
       XmlW3CHelper.getDomFromString( null );
@@ -63,4 +67,17 @@ public class XmlW3CHelperTest extends TestCase {
     }
   }
 
+  @Test( timeout = 2000 )
+  public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws Exception {
+    assertNull( XmlW3CHelper.getDomFromString( XmlTestConstants.MALICIOUS_XML ) );
+  }
+
+  @Test
+  public void shouldNotFailAndReturnNotNullWhenLegalXmlIsGiven() throws Exception {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<element>"
+      + "</element>";
+
+    assertNotNull( XmlW3CHelper.getDomFromString( xml ) );
+  }
 }
