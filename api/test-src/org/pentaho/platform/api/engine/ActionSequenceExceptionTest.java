@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.actionsequence.dom.IActionControlStatement;
 import org.pentaho.actionsequence.dom.IActionDefinition;
 import org.pentaho.actionsequence.dom.IActionIfStatement;
@@ -199,4 +200,16 @@ public class ActionSequenceExceptionTest {
 
   }
 
+  @Test
+  public void testPrintStackRecursion() {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    PrintWriter writer = new PrintWriter( stream, true );
+    ActionSequenceException exception = new ActionSequenceException( MSG );
+
+    IActionSequenceExecutableStatement statement = mock( IActionSequenceExecutableStatement.class );
+    IActionControlStatement parent = mock( IActionControlStatement.class );
+    Mockito.when( statement.getParent() ).thenReturn( parent );
+    exception._printStack( statement, writer, "" );
+    assertNotEquals( "", stream.toString() );
+  }
 }
