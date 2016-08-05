@@ -430,7 +430,6 @@
 
     <!-- CM-241 -->
     <exclude org="cglib" module="cglib"/>
-    <exclude org="antlr" module="antlr"/>
 
     <exclude org="org.apache.xmlgraphics" module="batik-js" />
 
