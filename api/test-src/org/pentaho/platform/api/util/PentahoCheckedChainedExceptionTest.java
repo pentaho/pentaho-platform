@@ -12,17 +12,22 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.util;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import org.junit.Test;
 
 /**
  * Created by bgroves on 11/6/15.
@@ -52,12 +57,35 @@ public class PentahoCheckedChainedExceptionTest {
     assertEquals( CAUSE, exception.getRootCause() );
   }
 
+  @Test
+  public void testGetRootCause() {
+    PentahoCheckedChainedException exception = new CheckedException( CAUSE );
+    Throwable rootCause = exception.getRootCause();
+    assertEquals( CAUSE, rootCause );
+  }
+
+  @Test
+  public void testPrintStackTrace() {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    PrintWriter writer = new PrintWriter( stream, true );
+    PrintStream pStream = new PrintStream( stream, true );
+
+    PentahoCheckedChainedException exception = new CheckedException( CAUSE );
+    exception.printStackTrace( writer );
+    assertNotEquals( "", stream.toString() );
+
+    exception.printStackTrace( pStream );
+    assertNotEquals( "", pStream.toString() );
+  }
+
   private class CheckedException extends PentahoCheckedChainedException {
+    private static final long serialVersionUID = -7614124426358360606L;
+
     public CheckedException() {
       super();
     }
 
-    public CheckedException( String message) {
+    public CheckedException( String message ) {
       super( message );
     }
 
@@ -68,5 +96,5 @@ public class PentahoCheckedChainedExceptionTest {
     public CheckedException( Throwable cause ) {
       super( cause );
     }
-  };
+  }
 }
