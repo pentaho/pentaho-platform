@@ -76,13 +76,16 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -724,9 +727,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       // spec.
 
       FileInputStream parsingInputStream = new FileInputStream( mondrianFile );
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      org.w3c.dom.Document document = builder.parse( parsingInputStream );
+      org.w3c.dom.Document document = getMondrianXmlDocument( parsingInputStream );
       NodeList schemas = document.getElementsByTagName( "Schema" ); //$NON-NLS-1$
       Node schema = schemas.item( 0 );
       if ( schema == null ) {
@@ -1015,8 +1016,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   protected MondrianSchema makeSchema( final String catalogStr ) {
     if ( MondrianCatalogHelper.logger.isDebugEnabled() ) {
       MondrianCatalogHelper.logger
-          .debug( "makeSchema (catalogStr=" + catalogStr.substring( 0, Math.min( 40, catalogStr.length() ) ) + "...)"
-          );
+        .debug( "makeSchema (catalogStr=" + catalogStr.substring( 0, Math.min( 40, catalogStr.length() ) ) + "...)" );
     }
     MondrianSchema schema = null;
     try {
@@ -1220,5 +1220,13 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
         + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName() ); //$NON-NLS-1$
     solutionRepository.deleteFile( deletingFile.getId(), true, "" ); //$NON-NLS-1$
     reInit( pentahoSession );
+  }
+
+  @VisibleForTesting
+  org.w3c.dom.Document getMondrianXmlDocument( InputStream is )
+    throws ParserConfigurationException, SAXException, IOException {
+    DocumentBuilderFactory factory = XMLParserFactoryProducer.createSecureDocBuilderFactory();
+    DocumentBuilder builder = factory.newDocumentBuilder();
+    return builder.parse( is );
   }
 }

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -38,12 +38,16 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.engine.services.actionsequence.ActionParameterSource;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -83,9 +87,10 @@ public class SolutionEngineInteractivityService extends ServletBase {
     throws ServletException, IOException {
     IRuntimeContext runtime = null;
     try {
-
-      final org.w3c.dom.Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-      final org.w3c.dom.Element root = document.createElement( "action_sequence_info" );
+      DocumentBuilderFactory dbf = XMLParserFactoryProducer.createSecureDocBuilderFactory();
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      Document document = db.newDocument();
+      Element root = document.createElement( "action_sequence_info" );
       document.appendChild( root );
 
       requestHandler.setCreateFeedbackParameterCallback( new ICreateFeedbackParameterCallback() {
@@ -93,7 +98,7 @@ public class SolutionEngineInteractivityService extends ServletBase {
             String hint, Object defaultValues, List values, Map dispNames, String displayStyle, boolean optional,
             boolean visible ) {
 
-          org.w3c.dom.Element parameterElement = document.createElement( "parameter" );
+          Element parameterElement = document.createElement( "parameter" );
           parameterElement.setAttribute( "name", fieldName );
           parameterElement.setAttribute( "display-name", displayName );
           parameterElement.setAttribute( "display-style", displayStyle );
@@ -124,9 +129,9 @@ public class SolutionEngineInteractivityService extends ServletBase {
           root.appendChild( parameterElement );
 
           if ( values != null ) {
-            org.w3c.dom.Element valuesElement = document.createElement( "values" );
+            Element valuesElement = document.createElement( "values" );
             for ( Object value : values ) {
-              org.w3c.dom.Element valueElement = document.createElement( "value" );
+              Element valueElement = document.createElement( "value" );
               valueElement.setAttribute( "value", "" + value );
               if ( dispNames != null && dispNames.containsKey( value ) ) {
                 valueElement.setAttribute( "display-name", "" + dispNames.get( value ) );
@@ -136,15 +141,15 @@ public class SolutionEngineInteractivityService extends ServletBase {
             parameterElement.appendChild( valuesElement );
           }
           if ( defaultValues != null ) {
-            org.w3c.dom.Element valuesElement = document.createElement( "selected-values" );
+            Element valuesElement = document.createElement( "selected-values" );
             if ( defaultValues instanceof List ) {
               for ( Object value : (List) defaultValues ) {
-                org.w3c.dom.Element valueElement = document.createElement( "value" );
+                Element valueElement = document.createElement( "value" );
                 valueElement.setAttribute( "value", "" + value );
                 valuesElement.appendChild( valueElement );
               }
             } else {
-              org.w3c.dom.Element valueElement = document.createElement( "value" );
+              Element valueElement = document.createElement( "value" );
               valueElement.setAttribute( "value", "" + defaultValues );
               valuesElement.appendChild( valueElement );
             }

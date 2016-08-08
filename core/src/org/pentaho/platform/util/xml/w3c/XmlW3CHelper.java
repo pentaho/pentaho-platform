@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.util.xml.w3c;
@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.Messages;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -31,19 +32,15 @@ public class XmlW3CHelper {
   }
 
   public static final Document getDomFromString( final String str ) {
-    DocumentBuilderFactory dbf;
-    DocumentBuilder db;
-    Document doc;
-
     if ( str == null ) {
       throw new IllegalArgumentException( "The source string can not be null" ); //$NON-NLS-1$
     }
 
     try {
       // Check and open XML document
-      dbf = DocumentBuilderFactory.newInstance();
-      db = dbf.newDocumentBuilder();
-      doc = db.parse( new InputSource( new java.io.StringReader( str ) ) );
+      DocumentBuilderFactory dbf = XMLParserFactoryProducer.createSecureDocBuilderFactory();
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      Document doc = db.parse( new InputSource( new java.io.StringReader( str ) ) );
 
       return doc;
     } catch ( Exception e ) {

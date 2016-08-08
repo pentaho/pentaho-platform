@@ -12,13 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.context;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.di.core.KettleClientEnvironment.ClientType;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -28,9 +30,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Iterator;
 
@@ -38,6 +43,7 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -88,10 +94,7 @@ public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationCo
         && ( clientType == null || !clientType.equals( ClientType.SPOON ) ) ) {
       try {
 
-        DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
-        dFactory.setNamespaceAware( true );
-        DocumentBuilder dBuilder = dFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse( resource.getInputStream() );
+        Document doc = getResourceDocument( resource.getInputStream() );
 
         Node node = doc.getDocumentElement();
 
@@ -171,4 +174,12 @@ public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationCo
 
   }
 
+  @VisibleForTesting
+  Document getResourceDocument( InputStream is )
+    throws ParserConfigurationException, SAXException, IOException {
+    DocumentBuilderFactory dFactory = XMLParserFactoryProducer.createSecureDocBuilderFactory();
+    dFactory.setNamespaceAware( true );
+    DocumentBuilder dBuilder = dFactory.newDocumentBuilder();
+    return dBuilder.parse( is );
+  }
 }
