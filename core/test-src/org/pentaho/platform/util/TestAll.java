@@ -38,7 +38,6 @@ public class TestAll {
     suite.addTestSuite( ColorHelperTest.class );
     suite.addTestSuite( DateMathTest.class );
     suite.addTestSuite( InputStreamDataSourceTest.class );
-    suite.addTestSuite( LocaleHelperTest.class );
     suite.addTestSuite( LogTest.class );
     suite.addTestSuite( MessageUtilTest.class );
     suite.addTestSuite( ParameterHelperTest.class );
