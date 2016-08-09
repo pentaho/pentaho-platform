@@ -12,11 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2005 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2005 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.test.platform.security.acls;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPermissionMask;
@@ -33,6 +36,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
 
 @SuppressWarnings( "nls" )
 public class TestAclPublisher extends BaseTest {
@@ -51,14 +55,9 @@ public class TestAclPublisher extends BaseTest {
 
   }
 
-  public static void main( String[] args ) {
-    junit.textui.TestRunner.run( TestAclPublisher.class );
-    System.exit( 0 );
-  }
-
   private Map<IPermissionRecipient, IPermissionMask> defaultAcls =
       new LinkedHashMap<IPermissionRecipient, IPermissionMask>();
-
+  @Before
   public void setup() {
     super.setUp();
     defaultAcls.put(
@@ -68,6 +67,7 @@ public class TestAclPublisher extends BaseTest {
     defaultAcls.put( new SimpleRole( "ROLE_AUTHENTICATED" ), new SimplePermissionMask( IPentahoAclEntry.PERM_EXECUTE ) ); //$NON-NLS-1$
   }
 
+  @Test
   public void testPublisher() {
     AclPublisher publisher = new AclPublisher( defaultAcls );
     assertNotNull( publisher );
@@ -95,11 +95,12 @@ public class TestAclPublisher extends BaseTest {
     return root;
   }
 
-  public void checkAcls( IAclSolutionFile solnFile ) {
+
+  private void checkAcls( IAclSolutionFile solnFile ) {
     if ( solnFile.isDirectory() ) {
       Map<IPermissionRecipient, IPermissionMask> perms =
           SpringSecurityPermissionMgr.instance().getPermissions( solnFile );
-      assertEquals( perms.size(), defaultAcls.size() );
+      Assert.assertEquals( perms.size(), defaultAcls.size() );
       assertTrue( perms.entrySet().containsAll( defaultAcls.entrySet() ) );
       Set kidsSet = solnFile.getChildrenFiles();
       Iterator it = kidsSet.iterator();
@@ -111,5 +112,4 @@ public class TestAclPublisher extends BaseTest {
       }
     }
   }
-
 }
