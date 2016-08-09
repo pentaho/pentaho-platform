@@ -13,22 +13,29 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.util;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import org.pentaho.platform.util.messages.LocaleHelper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class LocaleHelperTest extends TestCase {
+import org.junit.Assert;
+import org.junit.Test;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
+public class LocaleHelperTest {
+
+  @Test
   public void testLocaleHelper() {
+    LocaleHelper helper = new LocaleHelper();
+    Assert.assertNotNull( helper );
 
     Locale myLocale = Locale.US;
     Locale newLocale = Locale.FRANCE;
@@ -52,6 +59,9 @@ public class LocaleHelperTest extends TestCase {
     DateFormat dateFormat = LocaleHelper.getDateFormat( LocaleHelper.FORMAT_MEDIUM, LocaleHelper.FORMAT_MEDIUM );
     String format = dateFormat.format( new Date() );
     Assert.assertNotNull( format );
+
+    DateFormat fullDateFormat0 = LocaleHelper.getFullDateFormat( false, false );
+    Assert.assertNull( fullDateFormat0 );
 
     DateFormat fullDateFormat = LocaleHelper.getFullDateFormat( true, true );
     String format1 = fullDateFormat.format( new Date() );
@@ -103,10 +113,14 @@ public class LocaleHelperTest extends TestCase {
 
   }
 
+  @Test
   public void testClosestLocale() {
 
     // should return the locale passed in
     String locale = LocaleHelper.getClosestLocale( "en-US", null ); //$NON-NLS-1$
+    assertEquals( "Locale is wrong", "en-US", locale ); //$NON-NLS-1$ //$NON-NLS-2$
+
+    locale = LocaleHelper.getClosestLocale( null, new String[] { "en-US" } ); //$NON-NLS-1$
     assertEquals( "Locale is wrong", "en-US", locale ); //$NON-NLS-1$ //$NON-NLS-2$
 
     // should return the locale passed in
@@ -126,13 +140,14 @@ public class LocaleHelperTest extends TestCase {
 
     locale = LocaleHelper.getClosestLocale( "en", new String[] { "fr-FR", "es-ES", "en-UK" } ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     assertEquals( "Locale is wrong", "en-UK", locale ); //$NON-NLS-1$ //$NON-NLS-2$
-
   }
 
+  @Test
   public void testEncoding() {
     LocaleHelper.setSystemEncoding( "Shift_JIS" );
   }
 
+  @Test
   public void testParseAndSetLocaleOverride() {
     final String TEST_LOCALE_LANG = "en";
     final String TEST_LOCALE_COUNTRY = "US";
@@ -144,4 +159,29 @@ public class LocaleHelperTest extends TestCase {
     LocaleHelper.setLocaleOverride( null );
   }
 
+  @Test
+  public void testGetNumberFormat() {
+    NumberFormat nfmt = LocaleHelper.getNumberFormat();
+    Assert.assertNotNull( nfmt );
+  }
+
+  @Test
+  public void testGetCurrencyFormat() {
+    NumberFormat cfmt = LocaleHelper.getCurrencyFormat();
+    Assert.assertNotNull( cfmt );
+  }
+
+  @Test
+  public void testIsAsciiIsLatin1() {
+    String symbol = "A";
+    Assert.assertTrue( LocaleHelper.isAscii( symbol ) );
+    Assert.assertTrue( LocaleHelper.isLatin1( symbol ) );
+  }
+
+  @Test
+  public void testConvertISOStringToSystemDefaultEncoding() {
+    String test = "someString";
+    String result = LocaleHelper.convertISOStringToSystemDefaultEncoding( test );
+    assertEquals( test, result );
+  }
 }
