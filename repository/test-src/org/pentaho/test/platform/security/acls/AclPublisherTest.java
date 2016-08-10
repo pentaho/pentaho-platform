@@ -39,7 +39,7 @@ import java.util.Set;
 
 
 @SuppressWarnings( "nls" )
-public class TestAclPublisher extends BaseTest {
+public class AclPublisherTest extends BaseTest {
 
   private static final String SOLUTION_PATH = "test-src/solution";
   private static final String ALT_SOLUTION_PATH = "test-src/solution";
