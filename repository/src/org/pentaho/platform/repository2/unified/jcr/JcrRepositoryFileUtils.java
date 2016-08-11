@@ -544,6 +544,8 @@ public class JcrRepositoryFileUtils {
     folderNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), folder.isAclNode() );
     // folderNode.setProperty(pentahoJcrConstants.getPHO_TITLE(), folder.getTitle());
     Node localeNodes = null;
+
+    // TODO localization of files and folders must be identical
     if ( folder.getTitle() != folder.getName() ) { // Title is different from the name
       localeNodes = folderNode.addNode( pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE() );
       Map<String, Properties> localPropertiesMap = new HashMap<String, Properties>();
@@ -552,6 +554,7 @@ public class JcrRepositoryFileUtils {
       localPropertiesMap.put( LocalizationUtil.DEFAULT, titleProps );
       setLocalePropertiesMap( session, pentahoJcrConstants, localeNodes, localPropertiesMap );
     }
+
     if ( folder.isVersioned() ) {
       // folderNode.setProperty(addPentahoPrefix(session, PentahoJcrConstants.PENTAHO_VERSIONED), true);
       folderNode.addMixin( pentahoJcrConstants.getPHO_MIX_VERSIONABLE() );
@@ -584,11 +587,14 @@ public class JcrRepositoryFileUtils {
     fileNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), file.isHidden() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_FILESIZE(), content.getDataSize() );
     fileNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), file.isAclNode() );
+
+    // TODO localization of files and folders must be identical
     if ( file.getLocalePropertiesMap() != null && !file.getLocalePropertiesMap().isEmpty() ) {
       Node localeNodes =
           fileNode.addNode( pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE() );
       setLocalePropertiesMap( session, pentahoJcrConstants, localeNodes, file.getLocalePropertiesMap() );
     }
+
     Node metaNode = fileNode.addNode( pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED );
     setMetadataItemForFile( session, PentahoJcrConstants.PHO_CONTENTCREATOR, file.getCreatorId(), metaNode );
     fileNode.addMixin( pentahoJcrConstants.getMIX_LOCKABLE() );
