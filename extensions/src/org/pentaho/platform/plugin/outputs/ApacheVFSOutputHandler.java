@@ -12,13 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.outputs;
 
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
 import org.pentaho.platform.api.repository.IContentItem;
@@ -37,27 +38,27 @@ public class ApacheVFSOutputHandler extends BaseOutputHandler {
     String contentRef = getContentRef();
     try {
       String contentName = getHandlerId().substring( 4 ) + ":" + contentRef; //$NON-NLS-1$
-      FileSystemManager fsManager = VFS.getManager();
+      FileSystemManager fsManager = getFileSystemManager();
       if ( fsManager == null ) {
-        Logger.error( ApacheVFSOutputHandler.class.getName(), Messages.getInstance().getString(
-          "ApacheVFSOutputHandler.ERROR_0001_CANNOT_GET_VFSMGR" ) ); //$NON-NLS-1$
+        logError( Messages.getInstance().getString(
+          "ApacheVFSOutputHandler.ERROR_0001_CANNOT_GET_VFSMGR" ) );
         return null;
       }
       FileObject file = fsManager.resolveFile( contentName );
       if ( file == null ) {
-        Logger.error( ApacheVFSOutputHandler.class.getName(), Messages.getInstance().getString(
-            "ApacheVFSOutputHandler.ERROR_0002_CANNOT_GET_VF", contentName ) ); //$NON-NLS-1$
+        logError( Messages.getInstance().getString(
+          "ApacheVFSOutputHandler.ERROR_0002_CANNOT_GET_VF", contentName ) );
         return null;
       }
       if ( !file.isWriteable() ) {
-        Logger.error( ApacheVFSOutputHandler.class.getName(), Messages.getInstance().getString(
-            "ApacheVFSOutputHandler.ERROR_0003_CANNOT_WRITE", contentName ) ); //$NON-NLS-1$
+        logError( Messages.getInstance().getString(
+            "ApacheVFSOutputHandler.ERROR_0003_CANNOT_WRITE", contentName ) );
         return null;
       }
       FileContent fileContent = file.getContent();
       if ( fileContent == null ) {
-        Logger.error( ApacheVFSOutputHandler.class.getName(), Messages.getInstance().getString(
-            "ApacheVFSOutputHandler.ERROR_0004_CANNOT_GET_CTX", contentName ) ); //$NON-NLS-1$
+        logError( Messages.getInstance().getString(
+            "ApacheVFSOutputHandler.ERROR_0004_CANNOT_GET_CTX", contentName ) );
         return null;
       }
       OutputStream outputStream = fileContent.getOutputStream();
@@ -70,6 +71,14 @@ public class ApacheVFSOutputHandler extends BaseOutputHandler {
     }
 
     return null;
+  }
+
+  void logError( String string ) {
+    Logger.error( ApacheVFSOutputHandler.class.getName(), string ); //$NON-NLS-1$
+  }
+
+  FileSystemManager getFileSystemManager() throws FileSystemException {
+    return VFS.getManager();
   }
 
 }
