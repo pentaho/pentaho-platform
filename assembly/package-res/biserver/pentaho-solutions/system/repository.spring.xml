@@ -72,52 +72,19 @@
     <property name="transactionManager" ref="jcrTransactionManager"/>
     <property name="transactionAttributeSource">
       <value>
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFile=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileAtVersion=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileById=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForRead=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForReadInBatch=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataAtVersionForRead=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForExecute=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataForExecuteInBatch=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataAtVersionForExecute=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFile=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFolder=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFolder=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getChildren=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFile=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAcl=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.hasAccess=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getEffectiveAces=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateAcl=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.get*=PROPAGATION_SUPPORTS,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.create*=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.update*=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.has*=PROPAGATION_SUPPORTS,readOnly
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.lockFile=PROPAGATION_REQUIRED
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.unlockFile=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.canUnlockFile=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.canUnlockFile=PROPAGATION_SUPPORTS,readOnly
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.restoreFileAtVersion=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getVersionSummary=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getVersionSummaryInBatch=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getVersionSummaries=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteFile=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteFileAtVersion=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.delete*=PROPAGATION_REQUIRED
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.undeleteFile=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDeletedFiles=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDeletedFiles=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.moveFile=PROPAGATION_REQUIRED
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.copyFile=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getTree=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getReferrers=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setFileMetadata=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileMetadata=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileById=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileByPath=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFile=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileById=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileByPath=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFile=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileById=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileByPath=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFile=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteLocalePropertiesForFile=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.set*=PROPAGATION_REQUIRED
       </value>
     </property>
   </bean>
@@ -285,18 +252,18 @@
     <property name="transactionAttributeSource">
       <value>
         org.pentaho.platform.api.mt.ITenantManager.createTenant=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.mt.ITenantManager.getChildTenants=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.getChildTenants=PROPAGATION_SUPPORTS,readOnly
         org.pentaho.platform.api.mt.ITenantManager.updateTentant=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.deleteTenant=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.deleteTenants=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.enableTenant=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.enableTenants=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.mt.ITenantManager.getTenantByRootFolderPath=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.mt.ITenantManager.isSubTenant=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.mt.ITenantManager.getTenant=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.getTenantByRootFolderPath=PROPAGATION_SUPPORTS,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.isSubTenant=PROPAGATION_SUPPORTS,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=PROPAGATION_SUPPORTS,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.getTenant=PROPAGATION_SUPPORTS,readOnly
         org.pentaho.platform.api.mt.ITenantManager.createUserHomeFolder=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.mt.ITenantManager.getUserHomeFolder=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.mt.ITenantManager.getUserHomeFolder=PROPAGATION_SUPPORTS
       </value>
     </property>
   </bean>
@@ -360,17 +327,17 @@
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setPassword=PROPAGATION_REQUIRED
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserDescription=PROPAGATION_REQUIRED
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteUser=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUser=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUsers=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUser=PROPAGATION_SUPPORTS,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUsers=PROPAGATION_SUPPORTS,readOnly
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createRole=PROPAGATION_REQUIRED
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleDescription=PROPAGATION_REQUIRED
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteRole=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRole=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoles=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRole=PROPAGATION_SUPPORTS,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoles=PROPAGATION_SUPPORTS,readOnly
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleMembers=PROPAGATION_REQUIRED
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserRoles=PROPAGATION_REQUIRED
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoleMembers=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUserRoles=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUserRoles=PROPAGATION_SUPPORTS,readOnly
       </value>
     </property>
   </bean>
@@ -840,9 +807,9 @@
     <property name="transactionManager" ref="jcrTransactionManager"/>
     <property name="transactionAttributeSource">
       <value>
-        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getRoleBindingStruct=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getRoleBindingStruct=PROPAGATION_SUPPORTS,readOnly
         org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.setRoleBindings=PROPAGATION_REQUIRED
-        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getBoundLogicalRoleNames=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getBoundLogicalRoleNames=PROPAGATION_SUPPORTS,readOnly
       </value>
     </property>
   </bean>
@@ -906,7 +873,7 @@
   </bean>
 
 
-  <bean id="adminJcrTemplate" class="org.springframework.extensions.jcr.JcrTemplate">
+  <bean id="adminJcrTemplate" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate">
     <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
     <property name="allowCreate" value="false"/>
     <property name="exposeNativeSession" value="true"/>

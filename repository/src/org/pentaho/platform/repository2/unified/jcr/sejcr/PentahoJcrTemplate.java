@@ -18,22 +18,21 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
-import java.io.IOException;
-import java.security.AccessControlException;
-
-import javax.jcr.AccessDeniedException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactoryUtils;
 
+import javax.jcr.AccessDeniedException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.IOException;
+import java.security.AccessControlException;
+
 /**
  * Copy of superclass' execute with better exception conversions.
- * 
+ *
  * @author mlowery
  */
 public class PentahoJcrTemplate extends JcrTemplate {
@@ -75,15 +74,15 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // Callback code threw application exception...
       throw pentahoConvertJcrAccessException( ex );
     } finally {
-//      if ( !existingTransaction ) {
-//        SessionFactoryUtils.releaseSession( session, getSessionFactory() );
-//      }
+      //      if ( !existingTransaction ) {
+      //        SessionFactoryUtils.releaseSession( session, getSessionFactory() );
+      //      }
     }
   }
 
   @Override
   protected Session getSession() {
-    return SessionFactoryUtils.getSession(getSessionFactory(), this.isAllowCreate());
+    return SessionFactoryUtils.getSession( getSessionFactory(), this.isAllowCreate() );
   }
 
   private RuntimeException pentahoConvertJcrAccessException( final RuntimeException ex ) {
