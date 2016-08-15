@@ -343,7 +343,7 @@ public class FileService {
       for ( ; i < sourceFileIds.length; i++ ) {
         getRepoWs().moveFile( sourceFileIds[ i ], repositoryFileDto.getPath(), null );
       }
-    } catch ( IllegalArgumentException e ) {
+    } catch ( IllegalArgumentException | UnifiedRepositoryAccessDeniedException e ) {
       throw e;
     } catch ( Exception e ) {
       throw new InternalError();

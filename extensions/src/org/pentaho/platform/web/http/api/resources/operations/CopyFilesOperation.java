@@ -25,6 +25,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
@@ -262,7 +263,10 @@ public class CopyFilesOperation {
       repositoryFile =
         getRepository().createFile( destDir.getId(), duplicateFile, data, acl, null );
     }
-
+    if ( repositoryFile == null ) {
+      throw new UnifiedRepositoryAccessDeniedException( Messages.getInstance().getString(
+        "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_CREATE", destDir.getId() ) );
+    }
 
     getRepository().setFileMetadata( repositoryFile.getId(), getRepository().getFileMetadata( repoFile.getId() ) );
   }
