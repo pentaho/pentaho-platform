@@ -296,7 +296,10 @@ public class FileResource extends AbstractJaxRSResource {
       return buildOkResponse();
     } catch ( FileNotFoundException e ) {
       logger.error( Messages.getInstance().getErrorString( "FileResource.DESTINATION_PATH_UNKNOWN", destPathId ), e );
-      return buildStatusResponse( NOT_FOUND );
+      return buildStatusResponse( Response.Status.NOT_FOUND );
+    } catch ( UnifiedRepositoryAccessDeniedException e ) {
+      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_MOVE_ACCESS_DENIED", params ), e );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     } catch ( Throwable t ) {
       logger.error( Messages.getInstance().getString( "SystemResource.FILE_MOVE_FAILED" ), t );
       return buildStatusResponse( INTERNAL_SERVER_ERROR );
@@ -422,7 +425,10 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       fileService.doCopyFiles( pathId, mode, params );
     } catch ( IllegalArgumentException e ) {
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
+    } catch ( UnifiedRepositoryAccessDeniedException e ) {
+      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_COPY_ACCESS_DENIED", params ), e );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       return buildSafeHtmlServerErrorResponse( e );
@@ -2058,7 +2064,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param pathId Colon separated path for the repository file.
    *
-   * @return The Versioning Configuration applicable to the path submitted 
+   * @return The Versioning Configuration applicable to the path submitted
    *
    * <p><b>Example Response:</b></p>
    *  <pre function="syntax.xml">
