@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2014 Pentaho Corporation. All rights reserved.
+ * Copyright 2016 Pentaho Corporation. All rights reserved.
  */
 
 package org.pentaho.platform.osgi;
@@ -46,7 +46,8 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
- * JAAS LoginModule which delegates to the Platform's Spring Security {@link org.springframework.security.AuthenticationManager}.
+ * JAAS LoginModule which delegates to the Platform's Spring Security
+ * {@link org.springframework.security.AuthenticationManager}.
  *
  * If the Authenticated user has AdministerSecurity permissions, they'll be given a synthetic role of "karaf_admin"
  * which provides access to Admin features of Karaf
@@ -55,9 +56,9 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
  */
 public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
 
-  public static final String KARAF_ADMIN = "karaf_admin";
+  public static final String    KARAF_ADMIN           = "karaf_admin";
   private AuthenticationManager authenticationManager = null;
-  private IAuthorizationPolicy authorizationPolicy = null;
+  private IAuthorizationPolicy  authorizationPolicy   = null;
 
   public SpringSecurityLoginModule() {
 
@@ -77,7 +78,6 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
     return authorizationPolicy;
   }
 
-
   public void setAuthenticationManager( AuthenticationManager authenticationManager ) {
     this.authenticationManager = authenticationManager;
   }
@@ -92,14 +92,13 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
 
   public boolean login() throws LoginException {
 
-    org.springframework.security.Authentication authentication =
-      SecurityContextHolder.getContext().getAuthentication();
+    org.springframework.security.Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if ( authentication != null ) {
       // Obtain the username of the incoming auth request to match against existing authentication on the thread.
 
-      Callback[] callbacks = new Callback[ 1 ];
-      callbacks[ 0 ] = new NameCallback( "User: " );
+      Callback[] callbacks = new Callback[1];
+      callbacks[0] = new NameCallback( "User: " );
 
       try {
         callbackHandler.handle( callbacks );
@@ -109,7 +108,7 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
         throw new LoginException( "Unable to interactively Authenticate with user: " + e.getMessage() );
       }
       // user callback get value
-      String name = ( (NameCallback) callbacks[ 0 ] ).getName();
+      String name = ( (NameCallback) callbacks[0] ).getName();
       if ( name == null ) {
         throw new LoginException( "User name is null" );
       }
@@ -124,10 +123,10 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
 
     if ( authentication == null ) {
 
-      Callback[] callbacks = new Callback[ 2 ];
+      Callback[] callbacks = new Callback[2];
 
-      callbacks[ 0 ] = new NameCallback( "User: " );
-      callbacks[ 1 ] = new PasswordCallback( "Password: ", false );
+      callbacks[0] = new NameCallback( "User: " );
+      callbacks[1] = new PasswordCallback( "Password: ", false );
       try {
         callbackHandler.handle( callbacks );
       } catch ( IOException e ) {
@@ -136,8 +135,8 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
         throw new LoginException( "Unable to interactively Authenticate with user: " + e.getMessage() );
       }
 
-      String name = ( (NameCallback) callbacks[ 0 ] ).getName();
-      char[] password1 = ( (PasswordCallback) callbacks[ 1 ] ).getPassword();
+      String name = ( (NameCallback) callbacks[0] ).getName();
+      char[] password1 = ( (PasswordCallback) callbacks[1] ).getPassword();
 
       if ( password1 == null || name == null ) {
         throw new LoginException( "User Name and Password cannot be null" );
@@ -145,7 +144,7 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
       String password = new String( password1 );
 
       UsernamePasswordAuthenticationToken token =
-        new UsernamePasswordAuthenticationToken( name, String.valueOf( password ) );
+          new UsernamePasswordAuthenticationToken( name, String.valueOf( password ) );
 
       IPentahoSession session = new StandaloneSession( name );
       PentahoSessionHolder.setSession( session );
@@ -158,7 +157,7 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
         if ( authentication == null ) {
           throw new IllegalStateException( "Not Authenticated" );
         }
-      } catch (Exception e) {
+      } catch ( Exception e ) {
         e.printStackTrace();
         session.destroy();
         PentahoSessionHolder.removeSession();

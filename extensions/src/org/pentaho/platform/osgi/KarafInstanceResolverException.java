@@ -14,6 +14,7 @@
  *
  * Copyright 2016 Pentaho Corporation. All rights reserved.
  */
+
 package org.pentaho.platform.osgi;
 
 /**
@@ -22,6 +23,8 @@ package org.pentaho.platform.osgi;
  * Created by nbaker on 3/24/16.
  */
 public class KarafInstanceResolverException extends Exception {
+  private static final long serialVersionUID = -4666903929040782424L;
+
   public KarafInstanceResolverException( String s ) {
     super( s );
   }
