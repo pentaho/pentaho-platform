@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -29,6 +29,7 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -118,15 +119,26 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
 
   }
 
+  /**
+   * @deprecated use org.pentaho.reporting.platform.plugin.CacheManagerEndpoint instead
+   */
+  @Deprecated
   @GET
   @Path( "/reportingDataCache" )
   @Produces( { MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON } )
-  @Facet ( name = "Unsupported" )
+  @Facet( name = "Unsupported" )
   public Response purgeReportingDataCache() {
     if ( canAdminister() ) {
       ICacheManager cacheManager = PentahoSystem.get( ICacheManager.class );
       cacheManager.clearRegionCache( "report-dataset-cache" );
       cacheManager.clearRegionCache( "report-output-handlers" );
+
+      Runnable clearCacheAction =
+        PentahoSystem.get( Runnable.class, "_ClearCacheAction", PentahoSessionHolder.getSession() );
+      if ( clearCacheAction != null ) {
+        clearCacheAction.run();
+      }
+
       return Response.ok().type( MediaType.TEXT_PLAIN ).build();
     } else {
       return Response.status( UNAUTHORIZED ).build();
