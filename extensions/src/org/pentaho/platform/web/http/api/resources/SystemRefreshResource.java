@@ -29,7 +29,6 @@ import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-import org.pentaho.reporting.platform.plugin.cache.IPluginCacheManager;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -120,6 +119,10 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
 
   }
 
+  /**
+   * @deprecated use org.pentaho.reporting.platform.plugin.CacheManagerEndpoint instead
+   */
+  @Deprecated
   @GET
   @Path( "/reportingDataCache" )
   @Produces( { MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON } )
@@ -130,10 +133,10 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
       cacheManager.clearRegionCache( "report-dataset-cache" );
       cacheManager.clearRegionCache( "report-output-handlers" );
 
-      IPluginCacheManager iPluginCacheManager = PentahoSystem.get( IPluginCacheManager.class );
-
-      if ( null != iPluginCacheManager ) {
-        iPluginCacheManager.getCache().cleanup();
+      Runnable clearCacheAction =
+        PentahoSystem.get( Runnable.class, "_ClearCacheAction", PentahoSessionHolder.getSession() );
+      if ( clearCacheAction != null ) {
+        clearCacheAction.run();
       }
 
       return Response.ok().type( MediaType.TEXT_PLAIN ).build();
