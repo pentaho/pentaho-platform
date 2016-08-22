@@ -17,6 +17,7 @@
 **/gwt-user-*.jar
 **/hsqldb-*.jar
 **/mysql-connector-*.jar
+**/mysql-connector-*.jar
 **/postgresql*.jar
 **/*-sources.jar
 **/stax-api-*.jar

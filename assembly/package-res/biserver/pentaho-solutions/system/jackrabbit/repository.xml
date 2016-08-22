@@ -50,6 +50,15 @@
     <param name="schemaObjectPrefix" value="fs_repos_"/>
   </FileSystem>
 
+  <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+    <param name="driver" value="org.mariadb.jdbc.Driver"/>
+    <param name="url" value="jdbc:mariadb://localhost:3306/jackrabbit"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="schema" value="mysql"/>
+    <param name="schemaObjectPrefix" value="fs_repos_"/>
+  </FileSystem>
+  
   <FileSystem class="org.apache.jackrabbit.core.fs.db.OracleFileSystem">
     <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
     <param name="user" value="jcr_user"/>
@@ -107,6 +116,19 @@
     <param name="schemaObjectPrefix" value="ds_repos_"/>
   </DataStore>
 
+  <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
+    <param name="url" value="jdbc:mariadb://localhost:3306/jackrabbit"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="databaseType" value="mysql"/>
+    <param name="driver" value="org.mariadb.jdbc.Driver"/>
+    <param name="minRecordLength" value="1024"/>
+    <param name="maxConnections" value="3"/>
+    <param name="copyWhenReading" value="true"/>
+    <param name="tablePrefix" value=""/>
+    <param name="schemaObjectPrefix" value="ds_repos_"/>
+  </DataStore>
+  
   <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
     <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
     <param name="driver" value="oracle.jdbc.OracleDriver"/>
@@ -225,6 +247,15 @@
       <param name="schemaObjectPrefix" value="fs_ws_"/>
     </FileSystem>
 
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+      <param name="driver" value="org.mariadb.jdbc.Driver"/>
+      <param name="url" value="jdbc:mariadb://localhost:3306/jackrabbit"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="mysql"/>
+      <param name="schemaObjectPrefix" value="fs_ws_"/>
+    </FileSystem>
+    
     <FileSystem class="org.apache.jackrabbit.core.fs.db.OracleFileSystem">
       <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
       <param name="user" value="jcr_user"/>
@@ -280,6 +311,15 @@
       <param name="schemaObjectPrefix" value="${wsp.name}_pm_ws_"/>
     </PersistenceManager>
 
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MySqlPersistenceManager">
+      <param name="driver" value="org.mariadb.jdbc.Driver"/>
+      <param name="url" value="jdbc:mariadb://localhost:3306/jackrabbit"/>
+      <param name="user" value="jcr_user" />
+      <param name="password" value="password" />
+      <param name="schema" value="mysql"/>
+      <param name="schemaObjectPrefix" value="${wsp.name}_pm_ws_"/>
+    </PersistenceManager>
+    
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.OraclePersistenceManager">
       <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
       <param name="driver" value="oracle.jdbc.OracleDriver"/>
@@ -357,6 +397,15 @@
       <param name="schemaObjectPrefix" value="fs_ver_"/>
     </FileSystem>
 
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+      <param name="driver" value="org.mariadb.jdbc.Driver"/>
+      <param name="url" value="jdbc:mariadb://localhost:3306/jackrabbit"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="mysql"/>
+      <param name="schemaObjectPrefix" value="fs_ver_"/>
+    </FileSystem>
+    
     <FileSystem class="org.apache.jackrabbit.core.fs.db.OracleFileSystem">
       <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
       <param name="user" value="jcr_user"/>
@@ -412,6 +461,15 @@
       <param name="schemaObjectPrefix" value="pm_ver_"/>
     </PersistenceManager>
 
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MySqlPersistenceManager">
+      <param name="driver" value="org.mariadb.jdbc.Driver"/>
+      <param name="url" value="jdbc:mariadb://localhost:3306/jackrabbit"/>
+      <param name="user" value="jcr_user" />
+      <param name="password" value="password" />
+      <param name="schema" value="mysql"/>
+      <param name="schemaObjectPrefix" value="pm_ver_"/>
+    </PersistenceManager>
+    
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.OraclePersistenceManager">
       <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
       <param name="driver" value="oracle.jdbc.OracleDriver"/>

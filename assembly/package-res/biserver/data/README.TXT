@@ -1,4 +1,4 @@
-For mysql5, oracle10g, and postgresql Installs, run the sql create scripts in
+For mysql5, mariadb, oracle10g, and postgresql Installs, run the sql create scripts in
 the following order:
 
 create_repository_<db>.sql

@@ -248,6 +248,16 @@
 			</mapper>
 		</pathconvert>
 
+    <pathconvert property="mariadb.ear.java.modules.no.portal" pathsep=" ">
+      <path refid="hsqldb.library.path.no.portal" />
+      <mapper>
+        <chainedmapper>
+          <flattenmapper />
+          <globmapper from="*" to="&lt;module&gt;&lt;java&gt;lib/*&lt;/java&gt;&lt;/module&gt;" />
+        </chainedmapper>
+      </mapper>
+    </pathconvert>
+    
 		<pathconvert property="oracle10g.ear.java.modules.no.portal" pathsep=" ">
 			<path refid="oracle10g.library.path.no.portal" />
 			<mapper>
@@ -271,11 +281,13 @@
 		
 		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/portal/hsqldb/application.xml" overwrite="true" />
 		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/portal/mysql5/application.xml" overwrite="true" />
+    <copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/portal/mariadb/application.xml" overwrite="true" />
 		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/portal/oracle10g/application.xml" overwrite="true" />
 		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/portal/postgresql/application.xml" overwrite="true" />
 
 		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/no-portal/hsqldb/application.xml" overwrite="true" />
 		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/no-portal/mysql5/application.xml" overwrite="true" />
+    <copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/no-portal/mariadb/application.xml" overwrite="true" />
 		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/no-portal/oracle10g/application.xml" overwrite="true" />
 		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/no-portal/postgresql/application.xml" overwrite="true" />
 
@@ -283,11 +295,13 @@
 		 
 		<replace file="${build.ears.dir}/jboss/portal/hsqldb/application.xml" token="&lt;!- additional web apps -&gt;" value="${hsqldb.ear.java.modules} &lt;!- additional web apps -&gt;" />
 		<replace file="${build.ears.dir}/jboss/portal/mysql5/application.xml" token="&lt;!- additional web apps -&gt;" value="${mysql5.ear.java.modules} &lt;!- additional web apps -&gt;" />
+    <replace file="${build.ears.dir}/jboss/portal/mariadb/application.xml" token="&lt;!- additional web apps -&gt;" value="${mariadb.ear.java.modules} &lt;!- additional web apps -&gt;" />
 		<replace file="${build.ears.dir}/jboss/portal/oracle10g/application.xml" token="&lt;!- additional web apps -&gt;" value="${oracle10g.ear.java.modules} &lt;!- additional web apps -&gt;" />
 		<replace file="${build.ears.dir}/jboss/portal/postgresql/application.xml" token="&lt;!- additional web apps -&gt;" value="${postgresql.ear.java.modules} &lt;!- additional web apps -&gt;" />
 
 		<replace file="${build.ears.dir}/jboss/no-portal/hsqldb/application.xml" token="&lt;!- additional web apps -&gt;" value="${hsqldb.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
-		<replace file="${build.ears.dir}/jboss/no-portal/mysql5/application.xml" token="&lt;!- additional web apps -&gt;" value="${mysql5.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
+    <replace file="${build.ears.dir}/jboss/no-portal/mysql5/application.xml" token="&lt;!- additional web apps -&gt;" value="${mysql5.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
+		<replace file="${build.ears.dir}/jboss/no-portal/mariadb/application.xml" token="&lt;!- additional web apps -&gt;" value="${mariadb.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
 		<replace file="${build.ears.dir}/jboss/no-portal/oracle10g/application.xml" token="&lt;!- additional web apps -&gt;" value="${oracle10g.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
 		<replace file="${build.ears.dir}/jboss/no-portal/postgresql/application.xml" token="&lt;!- additional web apps -&gt;" value="${postgresql.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
     
@@ -307,6 +321,13 @@
 			<attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath}" />
 		</manifest>
 
+    <manifest file="${build.ears.dir}/jboss/portal/mariadb/MANIFEST.MF">
+      <attribute name="Implementation-Title" value="${impl.title}" />
+      <attribute name="Implementation-Version" value="${impl.version}" />
+      <attribute name="Implementation-Vendor" value="${impl.vendor}" />
+      <attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath}" />
+    </manifest>
+		
 		<manifest file="${build.ears.dir}/jboss/portal/oracle10g/MANIFEST.MF">
 			<attribute name="Implementation-Title" value="${impl.title}" />
 			<attribute name="Implementation-Version" value="${impl.version}" />
@@ -335,6 +356,13 @@
 			<attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath.no.portal}" />
 		</manifest>
 
+    <manifest file="${build.ears.dir}/jboss/no-portal/mariadb/MANIFEST.MF">
+      <attribute name="Implementation-Title" value="${impl.title}" />
+      <attribute name="Implementation-Version" value="${impl.version}" />
+      <attribute name="Implementation-Vendor" value="${impl.vendor}" />
+      <attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath.no.portal}" />
+    </manifest>
+		
 		<manifest file="${build.ears.dir}/jboss/no-portal/oracle10g/MANIFEST.MF">
 			<attribute name="Implementation-Title" value="${impl.title}" />
 			<attribute name="Implementation-Version" value="${impl.version}" />
@@ -449,7 +477,8 @@
 
 	        Current targets that use this target:
 	        - war-pentaho-jboss-hsqldb-for-ear
-	        - war-pentaho-jboss-mysql5-for-ear
+          - war-pentaho-jboss-mysql5-for-ear
+          - war-pentaho-jboss-mariadb-for-ear
 	       =================================================================== -->
 	<target name="war-pentaho-jboss-for-ear" depends="init, init-pentaho-wars, zip-pentaho-style-war, zip-pentaho-portal-layout-war">
 
@@ -488,6 +517,7 @@
 		  Current target that use this target:
 		  - war-pentaho-jboss-hsqldb-for-ear-no-portal
 		  - war-pentaho-jboss-mysql5-for-ear-no-portal
+      - war-pentaho-jboss-mariadb-for-ear-no-portal
 		 =================================================================== -->
 	<target name="war-pentaho-jboss-for-ear-no-portal" depends="init, init-pentaho-wars, zip-pentaho-style-war">
 		<mkdir dir="${build.wars.dir}/jboss/no-portal" />
@@ -613,15 +643,17 @@
           This target will build the following:
           - ear file configured for use in jboss with jboss portal and hsqldb
           - ear file configured for use in jboss with jboss portal and mysql
+          - ear file configured for use in jboss with jboss portal and mariadb
           - ear file configured for use in jboss with jboss portal and oracle10g
           - ear file configured for use in jboss with jboss portal and postgresql
           - ear file configured for use in jboss without jboss portal and hsqldb
           - ear file configured for use in jboss without jboss portal and mysql
+          - ear file configured for use in jboss without jboss portal and mariadb
           - ear file configured for use in jboss without jboss portal and oracle10g
           - ear file configured for use in jboss without jboss portal and postgresql
 
          ===================================================== -->
-	<target name="ear-all-pentaho-jboss" depends="ear-pentaho-jboss-hsqldb, ear-pentaho-jboss-mysql5, ear-pentaho-jboss-oracle10g, ear-pentaho-jboss-postgresql, ear-pentaho-jboss-hsqldb-no-portal, ear-pentaho-jboss-mysql5-no-portal, ear-pentaho-jboss-oracle10g-no-portal, ear-pentaho-jboss-postgresql-no-portal" />
+	<target name="ear-all-pentaho-jboss" depends="ear-pentaho-jboss-hsqldb, ear-pentaho-jboss-mysql5,ear-pentaho-jboss-mariadb, ear-pentaho-jboss-oracle10g, ear-pentaho-jboss-postgresql, ear-pentaho-jboss-hsqldb-no-portal, ear-pentaho-jboss-mysql5-no-portal,ear-pentaho-jboss-mariadb-no-portal, ear-pentaho-jboss-oracle10g-no-portal, ear-pentaho-jboss-postgresql-no-portal" />
 
 	<!-- ===================================================================================
           target: ear-pentaho-jboss-hsqldb
@@ -675,6 +707,23 @@
     </antcall>
 	</target>
 
+  <!-- =========================================================================
+          target: ear-pentaho-jboss-mariadb
+
+          Create a pentaho ear configured for jboss, jboss portal, and mariadb.
+
+          If your jboss configuration does not have jboss portal installed, use
+          ear-pentaho-jboss-mariadb-no-portal instead.
+         ========================================================================== -->
+  <target name="ear-pentaho-jboss-mariadb" depends="init, init-pentaho-ears, zip-pentaho-style-war, zip-pentaho-portal-layout-war">
+    <antcall target="war-pentaho-jboss-for-ear">
+      <param name="rdbms" value="mariadb" />
+    </antcall>
+    <antcall target="ear-pentaho-jboss">
+      <param name="rdbms" value="mariadb" />
+    </antcall>
+  </target>
+	
 	<!-- ===============================================================
           target: ear-pentaho-jboss-mysql5-no-portal
 
@@ -693,6 +742,24 @@
     </antcall>
 	</target>
 
+  <!-- ===============================================================
+          target: ear-pentaho-jboss-mariadb-no-portal
+
+          Create a pentaho ear configured for jboss, no jboss portal, and mariadb.
+
+          If your jboss configuration has jboss portal installed, use
+          ear-pentaho-jboss-mysql5 instead.
+         ================================================================= -->
+  <target name="ear-pentaho-jboss-mariadb-no-portal" depends="init, init-pentaho-ears, zip-pentaho-style-war">
+    
+    <antcall target="war-pentaho-jboss-for-ear-no-portal">
+      <param name="rdbms" value="mariadb" />
+    </antcall>
+    <antcall target="ear-pentaho-jboss-no-portal">
+      <param name="rdbms" value="mariadb" />
+    </antcall>
+  </target>
+      	
 	<!-- =========================================================================
           target: ear-pentaho-jboss-oracle10g
 
@@ -770,11 +837,12 @@
           This is a reusable target.
 
           Parameters:
-          - rdbms - current values include hsqldb and mysql5
+          - rdbms - current values include hsqldb, mysql5, and mariadb
 
           Current targets that use this target:
           - ear-pentaho-jboss-hsqldb
           - ear-pentaho-jboss-mysql5
+          - ear-pentaho-jboss-mariadb
 
          ======================================================================== -->
 	<target name="ear-pentaho-jboss">
@@ -826,11 +894,12 @@
 	          This is a reusable target.
 
 	          Parameters:
-	          - rdbms - current values include hsqldb and mysql5
+	          - rdbms - current values include hsqldb, mysql5, and mariadb
 
 	          Current targets that use this target:
 	          - ear-pentaho-jboss-hsqldb-no-portal
-	          - ear-pentaho-jboss-mysql5-no-portal
+            - ear-pentaho-jboss-mysql5-no-portal
+            - ear-pentaho-jboss-mariadb-no-portal
 
 	         ======================================================================== -->
 <target name="ear-pentaho-jboss-no-portal">

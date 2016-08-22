@@ -3,5 +3,6 @@
 **/gwt-user-*.jar
 **/hsqldb-*.jar
 **/mysql-connector-*.jar
+**/mariadb-java-client-*.jar
 **/postgresql*.jar
 **/*-sources.jar
