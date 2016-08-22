@@ -17,6 +17,23 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -33,6 +50,7 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -55,23 +73,9 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.web.http.api.resources.JobRequest;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
-
-import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -92,6 +96,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     return ImportSession.getSession();
   }
 
+  @Override
   public void importFile( IPlatformImportBundle bundle ) throws PlatformImportException, DomainIdNullException,
       DomainAlreadyExistsException, DomainStorageException, IOException {
 
@@ -305,8 +310,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   }
 
   protected void importSchedules( List<JobScheduleRequest> scheduleList ) throws PlatformImportException {
-    if ( scheduleList != null ) {
+    if ( CollectionUtils.isNotEmpty( scheduleList ) ) {
       SchedulerResource schedulerResource = new SchedulerResource();
+      schedulerResource.pause();
       for ( JobScheduleRequest jobScheduleRequest : scheduleList ) {
         try {
           Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
@@ -347,15 +353,16 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             } catch ( Exception ex ) {
               // log it and keep going. we should stop processing all schedules just because one fails.
               log.error( Messages.getInstance()
-                .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+                  .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ), ex );
             }
           } else {
             // log it and keep going. we should stop processing all schedules just because one fails.
             log.error( Messages.getInstance()
-              .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+                .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
           }
         }
       }
+      schedulerResource.start();
     }
   }
 
@@ -623,8 +630,15 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   // handlers that extend this class may override this method and perform operations
   // over the job prior to its creation at scheduler.createJob()
-  public Response createSchedulerJob( SchedulerResource scheduler, JobScheduleRequest jobRequest ) throws IOException {
-    return scheduler != null ? scheduler.createJob( jobRequest ) : null;
+  public Response createSchedulerJob( SchedulerResource scheduler, JobScheduleRequest jobScheduleRequest )
+    throws IOException {
+    Response rs = scheduler != null ? scheduler.createJob( jobScheduleRequest ) : null;
+    if ( jobScheduleRequest.getJobState() != JobState.NORMAL ) {
+      JobRequest jobRequest = new JobRequest();
+      jobRequest.setJobId( rs.getEntity().toString() );
+      scheduler.pauseJob( jobRequest );
+    }
+    return rs;
   }
 
   public boolean isOverwriteFile() {
