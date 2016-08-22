@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -250,6 +250,7 @@ public class SchedulerService {
       this.principalName = principalName;
     }
 
+    @Override
     public boolean accept( Job job ) {
       String actionClass = (String) job.getJobParams().get( "ActionAdapterQuartzJob-ActionClass" );
       if ( canAdminister && "org.pentaho.platform.admin.GeneratedContentCleaner".equals( actionClass ) ) {
@@ -501,6 +502,7 @@ public class SchedulerService {
     final Boolean canAdminister = canAdminister( session );
 
     List<Job> jobs = getScheduler().getJobs( new IJobFilter() {
+      @Override
       public boolean accept( Job job ) {
         if ( canAdminister ) {
           return !IBlockoutManager.BLOCK_OUT_JOB_NAME.equals( job.getJobName() );
