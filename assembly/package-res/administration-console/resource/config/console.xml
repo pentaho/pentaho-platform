@@ -8,5 +8,5 @@
   <homepage-timeout-millis>15000</homepage-timeout-millis>  
   <!-- comma separated list of roles (no spaces); do not include any role prefix -->  
   <default-roles></default-roles>
-  <default-server-dir>biserver-ce</default-server-dir>
+  <default-server-dir>pentaho-server</default-server-dir>
 </console>
