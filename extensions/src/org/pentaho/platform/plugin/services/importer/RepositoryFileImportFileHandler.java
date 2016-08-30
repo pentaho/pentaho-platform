@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -70,10 +70,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   public ImportSession getImportSession() {
-    if ( importSession.get() == null ) {
-      importSession.set( ImportSession.getSession() );
-    }
-    return importSession.get();
+    return ImportSession.getSession();
   }
 
   public void importFile( IPlatformImportBundle bnd ) throws PlatformImportException {
@@ -106,7 +103,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
             }
           }
         } else {
-          if ( importSession.get().getIsNotRunningImport() ) {
+          if ( getImportSession().getIsNotRunningImport() ) {
             throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT",
                 repositoryFilePath ), PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR );
           } else {

@@ -13,14 +13,13 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Assert;
+import org.mockito.Mockito;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,56 +41,65 @@ public class ImportSessionTest {
   @Test
   public void testSettingAclProperties() {
     importSession.setAclProperties( true, true, true );
-    assertTrue( importSession.isApplyAclSettings() );
-    assertTrue( importSession.isRetainOwnership() );
-    assertTrue( importSession.isOverwriteAclSettings() );
+    Assert.assertTrue( importSession.isApplyAclSettings() );
+    Assert.assertTrue( importSession.isRetainOwnership() );
+    Assert.assertTrue( importSession.isOverwriteAclSettings() );
 
     importSession.setAclProperties( false, true, true );
-    assertFalse( importSession.isApplyAclSettings() );
-    assertTrue( importSession.isRetainOwnership() );
-    assertTrue( importSession.isOverwriteAclSettings() );
+    Assert.assertFalse( importSession.isApplyAclSettings() );
+    Assert.assertTrue( importSession.isRetainOwnership() );
+    Assert.assertTrue( importSession.isOverwriteAclSettings() );
 
     importSession.setAclProperties( false, false, true );
-    assertFalse( importSession.isApplyAclSettings() );
-    assertFalse( importSession.isRetainOwnership() );
-    assertTrue( importSession.isOverwriteAclSettings() );
+    Assert.assertFalse( importSession.isApplyAclSettings() );
+    Assert.assertFalse( importSession.isRetainOwnership() );
+    Assert.assertTrue( importSession.isOverwriteAclSettings() );
 
     importSession.setAclProperties( false, false, false );
-    assertFalse( importSession.isApplyAclSettings() );
-    assertFalse( importSession.isRetainOwnership() );
-    assertFalse( importSession.isOverwriteAclSettings() );
+    Assert.assertFalse( importSession.isApplyAclSettings() );
+    Assert.assertFalse( importSession.isRetainOwnership() );
+    Assert.assertFalse( importSession.isOverwriteAclSettings() );
 
     importSession.setAclProperties( true, false, false );
-    assertTrue( importSession.isApplyAclSettings() );
-    assertFalse( importSession.isRetainOwnership() );
-    assertFalse( importSession.isOverwriteAclSettings() );
+    Assert.assertTrue( importSession.isApplyAclSettings() );
+    Assert.assertFalse( importSession.isRetainOwnership() );
+    Assert.assertFalse( importSession.isOverwriteAclSettings() );
 
     importSession.setAclProperties( true, true, false );
-    assertTrue( importSession.isApplyAclSettings() );
-    assertTrue( importSession.isRetainOwnership() );
-    assertFalse( importSession.isOverwriteAclSettings() );
+    Assert.assertTrue( importSession.isApplyAclSettings() );
+    Assert.assertTrue( importSession.isRetainOwnership() );
+    Assert.assertFalse( importSession.isOverwriteAclSettings() );
   }
 
   @Test
   public void fileHiddenPropertyIsNullWhenAclIsDisabled() {
     importSession.setAclProperties( false, false, false );
-    assertNull( importSession.isFileHidden( PATH ) );
+    Assert.assertNull( importSession.isFileHidden( PATH ) );
   }
 
   @Test
   public void fileHiddenPropertyIsDefinedWhenAclIsEnabled() {
     importSession.setAclProperties( true, false, false );
 
-    RepositoryFile virtualFile = mock( RepositoryFile.class );
-    when( virtualFile.isHidden() ).thenReturn( Boolean.TRUE );
+    RepositoryFile virtualFile = Mockito.mock( RepositoryFile.class );
+    Mockito.when( virtualFile.isHidden() ).thenReturn( Boolean.TRUE );
 
-    ExportManifestEntity fake = mock( ExportManifestEntity.class );
-    when( fake.getRepositoryFile() ).thenReturn( virtualFile );
+    ExportManifestEntity fake = Mockito.mock( ExportManifestEntity.class );
+    Mockito.when( fake.getRepositoryFile() ).thenReturn( virtualFile );
 
-    ExportManifest manifest = mock( ExportManifest.class );
-    when( manifest.getExportManifestEntity( PATH ) ).thenReturn( fake );
+    ExportManifest manifest = Mockito.mock( ExportManifest.class );
+    Mockito.when( manifest.getExportManifestEntity( PATH ) ).thenReturn( fake );
 
     importSession.setManifest( manifest );
-    assertEquals( virtualFile.isHidden(), importSession.isFileHidden( PATH ) );
+    Assert.assertEquals( virtualFile.isHidden(), importSession.isFileHidden( PATH ) );
+  }
+
+  @Test
+  public void testClearSession() {
+    ExportManifest manifest = Mockito.mock( ExportManifest.class );
+    ImportSession.getSession().setManifest( manifest );
+    Assert.assertNotNull( ImportSession.getSession().getManifest() );
+    ImportSession.clearSession();
+    Assert.assertNull( ImportSession.getSession().getManifest() );
   }
 }

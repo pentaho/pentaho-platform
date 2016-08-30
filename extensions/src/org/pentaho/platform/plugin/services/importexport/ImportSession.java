@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport;
@@ -268,5 +268,15 @@ public class ImportSession {
    */
   public List<String> getImportedScheduleJobIds() {
     return importedScheduleJobIds;
+  }
+
+  /**
+   * Removes the current thread's value for this thread-local variable
+   * */
+  public static void clearSession() {
+    ImportSession session = sessions.get();
+    if ( session != null ) {
+      sessions.remove();
+    }
   }
 }
