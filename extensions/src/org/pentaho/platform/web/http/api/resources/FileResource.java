@@ -214,6 +214,10 @@ public class FileResource extends AbstractJaxRSResource {
    *    PUT pentaho/api/repo/files/delete
    * </p>
    *
+   * Important Note: This end-point is not intended for concurrent execution by the
+   * same user or session. It facilitates the User Console deletion UI, and should
+   * not be used in a manner inconsistent with how that UI operates.
+   *
    * @param params Comma separated list of the files to be moved to trash folder.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
@@ -221,7 +225,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "/delete" )
   @Consumes( { MediaType.WILDCARD } )
-  @Facet( name = "Unsupported" )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully moved file to trash." ),
     @ResponseCode( code = 500, condition = "Failure move the file to the trash." ) } )
@@ -238,6 +241,14 @@ public class FileResource extends AbstractJaxRSResource {
   /**
    * Permanently deletes the selected list of files from the repository.
    *
+   * <p><b>Example Request:</b><br />
+   *    PUT pentaho/api/repo/files/deletepermanent
+   * </p>
+   *
+   * Important Note: This end-point is not intended for concurrent execution by the
+   * same user or session. It facilitates the User Console deletion UI, and should
+   * not be used in a manner inconsistent with how that UI operates.
+   *
    * @param params Comma separated list of the files to be deleted.
    *
    * @return Server Response indicating the success of the operation.
@@ -245,7 +256,6 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "/deletepermanent" )
   @Consumes ( { MediaType.WILDCARD } )
-  @Facet ( name = "Unsupported" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the comma seperated list of fileIds from the system." ),
     @ResponseCode ( code = 403, condition = "Failure to delete the file due to path not found." ) } )
@@ -2047,7 +2057,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param pathId Colon separated path for the repository file.
    *
-   * @return The Versioning Configuration applicable to the path submitted 
+   * @return The Versioning Configuration applicable to the path submitted
    *
    * <p><b>Example Response:</b></p>
    *  <pre function="syntax.xml">
