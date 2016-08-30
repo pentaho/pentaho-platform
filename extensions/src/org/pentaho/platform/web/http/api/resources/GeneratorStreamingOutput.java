@@ -12,12 +12,11 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentGenerator;
@@ -165,7 +164,7 @@ public class GeneratorStreamingOutput {
       // logging here because it's the last place we can log to file before
       // the error is streamed back in the http 500 response
       String msg =
-          MessageFormat.format( "Error generating content from content generator with id [{0}]", contentGeneratorID );
+           MessageFormat.format( "Error generating content from content generator with id [{0}]", contentGeneratorID );
       logger.error( msg, e );
       throw new IOException( msg, e );
     } finally {
@@ -260,32 +259,28 @@ public class GeneratorStreamingOutput {
 
   protected IParameterProvider createPathParamProvider() throws IOException {
     SimpleParameterProvider pathParams = null;
-    if ( StringUtils.isEmpty( httpServletRequest.getPathInfo() ) ) {
-      httpServletResponse.sendError( 403 );
-    } else {
-      pathParams = new SimpleParameterProvider();
-      pathParams.setParameter( "query", httpServletRequest.getQueryString() ); //$NON-NLS-1$
+    pathParams = new SimpleParameterProvider();
+    pathParams.setParameter( "query", httpServletRequest.getQueryString() ); //$NON-NLS-1$
 
-      List<String> mediaTypes = new ArrayList<String>( acceptableMediaTypes.size() );
-      for ( MediaType type : acceptableMediaTypes ) {
-        mediaTypes.add( type.toString() );
-      }
-      pathParams.setParameter( "acceptableMediaTypes", mediaTypes ); //$NON-NLS-1$
-      if ( mediaTypes.size() > 0 ) {
-        pathParams.setParameter( "contentType", acceptableMediaTypes.get( 0 ) ); //$NON-NLS-1$
-      }
-      pathParams.setParameter( "inputstream", httpServletRequest.getInputStream() ); //$NON-NLS-1$
-      pathParams.setParameter( "httpresponse", httpServletResponse ); //$NON-NLS-1$
-      pathParams.setParameter( "httprequest", httpServletRequest ); //$NON-NLS-1$
-      pathParams.setParameter( "remoteaddr", httpServletRequest.getRemoteAddr() ); //$NON-NLS-1$
-      if ( file != null ) {
-        pathParams.setParameter( "path", URLEncoder.encode( file.getPath(), "UTF-8" ) ); //$NON-NLS-1$
-        pathParams.setParameter( "file", file ); //$NON-NLS-1$
-      }
-      if ( command != null ) {
-        // path beyond that which matched the GeneratorResource
-        pathParams.setParameter( "cmd", command ); //$NON-NLS-1$
-      }
+    List<String> mediaTypes = new ArrayList<String>( acceptableMediaTypes.size() );
+    for ( MediaType type : acceptableMediaTypes ) {
+      mediaTypes.add( type.toString() );
+    }
+    pathParams.setParameter( "acceptableMediaTypes", mediaTypes ); //$NON-NLS-1$
+    if ( mediaTypes.size() > 0 ) {
+      pathParams.setParameter( "contentType", acceptableMediaTypes.get( 0 ) ); //$NON-NLS-1$
+    }
+    pathParams.setParameter( "inputstream", httpServletRequest.getInputStream() ); //$NON-NLS-1$
+    pathParams.setParameter( "httpresponse", httpServletResponse ); //$NON-NLS-1$
+    pathParams.setParameter( "httprequest", httpServletRequest ); //$NON-NLS-1$
+    pathParams.setParameter( "remoteaddr", httpServletRequest.getRemoteAddr() ); //$NON-NLS-1$
+    if ( file != null ) {
+      pathParams.setParameter( "path", URLEncoder.encode( file.getPath(), "UTF-8" ) ); //$NON-NLS-1$
+      pathParams.setParameter( "file", file ); //$NON-NLS-1$
+    }
+    if ( command != null ) {
+      // path beyond that which matched the GeneratorResource
+      pathParams.setParameter( "cmd", command ); //$NON-NLS-1$
     }
     return pathParams;
   }
