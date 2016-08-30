@@ -69,10 +69,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   public ImportSession getImportSession() {
-    if ( importSession.get() == null ) {
-      importSession.set( ImportSession.getSession() );
-    }
-    return importSession.get();
+    return ImportSession.getSession();
   }
 
   public void importFile( IPlatformImportBundle bnd ) throws PlatformImportException {
@@ -105,7 +102,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
             }
           }
         } else {
-          if ( importSession.get().getIsNotRunningImport() ) {
+          if ( getImportSession().getIsNotRunningImport() ) {
             throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT",
                 repositoryFilePath ), PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR );
           } else {
