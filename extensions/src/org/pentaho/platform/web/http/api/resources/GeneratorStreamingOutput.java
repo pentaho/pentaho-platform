@@ -12,12 +12,11 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentGenerator;
@@ -260,9 +259,6 @@ public class GeneratorStreamingOutput {
 
   protected IParameterProvider createPathParamProvider() throws IOException {
     SimpleParameterProvider pathParams = null;
-    //    if ( StringUtils.isEmpty( httpServletRequest.getPathInfo() ) ) {
-    //      httpServletResponse.sendError( 403 );
-    //    } else {
     pathParams = new SimpleParameterProvider();
     pathParams.setParameter( "query", httpServletRequest.getQueryString() ); //$NON-NLS-1$
 
@@ -286,7 +282,6 @@ public class GeneratorStreamingOutput {
       // path beyond that which matched the GeneratorResource
       pathParams.setParameter( "cmd", command ); //$NON-NLS-1$
     }
-//  }
     return pathParams;
   }
 

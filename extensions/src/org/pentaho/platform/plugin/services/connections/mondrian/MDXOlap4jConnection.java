@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.connections.mondrian;
@@ -95,7 +95,7 @@ public class MDXOlap4jConnection implements IPentahoConnection {
 
       // Make sure the driver is loaded into the thread's classloader.
       ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-      if( contextClassLoader == null ) {
+      if ( contextClassLoader == null ) {
         contextClassLoader = getClass().getClassLoader();
       }
       contextClassLoader.loadClass( driver );
