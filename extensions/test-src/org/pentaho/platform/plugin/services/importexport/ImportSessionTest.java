@@ -94,4 +94,13 @@ public class ImportSessionTest {
     importSession.setManifest( manifest );
     assertEquals( virtualFile.isHidden(), importSession.isFileHidden( PATH ) );
   }
+
+  @Test
+  public void testClearSession() {
+    ExportManifest manifest = mock( ExportManifest.class );
+    ImportSession.getSession().setManifest( manifest );
+    assertNotNull( ImportSession.getSession().getManifest() );
+    ImportSession.clearSession();
+    assertNull( ImportSession.getSession().getManifest() );
+  }
 }

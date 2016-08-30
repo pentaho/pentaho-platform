@@ -250,6 +250,7 @@ public class RepositoryImportResource {
     } catch ( Exception e ) {
       return Response.serverError().entity( e.toString() ).build();
     } finally {
+      ImportSession.clearSession();
       if ( logJobStarted == true ) {
         importLogger.endJob();
       }

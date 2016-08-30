@@ -273,4 +273,14 @@ public class ImportSession {
   public List<String> getImportedScheduleJobIds() {
     return importedScheduleJobIds;
   }
+
+  /**
+   * Removes the current thread's value for this thread-local variable
+   * */
+  public static void clearSession() {
+    ImportSession session = sessions.get();
+    if ( session != null ) {
+      sessions.remove();
+    }
+  }
 }
