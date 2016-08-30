@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2014 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified;
@@ -71,6 +71,7 @@ import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrStringHelper;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -206,6 +207,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     assertEquals( EN_US_DESCRIPTION, updatedFile.getDescription() );
 
     // ROOT Locale
+    LocaleHelper.setLocale( US.getLocale() );
     updatedFile = repo.getFile( file.getPath(), null );
 
     assertEquals( EN_US_TITLE, updatedFile.getTitle() );
@@ -286,6 +288,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     enProperties.setProperty( DESCRIPTION, NEW_DESCRIPTION ); // overwrite title
 
     txnTemplate.execute( new TransactionCallbackWithoutResult() {
+      @Override
       public void doInTransactionWithoutResult( final TransactionStatus status ) {
 
         // assert available locales
@@ -310,6 +313,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     // test successful delete locale properties
     final RepositoryFile repoFile1 = updatedRepoFile.clone();
     txnTemplate.execute( new TransactionCallbackWithoutResult() {
+      @Override
       public void doInTransactionWithoutResult( final TransactionStatus status ) {
         repositoryFileDao.deleteLocalePropertiesForFile( repoFile1, "es" );
       }
@@ -323,6 +327,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     // test successful delete locale properties
     final RepositoryFile repoFile2 = updatedRepoFile.clone();
     txnTemplate.execute( new TransactionCallbackWithoutResult() {
+      @Override
       public void doInTransactionWithoutResult( final TransactionStatus status ) {
         repositoryFileDao.deleteLocalePropertiesForFile( repoFile2, "xx" );
       }
@@ -367,7 +372,8 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
 
     RepositoryFile parentFolder = repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) );
-    RepositoryFile newFolder = new RepositoryFile.Builder( "test" ).folder( true ).hidden( true ).build();
+    RepositoryFile newFolder =
+        new RepositoryFile.Builder( "test" ).folder( true ).title( "title" ).hidden( true ).build();
 
     Date beginTime = Calendar.getInstance().getTime();
 
@@ -376,6 +382,9 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     newFolder = repo.createFolder( parentFolder.getId(), newFolder, null );
     Thread.sleep( 1000 );
 
+    LocaleHelper.setLocale( new Locale( "de" ) );
+    newFolder = repo.getFileById( newFolder.getId() ); // new request after change Locale
+
     Date endTime = Calendar.getInstance().getTime();
     assertTrue( beginTime.before( newFolder.getCreatedDate() ) );
     assertTrue( endTime.after( newFolder.getCreatedDate() ) );
@@ -383,6 +392,7 @@ public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositor
     assertNotNull( newFolder.getId() );
     assertTrue( newFolder.isHidden() );
     assertFalse( newFolder.isAclNode() );
+    assertEquals( "title", newFolder.getTitle() );
     assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
         tenantAcme, USERNAME_SUZY )
         + "/test" ) );
