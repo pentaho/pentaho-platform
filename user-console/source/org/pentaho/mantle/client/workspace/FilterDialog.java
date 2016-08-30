@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.workspace;
@@ -125,12 +125,12 @@ public class FilterDialog extends PromptDialogBox {
     scheduleStateListBox.clear();
     // NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
     scheduleStateListBox.addItem( showAll );
-    scheduleStateListBox.addItem( "Normal" );
-    scheduleStateListBox.addItem( "Paused" );
-    scheduleStateListBox.addItem( "Complete" );
-    scheduleStateListBox.addItem( "Error" );
-    scheduleStateListBox.addItem( "Blocked" );
-    scheduleStateListBox.addItem( "Unknown" );
+    scheduleStateListBox.addItem( Messages.getString( "normal" ) );
+    scheduleStateListBox.addItem( Messages.getString( "paused" ) );
+    scheduleStateListBox.addItem( Messages.getString( "complete" ) );
+    scheduleStateListBox.addItem( Messages.getString( "error" ) );
+    scheduleStateListBox.addItem( Messages.getString( "blocked" ) );
+    scheduleStateListBox.addItem( Messages.getString( "unknown" ) );
     scheduleStateListBox.setSelectedIndex( selectedIndex );
 
     // state filter
@@ -139,10 +139,10 @@ public class FilterDialog extends PromptDialogBox {
     scheduleTypeListBox.clear();
     // NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
     scheduleTypeListBox.addItem( showAll );
-    scheduleTypeListBox.addItem( "Daily" );
-    scheduleTypeListBox.addItem( "Weekly" );
-    scheduleTypeListBox.addItem( "Monthly" );
-    scheduleTypeListBox.addItem( "Yearly" );
+    scheduleTypeListBox.addItem( Messages.getString( "schedule.daily" ) );
+    scheduleTypeListBox.addItem( Messages.getString( "schedule.weekly" ) );
+    scheduleTypeListBox.addItem( Messages.getString( "schedule.monthly" ) );
+    scheduleTypeListBox.addItem( Messages.getString( "schedule.yearly" ) );
     scheduleTypeListBox.setSelectedIndex( selectedIndex );
 
     FlexTable filterPanel = new FlexTable();
