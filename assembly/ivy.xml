@@ -203,6 +203,15 @@
     <dependency org="pentaho-kettle" name="kettle-xml-plugin" rev="${dependency.kettle-xml-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
       <artifact name="kettle-xml-plugin" type="zip"/>
     </dependency>
+	<dependency org="pentaho-kettle" name="kettle-sap-plugin" rev="${dependency.kettle-sap-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+        <artifact name="kettle-sap-plugin" type="zip"/>
+    </dependency>
+	<dependency org="pentaho-kettle" name="pdi-google-analytics-plugin-ce" rev="${dependency.pdi-google-analytics-plugin-ce.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+        <artifact name="pdi-google-analytics-plugin-ce" type="zip"/>
+    </dependency>
+	<dependency org="pentaho-kettle" name="pdi-salesforce-plugin" rev="${dependency.pdi-salesforce-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+        <artifact name="pdi-salesforce-plugin" type="zip"/>
+    </dependency>
 
     <dependency org="xalan" name="xalan" rev="2.7.1"  changing="true" transitive="false"/>
     <dependency org="xalan" name="serializer" rev="2.7.1"  changing="true" transitive="false"/>
