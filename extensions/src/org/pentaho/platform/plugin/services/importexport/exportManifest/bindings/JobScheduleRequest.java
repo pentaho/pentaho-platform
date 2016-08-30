@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 //
@@ -25,13 +25,13 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>
@@ -297,12 +297,12 @@ public class JobScheduleRequest {
   public void setTimeZone( String value ) {
     this.timeZone = value;
   }
-  
+
   public String getJobId() {
     return jobId;
   }
-		
-  public void setJobId(String jobId) {
+
+  public void setJobId( String jobId ) {
     this.jobId = jobId;
   }
 
