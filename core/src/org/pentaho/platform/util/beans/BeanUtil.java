@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.util.beans;
@@ -103,8 +103,13 @@ public class BeanUtil {
    * @return <code>true</code> if the bean property can be written to
    */
   public boolean isWriteable( String propertyName ) {
-    return propUtil.isWriteable( bean, propertyName )
-        || ( propUtil.getResolver().isIndexed( propertyName ) && propUtil.isReadable( bean, propertyName ) );
+    try {
+      return propUtil.isWriteable( bean, propertyName )
+          || ( propUtil.getResolver().isIndexed( propertyName ) && propUtil.isReadable( bean, propertyName ) );
+    } catch ( IllegalArgumentException exception ) {
+      logger.debug( "Exception rose. Return false value", exception );
+      return false;
+    }
   }
 
   /**
