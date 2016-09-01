@@ -5,6 +5,24 @@
   <inherits name='com.google.gwt.gen2.Gen2'/>
   <inherits name='com.google.gwt.gen2.table.ScrollTable'/>
 
+  <!-- If you want to support additional locales you should add them as below. -->
+  <inherits name="com.google.gwt.i18n.I18N"/>
+  <extend-property name="locale" values="en"/>
+  <extend-property name="locale" values="fr"/>
+  <extend-property name="locale" values="de"/>
+  <extend-property name="locale" values="es"/>
+  <extend-property name="locale" values="pt"/>
+  <extend-property name="locale" values="nl"/>
+  <extend-property name="locale" values="hi"/>
+  <extend-property name="locale" values="ko"/>
+  <extend-property name="locale" values="it"/>
+  <extend-property name="locale" values="ca"/>
+  <extend-property name="locale" values="ja"/>
+  <extend-property name="locale" values="th"/>
+  <extend-property name="locale" values="ru"/>
+
+  <set-property-fallback name="locale" value="en"/>
+
   <inherits name='org.pentaho.ui.Xul'/>
   <inherits name='org.pentaho.ui.xul.Gwt'/>
   <inherits name='com.googlecode.gwtx.Java'/>
