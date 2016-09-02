@@ -16,7 +16,7 @@
   <property name="prefix" value="" description="Prefix to prepend to bi-platform project folder names"/>
 
   <!-- subfloor property overrides -->
-  <property name="package.id" value="biserver-ce" />
+  <property name="package.id" value="pentaho-server" />
   <!-- the impl properties are used to create the manifest file -->
   <property name="impl.title" value="Pentaho BI Platform Community Edition" />
   <property name="impl.version" value="${project.revision}" />
