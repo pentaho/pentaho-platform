@@ -13,12 +13,10 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository2.unified;
-
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -57,4 +55,11 @@ public interface Converter {
    */
   InputStream convert( final Serializable fileId );
 
+  /**
+   * Invoked for further processing of content after it was saved to repository.
+   *
+   * @param file repository file where content was stored in.
+   */
+  default void convertPostRepoSave( RepositoryFile file ) {
+  }
 }

@@ -201,6 +201,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         updateAclFromBundle( false, bundle, repositoryFile );
       }
 
+      converter.convertPostRepoSave( repositoryFile );
+
       if ( repositoryFile != null ) {
         getImportSession().addImportedRepositoryFile( repositoryFile );
       }
