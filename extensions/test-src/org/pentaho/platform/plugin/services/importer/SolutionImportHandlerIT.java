@@ -17,9 +17,7 @@
 package org.pentaho.platform.plugin.services.importer;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -71,6 +69,7 @@ public class SolutionImportHandlerIT extends Assert {
   @SuppressWarnings( "unchecked" )
   public void testImportSchedules() throws PlatformImportException, SchedulerException {
     SolutionImportHandler importHandler = new SolutionImportHandler( Collections.emptyList() );
+    importHandler = spy( importHandler );
 
     List<JobScheduleRequest> requests = new ArrayList<JobScheduleRequest>( 4 );
     requests.add( createJobScheduleRequest( "NORMAL", JobState.NORMAL ) );
@@ -78,6 +77,7 @@ public class SolutionImportHandlerIT extends Assert {
     requests.add( createJobScheduleRequest( "PAUSED", JobState.COMPLETE ) );
     requests.add( createJobScheduleRequest( "PAUSED", JobState.ERROR ) );
 
+    doReturn( new ArrayList<Job>(  ) ).when( importHandler ).getAllJobs( any() );
     importHandler.importSchedules( requests );
 
     List<Job> jobs = scheduler.getJobs( new IJobFilter() {
