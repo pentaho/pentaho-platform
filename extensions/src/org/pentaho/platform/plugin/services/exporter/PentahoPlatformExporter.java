@@ -1,5 +1,22 @@
 package org.pentaho.platform.plugin.services.exporter;
 
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ */
+
 import org.apache.commons.io.IOUtils;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
@@ -8,10 +25,8 @@ import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.stores.xml.XmlMetaStore;
 import org.pentaho.metastore.util.MetaStoreUtil;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
-import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
-import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.engine.IConfiguration;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -19,19 +34,16 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
-import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
+import org.pentaho.platform.plugin.services.exporter.strategies.IExportStrategy;
+import org.pentaho.platform.plugin.services.exporter.strategies.JackrabbitExportStrategy;
+import org.pentaho.platform.plugin.services.exporter.strategies.LdapExportStrategy;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
-import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
-import org.pentaho.platform.plugin.services.importexport.RoleExport;
-import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
@@ -43,7 +55,6 @@ import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepos
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
-import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +84,8 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   public static final String CONNECTIONS_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "connections/";
   public static final String METASTORE = "metastore";
   public static final String METASTORE_BACKUP_EXT = ".mzip";
+  public static final String AUTH_PROVIDER_JACKRABBIT = "jackrabbit";
+  public static final String AUTH_PROVIDER_LDAP = "ldap";
 
   private File exportFile;
   protected ZipOutputStream zos;
@@ -84,11 +97,13 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   private MondrianCatalogRepositoryHelper mondrianCatalogRepositoryHelper;
   private IMetaStore metastore;
   private IUserSettingService userSettingService;
+  private IExportStrategy exportStrategy;
 
   public PentahoPlatformExporter( IUnifiedRepository repository ) {
     super( ROOT, repository, true );
     setUnifiedRepository( repository );
     addExportHandler( new DefaultExportHandler() );
+    initExportStrategy();
   }
 
   public File performExport() throws ExportException, IOException {
@@ -227,8 +242,10 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
         // ignore *.annotated.xml files, they are not needed
         if ( fileName.equals( "schema.annotated.xml" ) ) {
-          // these types of files only exist for contextual export of a data source (from the UI) to later be imported in.
-          // However, in the case of backup/restore we don't need these since we'll be using the annotations.xml file along
+          // these types of files only exist for contextual export of a data source (from the UI) to later be
+          // imported in.
+          // However, in the case of backup/restore we don't need these since we'll be using the annotations.xml file
+          // along
           // with the original schema xml file to re-generate the model properly
           continue;
         } else if ( MondrianVfs.ANNOTATIONS_XML.equals( fileName ) ) {
@@ -303,58 +320,8 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   }
 
   protected void exportUsersAndRoles() {
-    log.debug( "export users & roles" );
-
-    IUserRoleDao roleDao = PentahoSystem.get( IUserRoleDao.class );
-    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(
-      IRoleAuthorizationPolicyRoleBindingDao.class );
-    ITenant tenant = TenantUtils.getCurrentTenant();
-
-    //  get the user settings for this user
-    IUserSettingService service = getUserSettingService();
-
-    //User Export
-    List<IPentahoUser> userList = roleDao.getUsers( tenant );
-    for ( IPentahoUser user : userList ) {
-      UserExport userExport = new UserExport();
-      userExport.setUsername( user.getUsername() );
-      userExport.setPassword( user.getPassword() );
-
-      for ( IPentahoRole role : roleDao.getUserRoles( tenant, user.getUsername() ) ) {
-        userExport.setRole( role.getName() );
-      }
-
-      if ( service != null && service instanceof IAnyUserSettingService ) {
-        IAnyUserSettingService userSettings = (IAnyUserSettingService) service;
-        List<IUserSetting> settings = userSettings.getUserSettings( user.getUsername() );
-        if ( settings != null ) {
-          for ( IUserSetting setting : settings ) {
-            userExport.addUserSetting( new ExportManifestUserSetting( setting ) );
-          }
-        }
-      }
-
-      this.getExportManifest().addUserExport( userExport );
-    }
-
-    // export the global user settings
-    if ( service != null ) {
-      List<IUserSetting> globalUserSettings = service.getGlobalUserSettings();
-      if ( globalUserSettings != null ) {
-        for ( IUserSetting setting : globalUserSettings ) {
-          getExportManifest().addGlobalUserSetting( new ExportManifestUserSetting( setting ) );
-        }
-      }
-    }
-
-    //RoleExport
-    List<IPentahoRole> roles = roleDao.getRoles();
-    for ( IPentahoRole role : roles ) {
-      RoleExport roleExport = new RoleExport();
-      roleExport.setRolename( role.getName() );
-      roleExport.setPermission( roleBindingDao.getRoleBindingStruct( null ).bindingMap.get( role.getName() ) );
-      this.getExportManifest().addRoleExport( roleExport );
-    }
+    initExportStrategy();
+    exportStrategy.exportUsersAndRoles( exportManifest );
   }
 
   protected void exportMetastore() throws IOException {
@@ -572,4 +539,27 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     return true;
   }
 
+  public IExportStrategy getExportStrategy() {
+    return exportStrategy;
+  }
+
+  public void setExportStrategy( IExportStrategy exportStrategy ) {
+    this.exportStrategy = exportStrategy;
+  }
+
+  public void initExportStrategy() {
+
+    try {
+      IConfiguration config = PentahoSystem.get( ISystemConfig.class ).getConfiguration( "security" );
+      String provider = config.getProperties().getProperty( "provider" );
+
+      if ( provider.equals( AUTH_PROVIDER_LDAP ) ) {
+        setExportStrategy( new LdapExportStrategy() );
+      } else if ( provider.equals( AUTH_PROVIDER_JACKRABBIT ) ) {
+        setExportStrategy( new JackrabbitExportStrategy() );
+      }
+    } catch ( IOException e ) {
+      log.warn( e.getMessage(), e );
+    }
+  }
 }
