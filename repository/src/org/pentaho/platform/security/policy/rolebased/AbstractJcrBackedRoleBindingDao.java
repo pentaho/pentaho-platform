@@ -129,6 +129,10 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
           if ( !loaded ) {
             setAuthorizationActions( PentahoSystem.getAll( IAuthorizationAction.class ) );
             updateImmutableRoleBindingNames();
+            // when immutableRoleBindingNames gets updated, we should ensure no stale logical roles remain cached
+            if ( cacheManager.cacheEnabled( LOGICAL_ROLE_BINDINGS_REGION ) ) {
+              cacheManager.removeRegionCache( LOGICAL_ROLE_BINDINGS_REGION );
+            }
             loaded = true;
           }
         }
