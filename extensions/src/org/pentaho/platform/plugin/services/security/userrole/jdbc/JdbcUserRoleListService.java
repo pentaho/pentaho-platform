@@ -152,13 +152,18 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
         roles.add( role.getAuthority() );
       }
     }
+    return new ArrayList<>( addExtraRoles( roles ) );
+  }
 
+  private LinkedHashSet<String> addExtraRoles( LinkedHashSet<String> roles ) {
+    if ( extraRoles == null ) {
+      return roles;
+    }
     // Now add extra role if it does not exist in the list
     for ( String extraRole : extraRoles ) {
       roles.add( extraRole );
     }
-
-    return new ArrayList<String>( roles );
+    return roles;
   }
 
   public List<String> getAllUsers() throws DataAccessException {
@@ -253,12 +258,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
       }
     }
 
-    // Now add extra role if it does not exist in the list
-    for ( String extraRole : extraRoles ) {
-      roles.add( extraRole );
-    }
-
-    return new ArrayList<String>( roles );
+    return new ArrayList<>( addExtraRoles( roles ) );
   }
 
   public void setRolePrefix( final String rolePrefix ) {
