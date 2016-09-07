@@ -17,16 +17,16 @@
 
 package org.pentaho.platform.web.servlet;
 
-import junit.framework.TestCase;
-import mondrian.olap.Connection;
 import mondrian.olap.DriverManager;
 import mondrian.olap.MondrianException;
 import mondrian.rolap.RolapConnection;
+import mondrian.spi.CatalogLocator;
 import mondrian.xmla.XmlaHandler;
 import org.dom4j.Document;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
