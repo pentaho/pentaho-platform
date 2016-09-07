@@ -53,9 +53,9 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(DriverManager.class)
-@PowerMockIgnore("javax.management.*")
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( DriverManager.class )
+@PowerMockIgnore( "javax.management.*" )
 public class PentahoXmlaServletTest  {
 
   private static final String DATASOURCE_XML =
@@ -83,7 +83,8 @@ public class PentahoXmlaServletTest  {
           + "<Definition>mondrian:/SteelWheels</Definition>\n"
           + "</Catalog>\n"
           + "<Catalog name=\"FoodMart\">\n"
-          + "<DataSourceInfo>DataSource=foodmart;EnableXmla=true;Provider=mondrian;Datasource=\"foodmart\";overwrite=\"false\"</DataSourceInfo>\n"
+          + "<DataSourceInfo>DataSource=foodmart;EnableXmla=true;Provider=mondrian;Datasource=\"foodmart\";"
+          + "overwrite=\"false\"</DataSourceInfo>\n"
           + "<Definition>mondrian:/FoodMart</Definition>\n"
           + "</Catalog>\n"
           + "<Catalog name=\"EnabledCatalog\">\n"
@@ -167,10 +168,10 @@ public class PentahoXmlaServletTest  {
     when( mondrianCatalog.getDataSourceInfo() ).thenReturn( "DataSource=foo" );
 
 
-    doReturn( mondrianCatalog ).when( catalogService ).getCatalog(  anyString(), anyObject() );
-    PowerMockito.mockStatic(DriverManager.class);
+    doReturn( mondrianCatalog ).when( catalogService ).getCatalog( anyString(), (IPentahoSession) anyObject() );
+    PowerMockito.mockStatic( DriverManager.class );
 
-    when(DriverManager.getConnection(anyString(), anyObject())).thenReturn( mock( RolapConnection.class ));
+    when( DriverManager.getConnection( anyString(), (CatalogLocator) anyObject() ) ).thenReturn( mock( RolapConnection.class ) );
 
 
     PentahoSystem.registerObject( catalogService );
@@ -181,21 +182,21 @@ public class PentahoXmlaServletTest  {
         xmlaServlet.createConnectionFactory( mock( ServletConfig.class ) );
 
     Properties properties = new Properties();
-    properties.put("DataSource", "bogus");
+    properties.put( "DataSource", "bogus" );
     try {
       connectionFactory.getConnection( "SampleData", "SampleData", "baz", properties );
-    } catch( MondrianException exception ){
+    } catch ( MondrianException exception ) {
       //ignored
     }
 
     try {
       connectionFactory.getConnection( "SampleData", "SampleData", "baz", properties );
-    } catch( MondrianException exception ){
+    } catch ( MondrianException exception ) {
       //ignored
     }
 
     // We verify that only one Catalog Locator is created for multiple requests
-    verify( xmlaServlet, times(1) ).makeCatalogLocator( anyObject() );
+    verify( xmlaServlet, times( 1 ) ).makeCatalogLocator( (ServletConfig) anyObject() );
 
   }
 }
