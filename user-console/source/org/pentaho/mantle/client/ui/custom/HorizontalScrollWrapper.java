@@ -18,8 +18,10 @@
 package org.pentaho.mantle.client.ui.custom;
 
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Label;
 
 /**
  * Class that wraps list box into div necessary for horizontal scroll effect
@@ -30,14 +32,20 @@ public class HorizontalScrollWrapper extends Composite {
 
   public HorizontalScrollWrapper( ListBox listBox ) {
     id = getListBoxWrapperUIId( listBox );
-    String html = ""
-      + "<div id='" + id + "' style=\"overflow-x:scroll; width:200px; overflow: -moz-scrollbars-horizontal;\">"
-      + "<div id=\"listBox\"></div>"
-      + "<div style='font-size: 1px'>&nbsp</div>\n"
-      + "</div>";
-    HTMLPanel listWrapper = new HTMLPanel( html );
-    listWrapper.addAndReplaceElement( listBox, "listBox" );
-    initWidget( listWrapper );
+
+    FlowPanel container = new FlowPanel();
+    container.getElement().setId( id );
+    container.setStyleName( "scrollable-horizontally" );
+
+    SimplePanel helperDiv = new SimplePanel();
+    Label dummyText = new Label( "&nbsp" );
+    dummyText.setStyleName( "invisible-font" );
+    helperDiv.add( dummyText );
+
+    container.add( listBox );
+    container.add( helperDiv );
+
+    initWidget( container );
   }
 
   @Override

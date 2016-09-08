@@ -793,6 +793,16 @@ code {
   height: 432px;
 }
 
+.scrollable-horizontally {
+ overflow-x:scroll;
+ width:200px;
+ overflow: -moz-scrollbars-horizontal;
+}
+
+.invisible-font {
+  font-size: 1px;
+}
+
 .users-roles-selection-list {
   height: 317px;
 }
