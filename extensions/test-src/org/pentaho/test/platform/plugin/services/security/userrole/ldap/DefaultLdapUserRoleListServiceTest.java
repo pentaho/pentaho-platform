@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
@@ -23,10 +23,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.security.DefaultLdapRoleMapper;
 import org.pentaho.platform.engine.security.DefaultRoleComparator;
 import org.pentaho.platform.engine.security.DefaultUsernameComparator;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserRoleListService;
@@ -40,6 +42,7 @@ import org.pentaho.platform.plugin.services.security.userrole.ldap.search.Unioni
 import org.pentaho.platform.plugin.services.security.userrole.ldap.transform.GrantedAuthorityToString;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.transform.SearchResultToAttrValueList;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.transform.StringToGrantedAuthority;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -54,14 +57,16 @@ import org.springframework.security.userdetails.ldap.LdapUserDetailsService;
 
 import javax.naming.directory.SearchControls;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-//import org.pentaho.platform.engine.core.audit.NullAuditEntry;
 
 /**
  * Tests for the <code>DefaultLdapUserRoleListService</code> class. The ways in which an LDAP schema can be layed out
@@ -70,9 +75,11 @@ import static org.junit.Assert.assertTrue;
  * @author mlowery
  */
 @SuppressWarnings( "nls" )
-public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapIntegrationTests {
+public class DefaultLdapUserRoleListServiceTest extends AbstractPentahoLdapIntegrationTests {
 
-  private static final Log logger = LogFactory.getLog( DefaultLdapUserRoleListServiceTests.class );
+  private static final Log logger = LogFactory.getLog( DefaultLdapUserRoleListServiceTest.class );
+  public static final String[] ROLES = new String[] { "ROLE_CTO", "ROLE_CEO", "ROLE_POWER_USER" };
+
 
   private LdapUserSearch getUserSearch( final String searchBase, final String searchFilter ) {
     return new FilterBasedLdapUserSearch( searchBase, searchFilter, getContextSource() );
@@ -99,7 +106,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     mapper.setTokenName( "cn" ); //$NON-NLS-1$
     service.setUserDetailsMapper( mapper );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setUserDetailsService( service );
 
@@ -127,7 +135,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     mapper.setTokenName( "cn" ); //$NON-NLS-1$
     service.setUserDetailsMapper( mapper );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setUserDetailsService( service );
 
@@ -165,7 +174,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     LdapUserDetailsService service = new LdapUserDetailsService( userSearch, populator );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setUserDetailsService( service );
 
@@ -191,7 +201,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     LdapUserDetailsService service = new LdapUserDetailsService( userSearch, populator );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setUserDetailsService( service );
     userRoleListService.setRoleComparator( new DefaultRoleComparator() );
@@ -224,7 +235,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     GenericLdapSearch allUsernamesSearch = new GenericLdapSearch( getContextSource(), paramFactory, transformer1 );
     allUsernamesSearch.afterPropertiesSet();
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllUsernamesSearch( allUsernamesSearch );
 
@@ -255,7 +267,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     GenericLdapSearch allUsernamesSearch = new GenericLdapSearch( getContextSource(), paramFactory, transformer1 );
     allUsernamesSearch.afterPropertiesSet();
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllUsernamesSearch( allUsernamesSearch );
 
@@ -293,7 +306,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     GenericLdapSearch allUsernamesSearch = new GenericLdapSearch( getContextSource(), paramFactory, transformer1 );
     allUsernamesSearch.afterPropertiesSet();
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllUsernamesSearch( allUsernamesSearch );
     userRoleListService.setUsernameComparator( new DefaultUsernameComparator() );
@@ -322,7 +336,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     LdapSearch allUsernamesSearch = new GenericLdapSearch( getContextSource(), paramsFactory, transformer2 );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllUsernamesSearch( allUsernamesSearch );
 
@@ -353,7 +368,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     LdapSearch allUsernamesSearch = new GenericLdapSearch( getContextSource(), paramsFactory, transformer3 );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllUsernamesSearch( allUsernamesSearch );
 
@@ -388,7 +404,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     LdapSearch usernamesInRoleSearch =
         new GenericLdapSearch( getContextSource(), paramFactory, transformer1, transformer2 );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setUsernamesInRoleSearch( usernamesInRoleSearch );
 
@@ -420,7 +437,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     LdapSearch usernamesInRoleSearch =
         new GenericLdapSearch( getContextSource(), paramFactory, transformer1, transformer2 );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setUsernamesInRoleSearch( usernamesInRoleSearch );
 
@@ -458,7 +476,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     LdapSearch usernamesInRoleSearch =
         new GenericLdapSearch( getContextSource(), paramFactory, transformer1, transformer2 );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setUsernamesInRoleSearch( usernamesInRoleSearch );
     userRoleListService.setUsernameComparator( new DefaultUsernameComparator() );
@@ -496,8 +515,11 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     LdapSearch usernamesInRoleSearch =
         new GenericLdapSearch( getContextSource(), paramFactory, transformer1, transformer2 );
+    Map<String, String> roleMap = new HashMap<>( );
+    roleMap.put( "DEV", "dev" );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService( roleMap );
 
     userRoleListService.setUsernamesInRoleSearch( usernamesInRoleSearch );
 
@@ -533,7 +555,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     LdapSearch usernamesInRoleSearch =
         new GenericLdapSearch( getContextSource(), paramFactory, transformer1, transformer2 );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setUsernamesInRoleSearch( usernamesInRoleSearch );
 
@@ -590,7 +613,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     UnionizingLdapSearch unionSearch = new UnionizingLdapSearch( searches );
     unionSearch.afterPropertiesSet();
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setUsernamesInRoleSearch( unionSearch );
 
@@ -633,7 +657,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     LdapSearch rolesSearch = new GenericLdapSearch( getContextSource(), paramsFactory, transformer );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService = getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllAuthoritiesSearch( rolesSearch );
 
@@ -645,6 +669,21 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     if ( logger.isDebugEnabled() ) {
       logger.debug( "results of getAllAuthorities1(): " + res ); //$NON-NLS-1$
     }
+  }
+
+  private DefaultLdapUserRoleListService getDefaultLdapUserRoleListService() {
+    Map<String, String> roleMap = new HashMap<>( );
+    roleMap.put( "DEV", "DEV" );
+    return getDefaultLdapUserRoleListService( roleMap );
+  }
+
+  private DefaultLdapUserRoleListService getDefaultLdapUserRoleListService( Map<String, String> roleMap ) {
+    IAuthenticationRoleMapper roleMapper = new DefaultLdapRoleMapper( roleMap );
+    DefaultLdapUserRoleListService defaultLdapUserRoleListService = new DefaultLdapUserRoleListService( null, null, roleMapper );
+    defaultLdapUserRoleListService.setExtraRoles( Arrays.asList( ROLES ) );
+    defaultLdapUserRoleListService.setUserNameUtils( new DefaultTenantedPrincipleNameResolver(  ) );
+    defaultLdapUserRoleListService.setRoleNameUtils( new DefaultTenantedPrincipleNameResolver( "_" ) );
+    return defaultLdapUserRoleListService;
   }
 
   @Test
@@ -664,7 +703,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     LdapSearch rolesSearch = new GenericLdapSearch( getContextSource(), paramsFactory, transformer );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllAuthoritiesSearch( rolesSearch );
 
@@ -702,7 +742,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     LdapSearch rolesSearch = new GenericLdapSearch( getContextSource(), paramsFactory, transformer );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllAuthoritiesSearch( rolesSearch );
     userRoleListService.setRoleComparator( new DefaultRoleComparator() );
@@ -738,7 +779,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     LdapSearch rolesSearch = new GenericLdapSearch( getContextSource(), paramsFactory, transformer );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllAuthoritiesSearch( rolesSearch );
 
@@ -794,7 +836,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     searches.add( rolesSearch2 );
     UnionizingLdapSearch unionSearch = new UnionizingLdapSearch( searches );
 
-    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+    DefaultLdapUserRoleListService userRoleListService =
+      getDefaultLdapUserRoleListService();
 
     userRoleListService.setAllAuthoritiesSearch( unionSearch );
 
@@ -814,7 +857,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
    * 
    * @param username
    *          username of user
-   * @param tenantId
+   * @param tenant
    *          tenant to which this user belongs
    * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
