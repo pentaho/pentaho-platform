@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.solution;
@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class SimpleParameterProvider extends BaseParameterProvider implements IParameterProvider {
 
@@ -57,7 +58,7 @@ public class SimpleParameterProvider extends BaseParameterProvider implements IP
         obj = null;
       }
     }
-    return ( obj == null ) ? null : String.valueOf( obj );
+    return ( obj == null ) ? null : stripXSS( String.valueOf( obj ) );
   }
 
   @Override
@@ -77,7 +78,7 @@ public class SimpleParameterProvider extends BaseParameterProvider implements IP
   }
 
   public void setParameter( final String name, final String value ) {
-    parameters.put( name, value );
+    parameters.put( name, stripXSS( value ) );
   }
 
   public void setParameter( final String name, final long value ) {
@@ -144,5 +145,37 @@ public class SimpleParameterProvider extends BaseParameterProvider implements IP
       Map additionalParms = HttpUtil.parseQueryString( strAdditionalParams );
       copyAndConvertParameters( additionalParms );
     }
+  }
+
+  /**
+   * Lets Avoid Xss Attacks. It is sanitize incoming value
+   * 
+   * @param value
+   * */
+  private String stripXSS( String value ) {
+    if ( value != null ) {
+      value = value.replaceAll( "", "" );
+      Pattern scriptPattern = Pattern.compile( "<script>(.*?)</script>", Pattern.CASE_INSENSITIVE );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+      scriptPattern = Pattern.compile( "src[\r\n]*=[\r\n]*\\\'(.*?)\\\'", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+      scriptPattern = Pattern.compile( "src[\r\n]*=[\r\n]*\\\"(.*?)\\\"", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+      scriptPattern = Pattern.compile( "</script>", Pattern.CASE_INSENSITIVE );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+      scriptPattern = Pattern.compile( "<script(.*?)>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+      scriptPattern = Pattern.compile( "eval\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+      scriptPattern = Pattern.compile( "expression\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+      scriptPattern = Pattern.compile( "javascript:", Pattern.CASE_INSENSITIVE );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+      scriptPattern = Pattern.compile( "vbscript:", Pattern.CASE_INSENSITIVE );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+      scriptPattern = Pattern.compile( "onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL );
+      value = scriptPattern.matcher( value ).replaceAll( "" );
+    }
+    return value;
   }
 }
