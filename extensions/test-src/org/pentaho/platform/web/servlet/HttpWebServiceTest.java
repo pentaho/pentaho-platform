@@ -21,7 +21,6 @@
 
 package org.pentaho.platform.web.servlet;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.dom4j.Document;
 import org.junit.After;
 import org.junit.Before;
@@ -41,6 +40,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 

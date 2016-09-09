@@ -12,17 +12,20 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.security;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.security.Authentication;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -45,17 +48,24 @@ import java.io.IOException;
  * <p/>
  * User: nbaker Date: 8/15/13
  */
-public class PentahoBasicProcessingFilter extends org.springframework.security.ui.basicauth.BasicProcessingFilter
-    implements ApplicationEventPublisherAware {
+public class PentahoBasicProcessingFilter extends BasicAuthenticationFilter implements ApplicationEventPublisherAware {
 
   private ApplicationEventPublisher applicationEventPublisher;
+
+  public PentahoBasicProcessingFilter( AuthenticationManager authenticationManager ) {
+    super( authenticationManager );
+  }
+
+  public PentahoBasicProcessingFilter( AuthenticationManager authenticationManager, AuthenticationEntryPoint authenticationEntryPoint ) {
+    super( authenticationManager, authenticationEntryPoint );
+  }
 
   public void setApplicationEventPublisher( ApplicationEventPublisher applicationEventPublisher ) {
     this.applicationEventPublisher = applicationEventPublisher;
   }
 
   @Override
-  public void doFilterHttp( HttpServletRequest request, HttpServletResponse response, FilterChain chain )
+  public void doFilterInternal( HttpServletRequest request, HttpServletResponse response, FilterChain chain )
     throws IOException, ServletException {
     if ( request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid() ) {
       // expired session detected.
@@ -112,7 +122,7 @@ public class PentahoBasicProcessingFilter extends org.springframework.security.u
       }
     }
 
-    super.doFilterHttp( request, response, chain );
+    super.doFilterInternal( request, response, chain );
   }
 
   @Override

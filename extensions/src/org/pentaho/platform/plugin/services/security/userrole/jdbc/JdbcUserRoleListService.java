@@ -26,11 +26,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.object.MappingSqlQuery;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
@@ -243,13 +243,13 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
     @Override
     protected Object mapRow( final ResultSet rs, final int rownum ) throws SQLException {
-      return new GrantedAuthorityImpl( ( ( null != rolePrefix ) ? rolePrefix : "" ) + rs.getString( 1 ) ); //$NON-NLS-1$
+      return new SimpleGrantedAuthority( ( ( null != rolePrefix ) ? rolePrefix : "" ) + rs.getString( 1 ) ); //$NON-NLS-1$
     }
   }
 
   public List<String> getRolesForUser( final String username ) throws UsernameNotFoundException, DataAccessException {
     UserDetails user = userDetailsService.loadUserByUsername( username );
-    LinkedHashSet<String> roles = new LinkedHashSet<String>( user.getAuthorities().length );
+    LinkedHashSet<String> roles = new LinkedHashSet<String>( user.getAuthorities().size() );
     for ( GrantedAuthority role : user.getAuthorities() ) {
       if ( roleMapper != null ) {
         roles.add( roleMapper.toPentahoRole( role.getAuthority() ) );

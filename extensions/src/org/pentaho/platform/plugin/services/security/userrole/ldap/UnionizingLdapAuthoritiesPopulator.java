@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
@@ -20,11 +20,12 @@ package org.pentaho.platform.plugin.services.security.userrole.ldap;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.ldap.LdapAuthoritiesPopulator;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.util.Assert;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,16 +50,16 @@ public class UnionizingLdapAuthoritiesPopulator implements LdapAuthoritiesPopula
 
   // ~ Methods =========================================================================================================
 
-  public GrantedAuthority[] getGrantedAuthorities( final DirContextOperations userData, final String username ) {
+  public Collection<? extends GrantedAuthority> getGrantedAuthorities( final DirContextOperations userData, final String username ) {
     Set<GrantedAuthority> allAuthorities = new HashSet<GrantedAuthority>();
     for ( LdapAuthoritiesPopulator populator : populators ) {
-      GrantedAuthority[] auths = populator.getGrantedAuthorities( userData, username );
-      if ( ( null != auths ) && ( auths.length > 0 ) ) {
-        allAuthorities.addAll( Arrays.asList( auths ) );
+      Collection<? extends GrantedAuthority> auths = populator.getGrantedAuthorities( userData, username );
+      if ( ( null != auths ) && ( auths.size() > 0 ) ) {
+        allAuthorities.addAll( auths );
       }
 
     }
-    return allAuthorities.toArray( new GrantedAuthority[0] );
+    return allAuthorities;
   }
 
   public void setPopulators( final Set<LdapAuthoritiesPopulator> populators ) {

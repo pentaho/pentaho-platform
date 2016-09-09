@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.test.platform.engine.core;
@@ -137,8 +137,8 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
   protected ApplicationContext getSpringApplicationContext() {
     // todo
     String[] fns =
-        {
-          "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml", "systemListeners.xml", "pentahoSystemConfig.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+      {
+      "pentahoObjects.spring.xml", "adminPlugins.xml", "sessionStartupActions.xml", "systemListeners.xml", "pentahoSystemConfig.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
     GenericApplicationContext appCtx = new GenericApplicationContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader( appCtx );
@@ -151,6 +151,7 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
       }
     }
 
+    appCtx.refresh();
     String[] beanNames = appCtx.getBeanDefinitionNames();
     System.out.println( "Loaded Beans: " ); //$NON-NLS-1$
     for ( String n : beanNames ) {

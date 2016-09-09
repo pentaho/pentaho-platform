@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
@@ -20,12 +20,14 @@ package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
 import org.junit.Test;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.RolePreprocessingMapper;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
@@ -55,10 +57,10 @@ public class RolePreprocessingMapperTests extends AbstractPentahoLdapIntegration
         new SpringSecurityLdapTemplate( getContextSource() ).searchForSingleAttributeValues(
             "ou=roles", "roleoccupant={0}", new String[] { "uid=suzy,ou=users,dc=pentaho,dc=org", "suzy" }, "cn" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
-    GrantedAuthority[] authorities = new GrantedAuthority[extraRoles.size()];
+    List<GrantedAuthority> authorities = Arrays.asList( new GrantedAuthority[extraRoles.size()] );
     int i = 0;
     for ( String extraRole : extraRoles ) {
-      authorities[i++] = new GrantedAuthorityImpl( extraRole );
+      authorities.add( new SimpleGrantedAuthority( extraRole ) );
     }
 
     // use the mapper to create a UserDetails instance
@@ -66,9 +68,12 @@ public class RolePreprocessingMapperTests extends AbstractPentahoLdapIntegration
     System.out.println( userDetails );
 
     // this asserts the ordering too; not strictly necessary
-    GrantedAuthority[] expected =
-        new GrantedAuthority[] { new GrantedAuthorityImpl( "A" ), new GrantedAuthorityImpl( "cto" ), //$NON-NLS-1$ //$NON-NLS-2$
-          new GrantedAuthorityImpl( "is" ), new GrantedAuthorityImpl( "Authenticated" ) }; //$NON-NLS-1$//$NON-NLS-2$
-    assertTrue( Arrays.equals( expected, userDetails.getAuthorities() ) );
+    Collection<? extends GrantedAuthority> expectedAuthorities = Arrays.asList( new GrantedAuthority[] { new SimpleGrantedAuthority( "A" ),
+      new SimpleGrantedAuthority( "cto" ), new SimpleGrantedAuthority( "is" ), new SimpleGrantedAuthority( "Authenticated" ) } );
+
+    Collection<? extends GrantedAuthority> unexpectedAuthorities = userDetails.getAuthorities();
+    unexpectedAuthorities.removeAll( expectedAuthorities );
+
+    assertTrue( unexpectedAuthorities.isEmpty() );
   }
 }

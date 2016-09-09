@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
@@ -24,11 +24,11 @@ import org.apache.jackrabbit.core.security.authentication.AbstractLoginModule;
 import org.apache.jackrabbit.core.security.authentication.Authentication;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.messages.Messages;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.ProviderNotFoundException;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.ProviderNotFoundException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import javax.jcr.Credentials;
 import javax.jcr.RepositoryException;
@@ -70,8 +70,8 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
    * NPE doesn't occur.
    */
   protected static final AuthenticationManager NULL_AUTHENTICATION_MANAGER = new AuthenticationManager() {
-    @Override public org.springframework.security.Authentication authenticate(
-        org.springframework.security.Authentication authentication ) throws AuthenticationException {
+    @Override public org.springframework.security.core.Authentication authenticate(
+        org.springframework.security.core.Authentication authentication ) throws AuthenticationException {
       throw new ProviderNotFoundException( "Authentication Manager not present in PentahoSystem." );
     }
   };
@@ -127,7 +127,7 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
     if ( authManager == null && PentahoSystem.getInitializedOK() ) {
       authManager = PentahoSystem.get( AuthenticationManager.class );
     }
-    if( authManager == null ){
+    if ( authManager == null ) {
       return NULL_AUTHENTICATION_MANAGER;
     }
     return authManager;
@@ -158,9 +158,9 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
     boolean authenticated = false;
 
     try {
-      org.springframework.security.Authentication authentication =
+      org.springframework.security.core.Authentication authentication =
         SecurityContextHolder.getContext().getAuthentication();
-      if( authentication != null && authentication.getName().equals( simpleCredentials.getUserID() ) ) {
+      if ( authentication != null && authentication.getName().equals( simpleCredentials.getUserID() ) ) {
         // see if there's already an active Authentication for this user.
         authenticated = true;
       } else {

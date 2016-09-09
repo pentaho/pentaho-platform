@@ -13,21 +13,19 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.security.policy.rolebased;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISecurityHelper;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 /**
@@ -87,8 +85,8 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
   protected List<String> getRuntimeRoleNames() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Assert.state( authentication != null );
-    GrantedAuthority[] authorities = authentication.getAuthorities();
-    List<String> runtimeRoles = new ArrayList<String>( authorities.length );
+    Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+    List<String> runtimeRoles = new ArrayList<String>( authorities.size() );
     for ( GrantedAuthority authority : authorities ) {
       runtimeRoles.add( authority.getAuthority() );
     }

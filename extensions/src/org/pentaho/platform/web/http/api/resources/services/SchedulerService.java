@@ -62,6 +62,7 @@ import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
 public class SchedulerService {
 
@@ -320,8 +321,7 @@ public class SchedulerService {
 
   public Job getJobInfo( String jobId ) throws SchedulerException {
     Job job = getJob( jobId );
-    if ( getSecurityHelper().isPentahoAdministrator( getSession() )
-        || getSession().getName().equals( job.getUserName() ) ) {
+    if ( canAdminister() || getSession().getName().equals( job.getUserName() ) ) {
       for ( String key : job.getJobParams().keySet() ) {
         Serializable value = job.getJobParams().get( key );
         if ( value != null && value.getClass() != null && value.getClass().isArray() ) {
@@ -511,6 +511,10 @@ public class SchedulerService {
       }
     } );
     return jobs;
+  }
+
+  protected Boolean canAdminister() {
+    return canAdminister( null );
   }
 
   protected Boolean canAdminister( IPentahoSession session ) {

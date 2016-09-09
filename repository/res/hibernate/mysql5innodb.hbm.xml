@@ -113,6 +113,7 @@
 			<one-to-many class="org.pentaho.platform.repository.solution.dbbased.RepositoryFile" />
 		</set>
 
+		<!-- 
 		<list name="accessControls" lazy="false"
 			cascade="all-delete-orphan" table="PRO_ACLS_LIST" fetch="join">
 			<cache usage="read-write" />
@@ -126,7 +127,8 @@
 				<property name="recipientString" column="RECIPIENT"
 					not-null="true" />
 			</composite-element>
-		</list>
+		</list> 
+		-->
 		<query name="findAllRootSolutionFolders">
 			<![CDATA[
                  from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where file.parent is null

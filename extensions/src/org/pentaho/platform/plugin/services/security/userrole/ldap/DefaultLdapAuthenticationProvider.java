@@ -20,14 +20,17 @@ package org.pentaho.platform.plugin.services.security.userrole.ldap;
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.ldap.LdapAuthoritiesPopulator;
-import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
-import org.springframework.security.providers.ldap.LdapAuthenticator;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
+import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
+import org.springframework.security.ldap.authentication.LdapAuthenticator;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 public class DefaultLdapAuthenticationProvider extends LdapAuthenticationProvider {
 
@@ -58,16 +61,16 @@ public class DefaultLdapAuthenticationProvider extends LdapAuthenticationProvide
    * We need to iterate through the authorities and map them to pentaho security equivalent
    */
   @Override
-  protected GrantedAuthority[] loadUserAuthorities( DirContextOperations userData, String username, String password ) {
-    GrantedAuthority[] authorities = super.loadUserAuthorities( userData, username, password );
+  protected Collection<? extends GrantedAuthority> loadUserAuthorities( DirContextOperations userData, String username, String password ) {
+    GrantedAuthority[] authorities = super.loadUserAuthorities( userData, username, password ).toArray( new GrantedAuthority[]{} );
     if ( roleMapper != null ) {
       for ( int i = 0; i < authorities.length; i++ ) {
         if ( authorities[i] != null ) {
-          authorities[i] = new GrantedAuthorityImpl( roleMapper.toPentahoRole( authorities[i].getAuthority() ) );
+          authorities[i] = new SimpleGrantedAuthority( roleMapper.toPentahoRole( authorities[i].getAuthority() ) );
         }
       }
     }
-    return authorities;
+    return Arrays.asList( authorities );
   }
 
   @Override

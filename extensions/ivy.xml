@@ -85,6 +85,8 @@
     <dependency org="javax.jcr" name="jcr" rev="2.0" transitive="false"/>
     <dependency org="org.apache.geronimo.specs" name="geronimo-stax-api_1.0_spec" rev="1.0" transitive="false"/>
     <dependency org="org.springframework.security" name="spring-security-core" rev="${dependency.spring.security.revision}" transitive="false"/>
+    <dependency org="org.springframework.security" name="spring-security-web" rev="${dependency.spring.security.revision}" transitive="false"/>
+    <dependency org="org.springframework.security" name="spring-security-ldap" rev="${dependency.spring.security.revision}" transitive="false"/>
     <dependency org="org.springframework.ldap" name="spring-ldap-core" rev="${dependency.spring.ldap.revision}" transitive="false"/>
     <dependency org="javax.mail" name="mail" rev="1.4.1" transitive="false"/>
 
@@ -383,10 +385,36 @@
     <!-- Necessary because Pentaho's security tests re-use Spring's Security test classes. -->
     <dependency org="org.springframework.security" name="spring-security-core-tests" rev="${dependency.spring.security.tests.revision}"
                 transitive="false" conf="test->default"/>
-    <dependency org="org.apache.directory.server" name="apacheds-core" rev="1.0.2" conf="test->default"/>
-    <dependency org="org.apache.directory.server" name="apacheds-server-jndi" rev="1.0.2" conf="test->default">
+    <dependency org="org.springframework.ldap" name="spring-ldap-core" rev="${dependency.spring.ldap.revision}" transitive="false" conf="test->default"/>
+
+    <!-- Necessary dependencies of org.pentaho.test.platform.plugin.services.security.userrole.ldap.DefaultLdapUserRoleListServiceTest.. -->
+    <!-- We cannot just call for 'apacheds-all' because that one carries within it all things commons-io and commons-lang in *older versions* than we use nowadays -->
+    <dependency org="org.apache.mina"             name="mina-core" rev="2.0.0-M6" conf="test->default" transitive="false" />
+    <dependency org="org.apache.directory.server" name="apacheds-core" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-core-avl" rev="1.5.5" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-bootstrap-extract" rev="1.5.5" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-bootstrap-partition" rev="1.5.5" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-xdbm-search" rev="1.5.5" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-core-entry" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-core-shared" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-schema-registries" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-schema-bootstrap" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-jdbm-store" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-jdbm" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-xdbm-base" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-protocol-ldap" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-protocol-shared" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-utils" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.shared" name="shared-ldap" rev="${dependency.apacheds.shared.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.shared" name="shared-ldap-constants" rev="${dependency.apacheds.shared.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.shared" name="shared-cursor" rev="${dependency.apacheds.shared.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.shared" name="shared-asn1" rev="${dependency.apacheds.shared.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.shared" name="shared-asn1-codec" rev="${dependency.apacheds.shared.revision}" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.directory.server" name="apacheds-server-jndi" rev="${dependency.apacheds.revision}" transitive="false" conf="test->default">
       <exclude org="org.slf4j" name="slf4j-api"/>
     </dependency>
+    <!-- end necessary dependencies of org.pentaho.test.platform.plugin.services.security.userrole.ldap.DefaultLdapUserRoleListServiceTest -->
+
     <!-- end security test dependencies -->
 
     <dependency org="com.sun.jersey.jersey-test-framework" name="jersey-test-framework-core" rev="1.19.1"
@@ -407,16 +435,6 @@
     <dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.19.1" conf="test->default" transitive="false"/>
 
     <dependency org="org.springframework" name="spring-test" rev="${dependency.spring.framework.revision}" conf="test->default"/>
-
-    <dependency org="org.springframework" name="spring-mock" rev="${dependency.spring.mock.revision}" conf="test->default">
-      <!--
-           prevent Spring from grabbing these jars. We are already getting the versions we need in our default
-           configuration
-         -->
-      <exclude org="javax.servlet" name="servlet-api"/>
-      <exclude org="avalon-framework" name="avalon-framework"/>
-      <exclude org="log4j" name="log4j"/>
-    </dependency>
 
     <dependency org="com.sun.jersey.contribs" name="wadl-resourcedoc-doclet" rev="1.19.1" transitive="false" />
 

@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.security.userroledao.jackrabbit;
@@ -40,7 +40,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrSystemException;
 import org.springframework.extensions.jcr.JcrTemplate;
-import org.springframework.security.providers.dao.UserCache;
+import org.springframework.security.core.userdetails.UserCache;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.RepositoryException;

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.web.http.api;
@@ -73,7 +73,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -115,7 +115,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
     when( mockRepositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
     when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
     JcrRepositoryFileUtils.setRepositoryVersionManager( mockRepositoryVersionManager );
-    
+
     repositoryBase = new DefaultUnifiedRepositoryBase() {
       @Override
       protected String getSolutionPath() {

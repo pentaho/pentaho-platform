@@ -7,7 +7,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
 
   <!-- be sure to escape ampersands -->
   <bean id="allUsernamesSearch"
@@ -78,16 +78,16 @@
       <ref bean="ldapRoleMapper" />
     </constructor-arg>
     <property name="allAuthoritiesSearch">
-      <ref local="allAuthoritiesSearch" />
+      <ref bean="allAuthoritiesSearch" />
     </property>
     <property name="allUsernamesSearch">
-      <ref local="allUsernamesSearch" />
+      <ref bean="allUsernamesSearch" />
     </property>
     <property name="userDetailsService">
-    	<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
+    	<pen:bean class="org.springframework.security.core.userdetails.UserDetailsService"/>
     </property>
     <property name="usernamesInRoleSearch">
-      <ref local="usernamesInRoleSearch" />
+      <ref bean="usernamesInRoleSearch" />
     </property>
     <property name="roleNameUtils" >
       <ref bean="tenantedRoleNameUtils" />

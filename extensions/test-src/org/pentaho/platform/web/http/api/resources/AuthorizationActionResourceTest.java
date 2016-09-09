@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +30,7 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.web.http.api.resources.services.AuthorizationActionService;
 
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.List;
 
 /**

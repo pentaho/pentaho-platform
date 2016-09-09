@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2014 Pentaho Corporation. All rights reserved.
+ * Copyright 2016 Pentaho Corporation. All rights reserved.
  */
 
 package org.pentaho.platform.osgi;
@@ -23,12 +23,12 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -39,6 +39,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 
 import static org.junit.Assert.*;
@@ -71,12 +72,12 @@ public class SpringSecurityLoginModuleTest {
     IUserRoleListService userRoleListService = mock( IUserRoleListService.class );
     IAuthorizationPolicy authorizationPolicy = mock( IAuthorizationPolicy.class );
     Authentication authentication = mock( Authentication.class );
-    GrantedAuthority[] authorities = new GrantedAuthority[] { new GrantedAuthorityImpl( "Authenticated" ),
-      new GrantedAuthorityImpl( "Administrator" ) };
+    Collection authorities = Arrays.asList( new GrantedAuthority[] { new SimpleGrantedAuthority( "Authenticated" ),
+      new SimpleGrantedAuthority( "Administrator" ) } );
 
     Authentication authentication2 = mock( Authentication.class );
-    GrantedAuthority[] authorities2 =
-      new GrantedAuthority[] { new GrantedAuthorityImpl( "Authenticated" ), new GrantedAuthorityImpl( "ceo" ) };
+    Collection authorities2 = Arrays.asList(
+      new GrantedAuthority[] { new SimpleGrantedAuthority( "Authenticated" ), new SimpleGrantedAuthority( "ceo" ) } );
 
     //
     PentahoSystem.registerObject( userRoleListService, IUserRoleListService.class );
@@ -129,7 +130,7 @@ public class SpringSecurityLoginModuleTest {
       loginModule.login();
       fail( "Should have thrown a UsernameNotFoundException exception" );
     } catch ( LoginException ex ) {
-
+      /* No-op */
     }
 
     // pat is found, but not an admin
@@ -159,11 +160,11 @@ public class SpringSecurityLoginModuleTest {
     IUserRoleListService userRoleListService = mock( IUserRoleListService.class );
     IAuthorizationPolicy authorizationPolicy = mock( IAuthorizationPolicy.class );
     Authentication authentication = mock( Authentication.class );
-    GrantedAuthority[] authorities = new GrantedAuthority[] { new GrantedAuthorityImpl( "Authenticated" ),
-      new GrantedAuthorityImpl( "Administrator" ) };
+    Collection authorities = Arrays.asList( new GrantedAuthority[] { new SimpleGrantedAuthority( "Authenticated" ),
+      new SimpleGrantedAuthority( "Administrator" ) } );
     Authentication authentication2 = mock( Authentication.class );
-    GrantedAuthority[] authorities2 =
-      new GrantedAuthority[] { new GrantedAuthorityImpl( "Authenticated" ), new GrantedAuthorityImpl( "ceo" ) };
+    Collection authorities2 = Arrays.asList(
+      new GrantedAuthority[] { new SimpleGrantedAuthority( "Authenticated" ), new SimpleGrantedAuthority( "ceo" ) } );
 
     PentahoSystem.registerObject( userRoleListService, IUserRoleListService.class );
 
@@ -207,6 +208,7 @@ public class SpringSecurityLoginModuleTest {
       loginModule.login();
       fail( "Should have thrown IOException" );
     } catch ( LoginException ioe ) {
+      /* No-op */
     }
 
     // UnsupportedCallbackException thrown by underlying system
@@ -216,6 +218,7 @@ public class SpringSecurityLoginModuleTest {
       loginModule.login();
       fail( "Should have thrown UnsupportedCallbackException" );
     } catch ( LoginException ioe ) {
+      /* No-op */
     }
     SecurityContextHolder.getContext().setAuthentication( null );
 
@@ -226,6 +229,7 @@ public class SpringSecurityLoginModuleTest {
       loginModule.login();
       fail( "Should have thrown IOException" );
     } catch ( LoginException ioe ) {
+      /* No-op */
     }
 
     testCallbackHandler = new TestCallbackHandler( "unsupported" );
@@ -234,6 +238,7 @@ public class SpringSecurityLoginModuleTest {
       loginModule.login();
       fail( "Should have thrown UnsupportedCallbackException" );
     } catch ( LoginException ioe ) {
+      /* No-op */
     }
 
   }

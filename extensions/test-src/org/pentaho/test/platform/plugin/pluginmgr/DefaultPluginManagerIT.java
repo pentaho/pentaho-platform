@@ -222,17 +222,22 @@ public class DefaultPluginManagerIT {
     pluginManager.getBean( "IWasNotRegistered" );
   }
 
-  @Test( expected = PluginBeanException.class )
+  @Test()
   public void test5c_getBeanBadClassname() throws PluginBeanException, PlatformInitializationException {
-    microPlatform.define( IPluginProvider.class, Tst5PluginProvider.class ).start();
+    microPlatform.define( IPluginProvider.class, Tst5DefaultPluginProviderBadClass.class ).start();
 
     // reload should register the beans
     pluginManager.reload();
 
-    assertTrue( "TestClassNotFoundComponent should have been registered", pluginManager
-      .isBeanRegistered( "TestClassNotFoundComponent" ) );
+    assertTrue( "TestDefaultClassNotFoundComponent should have been registered", pluginManager
+      .isBeanRegistered( "TestDefaultClassNotFoundComponent" ) );
 
-    assertNotNull( pluginManager.getBean( "TestClassNotFoundComponent" ) );
+    try {
+      assertNotNull( pluginManager.getBean( "TestDefaultClassNotFoundComponent" ) );
+      fail( "We should have gotten a PluginBeanException for the TestDefaultClassNotFoundComponent plugin" );
+    } catch( Exception ex ) {
+      assertTrue( ex instanceof PluginBeanException );
+    }
   }
 
   @Test
@@ -611,7 +616,20 @@ public class DefaultPluginManagerIT {
       p.addBean( new PluginBeanDefinition( "TestMockComponent",
         "org.pentaho.test.platform.engine.core.MockComponent" ) );
       p.addBean( new PluginBeanDefinition( "TestPojo", "java.lang.String" ) );
-      p.addBean( new PluginBeanDefinition( "TestClassNotFoundComponent", "org.pentaho.test.NotThere" ) );
+      return Arrays.asList( (IPlatformPlugin) p );
+    }
+  }
+
+  public static class Tst5DefaultPluginProviderBadClass implements IPluginProvider {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+      PlatformPlugin p = new PlatformPlugin();
+      // need to set source description - classloader needs it
+      p.setId( "good-plugin1" );
+      p.setSourceDescription( "good-plugin1" );
+      p.addBean( new PluginBeanDefinition( "TestMockComponent",
+        "org.pentaho.test.platform.engine.core.MockComponent" ) );
+      p.addBean( new PluginBeanDefinition( "TestPojo", "java.lang.String" ) );
+      p.addBean( new PluginBeanDefinition( "TestDefaultClassNotFoundComponent", "org.pentaho.test.NotThere" ) );
       return Arrays.asList( (IPlatformPlugin) p );
     }
   }

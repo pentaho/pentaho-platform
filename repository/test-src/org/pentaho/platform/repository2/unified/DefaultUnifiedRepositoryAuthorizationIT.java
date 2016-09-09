@@ -66,7 +66,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
-import org.springframework.security.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
@@ -88,7 +88,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith( SpringJUnit4ClassRunner.class )
 @SuppressWarnings( "nls" )
 public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepositoryBase {
-  
+
   @Before
   public void setup() {
     IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
@@ -96,7 +96,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
     JcrRepositoryFileUtils.setRepositoryVersionManager( mockRepositoryVersionManager );
   }
-  
+
   /**
    * This test method depends on {@code DefaultRepositoryEventHandler} behavior.
    */
@@ -800,8 +800,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", new String[] { tenantAuthenticatedRoleName } );
-    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, PASSWORD, ""
-        , new String[] { tenantAuthenticatedRoleName } );
+    userRoleDao.createUser( tenantAcme, USERNAME_TIFFANY, PASSWORD, "", new String[] { tenantAuthenticatedRoleName } );
 
     defaultBackingRepositoryLifecycleManager.newTenant();
 
@@ -953,14 +952,14 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     findInList( SchedulerAction.NAME, list );
     findInList( RepositoryCreateAction.NAME, list );
   }
-  
-  private void findInList( String name, List<String> list ){
-    for ( String listName : list ){
-      if (listName.equals(listName)){
+
+  private void findInList( String name, List<String> list ) {
+    for ( String listName : list ) {
+      if ( listName.equals( listName ) ) {
         return;
       }
     }
-    fail("One of the 3 roles in the role list did not match");
+    fail( "One of the 3 roles in the role list did not match" );
   }
 
   @Test
@@ -1127,7 +1126,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
   @Test
   // @Test(expected = AccessDeniedException.class)
   public
-  void testRoleAuthorizationPolicyGetRoleBindingStructAccessDenied() throws Exception {
+    void testRoleAuthorizationPolicyGetRoleBindingStructAccessDenied() throws Exception {
     loginAsSysTenantAdmin();
     ITenant tenantAcme =
         tenantManager.createTenant( systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName,

@@ -21,7 +21,6 @@
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,12 +31,13 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.search.LdapSearch;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class DefaultLdapUserRoleListServiceTest {
   @Mock ITenantedPrincipleNameResolver userNameUtils;
 
   Object[] filterArgs = new Object[0];
-  List<GrantedAuthority> auths;
+  List auths;
   List<String> extraRoles;
   GrantedAuthority grantedAuthority;
   GrantedAuthority extraRoleGrantedAuthority;
@@ -75,8 +75,8 @@ public class DefaultLdapUserRoleListServiceTest {
   public void setUp() throws Exception {
     service = new DefaultLdapUserRoleListService();
     auths = new ArrayList<>();
-    grantedAuthority = new GrantedAuthorityImpl( "Administrator" );
-    extraRoleGrantedAuthority = new GrantedAuthorityImpl( "Authenticated" );
+    grantedAuthority = new SimpleGrantedAuthority( "Administrator" );
+    extraRoleGrantedAuthority = new SimpleGrantedAuthority( "Authenticated" );
     auths.add( grantedAuthority );
     auths.add( extraRoleGrantedAuthority );
     extraRoles = new ArrayList<>();
@@ -104,7 +104,7 @@ public class DefaultLdapUserRoleListServiceTest {
     service.setAllAuthoritiesSearch( authSearch );
     service.setExtraRoles( extraRoles );
 
-    auths.add( new GrantedAuthorityImpl( "test" ) );
+    auths.add( new SimpleGrantedAuthority( "test" ) );
     when( authSearch.search( any( filterArgs.getClass() ) ) ).thenReturn( auths );
 
     List<String> allRoles = service.getAllRoles();
@@ -148,8 +148,8 @@ public class DefaultLdapUserRoleListServiceTest {
     when( roleMapper.toPentahoRole( "Authenticated" ) ).thenReturn( "Authenticated" );
     when( roleMapper.toPentahoRole( "Administrator" ) ).thenReturn( "Admin" );
 
-    auths.add( new GrantedAuthorityImpl( "test" ) );
-    auths.add( new GrantedAuthorityImpl( "Authenticated" ) );
+    auths.add( new SimpleGrantedAuthority( "test" ) );
+    auths.add( new SimpleGrantedAuthority( "Authenticated" ) );
 
     when( authSearch.search( any( filterArgs.getClass() ) ) ).thenReturn( auths );
 
@@ -211,9 +211,9 @@ public class DefaultLdapUserRoleListServiceTest {
     when( userDetailService.loadUserByUsername( "joe" ) ).thenReturn( userDetails );
     when( userNameUtils.getPrincipleName( anyString() ) ).thenReturn( "joe" );
 
-    auths.add( new GrantedAuthorityImpl( "test" ) );
+    auths.add( new SimpleGrantedAuthority( "test" ) );
 
-    when( userDetails.getAuthorities() ).thenReturn( auths.toArray( new GrantedAuthority[]{} ) );
+    when( userDetails.getAuthorities() ).thenReturn( auths );
 
     List<String> foundRoles = service.getRolesForUser( JcrTenantUtils.getDefaultTenant(), "admin" );
     assertNotNull( foundRoles );

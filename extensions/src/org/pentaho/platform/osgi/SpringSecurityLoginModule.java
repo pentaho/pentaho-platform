@@ -19,6 +19,7 @@ package org.pentaho.platform.osgi;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -40,10 +41,10 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 /**
  * JAAS LoginModule which delegates to the Platform's Spring Security
@@ -92,7 +93,7 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
 
   public boolean login() throws LoginException {
 
-    org.springframework.security.Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    org.springframework.security.core.Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if ( authentication != null ) {
       // Obtain the username of the incoming auth request to match against existing authentication on the thread.
@@ -167,7 +168,7 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
 
     principals = new HashSet<Principal>();
     principals.add( new UserPrincipal( authentication.getName() ) );
-    GrantedAuthority[] authorities = authentication.getAuthorities();
+    Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
     if ( authorities != null ) {
       for ( GrantedAuthority authority : authorities ) {
         principals.add( new RolePrincipal( authority.getAuthority() ) );

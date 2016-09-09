@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security.event;
@@ -27,9 +27,10 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
-import org.springframework.security.Authentication;
-import org.springframework.security.event.authentication.AbstractAuthenticationEvent;
-import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.util.Assert;
 
 /**
@@ -65,7 +66,7 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
   // =========================================================================================================
 
   public void onApplicationEvent( final ApplicationEvent event ) {
-    if ( event instanceof AuthenticationSuccessEvent ) {
+    if ( event instanceof AuthenticationSuccessEvent || event instanceof InteractiveAuthenticationSuccessEvent ) {
       logger.debug( "received " + event.getClass().getSimpleName() ); //$NON-NLS-1$
       logger.debug( "synchronizing current IPentahoSession with SecurityContext" ); //$NON-NLS-1$
       try {
@@ -77,7 +78,7 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
         // audit session creation
         AuditHelper.audit( pentahoSession.getId(), pentahoSession.getName(), pentahoSession.getActionName(),
             pentahoSession.getObjectName(), "", MessageTypes.SESSION_START, "", "", 0, null ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        logger.info( "The user \"" + pentahoSession.getName() +"\"" + " connected to server with session ID " + pentahoSession.getId() );
+        logger.info( "The user \"" + pentahoSession.getName() + "\"" + " connected to server with session ID " + pentahoSession.getId() );
       } catch ( Exception e ) {
         logger.error( e.getLocalizedMessage(), e );
       }

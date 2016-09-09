@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security.event;
@@ -40,7 +40,7 @@ public class OrderedApplicationEventMulticasterTest {
   @Test
   public void multicastEvent_DirectOrderOfListeners() throws Exception {
     List<ApplicationListener> collector = collector();
-    List<ApplicationListener> listeners = new ArrayList<>();
+    List<ApplicationListener<?>> listeners = new ArrayList<>();
     for ( int i = 0; i < 5; i++ ) {
       listeners.add( new OrderedStubListener( i, collector ) );
     }
@@ -51,7 +51,7 @@ public class OrderedApplicationEventMulticasterTest {
   @Test
   public void multicastEvent_ReverseOrderOfListeners() throws Exception {
     List<ApplicationListener> collector = collector();
-    List<ApplicationListener> listeners = new ArrayList<>();
+    List<ApplicationListener<?>> listeners = new ArrayList<>();
     for ( int i = 0; i < 5; i++ ) {
       listeners.add( new OrderedStubListener( -i, collector ) );
     }
@@ -62,7 +62,7 @@ public class OrderedApplicationEventMulticasterTest {
   @Test
   public void multicastEvent_RandomOrderOfListeners() throws Exception {
     List<ApplicationListener> collector = collector();
-    List<ApplicationListener> listeners = new ArrayList<>();
+    List<ApplicationListener<?>> listeners = new ArrayList<>();
     for ( int i = 0; i < 5; i++ ) {
       listeners.add( new OrderedStubListener( i, collector ) );
     }
@@ -75,7 +75,7 @@ public class OrderedApplicationEventMulticasterTest {
   @Test
   public void multicastEvent_RandomOrderOfDifferentListeners() throws Exception {
     List<ApplicationListener> collector = collector();
-    List<ApplicationListener> listeners = new ArrayList<>();
+    List<ApplicationListener<?>> listeners = new ArrayList<>();
     for ( int i = 0; i < 5; i++ ) {
       listeners.add( new OrderedStubListener( i, collector ) );
     }
@@ -88,7 +88,7 @@ public class OrderedApplicationEventMulticasterTest {
   }
 
 
-  private void runTest( Collection<ApplicationListener> listeners, List<ApplicationListener> collector ) {
+  private void runTest( Collection<ApplicationListener<?>> listeners, List<ApplicationListener> collector ) {
     TestMulticaster multicaster = new TestMulticaster();
     multicaster.setApplicationListeners( listeners );
 
@@ -122,14 +122,14 @@ public class OrderedApplicationEventMulticasterTest {
   }
 
   private static class TestMulticaster extends OrderedApplicationEventMulticaster {
-    private Collection<ApplicationListener> applicationListeners;
+    private Collection<ApplicationListener<?>> applicationListeners;
 
-    public void setApplicationListeners( Collection<ApplicationListener> applicationListeners ) {
+    public void setApplicationListeners( Collection<ApplicationListener<?>> applicationListeners ) {
       this.applicationListeners = applicationListeners;
     }
 
     @Override
-    public Collection<ApplicationListener> getApplicationListeners() {
+    public Collection<ApplicationListener<?>> getApplicationListeners() {
       return applicationListeners;
     }
   }

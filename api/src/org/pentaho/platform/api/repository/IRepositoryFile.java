@@ -12,19 +12,18 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository;
 
-import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.ISolutionFile;
 
 import java.util.List;
 import java.util.Set;
 
-public interface IRepositoryFile extends ISearchable, IAclSolutionFile {
+public interface IRepositoryFile extends ISearchable {
 
   public static final char SEPARATOR = '/';
 

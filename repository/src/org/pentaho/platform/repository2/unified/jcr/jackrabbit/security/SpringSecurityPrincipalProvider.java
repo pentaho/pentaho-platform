@@ -13,13 +13,14 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
 import java.security.Principal;
 import java.security.acl.Group;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -47,14 +48,14 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.messages.Messages;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 /**
@@ -379,33 +380,36 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
     UserDetails user = null;
     // user cache not available or user not in cache; do lookup
-    GrantedAuthority[] auths = null;
-    GrantedAuthority[] authorities = null;
+    List<GrantedAuthority> auths = null;
+    List<GrantedAuthority> authorities = null;
     UserDetails newUser = null;
     if ( getUserDetailsService() != null ) {
       try {
         user = getUserDetailsService().loadUserByUsername( username );
         // We will use the authorities from the Authentication object of SecurityContextHolder. 
         //Authentication object is null then we will get it from IUserRoleListService
-        if ( auth == null || auth.getAuthorities() == null || auth.getAuthorities().length == 0 ) {
+        if ( auth == null || auth.getAuthorities() == null || auth.getAuthorities().size() == 0 ) {
           if ( logger.isTraceEnabled() ) {
             logger.trace( "Authentication object from SecurityContextHolder is null,"
               + " so getting the roles for [ " + user.getUsername() + " ]  from IUserRoleListService " ); //$NON-NLS-1$
           }
 
           List<String> roles = getUserRoleListService().getRolesForUser( JcrTenantUtils.getCurrentTenant(), username );
-          authorities = new GrantedAuthority[ roles.size() ];
+          authorities = new ArrayList<GrantedAuthority>( roles.size() );
           for ( int i = 0; i < roles.size(); i++ ) {
-            authorities[ i ] = new GrantedAuthorityImpl( roles.get( i ) );
+            authorities.add( new SimpleGrantedAuthority( roles.get( i ) ) );
           }
         } else {
-          authorities = auth.getAuthorities();
+          authorities = new ArrayList<GrantedAuthority>( auth.getAuthorities().size() );
+          for ( GrantedAuthority authority : auth.getAuthorities() ) {
+            authorities.add( authority );
+          }
         }
 
-        auths = new GrantedAuthority[ authorities.length ];
+        auths = new ArrayList<GrantedAuthority>( authorities.size() );
         // cache the roles while we're here
-        for ( int i = 0; i < authorities.length; i++ ) {
-          String role = authorities[ i ].getAuthority();
+        for ( int i = 0; i < authorities.size(); i++ ) {
+          String role = authorities.get( i ).getAuthority();
           final String tenatedRoleString = JcrTenantUtils.getTenantedRole( role );
           if ( cacheManager != null ) {
             Object rolePrincipal = cacheManager.getFromRegionCache( ROLE_CACHE_REGION, role );
@@ -415,7 +419,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
               cacheManager.putInRegionCache( ROLE_CACHE_REGION, role, ssRolePrincipal );
             }
           }
-          auths[ i ] = new GrantedAuthorityImpl( tenatedRoleString );
+          auths.add( new SimpleGrantedAuthority( tenatedRoleString ) );
         }
         if ( logger.isTraceEnabled() ) {
           logger.trace( "found user in back-end " + user.getUsername() ); //$NON-NLS-1$
@@ -428,10 +432,10 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       }
 
       if ( user != null ) {
-        if ( auths == null || auths.length <= 0 ) {
+        if ( auths == null || auths.size() <= 0 ) {
           logger.trace( "Authorities are null, so creating an empty Auth array ==  " + user.getUsername() );
-          // auth is null so we are going to pass an empty auths array
-          auths = new GrantedAuthority[ 0 ];
+          // auth is null so we are going to pass an empty auths collection
+          auths = new ArrayList<GrantedAuthority>();
         }
         String password = user.getPassword() != null ? user.getPassword() : "";
         newUser =

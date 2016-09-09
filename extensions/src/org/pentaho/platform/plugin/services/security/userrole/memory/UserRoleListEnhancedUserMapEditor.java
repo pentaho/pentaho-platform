@@ -33,10 +33,10 @@
 package org.pentaho.platform.plugin.services.security.userrole.memory;
 
 import org.springframework.beans.propertyeditors.PropertiesEditor;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.memory.UserAttribute;
-import org.springframework.security.userdetails.memory.UserAttributeEditor;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.memory.UserAttribute;
+import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
 
 import java.beans.PropertyEditorSupport;
 import java.util.Properties;

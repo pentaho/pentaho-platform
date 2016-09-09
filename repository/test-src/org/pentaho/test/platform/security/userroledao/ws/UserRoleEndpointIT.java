@@ -73,6 +73,9 @@ public class UserRoleEndpointIT extends UserRoleWebServiceTest {
     Service service =
         Service.create( new URL( "http://localhost:9891/test?wsdl" ), new QName( "http://www.pentaho.org/ws/1.0",
             "userRoleService" ) );
+
+    mockUserAsAdmin( true /* run this test using a mocked admin user */ );
+
     userRoleWebService = service.getPort( IUserRoleWebService.class );
   }
 

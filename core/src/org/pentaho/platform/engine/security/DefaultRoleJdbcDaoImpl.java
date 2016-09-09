@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
@@ -21,11 +21,11 @@ package org.pentaho.platform.engine.security;
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
       currentAuthorities.addAll( authorities );
 
       for ( GrantedAuthority role : currentAuthorities ) {
-        GrantedAuthority mappedRole = new GrantedAuthorityImpl( roleMapper.toPentahoRole( role.getAuthority() ) );
+        GrantedAuthority mappedRole = new SimpleGrantedAuthority( roleMapper.toPentahoRole( role.getAuthority() ) );
         if ( !authorities.contains( mappedRole ) ) {
           authorities.add( mappedRole );
         }
@@ -98,7 +98,7 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
    */
   public void setDefaultRole( String defaultRole ) {
     Assert.notNull( defaultRole );
-    this.defaultRole = new GrantedAuthorityImpl( defaultRole );
+    this.defaultRole = new SimpleGrantedAuthority( defaultRole );
   }
 
   public void setRoleMapper( IAuthenticationRoleMapper roleMapper ) {

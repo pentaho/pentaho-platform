@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.repository2.unified;
@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
@@ -66,9 +67,9 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Mock implementation of the {@link IUnifiedRepository} for unit testing.
@@ -181,7 +182,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
                                      final boolean showHidden ) {
     FileRecord r = root.getFileRecord( path );
     RepositoryFile rootFile = r.getFile();
-    if ( (!showHidden && rootFile.isHidden()) || rootFile.isAclNode() ) {
+    if ( ( !showHidden && rootFile.isHidden() ) || rootFile.isAclNode() ) {
       return null;
     }
     List<RepositoryFileTree> children;
@@ -743,7 +744,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public void
-  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+    restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     FrozenFileRecord restored =
         versionManager.restoreVersion( fileId, versionId, currentUserProvider.getUser(), versionMessage, new Date() );
     FileRecord fileRecord = idManager.getFileById( fileId );
@@ -1335,7 +1336,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
     @Override
     public List<String> getRoles() {
-      GrantedAuthority[] auths = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+      Collection<? extends GrantedAuthority> auths = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
       List<String> roles = new ArrayList<String>();
       for ( GrantedAuthority auth : auths ) {
         roles.add( auth.getAuthority() );

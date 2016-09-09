@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
@@ -57,9 +57,6 @@ public class PentahoBeanScopeValidatorPostProcessorTest extends BaseTest {
       appCtx.addBeanFactoryPostProcessor( new PentahoBeanScopeValidatorPostProcessorTester() ); // add our postProcessor
     }
 
-    // calling appCtx.refresh() is what triggers the beanFactory init, namely the call to the registered postProcessors
-    // @see https://github.com/spring-projects/spring-framework/blob/v3.2.14.RELEASE/spring-context/src/main/java/org/springframework/context/support/AbstractApplicationContext.java#L445-L498
-    appCtx.refresh();
     return appCtx;
   }
 

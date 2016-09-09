@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
@@ -22,11 +22,12 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -225,9 +226,9 @@ public class SecurityParameterProvider implements IParameterProvider {
   protected Object getPrincipalRoles() {
     Authentication auth = getAuthentication();
     if ( auth != null ) {
-      GrantedAuthority[] auths = auth.getAuthorities();
+      Collection<? extends GrantedAuthority> auths = auth.getAuthorities();
       if ( auths != null ) {
-        List rtn = new ArrayList( auths.length );
+        List rtn = new ArrayList( auths.size() );
         for ( GrantedAuthority element : auths ) {
           rtn.add( element.getAuthority() );
         }

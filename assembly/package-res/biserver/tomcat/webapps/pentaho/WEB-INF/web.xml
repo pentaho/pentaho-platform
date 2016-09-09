@@ -61,9 +61,9 @@
 
   <filter>
     <filter-name>Spring Security Filter Chain Proxy</filter-name>
-    <filter-class>org.springframework.security.util.FilterToBeanProxy</filter-class>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     <init-param>
-      <param-name>targetBean</param-name>
+      <param-name>targetBeanName</param-name>
       <param-value>filterChainProxy</param-value>
     </init-param>
   </filter>
@@ -180,7 +180,7 @@
   <!-- END OF ORDER DEPENDENCE -->
 
   <listener>
-    <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
+    <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
   </listener>
 
   <listener>

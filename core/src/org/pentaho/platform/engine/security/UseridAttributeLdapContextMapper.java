@@ -13,16 +13,18 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
 
 import org.pentaho.platform.engine.security.messages.Messages;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
+
+import java.util.Collection;
 
 /**
  * The purpose of this class is to provide a means of normalizing user ids in case-insensitive LDAP environments.
@@ -61,7 +63,7 @@ public class UseridAttributeLdapContextMapper extends LdapUserDetailsMapper {
   private String ldapUsernameAttribute = "samAccountName";
 
   @Override
-  public UserDetails mapUserFromContext( DirContextOperations ctx, String username, GrantedAuthority[] authorities ) {
+  public UserDetails mapUserFromContext( DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities ) {
 
     String usernameAttributeValue = ctx.getStringAttribute( getLdapUsernameAttribute() );
     if ( usernameAttributeValue == null ) {

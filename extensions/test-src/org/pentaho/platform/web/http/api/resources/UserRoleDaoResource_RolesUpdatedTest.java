@@ -29,8 +29,8 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 import org.pentaho.test.mock.MockPentahoUser;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,7 +80,7 @@ public class UserRoleDaoResource_RolesUpdatedTest {
 
     GrantedAuthority[] authoritys = new GrantedAuthority[ allRoles.size() ];
     for ( int i = 0; i < allRoles.size(); i++ ) {
-      authoritys[ i ] = new GrantedAuthorityImpl( allRoles.get( i ) );
+      authoritys[ i ] = new SimpleGrantedAuthority( allRoles.get( i ) );
     }
 
     GrantedAuthority[] seessionAuthoritys = (GrantedAuthority[]) session.getAttribute( IPentahoSession.SESSION_ROLES );

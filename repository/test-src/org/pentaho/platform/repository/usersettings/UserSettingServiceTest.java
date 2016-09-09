@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2014 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.repository.usersettings;
@@ -79,15 +79,13 @@ public class UserSettingServiceTest {
     when( session.getName() ).thenReturn( "test" );
     PentahoSessionHolder.setSession( session );
 
-    userSettings = new HashMap<String, Serializable>()
-    { {
+    userSettings = new HashMap<String, Serializable>() { {
         put( USER_SETTING_NAME_1, USER_SETTING_VALUE_1 );
         put( UserSettingService.SETTING_PREFIX + COMMON_SETTING_NAME, COMMON_USER_SETTING_VALUE );
         put( USER_SETTING_NAME_2, USER_SETTING_VALUE_2 );
         put( UserSettingService.SETTING_PREFIX + USER_SETTING_NAME_3, USER_SETTING_VALUE_3 );
       } };
-    globalSettings = new HashMap<String, Serializable>()
-    { {
+    globalSettings = new HashMap<String, Serializable>() { {
         put( GLOBAL_SETTING_NAME_1, GLOBAL_SETTING_VALUE_1 );
         put( UserSettingService.SETTING_PREFIX + COMMON_SETTING_NAME, COMMON_GLOBAL_SETTING_VALUE );
         put( GLOBAL_SETTING_NAME_2, GLOBAL_SETTING_VALUE_2 );
@@ -118,7 +116,7 @@ public class UserSettingServiceTest {
     } );
     SecurityHelper.setMockInstance( securityHelper );
 
-    userSettingService = new UserSettingService( repository );
+    userSettingService = new UserSettingServiceForTesting( repository );
     userSettingService.init( session );
   }
 
@@ -154,22 +152,27 @@ public class UserSettingServiceTest {
 
   @Test
   public void testGetUserSettingsByName() throws Exception {
-    final List<IUserSetting> settings = userSettingService.getUserSettings( "test" );
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    try {
 
-    assertNotNull( settings );
-    assertEquals( 2, settings.size() );
-    for ( IUserSetting setting : settings ) {
-      if ( COMMON_SETTING_NAME.equals( setting.getSettingName() ) ) {
-        assertEquals( COMMON_USER_SETTING_VALUE, setting.getSettingValue() );
-      } else if ( USER_SETTING_NAME_3.equals( setting.getSettingName() ) ) {
-        assertEquals( USER_SETTING_VALUE_3, setting.getSettingValue() );
-      } else if ( GLOBAL_SETTING_NAME_3.equals( setting.getSettingName() ) ) {
-        assertEquals( GLOBAL_SETTING_VALUE_3, setting.getSettingValue() );
+      ( (UserSettingServiceForTesting) userSettingService ).setCanAdministerOverrideValue( true ); // autoboxing
+
+      final List<IUserSetting> settings = userSettingService.getUserSettings( "test" );
+
+      assertNotNull( settings );
+      assertEquals( 2, settings.size() );
+      for ( IUserSetting setting : settings ) {
+        if ( COMMON_SETTING_NAME.equals( setting.getSettingName() ) ) {
+          assertEquals( COMMON_USER_SETTING_VALUE, setting.getSettingValue() );
+        } else if ( USER_SETTING_NAME_3.equals( setting.getSettingName() ) ) {
+          assertEquals( USER_SETTING_VALUE_3, setting.getSettingValue() );
+        } else if ( GLOBAL_SETTING_NAME_3.equals( setting.getSettingName() ) ) {
+          assertEquals( GLOBAL_SETTING_VALUE_3, setting.getSettingValue() );
+        }
       }
+
+    } finally {
+      ( (UserSettingServiceForTesting) userSettingService ).setCanAdministerOverrideValue( null );
     }
   }
 
@@ -181,7 +184,7 @@ public class UserSettingServiceTest {
     IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
     when( policy.isAllowed( anyString() ) ).thenReturn( true );
     PentahoSystem.registerObject( policy );
-    
+
     //try to get existing setting
     final IUserSetting userSetting = userSettingService.getUserSetting( "test", settingName, defaultValue );
     assertEquals( settingName, userSetting.getSettingName() );
@@ -363,7 +366,7 @@ public class UserSettingServiceTest {
     final String settingName = "settingName";
     final String settingValue = "settingValue";
 
-    when( securityHelper.isPentahoAdministrator( eq( session ) ) ).thenReturn( false );
+    when( userSettingService.canAdminister() ).thenReturn( false );
 
     assertEquals( 4, globalSettings.size() );
     userSettingService.setGlobalUserSetting( settingName, settingValue );
@@ -375,12 +378,34 @@ public class UserSettingServiceTest {
     final String settingName = "settingName";
     final String settingValue = "settingValue";
 
-    when( securityHelper.isPentahoAdministrator( eq( session ) ) ).thenReturn( true );
+    when( userSettingService.canAdminister() ).thenReturn( true );
 
     assertEquals( 4, globalSettings.size() );
     userSettingService.setGlobalUserSetting( settingName, settingValue );
     assertEquals( 5, globalSettings.size() );
 
     verify( repository ).setFileMetadata( eq( TENANT_FOLDER_ID ), anyMap() );
+  }
+
+  private class UserSettingServiceForTesting extends UserSettingService {
+
+    private Boolean canAdministerOverrideValue = null;
+
+    public UserSettingServiceForTesting( IUnifiedRepository repository ) {
+      super( repository );
+    }
+
+    public void setCanAdministerOverrideValue( Boolean canAdministerOverrideValue ) {
+      this.canAdministerOverrideValue = canAdministerOverrideValue;
+    }
+
+    @Override
+    public boolean canAdminister() {
+      if ( canAdministerOverrideValue != null ) {
+        return canAdministerOverrideValue; // autoboxing
+      } else {
+        return super.canAdminister();
+      }
+    }
   }
 }

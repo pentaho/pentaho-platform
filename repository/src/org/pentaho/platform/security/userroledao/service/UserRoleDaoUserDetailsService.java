@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.security.userroledao.service;
@@ -29,12 +29,12 @@ import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.security.userroledao.messages.Messages;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
     GrantedAuthority[] auths = new GrantedAuthority[authsSize];
     int i = 0;
     for ( IPentahoRole role : userRoles ) {
-      auths[i++] = new GrantedAuthorityImpl( role.getName() );
+      auths[i++] = new SimpleGrantedAuthority( role.getName() );
     }
 
     List<GrantedAuthority> dbAuths = new ArrayList<GrantedAuthority>( Arrays.asList( auths ) );
@@ -112,7 +112,7 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
     }
 
     if ( !StringUtils.isEmpty( defaultRoleString ) ) {
-      defaultRole = new GrantedAuthorityImpl( defaultRoleString );
+      defaultRole = new SimpleGrantedAuthority( defaultRoleString );
     }
 
     if ( defaultRole != null && !dbAuths.contains( defaultRole ) ) {
@@ -124,10 +124,8 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
           "UserRoleDaoUserDetailsService.ERROR_0002_NO_AUTHORITIES" ) ); //$NON-NLS-1$
     }
 
-    GrantedAuthority[] arrayAuths = dbAuths.toArray( new GrantedAuthority[dbAuths.size()] );
-
     return new User( user.getUsername(), user.getPassword(), user.isEnabled(), ACCOUNT_NON_EXPIRED, CREDS_NON_EXPIRED,
-        ACCOUNT_NON_LOCKED, arrayAuths );
+        ACCOUNT_NON_LOCKED, dbAuths );
   }
 
   /**
@@ -192,6 +190,6 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
   public void setDefaultRole( String defaultRole ) {
     Assert.notNull( defaultRole );
     this.defaultRoleString = defaultRole;
-    this.defaultRole = new GrantedAuthorityImpl( defaultRole );
+    this.defaultRole = new SimpleGrantedAuthority( defaultRole );
   }
 }

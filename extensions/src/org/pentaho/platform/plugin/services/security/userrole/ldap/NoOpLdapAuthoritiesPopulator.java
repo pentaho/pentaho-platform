@@ -12,14 +12,17 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.ldap.LdapAuthoritiesPopulator;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * For use when authorities are stored in the user object (e.g. <code>objectClass=Person</code>) and therefore retrieved
@@ -35,8 +38,8 @@ import org.springframework.security.ldap.LdapAuthoritiesPopulator;
  */
 public class NoOpLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 
-  public GrantedAuthority[] getGrantedAuthorities( DirContextOperations userDetails, String username ) {
-    return new GrantedAuthority[0];
+  public Collection<? extends GrantedAuthority> getGrantedAuthorities( DirContextOperations userDetails, String username ) {
+    return new ArrayList<GrantedAuthority>();
   }
 
 }

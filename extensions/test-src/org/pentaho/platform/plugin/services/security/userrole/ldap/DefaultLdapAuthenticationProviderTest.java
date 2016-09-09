@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -28,16 +28,17 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.ldap.LdapAuthoritiesPopulator;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.ldap.LdapAuthenticator;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.ldap.authentication.LdapAuthenticator;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
-import javax.naming.AuthenticationException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -84,9 +85,7 @@ public class DefaultLdapAuthenticationProviderTest {
 
     DirContextOperations dirContextOps = mock( DirContextOperations.class );
     when( authenticator.authenticate( usernamePasswordAuthenticationToken ) ).thenReturn( dirContextOps );
-    GrantedAuthority[] grantedAuthorities = new GrantedAuthority[1];
-    GrantedAuthority gauth = new GrantedAuthorityImpl( "admin" );
-    grantedAuthorities[0] = gauth;
+    Collection grantedAuthorities = Arrays.asList( new GrantedAuthority[]{ new SimpleGrantedAuthority( "admin" ) } );
 
     when( authoritiesPopulator.getGrantedAuthorities( dirContextOps, "admin" ) ).thenReturn( grantedAuthorities );
 
@@ -94,7 +93,7 @@ public class DefaultLdapAuthenticationProviderTest {
     ldapAuthProvider.setUserDetailsContextMapper( contextMapper );
     UserDetails userDetails = mock( UserDetails.class );
     when( userDetails.getAuthorities() ).thenReturn( grantedAuthorities );
-    when( contextMapper.mapUserFromContext( any( DirContextOperations.class), anyString(), any( grantedAuthorities.getClass() ) ) ).thenReturn( userDetails );
+    when( contextMapper.mapUserFromContext( any( DirContextOperations.class ), anyString(), any( grantedAuthorities.getClass() ) ) ).thenReturn( userDetails );
     when( roleMapper.toPentahoRole( anyString() ) ).thenReturn( "admin" );
 
     Authentication result = ldapAuthProvider.authenticate( usernamePasswordAuthenticationToken );
