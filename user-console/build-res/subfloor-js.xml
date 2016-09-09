@@ -194,7 +194,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <if>
       <isset property="isWindows"/>
       <then>
-        <available file="node.exe" filepath="${env.PATH}" property="node-is-available"/>
+        <available file="node.exe" filepath="${env.Path}" property="node-is-available"/>
       </then>
       <else>
         <available file="node" filepath="${env.PATH}" property="node-is-available"/>
@@ -402,6 +402,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- Check to see if karma is on the PATH -->
   <available file="karma.cmd" filepath="${env.PATH}" property="karma-for-windows-is-available"/>
+
+  <target name="jacoco" depends="test-js,subfloor.jacoco"/>
 
   <target name="test-js" depends="install-antcontrib, npm-install, extract-source-and-build-require-js-profile">
     <if>
