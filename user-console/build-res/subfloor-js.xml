@@ -405,6 +405,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <target name="jacoco" depends="test-js,subfloor.jacoco"/>
 
+  <target name="jacoco-integration" depends="test-js,subfloor.jacoco-integration"/>
+
   <target name="test-js" depends="install-antcontrib, npm-install, extract-source-and-build-require-js-profile">
     <if>
       <available file="${js.karma.ci.config}"/>
