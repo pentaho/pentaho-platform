@@ -23,9 +23,14 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
+import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
+import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
@@ -65,8 +70,12 @@ public class LdapExportStrategyTest {
 
   @Test
   public void exportUsersAndRoles() throws Exception {
+
     IUserRoleListService mockService = mock( IUserRoleListService.class );
     PentahoSystem.registerObject( mockService );
+
+    IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
+    PentahoSystem.registerObject( userSettingService );
 
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
     PentahoSystem.registerObject( roleBindingDao );
@@ -75,9 +84,14 @@ public class LdapExportStrategyTest {
     when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( tenantPath );
 
     String role = "testRole";
-    List<String> roleList = new ArrayList<>();
+    List<String> roleList = new ArrayList<String>();
     roleList.add( role );
     when( mockService.getAllRoles() ).thenReturn( roleList );
+
+    String user = "testUser";
+    List<String> userList = new ArrayList<String>();
+    userList.add( user );
+    when( mockService.getAllUsers( any( ITenant.class ) ) ).thenReturn( userList );
 
     Map<String, List<String>> map = new HashMap<String, List<String>>();
     List<String> permissions = new ArrayList<String>();
@@ -88,12 +102,25 @@ public class LdapExportStrategyTest {
     when( roleBindingDao.getRoleBindingStruct( anyString() ) ).thenReturn( struct );
 
     ArgumentCaptor<RoleExport> roleCaptor = ArgumentCaptor.forClass( RoleExport.class );
+    ArgumentCaptor<UserExport> userCaptor = ArgumentCaptor.forClass( UserExport.class );
     ExportManifest manifest = mock( ExportManifest.class );
+
+    List<IUserSetting> settings = new ArrayList<>();
+    IUserSetting setting = mock( IUserSetting.class );
+    settings.add( setting );
+    when( userSettingService.getUserSettings( user ) ).thenReturn( settings );
+    when( userSettingService.getGlobalUserSettings() ).thenReturn( settings );
 
     ldapExportStrategy.exportUsersAndRoles( manifest );
 
+    verify( manifest ).addUserExport( userCaptor.capture() );
     verify( manifest ).addRoleExport( roleCaptor.capture() );
+    verify( userSettingService ).getGlobalUserSettings();
+    verify( manifest ).addGlobalUserSetting( any( ExportManifestUserSetting.class ) );
+    assertEquals( settings.size(), userCaptor.getValue().getUserSettings().size() );
 
+    UserExport userExport = userCaptor.getValue();
+    assertEquals( "testUser", userExport.getUsername() );
     RoleExport roleExport = roleCaptor.getValue();
     assertEquals( "testRole", roleExport.getRolename() );
   }

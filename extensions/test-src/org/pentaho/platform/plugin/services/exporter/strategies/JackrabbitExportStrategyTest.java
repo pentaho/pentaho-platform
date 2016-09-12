@@ -76,8 +76,9 @@ public class JackrabbitExportStrategyTest {
   public void testExportUsersAndRoles() throws Exception {
 
     IUserRoleDao mockDao = mock( IUserRoleDao.class );
-    IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
     PentahoSystem.registerObject( mockDao );
+
+    IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
     PentahoSystem.registerObject( userSettingService );
 
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
@@ -88,11 +89,11 @@ public class JackrabbitExportStrategyTest {
 
     List<IPentahoUser> userList = new ArrayList<IPentahoUser>();
     IPentahoUser user = new PentahoUser( "testUser" );
-    IPentahoRole role = new PentahoRole( "testRole" );
     userList.add( user );
     when( mockDao.getUsers( any( ITenant.class ) ) ).thenReturn( userList );
 
     List<IPentahoRole> roleList = new ArrayList<IPentahoRole>();
+    IPentahoRole role = new PentahoRole( "testRole" );
     roleList.add( role );
     when( mockDao.getRoles() ).thenReturn( roleList );
 
@@ -113,6 +114,7 @@ public class JackrabbitExportStrategyTest {
     settings.add( setting );
     when( userSettingService.getUserSettings( user.getUsername() ) ).thenReturn( settings );
     when( userSettingService.getGlobalUserSettings() ).thenReturn( settings );
+
     jackrabbitExportStrategy.exportUsersAndRoles( manifest );
 
     verify( manifest ).addUserExport( userCaptor.capture() );
