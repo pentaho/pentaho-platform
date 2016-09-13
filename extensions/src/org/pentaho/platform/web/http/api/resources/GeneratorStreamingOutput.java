@@ -194,7 +194,9 @@ public class GeneratorStreamingOutput {
             return;
           } else {
             mimeTrace( "Content generator is setting response mime type to [{0}]", mimeType ); //$NON-NLS-1$
-            callback.setMimeType( mimeType );
+            if ( callback != null ) {
+              callback.setMimeType( mimeType );
+            }
             GeneratorStreamingOutput.this.setMimeType( mimeType );
           }
         } catch ( Throwable th ) {
