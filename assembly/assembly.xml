@@ -308,12 +308,12 @@
          usetimestamp="true" />
 
     <!-- get the linux amd64 version -->
-    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-amd64/0.10.0_rc2-static/wkhtmltoimage-0.10.0_rc2-static-amd64.tar.bz2"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-amd64/0.10.0_rc2-static/wkhtmltoimage-amd64-0.10.0_rc2-static.tar.bz2"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_linux_amd64.tar.bz2"
          usetimestamp="true" />
 
     <!-- get the linux i386 version -->
-    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-i386/0.10.0_rc2-static/wkhtmltoimage-0.10.0_rc2-static-i386.tar.bz2"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-i386/0.10.0_rc2-static/wkhtmltoimage-i386-0.10.0_rc2-static.tar.bz2"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_linux_i386.tar.bz2"
          usetimestamp="true" />
 
