@@ -72,7 +72,8 @@
   <property name="kettle-plugins.dir" value="${stage.dir.solutions}/system/kettle/plugins" />
 
   <property name="server.assembly.filename" value="server-assembly.properties" />
-
+  <property name="pentaho.resolve.repo" value="http://nexus.pentaho.org/content/groups/omni" />
+  
   <path id="maven-ant-tasks.classpath" path="${bin.dir}/maven-ant-tasks.jar" />
 
   <!-- =================================
