@@ -71,8 +71,8 @@
   <property name="kettle-plugins.stage.dir" value="kettle-plugins" />
   <property name="kettle-plugins.dir" value="${stage.dir.solutions}/system/kettle/plugins" />
 
-	<property name="server.assembly.filename" value="server-assembly.properties" />
-
+  <property name="server.assembly.filename" value="server-assembly.properties" />
+  <property name="pentaho.resolve.repo" value="http://nexus.pentaho.org/content/groups/omni" />
 
   <path id="maven-ant-tasks.classpath" path="${bin.dir}/maven-ant-tasks.jar" />
 
@@ -222,7 +222,7 @@
           unless="tomcat.available"
           description="Fetches tomcat from apache">
     <mkdir dir="${subfloor.tmp.dir}" />
-    <get src="http://nexus.pentaho.org/content/groups/omni/org/apache/tomcat/tomcat-windows-x64/${tomcat.version}/tomcat-windows-x64-${tomcat.version}.zip"
+    <get src="${pentaho.resolve.repo}/org/apache/tomcat/tomcat-windows-x64/${tomcat.version}/tomcat-windows-x64-${tomcat.version}.zip"
          dest="${subfloor.tmp.dir}/apache-tomcat-${tomcat.version}-windows-x64.zip"
          usetimestamp="true" />
 	<unzip src="${subfloor.tmp.dir}/apache-tomcat-${tomcat.version}-windows-x64.zip" dest="${tomcat.dir}/.."/>
@@ -303,22 +303,22 @@
     <mkdir dir="${wkhtmltoimage.dir}" />
 
     <!-- get the mac version -->
-    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltoimage-OSX-0.10.0_rc2-static.tar.bz2"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-OSX/0.10.0_rc2-static/wkhtmltoimage-OSX-0.10.0_rc2-static.tar.bz2"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_mac.tar.bz2"
          usetimestamp="true" />
 
     <!-- get the linux amd64 version -->
-    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltoimage-0.10.0_rc2-static-amd64.tar.bz2"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-amd64/0.10.0_rc2-static/wkhtmltoimage-amd64-0.10.0_rc2-static.tar.bz2"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_linux_amd64.tar.bz2"
          usetimestamp="true" />
 
     <!-- get the linux i386 version -->
-    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltoimage-0.10.0_rc2-static-i386.tar.bz2"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-i386/0.10.0_rc2-static/wkhtmltoimage-i386-0.10.0_rc2-static.tar.bz2"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_linux_i386.tar.bz2"
          usetimestamp="true" />
 
     <!-- get the windows version -->
-    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltox-0.10.0_rc2-installer.exe"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltox/0.10.0_rc2/wkhtmltox-0.10.0_rc2-installer.exe"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_windows_installer.exe"
          usetimestamp="true" />
 
