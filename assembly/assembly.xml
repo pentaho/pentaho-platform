@@ -224,7 +224,7 @@
           description="Fetches third part tools if it is not already present">
 
     <condition property="wkhtmltoimage.available">
-      <available file="${wkhtmltoimage.dir}" />
+      <available file="${wkhtmltoimage.dir}/wkhtmltoimage_windows_installer.exe" />
     </condition>
     <antcall target="wkhtmltoimage.download" />
 
