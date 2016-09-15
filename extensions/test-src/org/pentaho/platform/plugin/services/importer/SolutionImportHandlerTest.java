@@ -26,11 +26,13 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
@@ -53,6 +55,7 @@ import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
 import mockit.NonStrictExpectations;
 
+@RunWith( JMockit.class )
 public class SolutionImportHandlerTest {
 
   SolutionImportHandler importHandler;
@@ -99,8 +102,10 @@ public class SolutionImportHandlerTest {
       Mockito.any( strings.getClass() ) );
 
     // should not set the password or roles explicitly if the createUser worked
-    Mockito.verify( userRoleDao, Mockito.never() ).setUserRoles( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.any( strings.getClass() ) );
-    Mockito.verify( userRoleDao, Mockito.never() ).setPassword( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString() );
+    Mockito.verify( userRoleDao, Mockito.never() )
+      .setUserRoles( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.any( strings.getClass() ) );
+    Mockito.verify( userRoleDao, Mockito.never() )
+      .setPassword( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString() );
   }
 
   @Test
@@ -149,8 +154,10 @@ public class SolutionImportHandlerTest {
       Mockito.any( strings.getClass() ) );
 
     // should not set the password or roles explicitly if the createUser worked
-    Mockito.verify( userRoleDao, Mockito.never() ).setUserRoles( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.any( strings.getClass() ) );
-    Mockito.verify( userRoleDao, Mockito.never() ).setPassword( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString() );
+    Mockito.verify( userRoleDao, Mockito.never() )
+      .setUserRoles( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.any( strings.getClass() ) );
+    Mockito.verify( userRoleDao, Mockito.never() )
+      .setPassword( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString() );
   }
 
   @Test
@@ -184,7 +191,8 @@ public class SolutionImportHandlerTest {
       Mockito.any( strings.getClass() ) );
 
     // should set the password or roles explicitly if the createUser failed
-    Mockito.verify( userRoleDao ).setUserRoles( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.any( strings.getClass() ) );
+    Mockito.verify( userRoleDao )
+      .setUserRoles( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.any( strings.getClass() ) );
     Mockito.verify( userRoleDao ).setPassword( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString() );
   }
 
@@ -219,8 +227,10 @@ public class SolutionImportHandlerTest {
       Mockito.any( strings.getClass() ) );
 
     // should set the password or roles explicitly if the createUser failed
-    Mockito.verify( userRoleDao, Mockito.never() ).setUserRoles( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.any( strings.getClass() ) );
-    Mockito.verify( userRoleDao, Mockito.never() ).setPassword( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString() );
+    Mockito.verify( userRoleDao, Mockito.never() )
+      .setUserRoles( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.any( strings.getClass() ) );
+    Mockito.verify( userRoleDao, Mockito.never() )
+      .setPassword( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString() );
   }
 
   @Test
@@ -245,9 +255,11 @@ public class SolutionImportHandlerTest {
 
     importHandler.importRoles( roles, roleToUserMap );
 
-    Mockito.verify( userRoleDao ).createRole( Mockito.any( ITenant.class ), Mockito.eq( roleName ), Mockito.anyString(), Mockito.any( userStrings.getClass() ) );
-    Mockito.verify( roleAuthorizationPolicyRoleBindingDao ).setRoleBindings( Mockito.any( ITenant.class ), Mockito.eq( roleName ),
-      Mockito.eq( permissions ) );
+    Mockito.verify( userRoleDao ).createRole( Mockito.any( ITenant.class ), Mockito.eq( roleName ), Mockito.anyString(),
+      Mockito.any( userStrings.getClass() ) );
+    Mockito.verify( roleAuthorizationPolicyRoleBindingDao )
+      .setRoleBindings( Mockito.any( ITenant.class ), Mockito.eq( roleName ),
+        Mockito.eq( permissions ) );
   }
 
   @Test
@@ -270,17 +282,20 @@ public class SolutionImportHandlerTest {
 
     String[] userStrings = adminUsers.toArray( new String[] {} );
 
-    Mockito.when( userRoleDao.createRole( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString(), Mockito.any( userStrings.getClass() ) ) )
+    Mockito.when( userRoleDao.createRole( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString(),
+      Mockito.any( userStrings.getClass() ) ) )
       .thenThrow( new AlreadyExistsException( "already there" ) );
 
     importHandler.setOverwriteFile( true );
     importHandler.importRoles( roles, roleToUserMap );
 
-    Mockito.verify( userRoleDao ).createRole( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString(), Mockito.any( userStrings.getClass() ) );
+    Mockito.verify( userRoleDao ).createRole( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString(),
+      Mockito.any( userStrings.getClass() ) );
 
     // even if the roles exists, make sure we set the permissions on it Mockito.anyway... they might have changed
-    Mockito.verify( roleAuthorizationPolicyRoleBindingDao ).setRoleBindings( Mockito.any( ITenant.class ), Mockito.eq( roleName ), Mockito.eq(
-      permissions ) );
+    Mockito.verify( roleAuthorizationPolicyRoleBindingDao )
+      .setRoleBindings( Mockito.any( ITenant.class ), Mockito.eq( roleName ), Mockito.eq(
+        permissions ) );
 
   }
 
@@ -304,17 +319,20 @@ public class SolutionImportHandlerTest {
 
     String[] userStrings = adminUsers.toArray( new String[] {} );
 
-    Mockito.when( userRoleDao.createRole( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString(), Mockito.any( userStrings.getClass() ) ) )
+    Mockito.when( userRoleDao.createRole( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString(),
+      Mockito.any( userStrings.getClass() ) ) )
       .thenThrow( new AlreadyExistsException( "already there" ) );
 
     importHandler.setOverwriteFile( false );
     importHandler.importRoles( roles, roleToUserMap );
 
-    Mockito.verify( userRoleDao ).createRole( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString(), Mockito.any( userStrings.getClass() ) );
+    Mockito.verify( userRoleDao ).createRole( Mockito.any( ITenant.class ), Mockito.anyString(), Mockito.anyString(),
+      Mockito.any( userStrings.getClass() ) );
 
     // even if the roles exists, make sure we set the permissions on it Mockito.anyway... they might have changed
-    Mockito.verify( roleAuthorizationPolicyRoleBindingDao, Mockito.never() ).setRoleBindings( Mockito.any( ITenant.class ), Mockito.eq( roleName ), Mockito.eq(
-      permissions ) );
+    Mockito.verify( roleAuthorizationPolicyRoleBindingDao, Mockito.never() )
+      .setRoleBindings( Mockito.any( ITenant.class ), Mockito.eq( roleName ), Mockito.eq(
+        permissions ) );
 
   }
 
@@ -392,7 +410,8 @@ public class SolutionImportHandlerTest {
 
     Mockito.verify( userSettingService ).setGlobalUserSetting( "language", "en_US" );
     Mockito.verify( userSettingService ).setGlobalUserSetting( "showHiddenFiles", "false" );
-    Mockito.verify( userSettingService, Mockito.never() ).getGlobalUserSetting( Mockito.anyString(), Mockito.anyString() );
+    Mockito.verify( userSettingService, Mockito.never() )
+      .getGlobalUserSetting( Mockito.anyString(), Mockito.anyString() );
   }
 
   @Test
@@ -410,7 +429,8 @@ public class SolutionImportHandlerTest {
     importHandler.importGlobalUserSettings( settings );
 
     Mockito.verify( userSettingService ).setGlobalUserSetting( "language", "en_US" );
-    Mockito.verify( userSettingService, Mockito.never() ).setGlobalUserSetting( Mockito.eq( "showHiddenFiles" ), Mockito.anyString() );
+    Mockito.verify( userSettingService, Mockito.never() )
+      .setGlobalUserSetting( Mockito.eq( "showHiddenFiles" ), Mockito.anyString() );
     Mockito.verify( userSettingService ).getGlobalUserSetting( "language", null );
     Mockito.verify( userSettingService ).getGlobalUserSetting( "showHiddenFiles", null );
 
@@ -427,13 +447,15 @@ public class SolutionImportHandlerTest {
     Mockito.when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
     Mockito.when( response.getEntity() ).thenReturn( "job id" );
 
-    Mockito.doReturn( response ).when( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
+    Mockito.doReturn( response ).when( spyHandler )
+      .createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
 
     mockSchedulerPause();
 
     spyHandler.importSchedules( schedules );
 
-    Mockito.verify( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
+    Mockito.verify( spyHandler )
+      .createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
     Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
   }
 
@@ -446,6 +468,9 @@ public class SolutionImportHandlerTest {
 
         schedulerResource.start();
         times = 1;
+
+        schedulerResource.getAllJobs();
+        result = null;
       }
     };
   }
@@ -479,14 +504,16 @@ public class SolutionImportHandlerTest {
 
     SolutionImportHandler spyHandler = Mockito.spy( importHandler );
 
-    ScheduleRequestMatcher throwMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
+    ScheduleRequestMatcher throwMatcher =
+      new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
     Mockito.doThrow( new IOException( "error creating schedule" ) ).when( spyHandler ).createSchedulerJob(
       Mockito.any( SchedulerResource.class ), Mockito.argThat( throwMatcher ) );
 
     Response response = Mockito.mock( Response.class );
     Mockito.when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
     Mockito.when( response.getEntity() ).thenReturn( "job id" );
-    ScheduleRequestMatcher goodMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
+    ScheduleRequestMatcher goodMatcher =
+      new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
     Mockito.doReturn( response ).when( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ),
       Mockito.argThat( goodMatcher ) );
 
@@ -510,21 +537,24 @@ public class SolutionImportHandlerTest {
 
     SolutionImportHandler spyHandler = Mockito.spy( importHandler );
 
-    ScheduleRequestMatcher throwMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
+    ScheduleRequestMatcher throwMatcher =
+      new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
     Mockito.doThrow( new IOException( "error creating schedule" ) ).when( spyHandler ).createSchedulerJob(
       Mockito.any( SchedulerResource.class ), Mockito.argThat( throwMatcher ) );
 
     Response response = Mockito.mock( Response.class );
     Mockito.when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
     Mockito.when( response.getEntity() ).thenReturn( "job id" );
-    ScheduleRequestMatcher goodMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
+    ScheduleRequestMatcher goodMatcher =
+      new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
     Mockito.doReturn( response ).when( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ),
       Mockito.argThat( goodMatcher ) );
 
     mockSchedulerPause();
 
     spyHandler.importSchedules( schedules );
-    Mockito.verify( spyHandler, Mockito.times( 2 ) ).createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.any( JobScheduleRequest.class ) );
+    Mockito.verify( spyHandler, Mockito.times( 2 ) )
+      .createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.any( JobScheduleRequest.class ) );
     Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
     System.setProperty( "file.separator", sep );
   }
@@ -532,10 +562,12 @@ public class SolutionImportHandlerTest {
   private class ScheduleRequestMatcher extends ArgumentMatcher<JobScheduleRequest> {
     private String input;
     private String output;
+
     public ScheduleRequestMatcher( String input, String output ) {
       this.input = input;
       this.output = output;
     }
+
     @Override public boolean matches( Object argument ) {
       JobScheduleRequest jsr = (JobScheduleRequest) argument;
       boolean matchedInput = input.equals( FilenameUtils.separatorsToUnix( jsr.getInputFile() ) );

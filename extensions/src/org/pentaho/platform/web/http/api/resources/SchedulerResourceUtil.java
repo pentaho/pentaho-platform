@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -46,18 +46,21 @@ public class SchedulerResourceUtil {
 
   private static final Log logger = LogFactory.getLog( SchedulerResourceUtil.class );
 
-  public static IJobTrigger
-  convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest, IScheduler scheduler )
+  public static final String RESERVEDMAPKEY_LINEAGE_ID = "lineage-id";
+
+  public static IJobTrigger convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest,
+                                                                IScheduler scheduler )
     throws SchedulerException, UnifiedRepositoryException {
 
     // Used to determine if created by a RunInBackgroundCommand
     boolean runInBackground =
-        scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
-            && scheduleRequest.getCronJobTrigger() == null;
+      scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
+        && scheduleRequest.getCronJobTrigger() == null;
 
     // add 10 seconds to the RIB to ensure execution (see PPP-3264)
     IJobTrigger jobTrigger =
-        runInBackground ? new SimpleJobTrigger( new Date( System.currentTimeMillis() + 10000 ), null, 0, 0 ) : scheduleRequest.getSimpleJobTrigger();
+      runInBackground ? new SimpleJobTrigger( new Date( System.currentTimeMillis() + 10000 ), null, 0, 0 )
+        : scheduleRequest.getSimpleJobTrigger();
 
     if ( scheduleRequest.getSimpleJobTrigger() != null ) {
       SimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();
@@ -82,12 +85,12 @@ public class SchedulerResourceUtil {
             for ( int weekOfMonth : proxyTrigger.getWeeksOfMonth() ) {
 
               QualifiedDayOfWeek qualifiedDayOfWeek = new QualifiedDayOfWeek();
-              qualifiedDayOfWeek.setDayOfWeek( DayOfWeek.values()[dayOfWeek] );
+              qualifiedDayOfWeek.setDayOfWeek( DayOfWeek.values()[ dayOfWeek ] );
 
               if ( weekOfMonth == JobScheduleRequest.LAST_WEEK_OF_MONTH ) {
                 qualifiedDayOfWeek.setQualifier( DayOfWeekQualifier.LAST );
               } else {
-                qualifiedDayOfWeek.setQualifier( DayOfWeekQualifier.values()[weekOfMonth] );
+                qualifiedDayOfWeek.setQualifier( DayOfWeekQualifier.values()[ weekOfMonth ] );
               }
               complexJobTrigger.addDayOfWeekRecurrence( qualifiedDayOfWeek );
             }
@@ -206,6 +209,9 @@ public class SchedulerResourceUtil {
         String param = (String) it.next();
 
         if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
+          if ( param.equals( RESERVEDMAPKEY_LINEAGE_ID ) ) {
+            convertedParameterMap.put( RESERVEDMAPKEY_LINEAGE_ID, parameterMap.get( param ).toString() );
+          }
           pdiParameterMap.put( param, parameterMap.get( param ).toString() );
         }
       }
