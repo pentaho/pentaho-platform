@@ -74,8 +74,9 @@
   <property name="core-bundles.dir" value="${stage.dir.solutions}/system/osgi/core_bundles"/>
   <property name="fragment-bundles.dir" value="${stage.dir.solutions}/system/osgi/fragment_bundles"/>
   <property name="bundles.dir" value="${stage.dir.solutions}/system/osgi/bundles"/>
-	<property name="server.assembly.filename" value="server-assembly.properties" />
-	
+  <property name="server.assembly.filename" value="server-assembly.properties" />
+  <property name="pentaho.resolve.repo" value="http://nexus.pentaho.org/content/groups/omni" />
+
   <!-- =================================
           target: clean-all
          ================================= -->
@@ -239,22 +240,22 @@
     <mkdir dir="${wkhtmltoimage.dir}" />
 
     <!-- get the mac version -->
-    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltoimage-OSX-0.10.0_rc2-static.tar.bz2"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-OSX/0.10.0_rc2-static/wkhtmltoimage-OSX-0.10.0_rc2-static.tar.bz2"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_mac.tar.bz2"
          usetimestamp="true" />
 
     <!-- get the linux amd64 version -->
-    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltoimage-0.10.0_rc2-static-amd64.tar.bz2"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-amd64/0.10.0_rc2-static/wkhtmltoimage-amd64-0.10.0_rc2-static.tar.bz2"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_linux_amd64.tar.bz2"
          usetimestamp="true" />
 
     <!-- get the linux i386 version -->
-    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltoimage-0.10.0_rc2-static-i386.tar.bz2"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltoimage-i386/0.10.0_rc2-static/wkhtmltoimage-i386-0.10.0_rc2-static.tar.bz2"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_linux_i386.tar.bz2"
          usetimestamp="true" />
 
     <!-- get the windows version -->
-    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltox-0.10.0_rc2-installer.exe"
+    <get src="${pentaho.resolve.repo}/wkhtmltopdf/wkhtmltox/0.10.0_rc2/wkhtmltox-0.10.0_rc2-installer.exe"
          dest="${wkhtmltoimage.dir}/wkhtmltoimage_windows_installer.exe"
          usetimestamp="true" />
 
