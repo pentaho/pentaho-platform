@@ -389,8 +389,8 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
         if ( listFile.isDirectory() ) {
           zipFolder( listFile, zos, pathPrefixToRemove );
         } else {
-          if ( !pathPrefixToRemove.endsWith( "/" ) ) {
-            pathPrefixToRemove += "/";
+          if ( !pathPrefixToRemove.endsWith( File.separator ) ) {
+            pathPrefixToRemove += File.separator;
           }
           String path = listFile.getPath().replace( pathPrefixToRemove, "" );
           ZipEntry entry = new ZipEntry( path );
