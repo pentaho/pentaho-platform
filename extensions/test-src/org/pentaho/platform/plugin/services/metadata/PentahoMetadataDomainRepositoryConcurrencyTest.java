@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -348,7 +348,7 @@ public class PentahoMetadataDomainRepositoryConcurrencyTest {
             // a transaction with storing domain, in other words, it is possible that domain has been already stored,
             // but the flag is not yet set
             // it is a drawback of testing approach and it is hardly can occur in real application
-            Thread.sleep( 200 );
+            Thread.sleep( 400 );
             if ( !addedFlag.get() ) {
               return String.format( "Expected not to find domain [%s], but got it", domainId );
             }
