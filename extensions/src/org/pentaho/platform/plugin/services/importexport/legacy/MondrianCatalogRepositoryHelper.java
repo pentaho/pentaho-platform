@@ -602,7 +602,8 @@ public class MondrianCatalogRepositoryHelper {
       String pathPart;
 
       try {
-        pathPart = URLEncoder.encode( folders[i], Charset.defaultCharset().name() );
+        final Charset urlCharset = Charset.forName( "UTF-8" );
+        pathPart = URLEncoder.encode( folders[ i ], urlCharset.name() );
       } catch ( UnsupportedEncodingException e ) {
         pathPart = folders[i];
       }
