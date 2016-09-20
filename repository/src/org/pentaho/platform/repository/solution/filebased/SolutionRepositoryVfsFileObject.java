@@ -114,7 +114,8 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     String fileUrl = fileRef;
 
     try {
-      fileUrl = URLDecoder.decode( fileUrl, Charset.defaultCharset().name() );
+      final Charset urlCharset = Charset.forName( "UTF-8" );
+      fileUrl = URLDecoder.decode( fileUrl, urlCharset.name() );
     } catch ( UnsupportedEncodingException e ) {
       fileUrl = fileRef;
     }
