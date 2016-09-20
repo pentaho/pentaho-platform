@@ -112,7 +112,7 @@
 
 		<dependency org="${ivy.artifact.group}" name="pentaho-platform-api"  rev="${project.revision}" changing="true"/>
 		<dependency org="${ivy.artifact.group}" name="pentaho-platform-core" rev="${project.revision}" changing="true"/>
-		<dependency org="org.javassist" name="javassist" rev="3.20.0-GA" conf="default->default" transitive="false"/>
+		<dependency org="javassist" name="javassist" rev="3.12.1.GA" conf="default->default" transitive="false"/>
 
 
 		<!--  testing dependencies -->
