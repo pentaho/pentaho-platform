@@ -1,5 +1,3 @@
-package org.pentaho.platform.plugin.services.exporter;
-
 /*!
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
@@ -17,6 +15,8 @@ package org.pentaho.platform.plugin.services.exporter;
  * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
+package org.pentaho.platform.plugin.services.exporter;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,9 +25,7 @@ import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metastore.api.IMetaStore;
-import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -45,7 +43,6 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
-import org.pentaho.platform.plugin.services.exporter.strategies.JackrabbitExportStrategy;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
@@ -65,7 +62,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -82,6 +78,7 @@ public class PentahoPlatformExporterTest {
   IPentahoSession session;
   IMondrianCatalogService mondrianCatalogService;
   MondrianCatalogRepositoryHelper mondrianCatalogRepositoryHelper;
+
   ExportManifest exportManifest;
 
   @Before
@@ -92,16 +89,6 @@ public class PentahoPlatformExporterTest {
     mondrianCatalogService = mock( IMondrianCatalogService.class );
     mondrianCatalogRepositoryHelper = mock( MondrianCatalogRepositoryHelper.class );
     exportManifest = spy( new ExportManifest() );
-
-    Properties properties = mock( Properties.class );
-    IConfiguration config = mock( IConfiguration.class );
-    ISystemConfig systemConfig = mock( ISystemConfig.class );
-    PentahoSystem.registerObject( systemConfig );
-
-    doReturn( config ).when( systemConfig ).getConfiguration( "security" );
-    doReturn( "1234" ).when( config ).getId();
-    doReturn( properties ).when( config ).getProperties();
-    doReturn( "jackrabbit" ).when( properties ).getProperty( "provider" );
 
     PentahoSessionHolder.setSession( session );
     exporterSpy = spy( new PentahoPlatformExporter( repo ) );
@@ -155,7 +142,6 @@ public class PentahoPlatformExporterTest {
 
   @Test
   public void testExportUsersAndRoles() {
-    exporter.setExportStrategy( new JackrabbitExportStrategy() );
     IUserRoleDao mockDao = mock( IUserRoleDao.class );
     IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
     PentahoSystem.registerObject( mockDao );
