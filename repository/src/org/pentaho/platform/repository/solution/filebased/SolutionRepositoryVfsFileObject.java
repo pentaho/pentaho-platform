@@ -38,7 +38,6 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.NameScope;
 import org.apache.commons.vfs.operations.FileOperations;
-import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -46,7 +45,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
@@ -113,7 +111,8 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     String fileUrl = fileRef;
 
     try {
-      fileUrl = URLDecoder.decode( fileUrl, Charset.defaultCharset().name() );
+      final Charset urlCharset = Charset.forName( "UTF-8" );
+      fileUrl = URLDecoder.decode( fileUrl, urlCharset.name() );
     } catch ( UnsupportedEncodingException e ) {
       fileUrl = fileRef;
     }
@@ -283,7 +282,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
   }
 
   protected synchronized IAclNodeHelper getAclHelper() {
-    if( testAclHelper != null ){
+    if ( testAclHelper != null ) {
       return testAclHelper;
     }
     if ( aclHelper == null ) {
@@ -299,7 +298,7 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
    * @param helper
    */
   @VisibleForTesting
-  public static void setTestAclHelper( IAclNodeHelper helper ){
+  public static void setTestAclHelper( IAclNodeHelper helper ) {
     testAclHelper = helper;
   }
 }
