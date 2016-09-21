@@ -9,9 +9,7 @@ import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
-import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -37,8 +35,11 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
-import org.pentaho.platform.security.userroledao.PentahoRole;
-import org.pentaho.platform.security.userroledao.PentahoUser;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -126,10 +127,12 @@ public class PentahoPlatformExporterTest {
 
   @Test
   public void testExportUsersAndRoles() {
-    IUserRoleDao mockDao = mock( IUserRoleDao.class );
+    IUserRoleListService mockDao = mock( IUserRoleListService.class );
     IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
+    UserDetailsService userDetailsService = mock( UserDetailsService.class );
     PentahoSystem.registerObject( mockDao );
     PentahoSystem.registerObject( userSettingService );
+    PentahoSystem.registerObject( userDetailsService );
 
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
     PentahoSystem.registerObject( roleBindingDao );
@@ -137,15 +140,16 @@ public class PentahoPlatformExporterTest {
     String tenantPath = "path";
     when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( tenantPath );
 
-    List<IPentahoUser> userList = new ArrayList<IPentahoUser>();
-    IPentahoUser user = new PentahoUser( "testUser" );
-    IPentahoRole role = new PentahoRole( "testRole" );
-    userList.add( user );
-    when( mockDao.getUsers( any( ITenant.class ) ) ).thenReturn( userList );
+    List<String> userList = new ArrayList<String>();
+    String user = "testUser";
+    String role = "testRole";
 
-    List<IPentahoRole> roleList = new ArrayList<IPentahoRole>();
+    userList.add( user );
+    when( mockDao.getAllUsers( any( ITenant.class ) ) ).thenReturn( userList );
+
+    List<String> roleList = new ArrayList<String>();
     roleList.add( role );
-    when( mockDao.getRoles() ).thenReturn( roleList );
+    when( mockDao.getAllRoles() ).thenReturn( roleList );
 
     Map<String, List<String>> map = new HashMap<String, List<String>>();
     List<String> permissions = new ArrayList<String>();
@@ -163,8 +167,18 @@ public class PentahoPlatformExporterTest {
     List<IUserSetting> settings = new ArrayList<>();
     IUserSetting setting = mock( IUserSetting.class );
     settings.add( setting );
-    when( userSettingService.getUserSettings( user.getUsername() ) ).thenReturn( settings );
+    when( userSettingService.getUserSettings( user ) ).thenReturn( settings );
     when( userSettingService.getGlobalUserSettings() ).thenReturn( settings );
+
+    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
+
+    for ( String roleName : roleList ) {
+      authList.add( new GrantedAuthorityImpl( roleName ) );
+    }
+    GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[ 0 ] );
+    UserDetails userDetails = new User( "testUser", "testPassword", true, true, true, true, authorities );
+    when( userDetailsService.loadUserByUsername( anyString() ) ).thenReturn( userDetails );
+
     exporter.exportUsersAndRoles();
 
     verify( manifest ).addUserExport( userCaptor.capture() );
