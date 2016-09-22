@@ -59,6 +59,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- override this in build.properties to change the copyright -->
   <property name="pentaho-copyright" value="This program is free software; you can redistribute it and/or modify it under the${line.separator}terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software ${line.separator}Foundation.${line.separator}${line.separator}You should have received a copy of the GNU Lesser General Public License along with this ${line.separator}program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html ${line.separator}or from the Free Software Foundation, Inc., ${line.separator}51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.${line.separator}${line.separator}This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;${line.separator}without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.${line.separator}See the GNU Lesser General Public License for more details.${line.separator}${line.separator}Copyright 2011 Pentaho Corporation.  All rights reserved.${line.separator}"/>
 
+  <property name="pentaho.ant.tasks.version" value="1.2"/>
+  <!-- Pentaho Ant tasks depndends on opencsv -->
+  <property name="opencsv.version" value="2.4"/>
+  <property name="pentaho-ant-tasks.build.cache.dir" value="${subfloor.resources.dir}/pentaho-ant-tasks-${pentaho.ant.tasks.version}" />
+
   <!-- setup the classpath used for gwt-compile -->
   <path id="codegen.classpath">
     <fileset dir="${codegenlib.dir}">
@@ -102,23 +107,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </fileset>
   </path>
 
-  <!-- Setup the classpath used for testing -->
-  <path id="inttest.classpath">
-    <pathelement path="${inttestclasses.dir}" />
-    <pathelement path="${classes.dir}" />
-    <pathelement path="${inttestsrc.dir}" />
-    <pathelement path="${src.dir}" />
-    <fileset dir="${devlib.dir}">
-      <include name="**/*.jar" />
-    </fileset>
-    <fileset dir="${inttestlib.dir}">
-      <include name="**/*.jar" />
-    </fileset>
-    <fileset dir="${lib.dir}">
-      <include name="**/*.jar" />
-    </fileset>
-  </path>
-	
 
   <!--=======================================================================
       init (override)
@@ -236,22 +224,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
     <!--=======================================================================
-      install-pentaho-ant-tasks
-
-      Fetches and installs Pentaho Ant tasks
-    ====================================================================-->
-    <target name="install-pentaho-ant-tasks" depends="install-ivy">
-        <taskdef-with-ivy task-name="validate-gwt-compile" classname="org.pentaho.anttasks.GwtBuildValidator" organisation="pentaho" module="pentaho-ant-tasks" revision="1.2" />
-    </target>
-
-    <!--=======================================================================
       validate-gwt-compile
-
-      Fetches and installs Pentaho Ant tasks
     ====================================================================-->
-    <target name="gwt-compile.validate" depends="install-pentaho-ant-tasks, gwt-compile">
-        <validate-gwt-compile stagePath="${gwt.output.dir}" whitelistFilePath="${basedir}/package-res/plugin.spring.xml" quickScan="true" debug="false" />
+    <target name="gwt-compile.validate" depends="pentaho-ant-tasks.download-check, gwt-compile">
+
+       <taskdef name="validate-gwt-compile" classname="org.pentaho.anttasks.GwtBuildValidator" >
+          <classpath>
+            <fileset dir="${pentaho-ant-tasks.build.cache.dir}">
+              <include name="*.jar"/>
+            </fileset>
+          </classpath>
+       </taskdef>
+
+       <validate-gwt-compile stagePath="${gwt.output.dir}" whitelistFilePath="${basedir}/package-res/plugin.spring.xml" quickScan="true" debug="false" />
     </target>
 
+  <!--=======================================================================
+      pentaho-ant-tasks.download-check
+      ====================================================================-->
+  <target name="pentaho-ant-tasks.download-check">
+    <condition property="pentaho-ant-tasks.available">
+      <and>
+        <available file="${pentaho-ant-tasks.build.cache.dir}"/>
+        <available classname="org.pentaho.anttasks.GwtBuildValidator">
+          <classpath>
+            <fileset dir="${pentaho-ant-tasks.build.cache.dir}">
+              <include name="*.jar"/>
+            </fileset>
+          </classpath>
+        </available>
+        <available classname="au.com.bytecode.opencsv.CSVReader">
+          <classpath>
+            <fileset dir="${pentaho-ant-tasks.build.cache.dir}">
+              <include name="*.jar"/>
+            </fileset>
+          </classpath>
+        </available>
+      </and>
+    </condition>
+    <antcall target="pentaho-ant-tasks.download"/>
+  </target>
 
-</project>
+  <!--=======================================================================
+      pentaho-ant-tasks.download
+      ====================================================================-->
+  <target name="pentaho-ant-tasks.download" unless="pentaho-ant-tasks.available">
+    <mkdir dir="${pentaho-ant-tasks.build.cache.dir}"/>
+    <get src="http://nexus.pentaho.org/content/groups/omni/pentaho/pentaho-ant-tasks/${pentaho.ant.tasks.version}/pentaho-ant-tasks-${pentaho.ant.tasks.version}.jar"
+         dest="${pentaho-ant-tasks.build.cache.dir}"
+         usetimestamp="true"/>
+    <get src="http://nexus.pentaho.org/content/groups/omni/au/com/bytecode/opencsv/${opencsv.version}/opencsv-${opencsv.version}.jar"
+         dest="${pentaho-ant-tasks.build.cache.dir}"
+         usetimestamp="true"/>
+
+  </target>
+
+  </project>
