@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -174,7 +174,7 @@ public class RepositoryImportResource {
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
 
-    if (StringUtils.isBlank( charSet )) {
+    if ( StringUtils.isBlank( charSet ) ) {
       charSet =  DEFAULT_CHAR_SET;
     }
 
@@ -235,6 +235,7 @@ public class RepositoryImportResource {
     } catch ( Exception e ) {
       return Response.serverError().entity( e.toString() ).build();
     } finally {
+      ImportSession.clearSession();
       if ( logJobStarted == true ) {
         importLogger.endJob();
       }
