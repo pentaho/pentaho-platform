@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.system;
@@ -33,24 +33,23 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides system settings data for system configuration files located in the system folder of the repository.
  * System settings for </code>PentahoSystem</code> are hardcoded to exist in <repository>/system/pentaho.xml.
  * Provides a settings cache so that settings are read from the file once, and the associated DOM document is
  * cached in memory for future lookups.
- * 
+ *
  * @author unknown
- * 
+ *
  */
 public class SystemSettings extends PentahoBase implements ISystemSettings {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 3727605230748352557L;
 
@@ -63,7 +62,7 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
 
   private static final Log logger = LogFactory.getLog( SystemSettings.class );
 
-  private final Map settingsDocumentMap = Collections.synchronizedMap( new HashMap() );
+  private final Map settingsDocumentMap = new ConcurrentHashMap();
 
   String logId;
 
@@ -147,7 +146,7 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
   /**
    * Get a <code>File</code> object that references a file in the system folder of the repository. The
    * <code>path</code> parameter is relative to the system folder in the repository.
-   * 
+   *
    * @param path
    *          String containing the path of a file relative to the system folder in the repository
    * @return File referencing the file specified by <code>path</code> relative to repository's system folder.
@@ -168,7 +167,7 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
   /**
    * Create a String containing the complete path to the system folder in the repository, and append the parameter
    * <code>path</code> to it.
-   * 
+   *
    * @param path
    *          String containing the path of a file relative to the system folder in the repository
    * @return String containing the path

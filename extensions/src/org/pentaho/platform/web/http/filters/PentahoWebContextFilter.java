@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.owasp.esapi.ESAPI;
 import org.owasp.esapi.Encoder;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
@@ -48,9 +49,9 @@ import java.util.Map;
 
 /**
  * If the request is searching for a webcontext.js, it writes out the content of the webcontext.js
- * 
+ *
  * @author Ramaiz Mansoor
- * 
+ *
  */
 public class PentahoWebContextFilter implements Filter {
 
@@ -69,12 +70,11 @@ public class PentahoWebContextFilter implements Filter {
   private static final String CSS = ".css"; //$NON-NLS-1$
   private static final String CONTEXT = "context"; //$NON-NLS-1$
   private static final String GLOBAL = "global"; //$NON-NLS-1$
-  private static final byte[] REQUIRE_JS_CFG_START =
-      "var requireCfg = {waitSeconds: 30, paths: {}, shim: {}, map: {\"*\": {}}, bundles: {}, config: {service: {}}, packages: []};\n".getBytes(); //$NON-NLS-1$
   private static final String REQUIRE_JS = "requirejs"; //$NON-NLS-1$
   // Changed to not do so much work for every request
   private static final ThreadLocal<byte[]> THREAD_LOCAL_CONTEXT_PATH = new ThreadLocal<byte[]>();
   private static final ThreadLocal<byte[]> THREAD_LOCAL_REQUIRE_SCRIPT = new ThreadLocal<byte[]>();
+  protected static ICacheManager cache = PentahoSystem.getCacheManager( null );
 
   public void destroy() {
     // TODO Auto-generated method stub
@@ -136,9 +136,8 @@ public class PentahoWebContextFilter implements Filter {
         if ( !StringUtils.isEmpty( request.getParameter( "locale" ) ) ) {
           effectiveLocale = new Locale( request.getParameter( "locale" ) );
         }
-
-        // setup the RequireJS config object for plugins to extend
-        out.write( REQUIRE_JS_CFG_START );
+        // setup a RequireJS config object for plugins to extend
+        printRequireJsCfgStart( out );
 
         // Let all plugins contribute to the RequireJS config
         printResourcesForContext( REQUIRE_JS, out, httpRequest, false );
@@ -261,7 +260,6 @@ public class PentahoWebContextFilter implements Filter {
                 + effectiveLocale.toString() + "'})};" );
     out.write( sb.toString().getBytes() );
   }
-
   private void printResourcesForContext( String contextName, OutputStream out, HttpServletRequest request,
       boolean printCssOnly ) throws IOException {
 
@@ -313,6 +311,33 @@ public class PentahoWebContextFilter implements Filter {
         }
       }
     }
+
+  }
+
+  protected void printRequireJsCfgStart( OutputStream out ) throws IOException {
+
+    Integer waitTime = null;
+
+    if ( cache != null ) {
+
+      waitTime = (Integer) cache.getFromGlobalCache( PentahoSystem.WAIT_SECONDS );
+
+    }
+
+    if ( waitTime == null ) {
+      try {
+        waitTime = Integer.valueOf( PentahoSystem.getSystemSetting( PentahoSystem.WAIT_SECONDS, "30" ) );
+      } catch ( NumberFormatException e ) {
+        waitTime = 30;
+      }
+      if ( cache != null ) {
+        cache.putInGlobalCache( PentahoSystem.WAIT_SECONDS, waitTime );
+      }
+    }
+
+    String requireJsCfgStart = "var requireCfg = {waitSeconds: " + waitTime
+      + ", paths: {}, shim: {}, map: {\"*\": {}}, bundles: {}, config: {\"pentaho/service\": {}}, packages: []};\n";
+    out.write( requireJsCfgStart.getBytes() );
 
   }
 
