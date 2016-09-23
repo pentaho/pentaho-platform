@@ -1,5 +1,5 @@
 /*
- * Copyright 2002 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2002 - 2016 Pentaho Corporation.  All rights reserved.
  *
  * This software was developed by Pentaho Corporation and is provided under the terms
  * of the Mozilla Public License, Version 1.1, or any later version. You may not use
@@ -52,7 +52,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.*;
+import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.ANNOTATIONS_XML;
+import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.ANNOTATOR_KEY;
+import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.SCHEMA_XML;
+
 
 public class MondrianCatalogRepositoryHelper {
 
@@ -602,7 +605,8 @@ public class MondrianCatalogRepositoryHelper {
       String pathPart;
 
       try {
-        pathPart = URLEncoder.encode( folders[i], Charset.defaultCharset().name() );
+        final Charset urlCharset = Charset.forName( "UTF-8" );
+        pathPart = URLEncoder.encode( folders[ i ], urlCharset.name() );
       } catch ( UnsupportedEncodingException e ) {
         pathPart = folders[i];
       }
