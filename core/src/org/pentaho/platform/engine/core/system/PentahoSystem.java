@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.system;
@@ -117,6 +117,8 @@ public class PentahoSystem {
   public static final String SCOPE = "scope"; //$NON-NLS-1$
 
   public static final String PENTAHO_SESSION_KEY = "pentaho-session-context"; //$NON-NLS-1$
+
+  public static final String WAIT_SECONDS = "waitSeconds";
 
   private static Map globalAttributes;
 
@@ -222,7 +224,7 @@ public class PentahoSystem {
       // tests call init more than once without an intervening shutdown().
       try {
         throw new IllegalStateException( "'Init' method was run twice without 'shutdown'" );
-      } catch( IllegalStateException e ) {
+      } catch ( IllegalStateException e ) {
         Logger.error( PentahoSystem.class,
             "PentahoSystem was already initialized when init() called again without a preceding shutdown(). "
                 + "This is likely in error", e );
@@ -707,7 +709,7 @@ public class PentahoSystem {
    * configured object of the Pentaho system. This method will return <code>null</code> if the object could not be
    * retrieved for any reason. If the object is defined but for some reason can not be retrieved, an error message will
    * be logged.
-   * 
+   *
    * @return An instance of the requested object or <code>null</code> if either the object was not configured or it was
    *         configured but there was a problem retrieving it.
    * @see PentahoSystem#getObjectFactory()
@@ -739,7 +741,7 @@ public class PentahoSystem {
 
   /**
    * Returns an IPentahoObjectReference for the requested Object containing registered Object Properties.
-   * 
+   *
    * @param interfaceClass
    *          Interface or Class literal for which implementations of will be found
    * @param curSession
@@ -752,7 +754,7 @@ public class PentahoSystem {
 
   /**
    * Returns an IPentahoObjectReference for the requested Object containing registered Object Properties.
-   * 
+   *
    * @param interfaceClass
    *          Interface or Class literal for which implementations of will be found
    * @param curSession
@@ -1099,6 +1101,10 @@ public class PentahoSystem {
 
   public static void refreshSettings() {
     PentahoSystem.systemSettingsService.resetSettingsCache();
+    ICacheManager cacheManager = getCacheManager( null );
+    if ( cacheManager != null ) {
+      cacheManager.removeFromGlobalCache( WAIT_SECONDS );
+    }
   }
 
   // TODO: shouldn't this be called execute or something like that?
@@ -1246,7 +1252,7 @@ public class PentahoSystem {
 
   /**
    * Gets the factory that will create and manage Pentaho system objects.
-   * 
+   *
    * @return the factory
    */
   public static IPentahoObjectFactory getObjectFactory() {
@@ -1255,7 +1261,7 @@ public class PentahoSystem {
 
   /**
    * Registers the factory that will create and manage Pentaho system objects.
-   * 
+   *
    * @param pentahoObjectFactory
    *          the factory
    */
@@ -1265,7 +1271,7 @@ public class PentahoSystem {
 
   /**
    * De-Register an ObjectFactory
-   * 
+   *
    * @param factory
    * @return true if the factory was registered and successfully removed.
    */
@@ -1275,7 +1281,7 @@ public class PentahoSystem {
 
   /**
    * Registers the primary factory that will create and manage Pentaho system objects.
-   * 
+   *
    * @param pentahoObjectFactory
    *          the factory
    */
@@ -1286,7 +1292,7 @@ public class PentahoSystem {
   /**
    * Registers administrative capabilities that can be invoked later via
    * {@link PentahoSystem#publish(IPentahoSession, String)}
-   * 
+   *
    * @param administrationPlugins
    *          a list of admin functions to register
    */
@@ -1296,7 +1302,7 @@ public class PentahoSystem {
 
   /**
    * Registers custom handlers that are notified of both system startup and system shutdown events.
-   * 
+   *
    * @param systemListeners
    *          the system event handlers
    */
@@ -1308,7 +1314,7 @@ public class PentahoSystem {
    * Registers server actions that will be invoked when a session is created. NOTE: it is completely up to the
    * {@link IPentahoSession} implementation whether to advise the system of it's creation via
    * {@link PentahoSystem#sessionStartup(IPentahoSession)}.
-   * 
+   *
    * @param actions
    *          the server actions to execute on session startup
    */
@@ -1318,7 +1324,7 @@ public class PentahoSystem {
 
   /**
    * Sets the system settings service: the means by which the platform obtains it's overall system settings.
-   * 
+   *
    * @param systemSettingsService
    *          the settings service
    */
@@ -1359,7 +1365,7 @@ public class PentahoSystem {
   /**
    * Make sure all required objects exist in the object factory. If not, throw an exception. If any optional objects are
    * missing, simply log it to the logger.
-   * 
+   *
    * @throws PentahoSystemException
    *           if a required object is missing.
    */
@@ -1394,7 +1400,7 @@ public class PentahoSystem {
   /**
    * This static method shadows the one defined here:
    * {@link org.pentaho.platform.api.engine .IPentahoRegistrableObjectFactory#registerReference(org.pentaho.platform.api.engine.IPentahoObjectReference, org.pentaho.platform.api.engine .IPentahoRegistrableObjectFactory.Types)}
-   * 
+   *
    * @param reference
    * @param types
    * @param <T>
@@ -1407,7 +1413,7 @@ public class PentahoSystem {
   /**
    * This static method shadows the one defined here:
    * {@link org.pentaho.platform.api.engine .IPentahoRegistrableObjectFactory#registerObject(Object)}
-   * 
+   *
    * @param obj
    */
   public static IPentahoObjectRegistration registerObject( Object obj ) {
@@ -1417,7 +1423,7 @@ public class PentahoSystem {
   /**
    * This static method shadows the one defined here:
    * {@link org.pentaho.platform.api.engine .IPentahoRegistrableObjectFactory#registerObject(Object, org.pentaho.platform.api.engine .IPentahoRegistrableObjectFactory.Types)}
-   * 
+   *
    * @param obj
    * @param types
    */
@@ -1427,7 +1433,7 @@ public class PentahoSystem {
 
   /**
    * {@link org.pentaho.platform.api.engine.IPentahoRegistrableObjectFactory#registerReference(org.pentaho.platform.api.engine.IPentahoObjectReference)}
-   * 
+   *
    * @param reference
    * @param <T>
    */
@@ -1438,7 +1444,7 @@ public class PentahoSystem {
   /**
    * This static method shadows the one defined here:
    * {@link org.pentaho.platform.api.engine .IPentahoRegistrableObjectFactory#registerObject(Object, Class[])}
-   * 
+   *
    * @param obj
    * @param classes
    */
@@ -1449,7 +1455,7 @@ public class PentahoSystem {
   /**
    * This static method shadows the one defined here:
    * {@link org.pentaho.platform.api.engine .IPentahoRegistrableObjectFactory#registerReference(org.pentaho.platform.api.engine.IPentahoObjectReference, Class[])}
-   * 
+   *
    * @param reference
    * @param classes
    * @param <T>
