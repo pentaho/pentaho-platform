@@ -1,5 +1,5 @@
 /*
- * Copyright 2002 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2002 - 2016 Pentaho Corporation.  All rights reserved.
  *
  * This software was developed by Pentaho Corporation and is provided under the terms
  * of the Mozilla Public License, Version 1.1, or any later version. You may not use
@@ -30,6 +30,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
+import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
@@ -52,7 +53,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.*;
 
 public class MondrianCatalogRepositoryHelper {
 
@@ -447,7 +447,7 @@ public class MondrianCatalogRepositoryHelper {
       }
       values.put( repoFile.getName(), is );
     }
-    if ( values.containsKey( ANNOTATIONS_XML ) && values.containsKey( SCHEMA_XML ) ) {
+    if ( values.containsKey( MondrianVfs.ANNOTATIONS_XML ) && values.containsKey( MondrianVfs.SCHEMA_XML ) ) {
       return includeAnnotatedSchema( values );
     }
     return values;
@@ -455,13 +455,13 @@ public class MondrianCatalogRepositoryHelper {
 
   private Map<String, InputStream> includeAnnotatedSchema( final Map<String, InputStream> values ) {
     MondrianSchemaAnnotator annotator =
-        PentahoSystem.get( MondrianSchemaAnnotator.class, ANNOTATOR_KEY, PentahoSessionHolder.getSession() );
+        PentahoSystem.get( MondrianSchemaAnnotator.class, MondrianVfs.ANNOTATOR_KEY, PentahoSessionHolder.getSession() );
     try {
       if ( annotator != null ) {
-        byte[] schemaBytes = IOUtils.toByteArray( values.get( SCHEMA_XML ) );
-        byte[] annotationBytes = IOUtils.toByteArray( values.get( ANNOTATIONS_XML ) );
-        values.put( SCHEMA_XML, new ByteArrayInputStream( schemaBytes ) );
-        values.put( ANNOTATIONS_XML, new ByteArrayInputStream( annotationBytes ) );
+        byte[] schemaBytes = IOUtils.toByteArray( values.get( MondrianVfs.SCHEMA_XML ) );
+        byte[] annotationBytes = IOUtils.toByteArray( values.get( MondrianVfs.ANNOTATIONS_XML ) );
+        values.put( MondrianVfs.SCHEMA_XML, new ByteArrayInputStream( schemaBytes ) );
+        values.put( MondrianVfs.ANNOTATIONS_XML, new ByteArrayInputStream( annotationBytes ) );
         values.put( "schema.annotated.xml",
             annotator.getInputStream(
               new ByteArrayInputStream( schemaBytes ), new ByteArrayInputStream( annotationBytes ) ) );
