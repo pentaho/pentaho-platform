@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository;
@@ -90,6 +90,10 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
       // throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
       //      "DatasourceMgmtService.ERROR_0007_UNABLE_TO_ENCRYPT_PASSWORD"), pse ); //$NON-NLS-1$
     } catch ( UnifiedRepositoryException ure ) {
+      if ( ure.getCause().toString().contains( "ItemExistsException" ) ) {
+        throw new DuplicateDatasourceException();
+      }
+
       throw new DatasourceMgmtServiceException(
           Messages
               .getInstance()
@@ -135,7 +139,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
         repository.deleteFile( file.getId(), true, null );
       } else {
         throw new DatasourceMgmtServiceException( Messages.getInstance().getErrorString(
-            "DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", "", "" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$       
+            "DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", "", "" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
     } catch ( UnifiedRepositoryException ure ) {
       throw new DatasourceMgmtServiceException(
