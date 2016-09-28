@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:ExportManifest xmlns:ns2="http://www.pentaho.com/schema/">
+    <ExportManifestInformation exportDate="10-09-2015 05:54:24 GST" exportBy="admin" rootFolder="/home/testuser/" manifestVersion="2"/>
+    <ExportManifestEntity path="exported/content.prpt">
+        <ExportManifestProperty>
+            <EntityMetaData name="content.prpt" createdDate="2015-09-10T17:48:37.858+04:00" isFolder="false" path="exported/content.prpt" locale="en_US" title="fileTitle"/>
+        </ExportManifestProperty>
+    </ExportManifestEntity>
+</ns2:ExportManifest>
