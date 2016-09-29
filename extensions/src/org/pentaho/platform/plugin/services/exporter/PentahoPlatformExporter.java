@@ -25,7 +25,9 @@ import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.stores.xml.XmlMetaStore;
 import org.pentaho.metastore.util.MetaStoreUtil;
-import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
@@ -62,7 +64,6 @@ import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRo
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.userdetails.UserDetailsService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -321,9 +322,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   protected void exportUsersAndRoles() {
     log.debug( "export users & roles" );
 
-    IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
-    UserDetailsService userDetailsService = PentahoSystem.get( UserDetailsService.class );
-
+    IUserRoleDao roleDao = PentahoSystem.get( IUserRoleDao.class );
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(
       IRoleAuthorizationPolicyRoleBindingDao.class );
     ITenant tenant = TenantUtils.getCurrentTenant();
@@ -332,19 +331,19 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     IUserSettingService service = getUserSettingService();
 
     //User Export
-    List<String> userList = userRoleListService.getAllUsers( tenant );
-    for ( String user : userList ) {
+    List<IPentahoUser> userList = roleDao.getUsers( tenant );
+    for ( IPentahoUser user : userList ) {
       UserExport userExport = new UserExport();
-      userExport.setUsername( user );
-      userExport.setPassword( userDetailsService.loadUserByUsername( user ).getPassword() );
+      userExport.setUsername( user.getUsername() );
+      userExport.setPassword( user.getPassword() );
 
-      for ( String role : userRoleListService.getRolesForUser( tenant, user ) ) {
-        userExport.setRole( role );
+      for ( IPentahoRole role : roleDao.getUserRoles( tenant, user.getUsername() ) ) {
+        userExport.setRole( role.getName() );
       }
 
       if ( service != null && service instanceof IAnyUserSettingService ) {
         IAnyUserSettingService userSettings = (IAnyUserSettingService) service;
-        List<IUserSetting> settings = userSettings.getUserSettings( user );
+        List<IUserSetting> settings = userSettings.getUserSettings( user.getUsername() );
         if ( settings != null ) {
           for ( IUserSetting setting : settings ) {
             userExport.addUserSetting( new ExportManifestUserSetting( setting ) );
@@ -366,12 +365,12 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     }
 
     //RoleExport
-    List<String> roles = userRoleListService.getAllRoles();
-    for ( String role : roles ) {
+    List<IPentahoRole> roles = roleDao.getRoles();
+    for ( IPentahoRole role : roles ) {
       RoleExport roleExport = new RoleExport();
-      roleExport.setRolename( role );
-      roleExport.setPermission( roleBindingDao.getRoleBindingStruct( null ).bindingMap.get( role ) );
-      exportManifest.addRoleExport( roleExport );
+      roleExport.setRolename( role.getName() );
+      roleExport.setPermission( roleBindingDao.getRoleBindingStruct( null ).bindingMap.get( role.getName() ) );
+      this.getExportManifest().addRoleExport( roleExport );
     }
   }
 
