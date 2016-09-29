@@ -12,19 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -37,6 +28,13 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.ByteArrayInputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
 /**
  * Class Description
  * 
@@ -48,7 +46,6 @@ public class UnifiedRepositoryToWebServiceAdapterIT extends DefaultUnifiedReposi
   private UnifiedRepositoryToWebServiceAdapter adapter;
   public static final String MAIN_TENANT_1 = "maintenant1";
 
-  @Override
   @Before
   public void setUp() throws Exception {
     super.setUp();
@@ -78,7 +75,7 @@ public class UnifiedRepositoryToWebServiceAdapterIT extends DefaultUnifiedReposi
       assertNotNull( testfile.getId() );
       final Map<String, Serializable> fileMetadata = repo.getFileMetadata( testfile.getId() );
       assertNotNull( fileMetadata );
-      assertEquals( 1, fileMetadata.size() );
+      assertEquals( 0, fileMetadata.size() );
     }
 
     final Map<String, Serializable> metadata = new HashMap<String, Serializable>();

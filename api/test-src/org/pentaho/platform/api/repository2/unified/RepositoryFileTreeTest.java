@@ -12,10 +12,17 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository2.unified;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,13 +34,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Created by bgroves on 10/23/15.
@@ -84,8 +84,7 @@ public class RepositoryFileTreeTest {
 
   @Test
   public void testBuilder() {
-    RepositoryFile nullFile =
-        new RepositoryFile( null, null, false, false, true,
+    RepositoryFile nullFile = new RepositoryFile( null, null, false, false,
       false, null, null, null, null, false, null, null, null, null, null, null, null, null, new Long( 1 ), null, null );
     RepositoryFileTree.Builder nullBuilder = new RepositoryFileTree.Builder( nullFile );
     RepositoryFileTree anotherFileTree = nullBuilder.build();
