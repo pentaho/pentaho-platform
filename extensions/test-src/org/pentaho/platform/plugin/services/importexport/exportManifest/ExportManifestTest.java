@@ -13,20 +13,12 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
-import java.io.ByteArrayInputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.xml.bind.JAXBException;
-
+import junit.framework.TestCase;
 import org.junit.Test;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
@@ -43,7 +35,13 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 
-import junit.framework.TestCase;
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
 
 public class ExportManifestTest extends TestCase {
   ExportManifest exportManifest;
@@ -233,8 +231,7 @@ public class ExportManifestTest extends TestCase {
     Date deletedDate = new Date();
     String baseName = path.substring( path.lastIndexOf( "/" ) + 1 );
     RepositoryFile mockRepositoryFile =
-        new RepositoryFile( "12345", baseName, isFolder, false, false, false, "versionId", path, createdDate,
-            lastModeDate,
+        new RepositoryFile( "12345", baseName, isFolder, false, false, "versionId", path, createdDate, lastModeDate,
             false, "lockOwner", "lockMessage", lockDate, "en_US", "title", "description",
             "/original/parent/folder/path", deletedDate, 4096, "creatorId", null );
     return mockRepositoryFile;

@@ -13,26 +13,10 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
 
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -46,6 +30,21 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * The Primary Object which represents the ExportManifest XML file by the same name stored in the Repository Export zip
@@ -101,10 +100,8 @@ public class ExportManifest {
     this.add( exportManifestEntity );
   }
 
-  public void add( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden,
-      Boolean isSchedulable ) throws ExportManifestFormatException {
-    ExportManifestEntity exportManifestEntity =
-        new ExportManifestEntity( file, userId, projectId, isFolder, isHidden, isSchedulable );
+  public void add( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) throws ExportManifestFormatException {
+    ExportManifestEntity exportManifestEntity = new ExportManifestEntity( file, userId, projectId, isFolder, isHidden );
     this.add( exportManifestEntity );
   }
 

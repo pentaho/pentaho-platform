@@ -157,8 +157,7 @@ public class FileService {
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileUpload );
       bundleBuilder.charSet( "UTF-8" );
-      bundleBuilder.hidden( RepositoryFile.HIDDEN_BY_DEFAULT );
-      bundleBuilder.schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
+      bundleBuilder.hidden( true );
       bundleBuilder.path( importDirectory );
       bundleBuilder.overwriteFile( overwriteFileFlag );
       bundleBuilder.name( "SystemBackup.zip" );
@@ -188,7 +187,6 @@ public class FileService {
     final FileInputStream inputStream = new FileInputStream( zipFile );
 
     return new StreamingOutput() {
-      @Override
       public void write( OutputStream output ) throws IOException {
         IOUtils.copy( inputStream, output );
       }
@@ -1037,7 +1035,7 @@ public class FileService {
 
       for ( StringKeyStringValueDto nv : metadata ) {
         // don't add hidden to the list because it is not actually part of the metadata node
-        if ( ( nv.getKey().contentEquals( RepositoryFile.HIDDEN_KEY ) ) ) {
+        if ( ( nv.getKey().contentEquals( "_PERM_HIDDEN" ) ) ) {
           isHidden = Boolean.parseBoolean( nv.getValue() );
         } else {
           fileMetadata.put( nv.getKey(), nv.getValue() );
@@ -1540,7 +1538,6 @@ public class FileService {
    * @return            A jax-rs Response object with the appropriate status code, header, and body.
    * @deprecated use {@link #doCreateDirSafe(String)} instead
    */
-  @Deprecated
   public boolean doCreateDir( String pathId ) {
     String path = idToPath( pathId );
     return doCreateDirFor( path );
@@ -1652,7 +1649,6 @@ public class FileService {
 
   public StreamingOutput getStreamingOutput( final InputStream is ) {
     return new StreamingOutput() {
-      @Override
       public void write( OutputStream output ) throws IOException {
         copy( is, output );
       }
@@ -1696,7 +1692,6 @@ public class FileService {
     final FileInputStream is = new FileInputStream( zipFile );
     // copy streaming output
     return new StreamingOutput() {
-      @Override
       public void write( OutputStream output ) throws IOException {
         IOUtils.copy( is, output );
       }
