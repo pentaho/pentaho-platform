@@ -159,7 +159,6 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
           throw new IllegalStateException( "Not Authenticated" );
         }
       } catch ( Exception e ) {
-        e.printStackTrace();
         session.destroy();
         PentahoSessionHolder.removeSession();
         throw new LoginException( e.getMessage() );
