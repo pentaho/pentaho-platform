@@ -253,6 +253,8 @@
     <exclude org="net.sf.ehcache"  module="ehcache" />
     <!-- CM-241 -->
     <exclude org="cglib"  module="cglib" />
+    <exclude org="org.springframework" module="spring"/>
+    <exclude org="com.sun.xml.ws" module="jaxws-rt"/>
 
 	<!-- Excluding test dependencies for the assembly -->
     <exclude org="org.mockito"          module="mockito-all"/>
