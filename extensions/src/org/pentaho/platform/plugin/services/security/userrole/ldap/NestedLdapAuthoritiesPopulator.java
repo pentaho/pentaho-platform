@@ -12,15 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.ldap.core.ContextSource;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.util.Assert;
 
 import java.util.HashSet;
@@ -124,7 +124,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
     Iterator iter = rolesAsStringsSet.iterator();
     while ( iter.hasNext() ) {
       String auth = (String) iter.next();
-      grantedAuthorities.add( new GrantedAuthorityImpl( auth ) );
+      grantedAuthorities.add( new SimpleGrantedAuthority( auth ) );
     }
     return grantedAuthorities;
   }

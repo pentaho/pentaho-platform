@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http;
@@ -25,6 +25,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 
 public class WebTemplateHelper implements IUITemplater {
@@ -93,7 +94,7 @@ public class WebTemplateHelper implements IUITemplater {
     template = template.replaceAll( "\\{header-content\\}", headerContent ); //$NON-NLS-1$ //$NON-NLS-2$
     template = template.replaceAll( "\\{body-tag\\}", "" ); //$NON-NLS-1$ //$NON-NLS-2$
     template =
-        template.replaceAll( "\\{isAdmin\\}", SecurityHelper.getInstance().isPentahoAdministrator( session )
+        template.replaceAll( "\\{isAdmin\\}", SystemUtils.canAdminister()
             ? "true" : "false" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     template = template.replaceAll( "\\{copyright\\}", Messages.getInstance().getString( "UI.USER_COPYRIGHT" ) ); //$NON-NLS-1$ //$NON-NLS-2$
 

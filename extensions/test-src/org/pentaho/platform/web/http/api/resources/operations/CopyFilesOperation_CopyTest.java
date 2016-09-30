@@ -19,7 +19,6 @@
 package org.pentaho.platform.web.http.api.resources.operations;
 
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -32,6 +31,7 @@ import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 

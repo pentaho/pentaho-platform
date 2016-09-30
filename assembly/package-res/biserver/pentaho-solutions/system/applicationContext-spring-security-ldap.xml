@@ -8,33 +8,33 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
        xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
        						http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd
-       						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd" default-lazy-init="true">
+       						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd" default-lazy-init="true">
 
   <bean class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapAuthenticationProvider">
     <constructor-arg>
       <ref bean="authenticator" />
     </constructor-arg>
     <constructor-arg>
-      <ref local="populator" />
+      <ref bean="populator" />
     </constructor-arg>
     <constructor-arg>
-      <ref local="ldapRoleMapper" />
+      <ref bean="ldapRoleMapper" />
     </constructor-arg>
-    <pen:publish as-type="org.springframework.security.providers.AuthenticationProvider">
+    <pen:publish as-type="org.springframework.security.authentication.AuthenticationProvider">
       <pen:attributes>
         <pen:attr key="providerName" value="ldap"/>
       </pen:attributes>
     </pen:publish>
   </bean>
 
-  <bean id="authenticator" class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
+  <bean id="authenticator" class="org.springframework.security.ldap.authentication.BindAuthenticator">
     <constructor-arg>
-      <ref local="contextSource" />
+      <ref bean="contextSource" />
     </constructor-arg>
     <property name="userSearch">
-      <ref local="userSearch" />
+      <ref bean="userSearch" />
     </property>
   </bean>
 
@@ -50,15 +50,15 @@
     <constructor-arg index="0" value="${ldap.userSearch.searchBase}" />
     <constructor-arg index="1" value="${ldap.userSearch.searchFilter}" />
     <constructor-arg index="2">
-      <ref local="contextSource" />
+      <ref bean="contextSource" />
     </constructor-arg>
   </bean>
 
   <!-- be sure to escape ampersands -->
   <bean id="populator"
-        class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+        class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
     <constructor-arg index="0">
-      <ref local="contextSource" />
+      <ref bean="contextSource" />
     </constructor-arg>
     <constructor-arg index="1" value="${ldap.populator.groupSearchBase}" />
     <property name="groupRoleAttribute" value="${ldap.populator.groupRoleAttribute}" />
@@ -73,10 +73,10 @@
   <bean id="ldapUserDetailsService0"
         class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserDetailsService">
     <constructor-arg>
-      <ref local="userSearch" />
+      <ref bean="userSearch" />
     </constructor-arg>
     <constructor-arg>
-      <ref local="populator" />
+      <ref bean="populator" />
     </constructor-arg>
     <constructor-arg ref="tenantedUserNameUtils"/>
   </bean>
@@ -89,7 +89,7 @@
     <bean id="ldapRoleMapper"
           class="org.pentaho.platform.engine.security.DefaultLdapRoleMapper">
         <constructor-arg>
-            <ref local="ldapRoleMap"/>
+            <ref bean="ldapRoleMap"/>
         </constructor-arg>
         <constructor-arg value="${ldap.allAuthoritiesSearch.roleAttribute}"/>
     </bean>

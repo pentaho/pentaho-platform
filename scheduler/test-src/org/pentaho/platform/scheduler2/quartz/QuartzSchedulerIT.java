@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -170,7 +170,7 @@ public class QuartzSchedulerIT {
     final SimpleTrigger simpleTrigger = mock( SimpleTrigger.class );
     final CronTrigger cronTrigger = mock( CronTrigger.class );
     when( quartzScheduler.getTriggersOfJob( eq( JOB_ID ), eq( USER_NAME ) ) ).thenReturn( new Trigger[] { simpleTrigger,
-        cronTrigger
+      cronTrigger
     } );
 
     scheduler.triggerNow( JOB_ID );

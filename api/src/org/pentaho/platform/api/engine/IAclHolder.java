@@ -22,6 +22,7 @@ import java.util.List;
 /**
  * TODO mlowery List type should probably not be a concrete class (PentahoAclEntry).
  */
+@Deprecated
 public interface IAclHolder {
   public static final int ACCESS_TYPE_READ = 0;
 
@@ -40,7 +41,7 @@ public interface IAclHolder {
    * 
    * @return List of ACLs for this object only.
    */
-  public List<IPentahoAclEntry> getAccessControls();
+  public List/*<IPentahoAclEntry>*/ getAccessControls();
 
   /**
    * Sets the access controls on this specific object. Currently doesn't check whether the acls are the same as
@@ -48,7 +49,7 @@ public interface IAclHolder {
    * 
    * @param acls
    */
-  public void setAccessControls( List<IPentahoAclEntry> acls );
+  public void setAccessControls( List/*<IPentahoAclEntry>*/ acls );
 
   /**
    * Replaces existing access controls with a new list of access controls. This method should be used in favor of
@@ -56,7 +57,7 @@ public interface IAclHolder {
    * 
    * @param acls
    */
-  public void resetAccessControls( List<IPentahoAclEntry> acls );
+  public void resetAccessControls( List/*<IPentahoAclEntry>*/ acls );
 
   /**
    * Examines whether the existing object has ACLs. If not, it will return the parent's ACLs. All the way up to the
@@ -64,5 +65,5 @@ public interface IAclHolder {
    * 
    * @return List containing all the AclEntry objects
    */
-  public List<IPentahoAclEntry> getEffectiveAccessControls();
+  public List/*<IPentahoAclEntry>*/ getEffectiveAccessControls();
 }

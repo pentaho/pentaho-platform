@@ -12,13 +12,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.engine;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.concurrent.Callable;
 
@@ -98,17 +98,18 @@ public interface ISecurityHelper {
 
   /**
    * Utility method that communicates with the installed ACLVoter to determine administrator status
-   * 
+   * @deprecated use SystemUtils.canAdminister() instead
    * @param session
    *          The users IPentahoSession object
    * @return true if the user is considered a Pentaho administrator
    */
+  @Deprecated
   boolean isPentahoAdministrator( IPentahoSession session );
 
   /**
    * Utility method that communicates with the installed ACLVoter to determine whether a particular role is granted
    * to the specified user.
-   * 
+   *
    * @param session
    *          The users' IPentahoSession
    * @param role
@@ -117,12 +118,7 @@ public interface ISecurityHelper {
    */
   boolean isGranted( IPentahoSession session, GrantedAuthority role );
 
-  /**
-   * @param aFile
-   * @return a boolean that indicates if this file can have ACLS placed on it.
-   */
-  boolean canHaveACLS( ISolutionFile aFile );
-
+  @Deprecated
   boolean hasAccess( IAclHolder aHolder, int actionOperation, IPentahoSession session );
 
   /**

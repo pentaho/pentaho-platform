@@ -43,17 +43,17 @@ import org.pentaho.platform.plugin.services.security.userrole.ldap.transform.Gra
 import org.pentaho.platform.plugin.services.security.userrole.ldap.transform.SearchResultToAttrValueList;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.transform.StringToGrantedAuthority;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ldap.LdapUserSearch;
-import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.ldap.search.LdapUserSearch;
+import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.LdapUserDetailsService;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 
 import javax.naming.directory.SearchControls;
 import java.util.ArrayList;
@@ -868,11 +868,10 @@ public class DefaultLdapUserRoleListServiceTest extends AbstractPentahoLdapInteg
     final String password = "password";
 
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-    authList.add( new GrantedAuthorityImpl( "TenantAdmin" ) );
-    authList.add( new GrantedAuthorityImpl( "Authenticated" ) );
-    GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[0] );
-    UserDetails userDetails = new User( username, password, true, true, true, true, authorities );
-    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authorities );
+    authList.add( new SimpleGrantedAuthority( "TenantAdmin" ) );
+    authList.add( new SimpleGrantedAuthority( "Authenticated" ) );
+    UserDetails userDetails = new User( username, password, true, true, true, true, authList );
+    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authList );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( auth );

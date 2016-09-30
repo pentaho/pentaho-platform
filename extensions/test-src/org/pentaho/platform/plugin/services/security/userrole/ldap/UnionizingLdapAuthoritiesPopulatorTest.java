@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -21,16 +21,17 @@
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.ldap.LdapAuthoritiesPopulator;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,20 +57,20 @@ public class UnionizingLdapAuthoritiesPopulatorTest {
     pops.add( authPop2 );
 
     String username = "admin";
-    GrantedAuthority g1 = new GrantedAuthorityImpl( "power user" );
-    GrantedAuthority g2 = new GrantedAuthorityImpl( "administrator" );
-    GrantedAuthority[] auths1 = new GrantedAuthority[]{ g1 };
-    GrantedAuthority[] auths2 = new GrantedAuthority[]{ g2 };
+    GrantedAuthority g1 = new SimpleGrantedAuthority( "power user" );
+    GrantedAuthority g2 = new SimpleGrantedAuthority( "administrator" );
+    Collection auths1 = Arrays.asList( new GrantedAuthority[]{ g1 } );
+    Collection auths2 = Arrays.asList( new GrantedAuthority[]{ g2 } );
 
     when( authPop1.getGrantedAuthorities( userData, username ) ).thenReturn( auths1 );
     when( authPop2.getGrantedAuthorities( userData, username ) ).thenReturn( auths2 );
 
     populator.setPopulators( pops );
 
-    GrantedAuthority[] authorities = populator.getGrantedAuthorities( userData, username );
-    assertEquals( 2, authorities.length );
-    assertTrue( ArrayUtils.contains( authorities, g1 ) );
-    assertTrue( ArrayUtils.contains( authorities, g2 ) );
+    Collection<? extends GrantedAuthority> authorities = populator.getGrantedAuthorities( userData, username );
+    assertEquals( 2, authorities.size() );
+    assertTrue( authorities.contains( g1 ) );
+    assertTrue( authorities.contains( g2 ) );
   }
 
   @Test( expected = IllegalArgumentException.class )

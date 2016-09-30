@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 package org.pentaho.platform.web.http.api.resources.services;
 
@@ -746,26 +746,25 @@ public class SchedulerServiceTest {
     doReturn( testArray ).when( mockJobParams ).get( jobParamKey );
 
     // Test 1
-    doReturn( true ).when( mockSecurityHelper ).isPentahoAdministrator( mockPentahoSession );
+    doReturn( true ).when( schedulerService ).canAdminister( mockPentahoSession );
 
     Job testJob = schedulerService.getJobInfo( jobId );
     assertEquals( mockJob, testJob );
 
     // Test 2
-    doReturn( false ).when( mockSecurityHelper ).isPentahoAdministrator( mockPentahoSession );
+    doReturn( false ).when( schedulerService ).canAdminister( mockPentahoSession );
     testJob = schedulerService.getJobInfo( jobId );
     assertEquals( mockJob, testJob );
 
     verify( mockJobParams, times( 2 ) ).put( eq( jobParamKey ), any( Serializable.class ) );
     verify( schedulerService, times( 2 ) ).getJob( jobId );
-    verify( schedulerService, times( 2 ) ).getSecurityHelper();
-    verify( schedulerService, times( 3 ) ).getSession();
-    verify( mockPentahoSession, times( 1 ) ).getName();
-    verify( mockJob, times( 1 ) ).getUserName();
+    verify( schedulerService, times( 2 ) ).getSession();
+    verify( mockPentahoSession, times( 2 ) ).getName();
+    verify( mockJob, times( 2 ) ).getUserName();
     verify( mockJob, times( 6 ) ).getJobParams();
     verify( mockJobParams, times( 2 ) ).keySet();
     verify( mockJobParams, times( 2 ) ).get( jobParamKey );
-    verify( mockSecurityHelper, times( 2 ) ).isPentahoAdministrator( mockPentahoSession );
+    verify( schedulerService, times( 2 ) ).canAdminister( null );
   }
 
   @Test
@@ -781,7 +780,7 @@ public class SchedulerServiceTest {
     IPentahoSession mockPentahoSession = mock( IPentahoSession.class );
     doReturn( mockPentahoSession ).when( schedulerService ).getSession();
 
-    doReturn( false ).when( mockSecurityHelper ).isPentahoAdministrator( mockPentahoSession );
+    doReturn( false ).when( schedulerService ).canAdminister( mockPentahoSession );
 
     String sessionName = "sessionName";
     doReturn( sessionName ).when( mockPentahoSession ).getName();

@@ -90,13 +90,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -689,8 +689,8 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   protected void loginAsRepositoryAdmin() {
     StandaloneSession pentahoSession = new StandaloneSession( repositoryAdminUsername );
     pentahoSession.setAuthenticated( repositoryAdminUsername );
-    final GrantedAuthority[] repositoryAdminAuthorities =
-      new GrantedAuthority[] { new GrantedAuthorityImpl( sysAdminAuthorityName ) };
+    final List<GrantedAuthority> repositoryAdminAuthorities =
+      Arrays.asList( new GrantedAuthority[] { new SimpleGrantedAuthority( sysAdminAuthorityName ) } );
     final String password = "ignored";
     UserDetails repositoryAdminUserDetails =
       new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
@@ -727,11 +727,10 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
     for ( String roleName : roles ) {
-      authList.add( new GrantedAuthorityImpl( roleName ) );
+      authList.add( new SimpleGrantedAuthority( roleName ) );
     }
-    GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[ 0 ] );
-    UserDetails userDetails = new User( username, password, true, true, true, true, authorities );
-    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authorities );
+    UserDetails userDetails = new User( username, password, true, true, true, true, authList );
+    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authList );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( auth );
@@ -751,13 +750,12 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     final String password = "password";
 
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-    authList.add( new GrantedAuthorityImpl( authenticatedAuthorityName ) );
+    authList.add( new SimpleGrantedAuthority( authenticatedAuthorityName ) );
     if ( tenantAdmin ) {
-      authList.add( new GrantedAuthorityImpl( adminAuthorityName ) );
+      authList.add( new SimpleGrantedAuthority( adminAuthorityName ) );
     }
-    GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[ 0 ] );
-    UserDetails userDetails = new User( username, password, true, true, true, true, authorities );
-    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authorities );
+    UserDetails userDetails = new User( username, password, true, true, true, true, authList );
+    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authList );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( auth );

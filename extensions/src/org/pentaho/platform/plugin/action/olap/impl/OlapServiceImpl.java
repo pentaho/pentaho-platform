@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2016 Pentaho Corporation.  All rights reserved.
  *
 */
 package org.pentaho.platform.plugin.action.olap.impl;
@@ -75,7 +75,7 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.Olap4jServerInfo;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * Implementation of the IOlapService which uses the
@@ -535,7 +535,7 @@ public class OlapServiceImpl implements IOlapService {
         }
       } catch ( Exception e ) {
         LOG.warn(
-            Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
+            Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
       } finally {
         if ( connection != null ) {
           connection.close();

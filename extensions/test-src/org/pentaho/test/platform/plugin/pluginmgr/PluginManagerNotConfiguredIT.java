@@ -118,6 +118,7 @@ public class PluginManagerNotConfiguredIT extends BaseTest {
       }
     }
 
+    appCtx.refresh();
     return appCtx;
   }
 

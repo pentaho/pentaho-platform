@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository.usersettings;
@@ -347,7 +347,7 @@ public class UserSettingService implements IAnyUserSettingService, IUserSettingS
   }
 
   public void setGlobalUserSetting( String settingName, String settingValue ) {
-    if ( SecurityHelper.getInstance().isPentahoAdministrator( session ) ) {
+    if ( canAdminister() ) {
       String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
       Serializable tenantHomeId = repository.getFile( tentantHomePath ).getId();
       Map<String, Serializable> tenantMetadata = repository.getFileMetadata( tenantHomeId );
@@ -356,7 +356,7 @@ public class UserSettingService implements IAnyUserSettingService, IUserSettingS
     }
   }
 
-  private boolean canAdminister() {
+  protected boolean canAdminister() {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
       && ( policy.isAllowed( AdministerSecurityAction.NAME ) );

@@ -19,6 +19,8 @@ package org.pentaho.platform.plugin.services.security.userrole.memory;
 
 import org.springframework.beans.factory.FactoryBean;
 
+import java.util.Properties;
+
 /**
  * Takes as input the string that defines a <code>UserMap</code>. When Spring instantiates this bean, it outputs a
  * <code>UserRoleListEnhancedUserMap</code>.
@@ -75,14 +77,14 @@ import org.springframework.beans.factory.FactoryBean;
 public class UserRoleListEnhancedUserMapFactoryBean implements FactoryBean {
 
   /*
-   * The user map text which will be processed by property editor.
+   * The user map which will be processed by property editor.
    */
-  private String userMap;
+  private Properties userMap;
 
   public Object getObject() throws Exception {
-    UserRoleListEnhancedUserMapEditor userRoleListEnhancedUserMapEditor = new UserRoleListEnhancedUserMapEditor();
-    userRoleListEnhancedUserMapEditor.setAsText( userMap );
-    return userRoleListEnhancedUserMapEditor.getValue();
+    UserRoleListEnhancedUserMap userRoleListEnhanceduserMap = new UserRoleListEnhancedUserMap();
+    UserRoleListEnhancedUserMapEditor.addUsersFromProperties( userRoleListEnhanceduserMap, userMap );
+    return userRoleListEnhanceduserMap;
   }
 
   public Class getObjectType() {
@@ -93,7 +95,7 @@ public class UserRoleListEnhancedUserMapFactoryBean implements FactoryBean {
     return true;
   }
 
-  public void setUserMap( final String userMap ) {
+  public void setUserMap( final Properties userMap ) {
     this.userMap = userMap;
   }
 }

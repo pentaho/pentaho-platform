@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -27,10 +27,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ldap.core.ContextSource;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.core.GrantedAuthority;
 
-import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
@@ -103,7 +101,7 @@ public class NestedLdapAuthoritiesPopulatorTest {
     assertEquals( 2, authorities.size() );
     for ( Object authority : authorities ) {
       assertTrue( authority instanceof GrantedAuthority );
-      GrantedAuthority ga = ( GrantedAuthority ) authority;
+      GrantedAuthority ga = (GrantedAuthority) authority;
       assertTrue( "authenticated".equals( ga.getAuthority() ) || "power user".equals( ga.getAuthority() ) );
     }
   }

@@ -12,32 +12,21 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
- */
-
-/* Parts Copyright 2004 Acegi Technology Pty Limited
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2002-2014 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.security.userrole.memory;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.memory.UserMap;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -45,9 +34,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class UserRoleListEnhancedUserMap extends UserMap {
+public class UserRoleListEnhancedUserMap {
   // ~ Static fields/initializers
   // =============================================
+
+  private Logger logger = LoggerFactory.getLogger( UserRoleListEnhancedUserMap.class );
 
   // ~ Instance fields
   // ========================================================
@@ -59,23 +50,23 @@ public class UserRoleListEnhancedUserMap extends UserMap {
   // ~ Methods
   // ================================================================
 
-  @Override
   public void addUser( final UserDetails user ) throws IllegalArgumentException {
-    super.addUser( user );
+    Assert.notNull( user, "Must be a valid User" );
+    logger.info( "Adding user [" + user + "]" );
     this.userRoleListEnhanceduserMap.put( user.getUsername().toLowerCase(), user );
-    GrantedAuthority[] auths = user.getAuthorities();
+    Collection<? extends GrantedAuthority> auths = user.getAuthorities();
     for ( GrantedAuthority anAuthority : auths ) {
-      Set<String> userListForAuthority = rolesToUsersMap.get( anAuthority );
+      Set<String> userListForAuthority = getRolesToUsersMap().get( anAuthority );
       if ( userListForAuthority == null ) {
         userListForAuthority = new TreeSet<String>();
-        rolesToUsersMap.put( anAuthority, userListForAuthority );
+        getRolesToUsersMap().put( anAuthority, userListForAuthority );
       }
       userListForAuthority.add( user.getUsername() );
     }
   }
 
   public String[] getAllAuthorities() {
-    Set<GrantedAuthority> authoritiesSet = this.rolesToUsersMap.keySet();
+    Set<GrantedAuthority> authoritiesSet = getRolesToUsersMap().keySet();
     List<String> roles = new ArrayList<String>( authoritiesSet.size() );
     for ( GrantedAuthority role : authoritiesSet ) {
       roles.add( role.getAuthority() );
@@ -84,8 +75,8 @@ public class UserRoleListEnhancedUserMap extends UserMap {
   }
 
   public String[] getAllUsers() {
-    String[] rtn = new String[userRoleListEnhanceduserMap.size()];
-    Iterator it = userRoleListEnhanceduserMap.values().iterator();
+    String[] rtn = new String[getUserRoleListEnhanceduserMap().size()];
+    Iterator it = getUserRoleListEnhanceduserMap().values().iterator();
     int i = 0;
     while ( it.hasNext() ) {
       rtn[i] = ( (UserDetails) it.next() ).getUsername();
@@ -95,7 +86,7 @@ public class UserRoleListEnhancedUserMap extends UserMap {
   }
 
   public String[] getUserNamesInRole( final String role ) {
-    Set<String> userListForAuthority = rolesToUsersMap.get( new GrantedAuthorityImpl( role ) );
+    Set<String> userListForAuthority = getRolesToUsersMap().get( new SimpleGrantedAuthority( role ) );
     String[] typ = {};
     if ( userListForAuthority != null ) {
       return userListForAuthority.toArray( typ );
@@ -104,13 +95,28 @@ public class UserRoleListEnhancedUserMap extends UserMap {
     }
   }
 
-  @Override
   public void setUsers( final Map users ) {
-    super.setUsers( users );
+    getUserRoleListEnhanceduserMap().clear();
     Iterator iter = users.values().iterator();
     while ( iter.hasNext() ) {
       addUser( (UserDetails) iter.next() );
     }
   }
 
+  /**
+   * Indicates the size of the user map.
+   *
+   * @return the number of users in the map
+   */
+  public int getUserCount() {
+    return getUserRoleListEnhanceduserMap() != null ? getUserRoleListEnhanceduserMap().size() : 0;
+  }
+
+  protected Map<String, UserDetails> getUserRoleListEnhanceduserMap() {
+    return userRoleListEnhanceduserMap;
+  }
+
+  protected Map<GrantedAuthority, Set<String>> getRolesToUsersMap() {
+    return rolesToUsersMap;
+  }
 }

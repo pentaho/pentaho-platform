@@ -12,18 +12,21 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.security.userroledao.ws;
 
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.security.userroledao.messages.Messages;
 
 import javax.jws.WebService;
@@ -47,7 +50,7 @@ public class UserRoleWebService implements IUserRoleWebService {
   }
 
   protected boolean isAdmin() {
-    return SecurityHelper.getInstance().isPentahoAdministrator( PentahoSessionHolder.getSession() );
+    return canAdminister();
   }
 
   protected IUserRoleDao getDao() throws UserRoleException {
@@ -271,6 +274,12 @@ public class UserRoleWebService implements IUserRoleWebService {
     getDao().setRoleDescription( proxyPentahoRole.getTenant(), proxyPentahoRole.getName(),
         proxyPentahoRole.getDescription() );
     return true;
+  }
+
+  private boolean canAdminister() {
+    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
+    return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
+      && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
   }
 
 }

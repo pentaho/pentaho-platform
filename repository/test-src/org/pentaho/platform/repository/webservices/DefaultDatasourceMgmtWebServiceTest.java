@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository.webservices;
@@ -31,10 +31,11 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.repository.JcrBackedDatasourceMgmtService;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.doReturn;
@@ -74,14 +75,14 @@ public class DefaultDatasourceMgmtWebServiceTest extends TestCase {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new UsernamePasswordAuthenticationToken( MockUnifiedRepository.root().getName(), null,
-                new GrantedAuthority[0] ) );
+                new ArrayList<GrantedAuthority>() ) );
     repository.createFolder( repository.getFile( "/etc" ).getId(), new RepositoryFile.Builder( FOLDER_PDI ).folder(
         true ).build(), new RepositoryFileAcl.Builder( MockUnifiedRepository.root() ).ace(
           MockUnifiedRepository.everyone(), READ, WRITE ).build(), null );
     repository.createFolder( repository.getFile( "/etc/pdi" ).getId(), new RepositoryFile.Builder( FOLDER_DATABASES )
         .folder( true ).build(), null );
     SecurityContextHolder.getContext().setAuthentication(
-        new UsernamePasswordAuthenticationToken( EXP_LOGIN, null, new GrantedAuthority[0] ) );
+        new UsernamePasswordAuthenticationToken( EXP_LOGIN, null, new ArrayList<GrantedAuthority>() ) );
 
     KettleClientEnvironment.init();
 

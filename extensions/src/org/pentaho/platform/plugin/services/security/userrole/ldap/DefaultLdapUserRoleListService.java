@@ -18,7 +18,7 @@
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -35,9 +35,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.search.LdapSearch;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
 public class DefaultLdapUserRoleListService implements IUserRoleListService, InitializingBean {
@@ -157,7 +157,7 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
       throw new UnsupportedOperationException( "only allowed to access to default tenant" );
     }
     UserDetails user = userDetailsService.loadUserByUsername( userNameUtils.getPrincipleName( username ) );
-    List<GrantedAuthority> results = Arrays.asList( user.getAuthorities() );
+    Collection<? extends GrantedAuthority> results = user.getAuthorities();
     Set<String> roles = ( roleComparator != null ) ? new TreeSet<String>( roleComparator ) : new LinkedHashSet<String>( results.size() );
     for ( GrantedAuthority role : results ) {
       roles.add( role.getAuthority() );

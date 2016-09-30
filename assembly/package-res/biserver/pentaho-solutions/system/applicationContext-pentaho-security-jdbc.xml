@@ -8,7 +8,7 @@
 <beans  xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
   xmlns:util="http://www.springframework.org/schema/util"
-xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd"
 default-lazy-init="true"
 >
 
@@ -20,7 +20,7 @@ default-lazy-init="true"
     <bean id="jdbcRoleMapper"
           class="org.pentaho.platform.engine.security.DefaultJdbcRoleMapper">
         <constructor-arg>
-            <ref local="jdbcRoleMap"/>
+            <ref bean="jdbcRoleMap"/>
         </constructor-arg>
     </bean>
 

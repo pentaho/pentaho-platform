@@ -24,15 +24,15 @@ import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.services.security.userrole.jdbc.JdbcUserRoleListService;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.PopulatedDatabase;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -224,7 +224,7 @@ public class JdbcUserRoleListServiceTest {
    * 
    * @param username
    *          username of user
-   * @param tenantId
+   * @param tenant
    *          tenant to which this user belongs
    * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
@@ -235,11 +235,10 @@ public class JdbcUserRoleListServiceTest {
     final String password = "password";
 
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-    authList.add( new GrantedAuthorityImpl( "TenantAdmin" ) );
-    authList.add( new GrantedAuthorityImpl( "Authenticated" ) );
-    GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[0] );
-    UserDetails userDetails = new User( username, password, true, true, true, true, authorities );
-    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authorities );
+    authList.add( new SimpleGrantedAuthority( "TenantAdmin" ) );
+    authList.add( new SimpleGrantedAuthority( "Authenticated" ) );
+    UserDetails userDetails = new User( username, password, true, true, true, true, authList );
+    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authList );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( auth );

@@ -57,8 +57,8 @@ import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService.ValidationFailedException;
 
 import com.sun.jersey.api.NotFoundException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  * UserRoleDao manages Pentaho Security user and roles in the BA platform.
@@ -903,7 +903,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     GrantedAuthority[] authoritys = new GrantedAuthority[ userRoles.size() ];
 
     for ( int i = 0; i < authoritys.length; i++ ) {
-      authoritys[ i ] = new GrantedAuthorityImpl( userRoles.get( i ) );
+      authoritys[ i ] = new SimpleGrantedAuthority( userRoles.get( i ) );
     }
 
     getSession().setAttribute( IPentahoSession.SESSION_ROLES, authoritys );

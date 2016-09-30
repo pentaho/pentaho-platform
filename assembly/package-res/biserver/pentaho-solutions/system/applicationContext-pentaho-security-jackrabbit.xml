@@ -7,14 +7,14 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
 
   <bean id="userRoleListService0" class="org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService">
     <constructor-arg>
     	<pen:bean class="org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao"/>
     </constructor-arg>
     <constructor-arg>
-			<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
+			<pen:bean class="org.springframework.security.core.userdetails.UserDetailsService"/>
     </constructor-arg>
     <constructor-arg ref="tenantedUserNameUtils" />
 	<constructor-arg ref="singleTenantSystemAuthorities" />

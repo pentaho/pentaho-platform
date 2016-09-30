@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
@@ -73,7 +73,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
     } catch ( RuntimeException ex ) {
       // Callback code threw application exception...
       throw pentahoConvertJcrAccessException( ex );
-    } finally {
+    // } finally {
       //      if ( !existingTransaction ) {
       //        SessionFactoryUtils.releaseSession( session, getSessionFactory() );
       //      }
@@ -87,7 +87,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
 
   private RuntimeException pentahoConvertJcrAccessException( final RuntimeException ex ) {
     if ( ex instanceof AccessControlException ) {
-      return new org.springframework.security.AccessDeniedException( Messages.getInstance().getString(
+      return new org.springframework.security.access.AccessDeniedException( Messages.getInstance().getString(
           "PentahoJcrTemplate.ERROR_0001_ACCESS_DENIED" ), ex ); //$NON-NLS-1$
     } else {
       return super.convertJcrAccessException( ex );
@@ -96,7 +96,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
 
   private RuntimeException pentahoConvertJcrAccessException( final RepositoryException ex ) {
     if ( ex instanceof AccessDeniedException ) {
-      return new org.springframework.security.AccessDeniedException( Messages.getInstance().getString(
+      return new org.springframework.security.access.AccessDeniedException( Messages.getInstance().getString(
           "PentahoJcrTemplate.ERROR_0001_ACCESS_DENIED" ), ex ); //$NON-NLS-1$
     } else {
       return super.convertJcrAccessException( ex );

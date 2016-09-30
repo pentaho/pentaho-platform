@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
@@ -22,15 +22,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -97,7 +98,7 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
 
   public void setDefaultRole( final String defaultRole ) {
     Assert.notNull( defaultRole );
-    this.defaultRole = new GrantedAuthorityImpl( defaultRole );
+    this.defaultRole = new SimpleGrantedAuthority( defaultRole );
   }
 
   public void setRoleMapper( final IAuthenticationRoleMapper roleMapper ) {
@@ -122,7 +123,7 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
 
     private UserDetails userDetails;
 
-    private GrantedAuthority[] newRoles;
+    private Collection<? extends GrantedAuthority> newRoles;
 
     private IAuthenticationRoleMapper roleMapper;
 
@@ -149,14 +150,14 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
     /**
      * Since UserDetails is immutable, we can safely pre-calculate the new roles.
      */
-    protected GrantedAuthority[] getNewRoles( final GrantedAuthority defaultRole ) {
-      List<GrantedAuthority> origRoles = Arrays.asList( userDetails.getAuthorities() );
+    protected Collection<? extends GrantedAuthority> getNewRoles( final GrantedAuthority defaultRole ) {
+      Collection<? extends GrantedAuthority> origRoles = userDetails.getAuthorities();
       List<GrantedAuthority> newRoles1 = new ArrayList<GrantedAuthority>();
       // Map Non-pentaho roles to pentaho roles. This mapping is defined in the
       // applicationContext-spring-security-ldap.xml
       if ( roleMapper != null ) {
         for ( GrantedAuthority authority : origRoles ) {
-          newRoles1.add( new GrantedAuthorityImpl( roleMapper.toPentahoRole( authority.getAuthority() ) ) );
+          newRoles1.add( new SimpleGrantedAuthority( roleMapper.toPentahoRole( authority.getAuthority() ) ) );
         }
       }
 
@@ -167,10 +168,10 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
         }
         newRoles1.add( defaultRole );
       }
-      return newRoles1.toArray( new GrantedAuthority[0] );
+      return newRoles1;
     }
 
-    public GrantedAuthority[] getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities() {
       return newRoles;
     }
 

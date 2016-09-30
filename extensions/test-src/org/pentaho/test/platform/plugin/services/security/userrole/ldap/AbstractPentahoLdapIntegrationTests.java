@@ -12,17 +12,18 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
 
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.ldap.SpringSecurityContextSource;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 
 import javax.naming.NamingException;
 
@@ -63,12 +64,16 @@ public abstract class AbstractPentahoLdapIntegrationTests {
   }
 
   private static void shutdownRunningServers() throws NamingException {
-    DirectoryService ds = DirectoryService.getInstance();
-    ds.shutdown();
+    try {
+      DirectoryService ds = new DefaultDirectoryService();
+      ds.shutdown();
+    } catch ( Exception e ) {
+      throw new NamingException( e.getMessage() );
+    }
   }
 
-  public SpringSecurityContextSource getContextSource() {
-    return (SpringSecurityContextSource) appContext.getBean( BeanIds.CONTEXT_SOURCE );
+  public BaseLdapPathContextSource getContextSource() {
+    return (BaseLdapPathContextSource) appContext.getBean( BeanIds.CONTEXT_SOURCE );
   }
 
 }

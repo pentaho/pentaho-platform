@@ -13,23 +13,22 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAclHolder;
-import org.pentaho.platform.api.engine.IAclVoter;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
-import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
@@ -37,15 +36,14 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.UserSession;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.concurrent.Callable;
 
@@ -68,7 +66,6 @@ public class SecurityHelper implements ISecurityHelper {
   private static ISecurityHelper mockInstance;
 
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
-  private IAclVoter aclVoter;
   private UserDetailsService userDetailsService;
   private IUserRoleListService userRoleListService;
 
@@ -164,10 +161,10 @@ public class SecurityHelper implements ISecurityHelper {
 
   @Override
   public <T> T
-  runAsUser( final String principalName, final IParameterProvider paramProvider, final Callable<T> callable )
+    runAsUser( final String principalName, final IParameterProvider paramProvider, final Callable<T> callable )
     throws Exception {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
-    SecurityContext originalContext = SecurityContextHolder.getContext();
+    Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
       becomeUser( principalName );
       return callable.call();
@@ -181,7 +178,7 @@ public class SecurityHelper implements ISecurityHelper {
         }
       }
       PentahoSessionHolder.setSession( origSession );
-      SecurityContextHolder.setContext( originalContext );
+      SecurityContextHolder.getContext().setAuthentication( origAuth );
     }
   }
 
@@ -200,7 +197,7 @@ public class SecurityHelper implements ISecurityHelper {
   @Override
   public <T> T runAsAnonymous( final Callable<T> callable ) throws Exception {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
-    SecurityContext originalContext = SecurityContextHolder.getContext();
+    Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
       PentahoSessionHolder.setSession( new StandaloneSession() );
 
@@ -209,7 +206,8 @@ public class SecurityHelper implements ISecurityHelper {
         .getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$
       String role = PentahoSystem
         .getSystemSetting( "anonymous-authentication/anonymous-role", "Anonymous" ); //$NON-NLS-1$//$NON-NLS-2$
-      GrantedAuthority[] authorities = new GrantedAuthority[] { new GrantedAuthorityImpl( role ) };
+      List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+      authorities.add( new SimpleGrantedAuthority( role ) );
 
       Authentication auth =
         new AnonymousAuthenticationToken( "anonymousUser", new User( user, "ignored", true, true, true, true,
@@ -223,19 +221,25 @@ public class SecurityHelper implements ISecurityHelper {
       return callable.call();
     } finally {
       PentahoSessionHolder.setSession( origSession );
-      SecurityContextHolder.setContext( originalContext );
+      SecurityContextHolder.getContext().setAuthentication( origAuth );
     }
   }
 
   /**
    * Utility method that communicates with the installed ACLVoter to determine administrator status
+   * @deprecated use SystemUtils.canAdminister() instead
    *
    * @param session The users IPentahoSession object
    * @return true if the user is considered a Pentaho administrator
    */
   @Override
+  @Deprecated
   public boolean isPentahoAdministrator( final IPentahoSession session ) {
-    return getAclVoter().isPentahoAdministrator( session );
+    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
+    // TODO externalize action names
+    return policy.isAllowed( "org.pentaho.repository.read" )
+      && policy.isAllowed( "org.pentaho.repository.create" )
+      && ( policy.isAllowed( "org.pentaho.security.administerSecurity" ) );
   }
 
   /**
@@ -248,52 +252,55 @@ public class SecurityHelper implements ISecurityHelper {
    */
   @Override
   public boolean isGranted( final IPentahoSession session, final GrantedAuthority role ) {
-    return getAclVoter().isGranted( session, role );
-  }
-
-  /**
-   * @param aFile
-   * @return a boolean that indicates if this file can have ACLS placed on it.
-   */
-  @Override
-  public boolean canHaveACLS( final ISolutionFile aFile ) {
-    if ( aFile.isDirectory() ) { // All Directories can have ACLS
-      return true;
+    Authentication auth = getAuthentication();
+    if ( ( auth != null ) && auth.isAuthenticated() ) {
+      Collection<? extends GrantedAuthority> userAuths = auth.getAuthorities();
+      if ( userAuths == null ) {
+        return false;
+      }
+      for ( GrantedAuthority element : userAuths ) {
+        if ( element.equals( role ) ) {
+          return true;
+        }
+      }
+      return false;
+    } else {
+      return false;
     }
-
-    // Otherwise anything in the PentahoSystem extension list.
-    return PentahoSystem.getACLFileExtensionList().contains( aFile.getExtension() );
   }
 
-  @Override
-  public boolean hasAccess( final IAclHolder aHolder, final int actionOperation, final IPentahoSession session ) {
-    int aclMask = -1;
+  @Deprecated
+  public boolean hasAccess( IAclHolder aHolder, int actionOperation, IPentahoSession session ) {
+    String aclMask = null; // acl to jcr repositoryAction mask
 
+    // TODO externalize repository action names
     switch( actionOperation ) {
       case ( IAclHolder.ACCESS_TYPE_READ ): {
-        aclMask = IPentahoAclEntry.PERM_EXECUTE;
+        aclMask = "org.pentaho.repository.read"; // was IPentahoAclEntry.PERM_EXECUTE;
         break;
       }
       case IAclHolder.ACCESS_TYPE_WRITE:
       case IAclHolder.ACCESS_TYPE_UPDATE: {
-        aclMask = IPentahoAclEntry.PERM_UPDATE;
+        aclMask = "org.pentaho.repository.create"; // was IPentahoAclEntry.PERM_UPDATE;
         break;
       }
       case IAclHolder.ACCESS_TYPE_DELETE: {
-        aclMask = IPentahoAclEntry.PERM_DELETE;
+        aclMask = "org.pentaho.repository.create"; // was IPentahoAclEntry.PERM_DELETE;
         break;
       }
       case IAclHolder.ACCESS_TYPE_ADMIN: {
-        aclMask = IPentahoAclEntry.PERM_ADMINISTRATION;
+        aclMask = "org.pentaho.security.administerSecurity"; // was IPentahoAclEntry.PERM_ADMINISTRATION;
         break;
       }
       default: {
-        aclMask = IPentahoAclEntry.PERM_EXECUTE;
+        aclMask = "org.pentaho.repository.read"; // was IPentahoAclEntry.PERM_EXECUTE;
         break;
       }
 
     }
-    return getAclVoter().hasAccess( session, aHolder, aclMask );
+
+    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
+    return policy.isAllowed( aclMask );
   }
 
   /**
@@ -335,10 +342,11 @@ public class SecurityHelper implements ISecurityHelper {
       SecurityHelper.logger.debug( "rolesForUser:" + roles ); //$NON-NLS-1$
     }
 
-    GrantedAuthority[] grantedAuthorities = new GrantedAuthority[ roles.size() ];
-    if( roles != null ) {
+    List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
+    if ( roles != null ) {
+      grantedAuthorities = new ArrayList<GrantedAuthority>( roles.size() );
       for ( int i = 0; i < roles.size(); i++ ) {
-        grantedAuthorities[ i ] = new GrantedAuthorityImpl( roles.get( i ) );
+        grantedAuthorities.add( new SimpleGrantedAuthority( roles.get( i ) ) );
       }
     }
 
@@ -372,7 +380,7 @@ public class SecurityHelper implements ISecurityHelper {
     String singleTenantAdmin = PentahoSystem.get( String.class, "singleTenantAdminUserName", null );
     IPentahoSession origSession = PentahoSessionHolder.getSession();
 
-    SecurityContext originalContext = SecurityContextHolder.getContext();
+    Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
 
     StandaloneSession session = null;
     try {
@@ -406,7 +414,7 @@ public class SecurityHelper implements ISecurityHelper {
       }
       // Reset the original session.
       PentahoSessionHolder.setSession( origSession );
-      SecurityContextHolder.setContext( originalContext );
+      SecurityContextHolder.getContext().setAuthentication( origAuth );
     }
   }
 
@@ -415,13 +423,6 @@ public class SecurityHelper implements ISecurityHelper {
       tenantedUserNameUtils = PentahoSystem.get( ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null );
     }
     return tenantedUserNameUtils;
-  }
-
-  public IAclVoter getAclVoter() {
-    if ( aclVoter == null ) {
-      aclVoter = PentahoSystem.get( IAclVoter.class );
-    }
-    return aclVoter;
   }
 
   public UserDetailsService getUserDetailsService() {

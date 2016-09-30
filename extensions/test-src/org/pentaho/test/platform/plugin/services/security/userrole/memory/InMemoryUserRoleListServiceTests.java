@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.plugin.services.security.userrole.memory;
@@ -24,15 +24,17 @@ import org.junit.Test;
 import org.pentaho.platform.engine.security.DefaultRoleComparator;
 import org.pentaho.platform.engine.security.DefaultUsernameComparator;
 import org.pentaho.platform.plugin.services.security.userrole.memory.InMemoryUserRoleListService;
+import org.pentaho.platform.plugin.services.security.userrole.memory.PentahoUserMap;
+import org.pentaho.platform.plugin.services.security.userrole.memory.PentahoUserMapEditor;
 import org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMap;
 import org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMapEditor;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.memory.InMemoryDaoImpl;
-import org.springframework.security.userdetails.memory.UserMap;
-import org.springframework.security.userdetails.memory.UserMapEditor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -52,10 +54,13 @@ public class InMemoryUserRoleListServiceTests {
     dao = new InMemoryUserRoleListService();
     dao.setUserRoleListEnhancedUserMap( makeUserRoleListEnhancedUserMap() );
     dao.setAllRoles( makeAllAuthorities() );
-    InMemoryDaoImpl wrapped = new InMemoryDaoImpl();
-    wrapped.setUserMap( makeUserMap() );
-    wrapped.afterPropertiesSet();
+    Properties prop = new Properties();
+    prop.load( new ByteArrayInputStream( "scott=wombat,ROLE_THREE,ROLE_ONE,enabled\r\nmarissa=koala,ROLE_ONE,ROLE_TWO,enabled".getBytes() ) );
+    InMemoryUserDetailsManager wrapped = new InMemoryUserDetailsManager( prop );
+    //wrapped.setUserMap( makeUserMap() );
+    //wrapped.afterPropertiesSet();
     dao.setUserDetailsService( wrapped );
+
     dao.afterPropertiesSet();
   }
 
@@ -108,8 +113,8 @@ public class InMemoryUserRoleListServiceTests {
     if ( logger.isDebugEnabled() ) {
       logger.debug( "testGetAllAuthoritiesSorted(): Authorities: " + authorities ); //$NON-NLS-1$
     }
-    assertTrue( authorities.indexOf( new GrantedAuthorityImpl( "ROLE_THREE" ) ) < authorities
-        .indexOf( new GrantedAuthorityImpl( "ROLE_TWO" ) ) );
+    assertTrue( authorities.indexOf( new SimpleGrantedAuthority( "ROLE_THREE" ) ) < authorities
+        .indexOf( new SimpleGrantedAuthority( "ROLE_TWO" ) ) );
   }
 
   @Test
@@ -154,8 +159,8 @@ public class InMemoryUserRoleListServiceTests {
       logger.debug( "testGetRolesForUser(): Roles: " + authorities ); //$NON-NLS-1$
     }
 
-    assertTrue( authorities.indexOf( new GrantedAuthorityImpl( "ROLE_ONE" ) ) < authorities
-        .indexOf( new GrantedAuthorityImpl( "ROLE_THREE" ) ) );
+    assertTrue( authorities.indexOf( new SimpleGrantedAuthority( "ROLE_ONE" ) ) < authorities
+        .indexOf( new SimpleGrantedAuthority( "ROLE_THREE" ) ) );
   }
 
   private UserRoleListEnhancedUserMap makeUserRoleListEnhancedUserMap() {
@@ -164,10 +169,10 @@ public class InMemoryUserRoleListServiceTests {
     return (UserRoleListEnhancedUserMap) editor.getValue();
   }
 
-  private UserMap makeUserMap() {
-    UserMapEditor editor = new UserMapEditor();
+  private PentahoUserMap makeUserMap() {
+    PentahoUserMapEditor editor = new PentahoUserMapEditor();
     editor.setAsText( "scott=wombat,ROLE_THREE,ROLE_ONE,enabled\r\nmarissa=koala,ROLE_ONE,ROLE_TWO,enabled" ); //$NON-NLS-1$
-    return (UserMap) editor.getValue();
+    return (PentahoUserMap) editor.getValue();
   }
 
 }

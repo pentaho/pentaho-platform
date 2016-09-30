@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -22,7 +22,9 @@
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
 import org.junit.Test;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 import static org.junit.Assert.*;
 
@@ -34,8 +36,8 @@ public class NoOpLdapAuthoritiesPopulatorTest {
   @Test
   public void testGetGrantedAuthorities() throws Exception {
     NoOpLdapAuthoritiesPopulator noop = new NoOpLdapAuthoritiesPopulator();
-    GrantedAuthority[] grantedAuthorities = noop.getGrantedAuthorities( null, null );
+    Collection<? extends GrantedAuthority> grantedAuthorities = noop.getGrantedAuthorities( null, null );
     assertNotNull( grantedAuthorities );
-    assertEquals( 0, grantedAuthorities.length );
+    assertEquals( 0, grantedAuthorities.size() );
   }
 }

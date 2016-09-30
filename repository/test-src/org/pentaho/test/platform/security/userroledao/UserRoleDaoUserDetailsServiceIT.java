@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.security.userroledao;
@@ -24,8 +24,9 @@ import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertNotNull;
@@ -88,24 +89,27 @@ public class UserRoleDaoUserDetailsServiceIT extends DefaultUnifiedRepositoryBas
     assertTrue( userFromService.getUsername().equals( USER_2 ) );
     assertTrue( userFromService.getPassword() != null );
     assertTrue( userFromService.isEnabled() == true );
-    assertTrue( userFromService.getAuthorities().length == 4 );
+    assertTrue( userFromService.getAuthorities().size() == 4 );
 
-    assertTrue( userFromService.getAuthorities()[0].getAuthority().equals( ROLE_0 )
-        || userFromService.getAuthorities()[0].getAuthority().equals( ROLE_3 )
-        || userFromService.getAuthorities()[0].getAuthority().equals( ROLE_2 )
-        || userFromService.getAuthorities()[0].getAuthority().equals( ROLE_1 ) );
-    assertTrue( userFromService.getAuthorities()[1].getAuthority().equals( ROLE_0 )
-        || userFromService.getAuthorities()[1].getAuthority().equals( ROLE_3 )
-        || userFromService.getAuthorities()[1].getAuthority().equals( ROLE_2 )
-        || userFromService.getAuthorities()[1].getAuthority().equals( ROLE_1 ) );
-    assertTrue( userFromService.getAuthorities()[2].getAuthority().equals( ROLE_0 )
-        || userFromService.getAuthorities()[2].getAuthority().equals( ROLE_3 )
-        || userFromService.getAuthorities()[2].getAuthority().equals( ROLE_2 )
-        || userFromService.getAuthorities()[2].getAuthority().equals( ROLE_1 ) );
-    assertTrue( userFromService.getAuthorities()[3].getAuthority().equals( ROLE_0 )
-        || userFromService.getAuthorities()[3].getAuthority().equals( ROLE_3 )
-        || userFromService.getAuthorities()[3].getAuthority().equals( ROLE_2 )
-        || userFromService.getAuthorities()[3].getAuthority().equals( ROLE_1 ) );
+    GrantedAuthority[] auths = new GrantedAuthority[4];
+    userFromService.getAuthorities().toArray( auths );
+
+    assertTrue( auths[0].getAuthority().equals( ROLE_0 )
+        || auths[0].getAuthority().equals( ROLE_3 )
+        || auths[0].getAuthority().equals( ROLE_2 )
+        || auths[0].getAuthority().equals( ROLE_1 ) );
+    assertTrue( auths[1].getAuthority().equals( ROLE_0 )
+        || auths[1].getAuthority().equals( ROLE_3 )
+        || auths[1].getAuthority().equals( ROLE_2 )
+        || auths[1].getAuthority().equals( ROLE_1 ) );
+    assertTrue( auths[2].getAuthority().equals( ROLE_0 )
+        || auths[2].getAuthority().equals( ROLE_3 )
+        || auths[2].getAuthority().equals( ROLE_2 )
+        || auths[2].getAuthority().equals( ROLE_1 ) );
+    assertTrue( auths[3].getAuthority().equals( ROLE_0 )
+        || auths[3].getAuthority().equals( ROLE_3 )
+        || auths[3].getAuthority().equals( ROLE_2 )
+        || auths[3].getAuthority().equals( ROLE_1 ) );
 
     cleanupUserAndRoles( mainTenant_1 );
   }

@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
@@ -26,14 +26,16 @@ import static org.mockito.Mockito.when;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.SecurityConfig;
-import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
-import org.springframework.security.vote.AccessDecisionVoter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.access.AccessDecisionVoter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PentahoSubstringRoleVoterTest {
 
@@ -79,38 +81,55 @@ public class PentahoSubstringRoleVoterTest {
 
   @Test
   public void voteDeniedTest() {
-    GrantedAuthority[] authorities = { new GrantedAuthorityImpl( ROLE_UNREACHABLE ), new GrantedAuthorityImpl( ROLE2 ) };
-    String[] strConfArr = { PREFIX + ROLE1, INVALID_PREFIX + ROLE2, PREFIX + ROLE3 };
+    List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(2);
+    authorities.add( new SimpleGrantedAuthority( ROLE_UNREACHABLE ) );
+    authorities.add( new SimpleGrantedAuthority( ROLE2 ) );
 
-    assertTrue( "the method \"vote\" must return ACCESS_DENIED", voteGenericTest( authorities, strConfArr,
+    List<ConfigAttribute> configAttributes = new ArrayList<ConfigAttribute>(3);
+    configAttributes.add( new SecurityConfig( PREFIX + ROLE1 ) );
+    configAttributes.add( new SecurityConfig( INVALID_PREFIX + ROLE2 ) );
+    configAttributes.add( new SecurityConfig( PREFIX + ROLE3 ) );
+
+    assertTrue( "the method \"vote\" must return ACCESS_DENIED", voteGenericTest( authorities, configAttributes,
         AccessDecisionVoter.ACCESS_DENIED ) );
   }
 
   @Test
   public void voteGrantedTest() {
-    GrantedAuthority[] authorities = { new GrantedAuthorityImpl( ROLE1 ), new GrantedAuthorityImpl( ROLE2 ), new GrantedAuthorityImpl( ROLE3 ) };
-    String[] strConfArr = { PREFIX + ROLE1, PREFIX + ROLE2, PREFIX + ROLE3 };
+    List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(3);
+    authorities.add( new SimpleGrantedAuthority( ROLE1 ) );
+    authorities.add( new SimpleGrantedAuthority( ROLE2 ) );
+    authorities.add( new SimpleGrantedAuthority( ROLE3 ) );
 
-    assertTrue( "the method \"vote\" must return ACCESS_GRANTED", voteGenericTest( authorities, strConfArr,
+    List<ConfigAttribute> configAttributes = new ArrayList<ConfigAttribute>(3);
+    configAttributes.add( new SecurityConfig( PREFIX + ROLE1 ) );
+    configAttributes.add( new SecurityConfig( PREFIX + ROLE2 ) );
+    configAttributes.add( new SecurityConfig( PREFIX + ROLE3 ) );
+
+    assertTrue( "the method \"vote\" must return ACCESS_GRANTED", voteGenericTest( authorities, configAttributes,
         AccessDecisionVoter.ACCESS_GRANTED ) );
   }
 
   @Test
   public void voteAbstainTest() {
-    GrantedAuthority[] authorities = { new GrantedAuthorityImpl( ROLE1 ), new GrantedAuthorityImpl( ROLE2 ) };
-    String[] strConfArr = { INVALID_PREFIX + ROLE1, INVALID_PREFIX + ROLE2, INVALID_PREFIX + ROLE3 };
+    List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(2);
+    authorities.add( new SimpleGrantedAuthority( ROLE1 ) );
+    authorities.add( new SimpleGrantedAuthority( ROLE2 ) );
 
-    assertTrue( "the method \"vote\" must return ACCESS_ABSTAIN", voteGenericTest( authorities, strConfArr,
+    List<ConfigAttribute> configAttributes = new ArrayList<ConfigAttribute>(3);
+    configAttributes.add( new SecurityConfig( INVALID_PREFIX + ROLE1 ) );
+    configAttributes.add( new SecurityConfig( INVALID_PREFIX + ROLE2 ) );
+    configAttributes.add( new SecurityConfig( INVALID_PREFIX + ROLE3 ) );
+
+    assertTrue( "the method \"vote\" must return ACCESS_ABSTAIN", voteGenericTest( authorities, configAttributes,
         AccessDecisionVoter.ACCESS_ABSTAIN ) );
   }
 
-  public boolean voteGenericTest( GrantedAuthority[] authorities, String[] strConfArr, int expectedResult ) {
+  public boolean voteGenericTest( List<GrantedAuthority> authorities, List<ConfigAttribute> configAttributes, int expectedResult ) {
     Authentication authentication =
-        new PrincipalSpringSecurityUserToken( StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, authorities,
-            null );
-    ConfigAttributeDefinition config = new ConfigAttributeDefinition( strConfArr );
+        new UsernamePasswordAuthenticationToken( StringUtils.EMPTY, StringUtils.EMPTY, authorities );
 
-    return expectedResult == pentahoSubstringRoleVoter.vote( authentication, new Object(), config );
+    return expectedResult == pentahoSubstringRoleVoter.vote( authentication, new Object(), configAttributes );
   }
 
 }

@@ -12,28 +12,30 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz.test;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.Arrays;
 
 public class StubUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername( String username ) throws UsernameNotFoundException, DataAccessException {
     GrantedAuthority[] auths = new GrantedAuthority[2];
-    auths[0] = new GrantedAuthorityImpl( "Authenticated" );
-    auths[1] = new GrantedAuthorityImpl( "Administrator" );
+    auths[0] = new SimpleGrantedAuthority( "Authenticated" );
+    auths[1] = new SimpleGrantedAuthority( "Administrator" );
 
-    UserDetails user = new User( "admin", "password", true, true, true, true, auths );
+    UserDetails user = new User( "admin", "password", true, true, true, true, Arrays.asList( auths ) );
 
     return user;
   }

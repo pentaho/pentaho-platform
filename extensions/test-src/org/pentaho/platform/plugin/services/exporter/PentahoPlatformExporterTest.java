@@ -51,11 +51,11 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -187,12 +187,7 @@ public class PentahoPlatformExporterTest {
     when( userSettingService.getGlobalUserSettings() ).thenReturn( settings );
 
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-
-    for ( String roleName : roleList ) {
-      authList.add( new GrantedAuthorityImpl( roleName ) );
-    }
-    GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[ 0 ] );
-    UserDetails userDetails = new User( "testUser", "testPassword", true, true, true, true, authorities );
+    UserDetails userDetails = new User( "testUser", "testPassword", true, true, true, true, authList );
     when( userDetailsService.loadUserByUsername( anyString() ) ).thenReturn( userDetails );
 
     exporter.exportUsersAndRoles();

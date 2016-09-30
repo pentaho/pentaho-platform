@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
@@ -20,12 +20,13 @@ package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
 import org.junit.Test;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.UnionizingLdapAuthoritiesPopulator;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,13 +64,13 @@ public class UnionizingLdapAuthoritiesPopulatorTests extends AbstractPentahoLdap
     DirContextOperations ctx = new SpringSecurityLdapTemplate( getContextSource() ).retrieveEntry( "uid=suzy,ou=users", //$NON-NLS-1$
         null );
 
-    GrantedAuthority[] auths = unionizer.getGrantedAuthorities( ctx, "suzy" ); //$NON-NLS-1$
+    Collection<? extends GrantedAuthority> auths = unionizer.getGrantedAuthorities( ctx, "suzy" ); //$NON-NLS-1$
 
-    assertTrue( null != auths && auths.length > 0 );
+    assertTrue( null != auths && auths.size() > 0 );
 
     List authsList = Arrays.asList( auths );
-    assertTrue( authsList.contains( new GrantedAuthorityImpl( "ROLE_POWER_USER" ) ) ); //$NON-NLS-1$
-    assertTrue( authsList.contains( new GrantedAuthorityImpl( "ROLE_MARKETING" ) ) ); //$NON-NLS-1$
+    assertTrue( authsList.contains( new SimpleGrantedAuthority( "ROLE_POWER_USER" ) ) ); //$NON-NLS-1$
+    assertTrue( authsList.contains( new SimpleGrantedAuthority( "ROLE_MARKETING" ) ) ); //$NON-NLS-1$
 
     System.out.println( authsList );
   }

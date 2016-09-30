@@ -8,18 +8,18 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
        http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
 
 	<bean id="superAuthenticationProvider"
-		class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+		class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
 		<property name="userDetailsService">
 			<ref bean="superUserDetailsService" />
 		</property>
 		<property name="passwordEncoder">
 			<ref bean="superPasswordEncoder" />
 		</property>
-	<pen:publish as-type="org.springframework.security.providers.AuthenticationProvider">
+	<pen:publish as-type="org.springframework.security.authentication.AuthenticationProvider">
 	      <pen:attributes>
 	        <pen:attr key="providerName" value="super"/>
 	      </pen:attributes>
@@ -43,6 +43,6 @@
 
 
 	<bean id="superPasswordEncoder"
-		class="org.springframework.security.providers.encoding.Md5PasswordEncoder" />
+		class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
 
 </beans>

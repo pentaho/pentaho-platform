@@ -18,10 +18,10 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
 <%@
     page language="java"
-    import="org.springframework.security.ui.AbstractProcessingFilter,
-            org.springframework.security.ui.webapp.AuthenticationProcessingFilter,
-            org.springframework.security.ui.savedrequest.SavedRequest,
-            org.springframework.security.AuthenticationException,
+    import="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter,
+            org.springframework.security.web.savedrequest.SavedRequest,
+            org.springframework.security.core.AuthenticationException,
+            org.springframework.security.web.context.HttpSessionSecurityContextRepository,
             org.pentaho.platform.uifoundation.component.HtmlComponent,
             org.pentaho.platform.engine.core.system.PentahoSystem,
             org.pentaho.platform.util.messages.LocaleHelper,
@@ -41,6 +41,8 @@
   // List of request URL strings to look for to send 401
 
   private List<String> send401RequestList;
+
+  public final String SPRING_SECURITY_SAVED_REQUEST_KEY = HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
   public void jspInit() {
     // super.jspInit();
@@ -66,10 +68,10 @@
   // SPRING_SECURITY_SAVED_REQUEST_KEY contains the URL the user originally wanted before being redirected to the login page
   // if the requested url is in the list of URLs specified in the web.xml's init-param send401List,
   // then return a 401 status now and don't show a login page (401 means not authenticated)
-  Object reqObj = request.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY);
+  Object reqObj = request.getSession().getAttribute(SPRING_SECURITY_SAVED_REQUEST_KEY);
   String requestedURL = "";
   if (reqObj != null) {
-    requestedURL = ((SavedRequest) reqObj).getFullRequestUrl();
+    requestedURL = ((SavedRequest) reqObj).getRedirectUrl();
 
     String lookFor;
     for (int i=0; i<send401RequestList.size(); i++) {

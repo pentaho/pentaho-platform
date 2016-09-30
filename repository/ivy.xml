@@ -101,7 +101,9 @@
 		<dependency org="org.springframework"          name="spring-core"            rev="${dependency.spring.framework.revision}"   transitive="false"/>
 		<dependency org="org.springframework"          name="spring-web"             rev="${dependency.spring.framework.revision}"   transitive="false"/>
 		<dependency org="org.springframework"          name="spring-webmvc"          rev="${dependency.spring.framework.revision}"   transitive="false"/>
+		<dependency org="org.springframework.webflow"  name="spring-binding"         rev="${dependency.spring.webflow.revision}"     transitive="false"/>
 		<dependency org="org.springframework.security" name="spring-security-core"   rev="${dependency.spring.security.revision}"    transitive="false"/>
+		<dependency org="org.springframework.security" name="spring-security-config" rev="${dependency.spring.security.revision}"    transitive="false"/>
 
 		<dependency org="aopalliance"              name="aopalliance"                  rev="1.0"        transitive="false"/>
 		<dependency org="org.apache.derby"         name="derby"                        rev="10.2.1.6"   transitive="false"/>
@@ -162,6 +164,7 @@
     <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" force="true" conf="test->default"/>
     <dependency org="javax.servlet" name="jstl" rev="1.2" force="true" conf="test->default"/>
     <dependency org="org.springframework" name="spring-webmvc" rev="${dependency.spring.framework.revision}" force="true" conf="test->default"/>
+    <dependency org="org.springframework.security" name="spring-security-config"   rev="${dependency.spring.security.revision}" conf="test->default"/>
 
 
 

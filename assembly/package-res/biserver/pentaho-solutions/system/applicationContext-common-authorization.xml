@@ -5,7 +5,7 @@
   +-->
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
 
     <!-- An access decision voter that reads any configuration setting. See filterInvocationInterceptor.objectDefinitionSource -->
     <!--  TenantedRoleNameUtils is passed here for the purpose for Single Tenant Environment. This logic strips the tenant information from the roles -->

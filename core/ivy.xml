@@ -38,6 +38,8 @@
 		<dependency org="org.springframework" name="spring-aop" 		rev="${dependency.spring.framework.revision}" transitive="true"/>
 		<dependency org="org.springframework" name="spring-expression" 	rev="${dependency.spring.framework.revision}" transitive="true"/>
 		<dependency org="org.springframework.security" name="spring-security-core" rev="${dependency.spring.security.revision}" transitive="false"/>
+		<dependency org="org.springframework.security" name="spring-security-acl" rev="${dependency.spring.security.revision}" transitive="false"/>
+		<dependency org="org.springframework.security" name="spring-security-ldap" rev="${dependency.spring.security.revision}" transitive="false"/>
         <dependency org="org.springframework.ldap" name="spring-ldap-core" rev="${dependency.spring.ldap.revision}" transitive="false" />
 
     <dependency org="org.slf4j" name="slf4j-api" rev="1.7.3"/>

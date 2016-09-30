@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.security.userrole.memory;
@@ -21,14 +21,15 @@ import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -102,7 +103,7 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
   @Override
   public List<String> getRolesForUser( final ITenant tenant, final String username ) throws UsernameNotFoundException {
     UserDetails user = userDetailsService.loadUserByUsername( username );
-    List<GrantedAuthority> results = Arrays.asList( user.getAuthorities() );
+    Collection<? extends GrantedAuthority> results = user.getAuthorities();
     List<String> roles = new ArrayList<String>( results.size() );
     for ( GrantedAuthority role : results ) {
       roles.add( role.getAuthority() );

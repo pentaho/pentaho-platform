@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.jcr.Repository;
@@ -82,13 +83,13 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -190,7 +191,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     mp.defineInstance( "repositoryAdminUsername", repositoryAdminUsername );
     mp.define( IConfiguration.class, SystemConfig.class );
     mp.defineInstance( "RepositoryFileProxyFactory", new RepositoryFileProxyFactory( this.jcrTemplate, this.repositoryFileDao ) );
-    mp.defineInstance("useMultiByteEncoding", new Boolean( false ) );
+    mp.defineInstance( "useMultiByteEncoding", new Boolean( false ) );
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao( userRoleDao );
     List<String> systemRoles = new ArrayList<String>();
@@ -330,8 +331,8 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
   protected void loginAsRepositoryAdmin() {
     StandaloneSession pentahoSession = new StandaloneSession( repositoryAdminUsername );
     pentahoSession.setAuthenticated( repositoryAdminUsername );
-    final GrantedAuthority[] repositoryAdminAuthorities =
-        new GrantedAuthority[]{new GrantedAuthorityImpl( superAdminRoleName )};
+    final Collection<? extends GrantedAuthority> repositoryAdminAuthorities =
+        Arrays.asList( new GrantedAuthority[]{ new SimpleGrantedAuthority( superAdminRoleName ) } );
     final String password = "ignored";
     UserDetails repositoryAdminUserDetails =
         new User( repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities );
@@ -356,7 +357,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
    * Logs in with given username.
    *
    * @param username username of user
-   * @param tenantId tenant to which this user belongs
+   * @param tenant tenant to which this user belongs
    * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
   protected void login( final String username, final ITenant tenant, String[] roles ) {
@@ -369,11 +370,10 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
     for ( String roleName : roles ) {
-      authList.add( new GrantedAuthorityImpl( roleName ) );
+      authList.add( new SimpleGrantedAuthority( roleName ) );
     }
-    GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[0] );
-    UserDetails userDetails = new User( username, password, true, true, true, true, authorities );
-    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authorities );
+    UserDetails userDetails = new User( username, password, true, true, true, true, authList );
+    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authList );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( auth );
@@ -383,7 +383,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
    * Logs in with given username.
    *
    * @param username username of user
-   * @param tenantId tenant to which this user belongs
+   * @param tenant tenant to which this user belongs
    * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
   protected void login( final String username, final ITenant tenant, final boolean tenantAdmin ) {
@@ -393,13 +393,12 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     final String password = "password";
 
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-    authList.add( new GrantedAuthorityImpl( tenantAuthenticatedAuthorityName ) );
+    authList.add( new SimpleGrantedAuthority( tenantAuthenticatedAuthorityName ) );
     if ( tenantAdmin ) {
-      authList.add( new GrantedAuthorityImpl( adminAuthorityName ) );
+      authList.add( new SimpleGrantedAuthority( adminAuthorityName ) );
     }
-    GrantedAuthority[] authorities = authList.toArray( new GrantedAuthority[0] );
-    UserDetails userDetails = new User( username, password, true, true, true, true, authorities );
-    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authorities );
+    UserDetails userDetails = new User( username, password, true, true, true, true, authList );
+    Authentication auth = new UsernamePasswordAuthenticationToken( userDetails, password, authList );
     PentahoSessionHolder.setSession( pentahoSession );
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication( auth );

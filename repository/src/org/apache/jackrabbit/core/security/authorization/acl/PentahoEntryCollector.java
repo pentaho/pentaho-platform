@@ -22,6 +22,7 @@ import java.security.Principal;
 import java.security.acl.Group;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,8 +54,8 @@ import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 /**
@@ -463,9 +464,9 @@ public class PentahoEntryCollector extends EntryCollector {
     Assert.state( pentahoSession != null );
     Authentication authentication = SecurityHelper.getInstance().getAuthentication();
     if ( authentication != null ) {
-      GrantedAuthority[] authorities = authentication.getAuthorities();
-      for ( int i = 0; i < authorities.length; i++ ) {
-        runtimeRoles.add( authorities[ i ].getAuthority() );
+      Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+      for ( GrantedAuthority auth : authorities ) {
+        runtimeRoles.add( auth.getAuthority() );
       }
     }
     return runtimeRoles;

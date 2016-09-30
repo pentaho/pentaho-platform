@@ -12,13 +12,16 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.mapper;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import mondrian.olap.Util;
@@ -39,9 +42,9 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 /**
@@ -150,24 +153,24 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    */
   protected String[] getPlatformRolesFromSession( IPentahoSession session ) {
     // Get the authorities
-    GrantedAuthority[] gAuths = (GrantedAuthority[]) session.getAttribute( IPentahoSession.SESSION_ROLES );
+    Collection<? extends GrantedAuthority> gAuths = (Collection) session.getAttribute( IPentahoSession.SESSION_ROLES );
     if ( gAuths == null ) {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
       gAuths = authentication.getAuthorities();
       Assert.state( authentication != null );
     }
 
-    String[] rtn = null;
-    if ( ( gAuths != null ) && ( gAuths.length > 0 ) ) {
+    List<String> rtn = null;
+    if ( ( gAuths != null ) && ( gAuths.size() > 0 ) ) {
       // Copy role names out of the Authentication
-      rtn = new String[gAuths.length];
-      for ( int i = 0; i < gAuths.length; i++ ) {
-        rtn[i] = gAuths[i].getAuthority();
+      rtn = new ArrayList<String>();
+      for ( GrantedAuthority auth : gAuths ) {
+        rtn.add( auth.getAuthority() );
       }
       // Sort the returned list of roles
-      Arrays.sort( rtn );
+      Collections.sort( rtn );
     }
-    return rtn;
+    return rtn != null ? rtn.toArray( new String[]{} ) : null;
   }
 
   /*

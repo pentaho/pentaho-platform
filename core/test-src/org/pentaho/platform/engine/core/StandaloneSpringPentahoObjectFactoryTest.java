@@ -13,13 +13,12 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core;
 
 import org.junit.Before;
-import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.ISystemConfig;
@@ -46,7 +45,7 @@ import static org.mockito.Mockito.when;
 public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
 
   @Before
-  public void setup(){
+  public void setup() {
     PentahoSystem.clearObjectFactory();
   }
 
@@ -284,6 +283,7 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
     File f = new File( "test-res/solution/system/pentahoObjects.spring.xml" );
     FileSystemResource fsr = new FileSystemResource( f );
     GenericApplicationContext appCtx = new GenericApplicationContext();
+    appCtx.refresh();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader( appCtx );
     xmlReader.loadBeanDefinitions( fsr );
 

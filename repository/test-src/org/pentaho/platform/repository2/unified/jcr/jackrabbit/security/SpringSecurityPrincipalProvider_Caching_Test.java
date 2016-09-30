@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
@@ -27,11 +27,12 @@ import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.SimpleMapCacheManager;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -74,7 +75,7 @@ public class SpringSecurityPrincipalProvider_Caching_Test {
     provider.init( new Properties() );
     provider = spy( provider );
 
-    User user = new User( USER_PRINCIPLE, "", true, true, true, true, new GrantedAuthority[ 0 ] );
+    User user = new User( USER_PRINCIPLE, "", true, true, true, true, new ArrayList<GrantedAuthority>() );
     doReturn( user ).when( provider ).internalGetUserDetails( USER_PRINCIPLE );
   }
 

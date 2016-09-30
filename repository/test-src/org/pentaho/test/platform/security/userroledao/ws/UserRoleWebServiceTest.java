@@ -12,18 +12,16 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.security.userroledao.ws;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.api.engine.IAclHolder;
-import org.pentaho.platform.api.engine.IAclVoter;
-import org.pentaho.platform.api.engine.IPentahoAclEntry;
-import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -32,6 +30,9 @@ import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.security.userroledao.PentahoRole;
 import org.pentaho.platform.security.userroledao.PentahoUser;
 import org.pentaho.platform.security.userroledao.ws.IUserRoleWebService;
@@ -42,9 +43,7 @@ import org.pentaho.platform.security.userroledao.ws.UserRoleSecurityInfo;
 import org.pentaho.platform.security.userroledao.ws.UserRoleWebService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.acl.AclEntry;
-import org.springframework.security.providers.encoding.PasswordEncoder;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,15 +52,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @SuppressWarnings( "nls" )
 public class UserRoleWebServiceTest {
   private MicroPlatform microPlatform;
-  private static boolean isAdmin = false;
   private static HashSet<IPentahoUser> users = new HashSet<IPentahoUser>();
   private static HashSet<IPentahoRole> roles = new HashSet<IPentahoRole>();
   private static Map<IPentahoUser, Set<IPentahoRole>> userRolesMap = new HashMap<IPentahoUser, Set<IPentahoRole>>();
   private static Map<IPentahoRole, Set<IPentahoUser>> roleMembersMap = new HashMap<IPentahoRole, Set<IPentahoUser>>();
   private static final String USER_ROLE_DAO_TXN = "userRoleDaoTxn";
+  private IAuthorizationPolicy mockPolicy = null;
 
   public static class UserRoleDaoMock implements IUserRoleDao {
 
@@ -402,45 +404,6 @@ public class UserRoleWebServiceTest {
     }
   }
 
-  public static class AclVoterMock implements IAclVoter {
-
-    @Override
-    public GrantedAuthority getAdminRole() {
-      return null;
-    }
-
-    @Override
-    public IPentahoAclEntry getEffectiveAcl( IPentahoSession session, IAclHolder holder ) {
-      return null;
-    }
-
-    @Override
-    public AclEntry[] getEffectiveAcls( IPentahoSession session, IAclHolder holder ) {
-      return null;
-    }
-
-    @Override
-    public boolean hasAccess( IPentahoSession session, IAclHolder holder, int mask ) {
-      return false;
-    }
-
-    @Override
-    public boolean isGranted( IPentahoSession session, GrantedAuthority role ) {
-      return false;
-    }
-
-    @Override
-    public boolean isPentahoAdministrator( IPentahoSession session ) {
-      return isAdmin;
-    }
-
-    @Override
-    public void setAdminRole( GrantedAuthority value ) {
-      // TODO Auto-generated method stub
-
-    }
-  }
-
   public static class PasswordEncoderMock implements PasswordEncoder {
 
     @Override
@@ -455,11 +418,22 @@ public class UserRoleWebServiceTest {
 
   }
 
+  protected void mockUserAsAdmin( boolean isAdminUser ) {
+    when( mockPolicy.isAllowed( RepositoryReadAction.NAME ) ).thenReturn( isAdminUser );
+    when( mockPolicy.isAllowed( RepositoryCreateAction.NAME ) ).thenReturn( isAdminUser );
+    when( mockPolicy.isAllowed( AdministerSecurityAction.NAME ) ).thenReturn( isAdminUser );
+  }
+
   @Before
   public void init0() {
     microPlatform = new MicroPlatform();
     microPlatform.define( USER_ROLE_DAO_TXN, UserRoleDaoMock.class );
-    microPlatform.define( IAclVoter.class, AclVoterMock.class );
+
+    mockPolicy = mock( IAuthorizationPolicy.class );
+    mockUserAsAdmin( false /* start out as non-admin */ );
+
+    microPlatform.define( IAuthorizationPolicy.class.getSimpleName(), mockPolicy );
+
     microPlatform.define( "passwordEncoder", PasswordEncoderMock.class );
 
     UserRoleDaoMock userRoleDao = PentahoSystem.get( UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null );
@@ -473,7 +447,11 @@ public class UserRoleWebServiceTest {
     userRoleDao.createRole( null, "testRole1", "test role", new String[] { "test1" } );
     userRoleDao.createRole( null, "testRole2", "test role", new String[] { "test2" } );
 
-    isAdmin = false;
+  }
+
+  @After
+  public void destroy() {
+    mockPolicy = null;
   }
 
   public IUserRoleWebService getUserRoleWebService() {
@@ -483,6 +461,7 @@ public class UserRoleWebServiceTest {
   @Test
   public void testGetUserRoleSecurityInfo() throws Exception {
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
 
     try {
       service.getUserRoleSecurityInfo();
@@ -492,7 +471,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     UserRoleSecurityInfo info = service.getUserRoleSecurityInfo();
 
@@ -507,6 +486,7 @@ public class UserRoleWebServiceTest {
     UserRoleDaoMock userRoleDao = PentahoSystem.get( UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null );
 
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoRole role = new ProxyPentahoRole( "role" );
     role.setDescription( "testing" );
     try {
@@ -516,7 +496,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     service.createRole( role );
 
@@ -532,6 +512,7 @@ public class UserRoleWebServiceTest {
     UserRoleDaoMock userRoleDao = PentahoSystem.get( UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null );
 
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoUser user = new ProxyPentahoUser();
     user.setName( "test" );
     user.setEnabled( true );
@@ -544,7 +525,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     service.createUser( user );
 
@@ -560,6 +541,7 @@ public class UserRoleWebServiceTest {
   @Test
   public void testGetUsers() throws Exception {
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     try {
       service.getUsers();
       Assert.fail();
@@ -568,7 +550,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     ProxyPentahoUser[] userObjs = service.getUsers();
 
@@ -580,6 +562,7 @@ public class UserRoleWebServiceTest {
   @Test
   public void testGetRoles() throws Exception {
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     try {
       service.getRoles();
       Assert.fail();
@@ -587,7 +570,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     ProxyPentahoRole[] roleObjs = service.getRoles();
 
@@ -599,6 +582,7 @@ public class UserRoleWebServiceTest {
   @Test
   public void testGetUser() throws Exception {
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     try {
       service.getUser( null );
       Assert.fail();
@@ -606,7 +590,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     ProxyPentahoUser userObj = service.getUser( "test1" );
 
@@ -618,6 +602,7 @@ public class UserRoleWebServiceTest {
   @Test
   public void testDeleteRoles() throws Exception {
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoRole[] rolesObj = new ProxyPentahoRole[1];
     rolesObj[0] = new ProxyPentahoRole( "testRole1" );
     try {
@@ -627,7 +612,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     service.deleteRoles( rolesObj );
 
@@ -637,6 +622,7 @@ public class UserRoleWebServiceTest {
   @Test
   public void testDeleteUsers() throws Exception {
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoUser[] usersObj = new ProxyPentahoUser[1];
     usersObj[0] = new ProxyPentahoUser();
     usersObj[0].setName( "test1" );
@@ -647,7 +633,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     service.deleteUsers( usersObj );
 
@@ -657,6 +643,7 @@ public class UserRoleWebServiceTest {
   @Test
   public void testGetRolesForUser() throws UserRoleException {
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoUser userObj = new ProxyPentahoUser();
     userObj.setName( "test1" );
     try {
@@ -666,7 +653,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     ProxyPentahoRole[] roles = service.getRolesForUser( userObj );
 
@@ -676,6 +663,7 @@ public class UserRoleWebServiceTest {
   @Test
   public void testGetUsersForRole() throws UserRoleException {
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoRole roleObj = new ProxyPentahoRole( "testRole1" );
     try {
       service.getUsersForRole( roleObj );
@@ -684,7 +672,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     ProxyPentahoUser[] userObjs = service.getUsersForRole( roleObj );
 
@@ -696,6 +684,7 @@ public class UserRoleWebServiceTest {
     UserRoleDaoMock userRoleDao = PentahoSystem.get( UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null );
 
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoUser userObj = new ProxyPentahoUser();
     userObj.setName( "test1" );
 
@@ -709,7 +698,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     userRoleDao.getUserRoles( null, "test1" );
     Assert.assertEquals( "testRole1", userRoleDao.getUserRoles( null, "test1" ).get( 0 ).getName() );
@@ -724,6 +713,7 @@ public class UserRoleWebServiceTest {
     UserRoleDaoMock userRoleDao = PentahoSystem.get( UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null );
 
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoRole roleObj = new ProxyPentahoRole( "testRole1" );
 
     ProxyPentahoUser[] usersObj = new ProxyPentahoUser[1];
@@ -737,7 +727,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     Assert.assertEquals( "test1", userRoleDao.getRoleMembers( null, "testRole1" ).get( 0 ).getUsername() );
 
@@ -751,6 +741,7 @@ public class UserRoleWebServiceTest {
     UserRoleDaoMock userRoleDao = PentahoSystem.get( UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null );
 
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoUser userObj = new ProxyPentahoUser();
     userObj.setName( "test1" );
     userObj.setDescription( "testUpdateUser" );
@@ -763,7 +754,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     Assert.assertEquals( "test", userRoleDao.getUser( null, "test1" ).getDescription() );
 
@@ -777,6 +768,7 @@ public class UserRoleWebServiceTest {
     UserRoleDaoMock userRoleDao = PentahoSystem.get( UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null );
 
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoRole roleObj = new ProxyPentahoRole( "testRole1" );
     roleObj.setDescription( "testUpdateRoleObject" );
 
@@ -787,7 +779,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     Assert.assertEquals( "test role", userRoleDao.getRole( null, "testRole1" ).getDescription() );
 
@@ -801,6 +793,7 @@ public class UserRoleWebServiceTest {
     UserRoleDaoMock userRoleDao = PentahoSystem.get( UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null );
 
     IUserRoleWebService service = getUserRoleWebService();
+    mockUserAsAdmin( false /* non-admin user */ );
     ProxyPentahoRole roleObj = new ProxyPentahoRole( "testRole1" );
     roleObj.setDescription( "testUpdateRoleObject" );
     List<String> usernames = new ArrayList<String>();
@@ -811,7 +804,7 @@ public class UserRoleWebServiceTest {
       Assert.assertTrue( "ERROR_0001 not found in " + e.getMessage(), e.getMessage().indexOf( "ERROR_0001" ) >= 0 );
     }
 
-    isAdmin = true;
+    mockUserAsAdmin( true /* admin user */ );
 
     Assert.assertEquals( "test role", userRoleDao.getRole( null, "testRole1" ).getDescription() );
 

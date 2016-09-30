@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified;
@@ -24,11 +24,12 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository.SpringSecurityCurrentUserProvider;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
@@ -41,7 +42,7 @@ public class RepositoryUtilsTest {
   @BeforeClass
   public static void setUpClass() {
     SecurityContextHolder.getContext().setAuthentication(
-        new UsernamePasswordAuthenticationToken( "admin", null, new GrantedAuthority[0] ) );
+        new UsernamePasswordAuthenticationToken( "admin", null, new ArrayList<GrantedAuthority>() ) );
   }
 
   @AfterClass
