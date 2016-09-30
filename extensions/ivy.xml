@@ -144,7 +144,7 @@
     <dependency org="com.sun" name="jai_codec" rev="1.1.2"/>
     <dependency org="com.sun" name="jai_core" rev="1.1.2"/>
     <dependency org="javax.faces" name="jsf-api" rev="1.1"/>
-    <dependency org="jakarta-taglibs" name="standard" rev="1.0.6"/>
+    <dependency org="org.apache.taglibs" name="taglibs-standard-impl" rev="1.2.5" transitive="false"/>
 
     <dependency org="javax.servlet" name="jstl" rev="1.0.5"/>
     <dependency org="javatar" name="javatar" rev="2.5" transitive="false"/>
