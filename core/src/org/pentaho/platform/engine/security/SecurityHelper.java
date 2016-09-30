@@ -66,6 +66,7 @@ public class SecurityHelper implements ISecurityHelper {
   private static ISecurityHelper mockInstance;
 
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
+  private IAuthorizationPolicy policy;
   private UserDetailsService userDetailsService;
   private IUserRoleListService userRoleListService;
 
@@ -235,7 +236,12 @@ public class SecurityHelper implements ISecurityHelper {
   @Override
   @Deprecated
   public boolean isPentahoAdministrator( final IPentahoSession session ) {
-    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
+    IAuthorizationPolicy policy = getAuthorizationPolicy();
+
+    if ( policy == null ) {
+      SecurityHelper.logger.warn( "No IAuthorizationPolicy set in PentahoSystem" );
+    }
+
     // TODO externalize action names
     return policy.isAllowed( "org.pentaho.repository.read" )
       && policy.isAllowed( "org.pentaho.repository.create" )
@@ -274,7 +280,7 @@ public class SecurityHelper implements ISecurityHelper {
     String aclMask = null; // acl to jcr repositoryAction mask
 
     // TODO externalize repository action names
-    switch( actionOperation ) {
+    switch ( actionOperation ) {
       case ( IAclHolder.ACCESS_TYPE_READ ): {
         aclMask = "org.pentaho.repository.read"; // was IPentahoAclEntry.PERM_EXECUTE;
         break;
@@ -416,6 +422,13 @@ public class SecurityHelper implements ISecurityHelper {
       PentahoSessionHolder.setSession( origSession );
       SecurityContextHolder.getContext().setAuthentication( origAuth );
     }
+  }
+
+  public IAuthorizationPolicy getAuthorizationPolicy() {
+    if ( policy == null ) {
+      policy = PentahoSystem.get( IAuthorizationPolicy.class );
+    }
+    return policy;
   }
 
   public ITenantedPrincipleNameResolver getTenantedUserNameUtils() {
