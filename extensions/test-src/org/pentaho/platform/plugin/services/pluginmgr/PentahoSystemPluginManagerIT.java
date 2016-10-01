@@ -1,3 +1,20 @@
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ */
+
 package org.pentaho.platform.plugin.services.pluginmgr;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,11 +29,13 @@ import org.pentaho.platform.api.engine.IServiceManager;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
+import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.config.SystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
@@ -28,8 +47,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -64,7 +82,7 @@ public class PentahoSystemPluginManagerIT extends DefaultPluginManagerIT {
   }
 
   @Test
-  public void testPluginSettings() throws Exception{
+  public void testPluginSettings() throws Exception {
     init0();
     microPlatform.start();
 
@@ -77,11 +95,11 @@ public class PentahoSystemPluginManagerIT extends DefaultPluginManagerIT {
 
     // Valid plugin but missing property. Return Default
     setting = pluginManager.getPluginSetting( "Plugin 1", "settings/missing-property", "5432" );
-    assertEquals("5432", setting.toString() );
+    assertEquals( "5432", setting.toString() );
 
     // Invalid plugin. Return default
     setting = pluginManager.getPluginSetting( "Non-Existant Plugin", "settings/test-property", "ABCD" );
-    assertEquals("ABCD", setting.toString() );
+    assertEquals( "ABCD", setting.toString() );
   }
 
   @Test
@@ -154,4 +172,19 @@ public class PentahoSystemPluginManagerIT extends DefaultPluginManagerIT {
     assertEquals( "ContentInfo should have be deregistered.", 0, contentInfos.size() );
   }
 
+  @Test()
+  @Override
+  public void test5c_getBeanBadClassname() throws PluginBeanException, PlatformInitializationException {
+    microPlatform.define( IPluginProvider.class, Tst5DefaultPluginProviderBadClass.class ).start();
+
+    // reload should register the beans
+    pluginManager.reload();
+
+    try {
+      assertNotNull( pluginManager.getBean( "TestDefaultClassNotFoundComponent" ) );
+      fail( "We should have gotten a PluginBeanException for the TestDefaultClassNotFoundComponent plugin" );
+    } catch ( Exception ex ) {
+      assertTrue( ex instanceof PluginBeanException );
+    }
+  }
 }
