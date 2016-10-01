@@ -145,7 +145,7 @@
   </bean>
 
   <bean id="exceptionTranslationFilterForWS" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-    <constructor-arg ref="authenticationProcessingFilterEntryPoint"/>
+    <constructor-arg ref="basicProcessingFilterEntryPoint"/>
     <property name="accessDeniedHandler">
       <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
     </property>
