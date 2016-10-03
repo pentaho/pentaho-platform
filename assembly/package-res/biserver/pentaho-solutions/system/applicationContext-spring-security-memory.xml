@@ -40,7 +40,7 @@
 	  <property name="properties">
 	    <props>
 	      <prop key="admin">password,Administrator,Authenticated</prop>
-	      <prop key="suzy">value="password,Power User,Authenticated</prop>
+	      <prop key="suzy">password,Power User,Authenticated</prop>
 	      <prop key="pat">password,Business Analyst,Authenticated</prop>
 	      <prop key="tiffany">password,Report Author,Authenticated</prop>
 	      <prop key="joe">password,Report Author,Administrator,Authenticated</prop>
