@@ -140,15 +140,7 @@ public class KarafBoot implements IPentahoSystemListener {
           destDir = candidate;
         }
 
-        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
-          @Override public void run() {
-            try {
-              FileUtils.deleteDirectory( destDir );
-            } catch ( IOException e ) {
-              logger.error( "Unable to delete karaf directory " + destDir, e );
-            }
-          }
-        } ) );
+        destDir.deleteOnExit();
       } else if ( rootCopyFolderString != null ) {
         destDir = new File( rootCopyFolderString );
       } else {
@@ -189,8 +181,7 @@ public class KarafBoot implements IPentahoSystemListener {
                 }
               } catch ( IOException e ) {
                 logger
-                    .error(
-                        "Unable to create symlink " + linkFile.getAbsolutePath() + " -> " + file.getAbsolutePath(), e );
+                  .warn( "Unable to create symlink " + linkFile.getAbsolutePath() + " -> " + file.getAbsolutePath() );
               }
             }
             return true;
