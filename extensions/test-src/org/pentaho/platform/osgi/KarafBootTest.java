@@ -81,7 +81,7 @@ public class KarafBootTest {
   @AfterClass
   public static void cleanUp() throws IOException {
     if ( tmpDir.exists() ) {
-      FileUtils.deleteDirectory( tmpDir );
+      tmpDir.deleteOnExit();
     }
   }
 

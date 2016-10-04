@@ -55,7 +55,7 @@ public class KarafInstanceTest {
     // clean up
     File folder = new File( TEST_CACHE_FOLDER );
     if ( folder.exists() ) {
-      FileUtils.deleteDirectory( folder );
+      folder.deleteOnExit();
     }
   }
 
