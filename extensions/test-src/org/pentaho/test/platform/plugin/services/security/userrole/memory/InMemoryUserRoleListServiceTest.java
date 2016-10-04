@@ -28,7 +28,6 @@ import org.pentaho.platform.plugin.services.security.userrole.memory.PentahoUser
 import org.pentaho.platform.plugin.services.security.userrole.memory.PentahoUserMapEditor;
 import org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMap;
 import org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMapEditor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import java.io.ByteArrayInputStream;
@@ -39,13 +38,13 @@ import java.util.Properties;
 import static org.junit.Assert.*;
 
 @SuppressWarnings( "nls" )
-public class InMemoryUserRoleListServiceTests {
+public class InMemoryUserRoleListServiceTest {
 
-  private static final Log logger = LogFactory.getLog( InMemoryUserRoleListServiceTests.class );
+  private static final Log logger = LogFactory.getLog( InMemoryUserRoleListServiceTest.class );
 
   InMemoryUserRoleListService dao;
 
-  public InMemoryUserRoleListServiceTests() {
+  public InMemoryUserRoleListServiceTest() {
     super();
   }
 
@@ -113,8 +112,7 @@ public class InMemoryUserRoleListServiceTests {
     if ( logger.isDebugEnabled() ) {
       logger.debug( "testGetAllAuthoritiesSorted(): Authorities: " + authorities ); //$NON-NLS-1$
     }
-    assertTrue( authorities.indexOf( new SimpleGrantedAuthority( "ROLE_THREE" ) ) < authorities
-        .indexOf( new SimpleGrantedAuthority( "ROLE_TWO" ) ) );
+    assertTrue( authorities.indexOf( "ROLE_THREE"  ) < authorities.indexOf(  "ROLE_TWO" )  );
   }
 
   @Test
@@ -159,8 +157,7 @@ public class InMemoryUserRoleListServiceTests {
       logger.debug( "testGetRolesForUser(): Roles: " + authorities ); //$NON-NLS-1$
     }
 
-    assertTrue( authorities.indexOf( new SimpleGrantedAuthority( "ROLE_ONE" ) ) < authorities
-        .indexOf( new SimpleGrantedAuthority( "ROLE_THREE" ) ) );
+    assertTrue( authorities.indexOf( "ROLE_ONE" ) < authorities.indexOf( "ROLE_THREE" )  );
   }
 
   private UserRoleListEnhancedUserMap makeUserRoleListEnhancedUserMap() {
