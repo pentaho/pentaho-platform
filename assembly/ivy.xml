@@ -255,6 +255,7 @@
     <exclude org="cglib"  module="cglib" />
     <exclude org="org.springframework" module="spring"/>
     <exclude org="com.sun.xml.ws" module="jaxws-rt"/>
+    <exclude org="com.sun.xml.stream.buffer" module="streambuffer"/>
 
 	<!-- Excluding test dependencies for the assembly -->
     <exclude org="org.mockito"          module="mockito-all"/>
