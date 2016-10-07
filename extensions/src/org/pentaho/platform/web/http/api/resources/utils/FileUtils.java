@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.utils;
@@ -69,4 +69,21 @@ public class FileUtils {
 
     return stringToConvert.split( "[,]" );
   }
+
+  public static String getParentPath( final String path ) {
+    if ( path == null ) {
+      throw new IllegalArgumentException();
+    } else if ( PATH_SEPARATOR.equals( path ) ) {
+      return null;
+    }
+    int lastSlashIndex = path.lastIndexOf( PATH_SEPARATOR );
+    if ( lastSlashIndex == 0 ) {
+      return PATH_SEPARATOR;
+    } else if ( lastSlashIndex > 0 ) {
+      return path.substring( 0, lastSlashIndex );
+    } else {
+      throw new IllegalArgumentException();
+    }
+  }
+
 }
