@@ -86,4 +86,11 @@ public class FileUtils {
     }
   }
 
+  public static boolean isRootPath( final String path ) {
+    return PATH_SEPARATOR.equals( path );
+  }
+
+  public static boolean isRootLevelPath( final String path ) {
+    return ( path != null ) && !isRootPath( path ) && path.startsWith( PATH_SEPARATOR ) && isRootPath( getParentPath( path ) );
+  }
 }
