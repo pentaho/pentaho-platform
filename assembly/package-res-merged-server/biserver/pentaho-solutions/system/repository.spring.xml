@@ -36,7 +36,7 @@
   	This transaction manager is responsible for starting jcr transactions using a jcr session. Notice that it uses the
   	jcrSessionFactory bean, which creates jcr sessions using the credentials of the logged in user.
   -->
-  <bean id="jcrTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager">
+  <bean id="jcrTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager" primary="true">
     <property name="sessionFactory" ref="jcrSessionFactory"/>
   </bean>
 
