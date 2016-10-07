@@ -22,6 +22,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -216,10 +217,11 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
         .setText( isInTrash
             ? Messages.getString( "recycleBin" ) : fileSummary.getPath().substring( 0, fileSummary.getPath().lastIndexOf( "/" ) ) ); //$NON-NLS-1$//$NON-NLS-2$
     sizeLabel.setText( NumberFormat.getDecimalFormat().format( fileSummary.getFileSize() / 1000.00 )
-        + " " + Messages.getString( "kiloBytes" ) ); //$NON-NLS-1$ //$NON-NLS-2$
-    createdLabel.setText( fileSummary.getCreatedDate().toString() );
-    lastModifiedDateLabel.setText( fileSummary.getLastModifiedDate() == null ? fileSummary.getCreatedDate().toString()
-        : fileSummary.getLastModifiedDate().toString() );
+        + " " + Messages.getString( "kiloBytes" ) ); //$NON-NLS-1$ //$NON-NLS-2$\
+    DateTimeFormat df = DateTimeFormat.getFormat( DateTimeFormat.PredefinedFormat.DATE_TIME_FULL );
+    createdLabel.setText( df.format( fileSummary.getCreatedDate() ) );
+    lastModifiedDateLabel.setText( fileSummary.getLastModifiedDate() == null ? df.format( fileSummary.getCreatedDate() )
+        : df.format( fileSummary.getLastModifiedDate() ) );
     deletedDateLabel.setText( fileSummary.getDeletedDate() == null ? "" : fileSummary.getDeletedDate().toString() ); //$NON-NLS-1$
     originalLocationLabel.setText( fileSummary.getOriginalParentFolderPath() );
   }
