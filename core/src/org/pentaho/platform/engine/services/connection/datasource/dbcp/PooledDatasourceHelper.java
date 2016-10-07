@@ -18,6 +18,7 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbcp.AbandonedConfig;
 import org.apache.commons.dbcp.AbandonedObjectPool;
 import org.apache.commons.dbcp.ConnectionFactory;
@@ -52,7 +53,9 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 public class PooledDatasourceHelper {
 
@@ -318,10 +321,19 @@ public class PooledDatasourceHelper {
   }
 
   public static DataSource convert( IDatabaseConnection databaseConnection ) throws DBDatasourceServiceException {
+    return convert( databaseConnection,  () -> PentahoSystem.get(
+      IDatabaseDialectService.class, PentahoSessionHolder.getSession() ) );
+  }
+
+  @VisibleForTesting
+  static DataSource convert( IDatabaseConnection databaseConnection, Supplier<IDatabaseDialectService> dialectSupplier )
+    throws DBDatasourceServiceException {
     DriverManagerDataSource basicDatasource = new DriverManagerDataSource(); // From Spring
-    IDatabaseDialectService databaseDialectService =
-        PentahoSystem.get( IDatabaseDialectService.class, PentahoSessionHolder.getSession() );
-    IDatabaseDialect dialect = databaseDialectService.getDialect( databaseConnection );
+    IDatabaseDialect dialect = Optional.ofNullable( dialectSupplier.get() )
+      .orElseThrow( () -> new DBDatasourceServiceException(
+        Messages.getInstance().getErrorString(
+          "PooledDatasourceHelper.ERROR_0001_DATASOURCE_CANNOT_LOAD_DIALECT_SVC" )
+      ) ).getDialect( databaseConnection );
     if ( databaseConnection.getDatabaseType() == null && dialect == null ) {
       // We do not have enough information to create a DataSource. Throwing exception
       throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
@@ -332,12 +344,7 @@ public class PooledDatasourceHelper {
       String driverClassName =
           databaseConnection.getAttributes().get( GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS );
       if ( !StringUtils.isEmpty( driverClassName ) ) {
-        try {
-          basicDatasource.setDriverClassName( driverClassName );
-        } catch ( Throwable th ) {
-          throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
-              "PooledDatasourceHelper.ERROR_0002_DATASOURCE_CREATE_ERROR_NO_CLASSNAME", databaseConnection.getName() ), th );
-        }
+        initDriverClass( basicDatasource, dialect, driverClassName, databaseConnection.getName() );
       } else {
         // We do not have enough information to create a DataSource. Throwing exception
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
@@ -346,12 +353,7 @@ public class PooledDatasourceHelper {
 
     } else {
       if ( !StringUtils.isEmpty( dialect.getNativeDriver() ) ) {
-        try {
-          basicDatasource.setDriverClassName( dialect.getNativeDriver() );
-        } catch ( Throwable th ) {
-          throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
-              "PooledDatasourceHelper.ERROR_0002_DATASOURCE_CREATE_ERROR_NO_CLASSNAME", databaseConnection.getName() ), th );
-        }
+        initDriverClass( basicDatasource, dialect, dialect.getNativeDriver(), databaseConnection.getName() );
       } else {
         // We do not have enough information to create a DataSource. Throwing exception
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
@@ -367,6 +369,31 @@ public class PooledDatasourceHelper {
     basicDatasource.setPassword( databaseConnection.getPassword() );
 
     return basicDatasource;
+  }
+
+  /**
+   * For dialects which implement IDriverLocator, this method will use the provided
+   * initialize() implementation.  For all others, will initialize drivers via the call to
+   * {@link DriverManagerDataSource#setDriverClassName(String)} (which internally uses Class.forName())
+   * @throws DBDatasourceServiceException
+   */
+  private static void initDriverClass( DriverManagerDataSource driverManagerDataSource, IDatabaseDialect dialect,
+                                       String driverClassName,
+                                       String databaseConnectionName ) throws DBDatasourceServiceException {
+    if ( dialect instanceof IDriverLocator ) {
+      if ( !( (IDriverLocator) dialect ).initialize( driverClassName ) ) {
+        throw new RuntimeException( Messages.getInstance()
+          .getErrorString( "PooledDatasourceHelper.ERROR_0009_UNABLE_TO_POOL_DATASOURCE_CANT_INITIALIZE",
+            databaseConnectionName, driverClassName ) );
+      }
+      return;
+    }
+    try {
+      driverManagerDataSource.setDriverClassName( driverClassName );
+    } catch ( Throwable th ) {
+      throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
+        "PooledDatasourceHelper.ERROR_0002_DATASOURCE_CREATE_ERROR_NO_CLASSNAME", databaseConnectionName ), th );
+    }
   }
 
   public static DataSource getJndiDataSource( final String dsName ) throws DBDatasourceServiceException {
