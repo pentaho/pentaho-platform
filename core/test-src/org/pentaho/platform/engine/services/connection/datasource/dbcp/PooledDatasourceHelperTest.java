@@ -13,30 +13,63 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2014 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.util.HashMap;
-
-import javax.sql.DataSource;
-
-import org.apache.commons.dbcp.PoolingDataSource;
+import com.google.common.collect.ImmutableMap;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.pentaho.database.DatabaseDialectException;
+import org.pentaho.database.IDatabaseDialect;
+import org.pentaho.database.IDriverLocator;
+import org.pentaho.database.dialect.GenericDatabaseDialect;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.database.model.IDatabaseType;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import java.util.HashMap;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith( MockitoJUnitRunner.class )
 public class PooledDatasourceHelperTest {
-  MicroPlatform mp;
+  private MicroPlatform mp;
+
+  @Mock( extraInterfaces = { IDriverLocator.class } ) private IDatabaseDialect driverLocatorDialect;
+  @Mock private IDatabaseDialect plainDialect;
+  @Mock private IDatabaseConnection connection;
+  @Mock private IDatabaseDialectService dialectService;
+  @Mock private IDatabaseType databaseType;
+
+  private final String nativeDriverName = "some.native.driver";
+  private final String jdbcUrl = "jdbc:some://server:port";
+
+  @Before
+  public void before() throws DatabaseDialectException {
+    when( dialectService.getDialect( connection ) ).thenReturn( driverLocatorDialect );
+    when( connection.getDatabaseType() ).thenReturn( databaseType );
+    when( connection.getDatabaseType().getShortName() ).thenReturn( "SomeDBType" );
+    when( driverLocatorDialect.getNativeDriver() ).thenReturn( nativeDriverName );
+    when( driverLocatorDialect.getURLWithExtraOptions( connection ) ).thenReturn( jdbcUrl );
+    when( plainDialect.getNativeDriver() ).thenReturn( nativeDriverName );
+    when( plainDialect.getURLWithExtraOptions( connection ) ).thenReturn( jdbcUrl );
+  }
 
   @Test
   public void testSetupPooledDataSourceForJNDI() {
@@ -61,12 +94,12 @@ public class PooledDatasourceHelperTest {
     con.setDatabaseType( databaseTypeHelper.getDatabaseTypeByShortName( "GENERIC" ) );
     con.setUsername( "pentaho_user" );
     con.setPassword( "password" );
-    final HashMap<String, String> attrs = new HashMap<String, String>();
+    final HashMap<String, String> attrs = new HashMap<>();
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_DRIVER_CLASS, "org.postgresql.Driver" );
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_URL, "jdbc:postgresql://localhost:5432/hibernate" );
     con.setAttributes( attrs );
     try {
-      final PoolingDataSource poolingDataSource = PooledDatasourceHelper.setupPooledDataSource( con );
+      PooledDatasourceHelper.setupPooledDataSource( con );
       fail( "Expecting the exception to be thrown" );
     } catch ( DBDatasourceServiceException ex ) {
       assertNotNull( ex );
@@ -76,7 +109,6 @@ public class PooledDatasourceHelperTest {
   @Test
   public void testCreatePoolNoDialect() throws Exception {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
-    final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );
     mp = new MicroPlatform();
     mp.defineInstance( IDatabaseDialectService.class, dialectService );
     mp.start();
@@ -87,13 +119,13 @@ public class PooledDatasourceHelperTest {
     con.setAccessType( DatabaseAccessType.NATIVE );
     con.setUsername( "pentaho_user" );
     con.setPassword( "password" );
-    final HashMap<String, String> attrs = new HashMap<String, String>();
+    final HashMap<String, String> attrs = new HashMap<>();
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_DRIVER_CLASS, "" );
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_URL, "jdbc:postgresql://localhost:5432/hibernate" );
     con.setAttributes( attrs );
 
     try {
-      final PoolingDataSource poolingDataSource = PooledDatasourceHelper.setupPooledDataSource( con );
+      PooledDatasourceHelper.setupPooledDataSource( con );
       fail( "Expecting the exception to be thrown" );
     } catch ( DBDatasourceServiceException ex ) {
       assertNotNull( ex );
@@ -116,13 +148,13 @@ public class PooledDatasourceHelperTest {
     con.setDatabaseType( databaseTypeHelper.getDatabaseTypeByShortName( "GENERIC" ) );
     con.setUsername( "pentaho_user" );
     con.setPassword( "password" );
-    final HashMap<String, String> attrs = new HashMap<String, String>();
+    final HashMap<String, String> attrs = new HashMap<>();
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_DRIVER_CLASS, "" );
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_URL, "jdbc:postgresql://localhost:5432/hibernate" );
     con.setAttributes( attrs );
 
     try {
-      final PoolingDataSource poolingDataSource = PooledDatasourceHelper.setupPooledDataSource( con );
+      PooledDatasourceHelper.setupPooledDataSource( con );
       fail( "Expecting the exception to be thrown" );
     } catch ( DBDatasourceServiceException ex ) {
       assertNotNull( ex );
@@ -133,22 +165,19 @@ public class PooledDatasourceHelperTest {
   @Test
   public void testCreateDatasourceNoDialect() throws Exception {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
-    final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );
-    mp = new MicroPlatform();
-    mp.defineInstance( IDatabaseDialectService.class, dialectService );
-    mp.start();
+
     final DatabaseConnection con = new DatabaseConnection();
     con.setId( "Postgres" );
     con.setName( "Postgres" );
     con.setAccessType( DatabaseAccessType.NATIVE );
     con.setUsername( "pentaho_user" );
     con.setPassword( "password" );
-    final HashMap<String, String> attrs = new HashMap<String, String>();
+    final HashMap<String, String> attrs = new HashMap<>();
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_DRIVER_CLASS, "org.postgresql.Driver" );
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_URL, "jdbc:postgresql://localhost:5432/hibernate" );
     con.setAttributes( attrs );
     try {
-      final DataSource dataSource = PooledDatasourceHelper.convert( con );
+      PooledDatasourceHelper.convert( con, () -> dialectService );
       fail( "Expecting the exception to be thrown" );
     } catch ( DBDatasourceServiceException ex ) {
       assertNotNull( ex );
@@ -159,9 +188,6 @@ public class PooledDatasourceHelperTest {
   public void testCreateDatasourceNoClassName() throws Exception {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
     final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );
-    mp = new MicroPlatform();
-    mp.defineInstance( IDatabaseDialectService.class, dialectService );
-    mp.start();
 
     final DatabaseConnection con = new DatabaseConnection();
     con.setId( "Postgres" );
@@ -170,18 +196,86 @@ public class PooledDatasourceHelperTest {
     con.setDatabaseType( databaseTypeHelper.getDatabaseTypeByShortName( "GENERIC" ) );
     con.setUsername( "pentaho_user" );
     con.setPassword( "password" );
-    final HashMap<String, String> attrs = new HashMap<String, String>();
+    final HashMap<String, String> attrs = new HashMap<>();
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_DRIVER_CLASS, "" );
     attrs.put( DatabaseConnection.ATTRIBUTE_CUSTOM_URL, "jdbc:postgresql://localhost:5432/hibernate" );
     con.setAttributes( attrs );
 
     try {
-      final DataSource dataSource = PooledDatasourceHelper.convert( con );
+      PooledDatasourceHelper.convert( con, () -> dialectService );
       fail( "Expecting the exception to be thrown" );
     } catch ( DBDatasourceServiceException ex ) {
       assertNotNull( ex );
     }
 
+  }
+
+  @Test
+  public void testThatFailedDriverInitThrowsInConvert() throws DBDatasourceServiceException {
+    when( ( (IDriverLocator) driverLocatorDialect ).initialize( nativeDriverName ) ).thenReturn( false );
+    try {
+      PooledDatasourceHelper.convert( connection, () -> dialectService );
+      fail( "Expected exception" );
+    } catch ( Exception e ) {
+      assertThat( e.getMessage(), containsString( nativeDriverName ) );
+    }
+  }
+
+  @Test
+  public void testSuccessfulDriverInitInConvertNonGeneric() throws DBDatasourceServiceException {
+    when( ( (IDriverLocator) driverLocatorDialect ).initialize( nativeDriverName ) ).thenReturn( true );
+    PooledDatasourceHelper.convert( connection, () -> dialectService );
+    verify( ( (IDriverLocator) driverLocatorDialect ), times( 1 ) ).initialize( nativeDriverName );
+  }
+
+  @Test
+  public void testSuccessfulDriverInitInConvertGeneric() throws DBDatasourceServiceException {
+    when( databaseType.getShortName() ).thenReturn( "GENERIC" );
+    when( connection.getAttributes() ).thenReturn(
+      ImmutableMap.of( GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS,
+        nativeDriverName ) );
+    when( connection.getUsername() ).thenReturn( "suzy" );
+    when( connection.getPassword() ).thenReturn( "password" );
+    when( ( (IDriverLocator) driverLocatorDialect ).initialize( nativeDriverName ) ).thenReturn( true );
+    DriverManagerDataSource dataSource = (DriverManagerDataSource) PooledDatasourceHelper.convert( connection, () -> dialectService );
+    verify( ( (IDriverLocator) driverLocatorDialect ), times( 1 ) ).initialize( nativeDriverName );
+    assertThat( dataSource.getUrl(), is( jdbcUrl ) );
+    assertThat( dataSource.getUsername(), is( "suzy" ) );
+    assertThat( dataSource.getPassword(), is( "password" ) );
+  }
+
+  @Test
+  public void testDialectWithoutLocatorAndDriverNotPresent() throws DBDatasourceServiceException {
+    when( dialectService.getDialect( connection ) ).thenReturn( plainDialect );
+    try {
+      PooledDatasourceHelper.convert( connection, () -> dialectService );
+      fail( "Expected exception, driver class should not be present." );
+    } catch ( Exception e ) {
+      assertThat( e, instanceOf( DBDatasourceServiceException.class ) );
+      assertThat( e.getCause().getMessage(), containsString( nativeDriverName ) );
+    }
+  }
+
+  @Test
+  public void testDialectWithNoDriverSpecified() throws DBDatasourceServiceException {
+    when( dialectService.getDialect( connection ) ).thenReturn( driverLocatorDialect );
+    when( driverLocatorDialect.getNativeDriver() ).thenReturn( "" );
+    try {
+      PooledDatasourceHelper.convert( connection, () -> dialectService );
+      fail( "Expected exception, driver class not specified in dialect." );
+    } catch ( Exception e ) {
+      assertThat( e, instanceOf( DBDatasourceServiceException.class ) );
+    }
+  }
+
+  @Test
+  public void testNoDialectService() throws DBDatasourceServiceException {
+    try {
+      PooledDatasourceHelper.convert( connection, () -> null );
+      fail( "Expected an exception.  No dialect service." );
+    } catch ( Exception e ) {
+      assertThat( e, instanceOf( DBDatasourceServiceException.class ) );
+    }
   }
 
 }
