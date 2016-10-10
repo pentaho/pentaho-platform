@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -208,6 +208,33 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
   }
 
+  private String endsWithXmi( String value ) {
+    if ( value.endsWith( ".xmi" ) ) {
+      return value;
+    } else {
+      return value + ".xmi";
+    }
+  }
+
+  private String replaceDomainId( StringBuilder sb, String domainId ) {
+    int datasourceModelTagPosition = sb.indexOf( "datasourceModel" );
+    if ( datasourceModelTagPosition != -1 ) {
+      String xmiDomainId = endsWithXmi( domainId );
+      String tag = "<CWM:Description body=";
+
+      int startTagPosition = sb.indexOf( tag, datasourceModelTagPosition );
+      int startPosition = startTagPosition + tag.length() + 1;
+      int endPosition = sb.indexOf( "\"", startPosition );
+
+      sb.delete( startPosition, endPosition );
+      sb.insert( startPosition, xmiDomainId );
+
+      return xmiDomainId;
+    } else {
+      return domainId;
+    }
+  }
+
   /**
    * Stores a domain to the repository directly as an Input Stream
    *
@@ -259,6 +286,9 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       } finally {
         inputStream.close();
       }
+
+      domainId = replaceDomainId( stringBuilder, domainId );
+
       xmi = stringBuilder.toString();
       // now, try to see if the xmi can be parsed (ie, check if it's valid xmi)
       byte[] xmiBytes = xmi.getBytes( DEFAULT_ENCODING );
@@ -810,7 +840,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       }
     }
 
-    if( domainFile == null && logger.isDebugEnabled() ) {
+    if ( domainFile == null && logger.isDebugEnabled() ) {
       logger.debug( "Even after reloading all domains, the specified Domain wasn't found in the system: " + domainId );
     }
 
