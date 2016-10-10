@@ -97,4 +97,70 @@ public class FileUtilsTest {
   public void convertEmptyString() {
     FileUtils.convertCommaSeparatedStringToArray( StringUtils.EMPTY );
   }
+
+  @Test
+  public void getParentPath_Ok() {
+    assertEquals( null, FileUtils.getParentPath( "/" ) );
+    assertEquals( "/", FileUtils.getParentPath( "/asdf" ) );
+    assertEquals( "/asdf", FileUtils.getParentPath( "/asdf/" ) );
+    assertEquals( "/asdf", FileUtils.getParentPath( "/asdf/ghjk" ) );
+    assertEquals( "/asdf/ghjk", FileUtils.getParentPath( "/asdf/ghjk/zxcv" ) );
+    assertEquals( "/as~!@#$%df/gh^&*()jk/zx_+ ,.cv", FileUtils.getParentPath( "/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+
+    assertEquals( "asdf", FileUtils.getParentPath( "asdf/" ) );
+    assertEquals( "asdf", FileUtils.getParentPath( "asdf/ghjk" ) );
+    assertEquals( "as~!@#$%df/gh^&*()jk/zx_+ ,.cv", FileUtils.getParentPath( "as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+  }
+
+  @Test( expected = IllegalArgumentException.class )
+  public void getParentPath_IAE_0() {
+    FileUtils.getParentPath( null );
+  }
+
+  @Test( expected = IllegalArgumentException.class )
+  public void getParentPath_IAE_1() {
+    FileUtils.getParentPath( "" );
+  }
+
+  @Test( expected = IllegalArgumentException.class )
+  public void getParentPath_IAE_2() {
+    FileUtils.getParentPath( "asdf" );
+  }
+
+  @Test
+  public void isRootPath_Ok() {
+    assertEquals( false, FileUtils.isRootPath( null ) );
+    assertEquals( true, FileUtils.isRootPath( "/" ) );
+    assertEquals( false, FileUtils.isRootPath( "/asdf" ) );
+    assertEquals( false, FileUtils.isRootPath( "/asdf/ghjk" ) );
+    assertEquals( false, FileUtils.isRootPath( "/asdf/" ) );
+    assertEquals( false, FileUtils.isRootPath( "/asdf/ghjk/zxcv" ) );
+    assertEquals( false, FileUtils.isRootPath( "/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+
+    assertEquals( false, FileUtils.isRootPath( "asdf/" ) );
+    assertEquals( false, FileUtils.isRootPath( "asdf/ghjk" ) );
+    assertEquals( false, FileUtils.isRootPath( "as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+
+    assertEquals( false, FileUtils.isRootPath( "" ) );
+    assertEquals( false, FileUtils.isRootPath( "asdf" ) );
+  }
+
+  @Test
+  public void isRootLevelPath_Ok() {
+    assertEquals( false, FileUtils.isRootLevelPath( null ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/asdf" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/asdf/" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/asdf/ghjk" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/asdf/ghjk/zxcv" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+
+    assertEquals( false, FileUtils.isRootLevelPath( "asdf/" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "asdf/ghjk" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+
+    assertEquals( false, FileUtils.isRootLevelPath( "" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "asdf" ) );
+  }
+
 }
