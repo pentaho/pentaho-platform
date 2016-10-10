@@ -278,4 +278,16 @@ public class PooledDatasourceHelperTest {
     }
   }
 
+  @Test
+  public void testConnectionWithNoDatabaseType() throws Exception {
+    when( dialectService.getDialect( any( DatabaseConnection.class ) ) ).thenReturn( driverLocatorDialect );
+    when( connection.getDatabaseType() ).thenReturn( null );
+
+    try {
+      PooledDatasourceHelper.convert( connection, () -> dialectService );
+      fail( "Expected exception, database type not specified in connection." );
+    } catch ( Exception e ) {
+      assertThat( e, instanceOf( DBDatasourceServiceException.class ) );
+    }
+  }
 }
