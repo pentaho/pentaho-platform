@@ -266,7 +266,8 @@
     <exclude org="junit"                module="junit"/>
     <exclude org="junit"                module="junit-dep"/>
     <exclude org="org.springframework"  module="spring-mock"/>
-
+	<exclude org="org.eclipse"          module="swt"/>
+	
     <!--  Make sure we get the correct version of kettle and pentaho-metadata -->
     <conflict org="pentaho-kettle" rev="${dependency.kettle.revision}" />
     <conflict org="pentaho" module="pentaho-platform-.*" matcher="regexp" rev="${project.revision}" />
