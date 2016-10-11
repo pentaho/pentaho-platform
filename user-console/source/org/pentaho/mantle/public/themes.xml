@@ -9,4 +9,7 @@
   <crystal>
     <file>mantleCrystal.css</file>
   </crystal>
+  <sapphire>
+    <file>mantleSapphire.css</file>
+  </sapphire>
 </themes>
