@@ -11,6 +11,7 @@
   <bean id="systemListenersList" class="java.util.ArrayList">
     <constructor-arg>
       <list>
+		<!--  Listeners will starting in another order, till 7.0 version. See PentahoSystem.changeOrderOfListeners() method. -->
         <bean id="osgiListener" class="org.pentaho.platform.osgi.OSGIBoot"/>
         <bean id="kettleSystemListener" class="org.pentaho.platform.plugin.action.kettle.KettleSystemListener" />
         <bean id="pluginSystemListener" class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" />

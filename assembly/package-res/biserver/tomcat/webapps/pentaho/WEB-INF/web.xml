@@ -355,7 +355,6 @@
     <servlet>
         <servlet-name>proxy</servlet-name>
         <servlet-class>org.apache.felix.http.proxy.ProxyServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
     </servlet>
 
   <!-- insert additional servlets -->
