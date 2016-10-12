@@ -72,6 +72,7 @@ public class LoadDriversListenerTest {
     }
 
     @Override public int getMinorVersion() {
+      // Just a random change here.
       return 0;
     }
 
