@@ -1604,19 +1604,7 @@ public class FileService {
   }
 
   private String getParentPath( final String path ) {
-    if ( path == null ) {
-      throw new IllegalArgumentException();
-    } else if ( RepositoryFile.SEPARATOR.equals( path ) ) {
-      return null;
-    }
-    int lastSlashIndex = path.lastIndexOf( RepositoryFile.SEPARATOR );
-    if ( lastSlashIndex == 0 ) {
-      return RepositoryFile.SEPARATOR;
-    } else if ( lastSlashIndex > 0 ) {
-      return path.substring( 0, lastSlashIndex );
-    } else {
-      throw new IllegalArgumentException();
-    }
+    return FileUtils.getParentPath( path );
   }
 
   private String getExtension( final String name ) {

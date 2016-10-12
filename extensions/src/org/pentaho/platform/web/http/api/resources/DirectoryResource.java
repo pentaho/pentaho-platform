@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -77,10 +78,14 @@ public class DirectoryResource extends AbstractJaxRSResource {
   @Consumes( { WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully created folder." ),
+    @ResponseCode( code = 403, condition = "Forbidden." ),
     @ResponseCode( code = 409, condition = "Path already exists." ),
     @ResponseCode( code = 500, condition = "Server Error." ) } )
   public Response createDirs( @PathParam ( "pathId" ) String pathId ) {
     try {
+      if ( FileUtils.isRootLevelPath( FileUtils.idToPath( pathId ) ) ) {
+        return Response.status( Response.Status.FORBIDDEN ).entity( "couldNotCreateRootLevelFolder" ).build();
+      }
       if ( fileService.doCreateDirSafe( pathId ) ) {
         return Response.ok().build();
       } else {
