@@ -114,5 +114,6 @@ public class PentahoSystemDatabaseDialectProviderTest {
     assertEquals( unusableIDialect,
       pentahoSystemDatabaseDialectProvider.getDialect( false, unusableIDialectType ) );
     assertNull( pentahoSystemDatabaseDialectProvider.getDialect( false, mock( IDatabaseType.class ) ) );
+    assertNull( pentahoSystemDatabaseDialectProvider.getDialect( false, null ) );
   }
 }
