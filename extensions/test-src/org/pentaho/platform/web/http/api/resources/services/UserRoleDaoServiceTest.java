@@ -587,6 +587,11 @@ public class UserRoleDaoServiceTest {
 
   @Test
   public void testChangePassSuccess() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     IPentahoUser pentahoUser = mock( IPentahoUser.class );
     doReturn( "old pass" ).when( pentahoUser ).getPassword();
@@ -597,6 +602,19 @@ public class UserRoleDaoServiceTest {
     userRoleService.changeUserPassword( "name", "newpass", "old pass" );
   }
 
+  @Test( expected = SecurityException.class )
+  public void testChangePassNotAdmin() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    PentahoSystem.registerObject( policy );
+
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    doReturn( null ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
+    PentahoSystem.registerObject( roleDao );
+    userRoleService.changeUserPassword( "name", "newpass", "old pass" );
+  }
+  
   @Test( expected = SecurityException.class )
   public void testChangePassWrongName() throws Exception {
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
