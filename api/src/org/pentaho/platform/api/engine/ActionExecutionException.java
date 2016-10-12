@@ -44,6 +44,7 @@ public class ActionExecutionException extends ActionSequenceException {
   public ActionExecutionException( String msg, Throwable cause, String sessionName, String instanceId,
       String actionSequenceName, IActionDefinition actionDefinition ) {
     super( msg, cause, sessionName, instanceId, actionSequenceName, actionDefinition );
+    // Just an arbitrary change.
   }
 
   public ActionExecutionException( String msg, String sessionName, String instanceId, String actionSequenceName,
