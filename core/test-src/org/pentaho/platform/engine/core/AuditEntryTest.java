@@ -99,5 +99,6 @@ public class AuditEntryTest extends TestCase {
     auditEntry.clearCounts();
     assertTrue( auditEntry.getCounts().isEmpty() );
     assertTrue( counterResetDateTime < auditEntry.getCounterResetDateTime().getTime() );
+    // Random add.
   }
 }
