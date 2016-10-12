@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core;
@@ -233,6 +233,12 @@ public class SimpleParameterProviderTest extends TestCase {
     assertNotNull( "param value is wrong", strs );
     assertEquals( "param value is wrong", "100", strs[0] );
 
+  }
+
+  public void testXss() {
+    SimpleParameterProvider params = new SimpleParameterProvider();
+    params.setParameter( "json", "{name:name,value:value<sCrIpT>alert('88825')</sCrIpT>}" );
+    assertEquals( false, params.getParameter( "json" ).toString().toLowerCase().contains( "script" ) );
   }
 
 }
