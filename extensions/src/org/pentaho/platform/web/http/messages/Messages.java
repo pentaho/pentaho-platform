@@ -21,6 +21,8 @@ import org.pentaho.platform.util.messages.MessagesBase;
 
 public class Messages extends MessagesBase {
   private static final String BUNDLE_NAME = Messages.class.getPackage().getName() + ".messages"; //$NON-NLS-1$
+  public static final String MISSING_OR_INCORRECT_ROLE_PARAMETER = "Missing the role parameter or incorrect "
+      + "role parameter or similar is expected";
 
   private static Messages instance = new Messages();
 
