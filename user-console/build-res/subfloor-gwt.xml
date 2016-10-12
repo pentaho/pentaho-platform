@@ -193,6 +193,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <fileset dir="${gwt.output.dir}" includes="**/*.cache.html" />
     </replaceregexp>
 
+    <!-- Adding doctype to the start of file to force using Standards Mode in IE9 and earlier -->
+    <replaceregexp match="^^" replace="&lt;!DOCTYPE html&gt;${line.separator}">
+      <fileset dir="${gwt.output.dir}" includes="**/*.cache.html" />
+    </replaceregexp>
   </target>
 
 
