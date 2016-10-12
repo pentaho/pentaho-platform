@@ -340,11 +340,6 @@ public class PooledDatasourceHelper {
           "PooledDatasourceHelper.ERROR_0001_DATASOURCE_CREATE_ERROR_NO_DIALECT", databaseConnection.getName() ) );
     }
 
-    if ( databaseConnection.getDatabaseType() == null ) {
-      throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
-          "PooledDatasourceHelper.ERROR_0006_UNABLE_TO_POOL_DATASOURCE_NO_CLASSNAME", databaseConnection.getName() ) );
-    }
-
     if ( databaseConnection.getDatabaseType().getShortName().equals( "GENERIC" ) ) { //$NON-NLS-1$
       String driverClassName =
           databaseConnection.getAttributes().get( GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS );

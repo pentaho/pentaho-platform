@@ -44,13 +44,13 @@ public class PentahoSystemDatabaseDialectProvider implements IDatabaseDialectPro
     this.dialectGetter = dialectGetter;
   }
 
-  private Stream<IDatabaseDialect> getDialectStream( boolean usableOnly, IDatabaseType databaseType ) {
-    Stream<IDatabaseDialect> stream = dialectGetter.apply( IDatabaseDialect.class ).stream();
-    if ( databaseType != null ) {
-      stream = stream.filter( dialect -> dialect.getDatabaseType().equals( databaseType ) );
-    }
+  private Stream<IDatabaseDialect> getDialectStream() {
+    return dialectGetter.apply( IDatabaseDialect.class ).stream();
+  }
+
+  private Stream<IDatabaseDialect> filterUsableDialects( Stream<IDatabaseDialect> stream, boolean usableOnly ) {
     if ( usableOnly ) {
-      stream = stream.filter( dialect -> {
+      return stream.filter( dialect -> {
         if ( dialect instanceof IDriverLocator ) {
           return ( (IDriverLocator) dialect ).isUsable();
         } else {
@@ -61,11 +61,29 @@ public class PentahoSystemDatabaseDialectProvider implements IDatabaseDialectPro
     return stream;
   }
 
+  /**
+   * Returns collection of database dialects registered to the Pentaho System.
+   *
+   * @param usableOnly
+   * @return dialects collection
+   */
   @Override public Collection<IDatabaseDialect> getDialects( boolean usableOnly ) {
-    return getDialectStream( usableOnly, null ).collect( Collectors.toList() );
+    return filterUsableDialects( getDialectStream(), usableOnly ).collect( Collectors.toList() );
   }
 
-  @Override public IDatabaseDialect getDialect( boolean usableOnly, IDatabaseType iDatabaseType ) {
-    return getDialectStream( usableOnly, iDatabaseType ).findFirst().orElse( null );
+  /**
+   * Returns database dialect registered to the Pentaho System for specified database type.
+   *
+   * @param usableOnly
+   * @param databaseType
+   * @return database dialect or null.
+   */
+  @Override public IDatabaseDialect getDialect( boolean usableOnly, IDatabaseType databaseType ) {
+    if ( databaseType == null ) {
+      return null;
+    }
+
+    Stream<IDatabaseDialect> dialects = getDialectStream().filter( dialect -> dialect.getDatabaseType().equals( databaseType ) );
+    return filterUsableDialects( dialects, usableOnly ).findFirst().orElse( null );
   }
 }
