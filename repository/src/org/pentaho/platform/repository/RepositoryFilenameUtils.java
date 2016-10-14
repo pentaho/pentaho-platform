@@ -13,24 +13,24 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 /**
  * General filename and filepath manipulation utilities for the Pentaho Repository. NOTE: these methods will work
- * independently of the underlying operating system. Most methods will translate a backslash (\) to a forward slash
- * (/) but should be be depended upon to make that translation.
+ * independently of the underlying operating system. Most methods will translate a backslash (\) to a forward slash (/)
+ * but should be be depended upon to make that translation.
  * <p/>
  * This class defines six components within a filename (example /dev/project/file.txt):
  * <ul>
@@ -41,9 +41,9 @@ import java.util.List;
  * <li>the base name - file</li>
  * <li>the extension - txt</li>
  * </ul>
- * Note that this class works best if directory filenames end with a separator. If you omit the last separator, it
- * is impossible to determine if the filename corresponds to a file or a directory. As a result, we have chosen to
- * say it corresponds to a file.
+ * Note that this class works best if directory filenames end with a separator. If you omit the last separator, it is
+ * impossible to determine if the filename corresponds to a file or a directory. As a result, we have chosen to say it
+ * corresponds to a file.
  * <p/>
  * This class only supports Pentaho Repository (Unix) style names. Prefixes are matched as follows:
  * 
@@ -88,10 +88,9 @@ public class RepositoryFilenameUtils {
    * <p/>
    * This method normalizes a path to a standard format.
    * <p/>
-   * A trailing slash will be retained. A double slash will be merged to a single slash (but UNC names are
-   * handled). A single dot path segment will be removed. A double dot will cause that path segment and the one
-   * before to be removed. If the double dot has no parent path segment to work with, <code>null</code> is
-   * returned.
+   * A trailing slash will be retained. A double slash will be merged to a single slash (but UNC names are handled). A
+   * single dot path segment will be removed. A double dot will cause that path segment and the one before to be
+   * removed. If the double dot has no parent path segment to work with, <code>null</code> is returned.
    * <p/>
    * The output will be the same on both Unix and Windows except for the separator character.
    * 
@@ -122,10 +121,9 @@ public class RepositoryFilenameUtils {
    * <p/>
    * This method normalizes a path to a standard format.
    * <p/>
-   * A trailing slash will be retained. A double slash will be merged to a single slash (but UNC names are
-   * handled). A single dot path segment will be removed. A double dot will cause that path segment and the one
-   * before to be removed. If the double dot has no parent path segment to work with, <code>null</code> is
-   * returned.
+   * A trailing slash will be retained. A double slash will be merged to a single slash (but UNC names are handled). A
+   * single dot path segment will be removed. A double dot will cause that path segment and the one before to be
+   * removed. If the double dot has no parent path segment to work with, <code>null</code> is returned.
    * <p/>
    * The output will be the same on both Unix and Windows except for the separator character.
    * 
@@ -154,7 +152,7 @@ public class RepositoryFilenameUtils {
     if ( filename != null ) {
       normalizedFilename = normalize( filename.trim() );
       if ( leadingSlash && normalizedFilename != null && normalizedFilename.indexOf( RepositoryFile.SEPARATOR ) != 0 ) {
-        normalizedFilename = RepositoryFile.SEPARATOR + normalizedFilename;
+        normalizedFilename = SEPARATOR + normalizedFilename;
       }
     }
     return normalizedFilename;
@@ -167,8 +165,8 @@ public class RepositoryFilenameUtils {
    * <p/>
    * This method normalizes a path to a standard format.
    * <p/>
-   * A trailing slash will be removed. A double slash will be merged to a single slash (but UNC names are handled).
-   * A single dot path segment will be removed. A double dot will cause that path segment and the one before to be
+   * A trailing slash will be removed. A double slash will be merged to a single slash (but UNC names are handled). A
+   * single dot path segment will be removed. A double dot will cause that path segment and the one before to be
    * removed. If the double dot has no parent path segment to work with, <code>null</code> is returned.
    * <p/>
    * The output will be the same on both Unix and Windows except for the separator character.
@@ -192,6 +190,9 @@ public class RepositoryFilenameUtils {
    * @return the normalized filename, or null if invalid
    */
   public static String normalizeNoEndSeparator( final String filename ) {
+    if ( filename == null ) {
+      return null;
+    }
     return FilenameUtils.normalizeNoEndSeparator( filename, true );
   }
 
@@ -203,11 +204,11 @@ public class RepositoryFilenameUtils {
    * The effect is equivalent to resultant directory after changing directory to the first argument, followed by
    * changing directory to the second argument.
    * <p/>
-   * The first argument is the base path, the second is the path to concatenate. The returned path is always
-   * normalized via {@link #normalize(String)}, thus <code>..</code> is handled.
+   * The first argument is the base path, the second is the path to concatenate. The returned path is always normalized
+   * via {@link #normalize(String)}, thus <code>..</code> is handled.
    * <p/>
-   * If <code>pathToAdd</code> is absolute (has an absolute prefix), then it will be normalized and returned.
-   * Otherwise, the paths will be joined, normalized and returned.
+   * If <code>pathToAdd</code> is absolute (has an absolute prefix), then it will be normalized and returned. Otherwise,
+   * the paths will be joined, normalized and returned.
    * <p/>
    * 
    * <pre>
@@ -232,9 +233,15 @@ public class RepositoryFilenameUtils {
    * @return the concatenated path, or null if invalid
    */
   public static String concat( final String basePath, final String fullFilenameToAdd ) {
+    if ( fullFilenameToAdd == null ) {
+      return null;
+    }
+    if ( org.apache.commons.lang.StringUtils.isBlank( fullFilenameToAdd ) ) {
+      return normalizeNoEndSeparator( basePath );
+    }
     int prefix = 0;
-    if(StringUtils.hasLength( fullFilenameToAdd)) {
-      prefix = getPrefixLength( fullFilenameToAdd.replace( ":", "_" ) );  
+    if ( StringUtils.hasLength( fullFilenameToAdd ) ) {
+      prefix = getPrefixLength( fullFilenameToAdd.replace( ":", "_" ) );
     }
     if ( prefix < 0 ) {
       return null;
@@ -249,12 +256,11 @@ public class RepositoryFilenameUtils {
     if ( len == 0 ) {
       return RepositoryFilenameUtils.normalize( fullFilenameToAdd );
     }
-    char ch = basePath.charAt( len - 1 );
-    if ( SEPARATOR == ch ) {
-      return RepositoryFilenameUtils.normalize( basePath + fullFilenameToAdd );
-    } else {
-      return RepositoryFilenameUtils.normalize( basePath + SEPARATOR + fullFilenameToAdd );
+    String baseP = normalizeNoEndSeparator( basePath );
+    if ( String.valueOf( SEPARATOR ).equals( baseP ) ) {
+      baseP = "";
     }
+    return RepositoryFilenameUtils.normalize( baseP + SEPARATOR + fullFilenameToAdd );
   }
 
   // -----------------------------------------------------------------------
@@ -275,8 +281,8 @@ public class RepositoryFilenameUtils {
   /**
    * Returns the length of the filename prefix,
    * <p/>
-   * The prefix length includes the first slash in the full filename if applicable. Thus, it is possible that the
-   * length returned is greater than the length of the input string.
+   * The prefix length includes the first slash in the full filename if applicable. Thus, it is possible that the length
+   * returned is greater than the length of the input string.
    * 
    * <pre>
    * a/b/c.txt           --> ""          --> relative
@@ -368,8 +374,7 @@ public class RepositoryFilenameUtils {
   }
 
   /**
-   * Gets the path from a full filename, which excludes the prefix, and also excluding the final directory
-   * separator.
+   * Gets the path from a full filename, which excludes the prefix, and also excluding the final directory separator.
    * <p/>
    * The method is entirely text based, and returns the text before the last forward or backslash.
    * 
@@ -382,8 +387,8 @@ public class RepositoryFilenameUtils {
    * /a/b/c/      --> a/b/c
    * </pre>
    * <p/>
-   * This method drops the prefix from the result. See {@link #getFullPathNoEndSeparator(String)} for the method
-   * that retains the prefix.
+   * This method drops the prefix from the result. See {@link #getFullPathNoEndSeparator(String)} for the method that
+   * retains the prefix.
    * 
    * @param filename
    *          the filename to query, null returns null
@@ -421,8 +426,8 @@ public class RepositoryFilenameUtils {
    * Gets the full path from a full filename, which is the prefix + path, and also excluding the final directory
    * separator.
    * <p/>
-   * This method will handle a file in either Unix or Windows format. The method is entirely text based, and
-   * returns the text before the last forward or backslash.
+   * This method will handle a file in either Unix or Windows format. The method is entirely text based, and returns the
+   * text before the last forward or backslash.
    * 
    * <pre>
    * a.txt        --> ""
@@ -488,8 +493,8 @@ public class RepositoryFilenameUtils {
   /**
    * Gets the extension of a filename.
    * <p/>
-   * This method returns the textual part of the filename after the last dot. There must be no directory separator
-   * after the dot.
+   * This method returns the textual part of the filename after the last dot. There must be no directory separator after
+   * the dot.
    * 
    * <pre>
    * foo.txt      --> "txt"
@@ -536,8 +541,8 @@ public class RepositoryFilenameUtils {
   /**
    * Checks whether two filenames are equal exactly.
    * <p/>
-   * No processing is performed on the filenames other than comparison, thus this is merely a null-safe
-   * case-sensitive equals.
+   * No processing is performed on the filenames other than comparison, thus this is merely a null-safe case-sensitive
+   * equals.
    * 
    * @param filename1
    *          the first filename to query, may be null
@@ -624,8 +629,8 @@ public class RepositoryFilenameUtils {
   /**
    * Checks a filename to see if it matches the specified wildcard matcher, always testing case-sensitive.
    * <p/>
-   * The wildcard matcher uses the characters '?' and '*' to represent a single or multiple wildcard characters.
-   * This is the same as often found on Dos/Unix command lines. The check is case-sensitive always.
+   * The wildcard matcher uses the characters '?' and '*' to represent a single or multiple wildcard characters. This is
+   * the same as often found on Dos/Unix command lines. The check is case-sensitive always.
    * 
    * <pre>
    * wildcardMatch("c.txt", "*.txt")      --> true
@@ -647,8 +652,8 @@ public class RepositoryFilenameUtils {
   }
 
   /**
-   * Performs percent-encoding (as specified in {@code IUnifiedRepository}) on given {@code name}, only encoding
-   * the characters given in {@code reservedChars}. Assumes only ASCII characters in reservedChars.
+   * Performs percent-encoding (as specified in {@code IUnifiedRepository}) on given {@code name}, only encoding the
+   * characters given in {@code reservedChars}. Assumes only ASCII characters in reservedChars.
    * 
    * @param name
    *          name to escape

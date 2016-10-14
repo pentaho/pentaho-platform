@@ -12,14 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
-
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.plugin.services.importexport.ImportSession;
-import org.pentaho.platform.util.logging.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +23,11 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.util.logging.Logger;
 
 /**
  * Will import all the zip files in a given directory using the supplied IPlatformImporter
@@ -76,7 +77,8 @@ public class ArchiveLoader {
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
     bundleBuilder.input( createInputStream( file ) );
     bundleBuilder.charSet( "UTF-8" );
-    bundleBuilder.hidden( true );
+    bundleBuilder.hidden( true ); //
+    bundleBuilder.schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
     bundleBuilder.path( "/" );
     bundleBuilder.overwriteFile( true );
     bundleBuilder.name( file.getName() );

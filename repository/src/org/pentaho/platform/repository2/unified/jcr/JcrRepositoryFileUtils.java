@@ -48,6 +48,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionManager;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -160,7 +161,8 @@ public class JcrRepositoryFileUtils {
     long fileSize = 0;
     Date created = null;
     String creatorId = null;
-    Boolean hidden = false;
+    Boolean hidden = RepositoryFile.HIDDEN_BY_DEFAULT;
+    Boolean schedulable = RepositoryFile.SCHEDULABLE_BY_DEFAULT;
     Date lastModified = null;
     boolean folder = false;
     boolean versioned = false;
@@ -198,7 +200,13 @@ public class JcrRepositoryFileUtils {
 
     // Expensive
     Map<String, Serializable> metadata = getFileMetadata( session, id );
-    creatorId = (String) metadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
+    if ( metadata != null ) {
+      creatorId = (String) metadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
+      Serializable schedulableValue = metadata.get( RepositoryFile.SCHEDULABLE_KEY );
+      if ( schedulableValue instanceof String ) {
+        schedulable = BooleanUtils.toBoolean( (String) schedulableValue );
+      }
+    }
     if ( node.hasProperty( pentahoJcrConstants.getPHO_HIDDEN() ) ) {
       hidden = node.getProperty( pentahoJcrConstants.getPHO_HIDDEN() ).getBoolean();
     }
@@ -287,9 +295,9 @@ public class JcrRepositoryFileUtils {
     RepositoryFile file =
         new RepositoryFile.Builder( id, name ).createdDate( created ).creatorId( creatorId ).lastModificationDate(
             lastModified ).folder( folder ).versioned( versioned ).path( path ).versionId( versionId ).fileSize(
-                fileSize ).locked( locked ).lockDate( lockDate ).hidden( hidden ).lockMessage( lockMessage ).lockOwner(
-                    lockOwner ).title( title ).description( description ).locale( pentahoLocale.toString() )
-            .localePropertiesMap( localePropertiesMap ).aclNode( aclNode ).build();
+                fileSize ).locked( locked ).lockDate( lockDate ).hidden( hidden ).schedulable( schedulable )
+            .lockMessage( lockMessage ).lockOwner( lockOwner ).title( title ).description( description ).locale(
+                pentahoLocale.toString() ).localePropertiesMap( localePropertiesMap ).aclNode( aclNode ).build();
 
     return file;
   }
@@ -597,6 +605,8 @@ public class JcrRepositoryFileUtils {
 
     Node metaNode = fileNode.addNode( pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED );
     setMetadataItemForFile( session, PentahoJcrConstants.PHO_CONTENTCREATOR, file.getCreatorId(), metaNode );
+    setMetadataItemForFile( session, RepositoryFile.SCHEDULABLE_KEY, Boolean.toString( file.isSchedulable() ),
+        metaNode );
     fileNode.addMixin( pentahoJcrConstants.getMIX_LOCKABLE() );
     fileNode.addMixin( pentahoJcrConstants.getMIX_REFERENCEABLE() );
 
@@ -647,15 +657,18 @@ public class JcrRepositoryFileUtils {
       setLocalePropertiesMap( session, pentahoJcrConstants, localePropertiesMapNode, file.getLocalePropertiesMap() );
     }
 
+    Node metadataNode = null;
+    if ( !fileNode.hasNode( pentahoJcrConstants.getPHO_METADATA() ) ) {
+      metadataNode = fileNode.addNode( pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED );
+    } else {
+      metadataNode = fileNode.getNode( pentahoJcrConstants.getPHO_METADATA() );
+    }
     if ( file.getCreatorId() != null ) {
-      Node metadataNode = null;
-      if ( !fileNode.hasNode( pentahoJcrConstants.getPHO_METADATA() ) ) {
-        metadataNode = fileNode.addNode( pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED );
-      } else {
-        metadataNode = fileNode.getNode( pentahoJcrConstants.getPHO_METADATA() );
-      }
       setMetadataItemForFile( session, PentahoJcrConstants.PHO_CONTENTCREATOR, file.getCreatorId(), metadataNode );
     }
+    setMetadataItemForFile( session, RepositoryFile.SCHEDULABLE_KEY, Boolean.toString( file.isSchedulable() ),
+        metadataNode );
+
     transformer.updateContentNode( session, pentahoJcrConstants, content, fileNode );
     return fileNode;
   }
