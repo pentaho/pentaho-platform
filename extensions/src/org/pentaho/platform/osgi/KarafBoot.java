@@ -27,8 +27,8 @@ import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -37,9 +37,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileLock;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -140,7 +143,16 @@ public class KarafBoot implements IPentahoSystemListener {
           destDir = candidate;
         }
 
-        destDir.deleteOnExit();
+        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
+          @Override public void run() {
+            try {
+              removeKarafDirectory( destDir.toPath() );
+              FileUtils.deleteDirectory( destDir );
+            } catch ( IOException e ) {
+              logger.error( "Unable to delete karaf directory " + destDir, e );
+            }
+          }
+        } ) );
       } else if ( rootCopyFolderString != null ) {
         destDir = new File( rootCopyFolderString );
       } else {
@@ -233,6 +245,56 @@ public class KarafBoot implements IPentahoSystemListener {
     return main != null;
   }
 
+  void removeKarafDirectory( Path root ) throws IOException {
+
+    Files.walkFileTree( root, new FileVisitor<Path>() {
+
+      @Override public FileVisitResult preVisitDirectory( Path dir, BasicFileAttributes attrs ) throws IOException {
+        return FileVisitResult.CONTINUE;
+      }
+
+      @Override public FileVisitResult visitFile( Path file, BasicFileAttributes attrs ) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream( file.toFile() );
+        try {
+          FileLock fileLock = fileOutputStream.getChannel().tryLock();
+          fileLock.release();
+          IOUtils.closeQuietly( fileOutputStream );
+          System.gc();
+          Files.delete( file );
+        } catch ( Exception ignored ) {
+          file.toFile().deleteOnExit();
+          // lock active by another program
+        } finally {
+          IOUtils.closeQuietly( fileOutputStream );
+        }
+        return FileVisitResult.CONTINUE;
+      }
+
+      @Override public FileVisitResult visitFileFailed( Path file, IOException exc ) throws IOException {
+        if ( Files.isSymbolicLink( file ) ) {
+          try {
+            Files.delete( file );
+          } catch ( Exception ignored ) {
+            file.toFile().deleteOnExit();
+            // lock active by another program
+          }
+        }
+        return FileVisitResult.CONTINUE;
+
+      }
+
+      @Override public FileVisitResult postVisitDirectory( Path dir, IOException exc ) throws IOException {
+        try {
+          FileUtils.deleteDirectory( dir.toFile() );
+        } catch ( Exception ignored ) {
+          dir.toFile().deleteOnExit();
+          // lock active by another program
+        }
+        return FileVisitResult.CONTINUE;
+      }
+    } );
+  }
+
   void cleanCachesIfFlagSet( String root ) throws IOException {
     String customLocation = root + "/etc/custom.properties";
 
@@ -258,18 +320,7 @@ public class KarafBoot implements IPentahoSystemListener {
       for ( File clientCacheFolder : clientCacheFolders ) {
         File[] cacheDirs = clientCacheFolder.listFiles( directoryFilter );
         for ( File cacheDir : cacheDirs ) {
-          File lockFile = new File( cacheDir, ".lock" );
-          FileOutputStream fileOutputStream = new FileOutputStream( lockFile );
-          try {
-            FileLock fileLock = fileOutputStream.getChannel().tryLock();
-            fileLock.release();
-            IOUtils.closeQuietly( fileOutputStream );
-            FileUtils.deleteDirectory( cacheDir );
-          } catch ( Exception ignored ) {
-            // lock active by another program
-          } finally {
-            IOUtils.closeQuietly( fileOutputStream );
-          }
+          removeKarafDirectory( cacheDir.toPath() );
         }
       }
 
