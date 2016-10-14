@@ -213,40 +213,40 @@
         <artifact name="pdi-salesforce-plugin" type="zip"/>
     </dependency>
 
-    <dependency org="pentaho" name="VerticaBulkLoader" rev="${dependency.vertica-bulkloader-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho" name="VerticaBulkLoader" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
       <artifact name="VerticaBulkLoader" type="zip" ext="zip" />
     </dependency>
-    <dependency org="pentaho-kettle" name="kettle-s3csvinput-plugin" rev="${dependency.kettle-s3csvinput-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="kettle-s3csvinput-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="kettle-s3csvinput-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="kettle-hl7-plugin" rev="${dependency.kettle-hl7-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="kettle-hl7-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="kettle-hl7-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="gp-bulk-loader-plugin" rev="${dependency.gp-bulk-loader-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="gp-bulk-loader-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="gp-bulk-loader-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="kettle-gpload-plugin" rev="${dependency.kettle-gpload-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="kettle-gpload-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="kettle-gpload-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="elasticsearch-bulk-insert-plugin" rev="${dependency.elasticsearch-bulk-insert-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="elasticsearch-bulk-insert-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="elasticsearch-bulk-insert-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="kettle-openerp-plugin" rev="${dependency.kettle-openerp-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="kettle-openerp-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="kettle-openerp-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="kettle-palo-plugin" rev="${dependency.kettle-palo-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="kettle-palo-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="kettle-palo-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="kettle-shapefilereader-plugin" rev="${dependency.kettle-shapefilereader-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="kettle-shapefilereader-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="kettle-shapefilereader-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="lucid-db-streaming-loader-plugin" rev="${dependency.lucid-db-streaming-loader-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="lucid-db-streaming-loader-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="lucid-db-streaming-loader-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="kettle-drools5-plugin" rev="${dependency.kettle-drools5-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="kettle-drools5-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="kettle-drools5-plugin" type="zip"/>
     </dependency>
-    <dependency org="pentaho-kettle" name="ms-access-bulk-loader-plugin" rev="${dependency.ms-access-bulk-loader-plugin.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+    <dependency org="pentaho-kettle" name="ms-access-bulk-loader-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="ms-access-bulk-loader-plugin" type="zip"/>
     </dependency>
 
