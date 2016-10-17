@@ -1,3 +1,20 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2014 - 2016 Pentaho Corporation.  All rights reserved.
+ */
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
 import com.google.common.cache.CacheBuilder;
@@ -10,7 +27,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.extensions.jcr.SessionFactoryUtils;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.jcr.Credentials;
 import javax.jcr.Repository;
@@ -27,28 +43,36 @@ import java.util.concurrent.TimeUnit;
  * Created by nbaker on 6/9/14.
  */
 class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFactory
-    implements PentahoJcrSessionFactory {
+  implements PentahoJcrSessionFactory {
 
   private CredentialsStrategySessionFactory credentialsStrategySessionFactory;
   private int cacheDuration = 300;
   private int cacheSize = 100;
 
   private Logger logger = LoggerFactory.getLogger( getClass() );
+  private PentahoTransactionManager transactionManager;
+
 
   public GuavaCachePoolPentahoJcrSessionFactory( Repository repository, String workspace ) {
+    this( repository, workspace, null );
+  }
+
+  public GuavaCachePoolPentahoJcrSessionFactory( Repository repository, String workspace,
+                                                 PentahoTransactionManager transactionManager ) {
     super( repository, workspace );
+    this.transactionManager = transactionManager;
 
     ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
     if ( systemConfig != null && systemConfig.getConfiguration( "repository" ) != null ) {
       try {
         this.cacheDuration =
-            Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
-                "cache-ttl", "300" ) );
+          Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
+            "cache-ttl", "300" ) );
 
 
         this.cacheSize =
-            Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
-                "cache-size", "100" ) );
+          Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
+            "cache-size", "100" ) );
       } catch ( IOException e ) {
         logger.info( "Could not find repository.cache-duration" );
       }
@@ -60,11 +84,10 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
    * use the same Session.
    */
   private LoadingCache<CacheKey, Session> sessionCache =
-      CacheBuilder.newBuilder().expireAfterAccess( cacheDuration, TimeUnit.SECONDS ).maximumSize(
-          cacheSize ).removalListener( new RemovalListener<CacheKey, Session>() {
+    CacheBuilder.newBuilder().expireAfterAccess( cacheDuration, TimeUnit.SECONDS ).maximumSize(
+      cacheSize ).removalListener( new RemovalListener<CacheKey, Session>() {
 
         @Override public void onRemoval( RemovalNotification<CacheKey, Session> objectObjectRemovalNotification ) {
-
           // We're not logging out on cache purge as someone may have obtained it from the cache already.
           // TODO: implement reference tracking (checkin/checkout) in order to condition the logout.
           //        Session value = objectObjectRemovalNotification.getValue();
@@ -83,7 +106,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
 
     // Aquire from cache
     Session session;
-    if ( !TransactionSynchronizationManager.isActualTransactionActive() ) {
+
+    if ( transactionManager == null || !transactionManager.isCreatingTransaction() ) {
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Thread is not transacted, checking cache for session: " + creds );
       }
@@ -102,10 +126,10 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
         if ( SessionFactoryUtils.isSessionThreadBound( session, credentialsStrategySessionFactory ) ) {
           if ( logger.isDebugEnabled() ) {
             logger.debug(
-                "Session is bound to a transaction. This should never happen, ignoring this session and creating a new "
-                    +
-                    "session: "
-                    + creds );
+              "Session is bound to a transaction. This should never happen, ignoring this session and creating a new "
+                +
+                "session: "
+                + creds );
           }
           sessionCache.invalidate( key );
           session = sessionCache.get( key );

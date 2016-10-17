@@ -162,7 +162,7 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   public PentahoJcrSessionFactory getSessionFactory() {
     if ( sessionFactory == null ) {
       // use default
-      sessionFactory = new GuavaCachePoolPentahoJcrSessionFactory( this.repository, this.workspaceName );
+      sessionFactory = new GuavaCachePoolPentahoJcrSessionFactory( this.repository, this.workspaceName, null );
     }
     return sessionFactory;
   }

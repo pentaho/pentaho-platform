@@ -36,7 +36,7 @@
   	This transaction manager is responsible for starting jcr transactions using a jcr session. Notice that it uses the
   	jcrSessionFactory bean, which creates jcr sessions using the credentials of the logged in user.
   -->
-  <bean id="jcrTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager" primary="true">
+  <bean id="jcrTransactionManager" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoTransactionManager" primary="true">
     <property name="sessionFactory" ref="jcrSessionFactory"/>
   </bean>
 
@@ -45,7 +45,7 @@
   	jcrAdminSessionFactory bean, which creates jcr sessions using the credentials of the jcr repository admin. This transaction
   	manager is intended for internal use only, when the system needs to perform a transaction as the jcr admin.
   -->
-  <bean id="jcrAdminTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager">
+  <bean id="jcrAdminTransactionManager" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoTransactionManager">
     <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
   </bean>
 
@@ -657,6 +657,7 @@
       <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory">
         <constructor-arg ref="jcrRepository"/>
         <constructor-arg><null/></constructor-arg>
+        <constructor-arg ref="jcrTransactionManager"/>
       </bean>
     </property>
   </bean>
@@ -909,6 +910,7 @@
       <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory">
         <constructor-arg ref="jcrRepository"/>
         <constructor-arg><null/></constructor-arg>
+        <constructor-arg ref="jcrAdminTransactionManager"/>
       </bean>
     </property>
   </bean>
