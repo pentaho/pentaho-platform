@@ -127,7 +127,6 @@ public class ImportDialog extends PromptDialogBox {
     okButton.setEnabled( false );
 
     final TextBox fileTextBox = new TextBox();
-    fileTextBox.setHeight( "26px" );
     fileTextBox.setEnabled( false );
 
     //We use an fileNameOverride because FileUpload can only handle US character set reliably.
