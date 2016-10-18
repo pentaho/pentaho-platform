@@ -420,7 +420,7 @@ a:active, a:hover {
 .gwt-Button {
   background-image: expression('url(buttonbg.gif)');
   background-image: url(../../buttonbg.gif);
-  font-weight: plain;
+  font-weight: normal;
   border-style: solid;
   border-color: #000000;
   border-width: 1px;
@@ -429,7 +429,7 @@ a:active, a:hover {
 .gwt-Button:hover {
   background-image: url(../../buttonhoverbg.gif);
   background-image: expression('url(buttonhoverbg.gif)');
-  font-weight: plain;
+  font-weight: normal;
   border-style: solid;
   border-color: #000000;
   border-width: 1px;
@@ -762,10 +762,6 @@ a:active, a:hover {
   color: #FFF;
   text-shadow: 0px 1px 1px #000;
   text-align: left;
-"><div style=" font-size : 16 px;
-  color: #FFF;
-  text-shadow: 0px 1px 1px #000;
-  text-align: left
 }
 
 /* Special styles for Schedule tables to avoid impacting others, to be removed once tables styles are addressed globally */
