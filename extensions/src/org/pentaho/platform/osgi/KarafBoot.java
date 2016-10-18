@@ -55,7 +55,10 @@ import java.util.UUID;
  */
 public class KarafBoot implements IPentahoSystemListener {
   public static final String CLEAN_KARAF_CACHE = "org.pentaho.clean.karaf.cache";
+  
   private Main main;
+  private KarafInstance karafInstance;
+  
   Logger logger = LoggerFactory.getLogger( getClass() );
 
   public static final String PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER = "pentaho.karaf.root.copy.dest.folder";
@@ -146,10 +149,19 @@ public class KarafBoot implements IPentahoSystemListener {
         Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
           @Override public void run() {
             try {
+              //release lock
+              if( karafInstance != null ) {
+                karafInstance.close();
+              }
+              if ( main != null ) {
+                main.destroy();
+              }
               removeKarafDirectory( destDir.toPath() );
-              FileUtils.deleteDirectory( destDir );
+              FileUtils.forceDeleteOnExit( destDir );
             } catch ( IOException e ) {
               logger.error( "Unable to delete karaf directory " + destDir, e );
+            } catch ( Exception e ) {
+              logger.error( "Error stopping Karaf", e );
             }
           }
         } ) );
@@ -213,7 +225,7 @@ public class KarafBoot implements IPentahoSystemListener {
       cleanCachesIfFlagSet( root );
 
       // Setup karaf instance configuration
-      KarafInstance karafInstance = createAndProcessKarafInstance( root );
+      karafInstance = createAndProcessKarafInstance( root );
 
 
       // Wrap the startup of Karaf in a child thread which has explicitly set a bogus authentication. This is
@@ -259,7 +271,6 @@ public class KarafBoot implements IPentahoSystemListener {
           FileLock fileLock = fileOutputStream.getChannel().tryLock();
           fileLock.release();
           IOUtils.closeQuietly( fileOutputStream );
-          System.gc();
           Files.delete( file );
         } catch ( Exception ignored ) {
           file.toFile().deleteOnExit();
