@@ -58,11 +58,8 @@ public class KarafBoot implements IPentahoSystemListener {
   
   private Main main;
   private KarafInstance karafInstance;
-  
-  Logger logger = LoggerFactory.getLogger( getClass() );
-
+  Logger logger = LoggerFactory.getLogger( getClass() ); 
   public static final String PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER = "pentaho.karaf.root.copy.dest.folder";
-
   public static final String PENTAHO_KARAF_ROOT_TRANSIENT = "pentaho.karaf.root.transient";
 
   public static final String PENTAHO_KARAF_ROOT_TRANSIENT_DIRECTORY_ATTEMPTS =
@@ -150,7 +147,7 @@ public class KarafBoot implements IPentahoSystemListener {
           @Override public void run() {
             try {
               //release lock
-              if( karafInstance != null ) {
+              if ( karafInstance != null ) {
                 karafInstance.close();
               }
               if ( main != null ) {

@@ -71,7 +71,6 @@ public class KarafBootTest {
     Properties props = new Properties();
     props.setProperty( Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "100" );
     props.setProperty( "karaf.framework", "felix" );
-    
     Path karafBootTest = Files.createTempDirectory( "KarafBootTest", new FileAttribute[ 0 ] );
     tmpDir = karafBootTest.toFile();
     configProps = new File( tmpDir, "system/karaf/etc/config.properties" );
@@ -79,7 +78,7 @@ public class KarafBootTest {
     new File( tmpDir, "system/karaf/system" ).mkdirs();
     new File( tmpDir, "system/karaf/caches" ).mkdirs();
     try ( FileOutputStream fileOutputStream = new FileOutputStream( configProps ) ) {
-      props.store( fileOutputStream, "Minimal properties for test KarafBoot without issue");
+      props.store( fileOutputStream, "Minimal properties for test KarafBoot without issue" );
     }
   }
 
