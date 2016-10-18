@@ -922,13 +922,13 @@
   
   <!-- Set global versioning flag for DefaultRepositoryVersionManager -->
   <bean class="java.lang.Boolean" id="versioningEnabled">
-    <constructor-arg value="${repository.versioningEnabled}"/>
+    <constructor-arg value="${repository.versioningEnabled:false}"/>
     <pen:publish as-type="INTERFACES"/>
   </bean>
 
   <!-- Set global versioning flag for DefaultRepositoryVersionManager -->
   <bean class="java.lang.Boolean" id="versionCommentsEnabled">
-    <constructor-arg value="${repository.versionCommentsEnabled}"/>
+    <constructor-arg value="${repository.versionCommentsEnabled:false}"/>
     <pen:publish as-type="INTERFACES"/>
   </bean>
   
