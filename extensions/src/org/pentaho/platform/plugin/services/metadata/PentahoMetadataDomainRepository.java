@@ -208,7 +208,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
   }
 
-  private String endsWithXmi( String value ) {
+  protected String endsWithXmi( String value ) {
     if ( value.endsWith( ".xmi" ) ) {
       return value;
     } else {
@@ -216,10 +216,19 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
   }
 
-  private String replaceDomainId( StringBuilder sb, String domainId ) {
+  protected String noXmi( String value ) {
+    if ( value.endsWith( ".xmi" ) ) {
+      return value.substring( 0, value.length() - 4 );
+    } else {
+      return value;
+    }
+  }
+
+  protected String replaceDomainId( StringBuilder sb, String domainId ) {
     int datasourceModelTagPosition = sb.indexOf( "datasourceModel" );
     if ( datasourceModelTagPosition != -1 ) {
       String xmiDomainId = endsWithXmi( domainId );
+      String noXmiDomainId = noXmi( domainId );
       String tag = "<CWM:Description body=";
 
       int startTagPosition = sb.indexOf( tag, datasourceModelTagPosition );
@@ -227,12 +236,31 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       int endPosition = sb.indexOf( "\"", startPosition );
 
       sb.delete( startPosition, endPosition );
-      sb.insert( startPosition, xmiDomainId );
+      sb.insert( startPosition, noXmiDomainId );
 
       return xmiDomainId;
     } else {
       return domainId;
     }
+  }
+
+  protected String getDomainIdFromXmi( StringBuilder sb ) {
+    int datasourceModelTagPosition = sb.indexOf( "datasourceModel" );
+    if ( datasourceModelTagPosition != -1 ) {
+      String tag = "<CWM:Description body=";
+      int startTagPosition = sb.indexOf( tag, datasourceModelTagPosition );
+
+      int startPosition = startTagPosition + tag.length() + 1;
+      int endPosition = sb.indexOf( "\"", startPosition );
+
+      return sb.substring( startPosition, endPosition );
+    } else {
+      return null;
+    }
+  }
+
+  protected boolean isDomainIdXmiEqualsOrNotPresent( String domainId, String domainIdXmi ) {
+    return domainIdXmi == null || noXmi( domainIdXmi ).equals( noXmi( domainId ) );
   }
 
   /**
@@ -287,7 +315,9 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         inputStream.close();
       }
 
-      domainId = replaceDomainId( stringBuilder, domainId );
+      if ( !isDomainIdXmiEqualsOrNotPresent( domainId, getDomainIdFromXmi( stringBuilder ) ) ) {
+        domainId = replaceDomainId( stringBuilder, domainId );
+      }
 
       xmi = stringBuilder.toString();
       // now, try to see if the xmi can be parsed (ie, check if it's valid xmi)
