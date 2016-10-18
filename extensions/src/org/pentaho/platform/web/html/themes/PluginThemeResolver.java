@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.html.themes;
@@ -31,6 +31,7 @@ import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.api.ui.ThemeResource;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -111,7 +112,7 @@ public class PluginThemeResolver implements IThemeResolver {
       } catch ( Exception ignored ) { /* optional bundle */
       }
 
-      SAXReader rdr = new SAXReader();
+      SAXReader rdr = XMLParserFactoryProducer.getSAXReader( null );
       Document pluginManifest = rdr.read( pluginManifestStream );
 
       String rootThemeFolder = pluginManifest.getRootElement().attributeValue( "root-folder" );

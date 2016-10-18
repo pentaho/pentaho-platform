@@ -29,6 +29,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -61,6 +62,7 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -2227,7 +2229,8 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   protected Document parseText( String text ) throws DocumentException {
-    return DocumentHelper.parseText( text );
+    SAXReader reader = XMLParserFactoryProducer.getSAXReader( null );
+    return reader.read( text );
   }
 
   protected Messages getMessagesInstance() {

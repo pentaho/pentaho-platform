@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.util.xml.dom4j;
@@ -21,13 +21,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.util.messages.Messages;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.xml.sax.EntityResolver;
 
 import javax.xml.transform.Source;
@@ -111,10 +111,7 @@ public class XmlDom4JHelper {
    */
   public static Document getDocFromFile( final File file, final EntityResolver resolver ) throws DocumentException,
     IOException {
-    SAXReader reader = new SAXReader();
-    if ( resolver != null ) {
-      reader.setEntityResolver( resolver );
-    }
+    SAXReader reader = XMLParserFactoryProducer.getSAXReader( resolver );
     return reader.read( file );
   }
 
@@ -130,10 +127,7 @@ public class XmlDom4JHelper {
   public static Document getDocFromStream( final InputStream inStream, final EntityResolver resolver )
     throws DocumentException, IOException {
 
-    SAXReader reader = new SAXReader();
-    if ( resolver != null ) {
-      reader.setEntityResolver( resolver );
-    }
+    SAXReader reader = XMLParserFactoryProducer.getSAXReader( resolver );
     return reader.read( inStream );
   }
 
@@ -360,7 +354,12 @@ public class XmlDom4JHelper {
     StreamResult result = new StreamResult( new StringWriter() );
     TransformerFactory.newInstance().newTransformer().transform( source, result );
     String theXML = result.getWriter().toString();
-    org.dom4j.Document dom4jDoc = DocumentHelper.parseText( theXML );
+    Document dom4jDoc = null;
+    try {
+      dom4jDoc = getDocFromString( theXML, null );
+    } catch ( XmlParseException e ) {
+      new TransformerFactoryConfigurationError( e );
+    }
     return dom4jDoc;
   }
 }

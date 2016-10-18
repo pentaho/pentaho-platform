@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr;
@@ -20,13 +20,14 @@ package org.pentaho.platform.plugin.services.pluginmgr;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
+import org.dom4j.io.SAXReader;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,19 +94,12 @@ public class FileSystemXmlPluginProvider extends SystemPathXmlPluginProvider {
     // we have found a plugin.xml file
     // get the file from the repository
     String path = "system" + File.separatorChar + folder.getName() + File.separatorChar + "plugin.xml"; //$NON-NLS-1$ //$NON-NLS-2$
-    Document doc = null;
+    Document doc;
     try {
       File f = new File( PentahoSystem.getApplicationContext().getSolutionPath( path ) );
       InputStream in = new FileInputStream( f );
-      StringBuilder sb = new StringBuilder();
-      byte[] b = new byte[2048];
-      int n = in.read( b );
-      while ( n != -1 ) {
-        sb.append( new String( b, 0, n ) );
-        n = in.read( b );
-      }
-      String xml = sb.toString();
-      doc = DocumentHelper.parseText( xml );
+      SAXReader reader = XMLParserFactoryProducer.getSAXReader( null );
+      doc = reader.read( in );
       if ( doc != null ) {
         plugins.add( createPlugin( doc, session, folder.getName(), hasLib ) );
       }

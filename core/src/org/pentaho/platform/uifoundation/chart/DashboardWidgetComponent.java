@@ -13,9 +13,8 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
-
 package org.pentaho.platform.uifoundation.chart;
 
 import org.apache.commons.logging.Log;
@@ -35,6 +34,7 @@ import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResourc
 import org.pentaho.platform.uifoundation.component.xml.XmlComponent;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 
 import java.io.File;
 import java.io.IOException;
@@ -192,8 +192,7 @@ public class DashboardWidgetComponent extends XmlComponent {
               definitionPath );
       Document dialDefinition = null;
       try {
-        org.dom4j.io.SAXReader reader = new org.dom4j.io.SAXReader();
-        reader.setEntityResolver( new SolutionURIResolver() );
+        org.dom4j.io.SAXReader reader = XMLParserFactoryProducer.getSAXReader( new SolutionURIResolver() );
         dialDefinition =
             reader.read( resource.getInputStream( RepositoryFilePermission.READ, LocaleHelper.getLocale() ) );
       } catch ( Throwable t ) {

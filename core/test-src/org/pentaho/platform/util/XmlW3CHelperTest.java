@@ -31,9 +31,107 @@ import static org.junit.Assert.*;
 public class XmlW3CHelperTest {
 
   @Test
+  public void testXmlW3CDTDsDisabling() throws IOException {
+    String domString = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+        + "<!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]>\n"
+        + "<root xmlns=\"http://www.pentaho.com\">\n" + "</root>";
+    Document doc = XmlW3CHelper.getDomFromString( domString );
+    //should prevent XXE attack
+    //factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+    //should be set
+    assertNull( doc );
+  }
+
+  /**
+   * attack example is from https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing
+   *
+   * @throws IOException
+   */
+  @Test
+  public void testXmlW3CLocalResourceAccessing() throws IOException {
+    String domString =
+        "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" + " <!DOCTYPE foo [  \n" + "  <!ELEMENT foo ANY >\n"
+            + "  <!ENTITY xxe SYSTEM \"file:///dev/random\" >]><foo>&xxe;</foo>";
+    Document doc = XmlW3CHelper.getDomFromString( domString );
+    //should prevent XXE attack
+    //factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+    //should be set
+    assertNull( doc );
+  }
+
+  /**
+   * attack example is from https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing
+   *
+   * @throws IOException
+   */
+  @Test
+  public void testXmlW3CDisclosingEtcPass() throws IOException {
+    String domString =
+        "  <?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" + " <!DOCTYPE foo [  \n" + "   <!ELEMENT foo ANY >\n"
+            + "   <!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]><foo>&xxe;</foo>";
+    Document doc = XmlW3CHelper.getDomFromString( domString );
+    assertNull( doc );
+  }
+
+  /**
+   * attack example is from https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing
+   *
+   * @throws IOException
+   */
+  @Test
+  public void testXmlW3CDisclosingEtcShadow() throws IOException {
+    String domString =
+        " <?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" + " <!DOCTYPE foo [  \n" + "   <!ELEMENT foo ANY >\n"
+            + "   <!ENTITY xxe SYSTEM \"file:///etc/shadow\" >]><foo>&xxe;</foo>";
+    Document doc = XmlW3CHelper.getDomFromString( domString );
+    assertNull( doc );
+  }
+
+  /**
+   * attack example is from https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing
+   *
+   * @throws IOException
+   */
+  @Test
+  public void testXmlW3CDisclosingCIni() throws IOException {
+    String domString =
+        " <?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" + " <!DOCTYPE foo [  \n" + "   <!ELEMENT foo ANY >\n"
+            + "   <!ENTITY xxe SYSTEM \"file:///c:/boot.ini\" >]><foo>&xxe;</foo>";
+    Document doc = XmlW3CHelper.getDomFromString( domString );
+    assertNull( doc );
+  }
+
+  /**
+   * attack example is from https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing
+   *
+   * @throws IOException
+   */
+  @Test
+  public void testXmlW3CDisclosingHttp() throws IOException {
+    String domString =
+        " <?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" + " <!DOCTYPE foo [  \n" + "   <!ELEMENT foo ANY >\n"
+            + "   <!ENTITY xxe SYSTEM \"http://www.attacker.com/text.txt\" >]><foo>&xxe;</foo>";
+    Document doc = XmlW3CHelper.getDomFromString( domString );
+    assertNull( doc );
+  }
+
+  /**
+   * attack example is from https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing
+   *
+   * @throws IOException
+   */
+  @Test
+  public void testXmlW3CDisclosingEtcPasswd() throws IOException {
+    String domString = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+        + "<!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]>\n"
+        + "<root xmlns=\"http://www.pentaho.com\">\n" + "</root>";
+    Document doc = XmlW3CHelper.getDomFromString( domString );
+    assertNull( doc );
+  }
+
+  @Test
   public void testValidXmlW3C() throws IOException {
     String domString = "<root><subroot>this is sub root</subroot></root>";
-
     Document doc = XmlW3CHelper.getDomFromString( domString );
     assertNotNull( doc );
   }
@@ -74,9 +172,7 @@ public class XmlW3CHelperTest {
 
   @Test
   public void shouldNotFailAndReturnNotNullWhenLegalXmlIsGiven() throws Exception {
-    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      + "<element>"
-      + "</element>";
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<element>" + "</element>";
 
     assertNotNull( XmlW3CHelper.getDomFromString( xml ) );
   }
