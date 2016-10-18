@@ -341,8 +341,8 @@
   }
 
   function loginAs (username, password) {
-    $("#j_username").attr("value", username);
-    $("#j_password").attr("value", password);
+    $("#j_username").prop("value", username);
+    $("#j_password").prop("value", password);
     doLogin();
   }
 
