@@ -1419,6 +1419,7 @@ a:active, a:hover {
 
 .users-roles-list {
   height: 100%;
+  overflow: hidden;
 }
 
 .pentaho-tab-panel, #userRolesAdminPanel .pentaho-tab-panel {
