@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.commands;
@@ -50,7 +50,10 @@ public class OpenDocCommand extends AbstractCommand {
       public void onSuccess( HashMap<String, String> result ) {
         documentationURL = result.get( "documentation-url" );
 
-        if ( !documentationURL.startsWith( "/" ) ) {
+        boolean isExternalDocumentation =
+          documentationURL.startsWith( "http:" ) || documentationURL.startsWith( "https:" );
+
+        if ( !documentationURL.startsWith( "/" ) && !isExternalDocumentation ) {
           // we're working with a relative URL, this is relative to the web-app not the GWT module
           documentationURL = GWT.getHostPageBaseURL() + documentationURL;
         }
