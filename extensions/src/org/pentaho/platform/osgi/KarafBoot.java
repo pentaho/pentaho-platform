@@ -27,8 +27,8 @@ import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -52,7 +52,10 @@ import java.util.UUID;
  */
 public class KarafBoot implements IPentahoSystemListener {
   public static final String CLEAN_KARAF_CACHE = "org.pentaho.clean.karaf.cache";
+
   private Main main;
+  private KarafInstance karafInstance;
+
   Logger logger = LoggerFactory.getLogger( getClass() );
 
   public static final String PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER = "pentaho.karaf.root.copy.dest.folder";
@@ -140,7 +143,24 @@ public class KarafBoot implements IPentahoSystemListener {
           destDir = candidate;
         }
 
-        destDir.deleteOnExit();
+        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
+          @Override public void run() {
+            try {
+              if ( main != null ) {
+                main.destroy();
+              }
+              //release lock
+              if ( karafInstance != null ) {
+                karafInstance.close();
+              }
+              deleteRecursiveIfExists( destDir );
+            } catch ( IOException e ) {
+              logger.error( "Unable to delete karaf directory " + destDir, e );
+            } catch ( Exception e ) {
+              logger.error( "Error stopping Karaf", e );
+            }
+          }
+        } ) );
       } else if ( rootCopyFolderString != null ) {
         destDir = new File( rootCopyFolderString );
       } else {
@@ -201,7 +221,7 @@ public class KarafBoot implements IPentahoSystemListener {
       cleanCachesIfFlagSet( root );
 
       // Setup karaf instance configuration
-      KarafInstance karafInstance = createAndProcessKarafInstance( root );
+      karafInstance = createAndProcessKarafInstance( root );
 
 
       // Wrap the startup of Karaf in a child thread which has explicitly set a bogus authentication. This is
@@ -286,6 +306,20 @@ public class KarafBoot implements IPentahoSystemListener {
       }
     }
 
+  }
+
+  public static void deleteRecursiveIfExists( File item ) {
+    if ( !item.exists() ) {
+      return;
+    }
+    if ( !Files.isSymbolicLink( item.toPath() ) && item.isDirectory() ) {
+      File[] subitems = item.listFiles();
+      for ( File subitem : subitems ) {
+        deleteRecursiveIfExists( subitem );
+      }
+    }
+    item.delete();
+    return;
   }
 
   protected KarafInstance createAndProcessKarafInstance( String root )
