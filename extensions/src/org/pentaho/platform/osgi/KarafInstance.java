@@ -55,12 +55,10 @@ public class KarafInstance {
   private int instanceNumber = 0;
   private ServerSocket instanceSocket;
   private String cachePath;
-  private String root;
   private final String cacheParentFolder;
   private HashMap<String, KarafInstancePort> instancePorts = new HashMap<String, KarafInstancePort>();
 
   private static final int BANNER_WIDTH = 79;
-  private static final String CACHE_DIR_PREFIX = "data";
   private static final String USED_PORT_FILENAME = "PortsAssigned.txt";
   private boolean started;
 
@@ -76,7 +74,6 @@ public class KarafInstance {
   }
 
   public KarafInstance( String root, String instanceFilePath, String clientType ) {
-    this.root = root;
     this.cacheParentFolder = root + "/caches";
     this.instanceFilePath = instanceFilePath;
 
@@ -186,14 +183,9 @@ public class KarafInstance {
         .append( "***" );
   }
 
-  /**
-   * Used for unit tests. Normally the lock is release when the JVM closes
-   *
-   * @throws IOException
-   */
   public void close() throws IOException {
     instanceSocket.close();
-    cacheLock.release();
+    cacheLock.acquiredBy().close();
   }
 
   public int getInstanceNumber() {
