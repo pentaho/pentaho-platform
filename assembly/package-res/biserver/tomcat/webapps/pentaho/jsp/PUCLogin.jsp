@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+* Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
 --%>
 
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
@@ -21,14 +21,13 @@
     import="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter,
             org.springframework.security.web.savedrequest.SavedRequest,
             org.springframework.security.core.AuthenticationException,
-            org.springframework.security.web.context.HttpSessionSecurityContextRepository,
             org.pentaho.platform.uifoundation.component.HtmlComponent,
             org.pentaho.platform.engine.core.system.PentahoSystem,
             org.pentaho.platform.util.messages.LocaleHelper,
             org.pentaho.platform.api.engine.IPentahoSession,
             org.pentaho.platform.web.http.WebTemplateHelper,
             org.pentaho.platform.api.engine.IUITemplater,
-      org.pentaho.platform.api.engine.IPluginManager,
+            org.pentaho.platform.api.engine.IPluginManager,
             org.pentaho.platform.web.jsp.messages.Messages,
             java.util.List,
             java.util.ArrayList,
