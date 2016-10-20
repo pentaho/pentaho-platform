@@ -51,6 +51,56 @@ public class FilterDialog extends PromptDialogBox {
   private ListBox scheduleStateListBox = new ListBox( false );
   private ListBox scheduleTypeListBox = new ListBox( false );
 
+  private enum ScheduleStateEnum {
+
+    SHOWALL( Messages.getString( "showAll" ) ),
+    NORMAL( "Normal" ),
+    PAUSED( "Paused" ),
+    COMPLETE( "Complete" ),
+    ERROR( "Error" ),
+    BLOCKED( "Blocked" ),
+    UNKNOWN( "Unknown" );
+
+    private final String value;
+
+    ScheduleStateEnum( String value ) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return value;
+    }
+  }
+
+  private enum ScheduleTypeEnum {
+
+    SHOWALL( Messages.getString( "showAll" ) ),
+    DAILY( "Daily" ),
+    WEEKLY( "Weekly" ),
+    MONTHLY( "Monthly" ),
+    YEARLY( "Yearly" );
+
+    private final String value;
+
+    ScheduleTypeEnum( String value ) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return value;
+    }
+  }
+
   public FilterDialog() {
     super(
       Messages.getString( "filterSchedules" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false,
@@ -126,25 +176,25 @@ public class FilterDialog extends PromptDialogBox {
     selectedIndex = getSelectedIndex( scheduleStateListBox );
     scheduleStateListBox.clear();
     // NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
-    scheduleStateListBox.addItem( showAll );
-    scheduleStateListBox.addItem( Messages.getString( "normal" ) );
-    scheduleStateListBox.addItem( Messages.getString( "paused" ) );
-    scheduleStateListBox.addItem( Messages.getString( "complete" ) );
-    scheduleStateListBox.addItem( Messages.getString( "error" ) );
-    scheduleStateListBox.addItem( Messages.getString( "blocked" ) );
-    scheduleStateListBox.addItem( Messages.getString( "unknown" ) );
+    scheduleStateListBox.addItem( showAll, ScheduleStateEnum.SHOWALL.getValue() );
+    scheduleStateListBox.addItem( Messages.getString( "normal" ), ScheduleStateEnum.NORMAL.getValue() );
+    scheduleStateListBox.addItem( Messages.getString( "paused" ), ScheduleStateEnum.PAUSED.getValue() );
+    scheduleStateListBox.addItem( Messages.getString( "complete" ), ScheduleStateEnum.COMPLETE.getValue() );
+    scheduleStateListBox.addItem( Messages.getString( "error" ), ScheduleStateEnum.ERROR.getValue() );
+    scheduleStateListBox.addItem( Messages.getString( "blocked" ), ScheduleStateEnum.BLOCKED.getValue() );
+    scheduleStateListBox.addItem( Messages.getString( "unknown" ), ScheduleStateEnum.UNKNOWN.getValue() );
     scheduleStateListBox.setSelectedIndex( selectedIndex );
 
     // state filter
     scheduleTypeListBox.setVisibleItemCount( 1 );
     selectedIndex = getSelectedIndex( scheduleTypeListBox );
     scheduleTypeListBox.clear();
-    // NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
-    scheduleTypeListBox.addItem( showAll );
-    scheduleTypeListBox.addItem( Messages.getString( "schedule.daily" ) );
-    scheduleTypeListBox.addItem( Messages.getString( "schedule.weekly" ) );
-    scheduleTypeListBox.addItem( Messages.getString( "schedule.monthly" ) );
-    scheduleTypeListBox.addItem( Messages.getString( "schedule.yearly" ) );
+    // DAILY, WEEKLY, MONTHLY, YEARLY
+    scheduleTypeListBox.addItem( showAll, ScheduleStateEnum.SHOWALL.getValue() );
+    scheduleTypeListBox.addItem( Messages.getString( "schedule.daily" ), ScheduleTypeEnum.DAILY.getValue() );
+    scheduleTypeListBox.addItem( Messages.getString( "schedule.weekly" ), ScheduleTypeEnum.WEEKLY.getValue() );
+    scheduleTypeListBox.addItem( Messages.getString( "schedule.monthly" ), ScheduleTypeEnum.MONTHLY.getValue() );
+    scheduleTypeListBox.addItem( Messages.getString( "schedule.yearly" ), ScheduleTypeEnum.YEARLY.getValue() );
     scheduleTypeListBox.setSelectedIndex( selectedIndex );
 
     FlexTable filterPanel = new FlexTable();
@@ -170,11 +220,11 @@ public class FilterDialog extends PromptDialogBox {
   }
 
   public String getTypeFilter() {
-    return scheduleTypeListBox.getItemText( scheduleTypeListBox.getSelectedIndex() );
+    return scheduleTypeListBox.getValue( scheduleTypeListBox.getSelectedIndex() );
   }
 
   public String getStateFilter() {
-    return scheduleStateListBox.getItemText( scheduleStateListBox.getSelectedIndex() );
+    return scheduleStateListBox.getValue( scheduleStateListBox.getSelectedIndex() );
   }
 
   public Date getBeforeDate() {
