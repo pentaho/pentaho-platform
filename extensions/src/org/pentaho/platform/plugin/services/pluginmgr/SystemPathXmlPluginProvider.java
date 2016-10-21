@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr;
@@ -41,6 +41,7 @@ import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResourc
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
 
@@ -117,8 +118,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     Document doc = null;
     try {
       try {
-        org.dom4j.io.SAXReader reader = new org.dom4j.io.SAXReader();
-        reader.setEntityResolver( new SolutionURIResolver() );
+        org.dom4j.io.SAXReader reader = XMLParserFactoryProducer.getSAXReader( new SolutionURIResolver() );
         doc = reader.read( ActionSequenceResource.getInputStream( path, LocaleHelper.getLocale() ) );
       } catch ( Throwable t ) {
         // XML document can't be read. We'll just return a null document.

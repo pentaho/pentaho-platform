@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 /*
@@ -110,6 +110,7 @@ import org.pentaho.platform.engine.services.solution.PojoComponent;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XForm;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
@@ -1410,8 +1411,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     }
     Document document = null;
     try {
-      org.dom4j.io.SAXReader reader = new org.dom4j.io.SAXReader();
-      reader.setEntityResolver( new SolutionURIResolver() );
+      org.dom4j.io.SAXReader reader = XMLParserFactoryProducer.getSAXReader( new SolutionURIResolver() );
       document = reader.read( actionResource.getInputStream(
         RepositoryFilePermission.READ, LocaleHelper.getLocale() ) );
     } catch ( Throwable t ) {

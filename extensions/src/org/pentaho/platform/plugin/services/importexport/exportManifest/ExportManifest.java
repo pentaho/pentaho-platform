@@ -13,9 +13,8 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
-
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import org.pentaho.database.model.DatabaseConnection;
@@ -29,7 +28,13 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.XMLReader;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -37,6 +42,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.OutputStream;
@@ -160,12 +169,27 @@ public class ExportManifest {
   }
 
   public static ExportManifest fromXml( ByteArrayInputStream input ) throws JAXBException {
+    SAXParserFactory secureSAXParserFactory;
+    try {
+      secureSAXParserFactory = XMLParserFactoryProducer.createSecureSAXParserFactory();
+    } catch ( SAXNotSupportedException | SAXNotRecognizedException | ParserConfigurationException ex ) {
+      throw new JAXBException( ex );
+    }
+    XMLReader xmlReader;
+    try {
+      xmlReader = secureSAXParserFactory.newSAXParser().getXMLReader();
+      xmlReader.setFeature( "http://xml.org/sax/features/namespaces", true );
+    } catch ( SAXException | ParserConfigurationException ex ) {
+      throw new JAXBException( ex );
+    }
+    Source xmlSource = new SAXSource( xmlReader, new InputSource( input ) );
+
     JAXBContext jc =
         JAXBContext.newInstance( "org.pentaho.platform.plugin.services.importexport.exportManifest.bindings" );
     Unmarshaller u = jc.createUnmarshaller();
 
     try {
-      JAXBElement<ExportManifestDto> o = (JAXBElement) ( u.unmarshal( input ) );
+      JAXBElement<ExportManifestDto> o = (JAXBElement) ( u.unmarshal( xmlSource ) );
       ExportManifestDto exportManifestDto = o.getValue();
       ExportManifest exportManifest = new ExportManifest( exportManifestDto );
       return exportManifest;

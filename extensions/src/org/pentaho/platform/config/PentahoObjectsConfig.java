@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.config;
@@ -26,6 +26,7 @@ import org.jaxen.JaxenException;
 import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.dom4j.Dom4jXPath;
 import org.pentaho.platform.config.messages.Messages;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 import java.io.ByteArrayInputStream;
@@ -82,7 +83,7 @@ public class PentahoObjectsConfig {
   }
 
   public PentahoObjectsConfig( String xml ) throws DocumentException {
-    SAXReader reader = new SAXReader();
+    SAXReader reader = XMLParserFactoryProducer.getSAXReader( null );
     reader.setValidation( false );
     setDocument( reader.read( new ByteArrayInputStream( xml.getBytes() ) ) );
   }

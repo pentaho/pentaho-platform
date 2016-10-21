@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.uifoundation.component.xml;
@@ -28,6 +28,7 @@ import org.pentaho.platform.engine.services.SolutionURIResolver;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 
 import java.io.File;
 import java.util.HashMap;
@@ -100,8 +101,7 @@ public class FilterPanelComponent extends XmlComponent {
       // load the XML document that defines the dial
       Document filterDocument = null;
       try {
-        org.dom4j.io.SAXReader reader = new org.dom4j.io.SAXReader();
-        reader.setEntityResolver( new SolutionURIResolver() );
+        org.dom4j.io.SAXReader reader = XMLParserFactoryProducer.getSAXReader( new SolutionURIResolver() );
         filterDocument =
             reader.read( ActionSequenceResource.getInputStream( definitionPath, LocaleHelper.getLocale() ) );
       } catch ( Throwable t ) {

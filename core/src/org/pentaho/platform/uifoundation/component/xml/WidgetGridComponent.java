@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.uifoundation.component.xml;
@@ -44,6 +44,7 @@ import org.pentaho.platform.uifoundation.chart.JFreeChartEngine;
 import org.pentaho.platform.uifoundation.chart.WidgetDefinition;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 import java.io.File;
@@ -167,8 +168,7 @@ public class WidgetGridComponent extends XmlComponent {
     try {
       Document dataActionDocument = null;
       try {
-        org.dom4j.io.SAXReader reader = new org.dom4j.io.SAXReader();
-        reader.setEntityResolver( new SolutionURIResolver() );
+        org.dom4j.io.SAXReader reader = XMLParserFactoryProducer.getSAXReader( new SolutionURIResolver() );
         dataActionDocument =
             reader.read( ActionSequenceResource.getInputStream( widgetGridDataDefinition, LocaleHelper.getLocale() ) );
       } catch ( Throwable t ) {

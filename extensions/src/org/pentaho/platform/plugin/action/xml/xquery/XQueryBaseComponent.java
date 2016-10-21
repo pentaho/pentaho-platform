@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.xml.xquery;
@@ -42,6 +42,7 @@ import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.engine.services.solution.StandardSettings;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.services.connections.xquery.XQConnection;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -236,7 +237,7 @@ public abstract class XQueryBaseComponent extends ComponentBase implements IPrep
       String[] columnTypes = null;
       if ( retrieveColumnTypes() ) {
         try {
-          SAXReader reader = new SAXReader();
+          SAXReader reader = XMLParserFactoryProducer.getSAXReader( null );
           Document document;
           if ( url != null ) {
             document = reader.read( url );
