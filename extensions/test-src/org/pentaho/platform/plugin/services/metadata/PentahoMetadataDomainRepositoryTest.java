@@ -18,7 +18,19 @@
 
 package org.pentaho.platform.plugin.services.metadata;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
 import junit.framework.TestCase;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -48,17 +60,19 @@ import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 
 /**
  * Class Description
@@ -725,7 +739,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     // Found
     String annotationsFilePath =
-        "/etc/metadata/" + domainFileId
+        File.separator + "etc" + File.separator + "metadata/" + domainFileId
             + IModelAnnotationsAwareMetadataDomainRepositoryImporter.ANNOTATIONS_FILE_ID_POSTFIX;
     doReturn( domainFile ).when( repository ).getFile( annotationsFilePath );
     assertNotNull( domainRepositorySpy.getAnnotationsXmlFile( domainFile ) );
@@ -760,7 +774,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     doReturn( domainFileId ).when( domainFile ).getId();
 
     RepositoryFile annotationsFile = mock( RepositoryFile.class );
-    doReturn( annotationsFile ).when( repository ).getFile( "/etc/metadata/" + annotationsId );
+    doReturn( annotationsFile ).when( repository ).getFile( File.separator + "etc" + File.separator + "metadata/" + annotationsId );
     doReturn( annotationsId ).when( annotationsFile ).getId();
 
     SimpleRepositoryFileData data = mock( SimpleRepositoryFileData.class );
@@ -857,6 +871,12 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     result = repository.replaceDomainId( sb, "ds-name.xmi" );
     assertEquals( "ds-name.xmi", result );
     assertEquals( "ds-name", repository.getDomainIdFromXmi( sb ) );
+
+    // Import from metadata with special character
+    sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds<ds.xmi" ) );
+    result = repository.replaceDomainId( sb, "ds<ds" );
+    assertEquals( "ds<ds.xmi", result );
+    assertEquals( "ds<ds", repository.getDomainIdFromXmi( sb ) );
   }
 
   private InputStream toInputStream( final Properties newProperties ) {
