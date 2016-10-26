@@ -187,7 +187,7 @@
  	          <include name="**/pentaho.war" />
 	          <include name="**/pentaho-style.war" />
 	        </zipfileset>
-	    	<zipfileset src="${bin.dir}/oss-licenses.zip" includes="PentahoBIPlatform_OSS_Licenses.html,PentahoDataIntegration_OSS_Licenses.html" prefix=""/>
+	    	<zipfileset src="${bin.dir}/oss-licenses.zip" includes="PentahoServer_OSS_Licenses.html" prefix=""/>
 	    </zip>
 		<delete>
 			<fileset dir="${dist.dir}">
@@ -417,7 +417,7 @@
   	<!-- add resolved oss-license file to package -->
 	<unzip src="${bin.dir}/oss-licenses.zip" dest="${stage.dir.server}/licenses">
 	  <patternset>
-	    <include name="PentahoBIPlatform_OSS_Licenses.html"/>
+	    <include name="PentahoServer_OSS_Licenses.html"/>
 	  </patternset>
 	</unzip>
 
