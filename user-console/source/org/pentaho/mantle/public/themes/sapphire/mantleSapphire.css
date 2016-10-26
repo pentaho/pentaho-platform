@@ -15,6 +15,10 @@
   margin-right: 2px;
 }
 
+#contentCleanerPanel .gwt-TextBox {
+  width: 50px !important;
+}
+
 .schedulerPerspective {
   background: transparent;
   width: 1230px;
