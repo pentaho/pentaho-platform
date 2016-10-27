@@ -264,7 +264,6 @@
         <fileset dir="${lib.dir}">
           <include name="jsp-api.jar" />
           <include name="postgres*.jar" />
-          <include name="jtds*.jar" />
         </fileset>
       </copy>
 
