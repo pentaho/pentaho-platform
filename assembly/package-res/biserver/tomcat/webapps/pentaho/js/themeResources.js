@@ -99,7 +99,7 @@ function customizeThemeStyling() {
   if (regEx != null) {
     if (regEx.exec(navigator.userAgent) != null) {
       version = parseInt( RegExp.$1 );
-      className += " IE IE" + version;
+      className += " IE" + version;
       isIE = true;
     }
   }
@@ -110,7 +110,7 @@ function customizeThemeStyling() {
 
     // the IE classes are not being added to IE11 due to all the dojo upgrade tests where made against
     // IE11 without these classes. If is safer for now to keep the class not added
-    if (version < 11) {
+    if (version <= 11) {
       document.getElementsByTagName("body")[0].className += className;
     }
   }
