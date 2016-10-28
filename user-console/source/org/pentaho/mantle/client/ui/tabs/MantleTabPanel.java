@@ -19,13 +19,6 @@ package org.pentaho.mantle.client.ui.tabs;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -62,14 +55,8 @@ import java.util.List;
 public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel {
 
   final PopupPanel waitPopup = new PopupPanel( false, true );
-
-  private static final String REPORT_VIEWER_ASYNC_CONFIG_PATH = "plugin/reporting/api/jobs/config";
-  private static final String PIR_ASYNC_CONFIG_PATH = "plugin/pentaho-interactive-reporting/api/jobs/config";
-
   private static final String FRAME_ID_PRE = "frame_"; //$NON-NLS-1$
   private static int frameIdCount = 0;
-  private boolean isReportViewerAsyncModeEnabled = false;
-  private boolean isPIRAsyncModeEnabled = false;
 
   private HashSet<IFrameTabPanel> freeFrames = new HashSet<IFrameTabPanel>();
 
@@ -98,9 +85,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         }
       }
     } );
-
-    fetchAsyncModeEnabledStatus( REPORT_VIEWER_ASYNC_CONFIG_PATH );
-    fetchAsyncModeEnabledStatus( PIR_ASYNC_CONFIG_PATH );
   }
 
   public void addTab( String text, String tooltip, boolean closeable, Widget content ) {
@@ -114,11 +98,11 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
   }
 
-  public void showNewURLTab( String tabName, String tabTooltip, String url, boolean setFileInfoInFrame, String frameName ) {
-    if ( !( isReportViewerAsyncModeEnabled && url.contains( ".prpt/" ) )
-            && !( isPIRAsyncModeEnabled && url.contains( ".prpti/" ) ) ) {
-      showLoadingIndicator();
-    }
+  public void showNewURLTab( String tabName, String tabTooltip, String url, boolean setFileInfoInFrame,
+                             String frameName ) {
+
+    showLoadingIndicator();
+
     PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
 
     // Because Frames are being generated with the window.location object, relative URLs will be generated
@@ -790,56 +774,10 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
   public static native void onTabSelect( Element element )/*-{
     try {
-        element.contentWindow.onMantleActivation(); // tab must define this callback function
+      element.contentWindow.onMantleActivation(); // tab must define this callback function
     } catch (e) {
-        // ignore
+      // ignore
     }
   }-*/;
-
-  /**
-   * Queries the server once to see whether report-viewer or PIR async-mode is enabled. If it is enabled,
-   * the report-viewer and PIR provides it own loading screen and the default "please wait" screen interferes
-   * with the user experience of that. Therefore we disable the wait-screen that comes up when a new
-   * page opens. @see case BACKLOG-7180, BACKLOG-9340 for details.
-   */
-  public void fetchAsyncModeEnabledStatus( final String path ) {
-    final String moduleBaseURL = GWT.getModuleBaseURL();
-    final String moduleName = GWT.getModuleName();
-    final String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
-    final String url = contextURL + path;
-
-    RequestBuilder isAsyncModeEnabledRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
-    isAsyncModeEnabledRequestBuilder.setHeader( "accept", "application/json" );
-    isAsyncModeEnabledRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-
-    try {
-      isAsyncModeEnabledRequestBuilder.sendRequest( null, new RequestCallback() {
-
-        public void onError( Request request, Throwable exception ) {
-          // showError(exception);
-        }
-
-        public void onResponseReceived( Request request, Response response ) {
-          if ( path.equals( REPORT_VIEWER_ASYNC_CONFIG_PATH ) ) {
-            isReportViewerAsyncModeEnabled = isAsyncModeEnabled( response );
-          } else {
-            isPIRAsyncModeEnabled = isAsyncModeEnabled( response );
-          }
-        }
-      } );
-    } catch ( RequestException e ) {
-      // showError(e);
-    }
-  }
-
-  private boolean isAsyncModeEnabled( Response response ) {
-    try {
-      JSONObject jsonObject = (JSONObject) JSONParser.parseLenient( response.getText() );
-      return jsonObject.get( "supportAsync" ).isBoolean().booleanValue();
-
-    } catch ( Exception e ) {
-      return false;
-    }
-  }
 
 }
