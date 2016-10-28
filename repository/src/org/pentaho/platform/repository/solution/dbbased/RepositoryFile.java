@@ -18,7 +18,10 @@
 
 package org.pentaho.platform.repository.solution.dbbased;
 
+import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IFileFilter;
+import org.pentaho.platform.api.engine.IPentahoAclEntry;
+import org.pentaho.platform.api.engine.IPentahoAclObjectIdentity;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.repository.ISearchable;
 import org.pentaho.platform.repository.messages.Messages;
@@ -31,7 +34,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 @SuppressWarnings( "deprecation" )
-public class RepositoryFile implements ISearchable, Comparable, ISolutionFile {
+public class RepositoryFile implements ISearchable, Comparable, IPentahoAclObjectIdentity, IAclSolutionFile, ISolutionFile {
   public static final char EXTENSION_CHAR = '.';
 
   private static final long serialVersionUID = -4129429077568560627L;
@@ -66,6 +69,8 @@ public class RepositoryFile implements ISearchable, Comparable, ISolutionFile {
   private byte[] data = null;
 
   private Set childrenFiles = new TreeSet();
+
+  private List<IPentahoAclEntry> accessControls = new ArrayList<IPentahoAclEntry>();
 
   public RepositoryFile() {
     super();
@@ -117,6 +122,25 @@ public class RepositoryFile implements ISearchable, Comparable, ISolutionFile {
     buffer.append( fileName );
 
     setFullPath( buffer.toString() );
+  }
+
+  public List<IPentahoAclEntry> getAccessControls() {
+    return this.accessControls;
+  }
+
+  /**
+   * This method's purpose is to allow Hibernate to initialize the ACLs from the data-store. Application clients
+   * should likely use resetAccessControls.
+   */
+  public void setAccessControls( final List<IPentahoAclEntry> acls ) {
+    this.accessControls = acls;
+  }
+
+  public void resetAccessControls( final List<IPentahoAclEntry> acls ) {
+    if ( this.accessControls != null ) {
+      this.accessControls.clear();
+      this.accessControls.addAll( acls );
+    }
   }
 
   public int getRevision() {
@@ -367,6 +391,29 @@ public class RepositoryFile implements ISearchable, Comparable, ISolutionFile {
 
   public boolean exists() {
     return true;
+  }
+
+  /**
+   * Chains up to find the access controls that are in force on this object. Could end up chaining all the way to
+   * the root.
+   *
+   * <p>
+   * Note that (1) defining no access control entries of your own and (2) removing all of your access control
+   * entries is indistiguishable in the current design. In #1, we chain up because we inherit. But in #2, it might
+   * be expected that by explicitly removing all access control entries, the chaining up ends. That is not the case
+   * in the current design.
+   * </p>
+   */
+  public List<IPentahoAclEntry> getEffectiveAccessControls() {
+    List acls = this.getAccessControls();
+    if ( acls.size() == 0 ) {
+      RepositoryFile chain = this;
+      while ( !chain.isRoot() && ( acls.size() == 0 ) ) {
+        chain = (RepositoryFile) chain.retrieveParent();
+        acls = chain.getAccessControls();
+      }
+    }
+    return acls;
   }
 
 }
