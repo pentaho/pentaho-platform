@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.engine;
@@ -41,7 +41,7 @@ public interface IAclHolder {
    * 
    * @return List of ACLs for this object only.
    */
-  public List/*<IPentahoAclEntry>*/ getAccessControls();
+  public List<IPentahoAclEntry> getAccessControls();
 
   /**
    * Sets the access controls on this specific object. Currently doesn't check whether the acls are the same as
@@ -49,7 +49,7 @@ public interface IAclHolder {
    * 
    * @param acls
    */
-  public void setAccessControls( List/*<IPentahoAclEntry>*/ acls );
+  public void setAccessControls( List<IPentahoAclEntry> acls );
 
   /**
    * Replaces existing access controls with a new list of access controls. This method should be used in favor of
@@ -57,7 +57,7 @@ public interface IAclHolder {
    * 
    * @param acls
    */
-  public void resetAccessControls( List/*<IPentahoAclEntry>*/ acls );
+  public void resetAccessControls( List<IPentahoAclEntry> acls );
 
   /**
    * Examines whether the existing object has ACLs. If not, it will return the parent's ACLs. All the way up to the
@@ -65,5 +65,5 @@ public interface IAclHolder {
    * 
    * @return List containing all the AclEntry objects
    */
-  public List/*<IPentahoAclEntry>*/ getEffectiveAccessControls();
+  public List<IPentahoAclEntry> getEffectiveAccessControls();
 }
