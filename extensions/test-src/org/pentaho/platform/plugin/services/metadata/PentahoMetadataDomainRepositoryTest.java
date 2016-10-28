@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -789,6 +789,74 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     String actualPath = domainRepositorySpy.resolveAnnotationsFilePath( domainFile );
     assertEquals( "/etc/metadata/" + annotationsId, FilenameUtils.separatorsToUnix( actualPath ) );
+  }
+
+  @Test
+  public void testEndsWithXmi() {
+    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    assertEquals( "domainId.xmi", repository.endsWithXmi( "domainId" ) );
+    assertEquals( "domainId.xmi", repository.endsWithXmi( "domainId.xmi" ) );
+  }
+
+  @Test
+  public void testNoXmi() {
+    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    assertEquals( "domainId", repository.noXmi( "domainId" ) );
+    assertEquals( "domainId", repository.noXmi( "domainId.xmi" ) );
+  }
+
+  @Test
+  public void testGetDomainIdFromXmi() {
+    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    String xmiTemplate =
+        "<CWM:Description body=\"body_of_datasource\" name=\"datasourceModel\" type=\"String\" xmi.id=\"a68\"><CWM:Description.modelElement><CWMMDB:Schema xmi.idref=\"a64\"/></CWM:Description.modelElement></CWM:Description><CWM:Description body=\"{datasourceName}\" language=\"en_US\" name=\"name\" type=\"LocString\" xmi.id=\"a69\"><CWM:Description.modelElement><CWMMDB:Schema xmi.idref=\"a64\"/></CWM:Description.modelElement></CWM:Description>";
+
+    String xmiString = xmiTemplate.replace( "{datasourceName}", "datasource-name" );
+    StringBuilder xmi = new StringBuilder( xmiString );
+    String domainIdXmi = repository.getDomainIdFromXmi( xmi );
+    assertEquals( "datasource-name", domainIdXmi );
+
+    xmiString = xmiTemplate.replace( "{datasourceName}", "datasource-name" ).replace( "datasourceModel", "empty" );
+    xmi = new StringBuilder( xmiString );
+    assertNull( repository.getDomainIdFromXmi( xmi ) );
+  }
+
+  @Test
+  public void testIsDomainIdXmiEqualsOrNotPresent() {
+    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    assertEquals( true, repository.isDomainIdXmiEqualsOrNotPresent( "someDomainId", null ) );
+    assertEquals( true, repository.isDomainIdXmiEqualsOrNotPresent( "someDomainId.xmi", null ) );
+    assertEquals( true, repository.isDomainIdXmiEqualsOrNotPresent( "someDomainId.xmi", "someDomainId.xmi" ) );
+    assertEquals( true, repository.isDomainIdXmiEqualsOrNotPresent( "someDomainId", "someDomainId" ) );
+    assertEquals( true, repository.isDomainIdXmiEqualsOrNotPresent( "someDomainId.xmi", "someDomainId" ) );
+    assertEquals( true, repository.isDomainIdXmiEqualsOrNotPresent( "someDomainId", "someDomainId.xmi" ) );
+    assertEquals( false, repository.isDomainIdXmiEqualsOrNotPresent( "someDomain1", "someDomainId2" ) );
+    assertEquals( false, repository.isDomainIdXmiEqualsOrNotPresent( "someDomain1", "someDomainId2.xmi" ) );
+  }
+
+  @Test
+  public void testReplaceDomainId() {
+    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    String xmiTemplate =
+        "<CWM:Description body=\"body_of_datasource\" name=\"datasourceModel\" type=\"String\" xmi.id=\"a68\"><CWM:Description.modelElement><CWMMDB:Schema xmi.idref=\"a64\"/></CWM:Description.modelElement></CWM:Description><CWM:Description body=\"{datasourceName}\" language=\"en_US\" name=\"name\" type=\"LocString\" xmi.id=\"a69\"><CWM:Description.modelElement><CWMMDB:Schema xmi.idref=\"a64\"/></CWM:Description.modelElement></CWM:Description>";
+
+    // Import from metadata
+    StringBuilder sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds.xmi" ) );
+    String result = repository.replaceDomainId( sb, "ds" );
+    assertEquals( "ds.xmi", result );
+    assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
+
+    // Import from metadata 2
+    sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-oldName.xmi" ) );
+    result = repository.replaceDomainId( sb, "ds" );
+    assertEquals( "ds.xmi", result );
+    assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
+
+    // Create new data source
+    sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-name" ) );
+    result = repository.replaceDomainId( sb, "ds-name.xmi" );
+    assertEquals( "ds-name.xmi", result );
+    assertEquals( "ds-name", repository.getDomainIdFromXmi( sb ) );
   }
 
   private InputStream toInputStream( final Properties newProperties ) {
