@@ -25,8 +25,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAclHolder;
+import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.IUserRoleListService;
@@ -67,6 +69,7 @@ public class SecurityHelper implements ISecurityHelper {
 
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
   private IAuthorizationPolicy policy;
+  private IAclVoter aclVoter;
   private UserDetailsService userDetailsService;
   private IUserRoleListService userRoleListService;
 
@@ -277,36 +280,41 @@ public class SecurityHelper implements ISecurityHelper {
 
   @Deprecated
   public boolean hasAccess( IAclHolder aHolder, int actionOperation, IPentahoSession session ) {
-    String aclMask = null; // acl to jcr repositoryAction mask
+    int aclMask = -1;
 
-    // TODO externalize repository action names
     switch ( actionOperation ) {
       case ( IAclHolder.ACCESS_TYPE_READ ): {
-        aclMask = "org.pentaho.repository.read"; // was IPentahoAclEntry.PERM_EXECUTE;
+        aclMask = IPentahoAclEntry.PERM_EXECUTE;
         break;
       }
       case IAclHolder.ACCESS_TYPE_WRITE:
       case IAclHolder.ACCESS_TYPE_UPDATE: {
-        aclMask = "org.pentaho.repository.create"; // was IPentahoAclEntry.PERM_UPDATE;
+        aclMask = IPentahoAclEntry.PERM_UPDATE;
         break;
       }
       case IAclHolder.ACCESS_TYPE_DELETE: {
-        aclMask = "org.pentaho.repository.create"; // was IPentahoAclEntry.PERM_DELETE;
+        aclMask = IPentahoAclEntry.PERM_DELETE;
         break;
       }
       case IAclHolder.ACCESS_TYPE_ADMIN: {
-        aclMask = "org.pentaho.security.administerSecurity"; // was IPentahoAclEntry.PERM_ADMINISTRATION;
+        aclMask = IPentahoAclEntry.PERM_ADMINISTRATION;
         break;
       }
       default: {
-        aclMask = "org.pentaho.repository.read"; // was IPentahoAclEntry.PERM_EXECUTE;
+        aclMask = IPentahoAclEntry.PERM_EXECUTE;
         break;
       }
 
     }
+    return getAclVoter().hasAccess( session, aHolder, aclMask );
+  }
 
-    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-    return policy.isAllowed( aclMask );
+  @Deprecated
+  public IAclVoter getAclVoter() {
+    if ( aclVoter == null ) {
+      aclVoter = PentahoSystem.get( IAclVoter.class );
+    }
+    return aclVoter;
   }
 
   /**
