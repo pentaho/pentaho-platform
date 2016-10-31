@@ -135,6 +135,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
           session = sessionCache.get( key );
         }
 
+        session.refresh( false );
+
       } catch ( Exception e ) {
         logger.error( "Error obtaining session from cache. Creating one directly instead: " + creds, e );
         session = super.getSession( creds );
