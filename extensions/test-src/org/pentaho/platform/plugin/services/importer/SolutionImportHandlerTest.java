@@ -17,7 +17,18 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -40,16 +51,7 @@ import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRo
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FilenameUtils;
-import org.junit.Assert;
+import mockit.NonStrictExpectations;
 
 public class SolutionImportHandlerTest {
 
@@ -427,10 +429,25 @@ public class SolutionImportHandlerTest {
 
     Mockito.doReturn( response ).when( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
 
+    mockSchedulerPause();
+
     spyHandler.importSchedules( schedules );
 
     Mockito.verify( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
     Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
+  }
+
+  private void mockSchedulerPause() {
+    final SchedulerResource schedulerResource = new SchedulerResource();
+    new NonStrictExpectations( SchedulerResource.class ) {
+      {
+        schedulerResource.pause();
+        times = 1;
+
+        schedulerResource.start();
+        times = 1;
+      }
+    };
   }
 
   @Test
@@ -445,6 +462,8 @@ public class SolutionImportHandlerTest {
 
     Mockito.doThrow( new IOException( "error creating schedule" ) ).when( spyHandler ).createSchedulerJob(
       Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
+
+    mockSchedulerPause();
 
     spyHandler.importSchedules( schedules );
     Assert.assertEquals( 0, ImportSession.getSession().getImportedScheduleJobIds().size() );
@@ -470,6 +489,8 @@ public class SolutionImportHandlerTest {
     ScheduleRequestMatcher goodMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
     Mockito.doReturn( response ).when( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ),
       Mockito.argThat( goodMatcher ) );
+
+    mockSchedulerPause();
 
     spyHandler.importSchedules( schedules );
     Mockito.verify( spyHandler, Mockito.times( 2 ) ).createSchedulerJob(
@@ -499,6 +520,8 @@ public class SolutionImportHandlerTest {
     ScheduleRequestMatcher goodMatcher = new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
     Mockito.doReturn( response ).when( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ),
       Mockito.argThat( goodMatcher ) );
+
+    mockSchedulerPause();
 
     spyHandler.importSchedules( schedules );
     Mockito.verify( spyHandler, Mockito.times( 2 ) ).createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.any( JobScheduleRequest.class ) );

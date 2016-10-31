@@ -12,17 +12,19 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.pentaho.platform.api.scheduler2.CronJobTrigger;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.pentaho.platform.api.scheduler2.CronJobTrigger;
+import org.pentaho.platform.api.scheduler2.Job.JobState;
+import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 
 @XmlRootElement
 public class JobScheduleRequest implements Serializable {
@@ -70,8 +72,10 @@ public class JobScheduleRequest implements Serializable {
   public static final int LAST_WEEK_OF_MONTH = 4;
 
   String jobName;
-  
+
   String jobId;
+
+  JobState jobState;
 
   String inputFile;
 
@@ -164,6 +168,14 @@ public class JobScheduleRequest implements Serializable {
     this.jobName = jobName;
   }
 
+  public JobState getJobState() {
+    return jobState;
+  }
+
+  public void setJobState( JobState jobState ) {
+    this.jobState = jobState;
+  }
+
   public String getActionClass() {
     return actionClass;
   }
@@ -189,11 +201,11 @@ public class JobScheduleRequest implements Serializable {
   }
 
   public String getJobId() {
-  	return jobId;
+    return jobId;
   }
-	
-  public void setJobId(String jobId) {
-  	this.jobId = jobId;
+
+  public void setJobId( String jobId ) {
+    this.jobId = jobId;
   }
-	
+
 }
