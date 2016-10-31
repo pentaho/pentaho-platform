@@ -65,9 +65,6 @@
     <!--  The PDI Excel output step depends on this  -->
     <dependency org="org.apache.xmlbeans" name="xmlbeans" rev="2.6.0" transitive="false"/>
 
-    <!--  PDI Elastic search bulk loader -->
-    <dependency org="elasticsearch" name="elasticsearch" rev="0.16.3" transitive="false"/>
-
     <!--  this is a runtime dependency, used sometimes in JavascriptRules (CDF) as well as plugins (XDASH) -->
     <dependency org="org.json" name="json" rev="${dependency.json.revision}" transitive="false" changing="true"/>
 
