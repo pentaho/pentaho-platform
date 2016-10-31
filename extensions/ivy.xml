@@ -293,9 +293,9 @@
                 transitive="false"/>
     <dependency org="jsonpath" name="jsonpath" rev="1.0" conf="default->default" transitive="false"/>
     <dependency org="org.antlr" name="antlr-runtime" rev="3.1.1" conf="default->default" transitive="false"/>
-    <dependency org="org.drools" name="drools-api" rev="5.0.1" conf="default->default" transitive="false"/>
-    <dependency org="org.drools" name="drools-compiler" rev="5.0.1" conf="default->default" transitive="false"/>
-    <dependency org="org.drools" name="drools-core" rev="5.0.1" conf="default->default" transitive="false"/>
+    <dependency org="org.drools" name="knowledge-api" rev="6.4.0.Final" conf="default->default" transitive="false"/>
+    <dependency org="org.drools" name="drools-compiler" rev="6.4.0.Final" conf="default->default" transitive="false"/>
+    <dependency org="org.drools" name="drools-core" rev="6.4.0.Final" conf="default->default" transitive="false"/>
     <dependency org="org.mvel" name="mvel2" rev="2.0.10" conf="default->default" transitive="false"/>
 
     <!-- google libs for analytics -->
