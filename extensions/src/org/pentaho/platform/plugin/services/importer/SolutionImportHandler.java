@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,6 +51,7 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
@@ -74,12 +76,15 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
+import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
   private static final Log log = LogFactory.getLog( SolutionImportHandler.class );
+
+  public static final String RESERVEDMAPKEY_LINEAGE_ID = "lineage-id";
 
   private static final String sep = ";";
   protected Map<String, RepositoryFileImportBundle.Builder> cachedImports;
@@ -98,7 +103,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   @Override
   public void importFile( IPlatformImportBundle bundle ) throws PlatformImportException, DomainIdNullException,
-      DomainAlreadyExistsException, DomainStorageException, IOException {
+    DomainAlreadyExistsException, DomainStorageException, IOException {
 
     RepositoryFileImportBundle importBundle = (RepositoryFileImportBundle) bundle;
     ZipInputStream zipImportStream = new ZipInputStream( bundle.getInputStream() );
@@ -131,13 +136,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         String domainId = exportManifestMetadata.getDomainId();
         boolean overWriteInRepository = isOverwriteFile();
         RepositoryFileImportBundle.Builder bundleBuilder =
-            new RepositoryFileImportBundle.Builder().charSet( "UTF-8" )
-              .hidden( false )
-              // let the parent bundle control whether or not to preserve DSW settings
-              .preserveDsw( bundle.isPreserveDsw() )
-              .overwriteFile( overWriteInRepository )
-              .mime( "text/xmi+xml" )
-              .withParam( "domain-id", domainId );
+          new RepositoryFileImportBundle.Builder().charSet( "UTF-8" )
+            .hidden( false )
+            // let the parent bundle control whether or not to preserve DSW settings
+            .preserveDsw( bundle.isPreserveDsw() )
+            .overwriteFile( overWriteInRepository )
+            .mime( "text/xmi+xml" )
+            .withParam( "domain-id", domainId );
 
         cachedImports.put( exportManifestMetadata.getFile(), bundleBuilder );
 
@@ -155,9 +160,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         }
 
         RepositoryFileImportBundle.Builder bundleBuilder =
-            new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( false ).name( catName ).overwriteFile(
-              isOverwriteFile() ).mime( "application/vnd.pentaho.mondrian+xml" )
-                .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
+          new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( false ).name( catName ).overwriteFile(
+            isOverwriteFile() ).mime( "application/vnd.pentaho.mondrian+xml" )
+            .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
         // definitely
         // named wrong
         // at the very
@@ -194,7 +199,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         actualFilePath = ExportFileNameEncoder.decodeZipFileName( actualFilePath );
       }
       String repositoryFilePath =
-          RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
+        RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
 
       if ( this.cachedImports.containsKey( repositoryFilePath ) ) {
 
@@ -212,7 +217,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       String decodedFilePath = file.getPath();
       RepositoryFile decodedFile = file.getFile();
       if ( manifestVersion != null ) {
-        decodedFile = new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName ).build();
+        decodedFile =
+          new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName ).build();
         decodedFilePath = ExportFileNameEncoder.decodeZipFileName( file.getPath() );
       }
 
@@ -233,7 +239,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         bundleBuilder.mime( solutionHelper.getMime( fileName ) );
 
         String filePath =
-            ( decodedFilePath.equals( "/" ) || decodedFilePath.equals( "\\" ) ) ? "" : decodedFilePath;
+          ( decodedFilePath.equals( "/" ) || decodedFilePath.equals( "\\" ) ) ? "" : decodedFilePath;
         repositoryFilePath = RepositoryFilenameUtils.concat( importBundle.getPath(), filePath );
       }
 
@@ -285,12 +291,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           if ( databaseConnection.getDatabaseType() == null ) {
             // don't try to import the connection if there is no type it will cause an error
             // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
-            log.warn( "Can't import connection " + databaseConnection.getName() + " because it doesn't have a databaseType" );
+            log.warn(
+              "Can't import connection " + databaseConnection.getName() + " because it doesn't have a databaseType" );
             continue;
           }
           try {
             IDatabaseConnection existingDBConnection =
-                datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
+              datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
             if ( existingDBConnection != null && existingDBConnection.getName() != null ) {
               if ( isOverwriteFile() ) {
                 databaseConnection.setId( existingDBConnection.getId() );
@@ -309,57 +316,102 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     localeFilesProcessor.processLocaleFiles( importer );
   }
 
+  List<Job> getAllJobs( SchedulerResource schedulerResource ) {
+    return schedulerResource.getAllJobs();
+  }
+
   protected void importSchedules( List<JobScheduleRequest> scheduleList ) throws PlatformImportException {
     if ( CollectionUtils.isNotEmpty( scheduleList ) ) {
       SchedulerResource schedulerResource = new SchedulerResource();
       schedulerResource.pause();
       for ( JobScheduleRequest jobScheduleRequest : scheduleList ) {
-        try {
-          Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
-          if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
-            if ( response.getEntity() != null ) {
-              // get the schedule job id from the response and add it to the import session
-              ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
+
+        boolean jobExists = false;
+
+        List<Job> jobs = getAllJobs( schedulerResource );
+        if ( jobs != null ) {
+
+          //paramRequest to map<String, Serializable>
+          Map<String, Serializable> mapParamsRequest = new HashMap<>();
+          for ( JobScheduleParam paramRequest : jobScheduleRequest.getJobParameters() ) {
+            mapParamsRequest.put( paramRequest.getName(), paramRequest.getValue() );
+          }
+
+          for ( Job job : jobs ) {
+
+            if ( ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID ) != null )
+              && ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID )
+              .equals( job.getJobParams().get( RESERVEDMAPKEY_LINEAGE_ID ) ) ) ) {
+              jobExists = true;
+            }
+
+            if ( overwriteFile && jobExists ) {
+              JobRequest jobRequest = new JobRequest();
+              jobRequest.setJobId( job.getJobId() );
+              schedulerResource.removeJob( jobRequest );
+              jobExists = false;
+              break;
             }
           }
-        } catch ( Exception e ) {
-          // there is a scenario where if the file scheduled has a space in the file name, that it won't work. the di server
-          // replaces spaces with underscores and the export mechanism can't determine if it needs this to happen or not
-          // so, if we failed to import and there is a space in the path, try again but this time with replacing the space(s)
-          if ( jobScheduleRequest.getInputFile().contains( " " ) || jobScheduleRequest.getOutputFile().contains( " " ) ) {
-            log.info( "Could not import schedule, attempting to replace spaces with underscores and retrying: "
-              + jobScheduleRequest.getInputFile() );
-            File inFile = new File( jobScheduleRequest.getInputFile() );
-            File outFile = new File( jobScheduleRequest.getOutputFile() );
-            String inputFileName = inFile.getParent() + RepositoryFile.SEPARATOR
-              + inFile.getName().replaceAll( " ", "_" );
-            String outputFileName = outFile.getParent() + RepositoryFile.SEPARATOR
-              + outFile.getName().replaceAll( " ", "_" );
-            jobScheduleRequest.setInputFile( inputFileName );
-            jobScheduleRequest.setOutputFile( outputFileName );
-            try {
-              if ( File.separator != RepositoryFile.SEPARATOR ) {
-                // on windows systems, the backslashes will result in the file not being found in the repository
-                jobScheduleRequest.setInputFile( inputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
-                jobScheduleRequest.setOutputFile( outputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
+        }
+
+        if ( !jobExists ) {
+          try {
+            Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
+            if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
+              if ( response.getEntity() != null ) {
+                // get the schedule job id from the response and add it to the import session
+                ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
               }
-              Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
-              if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
-                if ( response.getEntity() != null ) {
-                  // get the schedule job id from the response and add it to the import session
-                  ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
+            }
+          } catch ( Exception e ) {
+            // there is a scenario where if the file scheduled has a space in the file name, that it won't work. the
+            // di server
+
+            // replaces spaces with underscores and the export mechanism can't determine if it needs this to happen
+            // or not
+            // so, if we failed to import and there is a space in the path, try again but this time with replacing
+            // the space(s)
+            if ( jobScheduleRequest.getInputFile().contains( " " ) || jobScheduleRequest.getOutputFile()
+              .contains( " " ) ) {
+              log.info( "Could not import schedule, attempting to replace spaces with underscores and retrying: "
+                + jobScheduleRequest.getInputFile() );
+              File inFile = new File( jobScheduleRequest.getInputFile() );
+              File outFile = new File( jobScheduleRequest.getOutputFile() );
+              String inputFileName = inFile.getParent() + RepositoryFile.SEPARATOR
+                + inFile.getName().replaceAll( " ", "_" );
+              String outputFileName = outFile.getParent() + RepositoryFile.SEPARATOR
+                + outFile.getName().replaceAll( " ", "_" );
+              jobScheduleRequest.setInputFile( inputFileName );
+              jobScheduleRequest.setOutputFile( outputFileName );
+              try {
+                if ( File.separator != RepositoryFile.SEPARATOR ) {
+                  // on windows systems, the backslashes will result in the file not being found in the repository
+                  jobScheduleRequest.setInputFile( inputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
+                  jobScheduleRequest
+                    .setOutputFile( outputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
                 }
+                Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
+                if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
+                  if ( response.getEntity() != null ) {
+                    // get the schedule job id from the response and add it to the import session
+                    ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
+                  }
+                }
+              } catch ( Exception ex ) {
+                // log it and keep going. we should stop processing all schedules just because one fails.
+                log.error( Messages.getInstance()
+                  .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ), ex );
               }
-            } catch ( Exception ex ) {
+            } else {
               // log it and keep going. we should stop processing all schedules just because one fails.
               log.error( Messages.getInstance()
-                  .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ), ex );
-            }
-          } else {
-            // log it and keep going. we should stop processing all schedules just because one fails.
-            log.error( Messages.getInstance()
                 .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+            }
           }
+        } else {
+          log.info( Messages.getInstance()
+            .getString( "DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT", jobScheduleRequest.toString() ) );
         }
       }
       schedulerResource.start();
@@ -388,6 +440,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   /**
    * Imports UserExport objects into the platform as users.
+   *
    * @param users
    * @return A map of role names to list of users in that role
    */
@@ -545,8 +598,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   }
 
   private boolean isSystemDir( final String[] split, final int index ) {
-    return ( split != null && index < split.length && ( StringUtils.equals( split[index], "system" ) || StringUtils
-        .equals( split[index], "admin" ) ) );
+    return ( split != null && index < split.length && ( StringUtils.equals( split[ index ], "system" ) || StringUtils
+      .equals( split[ index ], "admin" ) ) );
   }
 
   class SolutionRepositoryImportSource {
@@ -580,12 +633,12 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           }
           File file = new File( entryName );
           RepositoryFile repoFile =
-              new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
+            new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
           String parentDir =
-              new File( entryName ).getParent() == null ? RepositoryFile.SEPARATOR : new File( entryName ).getParent()
-                  + RepositoryFile.SEPARATOR;
+            new File( entryName ).getParent() == null ? RepositoryFile.SEPARATOR : new File( entryName ).getParent()
+              + RepositoryFile.SEPARATOR;
           IRepositoryFileBundle repoFileBundle =
-              new RepositoryFileBundle( repoFile, null, parentDir, tempFile, "UTF-8", null );
+            new RepositoryFileBundle( repoFile, null, parentDir, tempFile, "UTF-8", null );
 
           if ( file.getName().equals( "exportManifest.xml" ) ) {
             initializeAclManifest( repoFileBundle );

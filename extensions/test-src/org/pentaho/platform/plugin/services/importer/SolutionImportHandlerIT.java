@@ -16,10 +16,7 @@
  */
 package org.pentaho.platform.plugin.services.importer;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,6 +38,7 @@ import org.pentaho.platform.engine.core.system.boot.PlatformInitializationExcept
 import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
 import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceIT.TestQuartzScheduler;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -57,8 +55,8 @@ public class SolutionImportHandlerIT extends Assert {
     mp.define( "IScheduler", TestQuartzScheduler.class );
     mp.define( IUserRoleListService.class, StubUserRoleListService.class );
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    IAuthorizationPolicy policy = Mockito.mock( IAuthorizationPolicy.class );
+    Mockito.when( policy.isAllowed( Mockito.anyString() ) ).thenReturn( true );
     mp.defineInstance( IAuthorizationPolicy.class, policy );
 
     mp.start();
@@ -71,6 +69,7 @@ public class SolutionImportHandlerIT extends Assert {
   @SuppressWarnings( "unchecked" )
   public void testImportSchedules() throws PlatformImportException, SchedulerException {
     SolutionImportHandler importHandler = new SolutionImportHandler( Collections.emptyList() );
+    importHandler = Mockito.spy( importHandler );
 
     List<JobScheduleRequest> requests = new ArrayList<JobScheduleRequest>( 4 );
     requests.add( createJobScheduleRequest( "NORMAL", JobState.NORMAL ) );
@@ -78,6 +77,7 @@ public class SolutionImportHandlerIT extends Assert {
     requests.add( createJobScheduleRequest( "PAUSED", JobState.COMPLETE ) );
     requests.add( createJobScheduleRequest( "PAUSED", JobState.ERROR ) );
 
+    Mockito.doReturn( new ArrayList<Job>() ).when( importHandler ).getAllJobs( Mockito.any( SchedulerResource.class ) );
     importHandler.importSchedules( requests );
 
     List<Job> jobs = scheduler.getJobs( new IJobFilter() {
@@ -96,10 +96,10 @@ public class SolutionImportHandlerIT extends Assert {
   }
 
   private JobScheduleRequest createJobScheduleRequest( String name, JobState jobState ) {
-    JobScheduleRequest scheduleRequest = mock( JobScheduleRequest.class );
-    doReturn( TestAction.class.getName() ).when( scheduleRequest ).getActionClass();
-    doReturn( name ).when( scheduleRequest ).getJobName();
-    doReturn( jobState ).when( scheduleRequest ).getJobState();
+    JobScheduleRequest scheduleRequest = Mockito.mock( JobScheduleRequest.class );
+    Mockito.doReturn( TestAction.class.getName() ).when( scheduleRequest ).getActionClass();
+    Mockito.doReturn( name ).when( scheduleRequest ).getJobName();
+    Mockito.doReturn( jobState ).when( scheduleRequest ).getJobState();
     return scheduleRequest;
   }
 
