@@ -103,8 +103,8 @@ public class PooledDatasourceHelper {
       }
 
       // Read default connection pooling parameter
-      String maxdleConn = PentahoSystem.getSystemSetting( "dbcp-defaults/max-idle-conn", null ); //$NON-NLS-1$ 
-      String minIdleConn = PentahoSystem.getSystemSetting( "dbcp-defaults/min-idle-conn", null ); //$NON-NLS-1$    
+      String maxdleConn = PentahoSystem.getSystemSetting( "dbcp-defaults/max-idle-conn", null ); //$NON-NLS-1$
+      String minIdleConn = PentahoSystem.getSystemSetting( "dbcp-defaults/min-idle-conn", null ); //$NON-NLS-1$
       String maxActConn = PentahoSystem.getSystemSetting( "dbcp-defaults/max-act-conn", null ); //$NON-NLS-1$
       String validQuery = null;
       String whenExhaustedAction = PentahoSystem.getSystemSetting( "dbcp-defaults/when-exhausted-action", null ); //$NON-NLS-1$
@@ -216,7 +216,7 @@ public class PooledDatasourceHelper {
        * because that essentially uses DriverManager as the source of connections.
        */
       ConnectionFactory factory = null;
-      if ( url.startsWith( "jdbc:mysql:" ) ) {
+      if ( url.startsWith( "jdbc:mysql:" ) || ( url.startsWith( "jdbc:mariadb:" ) ) ) {
         Properties props = new Properties();
         props.put( "user", databaseConnection.getUsername() );
         props.put( "password", databaseConnection.getPassword() );
