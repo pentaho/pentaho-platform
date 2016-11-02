@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -33,6 +33,7 @@ import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
+import org.pentaho.platform.plugin.services.exporter.ScheduleExportUtil;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
@@ -311,12 +312,14 @@ public class SchedulerResourceUtilTest {
     params.put( "test", "value" );
     when( repo.getName() ).thenReturn( "transform.ktr" );
     when( repo.getPath() ).thenReturn( "/home/me/transform.ktr" );
+    HashMap<String, String> pdiParams = new HashMap<>();
+    pdiParams.put( "pdiParam", "pdiParamValue" );
 
-    HashMap<String, Serializable> result = SchedulerResourceUtil.handlePDIScheduling( repo, params );
-    assertEquals( params.size() + 2, result.size() );
+    HashMap<String, Serializable> result = SchedulerResourceUtil.handlePDIScheduling( repo, params, pdiParams );
+    assertEquals( params.size() + 3, result.size() );
     assertEquals( "transform", result.get( "transformation" ) );
     assertEquals( "home/me", result.get( "directory" ) );
-    assertEquals( "value", ( (HashMap) result.get( "parameters" ) ).get( "test" ) );
+    assertEquals( "pdiParamValue", ( (HashMap) result.get( ScheduleExportUtil.RUN_PARAMETERS_KEY ) ).get( "pdiParam" ) );
   }
 
   @Test
@@ -325,12 +328,14 @@ public class SchedulerResourceUtilTest {
     params.put( "test", "value" );
     when( repo.getName() ).thenReturn( "job.kjb" );
     when( repo.getPath() ).thenReturn( "/home/me/job.kjb" );
+    HashMap<String, String> pdiParams = new HashMap<>();
+    pdiParams.put( "pdiParam", "pdiParamValue" );
 
-    HashMap<String, Serializable> result = SchedulerResourceUtil.handlePDIScheduling( repo, params );
-    assertEquals( params.size() + 2, result.size() );
+    HashMap<String, Serializable> result = SchedulerResourceUtil.handlePDIScheduling( repo, params, pdiParams );
+    assertEquals( params.size() + 3, result.size() );
     assertEquals( "job", result.get( "job" ) );
     assertEquals( "home/me", result.get( "directory" ) );
-    assertEquals( "value", ( (HashMap) result.get( "parameters" ) ).get( "test" ) );
+    assertEquals( "pdiParamValue", ( (HashMap) result.get( ScheduleExportUtil.RUN_PARAMETERS_KEY ) ).get( "pdiParam" ) );
   }
 
   @Test
@@ -338,8 +343,10 @@ public class SchedulerResourceUtilTest {
     HashMap<String, Serializable> params = new HashMap<>();
     params.put( "test", "value" );
     when( repo.getName() ).thenReturn( "readme.txt" );
+    HashMap<String, String> pdiParams = new HashMap<>();
+    pdiParams.put( "pdiParam", "pdiParamValue" );
 
-    HashMap<String, Serializable> result = SchedulerResourceUtil.handlePDIScheduling( repo, params );
-    assertEquals( params, result );
+    HashMap<String, Serializable> result = SchedulerResourceUtil.handlePDIScheduling( repo, params, pdiParams );
+    assertEquals( params.size() + pdiParams.size(), result.size() );
   }
 }

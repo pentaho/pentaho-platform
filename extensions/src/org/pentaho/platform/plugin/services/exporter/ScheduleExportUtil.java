@@ -35,6 +35,8 @@ import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
 
 public class ScheduleExportUtil {
 
+  public static final  String RUN_PARAMETERS_KEY = "parameters";
+
   public ScheduleExportUtil() {
     // to get 100% coverage
   }
@@ -95,24 +97,28 @@ public class ScheduleExportUtil {
 
     for ( String key : jobParams.keySet() ) {
       Serializable serializable = jobParams.get( key );
-      JobScheduleParam param = null;
-      if ( serializable instanceof String ) {
-        String value = (String) serializable;
-        if ( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS.equals( key ) ) {
-          schedule.setActionClass( value );
-        } else if ( IBlockoutManager.TIME_ZONE_PARAM.equals( key ) ) {
-          schedule.setTimeZone( value );
+      if ( RUN_PARAMETERS_KEY.equals( key ) ) {
+        schedule.getPdiParameters().putAll( (Map<String, String>) serializable );
+      } else {
+        JobScheduleParam param = null;
+        if ( serializable instanceof String ) {
+          String value = (String) serializable;
+          if ( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS.equals( key ) ) {
+            schedule.setActionClass( value );
+          } else if ( IBlockoutManager.TIME_ZONE_PARAM.equals( key ) ) {
+            schedule.setTimeZone( value );
+          }
+          param = new JobScheduleParam( key, (String) serializable );
+        } else if ( serializable instanceof Number ) {
+          param = new JobScheduleParam( key, (Number) serializable );
+        } else if ( serializable instanceof Date ) {
+          param = new JobScheduleParam( key, (Date) serializable );
+        } else if ( serializable instanceof Boolean ) {
+          param = new JobScheduleParam( key, (Boolean) serializable );
         }
-        param = new JobScheduleParam( key, (String) serializable );
-      } else if ( serializable instanceof Number ) {
-        param = new JobScheduleParam( key, (Number) serializable );
-      } else if ( serializable instanceof Date ) {
-        param = new JobScheduleParam( key, (Date) serializable );
-      } else if ( serializable instanceof Boolean ) {
-        param = new JobScheduleParam( key, (Boolean) serializable );
-      }
-      if ( param != null ) {
-        schedule.getJobParameters().add( param );
+        if ( param != null ) {
+          schedule.getJobParameters().add( param );
+        }
       }
     }
 
