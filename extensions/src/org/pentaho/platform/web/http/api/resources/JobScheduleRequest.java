@@ -19,6 +19,8 @@ package org.pentaho.platform.web.http.api.resources;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -91,6 +93,8 @@ public class JobScheduleRequest implements Serializable {
 
   ArrayList<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
 
+  Map<String, String> pdiParameters = new HashMap<>();
+
   long duration;
 
   String timeZone;
@@ -158,6 +162,14 @@ public class JobScheduleRequest implements Serializable {
         this.jobParameters.addAll( jobParameters );
       }
     }
+  }
+
+  public Map<String, String> getPdiParameters() {
+    return pdiParameters;
+  }
+
+  public void setPdiParameters( Map<String, String> pdiParameters ) {
+    this.pdiParameters = pdiParameters;
   }
 
   public String getJobName() {

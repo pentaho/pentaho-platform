@@ -154,7 +154,7 @@ public class SchedulerServiceTest extends Assert {
     Mockito.verify( schedulerService.repository, Mockito.times( 2 ) ).getFileMetadata( Mockito.anyString() );
     Mockito.verify( schedulerService, Mockito.times( 3 ) ).isPdiFile( Mockito.any( RepositoryFile.class ) );
     Mockito.verify( schedulerService, Mockito.times( 3 ) ).handlePDIScheduling( Mockito.any( RepositoryFile.class ),
-        Mockito.any( HashMap.class ) );
+        Mockito.any( HashMap.class ), Mockito.any( HashMap.class ) );
     Mockito.verify( schedulerService, Mockito.times( 2 ) ).getSchedulerOutputPathResolver( Mockito.any(
         JobScheduleRequest.class ) );
     Mockito.verify( schedulerService, Mockito.times( 2 ) ).getExtension( Mockito.anyString() );
@@ -260,7 +260,7 @@ public class SchedulerServiceTest extends Assert {
     Mockito.verify( schedulerService.repository, Mockito.times( 1 ) ).getFileMetadata( Mockito.anyString() );
     Mockito.verify( schedulerService, Mockito.times( 1 ) ).isPdiFile( Mockito.any( RepositoryFile.class ) );
     Mockito.verify( schedulerService, Mockito.times( 1 ) ).handlePDIScheduling( Mockito.any( RepositoryFile.class ),
-        Mockito.any( HashMap.class ) );
+        Mockito.any( HashMap.class ), Mockito.any( HashMap.class ) );
     Mockito.verify( scheduleRequest, Mockito.times( 7 ) ).getActionClass();
     Mockito.verify( schedulerService ).getAction( Mockito.anyString() );
   }
