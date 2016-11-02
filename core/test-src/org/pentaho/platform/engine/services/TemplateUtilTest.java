@@ -13,18 +13,37 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.services;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Matcher;
+
 import junit.framework.TestCase;
+
+import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.pentaho.commons.connection.IPentahoMetaData;
+import org.pentaho.commons.connection.IPentahoResultSet;
+import org.pentaho.platform.api.engine.IActionParameter;
+import org.pentaho.platform.api.engine.IParameterManager;
 import org.pentaho.platform.api.engine.IParameterResolver;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IRuntimeContext;
+import org.pentaho.platform.engine.services.actionsequence.ActionParameter;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.util.DateMath;
 
-import java.util.Properties;
-import java.util.regex.Matcher;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings( { "all" } )
 public class TemplateUtilTest extends TestCase implements IParameterResolver {
@@ -132,6 +151,132 @@ public class TemplateUtilTest extends TestCase implements IParameterResolver {
     }
     return template.length();
 
+  }
+
+  public void testTableTemplate() {
+
+    IRuntimeContext mockRuntimeContext = mock( IRuntimeContext.class );
+    IPentahoSession mockSession = mock( IPentahoSession.class );
+    IParameterManager mockParameterManager = mock( IParameterManager.class );
+    IPentahoResultSet mockPentahoResultSet = mock( IPentahoResultSet.class );
+    Object[] mockRow = new Object[] { "field0", "field1" };
+    when( mockPentahoResultSet.getColumnCount() ).thenReturn( mockRow.length );
+    when( mockPentahoResultSet.getDataRow( 0 ) ).thenReturn( mockRow );
+    when( mockParameterManager.getCurrentInputNames() ).thenReturn(
+        new HashSet<Object>( Arrays.asList( new String[] { "param1" } ) ) );
+    when( mockRuntimeContext.getSession() ).thenReturn( mockSession );
+    when( mockRuntimeContext.getParameterManager() ).thenReturn( mockParameterManager );
+    when( mockRuntimeContext.getInputParameterValue( "param1" ) ).thenReturn( mockPentahoResultSet );
+
+    String template = "table {param1:col:1} and text";
+    IParameterResolver resolver = mock( IParameterResolver.class );
+
+    assertEquals( "table field1 and text", TemplateUtil.applyTemplate( template, mockRuntimeContext, resolver ) );
+
+  }
+
+  public void testKeyedTableTemplate() {
+
+    IRuntimeContext mockRuntimeContext = mock( IRuntimeContext.class );
+    IPentahoSession mockSession = mock( IPentahoSession.class );
+    IParameterManager mockParameterManager = mock( IParameterManager.class );
+    IPentahoResultSet mockPentahoResultSet = createMockResultSet();
+    IPentahoMetaData mockPentahoMetaData = mock( IPentahoMetaData.class );
+    final Set inputNames = new HashSet<Object>( Arrays.asList( new String[] { "param1" } ) );
+    when( mockParameterManager.getCurrentInputNames() ).thenReturn( inputNames );
+    when( mockRuntimeContext.getSession() ).thenReturn( mockSession );
+    when( mockRuntimeContext.getParameterManager() ).thenReturn( mockParameterManager );
+    when( mockRuntimeContext.getInputParameterValue( "param1" ) ).thenReturn( mockPentahoResultSet );
+    when( mockRuntimeContext.getInputNames() ).thenReturn( inputNames );
+
+    String template = "{param1:keycol:key_Value:valcol:defaultValue}"; // "key_value" is parsed as "key value"
+
+    assertEquals( "field Value", TemplateUtil.applyTemplate( template, mockRuntimeContext ) );
+
+  }
+
+  public void testGetSystemInput() {
+    final String USER_NAME = "userName";
+    IRuntimeContext mockRuntimeContext = mock( IRuntimeContext.class );
+    IPentahoSession mockSession = mock( IPentahoSession.class );
+    when( mockRuntimeContext.getSession() ).thenReturn( mockSession );
+    when( mockSession.getName() ).thenReturn( USER_NAME );
+
+    assertEquals( USER_NAME, TemplateUtil.getSystemInput( "$user", mockRuntimeContext ) );
+  }
+
+  public void testApplyTemplateNameValue() {
+    assertEquals( "bland{bar}", TemplateUtil.applyTemplate( "{foo}and{bar}", "foo", "bl" ) );
+  }
+
+  public void testApplyTemplateNameValues() {
+    // String Array tests
+    assertEquals( "{foo}and{bar}", TemplateUtil.applyTemplate( "{foo}and{bar}", "foo", (String[]) null ) );
+    assertEquals( "bland{bar}", TemplateUtil.applyTemplate( "{foo}and{bar}", "foo", new String[] { "bl" } ) );
+    assertEquals( "bland&brand", TemplateUtil.applyTemplate( "{foo}and", "foo", new String[] { "bl", "br" } ) );
+  }
+
+  public void testGetProperty() {
+    IRuntimeContext mockRuntimeContext = mock( IRuntimeContext.class );
+    IPentahoSession mockSession = mock( IPentahoSession.class );
+    IParameterManager mockParameterManager = mock( IParameterManager.class );
+    when( mockRuntimeContext.getParameterManager() ).thenReturn( mockParameterManager );
+    when( mockRuntimeContext.getSession() ).thenReturn( mockSession );
+    // Load up various parameter types to target code sections
+    Map<String, IActionParameter> paramMap = new HashMap<String, IActionParameter>();
+    IActionParameter param1 = new ActionParameter( "param1", "String", "one", null, "defone" );
+    paramMap.put( "param1", param1 );
+    Map<String, Object> inputMap = new HashMap<String, Object>();
+    inputMap.putAll( paramMap );
+    inputMap.put( "param2", "two" );
+    inputMap.put( "param3", new TestObject( "three" ) );
+    inputMap.put( "param4", new TestObject[] { new TestObject( "four-0" ), new TestObject( "four-1" ) } );
+    inputMap.put( "param5", createMockResultSet() );
+    // Set up a captor to return the appropriate parameter
+    ArgumentCaptor<String> paramNameArgument = ArgumentCaptor.forClass( String.class );
+    when( mockRuntimeContext.getInputParameterValue( paramNameArgument.capture() ) ).thenAnswer( new Answer() {
+      public Object answer( InvocationOnMock invocation ) {
+        return inputMap.get( paramNameArgument.getValue() );
+      }
+    } );
+    when( mockParameterManager.getCurrentInputNames() ).thenReturn( paramMap.keySet() );
+    when( mockParameterManager.getAllParameters() ).thenReturn( paramMap );
+    when( mockRuntimeContext.getInputNames() ).thenReturn( inputMap.keySet() );
+
+    // Now we can test
+    assertEquals( "one", TemplateUtil.applyTemplate( "{param1}", mockRuntimeContext ) ); // action parameter
+    assertEquals( "two", TemplateUtil.applyTemplate( "{param2}", mockRuntimeContext ) ); // simple String
+    assertEquals( "three", TemplateUtil.applyTemplate( "{param3}", mockRuntimeContext ) ); // single arbitrary object
+    assertEquals( "four-0','four-1", TemplateUtil.applyTemplate( "{param4}", mockRuntimeContext ) ); // array of
+                                                                                                     // arbitrary objects
+    assertEquals( "key Value", TemplateUtil.applyTemplate( "{param5}", mockRuntimeContext ) ); // result set
+  }
+
+  private IPentahoResultSet createMockResultSet() {
+    final Object[] mockRow = new Object[] { "key Value", "field Value" };
+    IPentahoResultSet mockPentahoResultSet = mock( IPentahoResultSet.class );
+    IPentahoMetaData mockPentahoMetaData = mock( IPentahoMetaData.class );
+    when( mockPentahoResultSet.getColumnCount() ).thenReturn( mockRow.length );
+    when( mockPentahoResultSet.getDataRow( 0 ) ).thenReturn( mockRow );
+    when( mockPentahoResultSet.getMetaData() ).thenReturn( mockPentahoMetaData );
+    when( mockPentahoResultSet.getRowCount() ).thenReturn( 1 );
+    when( mockPentahoResultSet.getValueAt( 0, 0 ) ).thenReturn( mockRow[0] );
+    when( mockPentahoResultSet.getValueAt( 0, 1 ) ).thenReturn( mockRow[1] );
+    when( mockPentahoMetaData.getColumnIndex( "keycol" ) ).thenReturn( 0 );
+    when( mockPentahoMetaData.getColumnIndex( "valcol" ) ).thenReturn( 1 );
+    return mockPentahoResultSet;
+  }
+
+  private class TestObject {
+    private String toStringValue;
+
+    public TestObject( String toStringValue ) {
+      this.toStringValue = toStringValue;
+    }
+
+    public String toString() {
+      return toStringValue;
+    }
   }
 
 }
