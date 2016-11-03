@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.connections.mondrian;
@@ -25,6 +25,7 @@ import java.util.Properties;
 import mondrian.olap.Util;
 import mondrian.parser.TokenMgrError;
 
+import mondrian.rolap.RolapConnectionProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.olap4j.OlapConnection;
@@ -108,15 +109,24 @@ public class MDXOlap4jConnection implements IPentahoConnection {
 
     } catch ( Exception e ) {
       log.error( Messages.getInstance().getErrorString( "MDXConnection.ERROR_0002_INVALID_CONNECTION",
-          "driver=" + driver + ";url=" + url ), e );
+          "driver=" + driver + ";url=" + getLogUrl( url ) ), e );
       return false;
     } catch ( TokenMgrError e ) {
       log.error( Messages.getInstance().getErrorString( "MDXConnection.ERROR_0002_INVALID_CONNECTION",
-          "driver=" + driver + ";url=" + url ), e );
+          "driver=" + driver + ";url=" + getLogUrl( url ) ), e );
       return false;
     }
 
     return true;
+  }
+
+  /**
+   * Removes password from connection url
+   */
+  private String getLogUrl( String url ) {
+    Util.PropertyList connectProperties = Util.parseConnectString( url );
+    connectProperties.remove( RolapConnectionProperties.JdbcPassword.name() );
+    return connectProperties.toString();
   }
 
   /**
