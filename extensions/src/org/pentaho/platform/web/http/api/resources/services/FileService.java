@@ -1037,16 +1037,18 @@ public class FileService {
       boolean isHidden = RepositoryFile.HIDDEN_BY_DEFAULT;
       boolean isSchedulable = RepositoryFile.SCHEDULABLE_BY_DEFAULT;
 
+      fileMetadata.remove( RepositoryFile.HIDDEN_KEY );
       for ( StringKeyStringValueDto nv : metadata ) {
         // don't add hidden to the list because it is not actually part of the metadata node
         String key = nv.getKey();
         if ( RepositoryFile.HIDDEN_KEY.equalsIgnoreCase( key ) ) {
           isHidden = BooleanUtils.toBoolean( nv.getValue() );
-        } else if ( RepositoryFile.SCHEDULABLE_KEY.equalsIgnoreCase( key ) ) {
-          isSchedulable = BooleanUtils.toBoolean( nv.getValue() );
-        } else {
-          fileMetadata.put( nv.getKey(), nv.getValue() );
+          continue;
         }
+        if ( RepositoryFile.SCHEDULABLE_KEY.equalsIgnoreCase( key ) ) {
+          isSchedulable = BooleanUtils.toBoolean( nv.getValue() );
+        }
+        fileMetadata.put( key, nv.getValue() );
       }
 
       // now update the rest of the metadata
