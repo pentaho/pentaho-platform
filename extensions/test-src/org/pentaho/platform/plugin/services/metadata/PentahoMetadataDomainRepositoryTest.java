@@ -58,7 +58,18 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Class Description
@@ -844,19 +855,30 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     StringBuilder sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds.xmi" ) );
     String result = repository.replaceDomainId( sb, "ds" );
     assertEquals( "ds.xmi", result );
+    assertEquals( "ds.xmi", repository.getDomainIdFromXmi( sb ) );
+
+    sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds" ) );
+    result = repository.replaceDomainId( sb, "ds" );
+    assertEquals( "ds.xmi", result );
     assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
 
     // Import from metadata 2
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-oldName.xmi" ) );
     result = repository.replaceDomainId( sb, "ds" );
     assertEquals( "ds.xmi", result );
-    assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
+    assertEquals( "ds.xmi", repository.getDomainIdFromXmi( sb ) );
 
     // Create new data source
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-name" ) );
     result = repository.replaceDomainId( sb, "ds-name.xmi" );
     assertEquals( "ds-name.xmi", result );
     assertEquals( "ds-name", repository.getDomainIdFromXmi( sb ) );
+
+    // Import from metadata with special character
+    sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds<ds.xmi" ) );
+    result = repository.replaceDomainId( sb, "ds<ds" );
+    assertEquals( "ds<ds.xmi", result );
+    assertEquals( "ds<ds.xmi", repository.getDomainIdFromXmi( sb ) );
   }
 
   private InputStream toInputStream( final Properties newProperties ) {
