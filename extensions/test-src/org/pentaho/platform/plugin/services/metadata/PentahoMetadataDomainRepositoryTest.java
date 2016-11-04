@@ -858,13 +858,18 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     StringBuilder sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds.xmi" ) );
     String result = repository.replaceDomainId( sb, "ds" );
     assertEquals( "ds.xmi", result );
+    assertEquals( "ds.xmi", repository.getDomainIdFromXmi( sb ) );
+
+    sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds" ) );
+    result = repository.replaceDomainId( sb, "ds" );
+    assertEquals( "ds.xmi", result );
     assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
 
     // Import from metadata 2
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-oldName.xmi" ) );
     result = repository.replaceDomainId( sb, "ds" );
     assertEquals( "ds.xmi", result );
-    assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
+    assertEquals( "ds.xmi", repository.getDomainIdFromXmi( sb ) );
 
     // Create new data source
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-name" ) );
@@ -876,7 +881,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds<ds.xmi" ) );
     result = repository.replaceDomainId( sb, "ds<ds" );
     assertEquals( "ds<ds.xmi", result );
-    assertEquals( "ds<ds", repository.getDomainIdFromXmi( sb ) );
+    assertEquals( "ds<ds.xmi", repository.getDomainIdFromXmi( sb ) );
   }
 
   private InputStream toInputStream( final Properties newProperties ) {
