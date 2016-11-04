@@ -225,7 +225,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
   }
 
-  protected String replaceDomainId( StringBuilder sb, String domainId ) {
+  protected void replaceDomainId( StringBuilder sb, String domainId ) {
     int datasourceModelTagPosition = sb.indexOf( "datasourceModel" );
     if ( datasourceModelTagPosition != -1 ) {
       String xmiDomainId = endsWithXmi( domainId );
@@ -236,12 +236,14 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       int startPosition = startTagPosition + tag.length() + 1;
       int endPosition = sb.indexOf( "\"", startPosition );
 
+      String oldDomainId = sb.substring( startPosition, endPosition );
       sb.delete( startPosition, endPosition );
-      sb.insert( startPosition, noXmiDomainId );
 
-      return xmiDomainId;
-    } else {
-      return domainId;
+      if ( oldDomainId.endsWith( ".xmi" ) ) {
+        sb.insert( startPosition, xmiDomainId );
+      } else {
+        sb.insert( startPosition, noXmiDomainId );
+      }
     }
   }
 
@@ -317,7 +319,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       }
 
       if ( !isDomainIdXmiEqualsOrNotPresent( domainId, getDomainIdFromXmi( stringBuilder ) ) ) {
-        domainId = replaceDomainId( stringBuilder, domainId );
+        replaceDomainId( stringBuilder, domainId );
       }
 
       xmi = stringBuilder.toString();

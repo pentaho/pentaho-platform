@@ -856,27 +856,28 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     // Import from metadata
     StringBuilder sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds.xmi" ) );
-    String result = repository.replaceDomainId( sb, "ds" );
-    assertEquals( "ds.xmi", result );
-    assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
+    repository.replaceDomainId( sb, "ds" );
+    assertEquals( "ds.xmi", repository.getDomainIdFromXmi( sb ) );
+
+    sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds.xmi" ) );
+    repository.replaceDomainId( sb, "ds.xmi" );
+    assertEquals( "ds.xmi", repository.getDomainIdFromXmi( sb ) );
+
 
     // Import from metadata 2
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-oldName.xmi" ) );
-    result = repository.replaceDomainId( sb, "ds" );
-    assertEquals( "ds.xmi", result );
-    assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
+    repository.replaceDomainId( sb, "ds" );
+    assertEquals( "ds.xmi", repository.getDomainIdFromXmi( sb ) );
 
     // Create new data source
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-name" ) );
-    result = repository.replaceDomainId( sb, "ds-name.xmi" );
-    assertEquals( "ds-name.xmi", result );
-    assertEquals( "ds-name", repository.getDomainIdFromXmi( sb ) );
+    repository.replaceDomainId( sb, "ds-name2.xmi" );
+    assertEquals( "ds-name2", repository.getDomainIdFromXmi( sb ) );
 
     // Import from metadata with special character
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds<ds.xmi" ) );
-    result = repository.replaceDomainId( sb, "ds<ds" );
-    assertEquals( "ds<ds.xmi", result );
-    assertEquals( "ds<ds", repository.getDomainIdFromXmi( sb ) );
+    repository.replaceDomainId( sb, "ds<ds" );
+    assertEquals( "ds<ds.xmi", repository.getDomainIdFromXmi( sb ) );
   }
 
   private InputStream toInputStream( final Properties newProperties ) {
