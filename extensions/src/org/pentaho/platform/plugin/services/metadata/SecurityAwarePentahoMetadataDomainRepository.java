@@ -19,6 +19,7 @@ package org.pentaho.platform.plugin.services.metadata;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +36,7 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -63,15 +65,15 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
     if ( rls == null || rls.getType() == RowLevelSecurity.Type.NONE ) {
       return null;
     }
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    IPentahoSession auth = PentahoSessionHolder.getSession();
     if ( auth == null ) {
       logger.info( Messages.getInstance().getString( "SecurityAwareCwmSchemaFactory.INFO_AUTH_NULL_CONTINUE" ) ); //$NON-NLS-1$
       return "FALSE()"; //$NON-NLS-1$
     }
     String username = auth.getName();
     HashSet<String> roles = null;
-    roles = new HashSet<String>();
-    for ( GrantedAuthority role : auth.getAuthorities() ) {
+    roles = new HashSet<String>(  );
+    for ( SimpleGrantedAuthority role : (List<SimpleGrantedAuthority>) auth.getAttribute( "roles" ) ) {
       roles.add( role.getAuthority() );
     }
 
