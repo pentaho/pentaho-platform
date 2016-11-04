@@ -12,11 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.solutionbrowser.toolbars;
 
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
@@ -57,7 +58,9 @@ public class BrowserToolbar extends Toolbar {
     Label label = new Label( Messages.getString( "browse" ) );
     label.setStyleName( "pentaho-titled-toolbar-label" );
     add( label ); //$NON-NLS-1$
-    add( GLUE );
+
+    // It only applies to widgets added after this property is set
+    bar.setHorizontalAlignment( HasHorizontalAlignment.ALIGN_RIGHT );
 
     Image refreshImage = ImageUtil.getThemeableImage( "icon-small", "icon-refresh" );
     Image refreshDisabledImage = ImageUtil.getThemeableImage( "icon-small", "icon-refresh", "disabled" );
