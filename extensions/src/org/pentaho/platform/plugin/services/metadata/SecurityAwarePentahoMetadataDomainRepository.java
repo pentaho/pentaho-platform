@@ -17,6 +17,10 @@
 
 package org.pentaho.platform.plugin.services.metadata;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.model.LogicalModel;
@@ -29,11 +33,11 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * This is the platform implementation which implements security. NOTE: this class will be moved after integration
@@ -69,7 +73,7 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
     String username = auth.getName();
     HashSet<String> roles = null;
     roles = new HashSet<String>(  );
-    for ( GrantedAuthority role : (List<GrantedAuthority>) auth.getAttribute( "roles" ) ) {
+    for ( SimpleGrantedAuthority role : (List<SimpleGrantedAuthority>) auth.getAttribute( "roles" ) ) {
       roles.add( role.getAuthority() );
     }
 
