@@ -236,9 +236,13 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       int startPosition = startTagPosition + tag.length() + 1;
       int endPosition = sb.indexOf( "\"", startPosition );
 
+      String oldDomainId = sb.substring( startPosition, endPosition );
       sb.delete( startPosition, endPosition );
-      sb.insert( startPosition, noXmiDomainId );
-
+      if ( oldDomainId.endsWith( ".xmi" ) ) {
+        sb.insert( startPosition, xmiDomainId );
+      } else {
+        sb.insert( startPosition, noXmiDomainId );
+      }
       return xmiDomainId;
     } else {
       return domainId;
