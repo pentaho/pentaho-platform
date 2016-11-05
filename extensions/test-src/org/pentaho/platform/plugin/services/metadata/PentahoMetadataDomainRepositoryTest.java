@@ -58,8 +58,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.mockito.Mockito.*;
-
 /**
  * Class Description
  *
@@ -105,12 +103,13 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     final MockXmiParser xmiParser = new MockXmiParser();
     domainRepository = createDomainRepository( repository, null, xmiParser, null );
-    domainRepositorySpy = spy( domainRepository );
+    domainRepositorySpy = Mockito.spy( domainRepository );
 
-    aclNodeHelper = mock( IAclNodeHelper.class );
-    doReturn( aclNodeHelper ).when( domainRepositorySpy ).getAclHelper();
-    doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
-    when( aclNodeHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
+    aclNodeHelper = Mockito.mock( IAclNodeHelper.class );
+    Mockito.doReturn( aclNodeHelper ).when( domainRepositorySpy ).getAclHelper();
+    Mockito.doNothing().when( aclNodeHelper ).removeAclFor( Mockito.any( RepositoryFile.class ) );
+    Mockito.when( aclNodeHelper.canAccess(
+        Mockito.any( RepositoryFile.class ), Mockito.any( EnumSet.class ) ) ).thenReturn( true );
 
     while ( domainRepositorySpy.getDomainIds().size() > 0 ) {
       domainRepositorySpy.removeDomain( domainRepositorySpy.getDomainIds().iterator().next() );
@@ -231,8 +230,8 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     final MockDomain sample = new MockDomain( SAMPLE_DOMAIN_ID );
     domainRepositorySpy.storeDomain( sample, false );
-    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
-        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    Mockito.doReturn( true ).when( aclNodeHelper ).canAccess( Mockito.any( RepositoryFile.class ),
+        Mockito.eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
     final Domain domain = domainRepositorySpy.getDomain( SAMPLE_DOMAIN_ID );
     assertNotNull( domain );
     final List<LogicalModel> logicalModels = domain.getLogicalModels();
@@ -273,16 +272,16 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       //ignored
     }
 
-    doReturn( false ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ), eq( EnumSet.of(
-      RepositoryFilePermission.READ ) ) );
+    Mockito.doReturn( false ).when( aclNodeHelper ).canAccess(
+      Mockito.any( RepositoryFile.class ), Mockito.eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
     assertNull( domainRepositorySpy.getDomain( "doesn't exist" ) );
-    doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
+    Mockito.doNothing().when( aclNodeHelper ).removeAclFor( Mockito.any( RepositoryFile.class ) );
     domainRepositorySpy.removeDomain( "steel-wheels_test" );
     domainRepositorySpy.removeDomain( STEEL_WHEELS );
     domainRepositorySpy.removeDomain( SAMPLE_DOMAIN_ID );
 
-    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ), eq( EnumSet.of(
-      RepositoryFilePermission.READ ) ) );
+    Mockito.doReturn( true ).when( aclNodeHelper ).canAccess(
+      Mockito.any( RepositoryFile.class ), Mockito.eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
 
     final MockDomain originalDomain = new MockDomain( SAMPLE_DOMAIN_ID );
     domainRepositorySpy.storeDomain( originalDomain, false );
@@ -411,23 +410,23 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
   @Test
   public void testGetDomainIds() throws Exception {
-    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
-        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    Mockito.doReturn( true ).when( aclNodeHelper ).canAccess( Mockito.any( RepositoryFile.class ),
+      Mockito.eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
     Set<String> emptyDomainList = domainRepositorySpy.getDomainIds();
     assertNotNull( emptyDomainList );
 
-    doReturn( false ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
-        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    Mockito.doReturn( false ).when( aclNodeHelper ).canAccess( Mockito.any( RepositoryFile.class ),
+      Mockito.eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
     emptyDomainList = domainRepositorySpy.getDomainIds();
     assertNotNull( emptyDomainList );
 
-    doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
+    Mockito.doNothing().when( aclNodeHelper ).removeAclFor( Mockito.any( RepositoryFile.class ) );
     domainRepositorySpy.removeDomain( "steel-wheels_test" );
     domainRepositorySpy.removeDomain( STEEL_WHEELS );
     domainRepositorySpy.removeDomain( SAMPLE_DOMAIN_ID );
 
-    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
-      eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    Mockito.doReturn( true ).when( aclNodeHelper ).canAccess( Mockito.any( RepositoryFile.class ),
+      Mockito.eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
     domainRepositorySpy.storeDomain( new MockDomain( SAMPLE_DOMAIN_ID ), true );
     final Set<String> domainIds1 = domainRepositorySpy.getDomainIds();
 
@@ -438,10 +437,11 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
   @Test
   public void testRemoveDomain() throws Exception {
-    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
-        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
-    doNothing().when( aclNodeHelper ).removeAclFor( any( RepositoryFile.class ) );
-    doNothing().when( aclNodeHelper ).setAclFor( any( RepositoryFile.class ), any( RepositoryFileAcl.class ) );
+    Mockito.doReturn( true ).when( aclNodeHelper ).canAccess( Mockito.any( RepositoryFile.class ),
+      Mockito.eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    Mockito.doNothing().when( aclNodeHelper ).removeAclFor( Mockito.any( RepositoryFile.class ) );
+    Mockito.doNothing().when( aclNodeHelper ).setAclFor(
+      Mockito.any( RepositoryFile.class ), Mockito.any( RepositoryFileAcl.class ) );
     // Errors / NoOps
     try {
       domainRepositorySpy.removeDomain( null );
@@ -490,7 +490,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertNull( domainRepositorySpy.getDomain( STEEL_WHEELS ) );
     domainRepositorySpy.removeDomain( STEEL_WHEELS );
     assertEquals( originalFileCount, repository.getChildren( folder.getId() ).size() );
-    verify( domainRepositorySpy.getAclHelper(), never() ).removeAclFor( null );
+    Mockito.verify( domainRepositorySpy.getAclHelper(), Mockito.never() ).removeAclFor( null );
   }
 
   @Test
@@ -526,9 +526,10 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     // Use a real XmiParser with real data
     domainRepositorySpy.setXmiParser( new MockXmiParser() );
     domainRepositorySpy.storeDomain( loadDomain( STEEL_WHEELS, "./steel-wheels.xmi" ), true );
-    doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
-        eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
-    doNothing().when( domainRepositorySpy ).loadLocaleStrings( anyString(), any( Domain.class ) );
+    Mockito.doReturn( true ).when( aclNodeHelper ).canAccess( Mockito.any( RepositoryFile.class ),
+      Mockito.eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    Mockito.doNothing().when( domainRepositorySpy ).loadLocaleStrings(
+      Mockito.anyString(), Mockito.any( Domain.class ) );
     final Domain steelWheels = domainRepositorySpy.getDomain( STEEL_WHEELS );
     assertNotNull( steelWheels );
 
@@ -630,17 +631,17 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     String annotationsXml = "<annotations/>";
 
     domainRepositorySpy.storeAnnotationsXml( null, null );
-    verify( domainRepositorySpy, times( 0 ) ).getRepository(); // nothing happened, skipped
+    Mockito.verify( domainRepositorySpy, Mockito.times( 0 ) ).getRepository(); // nothing happened, skipped
 
     domainRepositorySpy.storeAnnotationsXml( null, annotationsXml );
-    verify( domainRepositorySpy, times( 0 ) ).getRepository(); // nothing happened, skipped
+    Mockito.verify( domainRepositorySpy, Mockito.times( 0 ) ).getRepository(); // nothing happened, skipped
 
     domainRepositorySpy.storeAnnotationsXml( domainId, null );
-    verify( domainRepositorySpy, times( 0 ) ).getRepository(); // nothing happened, skipped
+    Mockito.verify( domainRepositorySpy, Mockito.times( 0 ) ).getRepository(); // nothing happened, skipped
 
-    doReturn( null ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
+    Mockito.doReturn( null ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
     domainRepositorySpy.storeAnnotationsXml( domainId, annotationsXml );
-    verify( domainRepositorySpy, times( 0 ) ).getRepository(); // nothing happened, skipped
+    Mockito.verify( domainRepositorySpy, Mockito.times( 0 ) ).getRepository(); // nothing happened, skipped
   }
 
   @Test
@@ -650,19 +651,21 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     String annotationsXml = "<annotations/>";
 
     domainRepositorySpy.storeAnnotationsXml( null, null );
-    verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( anyString() );
+    Mockito.verify( domainRepositorySpy, Mockito.times( 0 ) ).getMetadataRepositoryFile( Mockito.anyString() );
 
     domainRepositorySpy.storeAnnotationsXml( domainId, null );
-    verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( anyString() );
+    Mockito.verify( domainRepositorySpy, Mockito.times( 0 ) ).getMetadataRepositoryFile( Mockito.anyString() );
 
     domainRepositorySpy.storeAnnotationsXml( null, annotationsXml );
-    verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( anyString() );
+    Mockito.verify( domainRepositorySpy, Mockito.times( 0 ) ).getMetadataRepositoryFile( Mockito.anyString() );
 
     domainRepositorySpy.storeAnnotationsXml( domainId, annotationsXml );
-    verify( domainRepositorySpy, times( 1 ) ).getMetadataRepositoryFile( anyString() );
-    verify( domainRepositorySpy, times( 1 ) ).getAnnotationsXmlFile( any( RepositoryFile.class ) );
-    verify( domainRepositorySpy, times( 1 ) )
-        .createOrUpdateAnnotationsXml( any( RepositoryFile.class ), any( RepositoryFile.class ), anyString() );
+    Mockito.verify( domainRepositorySpy, Mockito.times( 1 ) ).getMetadataRepositoryFile( Mockito.anyString() );
+    Mockito.verify( domainRepositorySpy, Mockito.times( 1 ) )
+      .getAnnotationsXmlFile( Mockito.any( RepositoryFile.class ) );
+    Mockito.verify( domainRepositorySpy, Mockito.times( 1 ) )
+      .createOrUpdateAnnotationsXml(
+        Mockito.any( RepositoryFile.class ), Mockito.any( RepositoryFile.class ), Mockito.anyString() );
   }
 
   @Test
@@ -670,37 +673,37 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     String metadataDirId = "00000000";
     String annotationsXml = "<annotations/>";
-    RepositoryFile metaDataDir = mock( RepositoryFile.class );
-    IUnifiedRepository repository = mock( IUnifiedRepository.class );
-    Log logger = mock( Log.class );
+    RepositoryFile metaDataDir = Mockito.mock( RepositoryFile.class );
+    IUnifiedRepository repository = Mockito.mock( IUnifiedRepository.class );
+    Log logger = Mockito.mock( Log.class );
 
-    doReturn( logger ).when( domainRepositorySpy ).getLogger();
-    doReturn( repository ).when( domainRepositorySpy ).getRepository();
-    doReturn( metadataDirId ).when( metaDataDir ).getId();
-    doReturn( metaDataDir ).when( domainRepositorySpy ).getMetadataDir();
+    Mockito.doReturn( logger ).when( domainRepositorySpy ).getLogger();
+    Mockito.doReturn( repository ).when( domainRepositorySpy ).getRepository();
+    Mockito.doReturn( metadataDirId ).when( metaDataDir ).getId();
+    Mockito.doReturn( metaDataDir ).when( domainRepositorySpy ).getMetadataDir();
 
     // Domain Not Found
     domainRepositorySpy.createOrUpdateAnnotationsXml( null, null, annotationsXml );
-    verify( domainRepositorySpy, times( 0 ) ).getRepository();
+    Mockito.verify( domainRepositorySpy, Mockito.times( 0 ) ).getRepository();
 
-    RepositoryFile domainFile = mock( RepositoryFile.class );
+    RepositoryFile domainFile = Mockito.mock( RepositoryFile.class );
 
     // Create
     domainRepositorySpy.createOrUpdateAnnotationsXml( domainFile, null, annotationsXml );
-    verify( repository, times( 1 ) )
-        .createFile( any( String.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-            any( String.class ) );
+    Mockito.verify( repository, Mockito.times( 1 ) ).createFile(
+      Mockito.any( String.class ), Mockito.any( RepositoryFile.class ), Mockito.any( IRepositoryFileData.class ),
+        Mockito.any( String.class ) );
 
     // Update
-    RepositoryFile annotationsFile = mock( RepositoryFile.class );
+    RepositoryFile annotationsFile = Mockito.mock( RepositoryFile.class );
     domainRepositorySpy.createOrUpdateAnnotationsXml( domainFile, annotationsFile, annotationsXml );
-    verify( repository, times( 1 ) )
-        .updateFile( any( RepositoryFile.class ), any( IRepositoryFileData.class ), any( String.class ) );
+    Mockito.verify( repository, Mockito.times( 1 ) ).updateFile(
+      Mockito.any( RepositoryFile.class ), Mockito.any( IRepositoryFileData.class ), Mockito.any( String.class ) );
 
     // Error
-    doThrow( new RuntimeException() ).when( domainRepositorySpy ).getRepository();
+    Mockito.doThrow( new RuntimeException() ).when( domainRepositorySpy ).getRepository();
     domainRepositorySpy.createOrUpdateAnnotationsXml( domainFile, annotationsFile, annotationsXml );
-    verify( logger, times( 1 ) ).warn( any(), any( Throwable.class ) );
+    Mockito.verify( logger, Mockito.times( 1 ) ).warn( Mockito.any(), Mockito.any( Throwable.class ) );
   }
 
   @Test
@@ -710,30 +713,31 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     assertNull( domainRepositorySpy.getAnnotationsXmlFile( null ) );
 
-    Log logger = mock( Log.class );
-    doReturn( logger ).when( domainRepositorySpy ).getLogger();
+    Log logger = Mockito.mock( Log.class );
+    Mockito.doReturn( logger ).when( domainRepositorySpy ).getLogger();
 
-    IUnifiedRepository repository = mock( IUnifiedRepository.class );
-    doReturn( repository ).when( domainRepositorySpy ).getRepository();
+    IUnifiedRepository repository = Mockito.mock( IUnifiedRepository.class );
+    Mockito.doReturn( repository ).when( domainRepositorySpy ).getRepository();
 
-    RepositoryFile domainFile = mock( RepositoryFile.class );
-    doReturn( domainFileId ).when( domainFile ).getId();
+    RepositoryFile domainFile = Mockito.mock( RepositoryFile.class );
+    Mockito.doReturn( domainFileId ).when( domainFile ).getId();
 
     // Not Found
-    doReturn( domainFile ).when( repository ).getFileById( "someOtherId" );
+    Mockito.doReturn( domainFile ).when( repository ).getFileById( "someOtherId" );
     assertNull( domainRepositorySpy.getAnnotationsXmlFile( domainFile ) );
 
     // Found
     String annotationsFilePath =
         "/etc/metadata/" + domainFileId
             + IModelAnnotationsAwareMetadataDomainRepositoryImporter.ANNOTATIONS_FILE_ID_POSTFIX;
-    doReturn( domainFile ).when( repository ).getFile( annotationsFilePath );
+    Mockito.doReturn( domainFile ).when( repository ).getFile( annotationsFilePath );
     assertNotNull( domainRepositorySpy.getAnnotationsXmlFile( domainFile ) );
 
     // Error
-    doThrow( new RuntimeException() ).when( domainRepositorySpy ).getRepository();
+    Mockito.doThrow( new RuntimeException() ).when( domainRepositorySpy ).getRepository();
     assertNull( domainRepositorySpy.getAnnotationsXmlFile( domainFile ) );
-    verify( logger, times( 1 ) ).warn( "Unable to find annotations xml file for: " + domainFile.getId() );
+    Mockito.verify( logger, Mockito.times( 1 ) )
+      .warn( "Unable to find annotations xml file for: " + domainFile.getId() );
   }
 
   @Test
@@ -744,35 +748,35 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     String annotationsId =
         domainFileId + IModelAnnotationsAwareMetadataDomainRepositoryImporter.ANNOTATIONS_FILE_ID_POSTFIX;
     String annotationsXml = "<annotations/>";
-    Log logger = mock( Log.class );
+    Log logger = Mockito.mock( Log.class );
 
-    doReturn( logger ).when( domainRepositorySpy ).getLogger();
+    Mockito.doReturn( logger ).when( domainRepositorySpy ).getLogger();
 
     assertNull( domainRepositorySpy.loadAnnotationsXml( null ) );
     assertNull( domainRepositorySpy.loadAnnotationsXml( "" ) );
 
-    IUnifiedRepository repository = mock( IUnifiedRepository.class );
-    doReturn( repository ).when( domainRepositorySpy ).getRepository();
+    IUnifiedRepository repository = Mockito.mock( IUnifiedRepository.class );
+    Mockito.doReturn( repository ).when( domainRepositorySpy ).getRepository();
 
     // Success
-    RepositoryFile domainFile = mock( RepositoryFile.class );
-    doReturn( domainFile ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
-    doReturn( domainFileId ).when( domainFile ).getId();
+    RepositoryFile domainFile = Mockito.mock( RepositoryFile.class );
+    Mockito.doReturn( domainFile ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
+    Mockito.doReturn( domainFileId ).when( domainFile ).getId();
 
-    RepositoryFile annotationsFile = mock( RepositoryFile.class );
-    doReturn( annotationsFile ).when( repository ).getFile( "/etc/metadata/" + annotationsId );
-    doReturn( annotationsId ).when( annotationsFile ).getId();
+    RepositoryFile annotationsFile = Mockito.mock( RepositoryFile.class );
+    Mockito.doReturn( annotationsFile ).when( repository ).getFile( "/etc/metadata/" + annotationsId );
+    Mockito.doReturn( annotationsId ).when( annotationsFile ).getId();
 
-    SimpleRepositoryFileData data = mock( SimpleRepositoryFileData.class );
-    doReturn( data ).when( repository ).getDataForRead( annotationsId, SimpleRepositoryFileData.class );
-    doReturn( IOUtils.toInputStream( annotationsXml ) ).when( data ).getInputStream();
+    SimpleRepositoryFileData data = Mockito.mock( SimpleRepositoryFileData.class );
+    Mockito.doReturn( data ).when( repository ).getDataForRead( annotationsId, SimpleRepositoryFileData.class );
+    Mockito.doReturn( IOUtils.toInputStream( annotationsXml ) ).when( data ).getInputStream();
 
     assertEquals( annotationsXml, domainRepositorySpy.loadAnnotationsXml( domainId ) );
 
     // Error
-    doThrow( new RuntimeException() ).when( data ).getInputStream();
+    Mockito.doThrow( new RuntimeException() ).when( data ).getInputStream();
     domainRepositorySpy.loadAnnotationsXml( domainId );
-    verify( logger, times( 1 ) ).warn( "Unable to load annotations xml file for domain: test.xmi" );
+    Mockito.verify( logger, Mockito.times( 1 ) ).warn( "Unable to load annotations xml file for domain: test.xmi" );
   }
 
   @Test
@@ -784,8 +788,8 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     String annotationsId =
         domainFileId + IModelAnnotationsAwareMetadataDomainRepositoryImporter.ANNOTATIONS_FILE_ID_POSTFIX;
 
-    RepositoryFile domainFile = mock( RepositoryFile.class );
-    doReturn( domainFileId ).when( domainFile ).getId();
+    RepositoryFile domainFile = Mockito.mock( RepositoryFile.class );
+    Mockito.doReturn( domainFileId ).when( domainFile ).getId();
 
     String actualPath = domainRepositorySpy.resolveAnnotationsFilePath( domainFile );
     assertEquals( "/etc/metadata/" + annotationsId, FilenameUtils.separatorsToUnix( actualPath ) );
@@ -793,21 +797,24 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
   @Test
   public void testEndsWithXmi() {
-    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    PentahoMetadataDomainRepository repository =
+      new PentahoMetadataDomainRepository( Mockito.mock( IUnifiedRepository.class ) );
     assertEquals( "domainId.xmi", repository.endsWithXmi( "domainId" ) );
     assertEquals( "domainId.xmi", repository.endsWithXmi( "domainId.xmi" ) );
   }
 
   @Test
   public void testNoXmi() {
-    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    PentahoMetadataDomainRepository repository =
+      new PentahoMetadataDomainRepository( Mockito.mock( IUnifiedRepository.class ) );
     assertEquals( "domainId", repository.noXmi( "domainId" ) );
     assertEquals( "domainId", repository.noXmi( "domainId.xmi" ) );
   }
 
   @Test
   public void testGetDomainIdFromXmi() {
-    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    PentahoMetadataDomainRepository repository =
+      new PentahoMetadataDomainRepository( Mockito.mock( IUnifiedRepository.class ) );
     String xmiTemplate =
         "<CWM:Description body=\"body_of_datasource\" name=\"datasourceModel\" type=\"String\" xmi.id=\"a68\"><CWM:Description.modelElement><CWMMDB:Schema xmi.idref=\"a64\"/></CWM:Description.modelElement></CWM:Description><CWM:Description body=\"{datasourceName}\" language=\"en_US\" name=\"name\" type=\"LocString\" xmi.id=\"a69\"><CWM:Description.modelElement><CWMMDB:Schema xmi.idref=\"a64\"/></CWM:Description.modelElement></CWM:Description>";
 
@@ -823,7 +830,8 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
   @Test
   public void testIsDomainIdXmiEqualsOrNotPresent() {
-    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    PentahoMetadataDomainRepository repository =
+      new PentahoMetadataDomainRepository( Mockito.mock( IUnifiedRepository.class ) );
     assertEquals( true, repository.isDomainIdXmiEqualsOrNotPresent( "someDomainId", null ) );
     assertEquals( true, repository.isDomainIdXmiEqualsOrNotPresent( "someDomainId.xmi", null ) );
     assertEquals( true, repository.isDomainIdXmiEqualsOrNotPresent( "someDomainId.xmi", "someDomainId.xmi" ) );
@@ -836,7 +844,8 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
   @Test
   public void testReplaceDomainId() {
-    PentahoMetadataDomainRepository repository = new PentahoMetadataDomainRepository( mock( IUnifiedRepository.class ) );
+    PentahoMetadataDomainRepository repository =
+      new PentahoMetadataDomainRepository( Mockito.mock( IUnifiedRepository.class ) );
     String xmiTemplate =
         "<CWM:Description body=\"body_of_datasource\" name=\"datasourceModel\" type=\"String\" xmi.id=\"a68\"><CWM:Description.modelElement><CWMMDB:Schema xmi.idref=\"a64\"/></CWM:Description.modelElement></CWM:Description><CWM:Description body=\"{datasourceName}\" language=\"en_US\" name=\"name\" type=\"LocString\" xmi.id=\"a69\"><CWM:Description.modelElement><CWMMDB:Schema xmi.idref=\"a64\"/></CWM:Description.modelElement></CWM:Description>";
 
@@ -844,19 +853,30 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     StringBuilder sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds.xmi" ) );
     String result = repository.replaceDomainId( sb, "ds" );
     assertEquals( "ds.xmi", result );
+    assertEquals( "ds.xmi", repository.getDomainIdFromXmi( sb ) );
+
+    sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds" ) );
+    result = repository.replaceDomainId( sb, "ds" );
+    assertEquals( "ds.xmi", result );
     assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
 
     // Import from metadata 2
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-oldName.xmi" ) );
     result = repository.replaceDomainId( sb, "ds" );
     assertEquals( "ds.xmi", result );
-    assertEquals( "ds", repository.getDomainIdFromXmi( sb ) );
+    assertEquals( "ds.xmi", repository.getDomainIdFromXmi( sb ) );
 
     // Create new data source
     sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds-name" ) );
     result = repository.replaceDomainId( sb, "ds-name.xmi" );
     assertEquals( "ds-name.xmi", result );
     assertEquals( "ds-name", repository.getDomainIdFromXmi( sb ) );
+
+    // Import from metadata with special character
+    sb = new StringBuilder( xmiTemplate.replace( "{datasourceName}", "ds<ds.xmi" ) );
+    result = repository.replaceDomainId( sb, "ds<ds" );
+    assertEquals( "ds<ds.xmi", result );
+    assertEquals( "ds<ds.xmi", repository.getDomainIdFromXmi( sb ) );
   }
 
   private InputStream toInputStream( final Properties newProperties ) {
