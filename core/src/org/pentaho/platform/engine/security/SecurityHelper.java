@@ -140,6 +140,7 @@ public class SecurityHelper implements ISecurityHelper {
     // Clearing the SecurityContext to force the subsequent call to getContext() to generate a new SecurityContext.
     // This prevents us from modifying the Authentication on a SecurityContext isntance which may be shared between
     // threads.
+    PentahoSessionHolder.getSession().setAttribute( IPentahoSession.SESSION_ROLES, auth.getAuthorities() );
     SecurityContextHolder.clearContext();
     SecurityContextHolder.getContext().setAuthentication( auth );
     PentahoSystem.sessionStartup( PentahoSessionHolder.getSession(), paramProvider );
