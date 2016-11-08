@@ -110,7 +110,9 @@ public class UserRolesAdminPanel extends SimplePanel {
     HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
     labelAndButtonsPanel.setWidth( "100%" );
     availablePanel.add( labelAndButtonsPanel );
-    labelAndButtonsPanel.add( new Label( Messages.getString( "usersColon" ) ) );
+    Label usersColonLabel = new Label( Messages.getString( "usersColon" ) );
+    labelAndButtonsPanel.add( usersColonLabel );
+    labelAndButtonsPanel.setCellWidth( usersColonLabel, "100%" );
     hSpacer = new SimplePanel();
     hSpacer.setWidth( "100%" );
     labelAndButtonsPanel.add( hSpacer );
@@ -291,7 +293,9 @@ public class UserRolesAdminPanel extends SimplePanel {
     HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
     labelAndButtonsPanel.setWidth( "100%" );
     availablePanel.add( labelAndButtonsPanel );
-    labelAndButtonsPanel.add( new Label( Messages.getString( "roles" ) ) );
+    Label rolesLabel = new Label( Messages.getString( "roles" ) );
+    labelAndButtonsPanel.add( rolesLabel );
+    labelAndButtonsPanel.setCellWidth( rolesLabel, "100%" );
     hSpacer = new SimplePanel();
     hSpacer.setWidth( "100%" );
     labelAndButtonsPanel.add( hSpacer );
