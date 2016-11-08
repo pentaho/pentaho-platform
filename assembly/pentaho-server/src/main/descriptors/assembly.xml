@@ -1,0 +1,55 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+  <id>pentaho-server</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <files>
+    <file>
+      <source>${project.root.build.directory}/${project.artifactId}/pentaho-solutions/system/dialects/hsqldb/applicationContext-spring-security-hibernate.properties</source>
+      <outputDirectory>/pentaho-solutions/system</outputDirectory>
+    </file>
+    <file>
+      <source>${project.root.build.directory}/${project.artifactId}/pentaho-solutions/system/dialects/hsqldb/audit_sql.xml</source>
+      <outputDirectory>/pentaho-solutions/system</outputDirectory>
+    </file>
+  </files>
+  <fileSets>
+    <fileSet>
+      <directory>${project.root.build.directory}/${project.artifactId}</directory><!-- assembly/target/pentaho-server -->
+      <outputDirectory>.</outputDirectory>
+      <includes>
+        <include>*.sh</include>
+      </includes>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <directory>${project.root.build.directory}/${project.artifactId}/tomcat/bin</directory><!-- assembly/target/pentaho-server -->
+      <outputDirectory>./tomcat/bin</outputDirectory>
+      <includes>
+        <include>*.sh</include>
+      </includes>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <directory>${project.root.build.directory}/${project.artifactId}/data</directory><!-- assembly/target/pentaho-server -->
+      <outputDirectory>./data</outputDirectory>
+      <includes>
+        <include>*.sh</include>
+      </includes>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <directory>${project.root.build.directory}/${project.artifactId}</directory><!-- assembly/target/pentaho-server -->
+      <outputDirectory>.</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.root.build.directory}/${project.artifactId}</directory><!-- assembly/target/pentaho-server -->
+      <outputDirectory>./tomcat/logs</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+</assembly>
