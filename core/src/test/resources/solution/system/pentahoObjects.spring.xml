@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+This is a Spring file that defines how Pentaho system objects are created and managed.  
+An implementation of IPentahoObjectFactory, such as SpringWebPentahoObjectFactory, is 
+responsible for serving objects to callers based on this file.
+
+default-lazy-init is set to true since some of these object make calls into 
+PentahoSystem which is initialized after Spring
+ -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+
+  <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer" scope="singleton" lazy-init="false"/>
+
+  <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
+  <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
+
+  <bean id="IPluginManager" class="org.pentaho.platform.engine.services.MockPluginManager" scope="singleton" />
+
+  <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
+  <bean id="systemSettingsService" class="org.pentaho.platform.engine.core.system.PathBasedSystemSettings" />
+
+  <bean id="GoodObject" class="org.pentaho.platform.engine.core.GoodObject" scope="session">
+
+  </bean>
+  <bean id="BadObject" class="org.pentaho.platform.engine.core.BadObject" scope="prototype" />
+  <bean id="BadObjectRuntime" class="org.pentaho.platform.engine.core.BadObjectRuntime" scope="prototype" />
+
+  <bean id="IDBDatasourceService" class="org.pentaho.platform.engine.services.MockDataSourceService" scope="singleton">
+    <constructor-arg value="false" />
+  </bean>
+
+  <bean class="org.pentaho.platform.engine.core.MimeTypeListener" scope="singleton">
+    <property name="name" value="Test 1"/>
+    <pen:publish>
+      <pen:attributes>
+        <pen:attr key="priority" value="10"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <bean class="org.pentaho.platform.engine.core.MimeTypeListener" scope="singleton">
+    <property name="name" value="Higher Priority MimeTypeListener"/>
+    <pen:publish>
+      <pen:attributes>
+        <pen:attr key="priority" value="30"/>
+        <pen:attr key="someKey" value="someValue"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <bean class="org.pentaho.platform.engine.core.MimeTypeListener" scope="singleton">
+    <property name="name" value="Test Attr1"/>
+    <pen:publish as-type="org.pentaho.platform.engine.core.MimeTypeListener">
+      <pen:attributes>
+        <pen:attr key="someKey" value="1"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <bean class="org.pentaho.platform.engine.core.MimeTypeListener" scope="singleton">
+    <property name="name" value="Test Attr2"/>
+    <pen:publish as-type="CLASSES">
+      <pen:attributes>
+        <pen:attr key="someKey" value="2"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <bean class="org.pentaho.platform.engine.core.MimeTypeListener" scope="singleton" id="someID">
+    <property name="name" value="Test Attr3"/>
+    <pen:publish as-type="ALL">
+      <pen:attributes>
+        <pen:attr key="someKey" value="3"/>
+        <pen:attr key="foo" value="bar"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <!-- session scoped beans in a standalone context need properties too -->
+  <bean id="sessionPropertyTest" class="org.pentaho.platform.engine.core.solution.ContentInfo" scope="session">
+    <property name="title" value="Test Session"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+
+  <pen:list id="rawMimeListenerCollection" class="org.pentaho.platform.engine.core.MimeTypeListener"/>
+
+
+  <pen:list id="queriedMimeListenerCollection" class="org.pentaho.platform.engine.core.MimeTypeListener">
+    <pen:attributes>
+      <pen:attr key="someKey" value="3"/>
+    </pen:attributes>
+  </pen:list>
+
+  <bean id="mimeListenerCollection" class="org.pentaho.platform.engine.core.MimeListenerCollection">
+    <property name="listeners" ref="rawMimeListenerCollection"/>
+
+    <property name="queriedList" ref="queriedMimeListenerCollection"/>
+
+    <property name="highestListener">
+      <pen:bean class="org.pentaho.platform.engine.core.MimeTypeListener"/>
+    </property>
+
+    <property name="queriedBean">
+      <pen:bean class="org.pentaho.platform.engine.core.MimeTypeListener">
+        <pen:attributes>
+          <pen:attr key="someKey" value="2"/>
+        </pen:attributes>
+      </pen:bean>
+    </property>
+
+    <pen:publish as-type="org.pentaho.platform.engine.core.MimeListenerCollection"/>
+
+  </bean>
+
+  <bean id="SimpleIntegerHolder" class="org.pentaho.platform.engine.core.SimpleObjectHolder">
+    <property name="val"><pen:bean class="java.lang.Integer"/></property>
+  </bean>
+
+
+  <bean id="SimpleIntegerHolder2" class="org.pentaho.platform.engine.core.SimpleObjectHolder">
+    <property name="val">
+      <pen:bean class="java.lang.Integer">
+        <pen:attributes>
+          <pen:attr key="id" value="someId"/>
+        </pen:attributes>
+      </pen:bean>
+    </property>
+  </bean>
+
+  <bean id="Integer" class="java.lang.Integer">
+    <constructor-arg value="123"/>
+  </bean>
+
+
+  <bean id="someId" class="java.lang.Integer">
+    <constructor-arg value="456"/>
+  </bean>
+
+
+  <bean id="SimpleStringHolder" class="org.pentaho.platform.engine.core.SimpleObjectHolder">
+    <property name="val"><pen:bean class="java.lang.CharSequence"/></property>
+  </bean>
+
+
+  <bean id="CharSequence" class="java.lang.String">
+    <constructor-arg value="testing_fallback_by_interface"/>
+  </bean>
+
+  <!-- test re-publishing a pen:bean with new attributes -->
+  <pen:bean class="org.pentaho.platform.engine.core.MimeTypeListener">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="republished" value="true"/>
+      </pen:attributes>
+    </pen:publish>
+  </pen:bean>
+
+</beans>

@@ -1,0 +1,40 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+  <id>assembly</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <files>
+    <file>
+      <source>target/${solutions.archive.name}.zip</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+    <file>
+      <source>target/${data.archive.name}.zip</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+    <file>
+      <source>../target/pentaho-server/tomcat/webapps/pentaho/META-INF/MANIFEST.MF</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+  </files>
+  <fileSets>
+    <fileSet>
+      <directory>../target/pentaho-server/licenses</directory>
+      <includes>
+        <include>*.html</include>
+      </includes>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>../target/</directory>
+      <includes>
+        <include>*.war</include>
+      </includes>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
+
+</assembly>
