@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.pentaho.com/schema/pentaho-system"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:tool="http://www.springframework.org/schema/tool"
+            targetNamespace="http://www.pentaho.com/schema/pentaho-system"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+  <xsd:import namespace="http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"/>
+
+  <xsd:element name="publish">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="attributes" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute type="xsd:string" name="as-type" use="optional"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="attributes">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="attr" minOccurs="1" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="attr">
+    <xsd:complexType>
+      <xsd:attribute type="xsd:string" name="key" use="required"/>
+      <xsd:attribute type="xsd:string" name="value" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="list">
+    <xsd:complexType mixed="true">
+      <xsd:annotation>
+        <xsd:appinfo>
+          <tool:annotation>
+            <tool:exports identifier="@id"
+                          type="java.util.List"/>
+          </tool:annotation>
+        </xsd:appinfo>
+      </xsd:annotation>
+      <xsd:sequence>
+
+        <xsd:element ref="attributes" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute type="xsd:string" name="id"/>
+
+      <xsd:attribute type="xsd:string" name="class"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="bean">
+    <xsd:complexType mixed="true">
+      <xsd:annotation>
+        <xsd:appinfo>
+          <tool:annotation>
+            <tool:exports identifier="@id"
+                          type="java.util.List"/>
+          </tool:annotation>
+        </xsd:appinfo>
+      </xsd:annotation>
+      <xsd:sequence>
+        <xsd:element ref="attributes" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="publish" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute type="xsd:string" name="id"/>
+
+      <xsd:attribute type="xsd:string" name="class"/>
+    </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>
