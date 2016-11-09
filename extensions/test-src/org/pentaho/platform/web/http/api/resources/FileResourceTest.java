@@ -1480,4 +1480,13 @@ public class FileResourceTest {
     final Response response = fileResource.buildOkResponse( mock );
     final MultivaluedMap<String, Object> metadata = response.getMetadata();
   }
+
+  @Test
+  public void testGenerateDocumentFromXMLString() throws Exception {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<element>" + "true" + "</element>";
+    Document document = fileResource.parseText( xml );
+    assertNotNull( document );
+    assertTrue( document.getRootElement().getStringValue().equals( "true" ) );
+  }
+
 }
