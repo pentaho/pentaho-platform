@@ -52,12 +52,12 @@ import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystem
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,8 +67,19 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.anyBoolean;
 
 public class PentahoPlatformExporterTest {
 
@@ -287,28 +298,50 @@ public class PentahoPlatformExporterTest {
 
   @Test
   public void testExportMondrianSchemas() throws Exception {
+    final String catalogName = "test";
+    String dataSourceInfo = "EnableXmla=\"true\"";
+
+    executeExportMondrianSchemasForDataSourceInfo( catalogName, dataSourceInfo );
+
+    verify( exportManifest ).addMondrian( any( ExportManifestMondrian.class ) );
+    verify( mondrianCatalogRepositoryHelper ).getModrianSchemaFiles( anyString() );
+    assertEquals( catalogName, exportManifest.getMondrianList().get( 0 ).getCatalogName() );
+    assertTrue( exportManifest.getMondrianList().get( 0 ).isXmlaEnabled() );
+    verify( exporterSpy.zos ).putNextEntry( any( ZipEntry.class ) );
+  }
+
+  @Test
+  public void testExportMondrianSchemas_AdditionalParametersSaved() throws Exception {
+    final String parameterName = "AdditionalParameter";
+    final String parameterValue = "\"TestValue\"";
+    final String expectedParameterValue = "TestValue";
+    final String dataSourceInfo = "EnableXmla=\"true\";" + parameterName + "=" + parameterValue;
+    String catalogName = "test";
+
+    executeExportMondrianSchemasForDataSourceInfo( catalogName, dataSourceInfo );
+
+    String returnedParameterValue = exportManifest.getMondrianList().get( 0 ).getParameters().get( parameterName );
+    assertNotNull( returnedParameterValue );
+    assertEquals( returnedParameterValue, expectedParameterValue );
+  }
+
+  private void executeExportMondrianSchemasForDataSourceInfo( String catalogName, String dataSourceInfo ) throws IOException {
     PentahoSystem.registerObject( mondrianCatalogService );
     exporterSpy.setMondrianCatalogRepositoryHelper( mondrianCatalogRepositoryHelper );
 
     List<MondrianCatalog> catalogs = new ArrayList<>();
-    MondrianCatalog catalog = new MondrianCatalog( "test", "EnableXmla=\"true\"", null, null );
+    MondrianCatalog catalog = new MondrianCatalog( catalogName, dataSourceInfo, null, null );
     catalogs.add( catalog );
     when( mondrianCatalogService.listCatalogs( any( IPentahoSession.class ), anyBoolean() ) ).thenReturn( catalogs );
+
     Map<String, InputStream> inputMap = new HashMap<>();
     InputStream is = mock( InputStream.class );
     when( is.read( any( ( new byte[] {} ).getClass() ) ) ).thenReturn( -1 );
-    inputMap.put( "test", is );
-
-    when( mondrianCatalogRepositoryHelper.getModrianSchemaFiles( "test" ) ).thenReturn( inputMap );
+    inputMap.put( catalogName, is );
+    when( mondrianCatalogRepositoryHelper.getModrianSchemaFiles( catalogName ) ).thenReturn( inputMap );
     exporterSpy.zos = mock( ZipOutputStream.class );
 
     exporterSpy.exportMondrianSchemas();
-
-    verify( exportManifest ).addMondrian( any( ExportManifestMondrian.class ) );
-    verify( mondrianCatalogRepositoryHelper ).getModrianSchemaFiles( anyString() );
-    assertEquals( "test", exportManifest.getMondrianList().get( 0 ).getCatalogName() );
-    assertTrue( exportManifest.getMondrianList().get( 0 ).isXmlaEnabled() );
-    verify( exporterSpy.zos ).putNextEntry( any( ZipEntry.class ) );
   }
 
   @Test

@@ -75,6 +75,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -261,6 +262,11 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
           mondrianParameters.put( "Provider", "mondrian" );
           mondrianParameters.put( "DataSource", catalog.getJndi() );
           mondrianParameters.put( "EnableXmla", Boolean.toString( xmlaEnabled ) );
+
+          StreamSupport.stream( catalog.getConnectProperties().spliterator(), false )
+            .filter( p -> !mondrianParameters.containsKey( p.getKey() ) )
+            .forEach( p -> mondrianParameters.put( p.getKey(), p.getValue() ) );
+
           mondrian.setParameters( mondrianParameters );
         }
 
