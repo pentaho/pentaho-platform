@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr;
@@ -846,11 +846,27 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+        // if we're moving the file,
+        // check that user has permissions to remove the file from it's current location
         RepositoryFile file = getFileById( fileId );
-        RepositoryFileAcl acl = aclDao.getAcl( fileId );
-        if ( !accessVoterManager.hasAccess( file, RepositoryFilePermission.WRITE, acl, PentahoSessionHolder
-            .getSession() ) ) {
-          return null;
+        if ( !copy ) {
+          RepositoryFileAcl acl = aclDao.getAcl( fileId );
+          if ( !accessVoterManager.hasAccess( file, RepositoryFilePermission.WRITE, acl,
+            PentahoSessionHolder.getSession() ) ) {
+            throw new AccessDeniedException( Messages.getInstance().getString(
+              "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_DELETE", fileId ) );
+          }
+        }
+
+        // check that user has permissions to write to the destination folder
+        RepositoryFile destFolder = getFile( destRelPath );
+        if ( destFolder != null ) {
+          RepositoryFileAcl destFolderAcl = aclDao.getAcl( destFolder.getId() );
+          if ( !accessVoterManager.hasAccess( destFolder, RepositoryFilePermission.WRITE, destFolderAcl,
+            PentahoSessionHolder.getSession() ) ) {
+            throw new AccessDeniedException( Messages.getInstance().getString(
+              "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_CREATE", destFolder.getId() ) );
+          }
         }
 
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
