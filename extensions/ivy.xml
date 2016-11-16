@@ -103,11 +103,8 @@
     <dependency org="org.apache.axis2" name="axis2-adb" rev="1.7.3" transitive="false"/>
     <dependency org="org.apache.axis2" name="axis2-codegen" rev="1.7.3" transitive="false"/>
     <dependency org="org.apache.axis2" name="axis2-java2wsdl" rev="1.7.3" transitive="false"/>
-    <dependency org="org.apache.axis2" name="axis2-kernel" rev="1.7.3" transitive="false"/>
+    <dependency org="org.apache.axis2" name="axis2-kernel" rev="1.7.3" transitive="true"/>
     <dependency org="org.apache.axis2" name="axis2-transport-http" rev="1.7.3" transitive="false"/>
-    <dependency org="org.apache.ws.commons.axiom" name="axiom-api" rev="1.2.8" transitive="false"/>
-    <dependency org="org.apache.ws.commons.axiom" name="axiom-dom" rev="1.2.8" transitive="false"/>
-    <dependency org="org.apache.ws.commons.axiom" name="axiom-impl" rev="1.2.8" transitive="false"/>
 
     <dependency org="oro" name="oro" rev="2.0.8"/>
     <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1"/>
@@ -330,12 +327,7 @@
     <dependency org="annogen" name="annogen" rev="0.1.0" conf="runtime->default"/>
     <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.0-beta3" transitive="false"
                 conf="runtime->default"/>
-    <!-- rev 2.0.4 would be better -->
-    <dependency org="org.apache.ws.commons.neethi" name="neethi" rev="2.0.1" transitive="false"
-                conf="runtime->default"/>
     <dependency org="woodstox" name="wstx-asl" rev="3.2.4" transitive="false" conf="runtime->default"/>
-    <dependency org="org.apache.ws.commons.schema" name="XmlSchema" rev="1.4.2" transitive="false"
-                conf="runtime->default"/>
 
     <!-- OSGI Components -->
 
