@@ -135,7 +135,7 @@ public class SchedulerService {
     }
 
     if ( isPdiFile( file ) ) {
-      parameterMap = handlePDIScheduling( file, parameterMap );
+      parameterMap = handlePDIScheduling( file, parameterMap, scheduleRequest.getPdiParameters() );
     }
 
     parameterMap.put( LocaleHelper.USER_LOCALE_PARAM, LocaleHelper.getLocale() );
@@ -481,8 +481,8 @@ public class SchedulerService {
   }
 
   protected HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
-                                                               HashMap<String, Serializable> parameterMap ) {
-    return SchedulerResourceUtil.handlePDIScheduling( file, parameterMap );
+                                                               HashMap<String, Serializable> parameterMap, Map<String, String> pdiParameters ) {
+    return SchedulerResourceUtil.handlePDIScheduling( file, parameterMap, pdiParameters );
   }
 
   public boolean getAutoCreateUniqueFilename( final JobScheduleRequest scheduleRequest ) {
