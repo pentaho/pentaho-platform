@@ -859,6 +859,7 @@ a:active, a:hover {
 
 #pucPerspectives .custom-dropdown-label {
   text-align: left;
+  font-size: 24px;
 }
 
 #pucPerspectives .custom-dropdown-pressed .custom-dropdown-arrow {
