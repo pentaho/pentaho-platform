@@ -22,10 +22,10 @@
   <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
     <constructor-arg>
       <util:list>
-        <sec:filter-chain pattern="/webservices/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS" />
-        <sec:filter-chain pattern="/api/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS" />
-        <sec:filter-chain pattern="/plugin/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS" />
-        <sec:filter-chain pattern="/**" filters="securityContextHolderAwareRequestFilter,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,httpSessionReuseDetectionFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor" />
+        <sec:filter-chain pattern="/webservices/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS" />
+        <sec:filter-chain pattern="/api/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS" />
+        <sec:filter-chain pattern="/plugin/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS" />
+        <sec:filter-chain pattern="/**" filters="securityContextHolderAwareRequestFilter,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,httpSessionReuseDetectionFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilter,filterInvocationInterceptor" />
       </util:list>
     </constructor-arg>
   </bean>
@@ -150,7 +150,9 @@
       <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
     </property>
   </bean>
-
+  
+  <bean id="sas" class="org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy" />
+  
   <bean id="authenticationProcessingFilter"
         class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
     <property name="authenticationManager">
@@ -169,6 +171,7 @@
     <property name="filterProcessesUrl" value="/j_spring_security_check" />
     <property name="usernameParameter" value="j_username" />
     <property name="passwordParameter" value="j_password" />
+	<property name="sessionAuthenticationStrategy" ref="sas" />
   </bean>
 
   <bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
@@ -310,5 +313,11 @@
 
   <bean id="preAuthenticatedSecurityFilter" class="org.pentaho.platform.web.http.security.PreAuthenticatedFilter">
     <constructor-arg ref="PreAuthenticatedSessionHolder"/>
+  </bean>
+
+  <bean id="httpSessionSecurityContextRepository" class="org.springframework.security.web.context.HttpSessionSecurityContextRepository"/>
+  <bean id="sessionMgmtFilter" class="org.springframework.security.web.session.SessionManagementFilter">
+    <constructor-arg ref="httpSessionSecurityContextRepository"/>
+    <constructor-arg ref="sas"/>
   </bean>
 </beans>
