@@ -44,7 +44,7 @@
 
     <dependency org="pentaho-library" name="libserializer" rev="${dependency.libserializer.revision}" changing="true" transitive="false" conf="default->default" />
     <!-- Misc -->
-    <dependency org="org.owasp.esapi" name="esapi" rev="2.0.1" transitive="false" />
+    <dependency org="org.owasp.encoder"  name="encoder"  rev="1.2"   transitive="false"/>
     <dependency org="org.apache.axis" name="axis" rev="1.4" />
     <dependency org="org.apache.xmlgraphics" name="batik-bridge" rev="1.7" transitive="false"/>
     <dependency org="bsf" name="bsf" rev="2.4.0" transitive="false" />   <!-- we don't want bsf's commons_logging -->

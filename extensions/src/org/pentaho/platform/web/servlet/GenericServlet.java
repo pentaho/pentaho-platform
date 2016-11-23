@@ -21,7 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.owasp.esapi.ESAPI;
+import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IMessageFormatter;
@@ -231,7 +231,7 @@ public class GenericServlet extends ServletBase {
         String message =
           Messages.getInstance().getErrorString(
             "GenericServlet.ERROR_0002_BAD_GENERATOR",
-            ESAPI.encoder().encodeForHTML( contentGeneratorId ) ); //$NON-NLS-1$
+            Encode.forHtml( contentGeneratorId ) ); //$NON-NLS-1$
         error( message );
         out.write( message.getBytes() );
         return;
