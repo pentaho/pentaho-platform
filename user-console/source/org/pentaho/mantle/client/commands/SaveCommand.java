@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.commands;
@@ -284,6 +284,9 @@ public class SaveCommand extends AbstractCommand {
       frame.controller.saveAs(actualFileName, filename, path, overwrite);
     } else if (frame.handle_puc_save) {
       try {
+        // tab closing handler was added, needs to be removed(onTabCloseEvent method) before frame update
+        $wnd.mantle_fireEvent('GenericEvent', {"eventSubType": "tabClosing", "stringParam": elementId});
+
         var result = frame.handle_puc_save(path, filename, overwrite, errorCallback);
         if (isSavedSuccessfully){
           //We need to decode the result, but we double encoded '/' and '\' in URLEncoder.js to work around a Tomcat issue
