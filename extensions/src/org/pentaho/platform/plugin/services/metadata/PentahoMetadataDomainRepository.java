@@ -19,6 +19,7 @@
 package org.pentaho.platform.plugin.services.metadata;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -252,15 +253,19 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     int datasourceModelTagPosition = sb.indexOf( "datasourceModel" );
     if ( datasourceModelTagPosition != -1 ) {
       String tag = "<CWM:Description body=";
+
       int startTagPosition = sb.indexOf( tag, datasourceModelTagPosition );
+      if ( startTagPosition != -1 ) {
+        int startPosition = startTagPosition + tag.length() + 1;
+        int endPosition = sb.indexOf( "\"", startPosition );
 
-      int startPosition = startTagPosition + tag.length() + 1;
-      int endPosition = sb.indexOf( "\"", startPosition );
 
-      return sb.substring( startPosition, endPosition );
-    } else {
-      return null;
+        if ( endPosition != -1 ) {
+          return StringEscapeUtils.unescapeXml( sb.substring( startPosition, endPosition ) );
+        }
+      }
     }
+    return null;
   }
 
   protected boolean isDomainIdXmiEqualsOrNotPresent( String domainId, String domainIdXmi ) {
