@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 //
@@ -31,6 +31,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 /**
  * <p>
@@ -127,6 +129,8 @@ public class EntityMetaData {
   protected String path;
   @XmlAttribute( name = "isHidden" )
   protected Boolean isHidden;
+  @XmlAttribute( name = "isSchedulable" )
+  protected Boolean schedulable;
   @XmlAttribute( name = "owner" )
   protected String owner;
   @XmlAttribute( name = "locale" )
@@ -254,11 +258,7 @@ public class EntityMetaData {
    * 
    */
   public boolean isIsHidden() {
-    if ( isHidden == null ) {
-      return false;
-    } else {
-      return isHidden;
-    }
+    return isHidden == null ? RepositoryFile.HIDDEN_BY_DEFAULT : isHidden;
   }
 
   /**
@@ -270,6 +270,27 @@ public class EntityMetaData {
    */
   public void setIsHidden( Boolean value ) {
     this.isHidden = value;
+  }
+
+  /**
+   * Gets the value of the schedulable property.
+   * 
+   * @return possible object is {@link Boolean }
+   * 
+   */
+  public Boolean isSchedulable() {
+    return schedulable == null ? RepositoryFile.SCHEDULABLE_BY_DEFAULT : schedulable;
+  }
+
+  /**
+   * Sets the value of the schedulable property
+   * 
+   * @param value
+   *          allowed object is {@link Boolean }
+   * 
+   */
+  public void setSchedulable( Boolean value ) {
+    this.schedulable = value;
   }
 
   /**
