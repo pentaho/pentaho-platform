@@ -12,36 +12,28 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository2.unified;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 /**
  * Created by bgroves on 10/23/15.
  */
-public class RepositoryFileTreeTest {
+public class RepositoryFileTreeTest extends Assert {
 
-  private static final RepositoryFile REPO_FILE = mock( RepositoryFile.class );
-  private static final RepositoryFile REPO_FILE_CHILD = mock( RepositoryFile.class );
+  private static final RepositoryFile REPO_FILE = Mockito.mock( RepositoryFile.class );
+  private static final RepositoryFile REPO_FILE_CHILD = Mockito.mock( RepositoryFile.class );
   private static final RepositoryFileTree FILE_TREE_CHILD = new RepositoryFileTree( REPO_FILE_CHILD,
     new ArrayList<RepositoryFileTree>() );
   private static final List<RepositoryFileTree> CHILDREN = Arrays.asList( FILE_TREE_CHILD );
@@ -66,11 +58,11 @@ public class RepositoryFileTreeTest {
     assertNotNull( fileTree.toString() );
     assertEquals( 1, fileTree.getChildren().size() );
 
-    when( REPO_FILE.isFolder() ).thenReturn( true );
+    Mockito.when( REPO_FILE.isFolder() ).thenReturn( true );
     assertTrue( fileTree.toString().contains( "/" ) );
 
     try {
-      RepositoryFileTree throwError = new RepositoryFileTree( null, null );
+      new RepositoryFileTree( null, null );
       fail( "Should of thrown an IllegalArgumentException" );
     } catch ( Exception e ) {
       // Pass
@@ -84,7 +76,8 @@ public class RepositoryFileTreeTest {
 
   @Test
   public void testBuilder() {
-    RepositoryFile nullFile = new RepositoryFile( null, null, false, false,
+    RepositoryFile nullFile =
+        new RepositoryFile( null, null, false, false, true,
       false, null, null, null, null, false, null, null, null, null, null, null, null, null, new Long( 1 ), null, null );
     RepositoryFileTree.Builder nullBuilder = new RepositoryFileTree.Builder( nullFile );
     RepositoryFileTree anotherFileTree = nullBuilder.build();
@@ -95,7 +88,7 @@ public class RepositoryFileTreeTest {
     RepositoryFileTree dupFileTree = builder.build();
     assertTrue( fileTree.equals( dupFileTree ) );
     fileTree.compareTo( dupFileTree );
-    verify( REPO_FILE ).compareTo( any( RepositoryFile.class ) );
+    Mockito.verify( REPO_FILE ).compareTo( Matchers.any( RepositoryFile.class ) );
 
     List<RepositoryFileTree.Builder> children = builder.getChildren();
     assertEquals( 1, children.size() );
