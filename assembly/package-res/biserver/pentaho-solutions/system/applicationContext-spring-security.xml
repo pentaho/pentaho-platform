@@ -31,6 +31,9 @@
   </bean>
 
   <!-- ======================== AUTHENTICATION ======================= -->
+  <bean id="defaultAuthenticationEventPublisher" class="org.springframework.security.authentication.DefaultAuthenticationEventPublisher">
+  </bean>
+
   <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
     <constructor-arg>
       <util:list>
@@ -39,6 +42,9 @@
       </util:list>
     </constructor-arg>
     <property name="eraseCredentialsAfterAuthentication" value="false" />
+    <property name="authenticationEventPublisher">
+      <ref bean="defaultAuthenticationEventPublisher" />
+    </property>
   </bean>
 
   <!-- Automatically receives AuthenticationEvent messages -->
