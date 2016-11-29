@@ -28,6 +28,7 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.plugin.services.exporter.ScheduleExportUtil;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
@@ -191,16 +192,11 @@ public class SchedulerResourceUtil {
 
 
   public static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
-                                                                   HashMap<String, Serializable> parameterMap ) {
+                                                                   HashMap<String, Serializable> parameterMap, Map<String, String> pdiParameters ) {
+
+    HashMap<String, Serializable> convertedParameterMap = new HashMap<>();
 
     if ( file != null && isPdiFile( file ) ) {
-
-      HashMap<String, Serializable> convertedParameterMap = new HashMap<String, Serializable>();
-      Map<String, String> pdiParameterMap = new HashMap<String, String>();
-      convertedParameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
-
-      String type = isTransformation( file ) ? "transformation" : "job";
-      convertedParameterMap.put( type, FilenameUtils.getBaseName( file.getPath() ) );
 
       Iterator<String> it = parameterMap.keySet().iterator();
 
@@ -209,17 +205,19 @@ public class SchedulerResourceUtil {
         String param = (String) it.next();
 
         if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
-          if ( param.equals( RESERVEDMAPKEY_LINEAGE_ID ) ) {
-            convertedParameterMap.put( RESERVEDMAPKEY_LINEAGE_ID, parameterMap.get( param ).toString() );
-          }
-          pdiParameterMap.put( param, parameterMap.get( param ).toString() );
+          convertedParameterMap.put( param, parameterMap.get( param ).toString() );
         }
       }
 
-      convertedParameterMap.put( "parameters", (Serializable) pdiParameterMap );
-      return convertedParameterMap;
+      convertedParameterMap.put( "directory", FilenameUtils.getPathNoEndSeparator( file.getPath() ) );
+      String type = isTransformation( file ) ? "transformation" : "job";
+      convertedParameterMap.put( type, FilenameUtils.getBaseName( file.getPath() ) );
+
+    } else {
+      convertedParameterMap.putAll( parameterMap );
     }
-    return parameterMap;
+    convertedParameterMap.put( ScheduleExportUtil.RUN_PARAMETERS_KEY, (Serializable) pdiParameters );
+    return convertedParameterMap;
   }
 
   public static boolean isPdiFile( RepositoryFile file ) {

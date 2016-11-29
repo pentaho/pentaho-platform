@@ -169,7 +169,7 @@ public class SchedulerServiceTest {
     verify( scheduleRequest, times( 5 ) ).getActionClass();
     verify( schedulerService.repository, times( 2 ) ).getFileMetadata( anyString() );
     verify( schedulerService, times( 3 ) ).isPdiFile( any( RepositoryFile.class ) );
-    verify( schedulerService, times( 3 ) ).handlePDIScheduling( any( RepositoryFile.class ), any( HashMap.class ) );
+    verify( schedulerService, times( 3 ) ).handlePDIScheduling( any( RepositoryFile.class ), any( HashMap.class ), any( HashMap.class ) );
     verify( schedulerService, times( 2 ) ).getSchedulerOutputPathResolver( any( JobScheduleRequest.class ) );
     verify( schedulerService, times( 2 ) ).getExtension( anyString() );
     verify( scheduleRequest, times( 5 ) ).getActionClass();
@@ -273,7 +273,7 @@ public class SchedulerServiceTest {
     verify( scheduleRequest, times( 7 ) ).getActionClass();
     verify( schedulerService.repository, times( 1 ) ).getFileMetadata( anyString() );
     verify( schedulerService, times( 1 ) ).isPdiFile( any( RepositoryFile.class ) );
-    verify( schedulerService, times( 1 ) ).handlePDIScheduling( any( RepositoryFile.class ), any( HashMap.class ) );
+    verify( schedulerService, times( 1 ) ).handlePDIScheduling( any( RepositoryFile.class ), any( HashMap.class ), any( HashMap.class ) );
     verify( scheduleRequest, times( 7 ) ).getActionClass();
     verify( schedulerService ).getAction( anyString() );
   }
