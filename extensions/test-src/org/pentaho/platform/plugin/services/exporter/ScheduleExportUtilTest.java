@@ -1,7 +1,26 @@
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ */
+
 package org.pentaho.platform.plugin.services.exporter;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
@@ -17,10 +36,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ScheduleExportUtilTest {
 
@@ -38,10 +53,10 @@ public class ScheduleExportUtilTest {
   public void testCreateJobScheduleRequest_unknownTrigger() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    JobTrigger trigger = mock( JobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    JobTrigger trigger = Mockito.mock( JobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
 
@@ -51,62 +66,68 @@ public class ScheduleExportUtilTest {
   public void testCreateJobScheduleRequest_SimpleJobTrigger() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    SimpleJobTrigger trigger = mock( SimpleJobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    SimpleJobTrigger trigger = Mockito.mock( SimpleJobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
-    when( job.getJobName() ).thenReturn( jobName );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobName() ).thenReturn( jobName );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
 
-    assertNotNull( jobScheduleRequest );
-    assertEquals( jobName, jobScheduleRequest.getJobName() );
-    assertEquals( trigger, jobScheduleRequest.getSimpleJobTrigger() );
+    Assert.assertNotNull( jobScheduleRequest );
+    Assert.assertEquals( jobName, jobScheduleRequest.getJobName() );
+    Assert.assertEquals( trigger, jobScheduleRequest.getSimpleJobTrigger() );
   }
 
   @Test
   public void testCreateJobScheduleRequest_NoStreamProvider() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    SimpleJobTrigger trigger = mock( SimpleJobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    SimpleJobTrigger trigger = Mockito.mock( SimpleJobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
-    when( job.getJobName() ).thenReturn( jobName );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobName() ).thenReturn( jobName );
     Map<String, Serializable> params = new HashMap<>();
     params.put( "directory", "/home/admin" );
     params.put( "transformation", "myTransform" );
-    when( job.getJobParams() ).thenReturn( params );
+
+    HashMap<String, String> pdiParams = new HashMap<>();
+    pdiParams.put( "pdiParam", "pdiParamValue" );
+    params.put( ScheduleExportUtil.RUN_PARAMETERS_KEY, pdiParams );
+
+    Mockito.when( job.getJobParams() ).thenReturn( params );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
 
-    assertNotNull( jobScheduleRequest );
-    assertEquals( jobName, jobScheduleRequest.getJobName() );
-    assertEquals( trigger, jobScheduleRequest.getSimpleJobTrigger() );
-    assertEquals( "/home/admin/myTransform.ktr", jobScheduleRequest.getInputFile() );
-    assertEquals( "/home/admin/myTransform*", jobScheduleRequest.getOutputFile() );
+    Assert.assertNotNull( jobScheduleRequest );
+    Assert.assertEquals( jobName, jobScheduleRequest.getJobName() );
+    Assert.assertEquals( trigger, jobScheduleRequest.getSimpleJobTrigger() );
+    Assert.assertEquals( "/home/admin/myTransform.ktr", jobScheduleRequest.getInputFile() );
+    Assert.assertEquals( "/home/admin/myTransform*", jobScheduleRequest.getOutputFile() );
+    Assert.assertEquals( "pdiParamValue", jobScheduleRequest.getPdiParameters().get( "pdiParam" ) );
   }
 
   @Test
   public void testCreateJobScheduleRequest_StringStreamProvider() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    SimpleJobTrigger trigger = mock( SimpleJobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    SimpleJobTrigger trigger = Mockito.mock( SimpleJobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
-    when( job.getJobName() ).thenReturn( jobName );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobName() ).thenReturn( jobName );
     Map<String, Serializable> params = new HashMap<>();
     params.put( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER, "import file = /home/admin/myJob.kjb:output file=/home/admin/myJob*" );
-    when( job.getJobParams() ).thenReturn( params );
+    Mockito.when( job.getJobParams() ).thenReturn( params );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
 
-    assertNotNull( jobScheduleRequest );
-    assertEquals( jobName, jobScheduleRequest.getJobName() );
-    assertEquals( trigger, jobScheduleRequest.getSimpleJobTrigger() );
-    assertEquals( "/home/admin/myJob.kjb", jobScheduleRequest.getInputFile() );
-    assertEquals( "/home/admin/myJob*", jobScheduleRequest.getOutputFile() );
+    Assert.assertNotNull( jobScheduleRequest );
+    Assert.assertEquals( jobName, jobScheduleRequest.getJobName() );
+    Assert.assertEquals( trigger, jobScheduleRequest.getSimpleJobTrigger() );
+    Assert.assertEquals( "/home/admin/myJob.kjb", jobScheduleRequest.getInputFile() );
+    Assert.assertEquals( "/home/admin/myJob*", jobScheduleRequest.getOutputFile() );
   }
 
   @Test
@@ -114,50 +135,50 @@ public class ScheduleExportUtilTest {
     String jobName = "JOB";
     Date now = new Date();
 
-    Job job = mock( Job.class );
-    ComplexJobTrigger trigger = mock( ComplexJobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    ComplexJobTrigger trigger = Mockito.mock( ComplexJobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
-    when( job.getJobName() ).thenReturn( jobName );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobName() ).thenReturn( jobName );
 
-    when( trigger.getCronString() ).thenReturn( "0 30 13 ? * 2,3,4,5,6 *" );
-    when( trigger.getDuration() ).thenReturn( -1L );
-    when( trigger.getStartTime() ).thenReturn( now );
-    when( trigger.getEndTime() ).thenReturn( now );
-    when( trigger.getUiPassParam() ).thenReturn( "uiPassParm" );
+    Mockito.when( trigger.getCronString() ).thenReturn( "0 30 13 ? * 2,3,4,5,6 *" );
+    Mockito.when( trigger.getDuration() ).thenReturn( -1L );
+    Mockito.when( trigger.getStartTime() ).thenReturn( now );
+    Mockito.when( trigger.getEndTime() ).thenReturn( now );
+    Mockito.when( trigger.getUiPassParam() ).thenReturn( "uiPassParm" );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
 
-    assertNotNull( jobScheduleRequest );
-    assertEquals( jobName, jobScheduleRequest.getJobName() );
+    Assert.assertNotNull( jobScheduleRequest );
+    Assert.assertEquals( jobName, jobScheduleRequest.getJobName() );
 
     // we should be getting back a cron trigger, not a complex trigger.
-    assertNull( jobScheduleRequest.getSimpleJobTrigger() );
-    assertNull( jobScheduleRequest.getComplexJobTrigger() );
-    assertNotNull( jobScheduleRequest.getCronJobTrigger() );
+    Assert.assertNull( jobScheduleRequest.getSimpleJobTrigger() );
+    Assert.assertNull( jobScheduleRequest.getComplexJobTrigger() );
+    Assert.assertNotNull( jobScheduleRequest.getCronJobTrigger() );
 
-    assertEquals( trigger.getCronString(), jobScheduleRequest.getCronJobTrigger().getCronString() );
-    assertEquals( trigger.getDuration(), jobScheduleRequest.getCronJobTrigger().getDuration() );
-    assertEquals( trigger.getEndTime(), jobScheduleRequest.getCronJobTrigger().getEndTime() );
-    assertEquals( trigger.getStartTime(), jobScheduleRequest.getCronJobTrigger().getStartTime() );
-    assertEquals( trigger.getUiPassParam(), jobScheduleRequest.getCronJobTrigger().getUiPassParam() );
+    Assert.assertEquals( trigger.getCronString(), jobScheduleRequest.getCronJobTrigger().getCronString() );
+    Assert.assertEquals( trigger.getDuration(), jobScheduleRequest.getCronJobTrigger().getDuration() );
+    Assert.assertEquals( trigger.getEndTime(), jobScheduleRequest.getCronJobTrigger().getEndTime() );
+    Assert.assertEquals( trigger.getStartTime(), jobScheduleRequest.getCronJobTrigger().getStartTime() );
+    Assert.assertEquals( trigger.getUiPassParam(), jobScheduleRequest.getCronJobTrigger().getUiPassParam() );
   }
 
   @Test
   public void testCreateJobScheduleRequest_CronJobTrigger() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    CronJobTrigger trigger = Mockito.mock( CronJobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
-    when( job.getJobName() ).thenReturn( jobName );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobName() ).thenReturn( jobName );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
 
-    assertNotNull( jobScheduleRequest );
-    assertEquals( jobName, jobScheduleRequest.getJobName() );
-    assertEquals( trigger, jobScheduleRequest.getCronJobTrigger() );
+    Assert.assertNotNull( jobScheduleRequest );
+    Assert.assertEquals( jobName, jobScheduleRequest.getJobName() );
+    Assert.assertEquals( trigger, jobScheduleRequest.getCronJobTrigger() );
   }
 
   @Test
@@ -168,22 +189,22 @@ public class ScheduleExportUtilTest {
 
     Map<String, Serializable> params = new HashMap<>();
 
-    RepositoryFileStreamProvider streamProvider = mock( RepositoryFileStreamProvider.class );
+    RepositoryFileStreamProvider streamProvider = Mockito.mock( RepositoryFileStreamProvider.class );
     params.put( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER, streamProvider );
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    CronJobTrigger trigger = Mockito.mock( CronJobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
-    when( job.getJobName() ).thenReturn( jobName );
-    when( job.getJobParams() ).thenReturn( params );
-    when( streamProvider.getInputFilePath() ).thenReturn( inputPath );
-    when( streamProvider.getOutputFilePath() ).thenReturn( outputPath );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobName() ).thenReturn( jobName );
+    Mockito.when( job.getJobParams() ).thenReturn( params );
+    Mockito.when( streamProvider.getInputFilePath() ).thenReturn( inputPath );
+    Mockito.when( streamProvider.getOutputFilePath() ).thenReturn( outputPath );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
-    assertEquals( inputPath, jobScheduleRequest.getInputFile() );
-    assertEquals( outputPath, jobScheduleRequest.getOutputFile() );
-    assertEquals( 0, jobScheduleRequest.getJobParameters().size() );
+    Assert.assertEquals( inputPath, jobScheduleRequest.getInputFile() );
+    Assert.assertEquals( outputPath, jobScheduleRequest.getOutputFile() );
+    Assert.assertEquals( 0, jobScheduleRequest.getJobParameters().size() );
   }
 
   @Test
@@ -194,16 +215,16 @@ public class ScheduleExportUtilTest {
 
     params.put( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS, actionClass );
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    CronJobTrigger trigger = Mockito.mock( CronJobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
-    when( job.getJobName() ).thenReturn( jobName );
-    when( job.getJobParams() ).thenReturn( params );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobName() ).thenReturn( jobName );
+    Mockito.when( job.getJobParams() ).thenReturn( params );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
-    assertEquals( actionClass, jobScheduleRequest.getActionClass() );
-    assertEquals( actionClass, jobScheduleRequest.getJobParameters().get( 0 ).getValue() );
+    Assert.assertEquals( actionClass, jobScheduleRequest.getActionClass() );
+    Assert.assertEquals( actionClass, jobScheduleRequest.getJobParameters().get( 0 ).getValue() );
   }
 
   @Test
@@ -214,16 +235,16 @@ public class ScheduleExportUtilTest {
 
     params.put( IBlockoutManager.TIME_ZONE_PARAM, timeZone );
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    CronJobTrigger trigger = Mockito.mock( CronJobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
-    when( job.getJobName() ).thenReturn( jobName );
-    when( job.getJobParams() ).thenReturn( params );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobName() ).thenReturn( jobName );
+    Mockito.when( job.getJobParams() ).thenReturn( params );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
-    assertEquals( timeZone, jobScheduleRequest.getTimeZone() );
-    assertEquals( timeZone, jobScheduleRequest.getJobParameters().get( 0 ).getValue() );
+    Assert.assertEquals( timeZone, jobScheduleRequest.getTimeZone() );
+    Assert.assertEquals( timeZone, jobScheduleRequest.getJobParameters().get( 0 ).getValue() );
   }
 
   @Test
@@ -239,24 +260,24 @@ public class ScheduleExportUtilTest {
     params.put( "DateValue", d );
     params.put( "BooleanValue", b );
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    Job job = Mockito.mock( Job.class );
+    CronJobTrigger trigger = Mockito.mock( CronJobTrigger.class );
 
-    when( job.getJobTrigger() ).thenReturn( trigger );
-    when( job.getJobName() ).thenReturn( jobName );
-    when( job.getJobParams() ).thenReturn( params );
+    Mockito.when( job.getJobTrigger() ).thenReturn( trigger );
+    Mockito.when( job.getJobName() ).thenReturn( jobName );
+    Mockito.when( job.getJobParams() ).thenReturn( params );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
     for ( JobScheduleParam jobScheduleParam : jobScheduleRequest.getJobParameters() ) {
-      assertTrue( jobScheduleParam.getValue().equals( l ) ||
-        jobScheduleParam.getValue().equals( d ) ||
-        jobScheduleParam.getValue().equals( b ) );
+      Assert.assertTrue( jobScheduleParam.getValue().equals( l )
+              || jobScheduleParam.getValue().equals( d )
+              || jobScheduleParam.getValue().equals( b ) );
     }
   }
 
   @Test
   public void testConstructor() throws Exception {
     // only needed to get 100% code coverage
-    assertNotNull( new ScheduleExportUtil() );
+    Assert.assertNotNull( new ScheduleExportUtil() );
   }
 }
