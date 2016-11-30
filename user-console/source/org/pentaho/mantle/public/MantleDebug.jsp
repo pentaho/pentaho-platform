@@ -17,7 +17,7 @@
 
 <!DOCTYPE html>
 <%@page import="org.apache.commons.lang.StringUtils" %>
-<%@page import="org.owasp.esapi.ESAPI" %>
+<%@page import="org.owasp.encoder.Encode" %>
 <%@page import="org.pentaho.platform.util.messages.LocaleHelper" %>
 <%@page import="java.net.URL" %>
 <%@page import="java.net.URLClassLoader" %>
@@ -44,7 +44,7 @@
 <head>
   <title>Pentaho User Console</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="gwt:property" content="locale=<%=ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString())%>">
+  <meta name="gwt:property" content="locale=<%=Encode.forHtmlAttribute(effectiveLocale.toString())%>">
   <link rel="shortcut icon" href="/pentaho-style/favicon.ico"/>
   <link rel='stylesheet' href='mantle/MantleStyle.css'/>
   <link rel="stylesheet" href="content/data-access/resources/gwt/datasourceEditorDialog.css"/>

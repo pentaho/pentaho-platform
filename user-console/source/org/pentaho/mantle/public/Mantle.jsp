@@ -18,7 +18,7 @@
 <!DOCTYPE html>
 <%@page pageEncoding="UTF-8" %>
 <%@page import="org.apache.commons.lang.StringUtils" %>
-<%@page import="org.owasp.esapi.ESAPI" %>
+<%@page import="org.owasp.encoder.Encode" %>
 <%@page import="org.pentaho.platform.util.messages.LocaleHelper" %>
 <%@page import="java.net.URL" %>
 <%@page import="java.net.URLClassLoader" %>
@@ -70,7 +70,7 @@
             String startupUrl = (String) request.getAttribute("startup-url");
             if (startupUrl != null && name != null){
               //Sanitize the values assigned
-              mobileRedirect += "?name=" + ESAPI.encoder().encodeForJavaScript(name) + "&startup-url=" + ESAPI.encoder().encodeForJavaScript(startupUrl);
+              mobileRedirect += "?name=" + Encode.forJavaScript(name) + "&startup-url=" + Encode.forJavaScript(startupUrl);
             }
   %>
   <script type="text/javascript">
@@ -90,7 +90,7 @@
       }
     if (!haveMobileRedirect) {
   %>
-  <meta name="gwt:property" content="locale=<%=ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString())%>">
+  <meta name="gwt:property" content="locale=<%=Encode.forHtmlAttribute(effectiveLocale.toString())%>">
   <link rel="shortcut icon" href="/pentaho-style/favicon.ico"/>
   <link rel='stylesheet' href='mantle/MantleStyle.css'/>
   <%if ( hasDataAccessPlugin ) {%>

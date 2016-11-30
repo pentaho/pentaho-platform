@@ -24,7 +24,7 @@
             java.util.List,
             org.pentaho.platform.engine.core.system.PentahoSessionHolder,
             java.util.ResourceBundle,
-            org.owasp.esapi.ESAPI,
+            org.owasp.encoder.Encode,
             java.net.URLClassLoader, java.net.URL"
 %>
 			
@@ -56,7 +56,7 @@
           String startupUrl = (String) request.getAttribute("startup-url");
           if (startupUrl != null && name != null){
             //Sanitize the values assigned
-            mobileRedirect += "?name=" + ESAPI.encoder().encodeForJavaScript(name) + "&startup-url=" + ESAPI.encoder().encodeForJavaScript(startupUrl);
+            mobileRedirect += "?name=" + Encode.forJavaScript(name) + "&startup-url=" + Encode.forJavaScript(startupUrl);
           }
 			    %>
 			    <script type="text/javascript">

@@ -19,8 +19,7 @@ package org.pentaho.platform.web.http.filters;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.owasp.esapi.ESAPI;
-import org.owasp.esapi.Encoder;
+import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -318,7 +317,6 @@ public class PentahoWebContextFilter implements Filter {
       boolean printCssOnly ) throws IOException {
 
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
-    Encoder encoder = ESAPI.encoder();
 
     HttpServletRequest req = ( (HttpServletRequest) request );
     String reqStr = "";
@@ -336,8 +334,8 @@ public class PentahoWebContextFilter implements Filter {
       while ( it.hasNext() ) {
         me = it.next();
         for ( i = 0; i < me.getValue().length; i++ ) {
-          sb.append( sep ).append( encoder.encodeForJavaScript( me.getKey().toString() ) ).append( "=" ).append(
-            encoder.encodeForJavaScript( me.getValue()[ i ] ) );
+          sb.append( sep ).append( Encode.forJavaScript( me.getKey().toString() ) ).append( "=" ).append(
+            Encode.forJavaScript( me.getValue()[ i ] ) );
         }
         if ( sep == '?' ) {
           sep = '&'; // change the separator
@@ -348,7 +346,7 @@ public class PentahoWebContextFilter implements Filter {
 
     List<String> externalResources = pluginManager.getExternalResourcesForContext( contextName );
     out.write( ( "<!-- Injecting web resources defined in by plugins as external-resources for: "
-      + encoder.encodeForHTML(
+      + Encode.forHtml(
           contextName ) + "-->\n" ).getBytes() ); //$NON-NLS-1$ //$NON-NLS-2$
     if ( externalResources != null ) {
 

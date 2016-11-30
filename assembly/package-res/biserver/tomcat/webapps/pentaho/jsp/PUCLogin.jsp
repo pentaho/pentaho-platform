@@ -34,7 +34,7 @@
             java.util.StringTokenizer,
             org.apache.commons.lang.StringEscapeUtils,
             org.pentaho.platform.engine.core.system.PentahoSessionHolder,
-            org.owasp.esapi.ESAPI,
+            org.owasp.encoder.Encode,
             org.pentaho.platform.util.ServerTypeUtil"%>
 <%!
   // List of request URL strings to look for to send 401
@@ -109,7 +109,7 @@
             String startupUrl = (String) request.getAttribute("startup-url");
             if (startupUrl != null && name != null){
               //Sanitize the values assigned
-              mobileRedirect += "?name=" + ESAPI.encoder().encodeForJavaScript(name) + "&startup-url=" + ESAPI.encoder().encodeForJavaScript(startupUrl);
+              mobileRedirect += "?name=" + Encode.forJavaScript(name) + "&startup-url=" + Encode.forJavaScript(startupUrl);
             }
   %>
   <script type="text/javascript">
@@ -136,7 +136,7 @@
   }
 %>
 
-<meta name="gwt:property" content="locale=<%=ESAPI.encoder().encodeForHTMLAttribute(request.getLocale().toString())%>">
+<meta name="gwt:property" content="locale=<%=Encode.forHtmlAttribute(request.getLocale().toString())%>">
 <link rel="shortcut icon" href="/pentaho-style/favicon.ico" />
 
 <style type="text/css">
@@ -158,7 +158,7 @@
     <div id="login-logo"></div>
 
 <% 
-		String cleanedLang = ESAPI.encoder().encodeForHTMLAttribute(request.getLocale().toString());
+		String cleanedLang = Encode.forHtmlAttribute(request.getLocale().toString());
 		if ( cleanedLang != null ) {
 			if ( cleanedLang.indexOf("_") > 0 ){
 				cleanedLang = cleanedLang.substring( 0, cleanedLang.indexOf("_") );
@@ -277,7 +277,7 @@
     // pass
     var locale = document.login.locale.value;
 
-    var returnLocation = '<%=ESAPI.encoder().encodeForJavaScript(requestedURL)%>';
+    var returnLocation = '<%=Encode.forJavaScript(requestedURL)%>';
 
     if (returnLocation != '' && returnLocation != null) {
       window.location.href = returnLocation;
