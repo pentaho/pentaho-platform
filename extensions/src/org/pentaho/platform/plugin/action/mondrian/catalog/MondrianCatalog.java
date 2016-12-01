@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
@@ -89,5 +89,9 @@ public class MondrianCatalog implements Serializable {
     return new ToStringBuilder( this ).append( "name", name ).append( "dataSourceInfo", dataSourceInfo ).append(
       //$NON-NLS-1$//$NON-NLS-2$
       "definition", definition ).append( "schema", schema ).toString(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+  }
+
+  public Util.PropertyList getConnectProperties() {
+    return Util.parseConnectString( dataSourceInfo );
   }
 }
