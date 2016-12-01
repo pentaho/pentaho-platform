@@ -35,6 +35,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import mondrian.util.Pair;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
@@ -190,20 +191,29 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     StringBuilder sb = new StringBuilder();
 
     if ( dsName != null ) {
-      sb.append( "DataSource=" + dsName + ";" );
+      sb.append( "DataSource=\"" )
+        .append( StringEscapeUtils.escapeXml( dsName.replaceAll( "&quot;", "\"" ) ) )
+        .append( "\";" );
     }
     if ( !parameters.containsKey( "EnableXmla" ) ) {
-      sb.append( "EnableXmla=" + xmlaEnabled + ";" );
+      sb.append( "EnableXmla=" )
+        .append( xmlaEnabled )
+        .append( ";" );
     }
-    sb.append( "Provider=" + provider );
+    sb.append( "Provider=\"" )
+      .append( StringEscapeUtils.escapeXml( provider.replaceAll( "&quot;", "\"" ) ) )
+      .append( "\"" );
 
     // Build a list of the remaining properties
     for ( Entry<String, String> parameter : parameters.entrySet() ) {
       if ( !parameter.getKey().equals( DATA_SOURCE ) && !parameter.getKey().equals( PROVIDER ) ) {
+        //value contains custom-escaped quotes.
+        //It needs custom unescape and standard escapeXml for following mondrian parsing
+        String parseSafeValue = StringEscapeUtils.escapeXml( parameter.getValue().replaceAll( "&quot;", "\"" ) );
         sb.append( ";" );
         sb.append( parameter.getKey() );
         sb.append( "=\"" );
-        sb.append( parameter.getValue() );
+        sb.append( parseSafeValue );
         sb.append( "\"" );
       }
     }

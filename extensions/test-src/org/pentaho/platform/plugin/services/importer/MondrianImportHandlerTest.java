@@ -173,4 +173,29 @@ public class MondrianImportHandlerTest {
     assertTrue( mondrianCatalog.getValue().getDataSourceInfo().contains( OTHER_PARAMETR ) );
   }
 
+  @Test
+  public void testCreateCatalogObject_SpecificSymbolsInBundle() throws Exception {
+    //createCatalogObject method has input parameters with custom-escaped only quotes
+    //should unescape it and escape all symbols by standard escapeXml
+
+    IPlatformImportBundle customBundle = mock( IPlatformImportBundle.class );
+    parameters = MondrianImportHandler.PROVIDER + "=provider;"
+      + MondrianImportHandler.DATA_SOURCE + "=\"DS &quot;Test's&quot; & <Fun>\";"
+      + "DynamicSchemaProcessor=\"DSP's & &quot;Other&quot; <stuff>\"";
+
+    String expectedValue = new StringBuilder()
+      .append( "DataSource=\"DS &quot;Test&apos;s&quot; &amp; &lt;Fun&gt;\";" )
+      .append( "EnableXmla=true;" )
+      .append( "Provider=\"provider\";" )
+      .append( "DynamicSchemaProcessor=\"DSP&apos;s &amp; &quot;Other&quot; &lt;stuff&gt;\"" )
+      .toString();
+
+    when( customBundle.getProperty( eq( MondrianImportHandler.ENABLE_XMLA ) ) ).thenReturn( "true" );
+    when( customBundle.getProperty( eq( MondrianImportHandler.DATA_SOURCE ) ) ).thenReturn( "DS &quot;Test's&quot; & <Fun>" );
+    when( customBundle.getProperty( eq( MondrianImportHandler.PARAMETERS ) ) ).thenReturn( parameters );
+    MondrianImportHandler mondrianImportHandler = new MondrianImportHandler( mimeTypes, mondrianImporter );
+    MondrianCatalog catalog = mondrianImportHandler.createCatalogObject( "catalog", true, customBundle );
+
+    assertEquals( catalog.getDataSourceInfo(), expectedValue );
+  }
 }

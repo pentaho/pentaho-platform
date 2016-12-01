@@ -313,7 +313,7 @@ public class PentahoPlatformExporterTest {
   @Test
   public void testExportMondrianSchemas_AdditionalParametersSaved() throws Exception {
     final String parameterName = "AdditionalParameter";
-    final String parameterValue = "\"TestValue\"";
+    final String parameterValue = "TestValue";
     final String expectedParameterValue = "TestValue";
     final String dataSourceInfo = "EnableXmla=\"true\";" + parameterName + "=" + parameterValue;
     String catalogName = "test";
@@ -323,6 +323,27 @@ public class PentahoPlatformExporterTest {
     String returnedParameterValue = exportManifest.getMondrianList().get( 0 ).getParameters().get( parameterName );
     assertNotNull( returnedParameterValue );
     assertEquals( returnedParameterValue, expectedParameterValue );
+  }
+
+  @Test
+  public void testPerformExportMondrianSchemas_XmlUnsafeDataSourceInfoSaved() throws IOException {
+
+    final String dataSourceInfo = "DataSource=\"&quot;DS &quot;Test&apos;s&quot; &amp; &lt;Fun&gt;&quot;\";"
+      + "DynamicSchemaProcessor=\"&quot;DSP&apos;s &amp; &quot;Other&quot; &lt;stuff&gt;&quot;\";";
+
+    final String dataSourceExpectedValue = "\"DS \"Test's\" & <Fun>\"";
+    final String dynamicSchemaProcessorExpectedValue = "\"DSP's & \"Other\" <stuff>\"";
+
+    executeExportMondrianSchemasForDataSourceInfo( "", dataSourceInfo );
+
+    String returnedParameterValue = exportManifest.getMondrianList().get( 0 ).getParameters().get( "DataSource" );
+    assertNotNull( returnedParameterValue );
+    assertEquals( returnedParameterValue, dataSourceExpectedValue );
+
+    returnedParameterValue = exportManifest.getMondrianList().get( 0 ).getParameters().get( "DynamicSchemaProcessor" );
+    assertNotNull( returnedParameterValue );
+    assertEquals( returnedParameterValue, dynamicSchemaProcessorExpectedValue );
+
   }
 
   private void executeExportMondrianSchemasForDataSourceInfo( String catalogName, String dataSourceInfo ) throws IOException {
