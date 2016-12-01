@@ -12,13 +12,16 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
 import static org.mockito.Mockito.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
@@ -48,8 +51,10 @@ import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.output.SimpleContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileContentItem;
 import org.pentaho.platform.api.repository.IContentItem;
 
 /**
@@ -88,7 +93,7 @@ public class XActionUtilTest {
 
     when( repository.getFile( anyString() ) ).thenReturn( generatedFile );
 
-    List<IContentItem> items = Arrays.asList( mock( IContentItem.class ) );
+    List<IContentItem> items = Arrays.asList( mock( RepositoryFileContentItem.class ) );
     IRuntimeContext context = mock( IRuntimeContext.class );
     when( context.getOutputContentItems() ).thenReturn( items );
 
@@ -126,10 +131,50 @@ public class XActionUtilTest {
     PentahoSessionHolder.setSession( userSession );
   }
 
+  private File createTempFile() throws IOException {
+    return File.createTempFile( "XActionUtilTest", "tmp" );
+  }
+
   @Test
   public void executeXActionSequence() throws Exception {
     XactionUtil.execute( MediaType.TEXT_HTML, xactionFile, httpServletRequest, httpServletResponse, userSession, mimeTypeListener );
     verify( repository, times( 1 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+  }
+
+  @Test
+  public void testDeleteContentItem_null() throws Exception {
+    XactionUtil.deleteContentItem( null, null ); // No exception
+    XactionUtil.deleteContentItem( null, mock( IUnifiedRepository.class ) ); // No exception
+    verify( repository, times( 0 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+  }
+
+  @Test
+  public void testDeleteContentItem_simple() throws Exception {
+    final IContentItem contentItem = mock( SimpleContentItem.class );
+    doReturn( mock( OutputStream.class ) ).when( contentItem ).getOutputStream( anyObject() );
+    try {
+      XactionUtil.deleteContentItem( contentItem, null );
+    } finally {
+      contentItem.getOutputStream( null ).close();
+    }
+    verify( repository, times( 0 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+  }
+
+  @Test
+  public void testDeleteContentItem_repo() throws Exception {
+    IContentItem item = mock( RepositoryFileContentItem.class );
+    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( anyObject() );
+    XactionUtil.deleteContentItem( item, repository );
+    verify( repository, times( 1 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+  }
+
+  @Test
+  public void testDeleteContentItem_repoNoFile() throws Exception {
+    doReturn( null ).when( repository ).getFile( anyString() );
+    IContentItem item = mock( RepositoryFileContentItem.class );
+    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( anyObject() );
+    XactionUtil.deleteContentItem( item, repository );
+    verify( repository, times( 0 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
   }
 
   @After
@@ -149,4 +194,5 @@ public class XActionUtilTest {
       return true;
     }
   }
+
 }

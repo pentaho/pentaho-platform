@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -40,11 +40,13 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.engine.core.output.FileContentItem;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.engine.services.SoapHelper;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileContentItem;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.platform.web.http.HttpOutputHandler;
@@ -58,6 +60,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -134,7 +137,7 @@ public class XactionUtil {
   public static String postExecute( IRuntimeContext runtime, boolean debugMessages, boolean doWrapper,
                                     IOutputHandler outputHandler, Map<String, IParameterProvider> parameterProviders,
                                     HttpServletRequest request,
-                                    HttpServletResponse response, List<?> messages ) throws Exception {
+                                    HttpServletResponse response, List<?> messages, boolean deleteGeneratedFiles ) throws Exception {
     StringBuffer buffer = new StringBuffer();
 
     boolean hasResponse = outputHandler.isResponseExpected();
@@ -162,14 +165,35 @@ public class XactionUtil {
     IUnifiedRepository unifiedRepository = PentahoSystem.get( IUnifiedRepository.class, null );
     if ( unifiedRepository != null ) {
       for ( IContentItem contentItem : runtime.getOutputContentItems() ) {
-        RepositoryFile repositoryFile = unifiedRepository.getFile( contentItem.getPath() );
-        //repositoryFile can be null if we have not access or file does not exist
-        if ( repositoryFile != null ) {
-          unifiedRepository.deleteFile( repositoryFile.getId(), true, null );
+        if ( contentItem != null ) {
+          try {
+            contentItem.closeOutputStream();
+            if ( deleteGeneratedFiles ) {
+              deleteContentItem( contentItem, unifiedRepository );
+            }
+          } catch ( Exception e ) {
+            logger.warn( Messages.getInstance().getString( "XactionUtil.CANNOT_REMOVE_OUTPUT_FILE", contentItem.getPath() ), e );
+          }
         }
       }
     }
     return buffer.toString();
+  }
+
+  static void deleteContentItem( IContentItem contentItem, IUnifiedRepository unifiedRepository ) {
+    if ( contentItem instanceof RepositoryFileContentItem ) {
+      String path = contentItem.getPath();
+      RepositoryFile repositoryFile = unifiedRepository.getFile( path );
+      //repositoryFile can be null if we have not access or file does not exist
+      if ( repositoryFile != null ) {
+        unifiedRepository.deleteFile( repositoryFile.getId(), true, null );
+      }
+    } else if ( contentItem instanceof FileContentItem ) {
+      // Files in the file system must not be deleted here
+      String path = ( (FileContentItem) contentItem ).getFile().getName();
+      logger.warn( Messages.getInstance().getString( "XactionUtil.SKIP_REMOVING_OUTPUT_FILE", path ) );
+    }
+
   }
 
   @SuppressWarnings ( { "unchecked", "rawtypes" } )
@@ -210,7 +234,7 @@ public class XactionUtil {
         executeInternal( file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession,
           forcePrompt, messages );
       String str = postExecute( runtime, doMessages, doWrapper, outputHandler, parameterProviders, httpServletRequest,
-          httpServletResponse, messages );
+          httpServletResponse, messages, true );
       return str;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "XactionUtil.ERROR_EXECUTING_ACTION_SEQUENCE", file.getName() ), e ); //$NON-NLS-1$
@@ -268,7 +292,7 @@ public class XactionUtil {
         executeInternal( file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession,
           true, messages );
       String str = postExecute( runtime, doMessages, doWrapper, outputHandler, parameterProviders, httpServletRequest,
-          httpServletResponse, messages );
+          httpServletResponse, messages, false );
       return str;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "XactionUtil.ERROR_EXECUTING_ACTION_SEQUENCE", file.getName() ), e ); //$NON-NLS-1$
