@@ -18,6 +18,7 @@
 package org.pentaho.platform.plugin.services.exporter;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.di.core.exception.KettleException;
@@ -260,12 +261,15 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
           mondrian.setFile( path );
           Parameters mondrianParameters = new Parameters();
           mondrianParameters.put( "Provider", "mondrian" );
-          mondrianParameters.put( "DataSource", catalog.getJndi() );
+          //DataSource can be escaped
+          mondrianParameters.put( "DataSource", StringEscapeUtils.unescapeXml( catalog.getJndi() ) );
           mondrianParameters.put( "EnableXmla", Boolean.toString( xmlaEnabled ) );
 
           StreamSupport.stream( catalog.getConnectProperties().spliterator(), false )
             .filter( p -> !mondrianParameters.containsKey( p.getKey() ) )
-            .forEach( p -> mondrianParameters.put( p.getKey(), p.getValue() ) );
+            //if value is escaped it should be unescaped to avoid double escape after export in xml file, because
+            //marshaller executes escaping as well
+            .forEach( p -> mondrianParameters.put( p.getKey(), StringEscapeUtils.unescapeXml( p.getValue() ) ) );
 
           mondrian.setParameters( mondrianParameters );
         }
