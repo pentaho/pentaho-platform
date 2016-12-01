@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -47,6 +47,7 @@ import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.engine.core.output.FileContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.ActionSequenceCompatibilityFormatter;
@@ -259,23 +260,48 @@ public class ActionAdapterQuartzJob implements Job {
           sendEmail( actionParams, params, outputFilePath );
         }
         if ( actionBean instanceof IPostProcessingAction ) {
+          closeContentOutputStreams( (IPostProcessingAction) actionBean );
           markContentAsGenerated( (IPostProcessingAction) actionBean );
         }
         return updateJob;
+      }
+
+      private void closeContentOutputStreams( IPostProcessingAction actionBean ) {
+        for ( IContentItem contentItem : actionBean.getActionOutputContents() ) {
+          contentItem.closeOutputStream();
+        }
       }
 
       private void markContentAsGenerated( IPostProcessingAction actionBean ) {
         IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
         String lineageId = (String) params.get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
         for ( IContentItem contentItem : actionBean.getActionOutputContents() ) {
-          RepositoryFile sourceFile = repo.getFile( contentItem.getPath() );
-           // add metadata iof we have access and we have file
+          RepositoryFile sourceFile = getRepositoryFileSafe( repo, contentItem.getPath() );
+           // add metadata if we have access and we have file
           if ( sourceFile != null ) {
             Map<String, Serializable> metadata = repo.getFileMetadata( sourceFile.getId() );
             metadata.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId );
             repo.setFileMetadata( sourceFile.getId(), metadata );
+          } else {
+            String fileName = getFSFileNameSafe( contentItem );
+            log.warn( Messages.getInstance().getString( "ActionAdapterQuartzJob.WARN_0001_SKIP_REMOVING_OUTPUT_FILE", fileName ) );
           }
         }
+      }
+
+      private RepositoryFile getRepositoryFileSafe( IUnifiedRepository repo, String path ) {
+        try {
+          return repo.getFile( path );
+        } catch ( Exception e ) {
+          log.debug( MessageFormat.format( "Cannot get repository file \"{0}\": {1}", path, e.getMessage() ), e );
+          return null;
+        }
+      }
+      private String getFSFileNameSafe( IContentItem contentItem ) {
+        if ( contentItem instanceof FileContentItem ) {
+          return ( (FileContentItem) contentItem ).getFile().getName();
+        }
+        return null;
       }
     };
 

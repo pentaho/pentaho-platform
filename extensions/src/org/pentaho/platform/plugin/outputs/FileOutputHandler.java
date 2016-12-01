@@ -12,20 +12,20 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.outputs;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.engine.core.output.FileContentItem;
 import org.pentaho.platform.engine.core.output.SimpleContentItem;
 import org.pentaho.platform.engine.services.outputhandler.BaseOutputHandler;
 import org.pentaho.platform.plugin.services.messages.Messages;
@@ -53,8 +53,7 @@ public class FileOutputHandler extends BaseOutputHandler {
       }
     }
     try {
-      FileOutputStream outputStream = new FileOutputStream( file );
-      SimpleContentItem content = new SimpleContentItem( outputStream );
+      SimpleContentItem content = new FileContentItem( file );
       return content;
     } catch ( FileNotFoundException e ) {
       logger.error( Messages.getInstance().getErrorString(
