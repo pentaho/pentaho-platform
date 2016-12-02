@@ -92,7 +92,7 @@ public class ExportManifestEntity {
     entityMetaData.setCreatedBy( userId );
     entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar( new Date() ) );
     entityMetaData.setDescription( "Project folder for AgileBi Project named: " + projectId );
-    entityMetaData.setIsHidden( isHidden );
+    entityMetaData.setHidden( isHidden );
     entityMetaData.setSchedulable( isSchedulable );
     entityMetaData.setIsFolder( isFolder );
     entityMetaData.setLocale( LocaleHelper.getLocale().toString() );
@@ -112,7 +112,7 @@ public class ExportManifestEntity {
     entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar( repositoryFile
         .getCreatedDate() ) );
     entityMetaData.setDescription( repositoryFile.getDescription() );
-    entityMetaData.setIsHidden( repositoryFile.isHidden() );
+    entityMetaData.setHidden( repositoryFile.isHidden() );
     entityMetaData.setSchedulable( repositoryFile.isSchedulable() );
     entityMetaData.setIsFolder( repositoryFile.isFolder() );
     entityMetaData.setLocale( LocaleHelper.getLocale().toString() );
@@ -174,7 +174,7 @@ public class ExportManifestEntity {
     if ( entityMetaData == null ) {
       return null;
     }
-    return new RepositoryFile( null, emd.getName(), emd.isIsFolder(), emd.isIsHidden(), emd.isSchedulable(), false,
+    return new RepositoryFile( null, emd.getName(), emd.isIsFolder(), emd.isHidden(), emd.isSchedulable(), false,
         null, emd.getPath(),
         XmlGregorianCalendarConverter.asDate( emd.getCreatedDate() ), null, false, null, null, null, "en-US", emd
         .getTitle(), emd.getDescription(), null, null, 0, emd.getOwner(), null

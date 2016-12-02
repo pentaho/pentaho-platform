@@ -22,30 +22,30 @@
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
 import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSettersExcluding;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.TestCase.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
-/**
- * Created by rfellows on 10/26/15.
- */
-public class EntityMetaDataTest {
+public class EntityMetaDataTest extends Assert {
   @Test
   public void testGettersAndSetters() throws Exception {
-    String[] excludes = new String[] {
+    //@formatter:off
+    final String[] excludes = new String[] {
       "isFolder",
-      "isHidden",
+      "hidden",
+      "hiddenOrDefault",
       "schedulable",
+      "schedulableOrDefault",
       "runAfterImport"
     };
+    //@formatter:on
     assertThat( EntityMetaData.class, hasValidGettersAndSettersExcluding( excludes ) );
   }
 
   @Test
   public void testIsFolder() throws Exception {
-    EntityMetaData entityMetaData = new EntityMetaData();
+    final EntityMetaData entityMetaData = new EntityMetaData();
     assertFalse( entityMetaData.isIsFolder() );
 
     entityMetaData.setIsFolder( true );
@@ -57,19 +57,19 @@ public class EntityMetaDataTest {
 
   @Test
   public void testIsHidden() throws Exception {
-    EntityMetaData entityMetaData = new EntityMetaData();
-    assertFalse( entityMetaData.isIsHidden() );
+    final EntityMetaData entityMetaData = new EntityMetaData();
+    assertEquals( entityMetaData.isHiddenOrDefault(), RepositoryFile.HIDDEN_BY_DEFAULT );
 
-    entityMetaData.setIsHidden( true );
-    assertTrue( entityMetaData.isIsHidden() );
+    entityMetaData.setHidden( true );
+    assertTrue( entityMetaData.isHidden() );
 
-    entityMetaData.setIsHidden( false );
-    assertFalse( entityMetaData.isIsHidden() );
+    entityMetaData.setHidden( false );
+    assertFalse( entityMetaData.isHidden() );
   }
 
   @Test
   public void testIsRunAfterImport() throws Exception {
-    EntityMetaData entityMetaData = new EntityMetaData();
+    final EntityMetaData entityMetaData = new EntityMetaData();
     assertFalse( entityMetaData.isRunAfterImport() );
 
     entityMetaData.setRunAfterImport( true );

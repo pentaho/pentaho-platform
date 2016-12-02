@@ -17,13 +17,6 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -43,6 +36,13 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportMa
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.springframework.util.Assert;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * User: nbaker Date: 5/29/12
@@ -78,9 +78,6 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       throw new PlatformImportException( "Error importing bundle. RepositoryFileImportBundle expected" );
     }
     RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) bnd;
-    if ( bundle.isHidden() == null ) {
-      bundle.setHidden( RepositoryFile.HIDDEN_BY_DEFAULT );
-    }
     if ( bundle.isSchedulable() == null ) {
       bundle.setSchedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
     }
@@ -150,8 +147,18 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   private RepositoryFile finalAdjustFile( RepositoryFileImportBundle bundle, RepositoryFile file ) {
-    return new RepositoryFile.Builder( file ).hidden( bundle.isHidden() ).schedulable( bundle.isSchedulable() )
+    return new RepositoryFile.Builder( file ).hidden( isHiddenBundle( bundle ) ).schedulable( bundle.isSchedulable() )
         .build();
+  }
+
+  private boolean isHiddenBundle( RepositoryFileImportBundle bundle ) {
+    if ( bundle.isHidden() != null ) {
+      return bundle.isHidden();
+    }
+    if ( solutionHelper.isInHiddenList( bundle.getName() ) ) {
+      return true;
+    }
+    return RepositoryFile.HIDDEN_BY_DEFAULT;
   }
 
   /**
@@ -307,7 +314,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       final IRepositoryFileData data ) throws PlatformImportException {
     if ( solutionHelper.isInApprovedExtensionList( repositoryPath ) ) {
       final RepositoryFile file =
-          new RepositoryFile.Builder( bundle.getName() ).hidden( bundle.isHidden() ).schedulable( bundle
+          new RepositoryFile.Builder( bundle.getName() ).hidden( isHiddenBundle( bundle ) ).schedulable( bundle
               .isSchedulable() ).title(
               RepositoryFile.DEFAULT_LOCALE,
               getTitle( bundle.getTitle() != null ? bundle.getTitle() : bundle.getName() ) ).versioned( true ).build();

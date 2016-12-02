@@ -1059,7 +1059,7 @@ public class FileService {
       // handle hidden flag if it is different
       if ( file.isHidden() != isHidden ) {
         file.setHidden( isHidden );
-        file.setSchedulable( isSchedulable );
+        file.setNotSchedulable( !isSchedulable );
 
           /*
            * Since we cannot simply set the new value, use the RepositoryFileAdapter to create a new instance and then
@@ -1069,7 +1069,7 @@ public class FileService {
         RepositoryFileDto destFileDto = toFileDto( sourceFile, null, false );
 
         destFileDto.setHidden( isHidden );
-        destFileDto.setSchedulable( isSchedulable );
+        destFileDto.setNotSchedulable( !isSchedulable );
 
         RepositoryFile destFile = toFile( destFileDto );
 
