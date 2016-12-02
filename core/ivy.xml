@@ -15,9 +15,9 @@
     
 	<dependencies defaultconf="default->default">
 		<!--  external dependencies -->
-		<dependency org="org.apache.xmlgraphics" name="batik-awt-util" rev="1.7"    transitive="false"/>
-		<dependency org="org.apache.xmlgraphics" name="batik-dom"      rev="1.7"    transitive="false"/>
-		<dependency org="org.apache.xmlgraphics" name="batik-svggen"   rev="1.7"    transitive="false"/>
+		<dependency org="org.apache.xmlgraphics" name="batik-awt-util" rev="${dependency.batik.revision}"    transitive="false"/>
+		<dependency org="org.apache.xmlgraphics" name="batik-dom"      rev="${dependency.batik.revision}"    transitive="false"/>
+		<dependency org="org.apache.xmlgraphics" name="batik-svggen"   rev="${dependency.batik.revision}"    transitive="false"/>
 		<dependency org="commons-beanutils"    name="commons-beanutils" rev="1.8.0" transitive="false"/>
 		<dependency org="commons-codec"       name="commons-codec"       rev="1.9"   transitive="false"/>
 		<dependency org="commons-collections" name="commons-collections" rev="3.2.2"   transitive="false"/>
