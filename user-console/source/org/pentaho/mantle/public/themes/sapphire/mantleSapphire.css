@@ -477,8 +477,8 @@ a:active, a:hover {
   color: white;
 }
 
-/* In IE9, in quirks mode, 
-  the class .backgroundContentHeaderTableCell's filter gradient 
+/* In IE9, in quirks mode,
+  the class .backgroundContentHeaderTableCell's filter gradient
   is not "propagated" from the _col_ elements to the corresponding _th_ element.
   It works if the filter is applied directly to th element, though.
   For precaution, this fix is only applied to the Schedule table (BISERVER-8539).
@@ -1464,6 +1464,7 @@ a:active, a:hover {
   -webkit-box-shadow: 2px 3px 4px 0 rgba(0,0,0,.2);
   box-shadow: 2px 3px 4px 0 rgba(0,0,0,.2);
   padding: 8px 15px 7px;
+  z-index: 100;
 }
 
 button.pentaho-button.newToolbarDropdownButton {
@@ -1477,4 +1478,3 @@ hr {
   border: 0 none;
   border-top: 1px solid #e0e0e0;
 }
-
