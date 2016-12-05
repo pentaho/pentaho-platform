@@ -12,10 +12,18 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository2.unified;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -24,14 +32,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class RepositoryFileTest {
 
@@ -44,7 +44,6 @@ public class RepositoryFileTest {
   private static final Boolean FOLDER = true;
   private static final String PATH = "path";
   private static final Boolean HIDDEN = false;
-  private static final Boolean SCHEDULABLE = true;
   private static final Boolean VERSIONED = true;
   private static final String VERSION_ID = "versionId";
   private static final Boolean LOCKED = false;
@@ -65,9 +64,7 @@ public class RepositoryFileTest {
     if ( !LOCALE_PROP.containsKey( RepositoryFile.DEFAULT_LOCALE ) ) {
       LOCALE_PROP.put( RepositoryFile.DEFAULT_LOCALE, null );
     }
-    file =
-        new RepositoryFile( ID, NAME, FOLDER, HIDDEN, SCHEDULABLE, VERSIONED, VERSION_ID, PATH, CREATED_DATE,
-            LAST_MODIFIED_DATE,
+    file = new RepositoryFile( ID, NAME, FOLDER, HIDDEN, VERSIONED, VERSION_ID, PATH, CREATED_DATE, LAST_MODIFIED_DATE,
       LOCKED, LOCK_OWNER, LOCK_MESSAGE, LOCK_DATE, LOCALE, TITLE, DESCRIPTION, PARENT_FOLDER, DELETED_DATE, FILE_SIZE,
       CREATOR_ID, LOCALE_PROP );
   }
@@ -97,8 +94,7 @@ public class RepositoryFileTest {
 
   @Test
   public void testBuilderNulls() {
-    RepositoryFile nullFile =
-        new RepositoryFile( ID, NAME, FOLDER, HIDDEN, SCHEDULABLE, VERSIONED, VERSION_ID, PATH, null, null,
+    RepositoryFile nullFile = new RepositoryFile( ID, NAME, FOLDER, HIDDEN, VERSIONED, VERSION_ID, PATH, null, null,
       LOCKED, LOCK_OWNER, LOCK_MESSAGE, null, LOCALE, null, DESCRIPTION, PARENT_FOLDER, null, FILE_SIZE,
       CREATOR_ID, null );
 
@@ -219,9 +215,7 @@ public class RepositoryFileTest {
     }
 
     // Test null Properties Map
-    RepositoryFile nullFile =
-        new RepositoryFile( ID, NAME, FOLDER, HIDDEN, SCHEDULABLE, VERSIONED, VERSION_ID, PATH, CREATED_DATE,
-            LAST_MODIFIED_DATE,
+    RepositoryFile nullFile = new RepositoryFile( ID, NAME, FOLDER, HIDDEN, VERSIONED, VERSION_ID, PATH, CREATED_DATE, LAST_MODIFIED_DATE,
       LOCKED, LOCK_OWNER, LOCK_MESSAGE, LOCK_DATE, LOCALE, TITLE, DESCRIPTION, PARENT_FOLDER, DELETED_DATE, FILE_SIZE,
       CREATOR_ID, null );
     builder = new RepositoryFile.Builder( nullFile );

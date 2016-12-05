@@ -25,21 +25,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -1582,7 +1573,7 @@ public class FileServiceTest {
         if ( item.getKey().equals( "_PERM_HIDDEN" ) ) {
           hasIsHidden = true;
         }
-        if ( item.getKey().equals( RepositoryFile.SCHEDULABLE_KEY ) ) {
+        if ( item.getKey().equals( "_PERM_SCHEDULABLE" ) ) {
           hasScheduable = true;
         }
       }
@@ -1597,7 +1588,7 @@ public class FileServiceTest {
     stringKeyStringValueDtos.add( stringKeyStringValueDto2 );
 
     StringKeyStringValueDto stringKeyStringValueDto3 = mock( StringKeyStringValueDto.class );
-    doReturn( RepositoryFile.SCHEDULABLE_KEY ).when( stringKeyStringValueDto3 ).getKey();
+    doReturn( "_PERM_SCHEDULABLE" ).when( stringKeyStringValueDto3 ).getKey();
     doReturn( "value3" ).when( stringKeyStringValueDto3 ).getValue();
 
     stringKeyStringValueDtos.add( stringKeyStringValueDto3 );
@@ -1615,7 +1606,7 @@ public class FileServiceTest {
         if ( item.getKey().equals( "_PERM_HIDDEN" ) ) {
           hasIsHidden = true;
         }
-        if ( item.getKey().equals( RepositoryFile.SCHEDULABLE_KEY ) ) {
+        if ( item.getKey().equals( "_PERM_SCHEDULABLE" ) ) {
           hasScheduable = true;
         }
       }

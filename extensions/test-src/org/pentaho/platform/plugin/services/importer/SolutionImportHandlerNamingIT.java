@@ -12,10 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
  */
-
 package org.pentaho.platform.plugin.services.importer;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,13 +37,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
@@ -68,7 +69,7 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
  * Checks that SolutionImportHandler processes file names correctly
  *
  */
-public class SolutionImportHandlerNamingIT extends Assert {
+public class SolutionImportHandlerNamingIT {
 
   private static final String SOLUTION_PATH = "test-res/SolutionImportHandlerNamingTest";
   private static final String REPO_PATH = "/repo";
@@ -95,7 +96,6 @@ public class SolutionImportHandlerNamingIT extends Assert {
   private File repoRoot;
   private FileSystemBackedUnifiedRepository repo;
   private MicroPlatform microPlatform;
-  private AnswerTest<RepositoryFile> answer;
 
   // private PentahoPlatformImporter importer;
 
@@ -125,7 +125,6 @@ public class SolutionImportHandlerNamingIT extends Assert {
     FileUtils.cleanDirectory( repoDir );
     repoRoot = repoDir;
     repo = new FileSystemBackedUnifiedRepository();
-    repo = Mockito.spy( repo );
     repo.setRootDir( repoRoot );
 
     // mimeResolver
@@ -217,15 +216,16 @@ public class SolutionImportHandlerNamingIT extends Assert {
     throws InterruptedException {
 
     Thread thr = new Thread() {
+
       @Override
       public void run() {
         try {
           solutionImportHandler.importFile( bundle );
-        } catch ( Error | RuntimeException e ) {
-          e.printStackTrace();
+        } catch ( Error e ) {
+          throw e;
+        } catch ( RuntimeException e ) {
           throw e;
         } catch ( Exception e ) {
-          e.printStackTrace();
           throw new RuntimeException( e );
         }
       }
@@ -261,7 +261,18 @@ public class SolutionImportHandlerNamingIT extends Assert {
       }
     }
 
-    final IPlatformImportBundle bundle = buildBundle( solutionInputStream );
+    final RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
+    bundleBuilder.input( solutionInputStream );
+    bundleBuilder.charSet( DEFAULT_ENCODING );
+    bundleBuilder.hidden( false );
+    bundleBuilder.path( IMPORT_REPO_DIR );
+    bundleBuilder.overwriteFile( false );
+    bundleBuilder.applyAclSettings( false );
+    bundleBuilder.overwriteAclSettings( false );
+    bundleBuilder.retainOwnership( false );
+    bundleBuilder.name( "testSrc.zip" );
+    bundleBuilder.mime( "application/vnd.pentaho.solution-repository" );
+    final IPlatformImportBundle bundle = bundleBuilder.build();
 
     runImport( solutionImportHandler, bundle );
 
@@ -290,13 +301,45 @@ public class SolutionImportHandlerNamingIT extends Assert {
     DomainAlreadyExistsException, DomainStorageException, IOException, PlatformInitializationException,
     InterruptedException {
 
-    ZipBuilder zipBuilder = new ZipBuilder();
-    zipBuilder.addFile( solutionDir + SRC_EXPORTMANIFEST, ZIPENTRY_EXPORTMANIFEST );
-    zipBuilder.addFile( solutionDir + SRC_CONTENT_FILE, ZIPENTRY_CONTENT_FILE );
-    ByteArrayOutputStream out = zipBuilder.build();
-    ByteArrayInputStream solutionInputStream = new ByteArrayInputStream( out.toByteArray() );
+    ByteArrayInputStream solutionInputStream = null;
 
-    final IPlatformImportBundle bundle = buildBundle( solutionInputStream );
+    final File srcExportmanifestFile = new File( solutionDir + SRC_EXPORTMANIFEST );
+    final File srcContentFile = new File( solutionDir + SRC_CONTENT_FILE );
+
+    ByteArrayOutputStream tmpOS = null;
+    try {
+      tmpOS = new ByteArrayOutputStream();
+
+      ZipOutputStream zipOS = new ZipOutputStream( tmpOS );
+
+      zipOS.putNextEntry( new ZipEntry( ZIPENTRY_EXPORTMANIFEST ) );
+      FileUtils.copyFile( srcExportmanifestFile, zipOS );
+      zipOS.closeEntry();
+
+      zipOS.putNextEntry( new ZipEntry( ZIPENTRY_CONTENT_FILE ) );
+      FileUtils.copyFile( srcContentFile, zipOS );
+      zipOS.closeEntry();
+
+      zipOS.close();
+      solutionInputStream = new ByteArrayInputStream( tmpOS.toByteArray() );
+    } finally {
+      if ( tmpOS != null ) {
+        tmpOS.close();
+      }
+    }
+
+    final RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
+    bundleBuilder.input( solutionInputStream );
+    bundleBuilder.charSet( DEFAULT_ENCODING );
+    bundleBuilder.hidden( false );
+    bundleBuilder.path( IMPORT_REPO_DIR );
+    bundleBuilder.overwriteFile( false );
+    bundleBuilder.applyAclSettings( false );
+    bundleBuilder.overwriteAclSettings( false );
+    bundleBuilder.retainOwnership( false );
+    bundleBuilder.name( "testSrc.zip" );
+    bundleBuilder.mime( "application/vnd.pentaho.solution-repository" );
+    final IPlatformImportBundle bundle = bundleBuilder.build();
 
     runImport( solutionImportHandler, bundle );
 
@@ -307,7 +350,7 @@ public class SolutionImportHandlerNamingIT extends Assert {
       RepositoryFile file = repo.getFile( IMPORT_REPO_DIR + "/two words%25/eval (+)%25.prpt" );
       assertNotNull( file );
       assertFalse( file.isFolder() );
-      assertFileContentEquals( new File( solutionDir + SRC_CONTENT_FILE ), file );
+      assertFileContentEquals( srcContentFile, file );
     }
     { // exportManifest.xml does not exist
       assertNull( repo.getFile( IMPORT_REPO_DIR + "/exportManifest.xml" ) );
@@ -323,93 +366,4 @@ public class SolutionImportHandlerNamingIT extends Assert {
     }
   }
 
-  private static class ZipBuilder {
-
-    private ByteArrayOutputStream out = new ByteArrayOutputStream();
-    private ZipOutputStream zip = new ZipOutputStream( out );
-
-    public void addFile( String filePath, String fileName ) throws IOException {
-      final File file = new File( filePath );
-      assertTrue( file.getAbsolutePath() + " didn't found.", file.exists() );
-      zip.putNextEntry( new ZipEntry( fileName ) );
-      FileUtils.copyFile( file, zip );
-      zip.closeEntry();
-    }
-
-    public ByteArrayOutputStream build() throws IOException {
-      zip.close();
-      out.close();
-      return out;
-    }
-  }
-
-  private IPlatformImportBundle buildBundle( InputStream solutionInputStream ) {
-    final RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
-    bundleBuilder.input( solutionInputStream );
-    bundleBuilder.charSet( DEFAULT_ENCODING );
-    bundleBuilder.hidden( RepositoryFile.HIDDEN_BY_DEFAULT );
-    bundleBuilder.schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
-    bundleBuilder.path( IMPORT_REPO_DIR );
-    bundleBuilder.overwriteFile( false );
-    bundleBuilder.applyAclSettings( false );
-    bundleBuilder.overwriteAclSettings( false );
-    bundleBuilder.retainOwnership( true );
-    bundleBuilder.name( "testSrc.zip" );
-    bundleBuilder.mime( "application/vnd.pentaho.solution-repository" );
-    return bundleBuilder.build();
-  }
-
-  @Test
-  public void testImportHiddenFileByManifest() throws IOException, InterruptedException {
-    repo.deleteFile( SRC_CONTENT_FILE, "" );
-
-    answer = new AnswerTest<RepositoryFile>() {
-      @Override
-      public RepositoryFile answer( InvocationOnMock invocation ) throws Throwable {
-        obj = invocation.getArgumentAt( 1, RepositoryFile.class );
-        return null;
-      }
-    };
-
-    Mockito.doAnswer( answer ).when( repo ).createFile( Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any() );
-
-    // isHidden="true" isSchedulable="true"
-    RepositoryFile file = importFile( "/manifestFileHidden.xml" );
-    assertTrue( file.isHidden() );
-    assertTrue( file.isSchedulable() );
-
-    // isHidden="false" isSchedulable="false"
-    file = importFile( "/manifestFileNotHidden.xml" );
-    assertFalse( file.isHidden() );
-    assertFalse( file.isSchedulable() );
-
-    // nothing
-    file = importFile( "/manifestHiddenByDefault.xml" );
-    assertEquals( file.isHidden(), RepositoryFile.HIDDEN_BY_DEFAULT );
-    assertEquals( file.isSchedulable(), RepositoryFile.SCHEDULABLE_BY_DEFAULT );
-  }
-
-  private RepositoryFile importFile( String manifest ) throws IOException,
-    InterruptedException {
-    ZipBuilder zipBuilder = new ZipBuilder();
-    zipBuilder.addFile( solutionDir + SRC_ROOT + manifest, "exportManifest.xml" );
-    zipBuilder.addFile( solutionDir + SRC_CONTENT_FILE, SRC_CONTENT_FILE );
-    ByteArrayOutputStream out = zipBuilder.build();
-    ByteArrayInputStream solutionInputStream = new ByteArrayInputStream( out.toByteArray() );
-
-    IPlatformImportBundle bundle = buildBundle( solutionInputStream );
-
-    runImport( solutionImportHandler, bundle );
-
-    return answer != null ? answer.getObj() : null;
-  }
-
-  private abstract static class AnswerTest<T> implements Answer<T> {
-
-    protected T obj;
-
-    public T getObj() {
-      return obj;
-    }
-  }
 }

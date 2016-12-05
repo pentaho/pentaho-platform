@@ -12,17 +12,16 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.solutionbrowser;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class defines the options available for individual file extensions. Individual file extensions are
@@ -73,8 +72,8 @@ public class FileTypeEnabledOptions {
         validSelectionCount =
             ( SolutionBrowserPanel.getInstance().isScheduler()
                 && SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() == 1
-                && ( metadataPerms == null || ( metadataPerms != null && Boolean.parseBoolean( metadataPerms.get(
-                    RepositoryFile.SCHEDULABLE_KEY ) ) ) ) );
+              && ( metadataPerms == null || ( metadataPerms != null && Boolean
+                .parseBoolean( metadataPerms.get( "_PERM_SCHEDULABLE" ) ) ) ) );
         break;
       case BACKGROUND:
       case CREATE_FOLDER:

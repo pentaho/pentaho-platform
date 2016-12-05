@@ -12,10 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
+
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,10 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 
 /**
  * Repository implementation of IPlatformImportBundle. Instances of this class are contructed using the supplied Builder
@@ -44,8 +44,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   private String mimeType;
   private String comment;
   private boolean overwriteInRepository; // file or folder overwrite
-  private Boolean hidden;
-  private Boolean schedulable;
+  private boolean hidden;
   private RepositoryFile file;
   // BIServer 8158 - ACL import handling properties
   private RepositoryFileAcl acl;
@@ -67,12 +66,10 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
    * 
    * @return Repository ACL
    */
-  @Override
   public RepositoryFileAcl getAcl() {
     return this.acl;
   }
 
-  @Override
   public void setAcl( RepositoryFileAcl acl ) {
     this.acl = acl;
   }
@@ -91,17 +88,14 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     this.inputStream = inStr;
   }
 
-  @Override
   public String getPath() {
     return path;
   }
 
-  @Override
   public void setPath( String path ) {
     this.path = path;
   }
 
-  @Override
   public String getName() {
     return name;
   }
@@ -152,20 +146,12 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     this.overwriteInRepository = overwrite;
   }
 
-  public Boolean isHidden() {
+  public boolean isHidden() {
     return hidden;
   }
 
-  public void setHidden( Boolean hidden ) {
+  public void setHidden( boolean hidden ) {
     this.hidden = hidden;
-  }
-
-  public Boolean isSchedulable() {
-    return schedulable;
-  }
-
-  public void setSchedulable( Boolean schedulable ) {
-    this.schedulable = schedulable;
   }
 
   public boolean isFolder() {
@@ -184,32 +170,26 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     return overwriteInRepository;
   }
 
-  @Override
   public boolean isApplyAclSettings() {
     return applyAclSettings;
   }
 
-  @Override
   public void setApplyAclSettings( boolean applyAclSettings ) {
     this.applyAclSettings = applyAclSettings;
   }
 
-  @Override
   public boolean isOverwriteAclSettings() {
     return overwriteAclSettings;
   }
 
-  @Override
   public void setOverwriteAclSettings( boolean overwriteAclSettings ) {
     this.overwriteAclSettings = overwriteAclSettings;
   }
 
-  @Override
   public boolean isRetainOwnership() {
     return retainOwnership;
   }
 
-  @Override
   public void setRetainOwnership( boolean retainOwnership ) {
     this.retainOwnership = retainOwnership;
   }
@@ -230,7 +210,6 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     properties.put( prop, val );
   }
 
-  @Override
   public Object getProperty( String prop ) {
     return properties.get( prop );
   }
@@ -274,13 +253,8 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
       return this;
     }
 
-    public Builder hidden( Boolean hidden ) {
+    public Builder hidden( boolean hidden ) {
       bundle.setHidden( hidden );
-      return this;
-    }
-
-    public Builder schedulable( Boolean schedulable ) {
-      bundle.setSchedulable( schedulable );
       return this;
     }
 
@@ -358,12 +332,10 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     return overwriteInRepository;
   }
 
-  @Override
   public boolean isPreserveDsw() {
     return preserveDsw;
   }
 
-  @Override
   public void setPreserveDsw( boolean preserveDsw ) {
     this.preserveDsw = preserveDsw;
   }
