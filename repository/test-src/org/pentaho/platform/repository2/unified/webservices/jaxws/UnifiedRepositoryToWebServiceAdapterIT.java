@@ -12,18 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
-import java.io.ByteArrayInputStream;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +27,13 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.ByteArrayInputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /**
  * Class Description
@@ -45,7 +46,6 @@ public class UnifiedRepositoryToWebServiceAdapterIT extends DefaultUnifiedReposi
   private UnifiedRepositoryToWebServiceAdapter adapter;
   public static final String MAIN_TENANT_1 = "maintenant1";
 
-  @Override
   @Before
   public void setUp() throws Exception {
     super.setUp();
@@ -71,11 +71,11 @@ public class UnifiedRepositoryToWebServiceAdapterIT extends DefaultUnifiedReposi
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure the repository is setup correctly
-      Assert.assertNotNull( testfile );
-      Assert.assertNotNull( testfile.getId() );
+      assertNotNull( testfile );
+      assertNotNull( testfile.getId() );
       final Map<String, Serializable> fileMetadata = repo.getFileMetadata( testfile.getId() );
-      Assert.assertNotNull( fileMetadata );
-      Assert.assertEquals( 1, fileMetadata.size() );
+      assertNotNull( fileMetadata );
+      assertEquals( 0, fileMetadata.size() );
     }
 
     final Map<String, Serializable> metadata = new HashMap<String, Serializable>();
@@ -86,20 +86,20 @@ public class UnifiedRepositoryToWebServiceAdapterIT extends DefaultUnifiedReposi
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure the repository sees the metadata
-      Assert.assertNotNull( testfile );
-      Assert.assertNotNull( testfile.getId() );
+      assertNotNull( testfile );
+      assertNotNull( testfile.getId() );
       final Map<String, Serializable> fileMetadata = repo.getFileMetadata( testfile.getId() );
-      Assert.assertNotNull( fileMetadata );
-      Assert.assertEquals( 2, fileMetadata.size() );
+      assertNotNull( fileMetadata );
+      assertEquals( 2, fileMetadata.size() );
     }
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure we can get the same metadata back via the web service
       final Map<String, Serializable> fileMetadata = adapter.getFileMetadata( testfile.getId() );
-      Assert.assertNotNull( fileMetadata );
-      Assert.assertEquals( 2, fileMetadata.size() );
-      Assert.assertTrue( StringUtils.equals( "sample value", (String) fileMetadata.get( "sample key" ) ) );
-      Assert.assertTrue( StringUtils.equals( "\"an even more 'complex' value\"! {and them some}", (String) fileMetadata
+      assertNotNull( fileMetadata );
+      assertEquals( 2, fileMetadata.size() );
+      assertTrue( StringUtils.equals( "sample value", (String) fileMetadata.get( "sample key" ) ) );
+      assertTrue( StringUtils.equals( "\"an even more 'complex' value\"! {and them some}", (String) fileMetadata
           .get( "complex key?" ) ) );
     }
 
