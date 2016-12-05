@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -37,10 +37,9 @@ import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.api.mimetype.IMimeType;
-import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
@@ -77,7 +76,7 @@ public class MetadataImportHandlerIT {
     microPlatform.defineInstance( IPlatformMimeResolver.class, nameResolver );
 
     List<IMimeType> mimeList = new ArrayList<IMimeType>();
-    mimeList.add( new MimeType( "text/xmi+xml", "xmi" ) );
+    mimeList.add( (IMimeType) new MimeType( "text/xmi+xml", "xmi" ) );
 
     metadataHandler = new MetadataImportHandler( mimeList, metadataImporter );
 
@@ -185,7 +184,7 @@ public class MetadataImportHandlerIT {
     return new RepositoryFileImportBundle.Builder()
         .input( input ).charSet( "UTF-8" )
         .mime( "text/xmi+xml" )
-        .hidden( RepositoryFile.HIDDEN_BY_DEFAULT ).schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT )
+        .hidden( false )
         .overwriteFile( true )
         .withParam( "domain-id", domainId );
   }

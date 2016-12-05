@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -38,17 +39,12 @@ import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsExcepti
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
-import org.pentaho.platform.plugin.services.importexport.ImportSession.ManifestFile;
-import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
-import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
@@ -57,37 +53,25 @@ import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRo
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 
-import mockit.Deencapsulation;
 import mockit.NonStrictExpectations;
-import mockit.integration.junit4.JMockit;
 
 @RunWith( JMockit.class )
 public class SolutionImportHandlerTest {
 
-  private SolutionImportHandler importHandler;
-
-  private IUserRoleDao userRoleDao;
-  private IUnifiedRepository repository;
-  private IRoleAuthorizationPolicyRoleBindingDao roleAuthorizationPolicyRoleBindingDao;
-  private SolutionFileImportHelper solutionHelper;
+  SolutionImportHandler importHandler;
+  IUserRoleDao userRoleDao;
+  IRoleAuthorizationPolicyRoleBindingDao roleAuthorizationPolicyRoleBindingDao;
 
   @Before
   public void setUp() throws Exception {
-    userRoleDao = mockToPentahoSystem( IUserRoleDao.class );
-    repository = mockToPentahoSystem( IUnifiedRepository.class );
-    roleAuthorizationPolicyRoleBindingDao = mockToPentahoSystem( IRoleAuthorizationPolicyRoleBindingDao.class );
-
     List<IMimeType> mimeTypes = new ArrayList<>();
+
     importHandler = new SolutionImportHandler( mimeTypes );
+    userRoleDao = Mockito.mock( IUserRoleDao.class );
+    roleAuthorizationPolicyRoleBindingDao = Mockito.mock( IRoleAuthorizationPolicyRoleBindingDao.class );
 
-    solutionHelper = Mockito.mock( SolutionFileImportHelper.class );
-    Deencapsulation.setField( importHandler, "solutionHelper", solutionHelper );
-  }
-
-  private <T> T mockToPentahoSystem( Class<T> cl ) {
-    T t = Mockito.mock( cl );
-    PentahoSystem.registerObject( t );
-    return t;
+    PentahoSystem.registerObject( userRoleDao );
+    PentahoSystem.registerObject( roleAuthorizationPolicyRoleBindingDao );
   }
 
   @Test
@@ -590,74 +574,6 @@ public class SolutionImportHandlerTest {
       boolean matchedOutput = output.equals( FilenameUtils.separatorsToUnix( jsr.getOutputFile() ) );
       return matchedInput && matchedOutput;
     }
-  }
-
-  @Test
-  public void testGetFile() {
-    RepositoryFileImportBundle importBundle = new RepositoryFileImportBundle();
-    importBundle.setPath( "/BASE_PATH/" );
-
-    RepositoryFile repoFile = new RepositoryFile.Builder( "FILE_NAME" ).build();
-    IRepositoryFileBundle fileBundle = new RepositoryFileBundle( repoFile, null, "parentDir", null, "UTF-8", null );
-    fileBundle.setPath( "SUB_PATH/" );
-
-    RepositoryFile expectedFile = new RepositoryFile.Builder( "EXPECTED_FILE" ).build();
-    Mockito.when( repository.getFile( "/BASE_PATH/SUB_PATH/FILE_NAME" ) ).thenReturn( expectedFile );
-
-    RepositoryFile actualFile = Deencapsulation.invoke( importHandler, "getFile", importBundle, fileBundle );
-
-    Assert.assertEquals( expectedFile, actualFile );
-  }
-
-  @Test
-  public void testIsFileHidden() {
-    ManifestFile manifestFile = Mockito.mock( ManifestFile.class );
-    RepositoryFile repoFile = new RepositoryFile.Builder( "FILE_NAME" ).hidden( true ).build();
-
-    Mockito.when( manifestFile.isFileHidden() ).thenReturn( true );
-    Assert.assertTrue( runIsFileHidden( repoFile, manifestFile, "SOURCE_PATH" ) );
-
-    Mockito.when( manifestFile.isFileHidden() ).thenReturn( false );
-    Assert.assertFalse( runIsFileHidden( repoFile, manifestFile, "SOURCE_PATH" ) );
-
-    Mockito.when( manifestFile.isFileHidden() ).thenReturn( null );
-    Assert.assertTrue( runIsFileHidden( repoFile, manifestFile, "SOURCE_PATH" ) );
-
-    repoFile = new RepositoryFile.Builder( "FILE_NAME" ).hidden( false ).build();
-    Assert.assertFalse( runIsFileHidden( repoFile, manifestFile, "SOURCE_PATH" ) );
-
-    Mockito.when( solutionHelper.isInHiddenList( "SOURCE_PATH" ) ).thenReturn( true );
-    Assert.assertTrue( runIsFileHidden( null, manifestFile, "SOURCE_PATH" ) );
-
-    Mockito.when( solutionHelper.isInHiddenList( "SOURCE_PATH" ) ).thenReturn( false );
-    Assert.assertEquals( RepositoryFile.HIDDEN_BY_DEFAULT, runIsFileHidden( null, manifestFile, "SOURCE_PATH" ) );
-  }
-
-  private Boolean runIsFileHidden( RepositoryFile file, ManifestFile manifestFile, String sourcePath ) {
-    return Deencapsulation.invoke( importHandler, "isFileHidden", file == null ? RepositoryFile.class : file,
-        manifestFile, sourcePath );
-  }
-
-  @Test
-  public void testIsSchedulable() {
-    ManifestFile manifestFile = Mockito.mock( ManifestFile.class );
-    RepositoryFile repoFile = new RepositoryFile.Builder( "FILE_NAME" ).schedulable( true ).build();
-
-    Mockito.when( manifestFile.isFileSchedulable() ).thenReturn( true );
-    Assert.assertTrue( runIsSchedulable( repoFile, manifestFile ) );
-
-    Mockito.when( manifestFile.isFileSchedulable() ).thenReturn( false );
-    Assert.assertFalse( runIsSchedulable( repoFile, manifestFile ) );
-
-    Mockito.when( manifestFile.isFileSchedulable() ).thenReturn( null );
-    Assert.assertTrue( runIsSchedulable( repoFile, manifestFile ) );
-
-    Assert.assertEquals( RepositoryFile.SCHEDULABLE_BY_DEFAULT, runIsSchedulable( null, manifestFile ) );
-  }
-
-  private Boolean runIsSchedulable( RepositoryFile file, ManifestFile manifestFile ) {
-    return Deencapsulation.invoke( importHandler, "isSchedulable", file == null ? RepositoryFile.class : file,
-        manifestFile );
   }
 
   @After

@@ -16,33 +16,10 @@
  */
 package org.pentaho.platform.web.http.api.resources.services;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -72,6 +49,15 @@ import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SchedulerServiceTest {
 
@@ -122,8 +108,8 @@ public class SchedulerServiceTest {
 
     Map<String, Serializable> metadata = mock( Map.class );
     doReturn( metadata ).when( schedulerService.repository ).getFileMetadata( anyString() );
-    doReturn( true ).when( metadata ).containsKey( RepositoryFile.SCHEDULABLE_KEY );
-    doReturn( "true" ).when( metadata ).get( RepositoryFile.SCHEDULABLE_KEY );
+    doReturn( true ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
+    doReturn( "true" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
 
     doReturn( simpleJobTrigger ).when( scheduleRequest ).getSimpleJobTrigger();
     doReturn( complexJobTriggerProxy ).when( scheduleRequest ).getComplexJobTrigger();
@@ -209,8 +195,8 @@ public class SchedulerServiceTest {
 
     Map<String, Serializable> metadata = mock( Map.class );
     doReturn( metadata ).when( schedulerService.repository ).getFileMetadata( anyString() );
-    doReturn( true ).when( metadata ).containsKey( RepositoryFile.SCHEDULABLE_KEY );
-    doReturn( "True" ).when( metadata ).get( RepositoryFile.SCHEDULABLE_KEY );
+    doReturn( true ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
+    doReturn( "True" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
 
     doReturn( simpleJobTrigger ).when( scheduleRequest ).getSimpleJobTrigger();
     doReturn( complexJobTriggerProxy ).when( scheduleRequest ).getComplexJobTrigger();
@@ -244,7 +230,7 @@ public class SchedulerServiceTest {
 
     //Test 2
     doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
-    doReturn( "false" ).when( metadata ).get( RepositoryFile.SCHEDULABLE_KEY );
+    doReturn( "false" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
 
     try {
       schedulerService.createJob( scheduleRequest );
@@ -820,8 +806,8 @@ public class SchedulerServiceTest {
 
     doReturn( metadata ).when( schedulerService.repository ).getFileMetadata( anyString() );
 
-    doReturn( true ).when( metadata ).containsKey( RepositoryFile.SCHEDULABLE_KEY );
-    doReturn( "true" ).when( metadata ).get( RepositoryFile.SCHEDULABLE_KEY );
+    doReturn( true ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
+    doReturn( "true" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
 
     boolean canSchedule = schedulerService.isScheduleAllowed( anyString() );
 
@@ -836,15 +822,15 @@ public class SchedulerServiceTest {
 
     // Test 3
     doReturn( true ).when( schedulerService ).isScheduleAllowed();
-    doReturn( false ).when( metadata ).containsKey( RepositoryFile.SCHEDULABLE_KEY );
+    doReturn( false ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
 
     canSchedule = schedulerService.isScheduleAllowed( anyString() );
 
     assertTrue( canSchedule );
 
     // Test 4
-    doReturn( true ).when( metadata ).containsKey( RepositoryFile.SCHEDULABLE_KEY );
-    doReturn( "false" ).when( metadata ).get( RepositoryFile.SCHEDULABLE_KEY );
+    doReturn( true ).when( metadata ).containsKey( "_PERM_SCHEDULABLE" );
+    doReturn( "false" ).when( metadata ).get( "_PERM_SCHEDULABLE" );
 
     canSchedule = schedulerService.isScheduleAllowed( anyString() );
 
@@ -852,8 +838,8 @@ public class SchedulerServiceTest {
 
     verify( schedulerService, times( 4 ) ).isScheduleAllowed();
     verify( schedulerService.repository, times( 3 ) ).getFileMetadata( anyString() );
-    verify( metadata, times( 3 ) ).containsKey( RepositoryFile.SCHEDULABLE_KEY );
-    verify( metadata, times( 2 ) ).get( RepositoryFile.SCHEDULABLE_KEY );
+    verify( metadata, times( 3 ) ).containsKey( "_PERM_SCHEDULABLE" );
+    verify( metadata, times( 2 ) ).get( "_PERM_SCHEDULABLE" );
   }
 
   @Test

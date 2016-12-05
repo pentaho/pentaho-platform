@@ -72,18 +72,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     return ImportSession.getSession();
   }
 
-  @Override
   public void importFile( IPlatformImportBundle bnd ) throws PlatformImportException {
     if ( bnd instanceof RepositoryFileImportBundle == false ) {
       throw new PlatformImportException( "Error importing bundle. RepositoryFileImportBundle expected" );
     }
     RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) bnd;
-    if ( bundle.isHidden() == null ) {
-      bundle.setHidden( RepositoryFile.HIDDEN_BY_DEFAULT );
-    }
-    if ( bundle.isSchedulable() == null ) {
-      bundle.setSchedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
-    }
     String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
     getLogger().trace( "Processing [" + repositoryFilePath + "]" );
 
@@ -150,8 +143,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   private RepositoryFile finalAdjustFile( RepositoryFileImportBundle bundle, RepositoryFile file ) {
-    return new RepositoryFile.Builder( file ).hidden( bundle.isHidden() ).schedulable( bundle.isSchedulable() )
-        .build();
+    return new RepositoryFile.Builder( file ).hidden( isHiddenBundle( bundle ) ).build();
+  }
+
+  private boolean isHiddenBundle( RepositoryFileImportBundle bundle ) {
+    return solutionHelper.isInHiddenList( bundle.getName() ) || bundle.isHidden();
   }
 
   /**
@@ -307,8 +303,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       final IRepositoryFileData data ) throws PlatformImportException {
     if ( solutionHelper.isInApprovedExtensionList( repositoryPath ) ) {
       final RepositoryFile file =
-          new RepositoryFile.Builder( bundle.getName() ).hidden( bundle.isHidden() ).schedulable( bundle
-              .isSchedulable() ).title(
+          new RepositoryFile.Builder( bundle.getName() ).hidden( isHiddenBundle( bundle ) ).title(
               RepositoryFile.DEFAULT_LOCALE,
               getTitle( bundle.getTitle() != null ? bundle.getTitle() : bundle.getName() ) ).versioned( true ).build();
       final Serializable parentId = checkAndCreatePath( repositoryPath, getImportSession().getCurrentManifestKey() );
