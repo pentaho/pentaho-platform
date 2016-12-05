@@ -67,10 +67,8 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
 
       DocumentMetaData documentMetaData = extractMetaData( bytes );
       fillLocaleEntry( localeFilesProcessor, documentMetaData, filePath, fileName, importBundle.getFile() );
-      if ( importBundle.isHidden() == null ) {
-        boolean hidden = isReportHidden( documentMetaData );
-        importBundle.setHidden( hidden );
-      }
+      boolean hidden = isReportHidden( documentMetaData );
+      importBundle.setHidden( hidden );
       super.importFile( importBundle );
       localeFilesProcessor.processLocaleFiles( importer );
     } catch ( Exception ex ) {
