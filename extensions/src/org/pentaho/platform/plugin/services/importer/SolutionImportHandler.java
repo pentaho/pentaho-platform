@@ -36,6 +36,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.database.model.IDatabaseConnection;
@@ -49,7 +50,6 @@ import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
@@ -62,7 +62,6 @@ import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
-import org.pentaho.platform.plugin.services.importexport.ImportSession.ManifestFile;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
@@ -88,8 +87,6 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   public static final String RESERVEDMAPKEY_LINEAGE_ID = "lineage-id";
 
   private static final String sep = ";";
-
-  private IUnifiedRepository repository; // TODO inject via Spring
   protected Map<String, RepositoryFileImportBundle.Builder> cachedImports;
   private SolutionFileImportHelper solutionHelper;
   private List<IMimeType> mimeTypes;
@@ -98,7 +95,6 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   public SolutionImportHandler( List<IMimeType> mimeTypes ) {
     this.mimeTypes = mimeTypes;
     this.solutionHelper = new SolutionFileImportHelper();
-    repository = PentahoSystem.get( IUnifiedRepository.class );
   }
 
   public ImportSession getImportSession() {
@@ -140,13 +136,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         String domainId = exportManifestMetadata.getDomainId();
         boolean overWriteInRepository = isOverwriteFile();
         RepositoryFileImportBundle.Builder bundleBuilder =
-            new RepositoryFileImportBundle.Builder().charSet( "UTF-8" )
-                .hidden( RepositoryFile.HIDDEN_BY_DEFAULT ).schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT )
-              // let the parent bundle control whether or not to preserve DSW settings
-              .preserveDsw( bundle.isPreserveDsw() )
-              .overwriteFile( overWriteInRepository )
-              .mime( "text/xmi+xml" )
-              .withParam( "domain-id", domainId );
+          new RepositoryFileImportBundle.Builder().charSet( "UTF-8" )
+            .hidden( false )
+            // let the parent bundle control whether or not to preserve DSW settings
+            .preserveDsw( bundle.isPreserveDsw() )
+            .overwriteFile( overWriteInRepository )
+            .mime( "text/xmi+xml" )
+            .withParam( "domain-id", domainId );
 
         cachedImports.put( exportManifestMetadata.getFile(), bundleBuilder );
 
@@ -164,10 +160,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         }
 
         RepositoryFileImportBundle.Builder bundleBuilder =
-            new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( RepositoryFile.HIDDEN_BY_DEFAULT )
-                .schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT ).name( catName ).overwriteFile(
-              isOverwriteFile() ).mime( "application/vnd.pentaho.mondrian+xml" )
-                .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
+          new RepositoryFileImportBundle.Builder().charSet( "UTF_8" ).hidden( false ).name( catName ).overwriteFile(
+            isOverwriteFile() ).mime( "application/vnd.pentaho.mondrian+xml" )
+            .withParam( "parameters", parametersStr.toString() ).withParam( "domain-id", catName ); // TODO: this is
         // definitely
         // named wrong
         // at the very
@@ -180,11 +175,14 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
         String annotationsFile = exportManifestMondrian.getAnnotationsFile();
         if ( annotationsFile != null ) {
-          RepositoryFileImportBundle.Builder annotationsBundle =
-              new RepositoryFileImportBundle.Builder().path( MondrianCatalogRepositoryHelper.ETC_MONDRIAN_JCR_FOLDER
-                  + RepositoryFile.SEPARATOR + catName ).name( "annotations.xml" ).charSet( "UTF_8" ).overwriteFile(
-                      isOverwriteFile() ).mime( "text/xml" ).hidden( RepositoryFile.HIDDEN_BY_DEFAULT ).schedulable(
-                          RepositoryFile.SCHEDULABLE_BY_DEFAULT ).withParam( "domain-id", catName );
+          RepositoryFileImportBundle.Builder annotationsBundle = new RepositoryFileImportBundle.Builder()
+            .path( MondrianCatalogRepositoryHelper.ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catName )
+            .name( "annotations.xml" )
+            .charSet( "UTF_8" )
+            .overwriteFile( isOverwriteFile() )
+            .mime( "text/xml" )
+            .hidden( false )
+            .withParam( "domain-id", catName );
           cachedImports.put( annotationsFile, annotationsBundle );
 
         }
@@ -193,9 +191,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
     importMetaStore( manifest, bundle.overwriteInRepository() );
 
-    for ( IRepositoryFileBundle fileBundle : importSource.getFiles() ) {
-      String fileName = fileBundle.getFile().getName();
-      String actualFilePath = fileBundle.getPath();
+    for ( IRepositoryFileBundle file : importSource.getFiles() ) {
+      String fileName = file.getFile().getName();
+      String actualFilePath = file.getPath();
       if ( manifestVersion != null ) {
         fileName = ExportFileNameEncoder.decodeZipFileName( fileName );
         actualFilePath = ExportFileNameEncoder.decodeZipFileName( actualFilePath );
@@ -205,7 +203,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
       if ( this.cachedImports.containsKey( repositoryFilePath ) ) {
 
-        byte[] bytes = IOUtils.toByteArray( fileBundle.getInputStream() );
+        byte[] bytes = IOUtils.toByteArray( file.getInputStream() );
         RepositoryFileImportBundle.Builder builder = cachedImports.get( repositoryFilePath );
         builder.input( new ByteArrayInputStream( bytes ) );
 
@@ -216,23 +214,24 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
       InputStream bundleInputStream = null;
 
-      String decodedFilePath = fileBundle.getPath();
-      RepositoryFile decodedFile = fileBundle.getFile();
+      String decodedFilePath = file.getPath();
+      RepositoryFile decodedFile = file.getFile();
       if ( manifestVersion != null ) {
-        decodedFile = new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName ).build();
-        decodedFilePath = ExportFileNameEncoder.decodeZipFileName( fileBundle.getPath() );
+        decodedFile =
+          new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName ).build();
+        decodedFilePath = ExportFileNameEncoder.decodeZipFileName( file.getPath() );
       }
 
-      if ( fileBundle.getFile().isFolder() ) {
+      if ( file.getFile().isFolder() ) {
         bundleBuilder.mime( "text/directory" );
         bundleBuilder.file( decodedFile );
         fileName = repositoryFilePath;
         repositoryFilePath = importBundle.getPath();
       } else {
-        byte[] bytes = IOUtils.toByteArray( fileBundle.getInputStream() );
+        byte[] bytes = IOUtils.toByteArray( file.getInputStream() );
         bundleInputStream = new ByteArrayInputStream( bytes );
         // If is locale file store it for later processing.
-        if ( localeFilesProcessor.isLocaleFile( fileBundle, importBundle.getPath(), bytes ) ) {
+        if ( localeFilesProcessor.isLocaleFile( file, importBundle.getPath(), bytes ) ) {
           log.trace( "Skipping [" + repositoryFilePath + "], it is a locale property file" );
           continue;
         }
@@ -248,17 +247,19 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       bundleBuilder.path( repositoryFilePath );
 
       String sourcePath;
-      if ( fileBundle.getFile().isFolder() ) {
-        sourcePath = fileName;
+      if ( decodedFilePath.startsWith( "/" ) ) {
+        sourcePath = RepositoryFilenameUtils.concat( decodedFilePath.substring( 1 ), fileName );
       } else {
-        sourcePath =
-            RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
+        if ( file.getFile().isFolder() ) {
+          sourcePath = fileName;
+        } else {
+          sourcePath = RepositoryFilenameUtils.concat( decodedFilePath, fileName );
+        }
       }
 
       //This clause was added for processing ivb files so that it would not try process acls on folders that the user
       //may not have rights to such as /home or /public
-      if ( manifest != null && manifest.getExportManifestEntity( sourcePath ) == null && fileBundle.getFile()
-          .isFolder() ) {
+      if ( manifest != null && manifest.getExportManifestEntity( sourcePath ) == null && file.getFile().isFolder() ) {
         continue;
       }
 
@@ -266,17 +267,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
       bundleBuilder.charSet( bundle.getCharset() );
       bundleBuilder.overwriteFile( bundle.overwriteInRepository() );
+      bundleBuilder.hidden( isFileHidden( bundle, sourcePath ) );
       bundleBuilder.applyAclSettings( bundle.isApplyAclSettings() );
       bundleBuilder.retainOwnership( bundle.isRetainOwnership() );
       bundleBuilder.overwriteAclSettings( bundle.isOverwriteAclSettings() );
       bundleBuilder.acl( getImportSession().processAclForFile( sourcePath ) );
-
-      RepositoryFile file = getFile( importBundle, fileBundle );
-      ManifestFile manifestFile = getImportSession().getManifestFile( sourcePath, file != null );
-
-      bundleBuilder.hidden( isFileHidden( file, manifestFile, sourcePath ) );
-      bundleBuilder.schedulable( isSchedulable( file, manifestFile ) );
-
       IPlatformImportBundle platformImportBundle = build( bundleBuilder );
       importer.importFile( platformImportBundle );
 
@@ -323,12 +318,6 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   List<Job> getAllJobs( SchedulerResource schedulerResource ) {
     return schedulerResource.getAllJobs();
-  }
-
-  private RepositoryFile getFile( IPlatformImportBundle importBundle, IRepositoryFileBundle fileBundle ) {
-    String repositoryFilePath =
-        repositoryPathConcat( importBundle.getPath(), fileBundle.getPath(), fileBundle.getFile().getName() );
-    return repository.getFile( repositoryFilePath );
   }
 
   protected void importSchedules( List<JobScheduleRequest> scheduleList ) throws PlatformImportException {
@@ -589,42 +578,28 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     }
   }
 
-  private boolean isFileHidden( RepositoryFile file, ManifestFile manifestFile, String sourcePath ) {
-    Boolean result = manifestFile.isFileHidden();
-    if ( result != null ) {
-      return result; // file absent or must receive a new setting and the setting is exist
-    }
-    if ( file != null ) {
-      return file.isHidden(); // old setting
-    }
-    result = solutionHelper.isInHiddenList( sourcePath );
-    if ( result ) {
-      return true;
-    }
-    return RepositoryFile.HIDDEN_BY_DEFAULT; // default setting of type
+  /**
+   * Determines if the file or folder should be hidden. If there is a manifest entry for the file, and we are not
+   * ignoring the manifest, then set the hidden flag based on the manifest. Otherwise use the blacklist to determine if
+   * it is hidden.
+   *
+   * @param bundle
+   * @param filePath
+   * @return true if file/folder should be hidden, false otherwise
+   */
+  private boolean isFileHidden( IPlatformImportBundle bundle, String filePath ) {
+    Boolean result = getImportSession().isFileHidden( filePath );
+    return ( result != null ) ? result : solutionHelper.isInHiddenList( filePath );
   }
 
-  private boolean isSchedulable( RepositoryFile file, ManifestFile manifestFile ) {
-    Boolean result = manifestFile.isFileSchedulable();
-    if ( result != null ) {
-      return result; // file absent or must receive a new setting and the setting is exist
-    }
-    if ( file != null ) {
-      return file.isSchedulable(); // old setting
-    }
-    return RepositoryFile.SCHEDULABLE_BY_DEFAULT; // default setting of type
+  private boolean isSystemPath( final String bundlePath ) {
+    final String[] split = StringUtils.split( bundlePath, RepositoryFile.SEPARATOR );
+    return isSystemDir( split, 0 ) || isSystemDir( split, 1 );
   }
 
-  // private boolean isSystemDir( final String[] split, final int index ) {
-  // return ( split != null && index < split.length && ( StringUtils.equals( split[index], "system" ) || StringUtils
-  // .equals( split[index], "admin" ) ) );
-  // }
-
-  private String repositoryPathConcat( String path, String... subPaths ) {
-    for ( String subPath : subPaths ) {
-      path = RepositoryFilenameUtils.concat( path, subPath );
-    }
-    return path;
+  private boolean isSystemDir( final String[] split, final int index ) {
+    return ( split != null && index < split.length && ( StringUtils.equals( split[ index ], "system" ) || StringUtils
+      .equals( split[ index ], "admin" ) ) );
   }
 
   class SolutionRepositoryImportSource {

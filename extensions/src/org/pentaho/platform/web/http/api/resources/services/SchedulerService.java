@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -117,8 +116,8 @@ public class SchedulerService {
 
     if ( hasInputFile ) {
       Map<String, Serializable> metadata = getRepository().getFileMetadata( file.getId() );
-      if ( metadata.containsKey( RepositoryFile.SCHEDULABLE_KEY ) ) {
-        boolean schedulable = BooleanUtils.toBoolean( (String) metadata.get( RepositoryFile.SCHEDULABLE_KEY ) );
+      if ( metadata.containsKey( "_PERM_SCHEDULABLE" ) ) {
+        boolean schedulable = Boolean.parseBoolean( (String) metadata.get( "_PERM_SCHEDULABLE" ) );
         if ( !schedulable ) {
           throw new IllegalAccessException();
         }
@@ -230,8 +229,8 @@ public class SchedulerService {
     Boolean canSchedule = isScheduleAllowed();
     if ( canSchedule ) {
       Map<String, Serializable> metadata = getRepository().getFileMetadata( id );
-      if ( metadata.containsKey( RepositoryFile.SCHEDULABLE_KEY ) ) {
-        canSchedule = BooleanUtils.toBoolean( (String) metadata.get( RepositoryFile.SCHEDULABLE_KEY ) );
+      if ( metadata.containsKey( "_PERM_SCHEDULABLE" ) ) {
+        canSchedule = Boolean.parseBoolean( (String) metadata.get( "_PERM_SCHEDULABLE" ) );
       }
     }
     return canSchedule;

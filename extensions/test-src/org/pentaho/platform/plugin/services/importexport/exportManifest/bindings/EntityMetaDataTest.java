@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -21,24 +21,25 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
-import org.junit.Assert;
 import org.junit.Test;
 
-import  com.google.code.beanmatchers.BeanMatchers;
+import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSettersExcluding;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.TestCase.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Created by rfellows on 10/26/15.
  */
-public class EntityMetaDataTest extends Assert {
+public class EntityMetaDataTest {
   @Test
   public void testGettersAndSetters() throws Exception {
     String[] excludes = new String[] {
       "isFolder",
       "isHidden",
-      "schedulable",
       "runAfterImport"
     };
-    assertThat( EntityMetaData.class, BeanMatchers.hasValidGettersAndSettersExcluding( excludes ) );
+    assertThat( EntityMetaData.class, hasValidGettersAndSettersExcluding( excludes ) );
   }
 
   @Test

@@ -1,24 +1,4 @@
-/*
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License, version 2 as published by the Free Software
- * Foundation.
- *
- * You should have received a copy of the GNU General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
- */
 package org.pentaho.platform.web.http.api.resources.services;
-
-import java.io.File;
-import java.io.InputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -26,12 +6,14 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+
+import java.io.File;
+import java.io.InputStream;
 
 public class RepositoryPublishService {
 
@@ -56,7 +38,6 @@ public class RepositoryPublishService {
    *
    * @deprecated use {@linkplain #publishFile(String, InputStream, Boolean)} instead
    */
-  @Deprecated
   public void writeFile( String pathId, InputStream fileContents, Boolean overwriteFile )
     throws PlatformImportException, PentahoAccessControlException {
     try {
@@ -140,8 +121,7 @@ public class RepositoryPublishService {
   protected IPlatformImportBundle buildBundle( String pathId, InputStream fileContents, Boolean overwriteFile ) {
     File file = new File( pathId );
     RepositoryFileImportBundle.Builder bundleBuilder =
-        new RepositoryFileImportBundle.Builder().input( fileContents ).charSet( "UTF-8" ).hidden(
-            RepositoryFile.HIDDEN_BY_DEFAULT ).schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT ).mime(
+      new RepositoryFileImportBundle.Builder().input( fileContents ).charSet( "UTF-8" ).hidden( false ).mime(
         "text/xml" ).path( file.getParent() ).name( file.getName() ).overwriteFile( overwriteFile );
     return bundleBuilder.build();
   }
@@ -150,7 +130,7 @@ public class RepositoryPublishService {
     return new RepositoryFileImportBundle.Builder()
       .input( fileContents )
       .charSet( "UTF-8" )
-        .hidden( RepositoryFile.HIDDEN_BY_DEFAULT ).schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT )
+      .hidden( false )
       .mime( "text/xml" )
       .path( "/" + FilenameUtils.getPathNoEndSeparator( fullPath ) )
       .name( FilenameUtils.getName( fullPath ) )
