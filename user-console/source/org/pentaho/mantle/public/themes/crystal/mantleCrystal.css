@@ -411,8 +411,8 @@ a:active, a:hover {
   color: white;
 }
 
-/* In IE9, in quirks mode, 
-  the class .backgroundContentHeaderTableCell's filter gradient 
+/* In IE9, in quirks mode,
+  the class .backgroundContentHeaderTableCell's filter gradient
   is not "propagated" from the _col_ elements to the corresponding _th_ element.
   It works if the filter is applied directly to th element, though.
   For precaution, this fix is only applied to the Schedule table (BISERVER-8539).
@@ -1360,6 +1360,7 @@ a:active, a:hover {
   padding-bottom: 5px;
   padding-left: 10px;
   padding-right: 10px;
+  z-index: 100;
 }
 
 .newToolbarDropdownButton {
