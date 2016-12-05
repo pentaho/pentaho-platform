@@ -358,9 +358,9 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     private String path;
 
-    private boolean hidden = HIDDEN_BY_DEFAULT;
+    private boolean hidden;
 
-    private boolean schedulable = SCHEDULABLE_BY_DEFAULT;
+    private boolean schedulable;
 
     private boolean versioned;
 
