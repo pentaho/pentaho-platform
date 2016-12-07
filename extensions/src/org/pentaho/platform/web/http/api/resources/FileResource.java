@@ -27,6 +27,7 @@ import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -89,7 +90,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
@@ -2230,8 +2230,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   protected Document parseText( String text ) throws DocumentException {
     SAXReader reader = XMLParserFactoryProducer.getSAXReader( null );
-    StringReader stringReader = new StringReader( text );
-    return reader.read( stringReader );
+    return reader.read( text );
   }
 
   protected Messages getMessagesInstance() {
