@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.connections.sql;
@@ -579,17 +579,28 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
     if ( ( jndiName != null ) && ( jndiName.length() > 0 ) ) {
       initWithJNDI( jndiName );
     } else {
-      String driver = props.getProperty( IPentahoConnection.DRIVER_KEY );
-      String provider = props.getProperty( IPentahoConnection.LOCATION_KEY );
-      String userName = props.getProperty( IPentahoConnection.USERNAME_KEY );
-      String password = props.getProperty( IPentahoConnection.PASSWORD_KEY );
-      init( driver, provider, userName, password );
-      String query = props.getProperty( IPentahoConnection.QUERY_KEY );
-      if ( ( query != null ) && ( query.length() > 0 ) ) {
+      String connectionName = props.getProperty( IPentahoConnection.CONNECTION_NAME );
+      if ( ( connectionName != null ) && ( connectionName.length() > 0 ) ) {
         try {
-          executeQuery( query );
+          IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get( IDBDatasourceService.class, null );
+          DataSource dataSource = datasourceService.getDataSource( connectionName );
+          nativeConnection = captureConnection( dataSource.getConnection() );
         } catch ( Exception e ) {
-          logger.error( null, e );
+          logger.error( "Can't get connection from Pool", e );
+        }
+      } else {
+        String driver = props.getProperty( IPentahoConnection.DRIVER_KEY );
+        String provider = props.getProperty( IPentahoConnection.LOCATION_KEY );
+        String userName = props.getProperty( IPentahoConnection.USERNAME_KEY );
+        String password = props.getProperty( IPentahoConnection.PASSWORD_KEY );
+        init( driver, provider, userName, password );
+        String query = props.getProperty( IPentahoConnection.QUERY_KEY );
+        if ( ( query != null ) && ( query.length() > 0 ) ) {
+          try {
+            executeQuery( query );
+          } catch ( Exception e ) {
+            logger.error( "Can't execute query", e );
+          }
         }
       }
     }
