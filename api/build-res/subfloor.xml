@@ -64,6 +64,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     ivy.artifact.id=my-project   #IVY metadata describing the name of the artifact
     impl.title=My Project #English language version of your project name
 
+Now with bacon!
+
 ============================================================================-->
 
 
