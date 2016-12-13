@@ -266,8 +266,8 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
       .folder( v.folder ).fileSize( v.fileSize ).lastModificationDate( v.lastModifiedDate ).locale( v.locale )
       .lockDate( v.lockDate ).locked( v.locked ).lockMessage( v.lockMessage ).lockOwner( v.lockOwner )
       .title( v.title ).versioned( v.versioned ).versionId( v.versionId ).originalParentFolderPath(
-            v.originalParentFolderPath ).deletedDate( v.deletedDate ).hidden( v.hidden ).schedulable( v
-                .isSchedulable() ).aclNode( v.aclNode ).build();
+            v.originalParentFolderPath ).deletedDate( v.deletedDate ).hidden( v.hidden ).schedulable( !v
+                .isNotSchedulable() ).aclNode( v.aclNode ).build();
   }
 
   private static DefaultUnifiedRepositoryWebService getRepoWs() {

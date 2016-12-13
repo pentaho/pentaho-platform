@@ -543,7 +543,7 @@ public class RepositoryFileProxy extends RepositoryFile {
   }
 
   @Override
-  public boolean isHidden() {
+  public Boolean isHidden() {
     if ( hidden == null ) {
 
       this.executeOperation( new SessionOperation() {
@@ -564,7 +564,7 @@ public class RepositoryFileProxy extends RepositoryFile {
   }
 
   @Override
-  public boolean isSchedulable() {
+  public Boolean isSchedulable() {
     if ( schedulable == null ) {
       this.executeOperation( new SessionOperation() {
         @Override

@@ -83,9 +83,9 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
    */
   private final String path;
 
-  private final boolean hidden;
+  private final Boolean hidden;
 
-  private final boolean schedulable;
+  private final Boolean schedulable;
 
   private final boolean versioned;
 
@@ -164,7 +164,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   /*
    * This assumes all Serializables are immutable (because they are not defensively copied).
    */
-  public RepositoryFile( Serializable id, String name, boolean folder, boolean hidden, boolean schedulable,
+  public RepositoryFile( Serializable id, String name, boolean folder, Boolean hidden, Boolean schedulable,
       boolean versioned,
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
       String lockMessage, Date lockDate, String locale, String title, String description,
@@ -202,7 +202,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   /*
    * This assumes all Serializables are immutable (because they are not defensively copied).
    */
-  public RepositoryFile( Serializable id, String name, boolean folder, boolean hidden, boolean schedulable,
+  public RepositoryFile( Serializable id, String name, boolean folder, Boolean hidden, Boolean schedulable,
       boolean versioned,
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
       String lockMessage, Date lockDate, String locale, String title, String description,
@@ -215,7 +215,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   }
 
   @Deprecated
-  public RepositoryFile( Serializable id, String name, boolean folder, boolean hidden, boolean versioned,
+  public RepositoryFile( Serializable id, String name, boolean folder, Boolean hidden, boolean versioned,
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
       String lockMessage, Date lockDate, String locale, String title, String description,
       String originalParentFolderPath, Date deletedDate, long fileSize, String creatorId,
@@ -262,11 +262,11 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     return path;
   }
 
-  public boolean isHidden() {
+  public Boolean isHidden() {
     return hidden;
   }
 
-  public boolean isSchedulable() {
+  public Boolean isSchedulable() {
     return schedulable;
   }
 

@@ -128,7 +128,7 @@ public class EntityMetaData {
   @XmlAttribute( name = "path", required = true )
   protected String path;
   @XmlAttribute( name = "isHidden" )
-  protected Boolean isHidden;
+  protected Boolean hidden;
   @XmlAttribute( name = "isSchedulable" )
   protected Boolean schedulable;
   @XmlAttribute( name = "owner" )
@@ -257,8 +257,12 @@ public class EntityMetaData {
    * @return possible object is {@link Boolean }
    * 
    */
-  public boolean isIsHidden() {
-    return isHidden == null ? RepositoryFile.HIDDEN_BY_DEFAULT : isHidden;
+  public Boolean isHidden() {
+    return hidden;
+  }
+
+  public boolean isHiddenOrDefault() {
+    return hidden == null ? RepositoryFile.HIDDEN_BY_DEFAULT : hidden;
   }
 
   /**
@@ -268,8 +272,8 @@ public class EntityMetaData {
    *          allowed object is {@link Boolean }
    * 
    */
-  public void setIsHidden( Boolean value ) {
-    this.isHidden = value;
+  public void setHidden( Boolean value ) {
+    this.hidden = value;
   }
 
   /**
@@ -279,6 +283,10 @@ public class EntityMetaData {
    * 
    */
   public Boolean isSchedulable() {
+    return schedulable;
+  }
+
+  public boolean isSchedulableOrDefault() {
     return schedulable == null ? RepositoryFile.SCHEDULABLE_BY_DEFAULT : schedulable;
   }
 

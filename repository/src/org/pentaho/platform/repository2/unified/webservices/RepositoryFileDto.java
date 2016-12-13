@@ -18,6 +18,8 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -70,9 +72,9 @@ public class RepositoryFileDto implements Serializable {
 
   String path;
 
-  boolean hidden;
+  boolean hidden = RepositoryFile.HIDDEN_BY_DEFAULT;
 
-  boolean schedulable;
+  boolean notSchedulable = !RepositoryFile.SCHEDULABLE_BY_DEFAULT;
 
   boolean aclNode;
 
@@ -205,12 +207,12 @@ public class RepositoryFileDto implements Serializable {
     this.hidden = hidden;
   }
 
-  public boolean isSchedulable() {
-    return schedulable;
+  public boolean isNotSchedulable() {
+    return notSchedulable;
   }
 
-  public void setSchedulable( boolean schedulable ) {
-    this.schedulable = schedulable;
+  public void setNotSchedulable( boolean notSchedulable ) {
+    this.notSchedulable = notSchedulable;
   }
 
   public boolean isAclNode() {
@@ -367,8 +369,8 @@ public class RepositoryFileDto implements Serializable {
     sb.append( description );
     sb.append( ", hidden=" );
     sb.append( hidden );
-    sb.append( ", schedulable=" );
-    sb.append( schedulable );
+    sb.append( ", notSchedulable=" );
+    sb.append( notSchedulable );
     sb.append( ", aclNode=" );
     sb.append( aclNode );
     sb.append( ", lastModifiedDate=" );
