@@ -19,6 +19,9 @@
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -238,6 +241,117 @@ public class ExportManifestTest extends TestCase {
             false, "lockOwner", "lockMessage", lockDate, "en_US", "title", "description",
             "/original/parent/folder/path", deletedDate, 4096, "creatorId", null );
     return mockRepositoryFile;
+  }
+
+  @Test
+  public void testToXml_XmlUnsafeManifestParameters() {
+    final String keyFirst = "DataSource";
+    final String keySecond = "DynamicSchemaProcessor";
+    final String valueFirst = "\"DS \"Test's\" & <Fun>\"";
+    final String valueSecond = "\"DSP's & \"Other\" <stuff>\"";
+
+    ExportManifestMondrian mondrian = new ExportManifestMondrian();
+    Parameters mondrianParameters = new Parameters();
+
+    mondrianParameters.put( keyFirst, valueFirst );
+    mondrianParameters.put( keySecond, valueSecond );
+    mondrian.setParameters( mondrianParameters );
+    mondrian.setCatalogName( "mondrian" );
+    mondrian.setXmlaEnabled( false );
+
+    exportManifest.addMondrian( mondrian );
+    try ( ByteArrayOutputStream out = new ByteArrayOutputStream() ) {
+      try {
+        exportManifest.toXml( out );
+      } catch ( Exception e ) {
+        fail( "Could not marshal to XML " + e );
+      }
+      try ( ByteArrayInputStream inputStream = new ByteArrayInputStream( out.toByteArray() ) ) {
+        ExportManifest ex = null;
+        try {
+          ex = ExportManifest.fromXml( inputStream );
+        } catch ( Exception e ) {
+          fail( "Could not un-marshal from XML " + e );
+        }
+        List<ExportManifestMondrian> catalogs = ex.getMondrianList();
+        assertNotNull( catalogs );
+        assertTrue( !catalogs.isEmpty() );
+
+        ExportManifestMondrian mondrianCatalog = null;
+
+        for ( ExportManifestMondrian catalog : catalogs ) {
+          if ( "mondrian".equals( catalog.getCatalogName() ) ) {
+            mondrianCatalog = catalog;
+            break;
+          }
+        }
+        assertNotNull( mondrianCatalog );
+        Parameters parameters = mondrianCatalog.getParameters();
+        assertNotNull( parameters );
+        assertTrue( !parameters.isEmpty() );
+
+        String parameter = parameters.get( keyFirst );
+        assertNotNull( parameter );
+        assertTrue( valueFirst.equals( parameter ) );
+
+        parameter = parameters.get( keySecond );
+        assertNotNull( parameter );
+        assertTrue( valueSecond.equals( parameter ) );
+      }
+    } catch ( Exception e ) {
+      fail( e.toString() );
+    }
+  }
+
+  @Test
+  public void testToXml_XmlUnsafeEscaped() {
+    final String keyFirst = "DataSource";
+    final String keySecond = "DynamicSchemaProcessor";
+    final String valueFirst = "\"DS \"Test's\" & <Fun>\"";
+    final String valueSecond = "\"DSP's & \"Other\" <stuff>\"";
+
+    final String expectedValueFirst = "&quot;DS &quot;Test's&quot; &amp; &lt;Fun&gt;&quot;";
+    final String expectedValueSecond = "&quot;DSP's &amp; &quot;Other&quot; &lt;stuff&gt;&quot;";
+
+    ExportManifestMondrian mondrian = new ExportManifestMondrian();
+    Parameters mondrianParameters = new Parameters();
+
+    mondrianParameters.put( keyFirst, valueFirst );
+    mondrianParameters.put( keySecond, valueSecond );
+    mondrian.setParameters( mondrianParameters );
+    mondrian.setCatalogName( "mondrian" );
+    mondrian.setXmlaEnabled( false );
+
+    String lineParamFirst = null;
+    String lineParamSecond = null;
+
+    exportManifest.addMondrian( mondrian );
+
+    try ( ByteArrayOutputStream out = new ByteArrayOutputStream() ) {
+      exportManifest.toXml( out );
+      try ( ByteArrayInputStream inputStream = new ByteArrayInputStream( out.toByteArray() );
+           BufferedReader reader = new BufferedReader( new InputStreamReader( inputStream ) )
+      ) {
+        String line;
+        while ( ( line = reader.readLine() ) != null ) {
+          if ( line.contains( keyFirst ) ) {
+            lineParamFirst = line;
+          }
+          if ( line.contains( keySecond ) ) {
+            lineParamSecond = line;
+          }
+          if ( lineParamFirst != null && lineParamSecond != null ) {
+            break;
+          }
+        }
+      }
+    } catch ( Exception e ) {
+      fail( "Could not marshal to XML " + e );
+    }
+    assertNotNull( lineParamFirst );
+    assertTrue( lineParamFirst.contains( "value=\"" + expectedValueFirst + "\"" ) );
+    assertNotNull( lineParamSecond );
+    assertTrue( lineParamSecond.contains( "value=\"" + expectedValueSecond + "\"" ) );
   }
 
   private RepositoryFileAcl createMockRepositoryAcl( Serializable id, String owner, boolean entriesInheriting,
