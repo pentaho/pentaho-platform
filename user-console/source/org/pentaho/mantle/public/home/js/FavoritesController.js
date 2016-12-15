@@ -152,8 +152,7 @@ define(["home/favorites"], function (Favorites) {
             eventSubType: 'favoritesListResponse',
             stringParam: JSON.stringify(this.favorites.currentItems)
           };
-          response.stringParam = response.stringParam.replace(/'/g, "\\'");
-          response.stringParam = response.stringParam.replace(/"/g, '\\"');
+          response.stringParam=encodeURI(response.stringParam);
           window.parent.mantle_fireEvent('GenericEvent', response);
         }
       }
