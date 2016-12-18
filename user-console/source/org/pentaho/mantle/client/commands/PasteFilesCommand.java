@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.commands;
@@ -95,7 +95,8 @@ public class PasteFilesCommand extends AbstractCommand {
     if ( clipboardFileItems != null && clipboardFileItems.size() > 0 && getSolutionPath() != null ) {
       String getChildrenUrl =
           contextURL
-              + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/tree?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
+              + "api/repo/files/" + SolutionBrowserPanel.pathToId( getSolutionPath() ) + "/tree?depth=1"
+              + "&showHidden=" + SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles(); //$NON-NLS-1$ //$NON-NLS-2$
       RequestBuilder childrenRequestBuilder = new RequestBuilder( RequestBuilder.GET, getChildrenUrl );
       try {
         childrenRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
