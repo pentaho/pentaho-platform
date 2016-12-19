@@ -579,28 +579,17 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
     if ( ( jndiName != null ) && ( jndiName.length() > 0 ) ) {
       initWithJNDI( jndiName );
     } else {
-      String connectionName = props.getProperty( IPentahoConnection.CONNECTION_NAME );
-      if ( ( connectionName != null ) && ( connectionName.length() > 0 ) ) {
+      String driver = props.getProperty( IPentahoConnection.DRIVER_KEY );
+      String provider = props.getProperty( IPentahoConnection.LOCATION_KEY );
+      String userName = props.getProperty( IPentahoConnection.USERNAME_KEY );
+      String password = props.getProperty( IPentahoConnection.PASSWORD_KEY );
+      init( driver, provider, userName, password );
+      String query = props.getProperty( IPentahoConnection.QUERY_KEY );
+      if ( ( query != null ) && ( query.length() > 0 ) ) {
         try {
-          IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get( IDBDatasourceService.class, null );
-          DataSource dataSource = datasourceService.getDataSource( connectionName );
-          nativeConnection = captureConnection( dataSource.getConnection() );
+          executeQuery( query );
         } catch ( Exception e ) {
-          logger.error( "Can't get connection from Pool", e );
-        }
-      } else {
-        String driver = props.getProperty( IPentahoConnection.DRIVER_KEY );
-        String provider = props.getProperty( IPentahoConnection.LOCATION_KEY );
-        String userName = props.getProperty( IPentahoConnection.USERNAME_KEY );
-        String password = props.getProperty( IPentahoConnection.PASSWORD_KEY );
-        init( driver, provider, userName, password );
-        String query = props.getProperty( IPentahoConnection.QUERY_KEY );
-        if ( ( query != null ) && ( query.length() > 0 ) ) {
-          try {
-            executeQuery( query );
-          } catch ( Exception e ) {
-            logger.error( "Can't execute query", e );
-          }
+          logger.error( "Can't execute query", e );
         }
       }
     }
