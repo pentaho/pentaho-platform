@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -71,7 +71,7 @@ import java.util.regex.Pattern;
 
 /**
  * A Quartz implementation of {@link IScheduler}
- * 
+ *
  * @author aphillips
  */
 public class QuartzScheduler implements IScheduler {
@@ -123,13 +123,13 @@ public class QuartzScheduler implements IScheduler {
    * here, there may be initializing required prior to this setter being called. Only the
    * {@link SchedulerFactory#getScheduler()} will be called later, so the factory set here must already be in a state
    * where that invocation will be successful.
-   * 
+   *
    * @param quartzSchedulerFactory
    *          the quartz factory to use for generating scheduler instances
    */
   public void setQuartzSchedulerFactory( SchedulerFactory quartzSchedulerFactory ) throws SchedulerException {
     this.quartzSchedulerFactory = quartzSchedulerFactory;
-    if( quartzScheduler != null ){
+    if ( quartzScheduler != null ) {
       this.shutdown();
       quartzScheduler = null;
     }
@@ -149,7 +149,7 @@ public class QuartzScheduler implements IScheduler {
     logger.debug( "Using quartz scheduler " + quartzScheduler ); //$NON-NLS-1$
     return quartzScheduler;
   }
-  
+
   private void setQuartzScheduler( Scheduler quartzScheduler ) {
     this.quartzScheduler = quartzScheduler;
   }
@@ -266,8 +266,8 @@ public class QuartzScheduler implements IScheduler {
     QuartzJobKey jobId = new QuartzJobKey( jobName, curUser );
 
     Trigger quartzTrigger = createQuartzTrigger( trigger, jobId );
-    
-    if( trigger.getEndTime() != null ){
+
+    if ( trigger.getEndTime() != null ) {
       quartzTrigger.setEndTime( trigger.getEndTime() );
     }
 
@@ -397,9 +397,9 @@ public class QuartzScheduler implements IScheduler {
           continue;
         }
         if ( trigger instanceof SimpleTrigger ) {
-          ( (SimpleTrigger) trigger ).setPreviousFireTime( new Date() );
+          ( (SimpleTrigger) trigger ).setStartTime( new Date() );
         } else if ( trigger instanceof CronTrigger ) {
-          ( (CronTrigger) trigger ).setPreviousFireTime( new Date() );
+          ( (CronTrigger) trigger ).setStartTime( new Date() );
         }
         // force the trigger to be updated with the previous fire time
         scheduler.rescheduleJob( jobId, jobKey.getUserName(), trigger );
@@ -808,7 +808,7 @@ public class QuartzScheduler implements IScheduler {
     try {
       boolean waitForJobsToComplete = true;
       getQuartzScheduler().shutdown( waitForJobsToComplete );
-      setQuartzScheduler(null);
+      setQuartzScheduler( null );
     } catch ( org.quartz.SchedulerException e ) {
       throw new SchedulerException( e );
     }
