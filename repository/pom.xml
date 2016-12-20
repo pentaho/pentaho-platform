@@ -997,6 +997,7 @@
 			<groupId>simple-jndi</groupId>
 			<artifactId>simple-jndi</artifactId>
 			<version>${simple-jndi.version}</version>
+            <scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
