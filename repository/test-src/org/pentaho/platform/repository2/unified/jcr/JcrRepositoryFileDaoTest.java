@@ -18,8 +18,10 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
 import org.apache.jackrabbit.core.VersionManagerImpl;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -41,9 +43,6 @@ import javax.jcr.Workspace;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
-
 public class JcrRepositoryFileDaoTest {
 
   private JcrRepositoryFileDao dao;
@@ -54,24 +53,24 @@ public class JcrRepositoryFileDaoTest {
 
   @Before
   public void setUp() throws RepositoryException {
-    Node node = mock( Node.class );
-    Node nodeParent = mock( Node.class );
-    when( node.getIdentifier() ).thenReturn( "" );
-    when( nodeParent.getIdentifier() ).thenReturn( "" );
-    when( node.getParent() ).thenReturn( nodeParent );
-    when( node.isNodeType( "null:pentahoFile" ) ).thenReturn( true );
-    when( node.isNodeType( "null:pentahoVersionable" ) ).thenReturn( true );
-    VersionManagerImpl versionManager = mock( VersionManagerImpl.class );
-    Workspace workspace = mock( Workspace.class );
-    when( workspace.getVersionManager() ).thenReturn( versionManager );
-    final Session session = mock( Session.class );
-    when( session.getWorkspace() ).thenReturn( workspace );
-    when( session.getNodeByIdentifier( anyString() ) ).thenReturn( node );
-    when( session.getItem( anyString() ) ).thenReturn( node );
-    pentahoSession = mock( IPentahoSession.class );
+    Node node = Mockito.mock( Node.class );
+    Node nodeParent = Mockito.mock( Node.class );
+    Mockito.when( node.getIdentifier() ).thenReturn( "" );
+    Mockito.when( nodeParent.getIdentifier() ).thenReturn( "" );
+    Mockito.when( node.getParent() ).thenReturn( nodeParent );
+    Mockito.when( node.isNodeType( "null:pentahoFile" ) ).thenReturn( true );
+    Mockito.when( node.isNodeType( "null:pentahoVersionable" ) ).thenReturn( true );
+    VersionManagerImpl versionManager = Mockito.mock( VersionManagerImpl.class );
+    Workspace workspace = Mockito.mock( Workspace.class );
+    Mockito.when( workspace.getVersionManager() ).thenReturn( versionManager );
+    final Session session = Mockito.mock( Session.class );
+    Mockito.when( session.getWorkspace() ).thenReturn( workspace );
+    Mockito.when( session.getNodeByIdentifier( Mockito.anyString() ) ).thenReturn( node );
+    Mockito.when( session.getItem( Mockito.anyString() ) ).thenReturn( node );
+    pentahoSession = Mockito.mock( IPentahoSession.class );
     PentahoSessionHolder.setSession( pentahoSession );
-    IRepositoryVersionManager repositoryVersionManager = mock( IRepositoryVersionManager.class );
-    when( repositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
+    IRepositoryVersionManager repositoryVersionManager = Mockito.mock( IRepositoryVersionManager.class );
+    Mockito.when( repositoryVersionManager.isVersioningEnabled( Mockito.anyString() ) ).thenReturn( true );
     PentahoSystem.registerObject( repositoryVersionManager );
     JcrTemplate jcrTemplate = new JcrTemplate() {
       @Override
@@ -87,30 +86,30 @@ public class JcrRepositoryFileDaoTest {
     };
     List<ITransformer<IRepositoryFileData>> transformerList = Collections.emptyList();
     IPathConversionHelper pathConversionHelper = new DefaultPathConversionHelper();
-    IRepositoryFileAclDao aclDao = mock( IRepositoryFileAclDao.class );
-    accessVoterManager = mock( IRepositoryAccessVoterManager.class );
+    IRepositoryFileAclDao aclDao = Mockito.mock( IRepositoryFileAclDao.class );
+    accessVoterManager = Mockito.mock( IRepositoryAccessVoterManager.class );
     JcrRepositoryFileDao jcrDao = new JcrRepositoryFileDao( jcrTemplate, transformerList, null, null,
       pathConversionHelper, aclDao, null, accessVoterManager );
-    dao = spy( jcrDao );
+    dao = Mockito.spy( jcrDao );
   }
 
   @Test
   public void shouldConsultAccessVoterWhenCopyingOrMovingFiles() {
-    RepositoryFile filePermitted = mock( RepositoryFile.class );
-    RepositoryFile fileNotPermitted = mock( RepositoryFile.class );
-    RepositoryFile destinationPermitted = mock( RepositoryFile.class );
-    RepositoryFile destinationNotPermitted = mock( RepositoryFile.class );
-    doReturn( filePermitted ).when( dao ).getFileById( "/filePermitted" );
-    doReturn( fileNotPermitted ).when( dao ).getFileById( "/fileNotPermitted" );
-    doReturn( destinationPermitted ).when( dao ).getFile( "/destinationPermitted" );
-    doReturn( destinationNotPermitted ).when( dao ).getFile( "/destinationNotPermitted" );
-    doReturn( true ).when( accessVoterManager )
+    RepositoryFile filePermitted = Mockito.mock( RepositoryFile.class );
+    RepositoryFile fileNotPermitted = Mockito.mock( RepositoryFile.class );
+    RepositoryFile destinationPermitted = Mockito.mock( RepositoryFile.class );
+    RepositoryFile destinationNotPermitted = Mockito.mock( RepositoryFile.class );
+    Mockito.doReturn( filePermitted ).when( dao ).getFileById( "/filePermitted" );
+    Mockito.doReturn( fileNotPermitted ).when( dao ).getFileById( "/fileNotPermitted" );
+    Mockito.doReturn( destinationPermitted ).when( dao ).getFile( "/destinationPermitted" );
+    Mockito.doReturn( destinationNotPermitted ).when( dao ).getFile( "/destinationNotPermitted" );
+    Mockito.doReturn( true ).when( accessVoterManager )
       .hasAccess( filePermitted, RepositoryFilePermission.WRITE, null, pentahoSession );
-    doReturn( false ).when( accessVoterManager )
+    Mockito.doReturn( false ).when( accessVoterManager )
       .hasAccess( fileNotPermitted, RepositoryFilePermission.WRITE, null, pentahoSession );
-    doReturn( true ).when( accessVoterManager )
+    Mockito.doReturn( true ).when( accessVoterManager )
       .hasAccess( destinationPermitted, RepositoryFilePermission.WRITE, null, pentahoSession );
-    doReturn( false ).when( accessVoterManager )
+    Mockito.doReturn( false ).when( accessVoterManager )
       .hasAccess( destinationNotPermitted, RepositoryFilePermission.WRITE, null, pentahoSession );
 
     // should move the file,
@@ -119,7 +118,7 @@ public class JcrRepositoryFileDaoTest {
     try {
       dao.moveFile( "/filePermitted", "/destinationPermitted", null );
     } catch ( Throwable e ) {
-      fail( e.getMessage() );
+      Assert.fail( e.getMessage() );
     }
 
     // should NOT move the file and throw an exception,
@@ -131,7 +130,7 @@ public class JcrRepositoryFileDaoTest {
       // unwrap original exception and check it
       if ( !( e instanceof RuntimeException )
         || !( e.getCause() instanceof AccessDeniedException ) ) {
-        fail( e.getMessage() );
+        Assert.fail( e.getMessage() );
       }
     }
 
@@ -144,7 +143,7 @@ public class JcrRepositoryFileDaoTest {
       // unwrap original exception and check it
       if ( !( e instanceof RuntimeException )
         || !( e.getCause() instanceof AccessDeniedException ) ) {
-        fail( e.getMessage() );
+        Assert.fail( e.getMessage() );
       }
     }
 
@@ -157,7 +156,7 @@ public class JcrRepositoryFileDaoTest {
       // unwrap original exception and check it
       if ( !( e instanceof RuntimeException )
         || !( e.getCause() instanceof AccessDeniedException ) ) {
-        fail( e.getMessage() );
+        Assert.fail( e.getMessage() );
       }
     }
   }
