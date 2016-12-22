@@ -17,15 +17,6 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static javax.ws.rs.core.MediaType.WILDCARD;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -231,7 +222,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/delete" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @Facet( name = "Unsupported" )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully moved file to trash." ),
@@ -255,7 +246,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "/deletepermanent" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the comma seperated list of fileIds from the system." ),
@@ -284,7 +275,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/move" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully moved the file." ),
@@ -296,10 +287,13 @@ public class FileResource extends AbstractJaxRSResource {
       return buildOkResponse();
     } catch ( FileNotFoundException e ) {
       logger.error( Messages.getInstance().getErrorString( "FileResource.DESTINATION_PATH_UNKNOWN", destPathId ), e );
-      return buildStatusResponse( NOT_FOUND );
+      return buildStatusResponse( Response.Status.NOT_FOUND );
+    } catch ( UnifiedRepositoryAccessDeniedException e ) {
+      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_MOVE_ACCESS_DENIED", params ), e );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     } catch ( Throwable t ) {
       logger.error( Messages.getInstance().getString( "SystemResource.FILE_MOVE_FAILED" ), t );
-      return buildStatusResponse( INTERNAL_SERVER_ERROR );
+      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -321,7 +315,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path( "/restore" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
   @Facet( name = "Unsupported" )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully restored the file." ),
@@ -352,7 +346,7 @@ public class FileResource extends AbstractJaxRSResource {
         }
       } catch ( InternalError e ) {
         logger.error( Messages.getInstance().getString( "FileResource.FILE_GET_LOCALES" ), e );
-        return buildStatusResponse( INTERNAL_SERVER_ERROR );
+        return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
       }
     }
   }
@@ -381,7 +375,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully created the file." ),
       @ResponseCode ( code = 403, condition = "Failure to create the file due to permissions, file already exists, or invalid path id." ) } )
@@ -412,7 +406,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/children" )
-  @Consumes ( { TEXT_PLAIN } )
+  @Consumes ( { MediaType.TEXT_PLAIN } )
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully copied the file." ),
@@ -422,7 +416,10 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       fileService.doCopyFiles( pathId, mode, params );
     } catch ( IllegalArgumentException e ) {
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
+    } catch ( UnifiedRepositoryAccessDeniedException e ) {
+      logger.error( Messages.getInstance().getErrorString( "FileResource.FILE_COPY_ACCESS_DENIED", params ), e );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
       return buildSafeHtmlServerErrorResponse( e );
@@ -449,7 +446,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}" )
-  @Produces ( { WILDCARD } )
+  @Produces ( { MediaType.WILDCARD } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully get the file or directory." ),
       @ResponseCode ( code = 404, condition = "Failed to find the file or resource." ),
@@ -459,9 +456,9 @@ public class FileResource extends AbstractJaxRSResource {
       FileService.RepositoryFileToStreamWrapper wrapper = fileService.doGetFileOrDir( pathId );
       return buildOkResponse( wrapper );
     } catch ( FileNotFoundException fileNotFound ) {
-      return buildStatusResponse( NOT_FOUND );
+      return buildStatusResponse( Response.Status.NOT_FOUND );
     } catch ( IllegalArgumentException illegalArgument ) {
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     }
   }
 
@@ -474,19 +471,19 @@ public class FileResource extends AbstractJaxRSResource {
     String path = fileService.idToPath( pathId );
 
     if ( !isPathValid( path ) ) {
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     }
 
     // you have to have PublishAction in order to get dir as zip
     if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     }
 
     RepositoryFile repoFile = getRepository().getFile( path );
 
     if ( repoFile == null ) {
       // file does not exist or is not readable but we can't tell at this point
-      return buildStatusResponse( NOT_FOUND );
+      return buildStatusResponse( Response.Status.NOT_FOUND );
     }
 
     return doGetDirAsZip( repoFile );
@@ -528,7 +525,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/parameterizable" )
-  @Produces ( TEXT_PLAIN )
+  @Produces ( MediaType.TEXT_PLAIN )
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully get the file or directory." ),
@@ -617,7 +614,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/download" )
-  @Produces ( WILDCARD )
+  @Produces ( MediaType.WILDCARD )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successful download." ),
       @ResponseCode ( code = 400, condition = "Usually a bad pathId." ),
@@ -633,19 +630,19 @@ public class FileResource extends AbstractJaxRSResource {
       return buildZipOkResponse( wrapper );
     } catch ( InvalidParameterException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
-      return buildStatusResponse( BAD_REQUEST );
+      return buildStatusResponse( Response.Status.BAD_REQUEST );
     } catch ( IllegalSelectorException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     } catch ( GeneralSecurityException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     } catch ( FileNotFoundException e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", e.getMessage() ), e );
-      return buildStatusResponse( NOT_FOUND );
+      return buildStatusResponse( Response.Status.NOT_FOUND );
     } catch ( Throwable e ) {
       logger.error( getMessagesInstance().getString( "FileResource.EXPORT_FAILED", pathId + " " + e.getMessage() ), e );
-      return buildStatusResponse( INTERNAL_SERVER_ERROR );
+      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -668,7 +665,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/inline" )
-  @Produces ( WILDCARD )
+  @Produces ( MediaType.WILDCARD )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved file." ),
       @ResponseCode ( code = 403, condition = "Failed to retrieve file due to permission problem." ),
@@ -680,13 +677,13 @@ public class FileResource extends AbstractJaxRSResource {
       return buildOkResponse( wrapper );
     } catch ( IllegalArgumentException e ) {
       logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
-      return buildStatusResponse( FORBIDDEN );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     } catch ( FileNotFoundException e ) {
       logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
-      return buildStatusResponse( NOT_FOUND );
+      return buildStatusResponse( Response.Status.NOT_FOUND );
     } catch ( InternalError e ) {
       logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), e );
-      return buildStatusResponse( INTERNAL_SERVER_ERROR );
+      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -713,7 +710,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/acl" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Consumes ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully saved file." ),
       @ResponseCode ( code = 403, condition = "Failed to save acls due to missing or incorrect properties." ),
@@ -725,7 +722,7 @@ public class FileResource extends AbstractJaxRSResource {
       return buildOkResponse();
     } catch ( Exception exception ) {
       logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
-      return buildStatusResponse( INTERNAL_SERVER_ERROR );
+      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -783,7 +780,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/creator" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Consumes ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved file." ),
       @ResponseCode ( code = 500, condition = "Failed to download file because of some other error." ) } )
@@ -794,10 +791,10 @@ public class FileResource extends AbstractJaxRSResource {
       return buildOkResponse();
     } catch ( FileNotFoundException e ) {
       logger.error( getMessagesInstance().getErrorString( "FileResource.FILE_NOT_FOUND", pathId ), e );
-      return buildStatusResponse( NOT_FOUND );
+      return buildStatusResponse( Response.Status.NOT_FOUND );
     } catch ( Throwable t ) {
       logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
-      return buildStatusResponse( INTERNAL_SERVER_ERROR );
+      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     }
   }
 
@@ -841,7 +838,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/locales" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved locale information." ),
       @ResponseCode ( code = 404, condition = "Failed to retrieve locales because the file was not found." ),
@@ -890,7 +887,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/localeProperties" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved locale properties." ),
       @ResponseCode ( code = 500, condition = "Unable to retrieve locale properties due to some other error." ) } )
@@ -923,7 +920,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/localeProperties" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully updated locale properties." ),
       @ResponseCode ( code = 500, condition = "Unable to update locale properties due to some other error." ) } )
@@ -960,7 +957,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/deleteLocale" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully deleted the locale." ),
       @ResponseCode ( code = 500, condition = "Unable to delete the locale properties due to some other error." ) } )
@@ -1002,7 +999,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/properties" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the properties of the root directory." ),
       @ResponseCode ( code = 404, condition = "Unable to retrieve the properties of the root directory due to file not found error." ),
@@ -1031,7 +1028,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/canAccessMap" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the permissions of the file." ),
       @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the file due to some other error." ) } )
@@ -1082,8 +1079,8 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @POST
   @Path ( "/pathsAccessList" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Consumes ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the permissions of the given paths." ),
       @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error." ) } )
@@ -1110,7 +1107,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/canAccess" )
-  @Produces ( TEXT_PLAIN )
+  @Produces ( MediaType.TEXT_PLAIN )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the permissions of the given paths." ),
     @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error." ) } )
@@ -1135,7 +1132,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/canAdminister" )
-  @Produces ( TEXT_PLAIN )
+  @Produces ( MediaType.TEXT_PLAIN )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully returns a boolean value, either true or false" ) } )
   public String doGetCanAdminister() {
@@ -1162,7 +1159,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/reservedCharacters" )
-  @Produces ( { TEXT_PLAIN } )
+  @Produces ( { MediaType.TEXT_PLAIN } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully returns a list of repositroy reserved characters" ) } )
   public Response doGetReservedChars() {
@@ -1186,7 +1183,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/reservedCharactersDisplay" )
-  @Produces ( { TEXT_PLAIN } )
+  @Produces ( { MediaType.TEXT_PLAIN } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully returns a list of repositroy reserved characters" ) } )
   public Response doGetReservedCharactersDisplay() {
@@ -1210,7 +1207,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/canCreate" )
-  @Produces ( TEXT_PLAIN )
+  @Produces ( MediaType.TEXT_PLAIN )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully returns true or false depending on the users permissions" ) } )
   public String doGetCanCreate() {
@@ -1252,7 +1249,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/acl" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Returns the requested file permissions in xml or json format" ),
       @ResponseCode ( code = 500, condition = "File failed to be retrieved. This could be caused by an invalid path, or the file does not exist." ) } )
@@ -1303,7 +1300,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/properties" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the properties for a file." ),
       @ResponseCode ( code = 204, condition = "Invalid file path." ) } )
@@ -1326,7 +1323,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/creator" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the content creator for a file." ),
@@ -1398,7 +1395,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/generatedContent" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
     @ResponseCode ( code = 200, condition = "Empty list of RepositoryFileDto objects." ) } )
@@ -1474,7 +1471,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/generatedContentForUser" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
     @ResponseCode ( code = 200, condition = "Empty list of RepositoryFileDto objects." ),
@@ -1546,7 +1543,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/tree" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the list of files from root of the repository." ),
       @ResponseCode ( code = 404, condition = "Invalid parameters." ),
@@ -1611,7 +1608,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/children" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of child files from root of the repository." ),
     @ResponseCode ( code = 500, condition = "Server Error." ) } )
@@ -1677,7 +1674,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/tree" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of files from root of the repository." ),
     @ResponseCode ( code = 404, condition = "Invalid parameters." ),
@@ -1743,7 +1740,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/children" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode( code = 200,
       condition = "Successfully retrieved the list of child files from selected repository path of the repository." ),
@@ -1809,7 +1806,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/deleted" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of files from trash folder of the repository." ),
     @ResponseCode ( code = 500, condition = "Server Error." ) } )
@@ -1842,7 +1839,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/metadata" )
-  @Produces ( { APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_JSON } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully retrieved metadata." ),
     @ResponseCode( code = 403, condition = "Invalid path." ),
@@ -1880,8 +1877,8 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/rename" )
-  @Consumes ( { WILDCARD } )
-  @Produces ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
+  @Produces ( { MediaType.WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully renamed file." ),
     @ResponseCode( code = 200, condition = "File to be renamed does not exist." ) } )
@@ -1925,7 +1922,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/metadata" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved metadata." ),
       @ResponseCode ( code = 403, condition = "Invalid path." ),
@@ -1965,7 +1962,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/createDir" )
-  @Consumes ( { WILDCARD } )
+  @Consumes ( { MediaType.WILDCARD } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully created folder." ),
       @ResponseCode ( code = 409, condition = "Path already exists." ),
@@ -2041,7 +2038,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/generatedContentForSchedule" )
-  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully got the generated content for schedule" ) } )
   public List<RepositoryFileDto> doGetGeneratedContentForSchedule( @QueryParam( "lineageId" ) String lineageId ) {
@@ -2058,7 +2055,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param pathId Colon separated path for the repository file.
    *
-   * @return The Versioning Configuration applicable to the path submitted 
+   * @return The Versioning Configuration applicable to the path submitted
    *
    * <p><b>Example Response:</b></p>
    *  <pre function="syntax.xml">
@@ -2070,7 +2067,7 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "{pathId : .+}/versioningConfiguration" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
+  @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
     @ResponseCode( code = 200, condition = "Successfully returns the versioning configuration" ) } )
   public FileVersioningConfiguration doVersioningConfiguration( @PathParam( "pathId" ) String pathId ) {
