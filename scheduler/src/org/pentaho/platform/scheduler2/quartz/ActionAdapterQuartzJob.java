@@ -284,7 +284,7 @@ public class ActionAdapterQuartzJob implements Job {
             repo.setFileMetadata( sourceFile.getId(), metadata );
           } else {
             String fileName = getFSFileNameSafe( contentItem );
-            log.warn( Messages.getInstance().getString( "XactionUtil.SKIP_REMOVING_OUTPUT_FILE", fileName ) );
+            log.warn( Messages.getInstance().getString( "ActionAdapterQuartzJob.WARN_0001_SKIP_REMOVING_OUTPUT_FILE", fileName ) );
           }
         }
       }
