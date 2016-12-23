@@ -175,8 +175,8 @@ public class QuartzSchedulerIT {
 
     scheduler.triggerNow( JOB_ID );
 
-    verify( simpleTrigger, times( 1 ) ).setPreviousFireTime( any( Date.class ) );
-    verify( cronTrigger, times( 1 ) ).setPreviousFireTime( any( Date.class ) );
+    verify( simpleTrigger, times( 1 ) ).setStartTime( any( Date.class ) );
+    verify( cronTrigger, times( 1 ) ).setStartTime( any( Date.class ) );
     verify( quartzScheduler, times( 1 ) ).rescheduleJob( eq( JOB_ID ), eq( USER_NAME ), eq( simpleTrigger ) );
     verify( quartzScheduler, times( 1 ) ).rescheduleJob( eq( JOB_ID ), eq( USER_NAME ), eq( cronTrigger ) );
     verify( quartzScheduler, times( 1 ) ).triggerJob( eq( JOB_ID ), eq( USER_NAME ) );
