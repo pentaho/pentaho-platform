@@ -20,6 +20,7 @@ package org.pentaho.platform.plugin.services.connections.sql;
 import org.pentaho.commons.connection.ILimitableConnection;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -27,6 +28,7 @@ import org.pentaho.platform.api.engine.PentahoSystemException;
 import org.pentaho.platform.engine.core.system.IPentahoLoggingConnection;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceHelper;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -573,6 +575,16 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
     return sqlResultSet;
   }
 
+  void initDataSource( IDatabaseConnection databaseConnection ) {
+    DataSource dataSource = null;
+    try {
+      dataSource = PooledDatasourceHelper.setupPooledDataSource( databaseConnection );
+      nativeConnection = captureConnection( dataSource.getConnection() );
+    } catch ( Exception e ) {
+      logger.error( "Can't get connection from Pool", e );
+    }
+  }
+
   public boolean connect( final Properties props ) {
     close();
     String jndiName = props.getProperty( IPentahoConnection.JNDI_NAME_KEY );
@@ -581,13 +593,8 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
     } else {
       String connectionName = props.getProperty( IPentahoConnection.CONNECTION_NAME );
       if ( ( connectionName != null ) && ( connectionName.length() > 0 ) ) {
-        try {
-          IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get( IDBDatasourceService.class, null );
-          DataSource dataSource = datasourceService.getDataSource( connectionName );
-          nativeConnection = captureConnection( dataSource.getConnection() );
-        } catch ( Exception e ) {
-          logger.error( "Can't get connection from Pool", e );
-        }
+        IDatabaseConnection databaseConnection = (IDatabaseConnection) props.get( IPentahoConnection.CONNECTION );
+        initDataSource( databaseConnection );
       } else {
         String driver = props.getProperty( IPentahoConnection.DRIVER_KEY );
         String provider = props.getProperty( IPentahoConnection.LOCATION_KEY );
