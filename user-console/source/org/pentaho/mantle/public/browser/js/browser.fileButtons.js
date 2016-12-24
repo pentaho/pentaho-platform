@@ -215,7 +215,7 @@ define([
     // Handle response from FavoritesController. Update favorite items.
     onNewFavoritesItems: function (event) {
       if (event.eventSubType == 'favoritesListResponse') {
-        this.favoriteItems = JSON.parse(event.stringParam);
+        this.favoriteItems = JSON.parse(decodeURI(event.stringParam));
         this.updateFavoriteItems = false;
         console.log('Favorite items updated...');
       }
