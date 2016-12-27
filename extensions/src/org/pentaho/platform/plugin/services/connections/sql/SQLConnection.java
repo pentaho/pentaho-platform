@@ -20,6 +20,7 @@ package org.pentaho.platform.plugin.services.connections.sql;
 import org.pentaho.commons.connection.ILimitableConnection;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -27,6 +28,7 @@ import org.pentaho.platform.api.engine.PentahoSystemException;
 import org.pentaho.platform.engine.core.system.IPentahoLoggingConnection;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceHelper;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -573,23 +575,39 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
     return sqlResultSet;
   }
 
+  void initDataSource( IDatabaseConnection databaseConnection ) {
+    DataSource dataSource = null;
+    try {
+      dataSource = PooledDatasourceHelper.setupPooledDataSource( databaseConnection );
+      nativeConnection = captureConnection( dataSource.getConnection() );
+    } catch ( Exception e ) {
+      logger.error( "Can't get connection from Pool", e );
+    }
+  }
+
   public boolean connect( final Properties props ) {
     close();
     String jndiName = props.getProperty( IPentahoConnection.JNDI_NAME_KEY );
     if ( ( jndiName != null ) && ( jndiName.length() > 0 ) ) {
       initWithJNDI( jndiName );
     } else {
-      String driver = props.getProperty( IPentahoConnection.DRIVER_KEY );
-      String provider = props.getProperty( IPentahoConnection.LOCATION_KEY );
-      String userName = props.getProperty( IPentahoConnection.USERNAME_KEY );
-      String password = props.getProperty( IPentahoConnection.PASSWORD_KEY );
-      init( driver, provider, userName, password );
-      String query = props.getProperty( IPentahoConnection.QUERY_KEY );
-      if ( ( query != null ) && ( query.length() > 0 ) ) {
-        try {
-          executeQuery( query );
-        } catch ( Exception e ) {
-          logger.error( null, e );
+      String connectionName = props.getProperty( IPentahoConnection.CONNECTION_NAME );
+      if ( ( connectionName != null ) && ( connectionName.length() > 0 ) ) {
+        IDatabaseConnection databaseConnection = (IDatabaseConnection) props.get( IPentahoConnection.CONNECTION );
+        initDataSource( databaseConnection );
+      } else {
+        String driver = props.getProperty( IPentahoConnection.DRIVER_KEY );
+        String provider = props.getProperty( IPentahoConnection.LOCATION_KEY );
+        String userName = props.getProperty( IPentahoConnection.USERNAME_KEY );
+        String password = props.getProperty( IPentahoConnection.PASSWORD_KEY );
+        init( driver, provider, userName, password );
+        String query = props.getProperty( IPentahoConnection.QUERY_KEY );
+        if ( ( query != null ) && ( query.length() > 0 ) ) {
+          try {
+            executeQuery( query );
+          } catch ( Exception e ) {
+            logger.error( "Can't execute query", e );
+          }
         }
       }
     }
