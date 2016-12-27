@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+* Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
 --%>
 
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
@@ -149,6 +149,12 @@
 </style>
 
 <script language="javascript" type="text/javascript" src="webcontext.js"></script>
+<script type="text/javascript">
+  var targetUrl = window.location.pathname.replace(new RegExp("(/){2,}"), "/");
+  if (history && history.pushState){
+    history.pushState(null, null, targetUrl);
+  }
+</script>
 
 </head>
 
