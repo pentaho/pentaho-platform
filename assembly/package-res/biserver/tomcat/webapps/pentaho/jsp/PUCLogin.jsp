@@ -149,6 +149,12 @@
 </style>
 
 <script language="javascript" type="text/javascript" src="webcontext.js"></script>
+<script type="text/javascript">
+  var targetUrl = window.location.pathname.replace(new RegExp("(/){2,}"), "/");
+  if (history && history.pushState){
+    history.pushState(null, null, targetUrl);
+  }
+</script>
 
 </head>
 
