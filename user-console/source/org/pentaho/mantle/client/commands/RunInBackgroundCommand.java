@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.commands;
@@ -31,15 +31,13 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.Window;
 
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
+import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsDialog;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
@@ -119,7 +117,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
         @Override
         public void handle( RepositoryFile repositoryFile ) {
           RunInBackgroundCommand.this.repositoryFile = new FileItem( repositoryFile, null, null, false, null );
-          showDialog( true );
+          checkSchedulePermissionAndDialog();
         }
       } );
     } else {
@@ -222,6 +220,34 @@ public class RunInBackgroundCommand extends AbstractCommand {
     scheduleFileRequestBuilder.setHeader( "accept", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     return scheduleFileRequestBuilder;
+  }
+
+  protected  void checkSchedulePermissionAndDialog() {
+    final String url = ScheduleHelper.getFullyQualifiedURL() + "api/scheduler/isScheduleAllowed?id=" + repositoryFile.getRepositoryFile().getId(); //$NON-NLS-1$
+    RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
+    requestBuilder.setHeader( "accept", "text/plain" );
+    requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+    final MessageDialogBox errorDialog =
+      new MessageDialogBox(
+        Messages.getString( "error" ), Messages.getString( "noSchedulePermission" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+    try {
+      requestBuilder.sendRequest( null, new RequestCallback() {
+
+        public void onError( Request request, Throwable caught ) {
+          errorDialog.center();
+        }
+
+        public void onResponseReceived( Request request, Response response ) {
+          if ( "true".equalsIgnoreCase( response.getText() ) ) {
+            showDialog( true );
+          } else {
+            errorDialog.center();
+          }
+        }
+      } );
+    } catch ( RequestException re ) {
+      errorDialog.center();
+    }
   }
 
   protected void performOperation( boolean feedback ) {
