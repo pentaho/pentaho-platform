@@ -17,16 +17,13 @@
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,11 +71,11 @@ public class UnifiedRepositoryToWebServiceAdapterIT extends DefaultUnifiedReposi
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure the repository is setup correctly
-      assertNotNull( testfile );
-      assertNotNull( testfile.getId() );
+      Assert.assertNotNull( testfile );
+      Assert.assertNotNull( testfile.getId() );
       final Map<String, Serializable> fileMetadata = repo.getFileMetadata( testfile.getId() );
-      assertNotNull( fileMetadata );
-      assertEquals( 1, fileMetadata.size() );
+      Assert.assertNotNull( fileMetadata );
+      Assert.assertEquals( 1, fileMetadata.size() );
     }
 
     final Map<String, Serializable> metadata = new HashMap<String, Serializable>();
@@ -89,20 +86,20 @@ public class UnifiedRepositoryToWebServiceAdapterIT extends DefaultUnifiedReposi
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure the repository sees the metadata
-      assertNotNull( testfile );
-      assertNotNull( testfile.getId() );
+      Assert.assertNotNull( testfile );
+      Assert.assertNotNull( testfile.getId() );
       final Map<String, Serializable> fileMetadata = repo.getFileMetadata( testfile.getId() );
-      assertNotNull( fileMetadata );
-      assertEquals( 2, fileMetadata.size() );
+      Assert.assertNotNull( fileMetadata );
+      Assert.assertEquals( 2, fileMetadata.size() );
     }
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       // Make sure we can get the same metadata back via the web service
       final Map<String, Serializable> fileMetadata = adapter.getFileMetadata( testfile.getId() );
-      assertNotNull( fileMetadata );
-      assertEquals( 2, fileMetadata.size() );
-      assertTrue( StringUtils.equals( "sample value", (String) fileMetadata.get( "sample key" ) ) );
-      assertTrue( StringUtils.equals( "\"an even more 'complex' value\"! {and them some}", (String) fileMetadata
+      Assert.assertNotNull( fileMetadata );
+      Assert.assertEquals( 2, fileMetadata.size() );
+      Assert.assertTrue( StringUtils.equals( "sample value", (String) fileMetadata.get( "sample key" ) ) );
+      Assert.assertTrue( StringUtils.equals( "\"an even more 'complex' value\"! {and them some}", (String) fileMetadata
           .get( "complex key?" ) ) );
     }
 

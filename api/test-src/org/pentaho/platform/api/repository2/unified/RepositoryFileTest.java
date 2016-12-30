@@ -17,19 +17,12 @@
 
 package org.pentaho.platform.api.repository2.unified;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,19 +73,19 @@ public class RepositoryFileTest {
 
     try {
       file.compareTo( null );
-      fail( "Shoudld throw an exception" );
+      Assert.fail( "Shoudld throw an exception" );
     } catch ( Exception e ) {
       // Pass
     }
 
-    assertEquals( 0, file.compareTo( file ) );
+    Assert.assertEquals( 0, file.compareTo( file ) );
 
     RepositoryFile.Builder builder = new RepositoryFile.Builder( file );
     builder.title( "diffTitle" );
     builder.id( null );
-    assertNotEquals( 0, file.compareTo( builder.build() ) );
+    Assert.assertNotEquals( 0, file.compareTo( builder.build() ) );
 
-    assertNotEquals( 29791, dupFile.hashCode() );
+    Assert.assertNotEquals( 29791, dupFile.hashCode() );
   }
 
   @Test
@@ -102,118 +95,118 @@ public class RepositoryFileTest {
       LOCKED, LOCK_OWNER, LOCK_MESSAGE, null, LOCALE, null, DESCRIPTION, PARENT_FOLDER, null, FILE_SIZE,
       CREATOR_ID, null );
 
-    assertNull( nullFile.getCreatedDate() );
-    assertNull( nullFile.getLastModifiedDate() );
-    assertNull( nullFile.getLockDate() );
-    assertEquals( NAME, nullFile.getTitle() );
-    assertNull( nullFile.getLocalePropertiesMap() );
-    assertNull( nullFile.getDeletedDate() );
+    Assert.assertNull( nullFile.getCreatedDate() );
+    Assert.assertNull( nullFile.getLastModifiedDate() );
+    Assert.assertNull( nullFile.getLockDate() );
+    Assert.assertEquals( NAME, nullFile.getTitle() );
+    Assert.assertNull( nullFile.getLocalePropertiesMap() );
+    Assert.assertNull( nullFile.getDeletedDate() );
   }
 
   @Test
   public void testEquals() {
     RepositoryFile dupFile = file.clone();
-    assertTrue( file.equals( dupFile ) );
-    assertTrue( file.equals( file ) );
-    assertFalse( file.equals( null ) );
+    Assert.assertTrue( file.equals( dupFile ) );
+    Assert.assertTrue( file.equals( file ) );
+    Assert.assertFalse( file.equals( null ) );
 
     RepositoryFile.Builder builder = new RepositoryFile.Builder( file );
     // equals version ID
     builder.versionId( "diffVersionId" );
     RepositoryFile newFile = builder.build();
-    assertFalse( newFile.equals( file ) );
+    Assert.assertFalse( newFile.equals( file ) );
 
     builder.versionId( null );
     newFile = builder.build();
-    assertFalse( newFile.equals( file ) );
+    Assert.assertFalse( newFile.equals( file ) );
 
 
     RepositoryFile secondNewFile = builder.build();
-    assertTrue( newFile.equals( secondNewFile ) );
+    Assert.assertTrue( newFile.equals( secondNewFile ) );
 
     // equals locale
     builder.locale( "diffLocale" );
     newFile = builder.build();
-    assertFalse( newFile.equals( file ) );
+    Assert.assertFalse( newFile.equals( file ) );
 
     builder.locale( null );
     newFile = builder.build();
-    assertFalse( newFile.equals( file ) );
+    Assert.assertFalse( newFile.equals( file ) );
 
     secondNewFile = builder.build();
-    assertTrue( newFile.equals( secondNewFile ) );
+    Assert.assertTrue( newFile.equals( secondNewFile ) );
 
     // equals ID
     builder.id( "diffId" );
     newFile = builder.build();
-    assertFalse( newFile.equals( file ) );
+    Assert.assertFalse( newFile.equals( file ) );
 
     builder.id( null );
     newFile = builder.build();
-    assertFalse( newFile.equals( file ) );
+    Assert.assertFalse( newFile.equals( file ) );
 
     secondNewFile = builder.build();
-    assertTrue( newFile.equals( secondNewFile ) );
+    Assert.assertTrue( newFile.equals( secondNewFile ) );
 
     builder.path( "diffPath" );
     secondNewFile = builder.build();
-    assertFalse( newFile.equals( secondNewFile ) );
+    Assert.assertFalse( newFile.equals( secondNewFile ) );
   }
 
   @Test
   public void testBuilder() {
     RepositoryFile.Builder builder = new RepositoryFile.Builder( file );
-    assertTrue( file.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
-    assertNull( file.getLocalePropertiesMap().get( RepositoryFile.DEFAULT_LOCALE ) );
+    Assert.assertTrue( file.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
+    Assert.assertNull( file.getLocalePropertiesMap().get( RepositoryFile.DEFAULT_LOCALE ) );
     builder.clearLocalePropertiesMap();
     RepositoryFile newFile = builder.build();
-    assertTrue( newFile.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
-    assertNotNull( newFile.getLocalePropertiesMap().get( RepositoryFile.DEFAULT_LOCALE ) );
+    Assert.assertTrue( newFile.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
+    Assert.assertNotNull( newFile.getLocalePropertiesMap().get( RepositoryFile.DEFAULT_LOCALE ) );
 
     builder.localeProperties( null, new Properties() );
     newFile = builder.build();
-    assertEquals( 2, newFile.getLocalePropertiesMap().size() );
-    assertNotNull( newFile.getLocalePropertiesMap().get( null ) );
+    Assert.assertEquals( 2, newFile.getLocalePropertiesMap().size() );
+    Assert.assertNotNull( newFile.getLocalePropertiesMap().get( null ) );
 
     String localTitle = "newLocalTitle";
     String newTitle = "newTitle";
     builder.title( localTitle, newTitle );
     newFile = builder.build();
-    assertTrue( newFile.getLocalePropertiesMap().containsKey( localTitle ) );
-    assertEquals( newTitle, newFile.getLocalePropertiesMap().get( localTitle ).getProperty( RepositoryFile.TITLE ) );
-    assertEquals( newTitle, newFile.getLocalePropertiesMap().get( localTitle ).getProperty( RepositoryFile.FILE_TITLE ) );
+    Assert.assertTrue( newFile.getLocalePropertiesMap().containsKey( localTitle ) );
+    Assert.assertEquals( newTitle, newFile.getLocalePropertiesMap().get( localTitle ).getProperty( RepositoryFile.TITLE ) );
+    Assert.assertEquals( newTitle, newFile.getLocalePropertiesMap().get( localTitle ).getProperty( RepositoryFile.FILE_TITLE ) );
 
     String localDesc = "newLocalDesc";
     String newDesc = "newDesc";
     builder.description( localDesc, newDesc );
     newFile = builder.build();
-    assertTrue( newFile.getLocalePropertiesMap().containsKey( localDesc ) );
-    assertEquals( newDesc, newFile.getLocalePropertiesMap().get( localDesc ).getProperty( RepositoryFile.DESCRIPTION ) );
-    assertEquals( newDesc, newFile.getLocalePropertiesMap().get( localDesc ).getProperty( RepositoryFile.FILE_DESCRIPTION ) );
+    Assert.assertTrue( newFile.getLocalePropertiesMap().containsKey( localDesc ) );
+    Assert.assertEquals( newDesc, newFile.getLocalePropertiesMap().get( localDesc ).getProperty( RepositoryFile.DESCRIPTION ) );
+    Assert.assertEquals( newDesc, newFile.getLocalePropertiesMap().get( localDesc ).getProperty( RepositoryFile.FILE_DESCRIPTION ) );
 
     builder = new RepositoryFile.Builder( ID, NAME );
     newFile = builder.build();
-    assertEquals( NAME, newFile.getName() );
-    assertEquals( ID, newFile.getId() );
+    Assert.assertEquals( NAME, newFile.getName() );
+    Assert.assertEquals( ID, newFile.getId() );
 
     String newString = "newString";
     builder.name( newString );
     newFile = builder.build();
-    assertEquals( newString, newFile.getName() );
+    Assert.assertEquals( newString, newFile.getName() );
 
     // Test that Default Locale gets set
     builder.localePropertiesMap( new HashMap<String, Properties>() );
     newFile = builder.build();
-    assertTrue( newFile.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
+    Assert.assertTrue( newFile.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
 
     builder.localePropertiesMap( null );
     builder.title( LOCALE, "newTitle" );
     newFile = builder.build();
-    assertTrue( newFile.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
+    Assert.assertTrue( newFile.getLocalePropertiesMap().containsKey( RepositoryFile.DEFAULT_LOCALE ) );
 
     try {
       builder = new RepositoryFile.Builder( null, NAME );
-      fail( "Null pointer exception should of be thrown." );
+      Assert.fail( "Null pointer exception should of be thrown." );
     } catch ( Exception e ) {
       // Pass
     }
@@ -226,60 +219,60 @@ public class RepositoryFileTest {
       CREATOR_ID, null );
     builder = new RepositoryFile.Builder( nullFile );
     newFile = builder.build();
-    assertNull( newFile.getLocalePropertiesMap() );
+    Assert.assertNull( newFile.getLocalePropertiesMap() );
     try {
       builder.clearLocalePropertiesMap();
     } catch ( Exception e ) {
-      fail( "NPE should not have occurred." );
+      Assert.fail( "NPE should not have occurred." );
     }
     newFile = builder.build();
-    assertNull( newFile.getLocalePropertiesMap() );
+    Assert.assertNull( newFile.getLocalePropertiesMap() );
 
     // Test overwriting existing properties
     builder = new RepositoryFile.Builder( file );
     newFile = builder.build();
-    assertFalse( newFile.getLocalePropertiesMap().containsKey( LOCALE ) );
+    Assert.assertFalse( newFile.getLocalePropertiesMap().containsKey( LOCALE ) );
     builder.title( LOCALE, TITLE );
     newFile = builder.build();
-    assertEquals( TITLE, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.TITLE ) );
+    Assert.assertEquals( TITLE, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.TITLE ) );
 
     builder.title( LOCALE, newTitle );
     newFile = builder.build();
-    assertEquals( newTitle, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.TITLE ) );
+    Assert.assertEquals( newTitle, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.TITLE ) );
 
     builder.description( LOCALE, DESCRIPTION );
     newFile = builder.build();
-    assertEquals( DESCRIPTION, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.DESCRIPTION ) );
+    Assert.assertEquals( DESCRIPTION, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.DESCRIPTION ) );
 
     builder.description( LOCALE, newDesc );
     newFile = builder.build();
-    assertEquals( newDesc, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.DESCRIPTION ) );
+    Assert.assertEquals( newDesc, newFile.getLocalePropertiesMap().get( LOCALE ).getProperty( RepositoryFile.DESCRIPTION ) );
   }
 
   private void checkRepositoryFile( RepositoryFile theFile ) {
-    assertEquals( NAME, theFile.getName() );
-    assertEquals( ID, theFile.getId() );
-    assertEquals( CREATOR_ID, theFile.getCreatorId() );
-    assertEquals( CREATED_DATE, theFile.getCreatedDate() );
-    assertEquals( LAST_MODIFIED_DATE, theFile.getLastModifiedDate() );
-    assertEquals( FILE_SIZE, theFile.getFileSize(), .0000001 );
-    assertEquals( FOLDER, theFile.isFolder() );
-    assertEquals( PATH, theFile.getPath() );
-    assertEquals( HIDDEN, theFile.isHidden() );
-    assertEquals( VERSIONED, theFile.isVersioned() );
-    assertEquals( VERSION_ID, theFile.getVersionId() );
-    assertEquals( LOCKED, theFile.isLocked() );
-    assertEquals( LOCK_OWNER, theFile.getLockOwner() );
-    assertEquals( LOCK_MESSAGE, theFile.getLockMessage() );
-    assertEquals( LOCK_DATE, theFile.getLockDate() );
-    assertEquals( TITLE, theFile.getTitle() );
-    assertEquals( DESCRIPTION, theFile.getDescription() );
-    assertEquals( LOCALE_PROP, theFile.getLocalePropertiesMap() );
-    assertEquals( LOCALE, theFile.getLocale() );
-    assertEquals( PARENT_FOLDER, theFile.getOriginalParentFolderPath() );
-    assertEquals( DELETED_DATE, theFile.getDeletedDate() );
-    assertEquals( false, theFile.isAclNode() );
-    assertNotNull( theFile.toString() );
+    Assert.assertEquals( NAME, theFile.getName() );
+    Assert.assertEquals( ID, theFile.getId() );
+    Assert.assertEquals( CREATOR_ID, theFile.getCreatorId() );
+    Assert.assertEquals( CREATED_DATE, theFile.getCreatedDate() );
+    Assert.assertEquals( LAST_MODIFIED_DATE, theFile.getLastModifiedDate() );
+    Assert.assertEquals( FILE_SIZE, theFile.getFileSize(), .0000001 );
+    Assert.assertEquals( FOLDER, theFile.isFolder() );
+    Assert.assertEquals( PATH, theFile.getPath() );
+    Assert.assertEquals( HIDDEN, theFile.isHidden() );
+    Assert.assertEquals( VERSIONED, theFile.isVersioned() );
+    Assert.assertEquals( VERSION_ID, theFile.getVersionId() );
+    Assert.assertEquals( LOCKED, theFile.isLocked() );
+    Assert.assertEquals( LOCK_OWNER, theFile.getLockOwner() );
+    Assert.assertEquals( LOCK_MESSAGE, theFile.getLockMessage() );
+    Assert.assertEquals( LOCK_DATE, theFile.getLockDate() );
+    Assert.assertEquals( TITLE, theFile.getTitle() );
+    Assert.assertEquals( DESCRIPTION, theFile.getDescription() );
+    Assert.assertEquals( LOCALE_PROP, theFile.getLocalePropertiesMap() );
+    Assert.assertEquals( LOCALE, theFile.getLocale() );
+    Assert.assertEquals( PARENT_FOLDER, theFile.getOriginalParentFolderPath() );
+    Assert.assertEquals( DELETED_DATE, theFile.getDeletedDate() );
+    Assert.assertEquals( false, theFile.isAclNode() );
+    Assert.assertNotNull( theFile.toString() );
   }
 
 }

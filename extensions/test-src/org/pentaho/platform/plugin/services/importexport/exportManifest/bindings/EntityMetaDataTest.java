@@ -21,8 +21,7 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
-import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSettersExcluding;
-
+import com.google.code.beanmatchers.BeanMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -40,7 +39,7 @@ public class EntityMetaDataTest extends Assert {
       "runAfterImport"
     };
     //@formatter:on
-    assertThat( EntityMetaData.class, hasValidGettersAndSettersExcluding( excludes ) );
+    assertThat( EntityMetaData.class, BeanMatchers.hasValidGettersAndSettersExcluding( excludes ) );
   }
 
   @Test

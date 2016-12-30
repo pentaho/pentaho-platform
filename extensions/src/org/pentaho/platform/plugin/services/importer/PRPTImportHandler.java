@@ -100,7 +100,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
       ResourceManager mgr = new ResourceManager();
       MasterReport report = (MasterReport) mgr.createDirectly( bytes, MasterReport.class ).getResource();
       DocumentMetaData metaData = report.getBundle().getMetaData();
-      String description = (String) metaData.getBundleAttribute(ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION );
+      String description = (String) metaData.getBundleAttribute( ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION );
       if ( StringUtils.isEmpty( description, true ) ) {
         // make sure that empty strings and strings with only whitespace are not used as description.
         description = null;
