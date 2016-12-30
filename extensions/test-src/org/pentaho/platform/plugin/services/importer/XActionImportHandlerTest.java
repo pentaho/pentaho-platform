@@ -17,7 +17,18 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import com.sun.xml.bind.StringInputStream;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,16 +38,7 @@ import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.sun.xml.bind.StringInputStream;
 
 /**
  * This unit test focuses on validating XActionImportHandler logic, which, according to the class' javadoc, quote:
@@ -69,7 +71,6 @@ public class XActionImportHandlerTest {
     handler.importFile( bundle );
 
     Assert.assertNotNull( ( (XActionImportHandlerForTesting) handler ).getResultingImportBundle() );
-    Assert.assertFalse( ( (XActionImportHandlerForTesting) handler ).getResultingImportBundle().isHidden() );
   }
 
   @Test

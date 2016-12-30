@@ -1,3 +1,20 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ */
 package org.pentaho.platform.repository2.unified.jcr;
 
 import java.io.IOException;
@@ -15,6 +32,7 @@ import javax.jcr.Session;
 import javax.jcr.ValueFormatException;
 import javax.jcr.lock.Lock;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -26,6 +44,9 @@ import org.springframework.extensions.jcr.JcrTemplate;
  * User: nbaker Date: 5/28/13
  */
 public class RepositoryFileProxy extends RepositoryFile {
+
+  private static final long serialVersionUID = 5244310953843118329L;
+
   private Node node;
   private PentahoJcrConstants constants;
   private JcrTemplate template;
@@ -45,6 +66,7 @@ public class RepositoryFileProxy extends RepositoryFile {
   private String absPath; //This path is intentionally in Jcr Encoded form (the raw path)
   private Boolean folder;
   private Boolean hidden;
+  private Boolean schedulable;
   private Boolean versioned;
   private Serializable id;
   private Lock lock;
@@ -55,7 +77,9 @@ public class RepositoryFileProxy extends RepositoryFile {
   private Boolean aclNode;
 
   public RepositoryFileProxy( final Node node, final JcrTemplate template, IPentahoLocale pentahoLocale ) {
-    super( null, null, false, false, false, null, null, null, null, false, null, null, null, null, null, null, null,
+    super( null, null, false, HIDDEN_BY_DEFAULT, SCHEDULABLE_BY_DEFAULT, false, null, null, null, null, false, null,
+        null, null, null, null, null,
+        null,
         null, -1, null, null, false );
     this.node = node;
     this.pentahoLocale = pentahoLocale;
@@ -124,14 +148,14 @@ public class RepositoryFileProxy extends RepositoryFile {
       if ( other.getLocale() != null ) {
         return false;
       }
-    } else if ( !this.getLocale().equals( other.getLocale()) ) {
+    } else if ( !this.getLocale().equals( other.getLocale() ) ) {
       return false;
     }
     if ( this.getVersionId() == null ) {
       if ( other.getVersionId() != null ) {
         return false;
       }
-    } else if ( !this.getVersionId().equals( other.getVersionId()) ) {
+    } else if ( !this.getVersionId().equals( other.getVersionId() ) ) {
       return false;
     }
     return true;
@@ -185,8 +209,7 @@ public class RepositoryFileProxy extends RepositoryFile {
   public String getCreatorId() {
     try {
       if ( creatorId == null ) {
-        Map<String, Serializable> metadata;
-        metadata = getMetadata();
+        Map<String, Serializable> metadata = getMetadata();
         if ( metadata != null ) {
           creatorId = (String) metadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
         }
@@ -341,10 +364,10 @@ public class RepositoryFileProxy extends RepositoryFile {
 
           try {
             localeMap =
-                JcrRepositoryFileUtils.getLocalePropertiesMap( session, getPentahoJcrConstants(), node
-                    .getNode( getPentahoJcrConstants().getPHO_LOCALES() ) );
-          } catch (javax.jcr.PathNotFoundException e) {
-            //Do not throw a stack trace if the locale file is missing.
+                JcrRepositoryFileUtils.getLocalePropertiesMap( session, getPentahoJcrConstants(), node.getNode(
+                    getPentahoJcrConstants().getPHO_LOCALES() ) );
+          } catch ( javax.jcr.PathNotFoundException e ) {
+            // Do not throw a stack trace if the locale file is missing.
           } catch ( RepositoryException e ) {
             e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
           }
@@ -520,7 +543,7 @@ public class RepositoryFileProxy extends RepositoryFile {
   }
 
   @Override
-  public boolean isHidden() {
+  public Boolean isHidden() {
     if ( hidden == null ) {
 
       this.executeOperation( new SessionOperation() {
@@ -537,7 +560,27 @@ public class RepositoryFileProxy extends RepositoryFile {
       } );
     }
     // exclude NPE
-    return hidden == null ? false : hidden;
+    return hidden == null ? HIDDEN_BY_DEFAULT : hidden;
+  }
+
+  @Override
+  public Boolean isSchedulable() {
+    if ( schedulable == null ) {
+      this.executeOperation( new SessionOperation() {
+        @Override
+        public void execute( Session session ) {
+          try {
+            Map<String, Serializable> metadata = getMetadata();
+            if ( metadata != null ) {
+              schedulable = BooleanUtils.toBoolean( (String) metadata.get( SCHEDULABLE_KEY ) );
+            }
+          } catch ( Exception e ) {
+            e.printStackTrace();
+          }
+        }
+      } );
+    }
+    return schedulable == null ? SCHEDULABLE_BY_DEFAULT : schedulable;
   }
 
   @Override
