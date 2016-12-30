@@ -12,36 +12,27 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository2.unified;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 /**
  * Created by bgroves on 10/23/15.
  */
 public class RepositoryFileTreeTest {
 
-  private static final RepositoryFile REPO_FILE = mock( RepositoryFile.class );
-  private static final RepositoryFile REPO_FILE_CHILD = mock( RepositoryFile.class );
+  private static final RepositoryFile REPO_FILE = Mockito.mock( RepositoryFile.class );
+  private static final RepositoryFile REPO_FILE_CHILD = Mockito.mock( RepositoryFile.class );
   private static final RepositoryFileTree FILE_TREE_CHILD = new RepositoryFileTree( REPO_FILE_CHILD,
     new ArrayList<RepositoryFileTree>() );
   private static final List<RepositoryFileTree> CHILDREN = Arrays.asList( FILE_TREE_CHILD );
@@ -59,53 +50,54 @@ public class RepositoryFileTreeTest {
 
   @Test
   public void testFileTree() {
-    assertEquals( REPO_FILE, fileTree.getFile() );
-    assertEquals( VERSION_ENABLED, fileTree.getVersioningEnabled() );
-    assertEquals( VERSION_COMMENT_ENABLED, fileTree.getVersionCommentEnabled() );
-    assertNotEquals( 31, fileTree.hashCode() );
-    assertNotNull( fileTree.toString() );
-    assertEquals( 1, fileTree.getChildren().size() );
+    Assert.assertEquals( REPO_FILE, fileTree.getFile() );
+    Assert.assertEquals( VERSION_ENABLED, fileTree.getVersioningEnabled() );
+    Assert.assertEquals( VERSION_COMMENT_ENABLED, fileTree.getVersionCommentEnabled() );
+    Assert.assertNotEquals( 31, fileTree.hashCode() );
+    Assert.assertNotNull( fileTree.toString() );
+    Assert.assertEquals( 1, fileTree.getChildren().size() );
 
-    when( REPO_FILE.isFolder() ).thenReturn( true );
-    assertTrue( fileTree.toString().contains( "/" ) );
+    Mockito.when( REPO_FILE.isFolder() ).thenReturn( true );
+    Assert.assertTrue( fileTree.toString().contains( "/" ) );
 
     try {
       RepositoryFileTree throwError = new RepositoryFileTree( null, null );
-      fail( "Should of thrown an IllegalArgumentException" );
+      Assert.fail( "Should of thrown an IllegalArgumentException" );
     } catch ( Exception e ) {
       // Pass
     }
 
     // Testing variations of equals
-    assertTrue( fileTree.equals( fileTree ) );
-    assertFalse( fileTree.equals( null ) );
-    assertFalse( fileTree.equals( new String() ) );
+    Assert.assertTrue( fileTree.equals( fileTree ) );
+    Assert.assertFalse( fileTree.equals( null ) );
+    Assert.assertFalse( fileTree.equals( new String() ) );
   }
 
   @Test
   public void testBuilder() {
-    RepositoryFile nullFile = new RepositoryFile( null, null, false, false,
+    RepositoryFile nullFile =
+        new RepositoryFile( null, null, false, false, true,
       false, null, null, null, null, false, null, null, null, null, null, null, null, null, new Long( 1 ), null, null );
     RepositoryFileTree.Builder nullBuilder = new RepositoryFileTree.Builder( nullFile );
     RepositoryFileTree anotherFileTree = nullBuilder.build();
-    assertFalse( anotherFileTree.equals( fileTree ) );
-    assertEquals( nullFile, nullBuilder.getFile() );
+    Assert.assertFalse( anotherFileTree.equals( fileTree ) );
+    Assert.assertEquals( nullFile, nullBuilder.getFile() );
 
     RepositoryFileTree.Builder builder = new RepositoryFileTree.Builder( fileTree );
     RepositoryFileTree dupFileTree = builder.build();
-    assertTrue( fileTree.equals( dupFileTree ) );
+    Assert.assertTrue( fileTree.equals( dupFileTree ) );
     fileTree.compareTo( dupFileTree );
-    verify( REPO_FILE ).compareTo( any( RepositoryFile.class ) );
+    Mockito.verify( REPO_FILE ).compareTo( Mockito.any( RepositoryFile.class ) );
 
     List<RepositoryFileTree.Builder> children = builder.getChildren();
-    assertEquals( 1, children.size() );
+    Assert.assertEquals( 1, children.size() );
     builder.child( nullBuilder );
     children = builder.getChildren();
-    assertEquals( 2, children.size() );
-    assertTrue( children.contains( nullBuilder ) );
+    Assert.assertEquals( 2, children.size() );
+    Assert.assertTrue( children.contains( nullBuilder ) );
 
     builder = new RepositoryFileTree.Builder( REPO_FILE_CHILD  );
-    assertFalse( fileTree.equals( builder.build() ) );
+    Assert.assertFalse( fileTree.equals( builder.build() ) );
   }
 
   @Test

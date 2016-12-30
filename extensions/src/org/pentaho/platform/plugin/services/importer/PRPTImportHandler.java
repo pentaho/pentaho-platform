@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -71,8 +71,10 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
       InputStream bundleInputStream = new ByteArrayInputStream( bytes );
       // Process locale file from meta.xml.
       importBundle.setInputStream( bundleInputStream );
-      boolean hidden = extractMetaData( localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile() );
-      importBundle.setHidden( hidden );
+      if ( importBundle.isHidden() == null ) {
+        boolean hidden = extractMetaData( localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile() );
+        importBundle.setHidden( hidden );
+      }
       super.importFile( importBundle );
       localeFilesProcessor.processLocaleFiles( importer );
     } catch ( Exception ex ) {
@@ -98,7 +100,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
       ResourceManager mgr = new ResourceManager();
       MasterReport report = (MasterReport) mgr.createDirectly( bytes, MasterReport.class ).getResource();
       DocumentMetaData metaData = report.getBundle().getMetaData();
-      String description = (String) metaData.getBundleAttribute(ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION );
+      String description = (String) metaData.getBundleAttribute( ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION );
       if ( StringUtils.isEmpty( description, true ) ) {
         // make sure that empty strings and strings with only whitespace are not used as description.
         description = null;

@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
@@ -100,8 +100,10 @@ public class ExportManifest {
     this.add( exportManifestEntity );
   }
 
-  public void add( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden ) throws ExportManifestFormatException {
-    ExportManifestEntity exportManifestEntity = new ExportManifestEntity( file, userId, projectId, isFolder, isHidden );
+  public void add( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden,
+      Boolean isSchedulable ) throws ExportManifestFormatException {
+    ExportManifestEntity exportManifestEntity =
+        new ExportManifestEntity( file, userId, projectId, isFolder, isHidden, isSchedulable );
     this.add( exportManifestEntity );
   }
 

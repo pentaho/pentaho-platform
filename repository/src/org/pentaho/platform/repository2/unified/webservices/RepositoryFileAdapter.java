@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.webservices;
@@ -66,7 +66,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
   public RepositoryFileDto marshal( final RepositoryFile v ) {
     return toFileDto( v, membersSet, exclude, includeAcls );
   }
-  
+
   public RepositoryFileDto marshal( final RepositoryFileTree repositoryFileTree ) {
     return toFileDto( repositoryFileTree, membersSet, exclude, includeAcls );
   }
@@ -74,9 +74,9 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
   private static boolean include( String key, Set<String> set, boolean exclude ) {
     return !exclude && ( set == null || set.contains( key ) ) || ( exclude && !set.contains( key ) );
   }
-  
-  public static RepositoryFileDto toFileDto ( final RepositoryFileTree repositoryFileTree , Set<String> memberSet, boolean exclude,
-                                             boolean includeAcls ) {
+
+  public static RepositoryFileDto toFileDto( final RepositoryFileTree repositoryFileTree, Set<String> memberSet,
+      boolean exclude, boolean includeAcls ) {
     RepositoryFileDto repositoryFileDto = toFileDto( repositoryFileTree.getFile(), memberSet, exclude, includeAcls );
     return repositoryFileDto;
   }
@@ -174,7 +174,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
 
       if ( include( "owner", memberSet, exclude ) ) {
         Serializable id = v.getId();
-        if( id != null ) {
+        if ( id != null ) {
           RepositoryFileAclDto acl = getRepoWs().getAcl( "" + id );
           if ( acl != null ) {
             f.owner = acl.getOwner();
@@ -205,7 +205,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
         }
       }
     }
-    
+
     IRepositoryVersionManager repositoryVersionManager;
     try {
       repositoryVersionManager = JcrRepositoryFileUtils.getRepositoryVersionManager();
@@ -266,7 +266,8 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
       .folder( v.folder ).fileSize( v.fileSize ).lastModificationDate( v.lastModifiedDate ).locale( v.locale )
       .lockDate( v.lockDate ).locked( v.locked ).lockMessage( v.lockMessage ).lockOwner( v.lockOwner )
       .title( v.title ).versioned( v.versioned ).versionId( v.versionId ).originalParentFolderPath(
-        v.originalParentFolderPath ).deletedDate( v.deletedDate ).hidden( v.hidden ).aclNode( v.aclNode ).build();
+            v.originalParentFolderPath ).deletedDate( v.deletedDate ).hidden( v.hidden ).schedulable( !v
+                .isNotSchedulable() ).aclNode( v.aclNode ).build();
   }
 
   private static DefaultUnifiedRepositoryWebService getRepoWs() {

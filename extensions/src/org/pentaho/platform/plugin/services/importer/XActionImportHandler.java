@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -53,11 +53,13 @@ public class XActionImportHandler extends RepositoryFileImportFileHandler implem
       DocumentBuilder builder = factory.newDocumentBuilder();
       Document document = builder.parse( new ByteArrayInputStream( bytes ) );
 
-      NodeList resultTypes = document.getElementsByTagName( "result-type" );
-      if ( resultTypes.getLength() > 0 ) {
-        Node resultType = resultTypes.item( 0 );
-        boolean isHidden = "none".equals( resultType.getTextContent() );
-        importBundle.setHidden( isHidden );
+      if ( importBundle.isHidden() == null ) {
+        NodeList resultTypes = document.getElementsByTagName( "result-type" );
+        if ( resultTypes.getLength() > 0 ) {
+          Node resultType = resultTypes.item( 0 );
+          boolean isHidden = "none".equals( resultType.getTextContent() );
+          importBundle.setHidden( isHidden );
+        }
       }
       super.importFile( importBundle );
     } catch ( Exception e ) {
