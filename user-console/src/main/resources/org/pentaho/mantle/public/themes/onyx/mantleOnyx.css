@@ -871,8 +871,8 @@ a:active, a:hover {
 }
 
 #customDropdownPopupMinor  .gwt-MenuBar-vertical .gwt-MenuItem {
-  padding: 10px 30px 10px 0px;
-  text-align: right;
+  padding: 10px 5px 10px 5px;
+  text-align: center;
 }
 
 #pucPerspectives {
