@@ -1041,16 +1041,17 @@ a:active, a:hover {
 }
 
 #generated-content-location {
-  width: 360px;
-  margin-right: 10px;
+  width: 350px;
+  border-radius: 4px 0 0 4px;
 }
 
 .schedule-label {
-  margin-top: 10px;
+  margin-top: 15px;
+  margin-bottom: 5px;
 }
 
 #schedule-name-input {
-  width: 360px;
+  width: 350px;
 }
 
 .schedule-dialog-button-panel {
