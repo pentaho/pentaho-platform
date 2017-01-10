@@ -13,7 +13,7 @@
   * system/hibernate/oracle10g.hibernate.cfg.xml
   *
   -->
-    <config-file>system/hibernate/oracle10g.hibernate.cfg.xml</config-file>
+    <config-file>system/hibernate/mariadb.hibernate.cfg.xml</config-file>
 
   <!--
   *
