@@ -49,6 +49,7 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
       IPentahoSession session = PentahoSessionHolder.getSession();
       if ( !hasManageDataAccessPermission( session ) ) {
         response.sendError( 403, Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0009_UNAUTHORIZED" ) );
+        return;
       }
 
       UploadFileUtils utils = new UploadFileUtils( session );
