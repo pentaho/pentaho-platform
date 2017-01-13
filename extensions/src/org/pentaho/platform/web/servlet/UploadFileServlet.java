@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -22,7 +22,9 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.UUIDUtil;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
@@ -42,10 +44,14 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
 
   private static final long serialVersionUID = 8305367618713715640L;
 
-  protected void doPost( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-    IOException {
+  protected void doPost( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException {
     try {
       IPentahoSession session = PentahoSessionHolder.getSession();
+      if ( !hasManageDataAccessPermission( session ) ) {
+        response.sendError( 403, Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0009_UNAUTHORIZED" ) );
+        return;
+      }
+
       UploadFileUtils utils = new UploadFileUtils( session );
 
       response.setContentType( "text/plain" ); //$NON-NLS-1$
@@ -53,7 +59,7 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
       // Note - request.getParameter doesn't work on multi-part file data. But just in case,
       // we get the standardRequestParamaters as well as the parameter map we create from the
       // multi-part form data.
-      Map standardRequestParameters = request.getParameterMap();
+      Map<String, String[]> standardRequestParameters = request.getParameterMap();
       Map<String, FileItem> parsedMultiPartRequestParameters = this.getParsedRequestParameters( request, session );
 
       FileItem uploadItem = parsedMultiPartRequestParameters.get( "uploadFormElement" ); //$NON-NLS-1$
@@ -84,8 +90,7 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
       utils.setFileName( fileName );
       utils.setWriter( response.getWriter() );
       utils.setUploadedFileItem( uploadItem );
-      boolean success = utils.process();
-      // Do nothing with success value - the output should already have been written to the servlet response.
+      utils.process(); // Do nothing with success value - the output should already have been written to the servlet response.
 
     } catch ( Exception e ) {
       String error =
@@ -95,12 +100,12 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
     }
   }
 
-  protected String getRequestParameter( Map primary, Map secondary, String parameterName ) {
+  protected String getRequestParameter( Map<String, String[]> primary, Map<String, FileItem> secondary, String parameterName ) {
     String rtn = getRequestParameter( primary, parameterName );
     return ( rtn != null ) ? rtn : getRequestParameter( secondary, parameterName );
   }
 
-  protected String getRequestParameter( Map requestParameters, String parameterName ) {
+  protected String getRequestParameter( Map<String, ?> requestParameters, String parameterName ) {
     Object obj = requestParameters.get( parameterName );
     if ( obj != null ) {
       if ( obj instanceof FileItem ) {
@@ -119,22 +124,22 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
 
   /**
    * Parses the multi-part request to get all the parameters out.
-   * 
+   *
    * @param request
    * @param session
    * @return Map of the request parameters
    */
   private Map<String, FileItem> getParsedRequestParameters( HttpServletRequest request, IPentahoSession session ) {
 
-    HashMap<String, FileItem> rtn = new HashMap<String, FileItem>();
+    HashMap<String, FileItem> rtn = new HashMap<>();
     DiskFileItemFactory factory = new DiskFileItemFactory();
 
     ServletFileUpload upload = new ServletFileUpload( factory );
     try {
-      List items = upload.parseRequest( request );
-      Iterator it = items.iterator();
+      List<FileItem> items = upload.parseRequest( request );
+      Iterator<FileItem> it = items.iterator();
       while ( it.hasNext() ) {
-        FileItem item = (FileItem) it.next();
+        FileItem item = it.next();
         String fName = item.getFieldName();
         rtn.put( fName, item );
       }
@@ -142,6 +147,27 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
       return null;
     }
     return rtn;
+  }
+
+  /**
+   * Returns true if the current user has Manage Data Source Security. Otherwise returns false.
+   * @param session
+   * @return
+   */
+  protected boolean hasManageDataAccessPermission( IPentahoSession session ) {
+    // If this breaks an OEM's plugin, provide a get-out-of-jail card with an entry in the pentaho.xml.
+    String override = PentahoSystem.getSystemSetting( "data-access-override", "false" );
+    Boolean rtnOverride = Boolean.valueOf( override );
+    if ( !rtnOverride ) {
+      IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
+      if ( policy != null ) {
+        return policy.isAllowed( "org.pentaho.platform.dataaccess.datasource.security.manage" );
+      } else {
+        return false;
+      }
+    } else {
+      return true; // Override the security policy with the entry in the pentaho.xml.
+    }
   }
 
 }
