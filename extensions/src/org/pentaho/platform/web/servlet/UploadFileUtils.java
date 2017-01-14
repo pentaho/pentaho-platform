@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -37,6 +37,8 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.Writer;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -46,8 +48,10 @@ public class UploadFileUtils {
 
   private static final long MAX_FILE_SIZE = 300000;
   private static final long MAX_FOLDER_SIZE = 3000000;
+  private static final long MAX_TMP_FOLDER_SIZE = 3000000;
+  private static final String DEFAULT_EXTENSIONS = "csv,dat,txt,tar,zip,tgz,gz,gzip";
   public static final String DEFAULT_RELATIVE_UPLOAD_FILE_PATH = File.separatorChar
-      + "system" + File.separatorChar + "metadata" + File.separatorChar + "csvfiles" + File.separatorChar; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$  
+      + "system" + File.separatorChar + "metadata" + File.separatorChar + "csvfiles" + File.separatorChar; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   private String fileName;
   private boolean shouldUnzip;
   private boolean temporary;
@@ -56,31 +60,104 @@ public class UploadFileUtils {
   private IPentahoSession session;
   private long maxFileSize;
   private long maxFolderSize;
+  private long maxTmpFolderSize;
   private String relativePath;
   private String path;
   private File pathDir;
+  private File tmpPathDir;
+  private Set<String> allowedExtensions;
+  private String allowedExtensionsString;
+  private boolean allowsNoExtension;
 
   public UploadFileUtils( IPentahoSession sessionValue ) {
     this.session = sessionValue;
     relativePath =
         PentahoSystem.getSystemSetting(
-            "file-upload-defaults/relative-path", String.valueOf( DEFAULT_RELATIVE_UPLOAD_FILE_PATH ) ); //$NON-NLS-1$ 
+            "file-upload-defaults/relative-path", String.valueOf( DEFAULT_RELATIVE_UPLOAD_FILE_PATH ) ); //$NON-NLS-1$
     String maxFileLimit =
-        PentahoSystem.getSystemSetting( "file-upload-defaults/max-file-limit", String.valueOf( MAX_FILE_SIZE ) ); //$NON-NLS-1$    
+        PentahoSystem.getSystemSetting( "file-upload-defaults/max-file-limit", String.valueOf( MAX_FILE_SIZE ) ); //$NON-NLS-1$
     String maxFolderLimit =
         PentahoSystem.getSystemSetting( "file-upload-defaults/max-folder-limit", String.valueOf( MAX_FOLDER_SIZE ) ); //$NON-NLS-1$
+    // PPP-3629
+    String maxTmpFolderLimit =
+        PentahoSystem.getSystemSetting( "file-upload-defaults/max-tmp-folder-limit", String.valueOf( MAX_TMP_FOLDER_SIZE ) ); //$NON-NLS-1$
+    // PPP-3630
+    String tmpAllowedExtensions =
+        PentahoSystem.getSystemSetting( "file-upload-defaults/allowed-extensions",  DEFAULT_EXTENSIONS ); //$NON-NLS-1$
+    this.setAllowedExtensionsString( tmpAllowedExtensions );
+    // Are files without any extension allowed ? Notably found in .zip files and such.
+    String allowsNoExtensionString =
+        PentahoSystem.getSystemSetting( "file-upload-defaults/allow-files-without-extension",  "true" ); //$NON-NLS-1$
+    this.allowsNoExtension = Boolean.valueOf( allowsNoExtensionString );
     this.maxFileSize = Long.parseLong( maxFileLimit );
     this.maxFolderSize = Long.parseLong( maxFolderLimit );
+    this.maxTmpFolderSize = Long.parseLong( maxTmpFolderLimit );
+  }
+
+  protected boolean checkExtension( String fileName, boolean emitMessage ) throws IOException {
+
+    if ( ( fileName == null ) || ( fileName.length() == 0 ) ) {
+      if ( emitMessage ) {
+        getWriter()
+          .write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0010_FILE_NAME_INVALID" ) );
+      }
+      return false;
+    }
+
+    int lastDot = fileName.lastIndexOf( '.' );
+    if ( ( lastDot < 0 ) ) {
+      if ( !allowsNoExtension ) {
+        // File names without extensions not allowed
+        if ( emitMessage ) {
+          getWriter()
+            .write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0010_FILE_NAME_INVALID" ) );
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+    String ext = fileName.substring( lastDot + 1 );
+    if ( ext.length() == 0 ) { // file name ended in dot like "foo." - disallowed
+      if ( emitMessage ) {
+        getWriter()
+          .write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0010_FILE_NAME_INVALID" ) );
+      }
+      return false;
+    }
+
+    if ( !allowedExtensions.contains(  ext ) ) {
+      if ( emitMessage ) {
+        getWriter()
+          .write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0011_ILLEGAL_FILE_TYPE", this.allowedExtensionsString ) );
+      }
+      return false;
+    }
+    return true;
+  }
+
+  public boolean process() throws Exception {
+    // Moved so I can write a test case ...
     path = PentahoSystem.getApplicationContext().getSolutionPath( relativePath );
     pathDir = new File( path );
     // create the path if it doesn't exist yet
     if ( !pathDir.exists() ) {
       pathDir.mkdirs();
     }
-  }
+    // Handle PPP-3630 - check size of tmp folder too...
+    tmpPathDir = new File( PentahoSystem.getApplicationContext().getSolutionPath( "system/tmp" ) );
 
-  public boolean process() throws Exception {
+
     if ( !checkLimits( getUploadedFileItem().getSize() ) ) {
+      return false;
+    }
+
+    if ( this.fileName == null ) {
+      getWriter()
+        .write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0010_FILE_NAME_INVALID" ) );
+      return false;
+    }
+    if ( !checkExtension( this.fileName, true ) ) {
       return false;
     }
 
@@ -190,7 +267,7 @@ public class UploadFileUtils {
 
   /**
    * Gets the uncompressed file size of a .zip file.
-   * 
+   *
    * @param theFile
    * @return long uncompressed file size.
    * @throws IOException
@@ -218,7 +295,7 @@ public class UploadFileUtils {
 
   /**
    * Gets the uncompressed file size of a .gz file by reading the last four bytes of the file
-   * 
+   *
    * @param file
    * @return long uncompressed original file size
    * @throws IOException
@@ -250,7 +327,7 @@ public class UploadFileUtils {
 
   /**
    * Decompress a zip file and return a list of the file names that were unpacked
-   * 
+   *
    * @param file
    * @param session
    * @return
@@ -271,26 +348,28 @@ public class UploadFileUtils {
           if ( !entry.isDirectory() && !entry.getName().startsWith( "." ) && !entry.getName().startsWith( "__MACOSX/" ) ) { //$NON-NLS-1$ //$NON-NLS-2$
 
             File entryFile = null;
-            if ( isTemporary() ) {
-              String extension = ".tmp"; //$NON-NLS-1$
-              int idx = entry.getName().lastIndexOf( '.' );
-              if ( idx != -1 ) {
-                extension = entry.getName().substring( idx ) + extension;
+            if ( checkExtension( entry.getName(), false ) ) {
+              if ( isTemporary() ) {
+                String extension = ".tmp"; //$NON-NLS-1$
+                int idx = entry.getName().lastIndexOf( '.' );
+                if ( idx != -1 ) {
+                  extension = entry.getName().substring( idx ) + extension;
+                }
+                entryFile = PentahoSystem.getApplicationContext().createTempFile( session, "", extension, true ); //$NON-NLS-1$
+              } else {
+                entryFile = new File( getPath() + File.separatorChar + entry.getName() );
               }
-              entryFile = PentahoSystem.getApplicationContext().createTempFile( session, "", extension, true ); //$NON-NLS-1$
-            } else {
-              entryFile = new File( getPath() + File.separatorChar + entry.getName() );
-            }
 
-            if ( sb.length() > 0 ) {
-              sb.append( "\n" ); //$NON-NLS-1$
-            }
-            sb.append( entryFile.getName() );
-            FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
-            try {
-              IOUtils.copy( zipStream, entryOutputStream );
-            } finally {
-              IOUtils.closeQuietly( entryOutputStream );
+              if ( sb.length() > 0 ) {
+                sb.append( "\n" ); //$NON-NLS-1$
+              }
+              sb.append( entryFile.getName() );
+              FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
+              try {
+                IOUtils.copy( zipStream, entryOutputStream );
+              } finally {
+                IOUtils.closeQuietly( entryOutputStream );
+              }
             }
           }
           // go on to the next entry
@@ -302,14 +381,26 @@ public class UploadFileUtils {
     } finally {
       IOUtils.closeQuietly( fileStream );
     }
-    return sb.toString();
-
+    if ( sb.length() > 0 ) {
+      return sb.toString();
+    } else {
+      // no valid entries in the zip - nothing unzipped
+      return Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0012_ILLEGAL_CONTENTS" );
+    }
   }
 
   protected String handleGZip( File file, boolean fullPath ) throws IOException {
     FileInputStream fileStream = new FileInputStream( file.getAbsolutePath() );
 
     try {
+      String gzFile = file.getCanonicalPath();
+      int idx = gzFile.lastIndexOf( '.' );
+      String endFileName = null;
+      endFileName = gzFile.substring( 0, idx ); // cuts off the .gz/.gzip part
+      idx = endFileName.lastIndexOf( '.' ); // Now, get the real extension index
+      if ( !checkExtension( endFileName, true ) ) {
+        return "";
+      }
       // create a gzip input stream from the tmp file that was uploaded
       GZIPInputStream zipStream = new GZIPInputStream( new BufferedInputStream( fileStream ) );
 
@@ -317,10 +408,8 @@ public class UploadFileUtils {
       if ( isTemporary() || fullPath ) {
         entryFile = PentahoSystem.getApplicationContext().createTempFile( session, "", ".tmp", true ); //$NON-NLS-1$ //$NON-NLS-2$
       } else {
-        String gzFile = file.getCanonicalPath();
-        int idx = gzFile.lastIndexOf( '.' );
         if ( idx > 0 ) {
-          entryFile = new File( gzFile.substring( 0, idx ) ); // Cut off the .gz/.gzip part.
+          entryFile = new File( endFileName );
         } else {
           // Odd - someone specified the name as .gz or .gzip... create a temp file (for naming)
           // Note - not added to deleter because it's a file that should stay around - it's CSV data
@@ -364,26 +453,28 @@ public class UploadFileUtils {
           // ignore hidden directories and files, extract the rest
           if ( !entry.isDirectory() && !entry.getName().startsWith( "." ) && !entry.getName().startsWith( "__MACOSX/" ) ) { //$NON-NLS-1$ //$NON-NLS-2$
             File entryFile = null;
-            if ( isTemporary() ) {
-              String extension = ".tmp"; //$NON-NLS-1$
-              int idx = entry.getName().lastIndexOf( '.' );
-              if ( idx != -1 ) {
-                extension = entry.getName().substring( idx ) + extension;
+            if ( checkExtension( entry.getName(), false ) ) {
+              if ( isTemporary() ) {
+                String extension = ".tmp"; //$NON-NLS-1$
+                int idx = entry.getName().lastIndexOf( '.' );
+                if ( idx != -1 ) {
+                  extension = entry.getName().substring( idx ) + extension;
+                }
+                entryFile = PentahoSystem.getApplicationContext().createTempFile( session, "", extension, true ); //$NON-NLS-1$
+              } else {
+                entryFile = new File( getPath() + File.separatorChar + entry.getName() );
               }
-              entryFile = PentahoSystem.getApplicationContext().createTempFile( session, "", extension, true ); //$NON-NLS-1$ 
-            } else {
-              entryFile = new File( getPath() + File.separatorChar + entry.getName() );
-            }
 
-            if ( sb.length() > 0 ) {
-              sb.append( "\n" ); //$NON-NLS-1$
-            }
-            sb.append( entryFile.getName() );
-            FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
-            try {
-              IOUtils.copy( zipStream, entryOutputStream );
-            } finally {
-              IOUtils.closeQuietly( entryOutputStream );
+              if ( sb.length() > 0 ) {
+                sb.append( "\n" ); //$NON-NLS-1$
+              }
+              sb.append( entryFile.getName() );
+              FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
+              try {
+                IOUtils.copy( zipStream, entryOutputStream );
+              } finally {
+                IOUtils.closeQuietly( entryOutputStream );
+              }
             }
           }
           // go on to the next entry
@@ -396,7 +487,12 @@ public class UploadFileUtils {
     } finally {
       IOUtils.closeQuietly( fileStream );
     }
-    return sb.toString();
+    if ( sb.length() > 0 ) {
+      return sb.toString();
+    } else {
+      // no valid entries in the zip - nothing unzipped
+      return Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0012_ILLEGAL_CONTENTS" );
+    }
   }
 
   protected String handleTarGZ( File file ) throws IOException {
@@ -429,10 +525,20 @@ public class UploadFileUtils {
       return false;
     }
 
-    if ( itemSize + getFolderSize( pathDir ) > maxFolderSize ) {
+    File checkDir;
+    long folderLimit;
+    if ( !isTemporary() ) {
+      checkDir = pathDir;
+      folderLimit = maxFolderSize;
+    } else {
+      checkDir = tmpPathDir;
+      folderLimit = maxTmpFolderSize;
+    }
+    long actualDirSize = getFolderSize( checkDir );
+    if ( ( itemSize + actualDirSize ) > folderLimit ) {
       String error =
           compressed ? Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0007_FOLDER_SIZE_LIMIT_REACHED" ) //$NON-NLS-1$
-              : Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0004_FOLDER_SIZE_LIMIT_REACHED" ); //$NON-NLS-1$ 
+              : Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0004_FOLDER_SIZE_LIMIT_REACHED" ); //$NON-NLS-1$
       writer.write( error );
       return false;
     }
@@ -504,6 +610,36 @@ public class UploadFileUtils {
 
   public String getRelativePath() {
     return this.relativePath;
+  }
+
+/*
+ *
+  private Set<String> allowedExtensions;
+  private String allowedExtensionsString;
+  private boolean allowsNoExtension;
+ */
+
+  void setAllowsNoExtension( boolean value ) {
+    this.allowsNoExtension = value;
+  }
+
+  boolean getAllowsNoExtension( ) {
+    return this.allowsNoExtension;
+  }
+
+  void setAllowedExtensionsString( String value ) {
+    this.allowedExtensionsString = value;
+    String[] extensions = value.split( "," );
+
+    HashSet<String> theSet = new HashSet<>( extensions.length );
+    for ( int i = 0; i < extensions.length; i++ ) {
+      theSet.add( extensions[ i ] );
+    }
+    this.allowedExtensions = theSet;
+  }
+
+  String getAllowedExtensionsString() {
+    return this.allowedExtensionsString;
   }
 
 }
