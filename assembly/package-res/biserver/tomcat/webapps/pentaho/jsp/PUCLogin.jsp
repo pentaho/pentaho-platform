@@ -18,24 +18,22 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
 <%@
     page language="java"
-    import="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter,
-            org.springframework.security.web.savedrequest.SavedRequest,
-            org.springframework.security.core.AuthenticationException,
-            org.pentaho.platform.uifoundation.component.HtmlComponent,
+    import="org.springframework.security.web.savedrequest.SavedRequest,                       
             org.pentaho.platform.engine.core.system.PentahoSystem,
             org.pentaho.platform.util.messages.LocaleHelper,
-            org.pentaho.platform.api.engine.IPentahoSession,
-            org.pentaho.platform.web.http.WebTemplateHelper,
-            org.pentaho.platform.api.engine.IUITemplater,
+            org.pentaho.platform.api.engine.IPentahoSession,           
             org.pentaho.platform.api.engine.IPluginManager,
             org.pentaho.platform.web.jsp.messages.Messages,
-            java.util.List,
+            java.net.URL,
+            java.net.URLClassLoader,
             java.util.ArrayList,
-            java.util.StringTokenizer,
-            org.apache.commons.lang.StringEscapeUtils,
+            java.util.Iterator,
+            java.util.LinkedHashMap,
+            java.util.List,
+            java.util.Map,
+            java.util.StringTokenizer,            
             org.pentaho.platform.engine.core.system.PentahoSessionHolder,
-            org.owasp.encoder.Encode,
-            org.pentaho.platform.util.ServerTypeUtil"%>
+            org.owasp.encoder.Encode"%>
 <%!
   // List of request URL strings to look for to send 401
 
@@ -104,12 +102,25 @@
           String mobileRedirect = (String)pluginManager.getPluginSetting(id, "mobile-redirect", null);
           if (mobileRedirect != null) {
             // we have a mobile redirect
+            final Map<String, String> queryPairs = new LinkedHashMap<String, String>();
+            URL url = new URL( requestedURL );
             //Check for deep linking by fetching the name and startup-url values from URL query parameters
-            String name = (String) request.getAttribute("name");
-            String startupUrl = (String) request.getAttribute("startup-url");
-            if (startupUrl != null && name != null){
-              //Sanitize the values assigned
-              mobileRedirect += "?name=" + Encode.forJavaScript(name) + "&startup-url=" + Encode.forJavaScript(startupUrl);
+            String[] pairs = url.getQuery().split( "&" );
+            for ( String pair : pairs ){
+              int delimiter = pair.indexOf( "=" );
+              queryPairs.put( Encode.forJavaScript( pair.substring( 0, delimiter ) ),  Encode.forJavaScript( pair.substring( delimiter + 1 ) ));
+            }
+            if ( queryPairs.size() > 0 ) {
+              mobileRedirect += "?";
+              Iterator it = queryPairs.entrySet().iterator();
+              while ( it.hasNext() ) {
+                Map.Entry entry = (Map.Entry) it.next();
+                mobileRedirect += entry.getKey() + "=" + entry.getValue();
+                it.remove();
+                  if ( it.hasNext() ){
+                    mobileRedirect += "&";
+                  }
+              }
             }
   %>
   <script type="text/javascript">

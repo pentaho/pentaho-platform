@@ -12,28 +12,31 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+* Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
 --%>
 
 <!DOCTYPE html>
 <%@page pageEncoding="UTF-8" %>
-<%@page import="org.apache.commons.lang.StringUtils" %>
-<%@page import="org.owasp.encoder.Encode" %>
-<%@page import="org.pentaho.platform.util.messages.LocaleHelper" %>
-<%@page import="java.net.URL" %>
-<%@page import="java.net.URLClassLoader" %>
-<%@page import="java.util.Locale" %>
-<%@page import="java.util.List" %>
-<%@page import="java.util.ResourceBundle" %>
-<%@page import="org.pentaho.platform.engine.core.system.PentahoSystem" %>
-<%@page import="org.pentaho.platform.api.engine.IPluginManager" %>
-<%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder" %>
-
+<%@
+    page language="java"
+    import="org.apache.commons.lang.StringUtils,
+            org.owasp.encoder.Encode,
+            org.pentaho.platform.util.messages.LocaleHelper,
+            java.util.Locale,
+            java.net.URL,
+            java.net.URLClassLoader,
+            java.util.ArrayList,
+            java.util.Iterator,
+            java.util.LinkedHashMap,
+            java.util.List,
+            java.util.Map,
+            java.util.ResourceBundle,
+            org.pentaho.platform.engine.core.system.PentahoSystem,
+            org.pentaho.platform.api.engine.IPluginManager,
+            org.pentaho.platform.engine.core.system.PentahoSessionHolder"%>
 <%
   boolean hasDataAccessPlugin = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins().contains( "data-access" );
-%>
 
-<%
   Locale effectiveLocale = request.getLocale();
   if ( !StringUtils.isEmpty( request.getParameter( "locale" ) ) ) {
     request.getSession().setAttribute( "locale_override", request.getParameter( "locale" ) );
@@ -66,12 +69,26 @@
             // we have a mobile redirect
             haveMobileRedirect = true;
             //Check for deep linking by fetching the name and startup-url values from URL query parameters
-            String name = (String) request.getAttribute("name");
-            String startupUrl = (String) request.getAttribute("startup-url");
-            if (startupUrl != null && name != null){
+            String queryString = request.getQueryString();
+            final Map<String, String> queryPairs = new LinkedHashMap<String, String>();
+            //Check for deep linking by fetching the name and startup-url values from URL query parameters
+            String[] pairs = queryString.split( "&" );
+            for ( String pair : pairs ){
+              int delimiter = pair.indexOf( "=" );
               //Sanitize the values assigned
-              mobileRedirect += "?name=" + Encode.forJavaScript(name) + "&startup-url=" + Encode.forJavaScript(startupUrl);
-            }
+              queryPairs.put( Encode.forJavaScript( pair.substring( 0, delimiter ) ),  Encode.forJavaScript( pair.substring( delimiter + 1 ) )); }
+              if ( queryPairs.size() > 0 ) {
+                mobileRedirect += "?";
+                Iterator it = queryPairs.entrySet().iterator();
+                while ( it.hasNext() ) {
+                  Map.Entry entry = (Map.Entry) it.next();
+                  mobileRedirect += entry.getKey() + "=" + entry.getValue();
+                  it.remove();
+                    if ( it.hasNext() ){
+                      mobileRedirect += "&";
+                    }
+                }
+              }
   %>
   <script type="text/javascript">
     if(typeof window.parent.PentahoMobile != "undefined"){
