@@ -146,7 +146,10 @@ public class UploadFileUtils {
     }
     // Handle PPP-3630 - check size of tmp folder too...
     tmpPathDir = new File( PentahoSystem.getApplicationContext().getSolutionPath( "system/tmp" ) );
-
+    // Create tmp path if it doesn't exist yet
+    if ( !tmpPathDir.exists() ) {
+      tmpPathDir.mkdirs();
+    }
 
     if ( !checkLimits( getUploadedFileItem().getSize() ) ) {
       return false;
