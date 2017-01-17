@@ -58,25 +58,26 @@
 
   <%
     boolean haveMobileRedirect = false;
-    String ua = request.getHeader("User-Agent").toLowerCase();
-    if (!"desktop".equalsIgnoreCase(request.getParameter("mode"))) {
-      if (ua.contains("ipad") || ua.contains("ipod") || ua.contains("iphone") || ua.contains("android") || "mobile".equalsIgnoreCase(request.getParameter("mode"))) {
-        IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
+    String ua = request.getHeader( "User-Agent" ).toLowerCase();
+    if ( !"desktop".equalsIgnoreCase( request.getParameter( "mode") ) ) {
+      if ( ua.contains( "ipad" ) || ua.contains( "ipod" ) || ua.contains( "iphone" )
+         || ua.contains( "android" ) || "mobile".equalsIgnoreCase( request.getParameter( "mode" ) ) ) {
+        IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
         List<String> pluginIds = pluginManager.getRegisteredPlugins();
-        for (String id : pluginIds) {
-          String mobileRedirect = (String)pluginManager.getPluginSetting(id, "mobile-redirect", null);
-          if (mobileRedirect != null) {
+        for ( String id : pluginIds ) {
+          String mobileRedirect = (String)pluginManager.getPluginSetting( id, "mobile-redirect", null );
+          if ( mobileRedirect != null ) {
             // we have a mobile redirect
             haveMobileRedirect = true;
-            //Check for deep linking by fetching the name and startup-url values from URL query parameters
             String queryString = request.getQueryString();
-            final Map<String, String> queryPairs = new LinkedHashMap<String, String>();
-            //Check for deep linking by fetching the name and startup-url values from URL query parameters
-            String[] pairs = queryString.split( "&" );
-            for ( String pair : pairs ){
-              int delimiter = pair.indexOf( "=" );
-              //Sanitize the values assigned
-              queryPairs.put( Encode.forJavaScript( pair.substring( 0, delimiter ) ),  Encode.forJavaScript( pair.substring( delimiter + 1 ) )); }
+            if( queryString != null ) {
+              final Map<String, String> queryPairs = new LinkedHashMap<String, String>();
+              //Check for deep linking by fetching the name and startup-url values from URL query parameters
+              String[] pairs = queryString.split( "&" );
+              for ( String pair : pairs ) {
+                int delimiter = pair.indexOf( "=" );
+                queryPairs.put( Encode.forJavaScript( pair.substring( 0, delimiter ) ),  Encode.forJavaScript( pair.substring( delimiter + 1 ) ) );
+              }
               if ( queryPairs.size() > 0 ) {
                 mobileRedirect += "?";
                 Iterator it = queryPairs.entrySet().iterator();
@@ -89,6 +90,7 @@
                     }
                 }
               }
+            }
   %>
   <script type="text/javascript">
     if(typeof window.parent.PentahoMobile != "undefined"){
