@@ -4,15 +4,15 @@
   <formats>
     <format>zip</format>
   </formats>
-  <includeBaseDirectory>false</includeBaseDirectory>
+  <baseDirectory>pentaho-server</baseDirectory>
   <files>
     <file>
       <source>${project.root.build.directory}/${project.artifactId}/pentaho-solutions/system/dialects/hsqldb/applicationContext-spring-security-hibernate.properties</source>
-      <outputDirectory>/pentaho-solutions/system</outputDirectory>
+      <outputDirectory>./pentaho-solutions/system</outputDirectory>
     </file>
     <file>
       <source>${project.root.build.directory}/${project.artifactId}/pentaho-solutions/system/dialects/hsqldb/audit_sql.xml</source>
-      <outputDirectory>/pentaho-solutions/system</outputDirectory>
+      <outputDirectory>./pentaho-solutions/system</outputDirectory>
     </file>
   </files>
   <fileSets>
@@ -43,6 +43,9 @@
     <fileSet>
       <directory>${project.root.build.directory}/${project.artifactId}</directory><!-- assembly/target/pentaho-server -->
       <outputDirectory>.</outputDirectory>
+      <excludes>
+        <exclude>**/pentaho-style/**/*.jar</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>${project.root.build.directory}/${project.artifactId}</directory><!-- assembly/target/pentaho-server -->
