@@ -20,7 +20,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    
+
     <package.id>pentaho-server</package.id>
     <target.dir>${project.build.directory}</target.dir> <!-- same as ${basedir}/target -->
     <target.pentaho-server.dir>${target.dir}/${package.id}</target.pentaho-server.dir> <!-- where the server will get assembled -->
@@ -28,9 +28,9 @@
     <target.pentaho-server.solutions.dir>${target.pentaho-server.dir}/pentaho-solutions</target.pentaho-server.solutions.dir>
     <target.pentaho-server.samples.dir>${target.pentaho-server.solutions.dir}/plugin-samples</target.pentaho-server.samples.dir>
     <target.pentaho-server.system.dir>${target.pentaho-server.solutions.dir}/system</target.pentaho-server.system.dir>
-      
-    <target.pentaho-server.plugins.dir>${target.pentaho-server.system.dir}</target.pentaho-server.plugins.dir> 
-    <target.pentaho-server.kettle.plugins.dir>${target.pentaho-server.system.dir}/kettle/plugins</target.pentaho-server.kettle.plugins.dir> 
+
+    <target.pentaho-server.plugins.dir>${target.pentaho-server.system.dir}</target.pentaho-server.plugins.dir>
+    <target.pentaho-server.kettle.plugins.dir>${target.pentaho-server.system.dir}/kettle/plugins</target.pentaho-server.kettle.plugins.dir>
 
     <plugins.dir>plugins</plugins.dir>
     <lib.dir>${project.build.directory}/lib</lib.dir>
@@ -88,7 +88,7 @@
 
   <build>
     <plugins>
-      <!-- [START] unpack platform-plugins, kettle-plugins and pentaho-samples 
+      <!-- [START] unpack platform-plugins, kettle-plugins and pentaho-samples
         into the proper locations -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -392,9 +392,9 @@
               <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
           </execution>
-          <!-- [END] unpack platform-plugins, kettle-plugins and pentaho-samples 
+          <!-- [END] unpack platform-plugins, kettle-plugins and pentaho-samples
             into the proper locations -->
-          <!--  Downloading Tomcat -->  
+          <!--  Downloading Tomcat -->
           <execution>
             <id>unpack-tomcat</id>
             <phase>package</phase>
@@ -431,7 +431,7 @@
                   <outputDirectory>${target.pentaho-server.dir}/licenses</outputDirectory>
                   <includes>PentahoServer_OSS_Licenses.html</includes>
                 </artifactItem>
-                
+
               </artifactItems>
             </configuration>
           </execution>
@@ -622,13 +622,13 @@
                   <exclude>**/WEB-INF/jboss-portlet.xml</exclude>
                   <exclude>**/WEB-INF/jboss-web.xml</exclude>
                   <exclude>**/WEB-INF/portlet-instances.xml</exclude>
-                  <exclude>/pentaho-solutions/system/default-content/samples/</exclude>                  
+                  <exclude>/pentaho-solutions/system/default-content/samples/</exclude>
                 </excludes>
               </resource>
               <resource>
                  <!--  Copy from package-res-merged-server/biserver -->
                 <directory>${basedir}/package-res-merged-server/biserver</directory>
-  
+
               </resource>
 
             </resources>
@@ -745,6 +745,8 @@
                 <webXml>${prep.pentaho.style.war.dir}/WEB-INF/web.xml</webXml>
                 <webappDirectory>${prep.pentaho.style.war.dir}</webappDirectory>
                 <outputDirectory>${target.dir}</outputDirectory>
+                <!-- pentaho-style does not need jars -->
+                <packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
               </configuration>
            </execution>
          </executions>
@@ -784,7 +786,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
     <plugin>
       <artifactId>maven-assembly-plugin</artifactId>
       <version>${maven-assembly-plugin.version}</version>
@@ -802,8 +804,8 @@
             </descriptors>
             <finalName>plugin-samples</finalName>
             <appendAssemblyId>false</appendAssemblyId>
-            <outputDirectory>${target.pentaho-server.plugins.dir}/default-content</outputDirectory>                      
-          </configuration>            
+            <outputDirectory>${target.pentaho-server.plugins.dir}/default-content</outputDirectory>
+          </configuration>
         </execution>
         <execution>
           <id>distribute-pentaho-samples</id>
@@ -817,12 +819,12 @@
             </descriptors>
             <finalName>samples</finalName>
             <appendAssemblyId>false</appendAssemblyId>
-            <outputDirectory>${target.pentaho-server.plugins.dir}/default-content</outputDirectory>                      
-          </configuration>            
-        </execution>          
-      </executions>      
-    </plugin>      
-     
+            <outputDirectory>${target.pentaho-server.plugins.dir}/default-content</outputDirectory>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+
     </plugins>
   </build>
 
@@ -918,7 +920,7 @@
 
     <!--  Reporting -->
     <!-- NOTE: this reporting plugin jar will be removed once the reporting plugin is 3.5 plugin compliant -->
-    
+
     <dependency>
       <groupId>pentaho-reporting-engine</groupId>
       <artifactId>pentaho-reporting-engine-classic-core-platform-plugin</artifactId>
@@ -959,7 +961,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>pentaho-reporting-engine</groupId>
       <artifactId>pentaho-reporting-engine-classic-core</artifactId>
@@ -996,7 +998,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-  
+
     <!-- Miscellaneous -->
     <dependency>
       <groupId>org.owasp.encoder</groupId>
@@ -1076,8 +1078,8 @@
       <version>${commons-logging.version}</version>
       <scope>compile</scope>
     </dependency>
-        
-   
+
+
     <!-- Metro -->
     <dependency>
       <groupId>org.glassfish.metro</groupId>
@@ -1225,8 +1227,8 @@
       <version>${slf4j-log4j12.version}</version>
       <scope>compile</scope>
     </dependency>
-    
-    
+
+
     <!-- Saxon -->
     <dependency>
       <groupId>net.sf.saxon</groupId>
@@ -1300,7 +1302,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <!-- Karaf dependencies -->
     <dependency>
       <groupId>org.apache.karaf</groupId>
@@ -1780,7 +1782,7 @@
       </exclusions>
      </dependency>
   </dependencies>
-  
+
   <dependencyManagement>
     <dependencies>
         <dependency>
