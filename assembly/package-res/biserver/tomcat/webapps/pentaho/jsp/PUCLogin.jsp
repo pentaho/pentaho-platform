@@ -18,20 +18,18 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
 <%@
     page language="java"
-    import="org.springframework.security.web.savedrequest.SavedRequest,                       
+    import="org.springframework.security.web.savedrequest.SavedRequest,
             org.pentaho.platform.engine.core.system.PentahoSystem,
             org.pentaho.platform.util.messages.LocaleHelper,
-            org.pentaho.platform.api.engine.IPentahoSession,           
+            org.pentaho.platform.api.engine.IPentahoSession,
             org.pentaho.platform.api.engine.IPluginManager,
             org.pentaho.platform.web.jsp.messages.Messages,
-            java.net.URL,
-            java.net.URLClassLoader,
             java.util.ArrayList,
             java.util.Iterator,
             java.util.LinkedHashMap,
             java.util.List,
             java.util.Map,
-            java.util.StringTokenizer,            
+            java.util.StringTokenizer,
             org.pentaho.platform.engine.core.system.PentahoSessionHolder,
             org.owasp.encoder.Encode"%>
 <%!
@@ -93,33 +91,36 @@
   <title><%=Messages.getInstance().getString("UI.PUC.TITLE")%></title>
 
   <%
-    String ua = request.getHeader("User-Agent").toLowerCase();
-    if (!"desktop".equalsIgnoreCase(request.getParameter("mode"))) {
-      if (ua.contains("ipad") || ua.contains("ipod") || ua.contains("iphone") || ua.contains("android") || "mobile".equalsIgnoreCase(request.getParameter("mode"))) {
-        IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
+    String ua = request.getHeader( "User-Agent" ).toLowerCase();
+    if ( !"desktop".equalsIgnoreCase( request.getParameter( "mode") ) ) {
+      if ( ua.contains( "ipad" ) || ua.contains( "ipod" ) || ua.contains( "iphone" )
+           || ua.contains( "android" ) || "mobile".equalsIgnoreCase( request.getParameter( "mode" ) ) ) {
+        IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
         List<String> pluginIds = pluginManager.getRegisteredPlugins();
-        for (String id : pluginIds) {
-          String mobileRedirect = (String)pluginManager.getPluginSetting(id, "mobile-redirect", null);
-          if (mobileRedirect != null) {
-            // we have a mobile redirect
-            final Map<String, String> queryPairs = new LinkedHashMap<String, String>();
-            URL url = new URL( requestedURL );
-            //Check for deep linking by fetching the name and startup-url values from URL query parameters
-            String[] pairs = url.getQuery().split( "&" );
-            for ( String pair : pairs ){
-              int delimiter = pair.indexOf( "=" );
-              queryPairs.put( Encode.forJavaScript( pair.substring( 0, delimiter ) ),  Encode.forJavaScript( pair.substring( delimiter + 1 ) ));
-            }
-            if ( queryPairs.size() > 0 ) {
-              mobileRedirect += "?";
-              Iterator it = queryPairs.entrySet().iterator();
-              while ( it.hasNext() ) {
-                Map.Entry entry = (Map.Entry) it.next();
-                mobileRedirect += entry.getKey() + "=" + entry.getValue();
-                it.remove();
-                  if ( it.hasNext() ){
-                    mobileRedirect += "&";
-                  }
+        for ( String id : pluginIds ) {
+          String mobileRedirect = (String)pluginManager.getPluginSetting( id, "mobile-redirect", null );
+          if ( mobileRedirect != null ) {
+            // we have a mobile redirect            
+            String queryString = request.getQueryString();
+            if( queryString != null ) {
+              final Map<String, String> queryPairs = new LinkedHashMap<String, String>();
+              //Check for deep linking by fetching the name and startup-url values from URL query parameters
+              String[] pairs = queryString.split( "&" );
+              for ( String pair : pairs ) {
+                int delimiter = pair.indexOf( "=" );
+                queryPairs.put( Encode.forJavaScript( pair.substring( 0, delimiter ) ),  Encode.forJavaScript( pair.substring( delimiter + 1 ) ) );
+              }
+              if ( queryPairs.size() > 0 ) {
+                mobileRedirect += "?";
+                Iterator it = queryPairs.entrySet().iterator();
+                while ( it.hasNext() ) {
+                  Map.Entry entry = (Map.Entry) it.next();
+                  mobileRedirect += entry.getKey() + "=" + entry.getValue();
+                  it.remove();
+                    if ( it.hasNext() ){
+                      mobileRedirect += "&";
+                    }
+                }
               }
             }
   %>
