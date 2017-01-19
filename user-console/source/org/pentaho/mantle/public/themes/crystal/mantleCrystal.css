@@ -1073,7 +1073,7 @@ a:active, a:hover {
 }
 
 #mainToolbar #editContentButton .toolbar-toggle-button-disabled IMG {
-  background: url('../../../content/common-ui/resources/themes/crystal/images/editContent_32_disabled.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/editContent_32.png');
   height: 32px;
   width: 32px;
 }
@@ -1085,7 +1085,7 @@ a:active, a:hover {
 }
 
 #mainToolbar #saveButton .toolbar-button-disabled IMG {
-  background: url('../../../content/common-ui/resources/themes/crystal/images/save_32_disabled.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/save_32.png');
   height: 32px;
   width: 32px;
 }
@@ -1097,7 +1097,7 @@ a:active, a:hover {
 }
 
 #mainToolbar #saveAsButton .toolbar-button-disabled IMG {
-  background: url('../../../content/common-ui/resources/themes/crystal/images/saveAs_32_disabled.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/saveAs_32.png');
   height: 32px;
   width: 32px;
 }
@@ -1127,7 +1127,7 @@ a:active, a:hover {
 }
 
 #mainToolbar #printButton .toolbar-button-disabled IMG {
-  background: url('../../../content/common-ui/resources/themes/crystal/images/print_32_disabled.png');
+  background: url('../../../content/common-ui/resources/themes/crystal/images/print_32.png');
   height: 32px;
   width: 32px;
 }
