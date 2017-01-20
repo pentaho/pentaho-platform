@@ -371,7 +371,7 @@
 
     <!-- Explode the user-console generated files -->
     <unzip dest="${prep.pentaho.war.dir}">
-      <fileset dir="${lib.dir}" includes="pentaho-user-console-package-*.zip" />
+      <fileset dir="${lib.dir}" includes="pentaho-user-console-*.zip" />
     </unzip>
 
     <!-- Add general libs -->
