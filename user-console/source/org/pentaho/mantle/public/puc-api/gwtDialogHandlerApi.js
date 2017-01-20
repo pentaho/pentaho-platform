@@ -3,7 +3,7 @@
  * API for handling gwt dialogs that want to become fullscreen
  */
 
-var deps = ['mantle/puc-api/pucAngularPlugin', 'common-ui/jquery'];
+var deps = ['./pucAngularPlugin', 'common-ui/jquery'];
 
 define(deps, function(PUCAngularPlugin, $) {
 
