@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -175,6 +175,8 @@ public class QuartzSchedulerIT {
 
     scheduler.triggerNow( JOB_ID );
 
+    verify( simpleTrigger, times( 1 ) ).setPreviousFireTime( any( Date.class ) );
+    verify( cronTrigger, times( 1 ) ).setPreviousFireTime( any( Date.class ) );
     verify( simpleTrigger, times( 1 ) ).setStartTime( any( Date.class ) );
     verify( cronTrigger, times( 1 ) ).setStartTime( any( Date.class ) );
     verify( quartzScheduler, times( 1 ) ).rescheduleJob( eq( JOB_ID ), eq( USER_NAME ), eq( simpleTrigger ) );

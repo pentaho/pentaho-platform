@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -397,10 +397,11 @@ public class QuartzScheduler implements IScheduler {
           continue;
         }
         if ( trigger instanceof SimpleTrigger ) {
-          ( (SimpleTrigger) trigger ).setStartTime( new Date() );
+          ( (SimpleTrigger) trigger ).setPreviousFireTime( new Date() );
         } else if ( trigger instanceof CronTrigger ) {
-          ( (CronTrigger) trigger ).setStartTime( new Date() );
+          ( (CronTrigger) trigger ).setPreviousFireTime( new Date() );
         }
+        trigger.setStartTime( trigger.getFireTimeAfter( new Date() ) );
         // force the trigger to be updated with the previous fire time
         scheduler.rescheduleJob( jobId, jobKey.getUserName(), trigger );
       }
