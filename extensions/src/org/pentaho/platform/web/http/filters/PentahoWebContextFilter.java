@@ -158,6 +158,13 @@ public class PentahoWebContextFilter implements Filter {
         printReservedCharsDisplay( out );
         printReservedRegexPattern( out );
 
+        boolean noOsgiRequireConfig = "true".equals( request.getParameter( "noOsgiRequireConfig" ) );
+        if(!noOsgiRequireConfig) {
+          out.write( ( "document.write(\"<script type='text/javascript' src='"
+              + contextPath + "osgi/requirejs-manager/js/require-init.js?requirejs=false'></scr\"+\"ipt>\");\n" )
+              .getBytes( "UTF-8" ) );
+        }
+
         boolean requireJsOnly = "true".equals( request.getParameter( "requireJsOnly" ) );
 
         if ( !requireJsOnly ) {
