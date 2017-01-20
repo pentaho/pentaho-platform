@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
 
-define(["home/favorites"], function (Favorites) {
+define(["./favorites"], function (Favorites) {
 
   var local = {
     recents: undefined,

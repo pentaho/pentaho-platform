@@ -80,7 +80,7 @@
   var FileBrowser = null;
 
   function initBrowser(canDownload, showHiddenFiles, showDescriptions, canPublish, canRead, canCreate) {
-    require(["js/browser"], function (pentahoFileBrowser) {
+    require(["mantle/browser/browser"], function (pentahoFileBrowser) {
       FileBrowser = pentahoFileBrowser;
       FileBrowser.setOpenFileHandler(openRepositoryFile);
       FileBrowser.setContainer($("#fileBrowser"));
