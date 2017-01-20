@@ -559,6 +559,16 @@
 			<groupId>org.apache.jackrabbit</groupId>
 			<artifactId>jackrabbit-core</artifactId>
 			<version>${jackrabbit.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>concurrent</groupId>
+          <artifactId>concurrent</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.derby</groupId>
+          <artifactId>derby</artifactId>
+        </exclusion>
+      </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>pentaho</groupId>
@@ -657,12 +667,12 @@
 			<groupId>org.springframework.webflow</groupId>
 			<artifactId>spring-binding</artifactId>
 			<version>${spring-binding.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
+      <exclusions>
+        <exclusion>
+          <groupId>opensymphony</groupId>
+          <artifactId>ognl</artifactId>
+        </exclusion>
+      </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
