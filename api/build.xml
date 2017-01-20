@@ -11,7 +11,7 @@
 
 	<description>
 	  This build file is used to create the API project
-		and works with the subfloor.xml file.
+		and works with the subfloor.xml file. Now with bacon!
 	</description>
 
 	<!-- The continuous target is used by CI ... this is the list of -->
