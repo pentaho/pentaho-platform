@@ -32,12 +32,12 @@
 		<!-- ====================== -->
 
 		<!--  properties override -->
-		<hamcrest-library.version>1.1</hamcrest-library.version>
+		<hamcrest-library.version>1.3</hamcrest-library.version>
 		<jaxen.version>1.1.1</jaxen.version>
 		<jstl.version>1.0.5</jstl.version>
-		<nekohtml.version>0.9.5</nekohtml.version>
-		<asm-attrs.version>1.5.3</asm-attrs.version>
-		<commons-httpclient.version>3.0.1</commons-httpclient.version>
+		<nekohtml.version>1.9.15</nekohtml.version>
+		<asm-attrs.version>2.2.3</asm-attrs.version>
+		<commons-httpclient.version>3.1</commons-httpclient.version>
 	</properties>
 
 	<dependencies>

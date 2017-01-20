@@ -75,7 +75,7 @@
   <commons-validator.version>1.3.1</commons-validator.version>
   <commons-vfs2.version>2.1-20150824</commons-vfs2.version>
 
-  <derby.version>10.2.1.6</derby.version>
+  <derby.version>10.5.3.0_1</derby.version>
   <dom4j.version>1.6.1</dom4j.version>
   <drools.version>6.4.0.Final</drools.version>
   <dumbster.version>1.6.0</dumbster.version>
@@ -94,7 +94,7 @@
   <gdata-client.version>1.41.4</gdata-client.version>
   <gdata-core.version>1.41.4</gdata-core.version>
   <georss-rome.version>0.9.8</georss-rome.version>
-  <geronimo-stax-api_1.0_spec.version>1.0</geronimo-stax-api_1.0_spec.version>
+  <geronimo-stax-api_1.0_spec.version>1.0.1</geronimo-stax-api_1.0_spec.version>
   <grizzly.version>1.9.45</grizzly.version>
 
   <groovy-all.version>2.4.7</groovy-all.version>
@@ -116,7 +116,7 @@
   <infobright-core.version>3.4</infobright-core.version>
   <ini4j.version>0.5.1</ini4j.version>
   <itext.version>2.1.7</itext.version>
-  <jackcess.version>1.2.4</jackcess.version>
+  <jackcess.version>1.2.6</jackcess.version>
   <jackrabbit.version>2.10.0</jackrabbit.version>
   <jackson.version>1.9.3</jackson.version>
   <jai_codec.version>1.1.2</jai_codec.version>
@@ -135,7 +135,7 @@
   <jaybird.version>2.1.6</jaybird.version>
   <jboss-modules.version>1.4.3.Final</jboss-modules.version>
   <jcifs.version>1.3.3</jcifs.version>
-  <jcl-over-slf4j.version>1.6.1</jcl-over-slf4j.version>
+  <jcl-over-slf4j.version>1.7.4</jcl-over-slf4j.version>
   <jcommon.version>1.0.16</jcommon.version>
   <jcr.version>2.0</jcr.version>
   <jdom.version>1.0</jdom.version>
@@ -149,7 +149,7 @@
   <jmockit.version>1.8</jmockit.version>
   <jmock-junit4.version>2.5.1</jmock-junit4.version>
   <js.version>1.7R3</js.version>
-  <jsch.version>0.1.46</jsch.version>
+  <jsch.version>0.1.54</jsch.version>
   <jsf-api.version>1.1</jsf-api.version>
   <jsendnsca.version>2.0.1</jsendnsca.version>
   <json-path.version>0.8.1</json-path.version>
@@ -174,7 +174,7 @@
   <log4j.version>1.2.17</log4j.version>
   <lucene-core.version>3.6.0</lucene-core.version>
   <LucidDbClient-minimal.version>0.9.4</LucidDbClient-minimal.version>
-  <mail.version>1.4.1</mail.version>
+  <mail.version>1.4.7</mail.version>
   <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
   <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
   <mdrapi.version>200507110943</mdrapi.version>
@@ -186,11 +186,11 @@
   <mockrunner.version>0.3.1</mockrunner.version>
   <modelVersion>4.0.0</modelVersion>
   <mondrian.version>3.14-SNAPSHOT</mondrian.version>
-  <monetdb-jdbc.version>2.1</monetdb-jdbc.version>
+  <monetdb-jdbc.version>2.8</monetdb-jdbc.version>
   <mstor.version>0.9.13</mstor.version>
   <mvel2.version>2.0.10</mvel2.version>
   <neethi.version>2.0.1</neethi.version>
-  <nekohtml.version>1.9.7</nekohtml.version>
+  <nekohtml.version>1.9.15</nekohtml.version>
   <odfdom-java.version>0.8.6</odfdom-java.version>
   <org.apache.felix.http.version>2.3.0</org.apache.felix.http.version>
   <org.apache.felix.main.version>4.2.1</org.apache.felix.main.version>
