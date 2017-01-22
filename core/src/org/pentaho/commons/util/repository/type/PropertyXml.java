@@ -20,11 +20,11 @@ package org.pentaho.commons.util.repository.type;
 public class PropertyXml extends PropertyString {
 
   public PropertyXml( String name ) {
-    super( name, new PropertyType( PropertyType.STRING ) );
+    super( name, new PropertyType( PropertyType.XML ) );
   }
 
   public PropertyXml( String name, String value ) {
-    super( name, new PropertyType( PropertyType.STRING ) );
+    super( name, new PropertyType( PropertyType.XML ) );
     setValue( value );
   }
 
