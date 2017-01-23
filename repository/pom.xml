@@ -568,6 +568,10 @@
           <groupId>org.apache.derby</groupId>
           <artifactId>derby</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.apache.jackrabbit</groupId>
+          <artifactId>jackrabbit-data</artifactId>
+        </exclusion>
       </exclusions>
 		</dependency>
 		<dependency>
