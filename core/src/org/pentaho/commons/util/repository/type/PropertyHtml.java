@@ -20,11 +20,11 @@ package org.pentaho.commons.util.repository.type;
 public class PropertyHtml extends PropertyString {
 
   public PropertyHtml( String name ) {
-    super( name, new PropertyType( PropertyType.STRING ) );
+    super( name, new PropertyType( PropertyType.HTML ) );
   }
 
   public PropertyHtml( String name, String value ) {
-    super( name, new PropertyType( PropertyType.STRING ) );
+    super( name, new PropertyType( PropertyType.HTML ) );
     setValue( value );
   }
 }

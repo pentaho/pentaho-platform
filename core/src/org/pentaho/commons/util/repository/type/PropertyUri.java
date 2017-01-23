@@ -20,11 +20,11 @@ package org.pentaho.commons.util.repository.type;
 public class PropertyUri extends PropertyString {
 
   public PropertyUri( String name ) {
-    super( name, new PropertyType( PropertyType.STRING ) );
+    super( name, new PropertyType( PropertyType.URI ) );
   }
 
   public PropertyUri( String name, String value ) {
-    super( name, new PropertyType( PropertyType.STRING ) );
+    super( name, new PropertyType( PropertyType.URI ) );
     setValue( value );
   }
 
