@@ -1048,6 +1048,7 @@ a:active, a:hover {
 .schedule-label {
   margin-top: 15px;
   margin-bottom: 5px;
+  color: #666666;
 }
 
 #schedule-name-input {
