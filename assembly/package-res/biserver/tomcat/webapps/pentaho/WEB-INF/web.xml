@@ -124,6 +124,11 @@
     <url-pattern>/ServiceActionService</url-pattern>
   </filter-mapping>
 
+  <filter-mapping>
+    <filter-name>Proxy Trusting Filter</filter-name>
+    <url-pattern>/i18n</url-pattern>
+  </filter-mapping>
+
   <!--
     Filter mapping for security. Note that all objects are locked down. We
     could change this here as desired.
@@ -559,7 +564,7 @@
       <transport-guarantee>NONE</transport-guarantee>
     </user-data-constraint>
   </security-constraint>
-  
+
   <security-role>
 		<description>Non-Existent Role - this prevents direct access to JSPs</description>
 		<role-name>PENTAHO_ADMIN</role-name>
