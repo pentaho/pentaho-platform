@@ -93,7 +93,7 @@ public class XActionUtilTest {
 
     when( repository.getFile( anyString() ) ).thenReturn( generatedFile );
 
-    List<IContentItem> items = Arrays.asList( mock( RepositoryFileContentItem.class ) );
+    List<IContentItem> items = Arrays.asList( (IContentItem) mock( RepositoryFileContentItem.class ) );
     IRuntimeContext context = mock( IRuntimeContext.class );
     when( context.getOutputContentItems() ).thenReturn( items );
 
@@ -151,7 +151,7 @@ public class XActionUtilTest {
   @Test
   public void testDeleteContentItem_simple() throws Exception {
     final IContentItem contentItem = mock( SimpleContentItem.class );
-    doReturn( mock( OutputStream.class ) ).when( contentItem ).getOutputStream( anyObject() );
+    doReturn( mock( OutputStream.class ) ).when( contentItem ).getOutputStream( anyString() );
     try {
       XactionUtil.deleteContentItem( contentItem, null );
     } finally {
@@ -163,7 +163,7 @@ public class XActionUtilTest {
   @Test
   public void testDeleteContentItem_repo() throws Exception {
     IContentItem item = mock( RepositoryFileContentItem.class );
-    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( anyObject() );
+    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( anyString() );
     XactionUtil.deleteContentItem( item, repository );
     verify( repository, times( 1 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
   }
@@ -172,7 +172,7 @@ public class XActionUtilTest {
   public void testDeleteContentItem_repoNoFile() throws Exception {
     doReturn( null ).when( repository ).getFile( anyString() );
     IContentItem item = mock( RepositoryFileContentItem.class );
-    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( anyObject() );
+    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( anyString() );
     XactionUtil.deleteContentItem( item, repository );
     verify( repository, times( 0 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
   }
