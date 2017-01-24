@@ -878,7 +878,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
           catalogs.put( mondrianCatalog.getName(), mondrianCatalog );
           catalogs.put( mondrianCatalog.getDefinition(), mondrianCatalog );
-
+          cacheMgr.putInRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString(),catalogs);
         } else {
           MondrianCatalogHelper.logger.warn( Messages.getInstance().getString(
               "MondrianCatalogHelper.WARN_SKIPPING_DATASOURCE_DEF", catalog.definition ) ); //$NON-NLS-1$

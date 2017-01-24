@@ -63,9 +63,13 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.plugin.UserRoleMapperIT.TestUserRoleListService;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -106,6 +110,33 @@ public class MondrianCatalogHelperIT {
 
   @Mock private Connection rolapConn;
 
+  /** Custom cache which everytime return object make clone of it **/
+  public static class CacheManagerCustom extends CacheManager {
+
+      public CacheManagerCustom() {
+          super();
+      }
+
+      private Object serialize(Object o) {
+          try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                  ObjectOutputStream oos = new ObjectOutputStream(baos);) {
+
+              oos.writeObject(o);
+              try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+                      ObjectInputStream ois = new ObjectInputStream(bais);) {
+                  return ois.readObject();
+              }
+          } catch (IOException | ClassNotFoundException e) {
+              return 0;
+          }
+      }
+
+      @Override
+      public Object getFromRegionCache(String region, Object key) {
+          // TODO Auto-generated method stub
+          return serialize(super.getFromRegionCache(region, key));
+      }
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -124,7 +155,7 @@ public class MondrianCatalogHelperIT {
     booter.define( IDatabaseConnection.class, DatabaseConnection.class, Scope.GLOBAL );
     booter.define( IDatabaseDialectService.class, DatabaseDialectService.class, Scope.GLOBAL );
     booter.define( IAclAwareMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL );
-    booter.define( ICacheManager.class, CacheManager.class, Scope.GLOBAL );
+    booter.define( ICacheManager.class, CacheManagerCustom.class, Scope.GLOBAL );
     booter.define( IUserRoleListService.class, TestUserRoleListService.class, Scope.GLOBAL );
     booter.defineInstance( IUnifiedRepository.class, repo );
     booter.defineInstance( IOlapService.class, olapService );
@@ -418,6 +449,58 @@ public class MondrianCatalogHelperIT {
 
     List<MondrianCatalog> cats = helper.listCatalogs( session, true );
     assertEquals( 1, cats.size() );
+
+    verify( mondrianCacheControl, never() ).flushSchema( mondrianSchema );
+  }
+
+  @Test
+  public void testVerifyCachePopulation() throws Exception {
+    File file1 = new File( "test-src/solution/test/charts/steelwheels.mondrian.xml" );
+    String mondrianSchema1 = IOUtils.toString( new FileInputStream( file1 ) );
+    File file2 = new File( "test-src/solution/samples/reporting/SampleData.mondrian.xml" );
+    String mondrianSchema2 = IOUtils.toString( new FileInputStream( file2 ) );
+
+    final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
+    stubGetFolder( repo, mondrianFolderPath );
+    stubGetChildren( repo, mondrianFolderPath, "SampleData/", "SteelWheels/" ); // return two child folders
+
+    final String olapFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
+    stubGetFolder( repo, olapFolderPath );
+    stubGetChildren( repo, olapFolderPath ); // return no children
+
+    final String sampleDataFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SampleData";
+    final String sampleDataMetadataPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "metadata";
+    final String sampleDataSchemaPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
+    stubGetFile( repo, sampleDataMetadataPath );
+    stubGetData( repo, sampleDataMetadataPath, "catalog", pathPropertyPair( "/catalog/definition",
+        "mondrian:/SampleData" ), pathPropertyPair( "/catalog/datasourceInfo",
+        "Provider=mondrian;DataSource=SampleData;" ) );
+    stubGetFile( repo, sampleDataSchemaPath );
+    stubGetData( repo, sampleDataSchemaPath, mondrianSchema2 );
+
+    final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
+    final String steelWheelsMetadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
+    final String steelWheelsSchemaPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
+    final String steelWheelsAnnotationsPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "annotations.xml";
+    stubGetFile( repo, steelWheelsMetadataPath );
+    stubGetData( repo, steelWheelsMetadataPath, "catalog", pathPropertyPair( "/catalog/definition",
+        "mondrian:/SteelWheels" ), pathPropertyPair( "/catalog/datasourceInfo",
+        "Provider=mondrian;DataSource=SteelWheels;" ) );
+    stubGetFile( repo, steelWheelsSchemaPath );
+    stubGetData( repo, steelWheelsSchemaPath, mondrianSchema1 );
+    stubGetFile( repo, steelWheelsAnnotationsPath );
+    stubGetData( repo, steelWheelsAnnotationsPath, "<annotations></annotations>" );
+
+    IPentahoSession session = new StandaloneSession( "admin" );
+
+    helper = spy( helper );
+
+    IAclNodeHelper aclHelper = mock( IAclNodeHelper.class );
+    when( aclHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
+    doReturn( aclHelper ).when( helper ).getAclHelper();
+
+    List<MondrianCatalog> cats = helper.listCatalogs( session, false );
+    assertEquals( 2, cats.size() );
 
     verify( mondrianCacheControl, never() ).flushSchema( mondrianSchema );
   }
