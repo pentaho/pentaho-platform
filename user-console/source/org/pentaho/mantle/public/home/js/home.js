@@ -18,7 +18,7 @@
 define([
   "common-ui/util/HandlebarsCompiler",
   "common-ui/bootstrap",
-  "common-ui/jquery", "home/gettingStarted", "home/createNew"
+  "common-ui/jquery", "./gettingStarted", "./createNew"
 ], function (HandlebarsCompiler, _bootstrap, _jquery, gettingStarted, createNew) {
 
 
@@ -123,7 +123,7 @@ define([
   }
 
   function initFavoritesAndRecents(config) {
-    pen.require(["home/FavoritesController"], function (FavoritesController) {
+    pen.require(["./FavoritesController"], function (FavoritesController) {
       controller = new FavoritesController(config);
     });
   }

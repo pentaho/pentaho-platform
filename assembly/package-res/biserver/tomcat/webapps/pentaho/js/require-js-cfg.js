@@ -17,3 +17,5 @@
 
 requireCfg['paths']['pentaho'] = CONTEXT_PATH+'js';
 requireCfg['paths']['home'] = CONTEXT_PATH+'mantle/home/js';
+requireCfg['paths']['mantle/puc-api'] = CONTEXT_PATH+'mantle/puc-api';
+requireCfg['paths']['mantle/browser'] = CONTEXT_PATH+'mantle/browser/js';
