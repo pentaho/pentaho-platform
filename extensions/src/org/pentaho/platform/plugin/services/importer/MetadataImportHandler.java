@@ -173,7 +173,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
             // This metadata file came from a DataSourceWizard, it may have embedded mondrian schema
             // that would incorrectly inform the system that there is mondrian schema attached. By
             // definition we only want to import the metadata portion.
-            if ( logicalModel.getProperty( logicalModel.PROPERTY_OLAP_DIMS ) != null ) {
+            if ( logicalModel.getProperty( LogicalModel.PROPERTY_OLAP_DIMS ) != null ) {
               // This logical model is an Olap model that needs to be removed from metadata
               iterator.remove();
             } else {
