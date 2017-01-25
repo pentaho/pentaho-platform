@@ -12,13 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static org.mockito.Mockito.*;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -48,8 +50,10 @@ import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.output.SimpleContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileContentItem;
 import org.pentaho.platform.api.repository.IContentItem;
 
 /**
@@ -82,22 +86,22 @@ public class XActionUtilTest {
   @SuppressWarnings( "unchecked" )
   public void setUp() throws ObjectFactoryException {
     MockitoAnnotations.initMocks( this );
-    Map<String, String[]> map = mock( Map.class );
-    when( httpServletRequest.getParameterMap() ).thenReturn( map );
-    when( httpServletRequest.getParameter( anyString() ) ).thenReturn( null );
+    Map<String, String[]> map = Mockito.mock( Map.class );
+    Mockito.when( httpServletRequest.getParameterMap() ).thenReturn( map );
+    Mockito.when( httpServletRequest.getParameter( Mockito.anyString() ) ).thenReturn( null );
 
-    when( repository.getFile( anyString() ) ).thenReturn( generatedFile );
+    Mockito.when( repository.getFile( Mockito.anyString() ) ).thenReturn( generatedFile );
 
-    List<IContentItem> items = Arrays.asList( mock( IContentItem.class ) );
-    IRuntimeContext context = mock( IRuntimeContext.class );
-    when( context.getOutputContentItems() ).thenReturn( items );
+    List<IContentItem> items = Arrays.asList( (IContentItem) Mockito.mock( RepositoryFileContentItem.class ) );
+    IRuntimeContext context = Mockito.mock( IRuntimeContext.class );
+    Mockito.when( context.getOutputContentItems() ).thenReturn( items );
 
-    when( engine.execute( anyString(), anyString(), anyBoolean(), anyBoolean(), anyString(), anyBoolean(), anyMap(),
-        any( IOutputHandler.class ), any( IActionCompleteListener.class ), any( IPentahoUrlFactory.class ),
-        anyList() ) ).thenReturn( context );
-    pentahoObjectFactoryUnified = mock( IPentahoObjectFactory.class );
-    when( pentahoObjectFactoryUnified.objectDefined( anyString() ) ).thenReturn( true );
-    when( pentahoObjectFactoryUnified.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer( new Answer<Object>() {
+    Mockito.when( engine.execute( Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyMap(),
+        Mockito.any( IOutputHandler.class ), Mockito.any( IActionCompleteListener.class ), Mockito.any( IPentahoUrlFactory.class ),
+        Mockito.anyList() ) ).thenReturn( context );
+    pentahoObjectFactoryUnified = Mockito.mock( IPentahoObjectFactory.class );
+    Mockito.when( pentahoObjectFactoryUnified.objectDefined( Mockito.anyString() ) ).thenReturn( true );
+    Mockito.when( pentahoObjectFactoryUnified.get( this.anyClass(), Mockito.anyString(), Mockito.any( IPentahoSession.class ) ) ).thenAnswer( new Answer<Object>() {
         @Override
         public Object answer( InvocationOnMock invocation ) throws Throwable {
           if ( IUnifiedRepository.class.toString().equals( invocation.getArguments()[0].toString() ) ) {
@@ -113,8 +117,8 @@ public class XActionUtilTest {
       } );
     PentahoSystem.registerObjectFactory( pentahoObjectFactoryUnified );
 
-    ISystemSettings systemSettingsService = mock( ISystemSettings.class );
-    when( systemSettingsService.getSystemSetting( anyString(), anyString() ) ).thenAnswer( new Answer<String>() {
+    ISystemSettings systemSettingsService = Mockito.mock( ISystemSettings.class );
+    Mockito.when( systemSettingsService.getSystemSetting( Mockito.anyString(), Mockito.anyString() ) ).thenAnswer( new Answer<String>() {
       @Override
       public String answer( InvocationOnMock invocation ) throws Throwable {
         return invocation.getArguments()[0].toString();
@@ -126,10 +130,50 @@ public class XActionUtilTest {
     PentahoSessionHolder.setSession( userSession );
   }
 
+  private File createTempFile() throws IOException {
+    return File.createTempFile( "XActionUtilTest", "tmp" );
+  }
+
   @Test
   public void executeXActionSequence() throws Exception {
     XactionUtil.execute( MediaType.TEXT_HTML, xactionFile, httpServletRequest, httpServletResponse, userSession, mimeTypeListener );
-    verify( repository, times( 1 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+    Mockito.verify( repository, Mockito.times( 1 ) ).deleteFile( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString() );
+  }
+
+  @Test
+  public void testDeleteContentItem_null() throws Exception {
+    XactionUtil.deleteContentItem( null, null ); // No exception
+    XactionUtil.deleteContentItem( null, Mockito.mock( IUnifiedRepository.class ) ); // No exception
+    Mockito.verify( repository, Mockito.times( 0 ) ).deleteFile( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString() );
+  }
+
+  @Test
+  public void testDeleteContentItem_simple() throws Exception {
+    final IContentItem contentItem = Mockito.mock( SimpleContentItem.class );
+    Mockito.doReturn( Mockito.mock( OutputStream.class ) ).when( contentItem ).getOutputStream( Mockito.anyString() );
+    try {
+      XactionUtil.deleteContentItem( contentItem, null );
+    } finally {
+      contentItem.getOutputStream( null ).close();
+    }
+    Mockito.verify( repository, Mockito.times( 0 ) ).deleteFile( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString() );
+  }
+
+  @Test
+  public void testDeleteContentItem_repo() throws Exception {
+    IContentItem item = Mockito.mock( RepositoryFileContentItem.class );
+    Mockito.doReturn( Mockito.mock( OutputStream.class ) ).when( item ).getOutputStream( Mockito.anyString() );
+    XactionUtil.deleteContentItem( item, repository );
+    Mockito.verify( repository, Mockito.times( 1 ) ).deleteFile( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString() );
+  }
+
+  @Test
+  public void testDeleteContentItem_repoNoFile() throws Exception {
+    Mockito.doReturn( null ).when( repository ).getFile( Mockito.anyString() );
+    IContentItem item = Mockito.mock( RepositoryFileContentItem.class );
+    Mockito.doReturn( Mockito.mock( OutputStream.class ) ).when( item ).getOutputStream( Mockito.anyString() );
+    XactionUtil.deleteContentItem( item, repository );
+    Mockito.verify( repository, Mockito.times( 0 ) ).deleteFile( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString() );
   }
 
   @After
@@ -140,7 +184,7 @@ public class XActionUtilTest {
   }
 
   private Class<?> anyClass() {
-    return argThat( new AnyClassMatcher() );
+    return Mockito.argThat( new AnyClassMatcher() );
   }
 
   private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
@@ -149,4 +193,5 @@ public class XActionUtilTest {
       return true;
     }
   }
+
 }
