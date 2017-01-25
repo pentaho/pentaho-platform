@@ -231,6 +231,13 @@ public class QuartzScheduler implements IScheduler {
     } else {
       quartzTrigger.setMisfireInstruction( SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW );
     }
+    if ( quartzTrigger.getStartTime() != null
+            && quartzTrigger.getStartTime().before( new Date( System.currentTimeMillis() - 1000 ) ) ) {
+      Date newStartTime = quartzTrigger.getFireTimeAfter( new Date() );
+      if ( newStartTime != null ) {
+        quartzTrigger.setStartTime( newStartTime );
+      }
+    }
     return quartzTrigger;
   }
 
