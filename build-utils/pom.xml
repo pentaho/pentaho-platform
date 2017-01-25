@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>pentaho</groupId>
+    <artifactId>pentaho-platform-ce-parent</artifactId>
+    <relativePath>../pom.xml</relativePath>
+    <version>7.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>pentaho-platform-build-utils</artifactId>
+  <packaging>jar</packaging>
+
+  <properties>
+
+    <!-- =============== -->
+    <!-- LICENSE HEADERS -->
+    <!-- =============== -->
+
+    <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
+    <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
+    
+    <!-- ====================== -->
+    <!-- 3RD PARTY DEPENDENCIES -->
+    <!-- ====================== -->
+    <mockito-all.version>1.9.5</mockito-all.version>
+
+  </properties>
+
+  <dependencies>
+    
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>${xercesImpl.version}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-server</artifactId>
+      <version>${jersey.version}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.jersey.contribs</groupId>
+      <artifactId>wadl-resourcedoc-doclet</artifactId>
+      <version>${wadl-resourcedoc-doclet.version}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>sun.jdk</groupId>
+      <artifactId>tools</artifactId>
+      <version>${source.jdk.version}</version>
+      <scope>system</scope>
+      <systemPath>${java.home}/../lib/tools.jar</systemPath>
+    </dependency>
+
+    <!-- ========== -->
+    <!-- TEST SCOPE -->
+    <!-- ========== -->
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${mockito-all.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <formats>
+            <format>html</format>
+            <format>xml</format>
+          </formats>
+          <check>
+            <branchRate>80</branchRate>
+            <lineRate>90</lineRate>
+            <haltOnFailure>false</haltOnFailure>
+            <totalBranchRate>80</totalBranchRate>
+            <totalLineRate>90</totalLineRate>
+            <packageLineRate>90</packageLineRate>
+            <packageBranchRate>80</packageBranchRate>
+          </check>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <verbose>false</verbose>
+          <show>public</show>
+          <useStandardDocletOptions>false</useStandardDocletOptions>
+          <subpackages>example.rest.resources</subpackages>
+          <doclet>com.sun.jersey.wadl.resourcedoc.ResourceDoclet</doclet>
+          <docletArtifacts>
+            <docletArtifact>
+              <groupId>com.sun.jersey.contribs</groupId>
+              <artifactId>wadl-resourcedoc-doclet</artifactId>
+              <version>${wadl-resourcedoc-doclet.version}</version>
+            </docletArtifact>
+            <!-- Also specify jersey and xerces as doclet artifacts as the ResourceDoclet 
+                uses classes provided by them to generate the resourcedoc. -->
+            <docletArtifact>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-server</artifactId>
+              <version>${jersey.version}</version>
+            </docletArtifact>
+            <docletArtifact>
+              <groupId>xerces</groupId>
+              <artifactId>xercesImpl</artifactId>
+              <version>${xercesImpl.version}</version>
+            </docletArtifact>
+        </docletArtifacts>
+        <additionalparam>-output
+            ${project.build.outputDirectory}/resourcedoc.xml</additionalparam>
+        </configuration>
+      </plugin>
+
+  
+    </plugins>
+  </build>
+  
+</project>
