@@ -12,17 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.ws.test;
-
-import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -62,9 +55,16 @@ import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @SuppressWarnings( "nls" )
 @RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration
+@ContextConfiguration( "JaxWsSchedulerServiceTest-context.xml" )
 public class JaxWsSchedulerServiceIT {
 
   @Autowired
@@ -196,7 +196,7 @@ public class JaxWsSchedulerServiceIT {
     // Now make sure we have the same job available on the webservice client side
     //
     Assert.assertEquals( "The scheduler service does not know about the job.", 1, serviceJobs.length );
-    Job serviceJob = schedulerSvc.getJobs()[0];
+    Job serviceJob = schedulerSvc.getJobs()[ 0 ];
     Assert.assertEquals( "jobName is wrong", engineJob.getJobName(), serviceJob.getJobName() );
 
     Map<String, Serializable> params = serviceJob.getJobParams();
@@ -206,9 +206,9 @@ public class JaxWsSchedulerServiceIT {
     Assert.assertTrue( "map job parameter is missing", params.containsKey( "mapParam" ) );
 
     Assert.assertTrue( "list job parameter is wrong type. Expected List but is "
-        + params.get( "listParam" ).getClass().getName(), params.get( "listParam" ) instanceof List );
+      + params.get( "listParam" ).getClass().getName(), params.get( "listParam" ) instanceof List );
     Assert.assertTrue( "map job parameter is wrong type. Expected Map but is "
-        + params.get( "mapParam" ).getClass().getName(), params.get( "mapParam" ) instanceof Map );
+      + params.get( "mapParam" ).getClass().getName(), params.get( "mapParam" ) instanceof Map );
 
     List<String> listParam = (List<String>) params.get( "listParam" );
     Assert.assertTrue( "list job parameter has wrong value", "testListVal0".equals( listParam.get( 0 ) ) );
@@ -342,12 +342,12 @@ public class JaxWsSchedulerServiceIT {
 
   @Test( timeout = 1000 * 5 * 60 )
   public void testUpdateComplexJob() throws SchedulerException {
-    long start  = System.currentTimeMillis() + 1000;
-    long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
+    long start = System.currentTimeMillis() + 1000;
+    long end = System.currentTimeMillis() + 1000 + 5 * 60 * 60 * 100;
     int startingMinute = ( Calendar.getInstance().get( Calendar.MINUTE ) + 10 ) % 60;
     ComplexJobTrigger jobTrigger = new ComplexJobTrigger();
-    jobTrigger.setStartTime( new Date(start) );
-    jobTrigger.setEndTime( new Date(end) );
+    jobTrigger.setStartTime( new Date( start ) );
+    jobTrigger.setEndTime( new Date( end ) );
     jobTrigger.setMinuteRecurrence( new IncrementalRecurrence( startingMinute, 1 ) );
     jobTrigger.setHourlyRecurrence( (ITimeRecurrence) null );
     System.out.println( jobTrigger.toString() );
@@ -358,11 +358,11 @@ public class JaxWsSchedulerServiceIT {
 
     jobTrigger = new ComplexJobTrigger();
 
-    start  = System.currentTimeMillis() + 2*1000;
-    end = System.currentTimeMillis() + 1000 + 7*60*60*100;
+    start = System.currentTimeMillis() + 2 * 1000;
+    end = System.currentTimeMillis() + 1000 + 7 * 60 * 60 * 100;
 
-    jobTrigger.setStartTime( new Date(start) );
-    jobTrigger.setEndTime( new Date(end) );
+    jobTrigger.setStartTime( new Date( start ) );
+    jobTrigger.setEndTime( new Date( end ) );
 
     startingMinute = ( Calendar.getInstance().get( Calendar.MINUTE ) + 20 ) % 60;
     jobTrigger.setMinuteRecurrence( new IncrementalRecurrence( startingMinute, 5 ) );
@@ -374,26 +374,26 @@ public class JaxWsSchedulerServiceIT {
     schedulerSvc.updateJobToUseComplexTrigger( jobId, newJobParams, jobTrigger );
 
     Assert.assertEquals( 1, schedulerSvc.getJobs().length );
-    Job job = schedulerSvc.getJobs()[0];
+    Job job = schedulerSvc.getJobs()[ 0 ];
     jobTrigger = (ComplexJobTrigger) job.getJobTrigger();
     Assert.assertEquals( (Integer) startingMinute,
-        ( (IncrementalRecurrence) jobTrigger.getMinuteRecurrences().get( 0 ) ).getStartingValue() );
+      ( (IncrementalRecurrence) jobTrigger.getMinuteRecurrences().get( 0 ) ).getStartingValue() );
     Assert.assertEquals( (Integer) 5, ( (IncrementalRecurrence) jobTrigger.getMinuteRecurrences().get( 0 ) )
-        .getIncrement() );
+      .getIncrement() );
     Assert.assertTrue( job.getJobParams().containsKey( "newKey" ) );
 
-    Assert.assertEquals( new Date(start), jobTrigger.getStartTime() );
+    Assert.assertEquals( new Date( start ), jobTrigger.getStartTime() );
 
-    Assert.assertEquals( new Date(end), jobTrigger.getEndTime() );
+    Assert.assertEquals( new Date( end ), jobTrigger.getEndTime() );
   }
 
   @Test
   public void testUpdateSimpleJob() throws SchedulerException {
-    long start  = System.currentTimeMillis() + 1000;
-    long end = System.currentTimeMillis() + 1000 + 5*60*60*100;
+    long start = System.currentTimeMillis() + 1000;
+    long end = System.currentTimeMillis() + 1000 + 5 * 60 * 60 * 100;
     SimpleJobTrigger jobTrigger = new SimpleJobTrigger();
-    jobTrigger.setStartTime( new Date(start) );
-    jobTrigger.setEndTime( new Date(end) );
+    jobTrigger.setStartTime( new Date( start ) );
+    jobTrigger.setEndTime( new Date( end ) );
     jobTrigger.setRepeatInterval( 10 );
     jobTrigger.setRepeatCount( 20 );
     System.out.println( jobTrigger.toString() );
@@ -404,11 +404,11 @@ public class JaxWsSchedulerServiceIT {
 
     jobTrigger = new SimpleJobTrigger();
 
-    start  = System.currentTimeMillis() + 1000;
-    end = System.currentTimeMillis() + 1000 + 5*60*60*100;
+    start = System.currentTimeMillis() + 1000;
+    end = System.currentTimeMillis() + 1000 + 5 * 60 * 60 * 100;
 
-    jobTrigger.setStartTime( new Date(start));
-    jobTrigger.setEndTime( new Date(end) );
+    jobTrigger.setStartTime( new Date( start ) );
+    jobTrigger.setEndTime( new Date( end ) );
 
     jobTrigger.setRepeatInterval( 40 );
     jobTrigger.setRepeatCount( 50 );
@@ -419,15 +419,15 @@ public class JaxWsSchedulerServiceIT {
     schedulerSvc.updateJobToUseSimpleTrigger( jobId, newJobParams, jobTrigger );
 
     Assert.assertEquals( 1, schedulerSvc.getJobs().length );
-    Job job = schedulerSvc.getJobs()[0];
+    Job job = schedulerSvc.getJobs()[ 0 ];
     jobTrigger = (SimpleJobTrigger) job.getJobTrigger();
     Assert.assertEquals( 40, jobTrigger.getRepeatInterval() );
     Assert.assertEquals( 50, jobTrigger.getRepeatCount() );
     Assert.assertTrue( job.getJobParams().containsKey( "newKey" ) );
 
-    jobTrigger.getStartTime() ;
-    Assert.assertEquals( new Date(start), jobTrigger.getStartTime());
+    jobTrigger.getStartTime();
+    Assert.assertEquals( new Date( start ), jobTrigger.getStartTime() );
 
-    Assert.assertEquals( new Date(end), jobTrigger.getEndTime() );
+    Assert.assertEquals( new Date( end ), jobTrigger.getEndTime() );
   }
 }
