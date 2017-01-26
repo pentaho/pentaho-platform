@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.filters;
@@ -61,7 +61,7 @@ public class PentahoWebContextFilter implements Filter {
   static final String initialComment =
       "/** webcontext.js is created by a PentahoWebContextFilter. This filter searches for an " + //$NON-NLS-1$
           "incoming URI having \"webcontext.js\" in it. If it finds that, "
-        + "it write CONTEXT_PATH and FULLY_QUALIFIED_SERVER_URL"
+          + "it write CONTEXT_PATH and FULLY_QUALIFIED_SERVER_URL"
           + //$NON-NLS-1$
           " and it values from the servlet request to this js **/ \n\n\n"; //$NON-NLS-1$
   static final byte[] initialCommentBytes = initialComment.getBytes();
@@ -91,7 +91,7 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   public void doFilter( ServletRequest request, ServletResponse response, FilterChain chain ) throws IOException,
-    ServletException {
+      ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -103,6 +103,12 @@ public class PentahoWebContextFilter implements Filter {
       // split out a fully qualified url, guaranteed to have a trailing slash
       IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
       String contextPath = requestContext.getContextPath();
+
+      final boolean shouldUseFullyQualifiedUrl = shouldUseFullyQualifiedUrl( httpRequest );
+      if ( shouldUseFullyQualifiedUrl ) {
+        contextPath = getFullyQualifiedServerURL() + contextPath;
+      }
+
       try {
         response.setContentType( "text/javascript" ); //$NON-NLS-1$
         OutputStream out = response.getOutputStream();
@@ -119,9 +125,9 @@ public class PentahoWebContextFilter implements Filter {
             String requireJsConfigLocation = "content/common-ui/resources/web/require-cfg.js";
             String requireScript =
                 "document.write(\"<script type='text/javascript' src='" + contextPath
-                + requireJsLocation + "'></scr\"+\"ipt>\");\n"
-                + "document.write(\"<script type=\'text/javascript\' src='" + contextPath
-                + requireJsConfigLocation + "'></scr\"+\"ipt>\");\n";
+                    + requireJsLocation + "'></scr\"+\"ipt>\");\n"
+                    + "document.write(\"<script type=\'text/javascript\' src='" + contextPath
+                    + requireJsConfigLocation + "'></scr\"+\"ipt>\");\n";
             requireScriptBytes = requireScript.getBytes();
             THREAD_LOCAL_REQUIRE_SCRIPT.set( requireScriptBytes );
           }
@@ -158,6 +164,16 @@ public class PentahoWebContextFilter implements Filter {
         printReservedCharsDisplay( out );
         printReservedRegexPattern( out );
 
+        boolean noOsgiRequireConfig = "true".equals( request.getParameter( "noOsgiRequireConfig" ) );
+        if ( !noOsgiRequireConfig ) {
+          final String useFullyQualifiedUrlParameter = httpRequest.getParameter( "fullyQualifiedUrl" );
+
+          out.write( ( "document.write(\"<script type='text/javascript' src='"
+              + contextPath + "osgi/requirejs-manager/js/require-init.js?requirejs=false"
+              + ( useFullyQualifiedUrlParameter != null ? "&fullyQualifiedUrl=" + useFullyQualifiedUrlParameter : "" )
+              + "'></scr\"+\"ipt>\");\n" ).getBytes( "UTF-8" ) );
+        }
+
         boolean requireJsOnly = "true".equals( request.getParameter( "requireJsOnly" ) );
 
         if ( !requireJsOnly ) {
@@ -182,6 +198,18 @@ public class PentahoWebContextFilter implements Filter {
     } else {
       chain.doFilter( httpRequest, httpResponse );
       return;
+    }
+  }
+
+  private boolean shouldUseFullyQualifiedUrl( HttpServletRequest httpRequest ) {
+    final String useFullyQualifiedUrlParameter = httpRequest.getParameter( "fullyQualifiedUrl" );
+    if ( useFullyQualifiedUrlParameter != null ) {
+      return "true".equals( useFullyQualifiedUrlParameter );
+    } else {
+      final String referer = httpRequest.getHeader( "referer" );
+      final String serverAddress = httpRequest.getScheme() + "://" + httpRequest.getServerName() + ":" + httpRequest.getServerPort();
+
+      return referer != null && !referer.startsWith( serverAddress );
     }
   }
 
@@ -253,17 +281,17 @@ public class PentahoWebContextFilter implements Filter {
       sb.append( "var SESSION_NAME = '" + StringEscapeUtils.escapeJavaScript( PentahoSessionHolder.getSession()
           .getName() ) + "';\n" ); // Global variable
     }
-    out.write(  sb.toString().getBytes() );
+    out.write( sb.toString().getBytes() );
   }
 
   private void printLocale( Locale effectiveLocale, OutputStream out ) throws IOException {
     StringBuilder sb =
         new StringBuilder( "// Providing computed Locale for session\n" ).append(
-          "var SESSION_LOCALE = '" + effectiveLocale.toString() + "';\n" ) // Global variable
+            "var SESSION_LOCALE = '" + effectiveLocale.toString() + "';\n" ) // Global variable
             // If RequireJs is available, supply a module
             .append(
-              "if(typeof(pen) != 'undefined' && pen.define){pen.define('Locale', {locale:'"
-                + effectiveLocale.toString() + "'})};" );
+                "if(typeof(pen) != 'undefined' && pen.define){pen.define('Locale', {locale:'"
+                    + effectiveLocale.toString() + "'})};" );
     out.write( sb.toString().getBytes() );
   }
 
@@ -271,9 +299,9 @@ public class PentahoWebContextFilter implements Filter {
     StringBuilder sb = new StringBuilder( "// Providing name for context\n" );
 
     sb.append( "var PENTAHO_CONTEXT_NAME = '"
-            + StringEscapeUtils.escapeJavaScript( contextName ) + "';\n\n" ); // Global variable
+        + StringEscapeUtils.escapeJavaScript( contextName ) + "';\n\n" ); // Global variable
 
-    out.write(  sb.toString().getBytes() );
+    out.write( sb.toString().getBytes() );
   }
 
   private void printActiveTheme( HttpServletRequest request, OutputStream out ) throws IOException {
@@ -307,14 +335,14 @@ public class PentahoWebContextFilter implements Filter {
     }
 
     sb.append( "var active_theme = '"
-            + StringEscapeUtils.escapeJavaScript( activeTheme )
-            + "';\n\n" ); // Global variable
+        + StringEscapeUtils.escapeJavaScript( activeTheme )
+        + "';\n\n" ); // Global variable
 
-    out.write(  sb.toString().getBytes() );
+    out.write( sb.toString().getBytes() );
   }
 
   private void printResourcesForContext( String contextName, OutputStream out, HttpServletRequest request,
-      boolean printCssOnly ) throws IOException {
+                                         boolean printCssOnly ) throws IOException {
 
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
 
@@ -335,7 +363,7 @@ public class PentahoWebContextFilter implements Filter {
         me = it.next();
         for ( i = 0; i < me.getValue().length; i++ ) {
           sb.append( sep ).append( Encode.forJavaScript( me.getKey().toString() ) ).append( "=" ).append(
-            Encode.forJavaScript( me.getValue()[ i ] ) );
+              Encode.forJavaScript( me.getValue()[i] ) );
         }
         if ( sep == '?' ) {
           sep = '&'; // change the separator
@@ -346,8 +374,8 @@ public class PentahoWebContextFilter implements Filter {
 
     List<String> externalResources = pluginManager.getExternalResourcesForContext( contextName );
     out.write( ( "<!-- Injecting web resources defined in by plugins as external-resources for: "
-      + Encode.forHtml(
-          contextName ) + "-->\n" ).getBytes() ); //$NON-NLS-1$ //$NON-NLS-2$
+        + Encode.forHtml(
+        contextName ) + "-->\n" ).getBytes() ); //$NON-NLS-1$ //$NON-NLS-2$
     if ( externalResources != null ) {
 
       for ( String res : externalResources ) {
@@ -356,10 +384,10 @@ public class PentahoWebContextFilter implements Filter {
         }
         if ( res.endsWith( JS ) && !printCssOnly ) {
           out.write( ( "document.write(\"<script language='javascript' type='text/javascript' src='\"+CONTEXT_PATH + \"" + res.trim() + reqStr + "'></scr\"+\"ipt>\");\n" //$NON-NLS-1$ //$NON-NLS-2$
-            ).getBytes() );
+          ).getBytes() );
         } else if ( res.endsWith( CSS ) ) {
           out.write( ( "document.write(\"<link rel='stylesheet' type='text/css' href='\"+CONTEXT_PATH + \"" + res.trim() + reqStr + "'/>\");\n" //$NON-NLS-1$ //$NON-NLS-2$
-            ).getBytes() );
+          ).getBytes() );
         }
       }
     }
@@ -388,7 +416,7 @@ public class PentahoWebContextFilter implements Filter {
     }
 
     String requireJsCfgStart = "var requireCfg = {waitSeconds: " + waitTime
-      + ", paths: {}, shim: {}, map: {\"*\": {}}, bundles: {}, config: {\"pentaho/service\": {}}, packages: []};\n";
+        + ", paths: {}, shim: {}, map: {\"*\": {}}, bundles: {}, config: {\"pentaho/service\": {}}, packages: []};\n";
     out.write( requireJsCfgStart.getBytes() );
 
   }
@@ -398,12 +426,9 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   public void init( FilterConfig filterConfig ) throws ServletException {
-    // split out a fully qualified url, guaranteed to have a trailing slash
-    String fullyQualifiedServerURL = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
+    String fullyQualifiedServerURL = getFullyQualifiedServerURL();
+
     String serverProtocolValue;
-    if ( !fullyQualifiedServerURL.endsWith( "/" ) ) { //$NON-NLS-1$
-      fullyQualifiedServerURL += "/"; //$NON-NLS-1$
-    }
     if ( fullyQualifiedServerURL.startsWith( "http" ) ) {
       serverProtocolValue = fullyQualifiedServerURL.substring( 0, fullyQualifiedServerURL.indexOf( ":" ) );
     } else {
@@ -411,6 +436,15 @@ public class PentahoWebContextFilter implements Filter {
     }
     fullyQualifiedUrl = "var FULL_QUALIFIED_URL = '" + fullyQualifiedServerURL + "';\n\n"; //$NON-NLS-1$ //$NON-NLS-2$
     serverProtocol = "var SERVER_PROTOCOL = '" + serverProtocolValue + "';\n\n"; //$NON-NLS-1$ //$NON-NLS-2$
+  }
+
+  private String getFullyQualifiedServerURL() {
+    // split out a fully qualified url, guaranteed to have a trailing slash
+    String fullyQualifiedServerURL = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
+    if ( !fullyQualifiedServerURL.endsWith( "/" ) ) {
+      fullyQualifiedServerURL += "/";
+    }
+    return fullyQualifiedServerURL;
   }
 
 }
