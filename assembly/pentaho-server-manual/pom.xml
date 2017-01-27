@@ -16,7 +16,7 @@
     <version>7.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>pentaho-server-manual</artifactId>
+  <artifactId>pentaho-server-manual-ce</artifactId>
   <packaging>pom</packaging>
 
   <properties>

@@ -7,7 +7,7 @@
     <artifactId>pentaho-platform-assembly</artifactId>
     <version>7.1-SNAPSHOT</version>
   </parent>
-  <artifactId>pentaho-server</artifactId>
+  <artifactId>pentaho-server-ce</artifactId>
   <version>7.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   
@@ -31,7 +31,6 @@
               <descriptors>
                 <descriptor>src/main/descriptors/assembly.xml</descriptor>
               </descriptors>
-              <finalName>${package.id}-${project.version}</finalName>
               <appendAssemblyId>false</appendAssemblyId>                      
             </configuration>            
           </execution>

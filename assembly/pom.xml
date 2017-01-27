@@ -77,13 +77,10 @@
     <hibernate-ehcache.version>3.6.9.Final</hibernate-ehcache.version>
     <xmlgraphics-commons.version>1.5</xmlgraphics-commons.version>
   </properties>
+  
   <modules>
-
     <module>pentaho-server-manual</module>
     <module>pentaho-server</module>
-
-    <!-- <module>assembly</module> -->
-
   </modules>
 
   <build>
