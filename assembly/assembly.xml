@@ -670,6 +670,13 @@
 				<exclude name="**/WEB-INF/portlet-instances.xml" />
 			</zipfileset>
 		</zip>
+		
+		<copy todir="${pentaho.wars.dir}">
+			<fileset dir="${dist.dir}">
+				<include name="pentaho.war" />
+			</fileset>
+		</copy>
+		
 		<!--copy install doc to the dist folder -->
 		<!--<copy todir="${dist.dir}">
 			<fileset dir="${install-doc.dir}">
@@ -687,7 +694,13 @@
 		<zip destfile="${dist.dir}/pentaho-style.war">
 			<zipfileset dir="${pentaho-style.dir}" />
 		</zip>
+		<copy todir="${pentaho.wars.dir}">
+			<fileset dir="${dist.dir}">
+				<include name="pentaho-style.war" />
+			</fileset>
+		</copy>
 	</target>
+
 
 	<!-- ===================================================================
 	       target: zip-pentaho-data
