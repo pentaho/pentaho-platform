@@ -1,14 +1,14 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
  *
- * You should have received a copy of the GNU Lesser General Public License along with this 
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html 
- * or from the Free Software Foundation, Inc., 
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
@@ -173,7 +173,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   }
 
   private static final MondrianCatalog getCatalogFromCache(String context, IPentahoSession pentahoSession) {
-    //  NOTE that the context can be the catalog name or the definition string for the catalog. If you are using the definition string to 
+    //  NOTE that the context can be the catalog name or the definition string for the catalog. If you are using the definition string to
     //  retrieve the catalog form the cache, you cannot be guaranteed what datasource is in play; so under these circumstances, this catalog's
     //  definition is the only part of the catalog that can be trusted. As this feature was added to enable looking up Mondrian
     //  roles from the schema, we don't much care which datasource is in play.
@@ -247,7 +247,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     try {
       URL dataSourcesConfigUrl = null;
 
-      if (dataSourcesConfig == null) { //$NON-NLS-1$
+      if (dataSourcesConfig == null) {
         String datasourcesXML = generateInMemoryDatasourcesXml(PentahoSystem.get(IUnifiedRepository.class,
             PentahoSessionHolder.getSession()));
         return parseDataSources(datasourcesXML);
@@ -285,7 +285,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
     //Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
     /*IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    String tenantEtcFolder = null; 
+    String tenantEtcFolder = null;
     if(pentahoSession != null) {
       String tenantId = (String) pentahoSession.getAttribute(IPentahoSession.TENANT_ID_KEY);
       tenantEtcFolder = ServerRepositoryPaths.getTenantEtcFolderPath(tenantId);
@@ -312,10 +312,17 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           String datasourceInfo = metadataNode.getProperty("datasourceInfo").getString(); //$NON-NLS-1$
           String definition = metadataNode.getProperty("definition").getString(); //$NON-NLS-1$
 
-          datasourcesXML.append("<Catalog name=\"" + catalogName + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
-          datasourcesXML.append("<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>\n"); //$NON-NLS-1$ //$NON-NLS-2$
-          datasourcesXML.append("<Definition>" + definition + "</Definition>\n"); //$NON-NLS-1$ //$NON-NLS-2$
-          datasourcesXML.append("</Catalog>\n"); //$NON-NLS-1$
+          final PropertyList props =
+            Util.parseConnectString( datasourceInfo );
+          final boolean disableXmla =
+            "false".equalsIgnoreCase( props.get( "EnableXmla" ) );
+
+          if ( !disableXmla ) {
+            datasourcesXML.append("<Catalog name=\"" + catalogName + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            datasourcesXML.append("<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            datasourcesXML.append("<Definition>" + definition + "</Definition>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            datasourcesXML.append("</Catalog>\n"); //$NON-NLS-1$
+          }
         } else {
           logger.warn(Messages.getInstance().getString("MondrianCatalogHelper.WARN_META_DATA_IS_NULL")); //$NON-NLS-1$
         }
@@ -456,7 +463,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     if (dataSourceInfo == null) {
       return null;
     }
-    // remove EnableXmla if necessary before building the key  
+    // remove EnableXmla if necessary before building the key
     PropertyList propertyList = Util.parseConnectString(dataSourceInfo);
     if (propertyList.get("EnableXmla") != null) { //$NON-NLS-1$
       propertyList.remove("EnableXmla"); //$NON-NLS-1$
@@ -464,7 +471,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     if (propertyList.get("overwrite") != null) { //$NON-NLS-1$
        propertyList.remove("overwrite"); //$NON-NLS-1$
     }
-    return (propertyList.get("DataSource") != null?propertyList.get("DataSource"):propertyList.toString());    
+    return (propertyList.get("DataSource") != null?propertyList.get("DataSource"):propertyList.toString());
   }
 
   public String getDataSourcesConfig() {
@@ -526,7 +533,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), Reason.ALREADY_EXISTS); //$NON-NLS-1$
     }
 
-    // Checks if a catalog of the same name but with a different file 
+    // Checks if a catalog of the same name but with a different file
     // path exists.
     MondrianCatalog fileLocationCatalogTest = null;
     for (MondrianCatalog currentCatalogCheck : getCatalogs(pentahoSession)) {
@@ -536,12 +543,12 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       }
     }
 
-   
+
     if (fileLocationCatalogTest != null
-        && definitionEquals(fileLocationCatalogTest.getDefinition(), "mondrian:/" + catalog.getName()) 
-        && !overwrite) { //$NON-NLS-1$
+        && definitionEquals(fileLocationCatalogTest.getDefinition(), "mondrian:/" + catalog.getName())
+        && !overwrite) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
-          "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), //$NON-NLS-1$ 
+          "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), //$NON-NLS-1$
           Reason.XMLA_SCHEMA_NAME_EXISTS);
     }
     //check if the file is a valid schema
