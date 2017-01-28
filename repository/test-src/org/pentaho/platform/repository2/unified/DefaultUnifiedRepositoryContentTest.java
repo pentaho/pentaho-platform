@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,7 +41,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.locale.IPentahoLocale;
@@ -96,7 +100,17 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 public class DefaultUnifiedRepositoryContentTest extends DefaultUnifiedRepositoryBase {
   // ~ Static fields/initializers
   // ======================================================================================
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    DefaultUnifiedRepositoryBase.setUpClass();
 
+    FileUtils.deleteDirectory( new File( "/tmp/repository/jackrabbit-test-TRUNK" ) );
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    DefaultUnifiedRepositoryBase.tearDownClass();
+  }
   // ~ Constructors
   // ====================================================================================================
 

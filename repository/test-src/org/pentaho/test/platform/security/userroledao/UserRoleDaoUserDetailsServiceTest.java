@@ -17,6 +17,9 @@
 
 package org.pentaho.test.platform.security.userroledao;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -27,6 +30,8 @@ import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsS
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -58,6 +63,18 @@ public class UserRoleDaoUserDetailsServiceTest extends DefaultUnifiedRepositoryB
   public static final String ROLE_DESCRIPTION_1 = "Role Description 1"; //$NON-NLS-1$
   public static final String ROLE_DESCRIPTION_2 = "Role Description 2"; //$NON-NLS-1$
   public static final String ROLE_DESCRIPTION_3 = "Role Description 3"; //$NON-NLS-1$
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    DefaultUnifiedRepositoryBase.setUpClass();
+
+    FileUtils.deleteDirectory( new File( "/tmp/repository/jackrabbit-test-TRUNK" ) );
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    DefaultUnifiedRepositoryBase.tearDownClass();
+  }
 
   @Test( expected = UsernameNotFoundException.class )
   public void testLoadUserByUsernameUsernameNotFound() {

@@ -17,7 +17,10 @@
 
 package org.pentaho.test.platform.security.userroledao;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;
@@ -26,6 +29,7 @@ import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsS
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -90,6 +94,18 @@ public class UserRoleDaoUserRoleListServiceTest extends DefaultUnifiedRepository
   public static final String ROLE_DESCRIPTION_5 = "Role Description 5"; //$NON-NLS-1$
   public static final String ROLE_DESCRIPTION_6 = "Role Description 6"; //$NON-NLS-1$
   public static final String ROLE_DESCRIPTION_7 = "Role Description 7"; //$NON-NLS-1$
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    DefaultUnifiedRepositoryBase.setUpClass();
+
+    FileUtils.deleteDirectory( new File( "/tmp/repository/jackrabbit-test-TRUNK" ) );
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    DefaultUnifiedRepositoryBase.tearDownClass();
+  }
 
   @Test
   public void testGetAllAuthorities() {

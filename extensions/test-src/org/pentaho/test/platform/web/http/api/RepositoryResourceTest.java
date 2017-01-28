@@ -27,6 +27,7 @@ import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
 import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -132,6 +133,8 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
     Logger.getLogger( "MIME_TYPE" ).setLevel( Level.TRACE );
 
     DefaultUnifiedRepositoryBase.setUpClass();
+
+    FileUtils.deleteDirectory( new File( "/tmp/extensions/jackrabbit-test-TRUNK" ) );
   }
 
   @AfterClass

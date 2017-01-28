@@ -17,9 +17,12 @@
 
 package org.pentaho.test.platform.repository2.mt;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;
@@ -30,6 +33,7 @@ import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -80,6 +84,18 @@ public class RepositoryTenantManagerTest extends DefaultUnifiedRepositoryBase {
   Name P_PRINCIPAL_NAME = NF.create( Name.NS_REP_URI, "principalName" ); //$NON-NLS-1$
 
   String pPrincipalName;
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    DefaultUnifiedRepositoryBase.setUpClass();
+
+    FileUtils.deleteDirectory( new File( "/tmp/repository/jackrabbit-test-TRUNK" ) );
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    DefaultUnifiedRepositoryBase.tearDownClass();
+  }
 
   private void assertTenantNotNull( ITenant tenant ) {
     assertNotNull( tenant );
