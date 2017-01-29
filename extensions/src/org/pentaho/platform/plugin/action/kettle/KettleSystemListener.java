@@ -12,14 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
  */
-
 package org.pentaho.platform.plugin.action.kettle;
 
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.di.cluster.SlaveServer;
-import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.KettleLogStore;
@@ -90,7 +88,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
         InputStream is = new FileInputStream( slaveServerConfigFile );
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse( is );
         Node configNode = XMLHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
-        SlaveServerConfig config = new SlaveServerConfig( new LogChannel( "Slave server config" ), configNode );
+        SlaveServerConfig config = new DIServerConfig( new LogChannel( "Slave server config" ), configNode );
         config.setFilename( slaveServerConfigFile.getAbsolutePath() );
         SlaveServer slaveServer = new SlaveServer();
         config.setSlaveServer( slaveServer );
