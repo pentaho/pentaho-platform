@@ -129,7 +129,7 @@ public class QuartzScheduler implements IScheduler {
    */
   public void setQuartzSchedulerFactory( SchedulerFactory quartzSchedulerFactory ) throws SchedulerException {
     this.quartzSchedulerFactory = quartzSchedulerFactory;
-    if( quartzScheduler != null ){
+    if ( quartzScheduler != null ) {
       this.shutdown();
       quartzScheduler = null;
     }
@@ -149,7 +149,7 @@ public class QuartzScheduler implements IScheduler {
     logger.debug( "Using quartz scheduler " + quartzScheduler ); //$NON-NLS-1$
     return quartzScheduler;
   }
-  
+
   private void setQuartzScheduler( Scheduler quartzScheduler ) {
     this.quartzScheduler = quartzScheduler;
   }
@@ -266,8 +266,8 @@ public class QuartzScheduler implements IScheduler {
     QuartzJobKey jobId = new QuartzJobKey( jobName, curUser );
 
     Trigger quartzTrigger = createQuartzTrigger( trigger, jobId );
-    
-    if( trigger.getEndTime() != null ){
+
+    if ( trigger.getEndTime() != null ) {
       quartzTrigger.setEndTime( trigger.getEndTime() );
     }
 
@@ -814,7 +814,7 @@ public class QuartzScheduler implements IScheduler {
     try {
       boolean waitForJobsToComplete = true;
       getQuartzScheduler().shutdown( waitForJobsToComplete );
-      setQuartzScheduler(null);
+      setQuartzScheduler( null );
     } catch ( org.quartz.SchedulerException e ) {
       throw new SchedulerException( e );
     }
