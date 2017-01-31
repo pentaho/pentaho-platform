@@ -1061,12 +1061,6 @@ a:active, a:hover {
   width: 100%;
 }
 
-.schedule-editor-caption-panel input[type="text"] {
-    height: 33px;
-    padding: 0 10px;
-    line-height: 22px;
-}
-
 .gwt-MenuBar-horizontal .gwt-MenuItem-selected {
   background: #005DA6;
   border: 0 none;
