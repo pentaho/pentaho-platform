@@ -379,9 +379,9 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.json</groupId>
+			<groupId>org.pentaho</groupId>
 			<artifactId>json</artifactId>
-			<version>${project.version}</version>
+			<version>${json.version}</version>
 			<scope>compile</scope>
 			<exclusions>
 				<exclusion>

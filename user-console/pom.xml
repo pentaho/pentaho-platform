@@ -35,7 +35,7 @@
     <gwtx.version>1.5.2</gwtx.version>
     <gwt-incubator.version>2.1.0</gwt-incubator.version>
     <gwt-dnd.version>3.0.1</gwt-dnd.version>
-    <json.version>3.1.1</json.version>
+    <org.json.version>3.1.1</org.json.version>
     <validation-api.version>1.0.0.GA</validation-api.version>
     <mockito.version>1.8.5</mockito.version>
     <json-simple.version>1.1</json-simple.version>
@@ -310,7 +310,7 @@
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>${json.version}</version>
+      <version>${org.json.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
