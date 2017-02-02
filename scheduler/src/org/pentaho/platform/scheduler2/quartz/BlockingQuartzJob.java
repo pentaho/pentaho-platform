@@ -84,13 +84,19 @@ public class BlockingQuartzJob implements Job {
                                   final JobExecutionContext jobExecutionContext ) {
     if ( jobExecutionContext != null && jobExecutionContext.getJobDetail() != null ) {
       final JobDataMap jobDataMap = jobExecutionContext.getJobDetail().getJobDataMap();
-      AuditHelper.audit( PentahoSessionHolder.getSession() != null ? PentahoSessionHolder.getSession().getId() : null,
-              jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ) != null ? jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ).toString() : null,
-              jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER ) != null ? jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER ).toString() : null,
-              jobExecutionContext.getJobDetail().getJobClass() != null ? jobExecutionContext.getJobDetail().getJobClass().getName() : null,
-              jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONID ) != null ? jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONID ).toString() : null,
+
+      if ( null == jobDataMap || null == jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER ) || null == jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONID ) ) {
+        //it's an action, no need to log
+        return;
+      }
+
+      AuditHelper.audit( PentahoSessionHolder.getSession() != null ? PentahoSessionHolder.getSession().getId() : "",
+              jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ) != null ? jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ).toString() : "",
+              jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER ) != null ? jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER ).toString() : "",
+              jobExecutionContext.getJobDetail().getJobClass() != null ? jobExecutionContext.getJobDetail().getJobClass().getName() : "",
+              jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONID ) != null ? jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONID ).toString() : "",
               messageType,
-              jobDataMap.get( "lineage-id" ) != null ? jobDataMap.get( "lineage-id" ).toString() : null,
+              jobDataMap.get( "lineage-id" ) != null ? jobDataMap.get( "lineage-id" ).toString() : "",
               null,
               time,
               null ); //$NON-NLS-1$
