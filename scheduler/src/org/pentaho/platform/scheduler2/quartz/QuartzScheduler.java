@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -129,7 +129,7 @@ public class QuartzScheduler implements IScheduler {
    */
   public void setQuartzSchedulerFactory( SchedulerFactory quartzSchedulerFactory ) throws SchedulerException {
     this.quartzSchedulerFactory = quartzSchedulerFactory;
-    if( quartzScheduler != null ){
+    if ( quartzScheduler != null ) {
       this.shutdown();
       quartzScheduler = null;
     }
@@ -149,7 +149,7 @@ public class QuartzScheduler implements IScheduler {
     logger.debug( "Using quartz scheduler " + quartzScheduler ); //$NON-NLS-1$
     return quartzScheduler;
   }
-  
+
   private void setQuartzScheduler( Scheduler quartzScheduler ) {
     this.quartzScheduler = quartzScheduler;
   }
@@ -266,8 +266,8 @@ public class QuartzScheduler implements IScheduler {
     QuartzJobKey jobId = new QuartzJobKey( jobName, curUser );
 
     Trigger quartzTrigger = createQuartzTrigger( trigger, jobId );
-    
-    if( trigger.getEndTime() != null ){
+
+    if ( trigger.getEndTime() != null ) {
       quartzTrigger.setEndTime( trigger.getEndTime() );
     }
 
@@ -400,6 +400,12 @@ public class QuartzScheduler implements IScheduler {
           ( (SimpleTrigger) trigger ).setPreviousFireTime( new Date() );
         } else if ( trigger instanceof CronTrigger ) {
           ( (CronTrigger) trigger ).setPreviousFireTime( new Date() );
+        }
+        if ( trigger.getStartTime() != null && trigger.getStartTime().before( new Date() ) ) {
+          Date newStartTime = trigger.getFireTimeAfter( new Date() );
+          if ( newStartTime != null ) {
+            trigger.setStartTime( newStartTime );
+          }
         }
         // force the trigger to be updated with the previous fire time
         scheduler.rescheduleJob( jobId, jobKey.getUserName(), trigger );
@@ -808,7 +814,7 @@ public class QuartzScheduler implements IScheduler {
     try {
       boolean waitForJobsToComplete = true;
       getQuartzScheduler().shutdown( waitForJobsToComplete );
-      setQuartzScheduler(null);
+      setQuartzScheduler( null );
     } catch ( org.quartz.SchedulerException e ) {
       throw new SchedulerException( e );
     }
