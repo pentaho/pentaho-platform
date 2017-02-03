@@ -37,9 +37,9 @@
     <dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.1"/>
 
     <!--  compile time batik -->
-    <dependency org="org.apache.xmlgraphics" name="batik-awt-util" rev="1.7" transitive="false"/>
-    <dependency org="org.apache.xmlgraphics" name="batik-dom" rev="1.7" transitive="false"/>
-    <dependency org="org.apache.xmlgraphics" name="batik-svggen" rev="1.7" transitive="false"/>
+    <dependency org="org.apache.xmlgraphics" name="batik-awt-util" rev="${dependency.batik.revision}" transitive="false"/>
+    <dependency org="org.apache.xmlgraphics" name="batik-dom" rev="${dependency.batik.revision}" transitive="false"/>
+    <dependency org="org.apache.xmlgraphics" name="batik-svggen" rev="${dependency.batik.revision}" transitive="false"/>
 
     <dependency org="org.springframework"   name="spring-beans"     rev="${dependency.spring.framework.revision}"   transitive="false"/>
     <dependency org="org.springframework"   name="spring-context"   rev="${dependency.spring.framework.revision}"   transitive="false"/>
