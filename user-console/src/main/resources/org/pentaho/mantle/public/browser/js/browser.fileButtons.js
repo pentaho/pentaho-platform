@@ -16,7 +16,7 @@
  */
 
 define([
-  "js/browser.utils",
+  "./browser.utils",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery"
 ], function (BrowserUtils) {

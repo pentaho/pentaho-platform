@@ -19,7 +19,7 @@ define([
   "common-ui/util/BootstrappedTabLoader",
   "common-ui/util/ContextProvider",
   "common-ui/util/HandlebarsCompiler",
-  "home/gettingStarted"
+  "./gettingStarted"
 ], function (BootstrappedTabLoader, ContextProvider, HandlebarsCompiler, GettingStartedWidget) {
 
   function init() {
