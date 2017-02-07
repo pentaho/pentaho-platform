@@ -216,8 +216,8 @@
         <artifact name="pdi-salesforce-plugin" type="zip"/>
     </dependency>
 
-    <dependency org="pentaho" name="VerticaBulkLoader" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
-      <artifact name="VerticaBulkLoader" type="zip" ext="zip" />
+    <dependency org="org.pentaho" name="vertica-bulkloader-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
+      <artifact name="vertica-bulkloader-plugin" type="zip" ext="zip" />
     </dependency>
     <dependency org="pentaho-kettle" name="kettle-s3csvinput-plugin" rev="${dependency.kettle.revision}" conf="kettle-plugin->default" changing="true" transitive="false">
         <artifact name="kettle-s3csvinput-plugin" type="zip"/>
