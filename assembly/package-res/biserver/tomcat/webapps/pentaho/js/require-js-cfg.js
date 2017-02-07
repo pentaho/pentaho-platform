@@ -12,8 +12,10 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+* Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
 */
 
 requireCfg['paths']['pentaho'] = CONTEXT_PATH+'js';
 requireCfg['paths']['home'] = CONTEXT_PATH+'mantle/home/js';
+requireCfg['paths']['mantle/puc-api'] = CONTEXT_PATH+'mantle/puc-api';
+requireCfg['paths']['mantle/browser'] = CONTEXT_PATH+'mantle/browser/js';
