@@ -381,5 +381,65 @@
         <module>assembly</module>
       </modules>
     </profile>
+      <profile>
+        <id>aggregate-reporting</id>
+        <activation>
+          <property>
+            <name>!skipTests</name>
+          </property>
+        </activation>
+        <reporting>
+          <plugins>
+            <plugin>
+              <artifactId>maven-jxr-plugin</artifactId>
+              <reportSets>
+                <reportSet>
+                  <id>aggregate-jxr</id>
+                  <reports>
+                    <report>aggregate</report>
+                  </reports>
+                  <inherited>false</inherited>
+                </reportSet>
+              </reportSets>
+              <configuration>
+                <linkJavadoc>true</linkJavadoc>
+              </configuration>
+            </plugin>
+            <plugin>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <reportSets>
+                <reportSet>
+                  <id>aggregate-javadoc</id>
+                  <reports>
+                    <report>aggregate</report>
+                  </reports>
+                  <inherited>false</inherited>
+                </reportSet>
+              </reportSets>
+              <configuration>
+                <failOnError>false</failOnError>
+              </configuration>
+            </plugin>
+            <plugin>
+              <artifactId>maven-checkstyle-plugin</artifactId>
+              <reportSets>
+                <reportSet>
+                  <id>aggregate-checkstyle</id>
+                  <reports>
+                    <report>checkstyle-aggregate</report>
+                  </reports>
+                  <inherited>false</inherited>
+                </reportSet>
+              </reportSets>
+              <configuration>
+                <configLocation>${checkstyle-config-url}</configLocation>
+                <propertiesLocation>${checkstyle-properties-url}</propertiesLocation>
+                <linkXRef>true</linkXRef>
+                <cacheFile />
+              </configuration>
+            </plugin>
+          </plugins>
+        </reporting>
+      </profile>    
   </profiles>
  </project>
