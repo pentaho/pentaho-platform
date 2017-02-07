@@ -143,9 +143,9 @@ public class PentahoWebContextFilter implements Filter {
           String requireJsLocation = "content/common-ui/resources/web/require.js";
           String requireJsConfigLocation = "content/common-ui/resources/web/require-cfg.js";
           String requireScript =
-              "document.write(\"<script type='text/javascript' src='" + contextPath
+              "document.write(\"<script type='text/javascript' src='\" + CONTEXT_PATH + \""
                   + requireJsLocation + "'></scr\"+\"ipt>\");\n"
-                  + "document.write(\"<script type=\'text/javascript\' src='" + contextPath
+                  + "document.write(\"<script type=\'text/javascript\' src='\" + CONTEXT_PATH + \""
                   + requireJsConfigLocation + "'></scr\"+\"ipt>\");\n";
           requireScriptBytes = requireScript.getBytes();
           THREAD_LOCAL_REQUIRE_SCRIPT.set( requireScriptBytes );
@@ -164,8 +164,8 @@ public class PentahoWebContextFilter implements Filter {
         if ( !noOsgiRequireConfig ) {
           final String useFullyQualifiedUrlParameter = httpRequest.getParameter( "fullyQualifiedUrl" );
 
-          out.write( ( "document.write(\"<script type='text/javascript' src='"
-              + contextPath + "osgi/requirejs-manager/js/require-init.js?requirejs=false"
+          out.write( ( "document.write(\"<script type='text/javascript' src='\" + CONTEXT_PATH + \""
+              + "osgi/requirejs-manager/js/require-init.js?requirejs=false"
               + ( useFullyQualifiedUrlParameter != null ? "&fullyQualifiedUrl=" + useFullyQualifiedUrlParameter : "" )
               + "'></scr\"+\"ipt>\");\n" ).getBytes( "UTF-8" ) );
         }
@@ -379,10 +379,10 @@ public class PentahoWebContextFilter implements Filter {
           continue;
         }
         if ( res.endsWith( JS ) && !printCssOnly ) {
-          out.write( ( "document.write(\"<script language='javascript' type='text/javascript' src='\"+CONTEXT_PATH + \"" + res.trim() + reqStr + "'></scr\"+\"ipt>\");\n" //$NON-NLS-1$ //$NON-NLS-2$
+          out.write( ( "document.write(\"<script language='javascript' type='text/javascript' src='\" + CONTEXT_PATH + \"" + res.trim() + reqStr + "'></scr\"+\"ipt>\");\n" //$NON-NLS-1$ //$NON-NLS-2$
           ).getBytes() );
         } else if ( res.endsWith( CSS ) ) {
-          out.write( ( "document.write(\"<link rel='stylesheet' type='text/css' href='\"+CONTEXT_PATH + \"" + res.trim() + reqStr + "'/>\");\n" //$NON-NLS-1$ //$NON-NLS-2$
+          out.write( ( "document.write(\"<link rel='stylesheet' type='text/css' href='\" + CONTEXT_PATH + \"" + res.trim() + reqStr + "'/>\");\n" //$NON-NLS-1$ //$NON-NLS-2$
           ).getBytes() );
         }
       }
