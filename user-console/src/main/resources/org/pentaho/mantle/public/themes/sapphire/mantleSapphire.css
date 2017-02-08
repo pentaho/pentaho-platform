@@ -1004,6 +1004,10 @@ a:active, a:hover {
   font-family: OpenSansLight, Helvetica, Arial, Sans serif;
 }
 
+div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
+  text-align: left;
+}
+
 .custom-dropdown-selected {
   background-color: #0F2B5B !important;
   color: #FFF !important;
