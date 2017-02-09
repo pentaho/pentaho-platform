@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -76,8 +76,6 @@ public class GetResource extends ServletBase {
       } else if ( resLower.endsWith( ".jpg" ) || resLower.endsWith( ".jpeg" )
         || resLower.endsWith( ".gif" ) || resLower.endsWith(
           ".png" ) || resLower.endsWith( ".bmp" ) ) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-        resourcePath = resource;
-      } else if ( resLower.endsWith( ".jar" ) ) { //$NON-NLS-1$
         resourcePath = resource;
       } else {
         error( Messages.getInstance().getErrorString( "GetResource.ERROR_0002_INVALID_FILE", resource ) ); //$NON-NLS-1$
