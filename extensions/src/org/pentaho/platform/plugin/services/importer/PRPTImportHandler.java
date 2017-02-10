@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -60,8 +60,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
     IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
     String fileName = importBundle.getName();
 
-    String filePath =
-        ( importBundle.getPath().equals( "/" ) || importBundle.getPath().equals( "\\" ) ) ? "" : importBundle.getPath();
+    String filePath = ( importBundle.getPath().equals( "/" ) || importBundle.getPath().equals( "\\" ) ) ? "" : importBundle.getPath();
 
     // If is locale file store it for later processing.
     // need to extract this from meta.xml
@@ -71,8 +70,10 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
       InputStream bundleInputStream = new ByteArrayInputStream( bytes );
       // Process locale file from meta.xml.
       importBundle.setInputStream( bundleInputStream );
+      final DocumentMetaData documentMetaData = extractMetaData( bytes );
+      fillLocaleEntry( localeFilesProcessor, documentMetaData, filePath, fileName, importBundle.getFile() );
       if ( importBundle.isHidden() == null ) {
-        boolean hidden = extractMetaData( localeFilesProcessor, bytes, filePath, fileName, importBundle.getFile() );
+        boolean hidden = isReportHidden( documentMetaData );
         importBundle.setHidden( hidden );
       }
       super.importFile( importBundle );
@@ -82,40 +83,50 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
     }
   }
 
-  /**
-   * extract the contents of the file meta.xml and place in the locales process entry
-   *
-   * @param localeFilesProcessor
-   * @param bytes
-   * @return true if this report is hidden. The report is hidden if the visible attribute is set to 'false'
-   * (with case sensitive check to filter out garbage).
-   * @throws IOException
-   */
-  private boolean extractMetaData( LocaleFilesProcessor localeFilesProcessor,
-                                   byte[] bytes, String filePath, String fileName,
-                                   RepositoryFile rf )
-    throws IOException, PlatformImportException {
+  private void fillLocaleEntry( LocaleFilesProcessor localeFilesProcessor, DocumentMetaData metaData, String filePath,
+      String fileName, RepositoryFile rf ) throws IOException {
+    String description =
+        (String) metaData.getBundleAttribute( ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION );
+    if ( StringUtils.isEmpty( description, true ) ) {
+      // make sure that empty strings and strings with only whitespace are not used as description.
+      description = null;
+    }
+    String title = (String) metaData.getBundleAttribute( ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.TITLE );
+    if ( StringUtils.isEmpty( title, true ) ) {
+      // make sure that empty strings and strings with only whitespace are not used as description.
+      title = null;
+    }
+    if ( title != null || description != null ) {
+      localeFilesProcessor.createLocaleEntry( filePath, fileName, title, description, rf, new ByteArrayInputStream( "".getBytes() ) );
+    }
+  }
 
+  /**
+   * check properties from metadata
+   *
+   * @param metaData
+   * @return true if this report is hidden. The report is hidden if the visible attribute is set to 'false' (with case
+   *         sensitive check to filter out garbage).
+   */
+  private boolean isReportHidden( DocumentMetaData metaData ) {
+    // we are conservative here. Only if the string matches 'true' with this spelling.
+    return "false".equals( metaData.getBundleAttribute( ClassicEngineBoot.METADATA_NAMESPACE, "visible" ) );
+  }
+
+  // keep it protected for test goal, we should not add any logic for this method such we just
+  // incapsulate getting information from external class
+  /**
+   * extract metadata from input bundle
+   *
+   * @param bytes
+   * @return
+   * @throws PlatformImportException if we are failed to create metadata from input data
+   */
+  protected DocumentMetaData extractMetaData( byte[] bytes ) throws PlatformImportException {
     try {
       ResourceManager mgr = new ResourceManager();
       MasterReport report = (MasterReport) mgr.createDirectly( bytes, MasterReport.class ).getResource();
-      DocumentMetaData metaData = report.getBundle().getMetaData();
-      String description = (String) metaData.getBundleAttribute( ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION );
-      if ( StringUtils.isEmpty( description, true ) ) {
-        // make sure that empty strings and strings with only whitespace are not used as description.
-        description = null;
-      }
-      String title = (String) metaData.getBundleAttribute( ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.TITLE );
-      if ( StringUtils.isEmpty( title, true ) ) {
-        // make sure that empty strings and strings with only whitespace are not used as description.
-        title = null;
-      }
-      if ( title != null || description != null ) {
-        localeFilesProcessor.createLocaleEntry( filePath, fileName, title, description, rf,
-            new ByteArrayInputStream( "".getBytes() ) );
-      }
-      // we are conservative here. Only if the string matches 'true' with this spelling.
-      return "false".equals( metaData.getBundleAttribute( ClassicEngineBoot.METADATA_NAMESPACE, "visible" ) );
+      return report.getBundle().getMetaData();
     } catch ( ResourceException e ) {
       throw new PlatformImportException( "An unexpected error occurred while parsing a report definition", e );
     }
