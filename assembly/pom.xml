@@ -269,8 +269,8 @@
                   <outputDirectory>${target.pentaho-server.kettle.plugins.dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>VerticaBulkLoader</artifactId>
+                  <groupId>org.pentaho</groupId>
+                  <artifactId>vertica-bulkloader-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${target.pentaho-server.kettle.plugins.dir}</outputDirectory>
