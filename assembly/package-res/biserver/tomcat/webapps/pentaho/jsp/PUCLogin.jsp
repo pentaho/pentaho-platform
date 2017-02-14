@@ -91,7 +91,12 @@
   <title><%=Messages.getInstance().getString("UI.PUC.TITLE")%></title>
 
   <%
-    String ua = request.getHeader( "User-Agent" ).toLowerCase();
+    String ua = request.getHeader( "User-Agent" );
+    if ( ua != null ) {
+      ua = ua.toLowerCase();
+    } else {
+      ua = "none";
+    }
     if ( !"desktop".equalsIgnoreCase( request.getParameter( "mode") ) ) {
       if ( ua.contains( "ipad" ) || ua.contains( "ipod" ) || ua.contains( "iphone" )
            || ua.contains( "android" ) || "mobile".equalsIgnoreCase( request.getParameter( "mode" ) ) ) {
