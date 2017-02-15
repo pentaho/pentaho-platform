@@ -154,4 +154,7 @@
 
    </file-upload-defaults>
   <default-theme>sapphire</default-theme>
+
+  <!-- Excel pre-flight request filter pattern -->
+  <pre-flight-pattern>^.*(reporting/api/jobs|api/repos/.*\\.prpt).*$</pre-flight-pattern>
 </pentaho-system>
