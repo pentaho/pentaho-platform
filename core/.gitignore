@@ -1,3 +1,5 @@
+pentaho.log
+src/test/resources/solution/system/logs/
 /bin
 /eclipse-bin
 /dist

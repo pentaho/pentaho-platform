@@ -3,10 +3,10 @@ bin/
 extensions/test-src/solution/test/tmp/Chartbeans.testChartbeansAllInclusive_OFC.html
 extensions/test-src/connections-solution/test/tmp/
 extensions/test-src/solution/test/tmp/
-.idea/workspace.xml
 build-utils/dist
 build-utils/lib
 build-utils/test-lib
 .settings
+.idea/
 target/
 *.iml
