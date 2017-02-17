@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
@@ -26,8 +26,6 @@ import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 
 import javax.sql.DataSource;
@@ -50,9 +48,11 @@ public class NonPooledOrJndiDatasourceService extends BaseDatasourceService {
       if ( databaseConnection != null && !databaseConnection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
         ds = resolveDatabaseConnection( databaseConnection );
         // Database does not have the datasource, look in jndi now
-      } else if ( databaseConnection == null ) {
-        ds = getJndiDataSource( dsName );
       } else {
+        ds = getJndiDataSource( dsName );
+      }
+      //Maybe jndi name is specified as database name in the connection
+      if ( ds == null && databaseConnection != null ) {
         ds = getJndiDataSource( databaseConnection.getDatabaseName() );
       }
       // if the resulting datasource is not null then store it in the cache
