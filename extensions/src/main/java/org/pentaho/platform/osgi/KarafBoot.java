@@ -381,27 +381,17 @@ public class KarafBoot implements IPentahoSystemListener {
   }
 
   protected String translateToExtraKettleEtc( KettleClientEnvironment.ClientType clientType ) {
-    String extraKettleEtc = null;
     if ( clientType != null ) {
       switch ( clientType ) {
         case SPOON:
-          extraKettleEtc = "/etc-spoon";
-          break;
         case PAN:
-          extraKettleEtc = "/etc-pan";
-          break;
         case KITCHEN:
-          extraKettleEtc = "/etc-kitchen";
-          break;
         case CARTE:
-          extraKettleEtc = "/etc-carte";
-          break;
-        default:
-          extraKettleEtc = "/etc-default";
-          break;
+        case OTHER:
+          return "/etc-" + clientType.getID().toLowerCase();
       }
     }
-    return extraKettleEtc;
+    return "/etc-default";
   }
 
   protected KettleClientEnvironment.ClientType getClientType() {
