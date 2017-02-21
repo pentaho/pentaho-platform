@@ -350,7 +350,9 @@
   <profiles>
     <profile>
       <activation>
-        <activeByDefault>true</activeByDefault>
+          <property>
+            <name>!skipDefault</name>
+          </property>
       </activation>
       <id>platform-base</id>
       <modules>
@@ -364,7 +366,9 @@
     </profile>
     <profile>
       <activation>
-        <activeByDefault>true</activeByDefault>
+          <property>
+            <name>!skipDefault</name>
+          </property>
       </activation>
       <id>platform-user-console</id>
       <modules>
@@ -373,7 +377,9 @@
     </profile>
     <profile>
       <activation>
-        <activeByDefault>true</activeByDefault>
+          <property>
+            <name>!skipDefault</name>
+          </property>
       </activation>
       <id>platform-assemble</id>
       <modules>
