@@ -1059,6 +1059,11 @@
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<plugins>
 			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 				<executions>
 					<execution>

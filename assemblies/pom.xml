@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>pentaho</groupId>
+    <artifactId>pentaho-platform-ce-parent</artifactId>
+    <version>7.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>pentaho-platform-assemblies</artifactId>
+  <packaging>pom</packaging>
+  <name>Platform assemblies</name>
+
+  <properties>
+    <!-- the impl properties are used to create the manifest file -->
+    <impl.title>Pentaho BI Platform Community Edition</impl.title>
+
+    <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
+
+    <package.id>pentaho-server</package.id>
+    <pentaho-server.directory>${project.build.directory}/${package.id}</pentaho-server.directory>
+
+    <pentaho-server.solutions.directory>${pentaho-server.directory}/pentaho-solutions</pentaho-server.solutions.directory>
+
+    <pentaho-server.system.directory>${pentaho-server.solutions.directory}/system</pentaho-server.system.directory>
+    <pentaho-server.plugins.directory>${pentaho-server.system.directory}</pentaho-server.plugins.directory>
+    <pentaho-server.kettle.plugins.directory>${pentaho-server.system.directory}/kettle/pluggins</pentaho-server.kettle.plugins.directory>
+
+    <plugins.directory>plugins</plugins.directory>
+  </properties>
+
+  <modules>
+    <module>pentaho-samples</module>
+    <module>pentaho-plugin-samples</module>
+    <module>pentaho-user-console</module>
+    <module>pentaho-war</module>
+    <module>pentaho-style</module>
+    <module>pentaho-data</module>
+    <module>pentaho-solutions</module>
+    <module>pentaho-server-manual</module>
+    <module>pentaho-server</module>
+  </modules>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>${maven-war-plugin.version}</version>
+          <configuration>
+            <archive>
+              <addMavenDescriptor>false</addMavenDescriptor>
+              <manifestEntries>
+                <Implementation-Title>${impl.title}</Implementation-Title>
+                <Implementation-Version>${project.version}</Implementation-Version>
+                <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+              </manifestEntries>
+            </archive>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <configuration>
+          <skipSource>true</skipSource>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -1,0 +1,178 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+
+  <id>pentaho-server</id>
+
+  <formats>
+    <format>zip</format>
+  </formats>
+  <baseDirectory>pentaho-server</baseDirectory>
+
+  <fileSets>
+    <fileSet>
+      <directory>${resources.directory}/biserver</directory>
+      <outputDirectory>.</outputDirectory>
+      <includes>
+        <include>*.sh</include>
+      </includes>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <directory>${resources.directory}/biserver</directory>
+      <outputDirectory>.</outputDirectory>
+    </fileSet>
+
+    <!-- copy default tomcat files -->
+    <fileSet>
+      <directory>${tomcat.directory}/bin</directory>
+      <outputDirectory>tomcat/bin</outputDirectory>
+      <includes>
+        <include>*.sh</include>
+      </includes>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <directory>${tomcat.directory}</directory>
+      <outputDirectory>tomcat</outputDirectory>
+    </fileSet>
+    <!-- create empty directory tomcat/logs -->
+    <fileSet>
+      <outputDirectory>tomcat/logs</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+
+    <fileSet>
+      <directory>${pentaho-server.directory}</directory>
+      <outputDirectory>.</outputDirectory>
+    </fileSet>
+
+    <!-- copy solutions hsqldb files into pentaho-solutions/system -->
+    <fileSet>
+      <directory>${project.build.directory}/pentaho-solutions/system/dialects/hsqldb</directory>
+      <outputDirectory>pentaho-solutions/system</outputDirectory>
+    </fileSet>
+  </fileSets>
+
+  <dependencySets>
+    <!-- copy platform artifacts -->
+    <dependencySet>
+      <unpack>true</unpack>
+      <includes>
+        <include>pentaho:pentaho-data:zip</include>
+      </includes>
+      <unpackOptions>
+        <includes>
+          <include>**/*.sh</include>
+        </includes>
+      </unpackOptions>
+      <fileMode>0755</fileMode>
+      <outputDirectory>.</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <unpack>true</unpack>
+      <includes>
+        <include>pentaho:pentaho-data:zip</include>
+      </includes>
+      <outputDirectory>.</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+
+    <dependencySet>
+      <unpack>true</unpack>
+      <includes>
+        <include>pentaho:pentaho-style:war</include>
+      </includes>
+      <outputDirectory>tomcat/webapps/pentaho-style</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <unpack>true</unpack>
+      <includes>
+        <include>pentaho:pentaho-war:war</include>
+      </includes>
+      <outputDirectory>tomcat/webapps/pentaho</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <unpack>true</unpack>
+      <includes>
+        <include>pentaho:pentaho-solutions:zip</include>
+      </includes>
+      <outputDirectory>.</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+
+    <!-- copy libraries to tomcat/server/lib -->
+    <dependencySet>
+      <includes>
+        <include>cglib:cglib-nodep</include>
+        <include>jaxen:jaxen</include>
+      </includes>
+      <outputDirectory>tomcat/server/lib</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+
+    <!-- copy datasource libraries to tomcat/lib -->
+    <dependencySet>
+      <includes>
+        <include>commons-logging:commons-logging</include>
+        <include>org.hsqldb:hsqldb</include>
+        <include>mysql:mysql-connector-java</include>
+        <include>com.h2database:h2</include>
+        <include>javax.servlet.jsp:jsp-api</include>
+        <include>org.postgresql:postgresql</include>
+      </includes>
+      <outputDirectory>tomcat/lib</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+
+    <!-- copy third party tools to third-party-tools/wkhtmltoimage -->
+    <dependencySet>
+      <includes>
+        <include>wkhtmltopdf:wkhtmltoimage-amd64:tar.bz2</include>
+      </includes>
+      <outputFileNameMapping>wkhtmltoimage_linux_amd64.${artifact.extension}</outputFileNameMapping>
+      <outputDirectory>third-party-tools/wkhtmltoimage</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <includes>
+        <include>wkhtmltopdf:wkhtmltoimage-i386:tar.bz2</include>
+      </includes>
+      <outputFileNameMapping>wkhtmltoimage_linux_i386.${artifact.extension}</outputFileNameMapping>
+      <outputDirectory>third-party-tools/wkhtmltoimage</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <includes>
+        <include>wkhtmltopdf:wkhtmltoimage-OSX:tar.bz2</include>
+      </includes>
+      <outputFileNameMapping>wkhtmltoimage_mac.${artifact.extension}</outputFileNameMapping>
+      <outputDirectory>third-party-tools/wkhtmltoimage</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <includes>
+        <include>wkhtmltopdf:wkhtmltox:exe:installer</include>
+      </includes>
+      <outputFileNameMapping>wkhtmltoimage_windows_${artifact.classifier}.${artifact.extension}</outputFileNameMapping>
+      <outputDirectory>third-party-tools/wkhtmltoimage</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+  </dependencySets>
+</assembly>

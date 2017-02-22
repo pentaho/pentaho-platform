@@ -21,5 +21,5 @@ This module contains a variety of capabilities used for various purposes within 
 ## user-console
 This module is a GWT front end for the pentaho platform, allowing users to navigate the repository, execute and schedule content, as well as administer the platform
 
-## assembly
+## assemblies
 This module creates the Pentaho Server archive and contains the samples and other content needed for the Pentaho Server.

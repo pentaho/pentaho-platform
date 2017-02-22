@@ -1,0 +1,29 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+
+  <id>user-console-bin</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <dependencySets>
+    <dependencySet>
+      <unpack>true</unpack>
+      <includes>
+        <include>pentaho:pentaho-user-console:jar:gwt</include>
+      </includes>
+      <unpackOptions>
+        <includes>
+          <include>mantle/**</include>
+          <include>WEB-INF/**</include>
+        </includes>
+      </unpackOptions>
+      <outputDirectory>.</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+    </dependencySet>
+  </dependencySets>
+
+</assembly>
