@@ -84,7 +84,6 @@
     <dteapi.version>2.2.1</dteapi.version>
     <dataadapterapi.version>2.2.1</dataadapterapi.version>
     <jackrabbit.version>2.10.0</jackrabbit.version>
-    <salesforce-partner.version>24.0</salesforce-partner.version>
     <tika-core.version>1.3</tika-core.version>
     <slf4j.version>1.7.7</slf4j.version>
   </properties>
@@ -1851,11 +1850,6 @@
         <groupId>org.apache.jackrabbit</groupId>
         <artifactId>jackrabbit-spi-commons</artifactId>
         <version>${jackrabbit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>pentaho</groupId>
-        <artifactId>salesforce-partner</artifactId>
-        <version>${salesforce-partner.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.tika</groupId>
