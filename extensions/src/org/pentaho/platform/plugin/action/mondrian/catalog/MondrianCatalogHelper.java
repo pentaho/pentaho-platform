@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
@@ -633,8 +633,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS" ), //$NON-NLS-1$
           Reason.XMLA_SCHEMA_NAME_EXISTS );
     }
+    MondrianCatalogRepositoryHelper helper = getMondrianCatalogRepositoryHelper();
     try {
-      MondrianCatalogRepositoryHelper helper = getMondrianCatalogRepositoryHelper();
       helper.addHostedCatalog( schemaInputStream, catalog.getName(), catalog.getDataSourceInfo() );
     } catch ( Exception e ) {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
@@ -646,12 +646,18 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       MondrianCatalogHelper.logger
           .debug( "refreshing from dataSourcesConfig (" + dataSourcesConfig + ")" ); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    reInit( pentahoSession );
+    try {
+      reInit( pentahoSession );
 
-    setAclFor( catalog.getName(), acl );
+      setAclFor( catalog.getName(), acl );
 
-    if ( catalogExistsWithSameDatasource || catalogExistsWithDifferentDatasource ) {
-      flushCacheForCatalog( catalog.getName(), pentahoSession );
+      if ( catalogExistsWithSameDatasource || catalogExistsWithDifferentDatasource ) {
+        flushCacheForCatalog( catalog.getName(), pentahoSession );
+      }
+    } catch ( MondrianException e ) {
+      helper.deleteHostedCatalog( catalog.getName() );
+      reInit( pentahoSession );
+      throw e;
     }
   }
 
@@ -1009,8 +1015,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   protected MondrianSchema makeSchema( final String catalogStr ) {
     if ( MondrianCatalogHelper.logger.isDebugEnabled() ) {
       MondrianCatalogHelper.logger
-          .debug( "makeSchema (catalogStr=" + catalogStr.substring( 0, Math.min( 40, catalogStr.length() ) ) + "...)"
-          );
+          .debug( "makeSchema (catalogStr=" + catalogStr.substring( 0, Math.min( 40, catalogStr.length() ) ) + "...)" );
     }
     MondrianSchema schema = null;
     try {
