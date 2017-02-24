@@ -269,7 +269,7 @@ public class KarafBootTest {
     assertEquals( "/etc-kitchen", boot.translateToExtraKettleEtc( KettleClientEnvironment.ClientType.KITCHEN ) );
     assertEquals( "/etc-pan", boot.translateToExtraKettleEtc( KettleClientEnvironment.ClientType.PAN ) );
     assertEquals( "/etc-spoon", boot.translateToExtraKettleEtc( KettleClientEnvironment.ClientType.SPOON ) );
-    assertNull( boot.translateToExtraKettleEtc( null ) );
+    assertEquals( "/etc-default", boot.translateToExtraKettleEtc( null ) );
   }
 
   @Test
