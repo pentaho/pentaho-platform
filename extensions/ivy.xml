@@ -243,7 +243,7 @@
     <!-- java assist version 3.12.1.GA for hibernate 3.6.9 -->
     <dependency org="org.javassist" name="javassist" rev="${dependency.javassist.revision}" conf="default->default" transitive="false"/>
     <dependency org="org.scannotation" name="scannotation" rev="1.0.2" conf="default->default" transitive="false"/>
-    <dependency org="org.syslog4j" name="syslog4j" rev="0.9.34" conf="default->default" transitive="false"/>
+    <dependency org="org.syslog4j" name="syslog4j" rev="0.9.46" conf="default->default" transitive="false"/>
     <dependency org="ldapjdk" name="ldapjdk" rev="20000524" conf="default->default" transitive="false"/>
     <dependency org="trilead-ssh2" name="trilead-ssh2" rev="build213" conf="default->default" transitive="false"/>
     <dependency org="ftp4che" name="ftp4che" rev="0.7.1" conf="default->default" transitive="false"/>
