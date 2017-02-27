@@ -32,9 +32,9 @@
     <dependency org="org.apache.commons" name="commons-vfs2" rev="2.1-20150824" transitive="false"/>
     <dependency org="org.owasp.esapi" name="esapi" rev="2.0.1" transitive="false" />
 
-    <dependency org="org.slf4j" name="slf4j-api" rev="1.7.3"/>
-    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.3"/>
-    <dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.1"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="1.7.7"/>
+    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.7"/>
+    <dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.7.7"/>
 
     <!--  compile time batik -->
     <dependency org="org.apache.xmlgraphics" name="batik-awt-util" rev="${dependency.batik.revision}" transitive="false"/>
