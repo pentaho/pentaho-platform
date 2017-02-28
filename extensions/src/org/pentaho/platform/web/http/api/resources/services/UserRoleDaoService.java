@@ -12,22 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
-
 import org.apache.commons.lang3.StringUtils;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -51,6 +43,15 @@ import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.SystemRolesMap;
 import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
 
 public class UserRoleDaoService {
   private IUserRoleDao roleDao;
@@ -190,18 +191,26 @@ public class UserRoleDaoService {
 
   public void changeUserPassword( final String userName, final String newPass, String oldPass ) throws Exception {
     if ( inputValid( userName, newPass, oldPass ) ) {
-      final IUserRoleDao roleDao =
-          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-      IPentahoUser pentahoUser = roleDao.getUser( null, userName );
 
-      if ( credentialValid( pentahoUser, oldPass ) ) {
-        SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            roleDao.setPassword( null, userName, newPass );
-            return null;
-          }
-        } );
+      final IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
+      //You must be either an admin or trying to change your own password
+      if ( canAdminister() || ( null != pentahoSession && userName.equals( pentahoSession.getName() ) ) ) {
+
+        final IUserRoleDao roleDao =
+          PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", pentahoSession );
+        IPentahoUser pentahoUser = roleDao.getUser( null, userName );
+
+        if ( credentialValid( pentahoUser, oldPass ) ) {
+          SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+              roleDao.setPassword( null, userName, newPass );
+              return null;
+            }
+          } );
+        } else {
+          throw new SecurityException();
+        }
       } else {
         throw new SecurityException();
       }
@@ -249,8 +258,7 @@ public class UserRoleDaoService {
       }
       for ( Map.Entry<String, List<String>> logicalRoleAssignments : roleBindingStruct.bindingMap.entrySet() ) {
         systemRolesMap.getAssignments().add(
-          new LogicalRoleAssignment( logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue()
-            , roleBindingStruct.immutableRoles.contains( logicalRoleAssignments.getKey() ) )
+          new LogicalRoleAssignment( logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue(), roleBindingStruct.immutableRoles.contains( logicalRoleAssignments.getKey() ) )
         );
       }
       return systemRolesMap;
@@ -268,7 +276,7 @@ public class UserRoleDaoService {
       throw new SecurityException();
     }
   }
-  
+
   public void updatePassword( User user ) throws SecurityException {
     if ( canAdminister() ) {
       String userName = decode( user.getUserName() );
@@ -312,8 +320,8 @@ public class UserRoleDaoService {
 
     return roleDao;
   }
-  
+
   public static class ValidationFailedException extends Exception {
   }
-  
+
 }
