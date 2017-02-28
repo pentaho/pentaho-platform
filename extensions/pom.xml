@@ -1032,44 +1032,20 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-core</artifactId>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-core</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions</artifactId>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-kettle</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-mondrian</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-olap4j</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-pmd</artifactId>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-kettle</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 			<exclusions>
@@ -1080,56 +1056,20 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-reportdesigner-parser</artifactId>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-mondrian</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-sampledata</artifactId>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-olap4j</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-scripting</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-xpath</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-drill-down</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-toc</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-legacy-charts</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-legacy-functions</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-classic-extensions-cda</artifactId>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-pmd</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 			<exclusions>
@@ -1140,8 +1080,68 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-reporting-engine</groupId>
-			<artifactId>pentaho-reporting-engine-wizard-core</artifactId>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-reportdesigner-parser</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-sampledata</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-scripting</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-xpath</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-drill-down</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-toc</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>legacy-charts</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>legacy-functions</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>classic-extensions-cda</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho.reporting.engine</groupId>
+			<artifactId>wizard-core</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 			<exclusions>
@@ -1158,7 +1158,7 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>libbase</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1170,7 +1170,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>libdocbundle</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1182,7 +1182,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>libfonts</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1194,7 +1194,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>libformat</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1206,7 +1206,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>libformula</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1218,7 +1218,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>libloader</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1230,7 +1230,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>librepository</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1242,7 +1242,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>libserializer</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1254,7 +1254,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>libxml</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1266,7 +1266,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>libswing</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
@@ -1278,7 +1278,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>pentaho-library</groupId>
+			<groupId>org.pentaho.reporting.library</groupId>
 			<artifactId>flute</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
