@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -65,10 +65,14 @@ public class UserRoleDaoServiceTest {
   public void setUp() throws Exception {
     PentahoSystem.init();
     userRoleService = new UserRoleDaoService();
+    final IPentahoSession pentahoSession = mock( IPentahoSession.class );
+    when( pentahoSession.getName() ).thenReturn( "name" );
+    PentahoSessionHolder.setSession( pentahoSession );
   }
 
   @After
   public void tearDown() throws Exception {
+    PentahoSessionHolder.removeSession();
     PentahoSystem.clearObjectFactory();
     PentahoSystem.shutdown();
   }
@@ -89,14 +93,14 @@ public class UserRoleDaoServiceTest {
   public void testGetRolesForUser() throws Exception {
     List<IPentahoRole> roleList = new ArrayList<IPentahoRole>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUserRoles( any( ITenant.class), anyString()) ).thenReturn( roleList );
+    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenReturn( roleList );
     PentahoSystem.registerObject( roleDao );
 
     RoleListWrapper wrapRoleList = new RoleListWrapper( roleList );
 
     IPentahoSession session = mock( IPentahoSession.class );
     String tenantPath = "testPath";
-    when(session.getAttribute( IPentahoSession.TENANT_ID_KEY )).thenReturn( tenantPath );
+    when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( tenantPath );
     PentahoSessionHolder.setSession( session );
 
     assertEquals( wrapRoleList.getRoles(), userRoleService.getRolesForUser( "admin" ).getRoles() );
@@ -306,7 +310,7 @@ public class UserRoleDaoServiceTest {
     verify( roleDao, times( 2 ) ).deleteUser( any( IPentahoUser.class ) );
   }
 
-  @Test(expected = SecurityException.class)
+  @Test( expected = SecurityException.class )
   public void testDeleteUsersSecurityException() {
     String users = "admin\tsuzy\t";
 
@@ -341,8 +345,8 @@ public class UserRoleDaoServiceTest {
     when( roleDao.getRoles() ).thenReturn( roleList );
     PentahoSystem.registerObject( roleDao );
 
-    IPentahoRole role = mock(IPentahoRole.class);
-    when(role.getName()).thenReturn( "testRole" );
+    IPentahoRole role = mock( IPentahoRole.class );
+    when( role.getName() ).thenReturn( "testRole" );
     roleList.add( role );
     RoleListWrapper wrapRoleList = new RoleListWrapper( roleList );
 
@@ -373,7 +377,7 @@ public class UserRoleDaoServiceTest {
     assertEquals( wrapUserList.getUsers(), userRoleService.getRoleMembers( "Report Author" ).getUsers() );
   }
 
-  @Test(expected = SecurityException.class)
+  @Test( expected = SecurityException.class )
   public void testGetRoleMembersSecurityException() {
     IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
     when( policy.isAllowed( anyString() ) ).thenReturn( false );
@@ -414,7 +418,7 @@ public class UserRoleDaoServiceTest {
     verify( roleDao, times( 2 ) ).deleteRole( any( IPentahoRole.class ) );
   }
 
-  @Test(expected = SecurityException.class)
+  @Test( expected = SecurityException.class )
   public void testDeleteRolesSecurityException() {
     String roles = "role1\trole2\t";
 
@@ -506,7 +510,7 @@ public class UserRoleDaoServiceTest {
     assertEquals( "testValue", validateMap.getLocalizedRoleNames().get( 0 ).getLocalizedName() );
   }
 
-  @Test(expected = SecurityException.class)
+  @Test( expected = SecurityException.class )
   public void testGetRoleBindingStructSecurityException() {
     IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
     when( policy.isAllowed( anyString() ) ).thenReturn( false );
@@ -524,11 +528,11 @@ public class UserRoleDaoServiceTest {
 
     @Override public boolean matches( Object argument ) {
       String[] arguments = (String[]) argument;
-      Set < String > returnedValues = new HashSet<>( Arrays.asList( arguments ) );
+      Set<String> returnedValues = new HashSet<>( Arrays.asList( arguments ) );
       return returnedValues.equals( correctValues );
     }
   }
-  
+
   private boolean validationFailed( UserRoleDaoService service, User user ) {
     try {
       service.createUser( user );
@@ -552,7 +556,7 @@ public class UserRoleDaoServiceTest {
     IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
     when( policy.isAllowed( anyString() ) ).thenReturn( true );
     PentahoSystem.registerObject( policy );
-    
+
     Assert.assertTrue( validationFailed( service, new User( "\\", "pass" ) ) );
     Assert.assertTrue( validationFailed( service, new User( "/www", "pass" ) ) );
     Assert.assertTrue( validationFailed( service, new User( "\tqwer", "pass" ) ) );
@@ -586,7 +590,29 @@ public class UserRoleDaoServiceTest {
   }
 
   @Test
-  public void testChangePassSuccess() throws Exception {
+  public void testChangePassByAdminSuccess() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    IPentahoUser pentahoUser = mock( IPentahoUser.class );
+    doReturn( "old pass" ).when( pentahoUser ).getPassword();
+    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
+    PentahoSystem.registerObject( roleDao );
+
+    SecurityHelper.setMockInstance( mock( ISecurityHelper.class ) );
+    userRoleService.changeUserPassword( "name", "newpass", "old pass" );
+  }
+
+  @Test
+  public void testChangeOwnPasswordSuccess() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    PentahoSystem.registerObject( policy );
+
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     IPentahoUser pentahoUser = mock( IPentahoUser.class );
     doReturn( "old pass" ).when( pentahoUser ).getPassword();
@@ -598,7 +624,29 @@ public class UserRoleDaoServiceTest {
   }
 
   @Test( expected = SecurityException.class )
+  public void testChangePasswordNoPermissions() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    PentahoSystem.registerObject( policy );
+
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    IPentahoUser pentahoUser = mock( IPentahoUser.class );
+    doReturn( "old pass" ).when( pentahoUser ).getPassword();
+    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
+    PentahoSystem.registerObject( roleDao );
+
+    SecurityHelper.setMockInstance( mock( ISecurityHelper.class ) );
+    userRoleService.changeUserPassword( "admin", "newpass", "old pass" );
+  }
+
+  @Test( expected = SecurityException.class )
   public void testChangePassWrongName() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     doReturn( null ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
     PentahoSystem.registerObject( roleDao );
@@ -607,6 +655,11 @@ public class UserRoleDaoServiceTest {
 
   @Test( expected = SecurityException.class )
   public void testChangePassWrongPass() throws Exception {
+    // Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     IPentahoUser pentahoUser = mock( IPentahoUser.class );
     doReturn( "wrong old pass" ).when( pentahoUser ).getPassword();
@@ -641,7 +694,7 @@ public class UserRoleDaoServiceTest {
     IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
     when( policy.isAllowed( anyString() ) ).thenReturn( true );
     PentahoSystem.registerObject( policy );
-    
+
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     PentahoSystem.registerObject( roleDao );
     userRoleService.updatePassword( new User( "name", "password" ) );
