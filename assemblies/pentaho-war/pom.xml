@@ -105,10 +105,6 @@
           <artifactId>xbean</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>pentaho-reporting-engine</groupId>
-          <artifactId>pentaho-reporting-engine-classic-core-test</artifactId>
-        </exclusion>
-        <exclusion>
           <groupId>javax.servlet</groupId>
           <artifactId>servlet-api</artifactId>
         </exclusion>
@@ -186,72 +182,32 @@
     <!-- NOTE: this reporting plugin jar will be removed once the reporting plugin is 3.5 plugin compliant -->
 
     <dependency>
-      <groupId>pentaho-reporting-engine</groupId>
-      <artifactId>pentaho-reporting-engine-classic-core-platform-plugin</artifactId>
+      <groupId>org.pentaho.reporting.plugin</groupId>
+      <artifactId>classic-core-platform-plugin</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>pentaho-reporting-engine</groupId>
-          <artifactId>pentaho-reporting-engine-classic-core-test</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>pentaho</groupId>
-          <artifactId>pentaho-platform-extensions</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>pentaho</groupId>
-          <artifactId>pentaho-platform-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>pentaho</groupId>
-          <artifactId>pentaho-platform-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>pentaho</groupId>
-          <artifactId>pentaho-platform-scheduler</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>pentaho</groupId>
-          <artifactId>pentaho-platform-repository</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.ws.rs</groupId>
-          <artifactId>javax.ws.rs-api</artifactId>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>pentaho-reporting-engine</groupId>
-      <artifactId>pentaho-reporting-engine-classic-core</artifactId>
+      <groupId>org.pentaho.reporting.engine</groupId>
+      <artifactId>classic-core</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>pentaho-reporting-engine</groupId>
-          <artifactId>pentaho-reporting-engine-classic-core-test</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho-reporting-engine</groupId>
-      <artifactId>pentaho-reporting-engine-classic-extensions</artifactId>
+      <groupId>org.pentaho.reporting.engine</groupId>
+      <artifactId>classic-extensions</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>pentaho-reporting-engine</groupId>
-          <artifactId>pentaho-reporting-engine-classic-core-test</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho-library</groupId>
+      <groupId>org.pentaho.reporting.library</groupId>
       <artifactId>libserializer</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
