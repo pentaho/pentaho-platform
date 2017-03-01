@@ -1,3 +1,21 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
+ */
+
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
 import com.google.common.cache.CacheBuilder;
@@ -63,20 +81,20 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
       CacheBuilder.newBuilder().expireAfterAccess( cacheDuration, TimeUnit.SECONDS ).maximumSize(
           cacheSize ).removalListener( new RemovalListener<CacheKey, Session>() {
 
-        @Override public void onRemoval( RemovalNotification<CacheKey, Session> objectObjectRemovalNotification ) {
+            @Override public void onRemoval( RemovalNotification<CacheKey, Session> objectObjectRemovalNotification ) {
 
-          // We're not logging out on cache purge as someone may have obtained it from the cache already.
-          // TODO: implement reference tracking (checkin/checkout) in order to condition the logout.
-          //        Session value = objectObjectRemovalNotification.getValue();
-          //        if ( value != null && value.isLive() ) {
-          //          value.logout();
-          //        }
-        }
-      } ).recordStats().build( new CacheLoader<CacheKey, Session>() {
-        @Override public Session load( CacheKey credKey ) throws Exception {
-          return GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
-        }
-      } );
+              // We're not logging out on cache purge as someone may have obtained it from the cache already.
+              // TODO: implement reference tracking (checkin/checkout) in order to condition the logout.
+              //        Session value = objectObjectRemovalNotification.getValue();
+              //        if ( value != null && value.isLive() ) {
+              //          value.logout();
+              //        }
+            }
+          } ).recordStats().build( new CacheLoader<CacheKey, Session>() {
+            @Override public Session load( CacheKey credKey ) throws Exception {
+              return GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
+            }
+          } );
 
   @Override public Session getSession( Credentials creds ) throws RepositoryException {
 
