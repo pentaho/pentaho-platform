@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.util;
@@ -27,11 +27,10 @@ public class TestAll {
    * 
    */
   public static Test suite() {
-    TestSuite suite = new TestSuite();
-    return suite;
+    return new TestSuite();
   }
 
-  public static TestSuite testAll() {
+  private static TestSuite testAll() {
     TestSuite suite = new TestSuite( "Platform Util" ); //$NON-NLS-1$
 
     suite.addTestSuite( CleanXmlHelperTest.class );
@@ -43,7 +42,6 @@ public class TestAll {
     suite.addTestSuite( ParameterHelperTest.class );
     suite.addTestSuite( PasswordServiceTest.class );
     suite.addTestSuite( PentahoSystemExceptionTest.class );
-    suite.addTestSuite( StringUtilTest.class );
     suite.addTestSuite( VersionHelperTest.class );
     suite.addTestSuite( XmlHelperTest.class );
 
