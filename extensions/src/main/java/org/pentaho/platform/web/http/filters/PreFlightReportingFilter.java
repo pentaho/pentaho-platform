@@ -17,8 +17,6 @@
 
 package org.pentaho.platform.web.http.filters;
 
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -29,20 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 public class PreFlightReportingFilter implements Filter {
-
-
-  private static final String DEFAULT_PATTERN = "^.*(reporting/api/jobs|api/repos/.*\\.prpt).*$";
-  private static final String PRE_FLIGHT_PATTERN = "pre-flight-pattern";
-  private final Pattern preFlightPattern;
-
-
-  public PreFlightReportingFilter() {
-    final String regex = PentahoSystem.getSystemSetting( PRE_FLIGHT_PATTERN, DEFAULT_PATTERN );
-    preFlightPattern = Pattern.compile( regex );
-  }
 
   public void init( FilterConfig filterConfig ) throws ServletException {
   }
@@ -54,19 +40,16 @@ public class PreFlightReportingFilter implements Filter {
     ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-    if ( isReportingPreFlight( httpRequest ) ) {
+    if ( isPreFlight( httpRequest ) ) {
       final HttpServletResponse servletResponse = (HttpServletResponse) response;
-      servletResponse.setStatus( HttpServletResponse.SC_OK );
+      servletResponse.setStatus( HttpServletResponse.SC_METHOD_NOT_ALLOWED );
     } else {
       chain.doFilter( request, response );
     }
   }
 
-  boolean isReportingPreFlight( final HttpServletRequest request ) {
-    return ( HttpMethod.OPTIONS.equals( request.getMethod() )
-      || HttpMethod.HEAD.equals( request.getMethod() ) ) && preFlightPattern
-      .matcher( request.getRequestURI() )
-      .matches();
+  private boolean isPreFlight( final HttpServletRequest request ) {
+    return ( HttpMethod.OPTIONS.equals( request.getMethod() ) || HttpMethod.HEAD.equals( request.getMethod() ) );
   }
 
 }

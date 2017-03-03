@@ -3,7 +3,7 @@
 <!--+
   | Application context containing FilterChainProxy.
   +-->
-<beans xmlns="http://www.springframework.org/schema/beans" 
+<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:sec="http://www.springframework.org/schema/security"
@@ -11,7 +11,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.1.xsd
                            http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.1.xsd
-                           http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" 
+                           http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
 
   <!-- ======================== FILTER CHAIN ======================= -->
@@ -23,7 +23,9 @@
     <constructor-arg>
       <util:list>
         <sec:filter-chain pattern="/webservices/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS" />
+        <sec:filter-chain pattern="/api/repos/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS,preFlightFilter" />
         <sec:filter-chain pattern="/api/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS" />
+        <sec:filter-chain pattern="/plugin/reporting/api/jobs/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS,preFlightFilter" />
         <sec:filter-chain pattern="/plugin/**" filters="securityContextHolderAwareRequestFilterForWS,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilterForWS,filterInvocationInterceptorForWS" />
         <sec:filter-chain pattern="/**" filters="securityContextHolderAwareRequestFilter,httpSessionPentahoSessionContextIntegrationFilter,httpSessionContextIntegrationFilter,httpSessionReuseDetectionFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,requestParameterProcessingFilter,anonymousProcessingFilter,sessionMgmtFilter,exceptionTranslationFilter,filterInvocationInterceptor" />
       </util:list>
@@ -131,13 +133,15 @@
         class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter" />
 
   <bean id="securityContextHolderAwareRequestFilterForWS" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter">
-    <!-- SecurityContextHolderAwareRequestFilter in latest spring security has 2 behaviours, for pre and post servlet 3: in pre-servlet 3, 
+    <!-- SecurityContextHolderAwareRequestFilter in latest spring security has 2 behaviours, for pre and post servlet 3: in pre-servlet 3,
       the wrapper class used by default is SecurityContextHolderAwareRequestWrapper; this means we no longer need to set it as a 'wrapperClass'
       property ( this property no longer exists, anyway ) -->
     <!-- hhttps://github.com/spring-projects/spring-security/blob/4.1.3.RELEASE/web/src/main/java/org/springframework/security/web/servletapi/SecurityContextHolderAwareRequestFilter.java#L45-L47 -->
     <!-- <property name="wrapperClass" value="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper" /> -->
   </bean>
 
+  <!-- Excel pre-flight filter -->
+  <bean id="preFlightFilter" class="org.pentaho.platform.web.http.filters.PreFlightReportingFilter" />
 
 
   <!--
@@ -156,9 +160,9 @@
       <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
     </property>
   </bean>
-  
+
   <bean id="sas" class="org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy" />
-  
+
   <bean id="authenticationProcessingFilter"
         class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
     <property name="authenticationManager">
@@ -267,6 +271,10 @@
         <sec:intercept-url pattern=".*system.*smtp-email/.*" access="Nobody" />
         <sec:intercept-url pattern=".*system.*ui/.*" access="Nobody" />
         <sec:intercept-url pattern=".*system.*\.\./.*" access="Nobody" />
+        <sec:intercept-url pattern="\A/plugin/reporting/api/jobs/.*\Z" access="Anonymous,Authenticated" method="OPTIONS" />
+        <sec:intercept-url pattern="\A/plugin/reporting/api/jobs/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
+        <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="OPTIONS" />
+        <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
         <sec:intercept-url pattern="\A/.*\Z" access="Authenticated" />
       </sec:filter-security-metadata-source>
     </property>
@@ -290,6 +298,10 @@
         <sec:intercept-url pattern="\A/webservices/repositorysync\?wsdl.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webservices/datasourcemgmtservice\?wsdl.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webservices/.*\Z" access="Authenticated" />
+        <sec:intercept-url pattern="\A/plugin/reporting/api/jobs/.*\Z" access="Anonymous,Authenticated" method="OPTIONS" />
+        <sec:intercept-url pattern="\A/plugin/reporting/api/jobs/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
+        <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="OPTIONS" />
+        <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
         <sec:intercept-url pattern="\A/api/.*require-cfg.js.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/api/.*require-js-cfg.js.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/api/.*\Z" access="Authenticated" />
