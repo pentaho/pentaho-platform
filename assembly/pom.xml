@@ -809,8 +809,7 @@
             <descriptors>
               <descriptor>src/main/descriptors/zip-plugin-samples.xml</descriptor>
             </descriptors>
-            <finalName>plugin-samples</finalName>
-            <appendAssemblyId>false</appendAssemblyId>
+            <appendAssemblyId>true</appendAssemblyId>
             <outputDirectory>${target.pentaho-server.plugins.dir}/default-content</outputDirectory>
           </configuration>
         </execution>
@@ -824,8 +823,7 @@
             <descriptors>
               <descriptor>src/main/descriptors/zip-samples.xml</descriptor>
             </descriptors>
-            <finalName>samples</finalName>
-            <appendAssemblyId>false</appendAssemblyId>
+            <appendAssemblyId>true</appendAssemblyId>
             <outputDirectory>${target.pentaho-server.plugins.dir}/default-content</outputDirectory>
           </configuration>
         </execution>
