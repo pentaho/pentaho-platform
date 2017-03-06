@@ -363,6 +363,7 @@
       <id>platform-user-console</id>
       <modules>
         <module>user-console</module>
+        <module>assemblies</module>
       </modules>
     </profile>
     <profile>

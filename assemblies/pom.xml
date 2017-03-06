@@ -31,18 +31,6 @@
     <plugins.directory>plugins</plugins.directory>
   </properties>
 
-  <modules>
-    <module>pentaho-samples</module>
-    <module>pentaho-plugin-samples</module>
-    <module>pentaho-user-console</module>
-    <module>pentaho-war</module>
-    <module>pentaho-style</module>
-    <module>pentaho-data</module>
-    <module>pentaho-solutions</module>
-    <module>pentaho-server-manual</module>
-    <module>pentaho-server</module>
-  </modules>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -73,5 +61,37 @@
       </plugin>
     </plugins>
   </build>
+  
+  <profiles>
+    <profile>
+      <activation>
+          <property>
+            <name>!skipDefault</name>
+          </property>
+      </activation>
+      <id>platform-user-console</id>
+      <modules>
+        <module>pentaho-user-console</module>
+      </modules>
+    </profile>
+    <profile>
+      <activation>
+          <property>
+            <name>!skipDefault</name>
+          </property>
+      </activation>
+      <id>platform-assemble</id>
+      <modules>
+    <module>pentaho-samples</module>
+    <module>pentaho-plugin-samples</module>
+    <module>pentaho-war</module>
+    <module>pentaho-style</module>
+    <module>pentaho-data</module>
+    <module>pentaho-solutions</module>
+    <module>pentaho-server-manual</module>
+    <module>pentaho-server</module>
+      </modules>
+    </profile>
+  </profiles>
 
 </project>
