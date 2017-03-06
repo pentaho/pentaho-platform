@@ -138,7 +138,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <property name="izpack.type" value="zip" />
     <property name="artifactBaseDir" value="${bin.dir}" />
     <property name="artifactIncludes" value="*/*" />
-    
+
+    <mkdir dir="${subfloor.tmp.dir}" />
     <if>
       <not>
         <available file="${subfloor.tmp.dir}/maven-ant-tasks-${maven-ant-tasks.version}.jar" />
