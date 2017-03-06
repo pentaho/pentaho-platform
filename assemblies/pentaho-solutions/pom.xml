@@ -129,8 +129,8 @@
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho-reporting-engine</groupId>
-                  <artifactId>pentaho-reporting-engine-classic-core-platform-plugin-package</artifactId>
+                  <groupId>org.pentaho.reporting.plugin</groupId>
+                  <artifactId>classic-core-platform-plugin-package</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>

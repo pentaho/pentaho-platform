@@ -953,12 +953,12 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho-library</groupId>
+      <groupId>org.pentaho.reporting.library</groupId>
       <artifactId>libpixie</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>pentaho-library</groupId>
+      <groupId>org.pentaho.reporting.library</groupId>
       <artifactId>libsparkline</artifactId>
       <version>${project.version}</version>
     </dependency>
