@@ -2834,11 +2834,21 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.jackrabbit</groupId>
+			<artifactId>jackrabbit-spi</artifactId>
+			<version>${jackrabbit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.jackrabbit</groupId>
+			<artifactId>jackrabbit-spi-commons</artifactId>
+			<version>${jackrabbit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.jackrabbit</groupId>
 			<artifactId>jackrabbit-data</artifactId>
 			<version>${jackrabbit.version}</version>
 			<scope>test</scope>
-			<exclusions>
-			</exclusions>
 		</dependency>
         <dependency>
             <groupId>pentaho</groupId>
