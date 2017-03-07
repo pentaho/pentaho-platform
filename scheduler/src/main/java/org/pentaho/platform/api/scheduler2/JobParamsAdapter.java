@@ -12,13 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.scheduler2;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -28,11 +29,22 @@ public class JobParamsAdapter extends XmlAdapter<JobParams, Map<String, Serializ
   public JobParams marshal( Map<String, Serializable> v ) throws Exception {
     ArrayList<JobParam> params = new ArrayList<JobParam>();
     for ( Map.Entry<String, Serializable> entry : v.entrySet() ) {
-      JobParam jobParam = new JobParam();
-      if(entry != null && entry.getKey() != null && entry.getValue() != null) {
-        jobParam.name = entry.getKey();
-        jobParam.value = entry.getValue().toString();
-        params.add( jobParam );
+      if ( entry != null && entry.getKey() != null && entry.getValue() != null ) {
+        if ( entry.getValue() instanceof Collection ) {
+          for ( Object iValue : (Collection<?>) entry.getValue() ) {
+            if ( iValue != null ) {
+              JobParam jobParam = new JobParam();
+              jobParam.name = entry.getKey();
+              jobParam.value = iValue.toString();
+              params.add( jobParam );
+            }
+          }
+        } else {
+          JobParam jobParam = new JobParam();
+          jobParam.name = entry.getKey();
+          jobParam.value = entry.getValue().toString();
+          params.add( jobParam );
+        }
       }
     }
     JobParams jobParams = new JobParams();
@@ -41,9 +53,23 @@ public class JobParamsAdapter extends XmlAdapter<JobParams, Map<String, Serializ
   }
 
   public Map<String, Serializable> unmarshal( JobParams v ) throws Exception {
-    HashMap<String, Serializable> paramMap = new HashMap<String, Serializable>();
+    HashMap<String, ArrayList<Serializable>> draftParamMap = new HashMap<String, ArrayList<Serializable>>();
     for ( JobParam jobParam : v.jobParams ) {
-      paramMap.put( jobParam.name, jobParam.value );
+      ArrayList<Serializable> p = draftParamMap.get( jobParam.name );
+      if ( p == null ) {
+        p = new ArrayList<Serializable>();
+        draftParamMap.put( jobParam.name, p );
+      }
+      p.add( jobParam.value );
+    }
+    HashMap<String, Serializable> paramMap = new HashMap<String, Serializable>();
+    for ( String paramName : draftParamMap.keySet() ) {
+      ArrayList<Serializable> p = draftParamMap.get( paramName );
+      if ( p.size() == 1 ) {
+        paramMap.put( paramName, p.get( 0 ) );
+      } else {
+        paramMap.put( paramName, p );
+      }
     }
     return paramMap;
   }
