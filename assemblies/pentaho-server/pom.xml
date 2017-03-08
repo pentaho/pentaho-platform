@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>pentaho-platform-assemblies</artifactId>
+    <groupId>pentaho</groupId>
+    <version>7.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>pentaho-server-ce</artifactId>
+  <packaging>pom</packaging>
+
+  <properties>
+    <wkhtmltox.version>0.10.0_rc2</wkhtmltox.version>
+    <wkhtmltoimage.version>${wkhtmltox.version}-static</wkhtmltoimage.version>
+
+    <replacer.version>1.5.2</replacer.version>
+
+    <tomcat.version>8.0.37</tomcat.version>
+    <tomcat.directory>${project.build.directory}/apache-tomcat-${tomcat.version}</tomcat.directory>
+    <resources.directory>${basedir}/src/main/resources</resources.directory>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-data</artifactId>
+      <version>${project.version}</version>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-style</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-war</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-solutions</artifactId>
+      <version>${project.version}</version>
+      <type>zip</type>
+    </dependency>
+
+    <!-- datasource libraries -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>${commons-logging.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>${hsqldb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql-connector-java.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${h2.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>${jsp-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgresql.version}</version>
+    </dependency>
+
+    <!-- third party tools wkhtmltoimage -->
+    <dependency>
+      <groupId>wkhtmltopdf</groupId>
+      <artifactId>wkhtmltoimage-amd64</artifactId>
+      <version>${wkhtmltoimage.version}</version>
+      <type>tar.bz2</type>
+    </dependency>
+    <dependency>
+      <groupId>wkhtmltopdf</groupId>
+      <artifactId>wkhtmltoimage-OSX</artifactId>
+      <version>${wkhtmltoimage.version}</version>
+      <type>tar.bz2</type>
+    </dependency>
+    <dependency>
+      <groupId>wkhtmltopdf</groupId>
+      <artifactId>wkhtmltoimage-i386</artifactId>
+      <version>${wkhtmltoimage.version}</version>
+      <type>tar.bz2</type>
+    </dependency>
+    <dependency>
+      <groupId>wkhtmltopdf</groupId>
+      <artifactId>wkhtmltox</artifactId>
+      <version>${wkhtmltox.version}</version>
+      <classifier>installer</classifier>
+      <type>exe</type>
+    </dependency>
+
+    <!-- libraries for tomcat server -->
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
+      <version>${cglib.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <version>${jaxen.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>prepare-assembly</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.apache.tomcat</groupId>
+                  <artifactId>tomcat-windows-x64</artifactId>
+                  <version>${tomcat.version}</version>
+                  <type>zip</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                  <excludes>
+                    **/webapps/docs/**,
+                    **/webapps/examples/**,
+                    **/webapps/host-manager/**,
+                    **/webapps/manager/**,
+                    **/webapps/ROOT/**
+                  </excludes>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>pentaho</groupId>
+                  <artifactId>oss-licenses</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${pentaho-server.directory}/licenses</outputDirectory>
+                  <includes>PentahoServer_OSS_Licenses.html</includes>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>pentaho</groupId>
+                  <artifactId>pentaho-solutions</artifactId>
+                  <type>zip</type>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                  <includes>
+                    **/dialects/hsqldb/applicationContext-spring-security-hibernate.properties,
+                    **/dialects/hsqldb/audit_sql.xml
+                  </includes>
+                </artifactItem>
+
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>${replacer.version}</version>
+        <executions>
+          <!-- modify tomcat/conf/server.xml for UTF-8 support -->
+          <execution>
+            <id>replace-tomcat-tokens-server-xml</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+            <configuration>
+              <file>${tomcat.directory}/conf/server.xml</file>
+              <token>&lt;Connector</token>
+              <value>&lt;Connector URIEncoding=&quot;UTF-8&quot;</value>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

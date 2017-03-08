@@ -686,25 +686,13 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
-          <execution>
-            <id>default-jar</id>
-            <goals><goal>jar</goal></goals>
-            <phase>package</phase>
-			      <configuration>
-			        <archive>
-			          <manifest>
-			            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-			            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-			          </manifest>
-			          <manifestEntries>
-			            <Source-Java-Version>${source.jdk.version}</Source-Java-Version>
-						<Target-Java-Version>${target.jdk.version}</Target-Java-Version>
-			          </manifestEntries>
-			        </archive>
-			      </configuration>
-          </execution>
           <execution>
             <id>test-jar</id>
             <goals><goal>test-jar</goal></goals>

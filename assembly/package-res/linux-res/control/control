@@ -1,7 +1,0 @@
-Package: [[[deb.name]]]
-Version: [[[deb.version]]]
-Section: devel
-Priority: optional
-Architecture: [[[deb.arch]]]
-Maintainer: [[[deb.maintainer]]]
-Description: [[[deb.desc]]]
