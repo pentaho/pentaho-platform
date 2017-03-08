@@ -33,13 +33,6 @@ import java.io.IOException;
 
 public class PreFlightReportingFilterTest {
 
-  private static final String PENTAHO_API_NOTMATCHING = "/pentaho/api/notmatching";
-
-  private static final String SYNC_URL =
-    "/pentaho/api/repos/%3Apublic%3ASteel%20Wheels%3AInventory%20List%20(report).prpt/";
-
-  private static final String ASYNC_URL =
-    "/pentaho/plugin/reporting/api/jobs/5a41f746-55f4-4acf-a804-f7f5348d59bb/";
 
   private HttpServletRequest request;
   private HttpServletResponse response;
@@ -68,46 +61,22 @@ public class PreFlightReportingFilterTest {
   }
 
   @Test
-  public void notMatchingUrl() throws Exception {
-    Mockito.when( request.getMethod() ).thenReturn( HttpMethod.OPTIONS );
-    Mockito.when( request.getRequestURI() ).thenReturn( PENTAHO_API_NOTMATCHING );
-    new PreFlightReportingFilter().doFilter( request, response, chain );
-    Mockito.verify( chain, Mockito.times( 1 ) ).doFilter( request, response );
+  public void preFlightOptions() throws Exception {
+    testMethodAndURI( HttpMethod.OPTIONS, request, response, chain );
   }
 
   @Test
-  public void syncPreFlight() throws Exception {
-    testMethodAndURI( HttpMethod.OPTIONS, SYNC_URL, request, response, chain );
+  public void preFlightHead() throws Exception {
+    testMethodAndURI( HttpMethod.HEAD, request, response, chain );
   }
 
-
-  @Test
-  public void asyncPreFlight() throws Exception {
-    testMethodAndURI( HttpMethod.OPTIONS, ASYNC_URL, request, response, chain );
-  }
-
-  @Test
-  public void asyncPreFlightHead() throws Exception {
-    testMethodAndURI( HttpMethod.HEAD, ASYNC_URL, request, response, chain );
-  }
-
-  @Test
-  public void nonDefaultPattern() throws Exception {
-    final ISystemSettings mockSystemSettings = Mockito.mock( ISystemSettings.class );
-    Mockito.when( mockSystemSettings.getSystemSetting( Mockito.eq( "pre-flight-pattern" ), Mockito.anyString() ) )
-      .thenReturn( "^.*excel.*$" );
-    PentahoSystem.setSystemSettingsService( mockSystemSettings );
-    testMethodAndURI( HttpMethod.OPTIONS, "/pentaho/anotherexcelurl", request, response, chain );
-  }
-
-  private void testMethodAndURI( final String method, final String uri, final HttpServletRequest request,
+  private void testMethodAndURI( final String method, final HttpServletRequest request,
                                  final HttpServletResponse response, final FilterChain chain )
     throws IOException, ServletException {
     Mockito.when( request.getMethod() ).thenReturn( method );
-    Mockito.when( request.getRequestURI() ).thenReturn( uri );
     new PreFlightReportingFilter().doFilter( request, response, chain );
     Mockito.verify( chain, Mockito.never() ).doFilter( Mockito.any(), Mockito.any() );
-    Mockito.verify( response, Mockito.times( 1 ) ).setStatus( HttpServletResponse.SC_OK );
+    Mockito.verify( response, Mockito.times( 1 ) ).setStatus( HttpServletResponse.SC_METHOD_NOT_ALLOWED );
   }
 
 }
