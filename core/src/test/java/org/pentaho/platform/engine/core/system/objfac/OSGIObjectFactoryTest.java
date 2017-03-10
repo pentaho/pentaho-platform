@@ -242,10 +242,10 @@ public class OSGIObjectFactoryTest {
     ServiceReference<String> ref = Mockito.mock( ServiceReference.class );
     ServiceReference<String> ref2 = Mockito.mock( ServiceReference.class );
 
-    when( mockContext.getServiceReferences( String.class, "(&(name=foo))" ) )
+    when( mockContext.getServiceReferences( String.class, "(name=foo)" ) )
       .thenReturn( Collections.singletonList( ref ) );
     when( mockContext.getServiceReferences( String.class, null ) ).thenReturn( Collections.singletonList( ref ) );
-    when( mockContext.getServiceReferences( String.class, "(&(emptyPriority=true))" ) )
+    when( mockContext.getServiceReferences( String.class, "(emptyPriority=true)" ) )
       .thenReturn( Collections.singletonList( ref2 ) );
 
     when( mockContext.getService( ref ) ).thenReturn( "SomeString" );
@@ -268,8 +268,8 @@ public class OSGIObjectFactoryTest {
 
     assertNull( objectReference );
 
-    verify( mockContext ).getServiceReferences( String.class, "(&(name=foo))" );
-    verify( mockContext ).getServiceReferences( String.class, "(&(name=foobar))" );
+    verify( mockContext ).getServiceReferences( String.class, "(name=foo)" );
+    verify( mockContext ).getServiceReferences( String.class, "(name=foobar)" );
 
     objectReference = factory.getObjectReference( String.class, session, Collections.singletonMap( "name", "foo(" ) );
     assertNull( objectReference );
@@ -373,7 +373,7 @@ public class OSGIObjectFactoryTest {
     ServiceReference<String> ref = (ServiceReference<String>) Mockito.mock( ServiceReference.class );
     ServiceReference<String> ref2 = Mockito.mock( ServiceReference.class );
 
-    when( mockContext.getServiceReferences( String.class, "(&(name=foo))" ) ).thenReturn( Arrays.asList( ref, ref2 ) );
+    when( mockContext.getServiceReferences( String.class, "(name=foo)" ) ).thenReturn( Arrays.asList( ref, ref2 ) );
     when( mockContext.getServiceReferences( Integer.class, null ) )
       .thenThrow( new InvalidSyntaxException( "bad", "call" ) );
 
@@ -399,7 +399,7 @@ public class OSGIObjectFactoryTest {
     objectReferences = factory.getObjectReferences( String.class, session, Collections.singletonMap( "name", "bar" ) );
     assertTrue( objectReferences.isEmpty() );
 
-    verify( mockContext ).getServiceReferences( String.class, "(&(name=foo))" );
+    verify( mockContext ).getServiceReferences( String.class, "(name=foo)" );
 
 
   }

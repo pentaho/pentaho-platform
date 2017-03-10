@@ -7,15 +7,26 @@ import java.util.Map;
  */
 public class OSGIUtils {
   public static String createFilter( Map<String, String> props ) {
-    if ( props == null || props.size() == 0 ) {
+    int numberOfProperties = props != null ? props.size() : 0;
+
+    if ( numberOfProperties == 0 ) {
       return null;
     }
+
     StringBuilder sb = new StringBuilder();
-    sb.append( "(" );
-    for ( Map.Entry<String, String> entry : props.entrySet() ) {
-      sb.append( "&(" ).append( entry.getKey() ).append( "=" ).append( entry.getValue() ).append( ")" );
+
+    if ( numberOfProperties > 1 ) {
+      sb.append( "(&" );
     }
-    sb.append( ")" );
+
+    for ( Map.Entry<String, String> entry : props.entrySet() ) {
+      sb.append( "(" ).append( entry.getKey() ).append( "=" ).append( entry.getValue() ).append( ")" );
+    }
+
+    if ( numberOfProperties > 1 ) {
+      sb.append( ")" );
+    }
+
     return sb.toString();
   }
 
