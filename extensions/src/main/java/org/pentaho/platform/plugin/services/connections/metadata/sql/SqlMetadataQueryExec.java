@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.connections.metadata.sql;
@@ -120,7 +120,7 @@ public class SqlMetadataQueryExec extends BaseMetadataQueryExec {
       // Fix for PDB-1753
       for ( Parameter param : queryObject.getParameters() ) {
         String pName = param.getName();
-        if ( parameters.containsKey( pName ) && !parameters.get( pName ).getClass().isArray() ) {
+        if ( parameters.containsKey( pName ) && parameters.get( pName ) != null && !parameters.get( pName ).getClass().isArray() ) {
           parameters.put( pName, this.convertParameterValue( param, parameters.get( pName ) ) );
         }
       }
