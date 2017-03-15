@@ -909,6 +909,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<!-- note: to use jmockit it needs to be come before the junit dependency in pom-->
+			<groupId>org.jmockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<version>${jmockit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>

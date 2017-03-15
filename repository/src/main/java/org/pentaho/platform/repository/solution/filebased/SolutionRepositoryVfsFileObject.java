@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository.solution.filebased;
@@ -97,6 +97,12 @@ public class SolutionRepositoryVfsFileObject implements FileObject {
     return new SolutionRepositoryFileName( fileRef, fileType );
   }
 
+  /**
+   * TODO: This impl always returns null as the URL constructor throws an exception on not finding a handler for 'solution' protocol
+   * We should either fix this or remove this method as it is not called by any code
+   * @return
+   * @throws FileSystemException
+   */
   public URL getURL() throws FileSystemException {
     URL url = null;
     try {
