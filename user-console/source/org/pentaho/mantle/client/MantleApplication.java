@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client;
@@ -113,11 +113,20 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       }
 
       $wnd.addGlassPaneListener = function (callback) {
+          var daId = '';
           if ($wnd.addDataAccessGlassPaneListener) {
-              $wnd.addDataAccessGlassPaneListener(callback);
+              daId = $wnd.addDataAccessGlassPaneListener(callback);
           }
           //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-          mantle.@org.pentaho.mantle.client.MantleApplication::addGlassPaneListener(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
+          return daId + "###" + mantle.@org.pentaho.mantle.client.MantleApplication::addGlassPaneListener(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
+      }
+
+      $wnd.removeGlassPaneListenerById = function (uuid) {
+          var uuids = uuid.split('###');
+          if ($wnd.removeDataAccessGlassPaneListenerById) {
+              $wnd.removeDataAccessGlassPaneListenerById(uuids[0]);
+          }
+          mantle.@org.pentaho.mantle.client.MantleApplication::removeGlassPaneListenerById(Ljava/lang/String;)(uuids[1]);
       }
 
       $wnd.executeCommand = function (commandName, parameterMap) {
@@ -233,8 +242,12 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     commandExec.execute( commandName, parameterMap );
   }
 
-  private void addGlassPaneListener( JavaScriptObject obj ) {
-    GlassPane.getInstance().addGlassPaneListener( new GlassPaneNativeListener( obj ) );
+  private String addGlassPaneListener( JavaScriptObject obj ) {
+    return GlassPane.getInstance().addGlassPaneListener( new GlassPaneNativeListener( obj ) );
+  }
+
+  private void removeGlassPaneListenerById( String uuid ) {
+    GlassPane.getInstance().removeGlassPaneListenerById( uuid );
   }
 
   /**
