@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.filters;
@@ -136,6 +136,11 @@ public class PentahoWebContextFilter implements Filter {
         if ( !StringUtils.isEmpty( request.getParameter( "locale" ) ) ) {
           effectiveLocale = new Locale( request.getParameter( "locale" ) );
         }
+
+        // context name variable
+        String contextName = request.getParameter( CONTEXT );
+        printContextName( contextName, out );
+
         // setup a RequireJS config object for plugins to extend
         printRequireJsCfgStart( out );
 
@@ -158,7 +163,6 @@ public class PentahoWebContextFilter implements Filter {
           printResourcesForContext( GLOBAL, out, httpRequest, false );
 
           // print out external-resources defined in plugins if a context has been passed in
-          String contextName = request.getParameter( CONTEXT );
           boolean cssOnly = "true".equals( request.getParameter( "cssOnly" ) );
           if ( StringUtils.isNotEmpty( contextName ) ) {
             printResourcesForContext( contextName, out, httpRequest, cssOnly );
@@ -260,6 +264,16 @@ public class PentahoWebContextFilter implements Filter {
                 + effectiveLocale.toString() + "'})};" );
     out.write( sb.toString().getBytes() );
   }
+
+  private void printContextName( String contextName, OutputStream out ) throws IOException {
+    StringBuilder sb = new StringBuilder( "// Providing name for context\n" );
+
+    sb.append( "var PENTAHO_CONTEXT_NAME = '"
+            + StringEscapeUtils.escapeJavaScript( contextName ) + "';\n\n" ); // Global variable
+
+    out.write(  sb.toString().getBytes() );
+  }
+
   private void printResourcesForContext( String contextName, OutputStream out, HttpServletRequest request,
       boolean printCssOnly ) throws IOException {
 
