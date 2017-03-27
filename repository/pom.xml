@@ -19,7 +19,7 @@
 		<!-- ===================== -->
 		<!-- LICENSE HEADERS -->
 		<!-- ===================== -->
-		<license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
+		<license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
 		<license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
 
 		<!-- ==================== -->
