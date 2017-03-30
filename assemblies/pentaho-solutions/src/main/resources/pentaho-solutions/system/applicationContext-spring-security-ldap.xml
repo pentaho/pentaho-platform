@@ -12,7 +12,7 @@
        						http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd
        						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd" default-lazy-init="true">
 
-  <bean class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapAuthenticationProvider">
+  <bean id="ldapAuthenticationProvider" class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapAuthenticationProvider">
     <constructor-arg>
       <ref bean="authenticator" />
     </constructor-arg>
@@ -22,6 +22,26 @@
     <constructor-arg>
       <ref bean="ldapRoleMapper" />
     </constructor-arg>
+  </bean>
+
+  <!--
+    Interceptor which changes the thread context classloader to the class' current classloader.
+  -->
+  <bean id="classloaderSwitcherInterceptor" class="org.pentaho.platform.plugin.services.security.userrole.ClassloaderSwitcherInterceptor">
+  </bean>
+
+  <!--
+    This proxy bean is used to change the thread context classloader in order to escape ClassCastException in
+    org.springframework.ldap.odm.typeconversion.impl.ConversionServiceConverterManager
+  -->
+  <bean id="ldapAuthenticationProviderProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.springframework.security.authentication.AuthenticationProvider"/>
+    <property name="target" ref="ldapAuthenticationProvider"/>
+    <property name="interceptorNames">
+      <list>
+        <value>classloaderSwitcherInterceptor</value>
+      </list>
+    </property>
     <pen:publish as-type="org.springframework.security.authentication.AuthenticationProvider">
       <pen:attributes>
         <pen:attr key="providerName" value="ldap"/>
@@ -81,6 +101,20 @@
     <constructor-arg ref="tenantedUserNameUtils"/>
   </bean>
 
+  <!--
+    This proxy bean is used to change the thread context classloader in order to escape ClassCastException in
+    org.springframework.ldap.odm.typeconversion.impl.ConversionServiceConverterManager
+  -->
+  <bean id="ldapUserDetailsServiceProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.springframework.security.core.userdetails.UserDetailsService"/>
+    <property name="target" ref="ldapUserDetailsService0"/>
+    <property name="interceptorNames">
+      <list>
+        <value>classloaderSwitcherInterceptor</value>
+      </list>
+    </property>
+  </bean>
+
     <!-- map ldap role to pentaho security role -->
     <util:map id="ldapRoleMap">
         <entry key="${ldap.adminRole}" value="Administrator"/>
@@ -103,7 +137,7 @@
     In that file, userRoleListService uses this bean for fetching roles for a user (e.g. during scheduled jobs). 
   -->
   <bean id="ldapUserDetailsService" class="org.pentaho.platform.engine.security.DefaultRoleUserDetailsServiceDecorator">
-    <property name="userDetailsService" ref="ldapUserDetailsService0" />
+    <property name="userDetailsService" ref="ldapUserDetailsServiceProxy" />
     <property name="defaultRole" ref="defaultRole" />
     <property name="roleMapper" ref="ldapRoleMapper" />
     <pen:publish as-type="INTERFACES">
