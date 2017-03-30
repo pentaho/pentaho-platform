@@ -345,8 +345,9 @@ public class KarafBoot implements IPentahoSystemListener {
     // the particular execution needs (Carte, Spoon, Pan, Kitchen)
     KettleClientEnvironment.ClientType clientType = getClientType();
     String extraKettleEtc = translateToExtraKettleEtc( clientType );
-
-    if ( extraKettleEtc != null ) {
+    // If clientType is null, the extraKettleEtc will return 'etc-default'
+    // Added a check to see if the folder exist before setting the system property
+    if ( extraKettleEtc != null && new File( root + extraKettleEtc ).exists() ) {
       System.setProperty( "felix.fileinstall.dir", root + "/etc" + "," + root + extraKettleEtc );
     } else {
       System.setProperty( "felix.fileinstall.dir", root + "/etc" );
