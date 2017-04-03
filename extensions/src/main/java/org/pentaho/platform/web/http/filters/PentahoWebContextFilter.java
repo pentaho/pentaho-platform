@@ -161,7 +161,7 @@ public class PentahoWebContextFilter implements Filter {
         printReservedRegexPattern( out );
 
         boolean noOsgiRequireConfig = "true".equals( request.getParameter( "noOsgiRequireConfig" ) );
-        if ( !noOsgiRequireConfig ) {
+        if ( !noOsgiRequireConfig && !"anonymousUser".equals( getSession().getName() ) ) {
           final String useFullyQualifiedUrlParameter = httpRequest.getParameter( "fullyQualifiedUrl" );
 
           out.write( ( "document.write(\"<script type='text/javascript' src='\" + CONTEXT_PATH + \""
