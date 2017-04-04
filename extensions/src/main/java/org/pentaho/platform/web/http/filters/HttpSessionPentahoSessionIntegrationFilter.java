@@ -12,11 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.filters;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +29,7 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.session.PentahoHttpSession;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.AuthenticationProvider;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -35,11 +37,13 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Populates the {@link PentahoSessionHolder} with information obtained from the <code>HttpSession</code>.
@@ -227,6 +231,10 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     boolean httpSessionExistedAtStartOfRequest = httpSession != null;
     IPentahoSession pentahoSessionBeforeChainExecution = readPentahoSessionFromHttpSession( httpSession );
 
+    if ( httpSessionExistedAtStartOfRequest ) {
+      setSessionExpirationCookies( httpSession, pentahoSessionBeforeChainExecution, httpResponse );
+    }
+
     // Make the HttpSession null, as we don't want to keep a reference to it lying
     // around in case chain.doFilter() invalidates it.
     httpSession = null;
@@ -378,6 +386,56 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Pentaho session stored to HttpSession: '" + pentahoSession + "'" );
       }
+
+    }
+  }
+
+  /**
+   * Sets cookies needed to implement a session expiration dialog.
+   * Enabled by default, could be disabled by a session-expired-dialog=false in a pentaho.xml.
+   * Doesn't set the cookie in case CAS is used.
+   *
+   * The 'session-expiry' is needed to check if the session has expired.
+   *
+   * @param httpSession         http session
+   * @param pentahoSession      pentaho session
+   * @param httpServletResponse http response
+   */
+  @VisibleForTesting
+  void setSessionExpirationCookies( final HttpSession httpSession,
+                                    final IPentahoSession pentahoSession,
+                                    final HttpServletResponse httpServletResponse ) {
+
+    if ( null == httpSession || null == pentahoSession ) {
+      return;
+    }
+
+    //Show by default
+    final String showDialog = PentahoSystem.getSystemSetting( "session-expired-dialog", "true" );
+
+    if ( "true".equals( showDialog ) ) {
+
+      final List<AuthenticationProvider> authenticationProviders =
+        PentahoSystem.getAll( AuthenticationProvider.class, pentahoSession );
+
+      //No authentication - no session expiration
+      if ( null == authenticationProviders || authenticationProviders.isEmpty() ) {
+        return;
+      }
+
+      //No session expired dialog when CAS is used
+      for ( AuthenticationProvider provider : authenticationProviders ) {
+        if ( provider.getClass().getSimpleName().startsWith( "CasAuthenticationProvider" ) ) {
+          return;
+        }
+      }
+
+      final long expiryTime = System.currentTimeMillis() + httpSession.getMaxInactiveInterval() * 1000;
+
+      final Cookie sessionExpirationCookie = new Cookie( "session-expiry", String.valueOf( expiryTime ) );
+
+      sessionExpirationCookie.setPath( "/" );
+      httpServletResponse.addCookie( sessionExpirationCookie );
 
     }
   }

@@ -154,4 +154,5 @@
 
    </file-upload-defaults>
   <default-theme>sapphire</default-theme>
+  <session-expired-dialog>true</session-expired-dialog>
 </pentaho-system>
