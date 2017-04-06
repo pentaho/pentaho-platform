@@ -997,7 +997,7 @@ a:active, a:hover {
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem {
   padding: 8px 5px 8px 5px;
-  text-align: center;
+  text-align: left;
   width: 242px;
   font-size: 14px;
   color: #333;
