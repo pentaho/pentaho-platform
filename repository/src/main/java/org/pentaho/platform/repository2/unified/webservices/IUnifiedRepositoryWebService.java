@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.webservices;
@@ -21,12 +21,8 @@ package org.pentaho.platform.repository2.unified.webservices;
 import java.util.List;
 import java.util.Properties;
 
-import javax.jws.WebService;
-
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
-
-import com.google.gwt.user.client.rpc.RemoteService;
 
 /**
  * JAX-WS-safe version of {@code IUnifiedRepositoryService}.
@@ -39,8 +35,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
  * 
  * @author mlowery
  */
-@WebService
-public interface IUnifiedRepositoryWebService extends RemoteService {
+public interface IUnifiedRepositoryWebService {
 
   RepositoryFileDto getFile( final String path, final boolean loadLocaleMaps, final PentahoLocale locale );
 
