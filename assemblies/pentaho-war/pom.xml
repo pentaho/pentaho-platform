@@ -341,7 +341,7 @@
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils-core</artifactId>
-      <version>${commons-beanutils.version}</version>
+      <version>${commons-beanutils-core.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

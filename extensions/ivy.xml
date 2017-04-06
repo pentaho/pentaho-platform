@@ -371,7 +371,7 @@
                 conf="test->default" transitive="false"/>
     <dependency org="org.hsqldb" name="hsqldb" rev="2.3.2" conf="test->default"/>
     <dependency org="pentaho" name="simple-jndi" rev="${dependency.pentaho-simple-jndi.revision}" conf="test->default"/>
-    <dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.0" transitive="false" conf="test->default"/>
+    <dependency org="commons-beanutils" name="commons-beanutils" rev="1.9.3" transitive="false" conf="test->default"/>
     <dependency org="org.eclipse.jetty" name="jetty-webapp" rev="8.1.15.v20140411" transitive="false" conf="test->default"/>
     <dependency org="com.mockrunner" name="mockrunner-servlet" rev="0.3.7" conf="test->default"/>
     <dependency org="com.mockrunner" name="mockrunner" rev="0.3.1" conf="test->default"/>
