@@ -59,7 +59,6 @@
   <cglib.version>2.2</cglib.version>
   <commands.version>3.3.0-I20070605-0010</commands.version>
   <commons-beanutils.version>1.9.3</commons-beanutils.version>
-  <commons-beanutils-core.version>1.8.0</commons-beanutils-core.version>
   <commons-cli.version>1.2</commons-cli.version>
   <commons-codec.version>1.9</commons-codec.version>
   <commons-collections.version>3.2.2</commons-collections.version>
