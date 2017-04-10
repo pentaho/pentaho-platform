@@ -32,20 +32,27 @@ public class SessionExpiredCommand extends AbstractCommand {
   private static final String SESSION_EXPIRY = "session-expiry";
   private static Timer timer;
 
+
   @Override protected void performOperation() {
     this.performOperation( true );
   }
 
   @Override protected void performOperation( boolean feedback ) {
-    checkCookie();
-    //Only one timer at a time
-    if ( timer == null ) {
+    //Is triggered either by a page reload or by a timer
+    if ( timer != null ) {
+      timer.cancel();
+      timer = null;
+    }
+    final int nextCheckShift = getNextCheckShift();
+    if ( nextCheckShift < 0 ) {
+      new SessionExpiredDialog().center();
+    } else {
       timer = new Timer() {
         @Override public void run() {
-          checkCookie();
+          performOperation( true );
         }
       };
-      timer.scheduleRepeating( getPollingInterval() );
+      timer.schedule( nextCheckShift );
     }
   }
 
@@ -57,25 +64,33 @@ public class SessionExpiredCommand extends AbstractCommand {
     this.pollingInterval = pollingInterval;
   }
 
+
   /**
-   * Checks the cookie set in {@link org.pentaho.platform.web.http.filters
-   * .HttpSessionPentahoSessionIntegrationFilter#setSessionExpirationCookies(HttpSession,
-   * HttpServletResponse)}
+   * If the session is expired returns a negative value.
+   * If the session is not expired returns a time left before expiration.
+   * If the cookie is not set returns a default polling interval.
+   *
+   * @return time shift for the next check
    */
-  private void checkCookie() {
+  private int getNextCheckShift() {
     final String sessionExpiry = Cookies.getCookie( SESSION_EXPIRY );
     //A cookie is not set
     if ( sessionExpiry != null ) {
       try {
-        if ( System.currentTimeMillis() > Long.parseLong( sessionExpiry ) ) {
-          //Session expired
-          new SessionExpiredDialog().center();
-          timer.cancel();
-          timer = null;
+        final long timeLeft = Long.parseLong( sessionExpiry ) - System.currentTimeMillis();
+        if ( timeLeft <= 0 ) {
+          //Session is expired
+          return -1; //do not overflow
+        } else if ( timeLeft < Integer.MAX_VALUE ) { //do not overflow
+          //Not expired
+          return (int) ( timeLeft );
         }
-      } catch ( final NumberFormatException e ) {
-        //Wrong value in the header
+      } catch ( NumberFormatException e ) {
+        //wrong value in a cookie
       }
     }
+
+    //No cookie - use a default interval
+    return pollingInterval;
   }
 }
