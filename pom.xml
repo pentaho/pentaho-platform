@@ -202,7 +202,8 @@
   <pentaho-vfs.version>1.0</pentaho-vfs.version>
 
   <persistence-api.version>1.0</persistence-api.version>
-  <poi.version>3.12</poi.version>
+  <poi.version>3.15</poi.version>
+  <commons-collections4.version>4.1</commons-collections4.version>
   <portlet-api.version>2.0</portlet-api.version>
   <postgresql.version>9.3-1102-jdbc4</postgresql.version>
   <powermock.version>1.6.3</powermock.version>
