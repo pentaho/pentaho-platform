@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 package org.pentaho.platform.plugin.services.importer;
 
@@ -336,6 +336,30 @@ public class RepositoryFileImportFileHandlerTest {
     assertHasManifestOwner( acl );
   }
 
+  @Test
+  public void testExtensionNotTruncated() {
+    String name = "file.csv";
+    setup( MIMENAME, MIME_EXTENSION, "", "", false );
+    String title = fileHandler.getTitle( name );
+    assertEquals( name, title );
+  }
+
+  @Test
+  public void testExtensionTruncated() {
+    String name = "file.prpt";
+    setup( MIMENAME, MIME_EXTENSION, "", "", false );
+    String title = fileHandler.getTitle( name );
+    assertEquals( "file", title );
+  }
+
+  @Test
+  public void testFileWithoutExtension() {
+    String name = "file";
+    setup( MIMENAME, MIME_EXTENSION, "", "", false );
+    String title = fileHandler.getTitle( name );
+    assertEquals( name, title );
+  }
+
   private void assertHasDefaultPermissions( RepositoryFileAcl acl ) {
     assertNotNull( acl );
     assertTrue( acl.isEntriesInheriting() );
@@ -402,6 +426,7 @@ public class RepositoryFileImportFileHandlerTest {
     fileHandler = new RepositoryFileImportFileHandler( mimeTypeList );
     fileHandler.setRepository( mockRepository );
     fileHandler.setDefaultAclHandler( new DefaultAclHandler() );
+    fileHandler.setKnownExtensions( Arrays.asList( "prpt" ) );
     IPlatformImporter mockPlatformImporter = mock( IPlatformImporter.class );
     when( mockPlatformImporter.getRepositoryImportLogger() ).thenReturn( new Log4JRepositoryImportLogger() );
     ImportSession.iPlatformImporter = mockPlatformImporter;
