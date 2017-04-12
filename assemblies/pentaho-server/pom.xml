@@ -19,7 +19,7 @@
 
     <replacer.version>1.5.2</replacer.version>
 
-    <tomcat.version>8.0.41</tomcat.version>
+    <tomcat.version>8.0.43</tomcat.version>
     <tomcat.directory>${project.build.directory}/apache-tomcat-${tomcat.version}</tomcat.directory>
     <resources.directory>${basedir}/src/main/resources</resources.directory>
   </properties>
