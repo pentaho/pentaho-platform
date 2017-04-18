@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.scheduler2;
@@ -132,7 +132,7 @@ public interface IScheduler {
    * @param jobId
    *          the job to be removed
    */
-  public void removeJob( String jobId ) throws SchedulerException;;
+  public void removeJob( String jobId ) throws SchedulerException;
 
   /**
    * Prevents the specified job from running in the future. The job remains in the list of scheduled jobs in a "paused"
@@ -225,8 +225,8 @@ public interface IScheduler {
    * 
    * @param subject
    *          the subject to which the interval applies
-   * @param the
-   *          interval in seconds
+   * @param intervalInSeconds
+   *          the interval in seconds
    */
   public void setMinScheduleInterval( IScheduleSubject subject, int intervalInSeconds );
 
@@ -276,4 +276,12 @@ public interface IScheduler {
    */
   public void fireJobCompleted( final IAction actionBean, final String actionUser,
       final Map<String, Serializable> params, IBackgroundExecutionStreamProvider streamProvider );
+
+  /**
+   * A default implementation which doesn't do anything and exists for the backward compatibility sake.
+   * @param jobParams scheduling job parameters
+   * @throws SchedulerException
+   */
+  default void validateJobParams( final Map<String, Serializable> jobParams ) throws SchedulerException {
+  }
 }
