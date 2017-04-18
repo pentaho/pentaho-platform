@@ -112,7 +112,7 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
 
     new HttpSessionPentahoSessionIntegrationFilter()
       .setSessionExpirationCookies( httpSession, pentahoSession, servletResponse );
-    Mockito.verify( servletResponse, Mockito.times( 1 ) ).addCookie( Mockito.any() );
+    Mockito.verify( servletResponse, Mockito.times( 2 ) ).addCookie( Mockito.any() );
   }
 
   @Test
@@ -127,7 +127,7 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
       PentahoSystem.registerObject( mockObj, AuthenticationProvider.class );
       new HttpSessionPentahoSessionIntegrationFilter()
         .setSessionExpirationCookies( httpSession, pentahoSession, servletResponse );
-      Mockito.verify( servletResponse, Mockito.times( 1 ) ).addCookie( Mockito.any() );
+      Mockito.verify( servletResponse, Mockito.times( 2 ) ).addCookie( Mockito.any() );
     } finally {
       PentahoSystem.setSystemSettingsService( systemSettings );
     }

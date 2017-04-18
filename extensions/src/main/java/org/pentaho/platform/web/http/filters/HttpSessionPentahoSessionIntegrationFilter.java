@@ -396,6 +396,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
    * Doesn't set the cookie in case CAS is used.
    *
    * The 'session-expiry' is needed to check if the session has expired.
+   * The 'server-time' is needed to calculate offset between server and client time.
    *
    * @param httpSession         http session
    * @param pentahoSession      pentaho session
@@ -430,12 +431,17 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
         }
       }
 
-      final long expiryTime = System.currentTimeMillis() + httpSession.getMaxInactiveInterval() * 1000;
+      final long serverTime = System.currentTimeMillis();
+      final long expiryTime = serverTime + httpSession.getMaxInactiveInterval() * 1000;
 
       final Cookie sessionExpirationCookie = new Cookie( "session-expiry", String.valueOf( expiryTime ) );
-
       sessionExpirationCookie.setPath( "/" );
+
+      final Cookie serverTimeCookie = new Cookie( "server-time", String.valueOf( serverTime ) );
+      serverTimeCookie.setPath( "/" );
+
       httpServletResponse.addCookie( sessionExpirationCookie );
+      httpServletResponse.addCookie( serverTimeCookie );
 
     }
   }
