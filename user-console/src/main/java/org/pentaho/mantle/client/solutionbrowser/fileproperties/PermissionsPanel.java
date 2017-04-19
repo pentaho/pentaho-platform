@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
@@ -302,6 +302,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         refreshPermission();
       }
     } );
+
+    // home folders ( i.e. folders below /home ) will not have the 'inherits folder permission' action available
+    boolean inheritsCheckBoxDisabled = this.fileSummary.isFolder() && this.fileSummary.getPath().toLowerCase().startsWith( "/home/" );
+    inheritsCheckBox.setEnabled( !inheritsCheckBoxDisabled );
 
     int row = 0;
     setWidget( row++, 0, inheritsCheckBox );
@@ -652,7 +656,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         NodeList permissions = ace.getElementsByTagName( PERMISSIONS_ELEMENT_NAME );
         for ( int j = 0; j < permissions.getLength(); j++ ) {
           if ( permissions.item( j ).getFirstChild() != null ) {
-            values.add( new Integer( permissions.item( j ).getFirstChild().getNodeValue() ) );            
+            values.add( new Integer( permissions.item( j ).getFirstChild().getNodeValue() ) );
           }
         }
         break;
@@ -768,12 +772,12 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   protected void setAclResponse( Response response ) {
     init( fileSummary, XMLParser.parse( response.getText() ) );
   }
-  
+
   private String getRecipientTypeByValue( String userOrRoleString ) {
     String recipientType = "";
-    if( userOrRoleString.endsWith( "(user)" ) ) {
+    if ( userOrRoleString.endsWith( "(user)" ) ) {
       recipientType = "0";
-    } else if( userOrRoleString.endsWith( "(role)" ) ) {
+    } else if ( userOrRoleString.endsWith( "(role)" ) ) {
       recipientType = "1";
     }
     return recipientType;
