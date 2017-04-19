@@ -78,6 +78,20 @@
 		</property>
 	</bean>
 
+    <util:list id="extensions" value-type="java.lang.String">
+        <value>xanalyzer</value>
+        <value>prpti</value>
+        <value>prpt</value>
+        <value>xaction</value>
+        <value>xdash</value>
+        <value>kjb</value>
+        <value>ktr</value>
+        <value>xcdf</value>
+        <value>xmi</value>
+        <value>cda</value>
+        <value>xreportspec</value>
+    </util:list>
+
 	<bean id="defaultImportHandler"
 		class="org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler">
 		<constructor-arg>
@@ -87,6 +101,7 @@
 		</constructor-arg>
 		<property name="repository" ref="unifiedRepository" />
 		<property name="defaultAclHandler" ref="defaultAclHandler" />
+		<property name="knownExtensions" ref="extensions" />
 	</bean>
 
 	<bean id="IPlatformImporter"
@@ -151,6 +166,7 @@
 					</constructor-arg>
 					<property name="repository" ref="unifiedRepository" />
 					<property name="defaultAclHandler" ref="defaultAclHandler" />
+					<property name="knownExtensions" ref="extensions" />
 				</bean>
 				
 				<bean
@@ -185,6 +201,7 @@
 					</constructor-arg>
 				    <property name="repository" ref="unifiedRepository" />
 					<property name="defaultAclHandler" ref="defaultAclHandler" />
+					<property name="knownExtensions" ref="extensions" />
 				</bean>
 				
 				<bean class="com.pentaho.repository.importexport.PDIImportFileHandler">
@@ -195,6 +212,7 @@
 					</constructor-arg>
 					<property name="repository" ref="unifiedRepository" />
 					<property name="defaultAclHandler" ref="defaultAclHandler" />
+					<property name="knownExtensions" ref="extensions" />
 				</bean>
 
 				<bean class="org.pentaho.platform.plugin.services.importer.MetaStoreImportHandler">
