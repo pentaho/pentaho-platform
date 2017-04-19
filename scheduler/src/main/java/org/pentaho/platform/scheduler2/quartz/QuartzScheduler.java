@@ -17,11 +17,14 @@
 
 package org.pentaho.platform.scheduler2.quartz;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
@@ -37,6 +40,7 @@ import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
@@ -843,6 +847,32 @@ public class QuartzScheduler implements IScheduler {
       IBackgroundExecutionStreamProvider streamProvider ) {
     for ( ISchedulerListener listener : listeners ) {
       listener.jobCompleted( actionBean, actionUser, params, streamProvider );
+    }
+  }
+
+  /**
+   * Checks if the text configuration for the input/output files is present.
+   * If not - silently returns. If present checks if the input file is allowed to be scheduled.
+   * @param jobParams scheduling job parameters
+   * @throws SchedulerException the configuration is recognized but the file can't be scheduled, is a folder or doesn't exist.
+   */
+  @Override public void validateJobParams( Map<String, Serializable> jobParams ) throws SchedulerException {
+    final Object streamProviderObj = jobParams.get( RESERVEDMAPKEY_STREAMPROVIDER );
+    if ( streamProviderObj instanceof String ) {
+      String inputFilePath = null;
+      final String inputOutputString = (String) streamProviderObj;
+      final String[] tokens = inputOutputString.split( ":" );
+      if ( !ArrayUtils.isEmpty( tokens ) && tokens.length == 2 ) {
+        inputFilePath = tokens[ 0 ].split( "=" )[ 1 ].trim();
+        if ( StringUtils.isNotBlank( inputFilePath ) ) {
+          final IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
+          final RepositoryFile repositoryFile = repository.getFile( inputFilePath );
+          if ( ( repositoryFile == null ) || repositoryFile.isFolder() || !repositoryFile.isSchedulable() ) {
+            throw new SchedulerException( Messages.getInstance().getString(
+              "QuartzScheduler.ERROR_0008_SCHEDULING_IS_NOT_ALLOWED" ) );
+          }
+        }
+      }
     }
   }
 }
