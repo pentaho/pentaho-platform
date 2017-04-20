@@ -46,9 +46,9 @@ import java.util.zip.ZipInputStream;
 
 public class UploadFileUtils {
 
-  private static final long MAX_FILE_SIZE = 300000;
-  private static final long MAX_FOLDER_SIZE = 3000000;
-  private static final long MAX_TMP_FOLDER_SIZE = 3000000;
+  private static final long MAX_FILE_SIZE = 10000000; // about 9m
+  private static final long MAX_FOLDER_SIZE = 500000000; // about 476mb
+  private static final long MAX_TMP_FOLDER_SIZE = 500000000; // about 476mb
   private static final String DEFAULT_EXTENSIONS = "csv,dat,txt,tar,zip,tgz,gz,gzip";
   public static final String DEFAULT_RELATIVE_UPLOAD_FILE_PATH = File.separatorChar
       + "system" + File.separatorChar + "metadata" + File.separatorChar + "csvfiles" + File.separatorChar; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
