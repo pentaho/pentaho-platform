@@ -386,7 +386,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       int dotIndex = name.lastIndexOf( '.' );
       if ( dotIndex != -1 ) {
         String extension = name.substring( dotIndex + 1 );
-        if ( knownExtensions.contains( extension ) ) {
+        if ( knownExtensions != null && knownExtensions.contains( extension ) ) {
           return name.substring( 0, dotIndex );
         }
       }
