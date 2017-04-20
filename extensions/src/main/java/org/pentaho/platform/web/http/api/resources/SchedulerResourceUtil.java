@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -196,6 +196,14 @@ public class SchedulerResourceUtil {
 
     HashMap<String, Serializable> convertedParameterMap = new HashMap<>();
 
+    boolean paramsAdded = false;
+    if ( pdiParameters != null ) {
+      convertedParameterMap.put( ScheduleExportUtil.RUN_PARAMETERS_KEY, (Serializable) pdiParameters );
+      paramsAdded = true;
+    } else {
+      pdiParameters = new HashMap<String, String>();
+    }
+
     if ( file != null && isPdiFile( file ) ) {
 
       Iterator<String> it = parameterMap.keySet().iterator();
@@ -206,6 +214,9 @@ public class SchedulerResourceUtil {
 
         if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
           convertedParameterMap.put( param, parameterMap.get( param ).toString() );
+          if ( !paramsAdded ) {
+            pdiParameters.put( param, parameterMap.get( param ).toString() );
+          }
         }
       }
 
@@ -216,7 +227,7 @@ public class SchedulerResourceUtil {
     } else {
       convertedParameterMap.putAll( parameterMap );
     }
-    convertedParameterMap.put( ScheduleExportUtil.RUN_PARAMETERS_KEY, (Serializable) pdiParameters );
+    convertedParameterMap.putIfAbsent( ScheduleExportUtil.RUN_PARAMETERS_KEY, (Serializable) pdiParameters );
     return convertedParameterMap;
   }
 
