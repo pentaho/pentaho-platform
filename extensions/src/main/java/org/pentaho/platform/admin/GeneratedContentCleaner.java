@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.admin;
@@ -99,7 +99,8 @@ public class GeneratedContentCleaner implements IAction {
    */
   public void execute() throws Exception {
     // scan the repository for all files with a RESERVEDMAPKEY_LINEAGE_ID
-    RepositoryFileTree tree = repository.getTree( ClientRepositoryPaths.getRootFolderPath(), -1, null, false );
+    // we need to find and delete hidden generated files too (like .css and .png)
+    RepositoryFileTree tree = repository.getTree( ClientRepositoryPaths.getRootFolderPath(), -1, null, true );
     ArrayList<RepositoryFile> generatedContentList = new ArrayList<RepositoryFile>();
     findGeneratedContent( generatedContentList, tree );
     for ( RepositoryFile deleteMe : generatedContentList ) {
