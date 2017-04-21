@@ -306,9 +306,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
     // home folders ( i.e. folders below /home ) will not have the 'inherits folder permission' action available
     final String HOME_FOLDER = FileUtils.PATH_SEPARATOR + "home" + FileUtils.PATH_SEPARATOR;
-    String lowercasePath = this.fileSummary.getPath().toLowerCase();
+    String lowercasePath = this.fileSummary != null && this.fileSummary.getPath() != null
+            ? this.fileSummary.getPath().toLowerCase() : "";
 
-    boolean inheritsCheckBoxDisabled = this.fileSummary.isFolder()
+    boolean inheritsCheckBoxDisabled = this.fileSummary != null && this.fileSummary.isFolder()
       && ( isPathAtRootLevel( lowercasePath ) || lowercasePath.startsWith( HOME_FOLDER ) );
     inheritsCheckBox.setEnabled( !inheritsCheckBoxDisabled );
 
