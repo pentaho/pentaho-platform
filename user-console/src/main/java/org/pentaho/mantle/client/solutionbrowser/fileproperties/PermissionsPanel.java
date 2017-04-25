@@ -45,7 +45,6 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -304,15 +303,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       }
     } );
 
-    // home folders ( i.e. folders below /home ) will not have the 'inherits folder permission' action available
-    final String HOME_FOLDER = FileUtils.PATH_SEPARATOR + "home" + FileUtils.PATH_SEPARATOR;
-    String lowercasePath = this.fileSummary != null && this.fileSummary.getPath() != null
-            ? this.fileSummary.getPath().toLowerCase() : "";
-
-    boolean inheritsCheckBoxDisabled = this.fileSummary != null && this.fileSummary.isFolder()
-      && ( isPathAtRootLevel( lowercasePath ) || lowercasePath.startsWith( HOME_FOLDER ) );
-    inheritsCheckBox.setEnabled( !inheritsCheckBoxDisabled );
-
     int row = 0;
     setWidget( row++, 0, inheritsCheckBox );
     setWidget( row++, 0, new Label( Messages.getString( "usersAndRoles" ) ) ); //$NON-NLS-1$
@@ -340,17 +330,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     permissionsTable.setHeight( "100%" ); //$NON-NLS-1$
 
     init();
-  }
-
-  private boolean isPathAtRootLevel( String path ) {
-    int matches = Integer.MAX_VALUE;
-    if ( path != null ) {
-      matches = path.length() - path.replace( FileUtils.PATH_SEPARATOR, "" ).length();
-      if ( path.endsWith( FileUtils.PATH_SEPARATOR ) ) {
-        matches--;
-      }
-    }
-    return matches == 1;
   }
 
   private void setManageCheckBox( boolean value ) {
