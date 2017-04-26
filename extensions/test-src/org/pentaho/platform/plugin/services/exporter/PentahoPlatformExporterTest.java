@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.exporter;
@@ -52,11 +52,11 @@ import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystem
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -287,11 +287,60 @@ public class PentahoPlatformExporterTest {
 
   @Test
   public void testExportMondrianSchemas() throws Exception {
+    final String catalogName = "test";
+    String dataSourceInfo = "EnableXmla=\"true\"";
+
+    executeExportMondrianSchemasForDataSourceInfo( catalogName, dataSourceInfo, true );
+
+    verify( exportManifest ).addMondrian( any( ExportManifestMondrian.class ) );
+    verify( mondrianCatalogRepositoryHelper ).getModrianSchemaFiles( anyString() );
+    assertEquals( catalogName, exportManifest.getMondrianList().get( 0 ).getCatalogName() );
+    assertTrue( exportManifest.getMondrianList().get( 0 ).isXmlaEnabled() );
+    verify( exporterSpy.zos ).putNextEntry( any( ZipEntry.class ) );
+  }
+
+  @Test
+  public void testExportMondrianSchemas_AdditionalParametersSaved() throws Exception {
+    final String parameterName = "AdditionalParameter";
+    final String parameterValue = "TestValue";
+    final String expectedParameterValue = "TestValue";
+    final String dataSourceInfo = "EnableXmla=\"true\";" + parameterName + "=" + parameterValue;
+    String catalogName = "test";
+
+    executeExportMondrianSchemasForDataSourceInfo( catalogName, dataSourceInfo, true );
+
+    String returnedParameterValue = exportManifest.getMondrianList().get( 0 ).getParameters().get( parameterName );
+    assertNotNull( returnedParameterValue );
+    assertEquals( returnedParameterValue, expectedParameterValue );
+  }
+
+  @Test
+  public void testPerformExportMondrianSchemas_XmlUnsafeDataSourceInfoSaved() throws IOException {
+
+    final String dataSourceInfo = "DataSource=\"&quot;DS &quot;Test&apos;s&quot; &amp; &lt;Fun&gt;&quot;\";"
+      + "DynamicSchemaProcessor=\"&quot;DSP&apos;s &amp; &quot;Other&quot; &lt;stuff&gt;&quot;\";";
+
+    final String dataSourceExpectedValue = "\"DS \"Test's\" & <Fun>\"";
+    final String dynamicSchemaProcessorExpectedValue = "\"DSP's & \"Other\" <stuff>\"";
+
+    executeExportMondrianSchemasForDataSourceInfo( "test", dataSourceInfo, false );
+
+    String returnedParameterValue = exportManifest.getMondrianList().get( 0 ).getParameters().get( "DataSource" );
+    assertNotNull( returnedParameterValue );
+    assertEquals( returnedParameterValue, dataSourceExpectedValue );
+
+    returnedParameterValue = exportManifest.getMondrianList().get( 0 ).getParameters().get( "DynamicSchemaProcessor" );
+    assertNotNull( returnedParameterValue );
+    assertEquals( returnedParameterValue, dynamicSchemaProcessorExpectedValue );
+
+  }
+
+  private void executeExportMondrianSchemasForDataSourceInfo( String catalogName, String dataSourceInfo, boolean isXmlaEnabled ) throws IOException {
     PentahoSystem.registerObject( mondrianCatalogService );
     exporterSpy.setMondrianCatalogRepositoryHelper( mondrianCatalogRepositoryHelper );
 
     List<MondrianCatalog> catalogs = new ArrayList<>();
-    MondrianCatalog catalog = new MondrianCatalog( "test", "EnableXmla=\"true\"", null, null );
+    MondrianCatalog catalog = new MondrianCatalog( catalogName, dataSourceInfo, null, null );
     catalogs.add( catalog );
     when( mondrianCatalogService.listCatalogs( any( IPentahoSession.class ), anyBoolean() ) ).thenReturn( catalogs );
     Map<String, InputStream> inputMap = new HashMap<>();
@@ -307,7 +356,9 @@ public class PentahoPlatformExporterTest {
     verify( exportManifest ).addMondrian( any( ExportManifestMondrian.class ) );
     verify( mondrianCatalogRepositoryHelper ).getModrianSchemaFiles( anyString() );
     assertEquals( "test", exportManifest.getMondrianList().get( 0 ).getCatalogName() );
-    assertTrue( exportManifest.getMondrianList().get( 0 ).isXmlaEnabled() );
+    if ( isXmlaEnabled ) {
+      assertTrue( exportManifest.getMondrianList().get( 0 ).isXmlaEnabled() );
+    }
     verify( exporterSpy.zos ).putNextEntry( any( ZipEntry.class ) );
   }
 
