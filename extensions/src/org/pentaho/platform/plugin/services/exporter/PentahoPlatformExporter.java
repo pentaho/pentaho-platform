@@ -12,12 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.exporter;
 
+import mondrian.olap.Util;
+import mondrian.util.Pair;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.di.core.exception.KettleException;
@@ -72,6 +75,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -259,8 +263,19 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
           mondrian.setFile( path );
           Parameters mondrianParameters = new Parameters();
           mondrianParameters.put( "Provider", "mondrian" );
-          mondrianParameters.put( "DataSource", catalog.getJndi() );
+          //DataSource can be escaped
+          mondrianParameters.put( "DataSource", StringEscapeUtils.unescapeXml( catalog.getJndi() ) );
           mondrianParameters.put( "EnableXmla", Boolean.toString( xmlaEnabled ) );
+
+          Util.PropertyList propList = catalog.getConnectProperties();
+          Iterator i = propList.iterator();
+          while ( i.hasNext() ) {
+            Pair<String, String> p = (Pair) i.next();
+            if ( !mondrianParameters.containsKey( p.getKey() ) ) {
+              mondrianParameters.put( p.getKey(), StringEscapeUtils.unescapeXml( p.getValue() ) );
+            }
+          }
+
           mondrian.setParameters( mondrianParameters );
         }
 
