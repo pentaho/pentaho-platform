@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -43,8 +43,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -320,6 +324,22 @@ public class SchedulerResourceUtilTest {
     assertEquals( "transform", result.get( "transformation" ) );
     assertEquals( "home/me", result.get( "directory" ) );
     assertEquals( "pdiParamValue", ( (HashMap) result.get( ScheduleExportUtil.RUN_PARAMETERS_KEY ) ).get( "pdiParam" ) );
+  }
+
+  @Test
+  public void testHandlePdiScheduling_requestParamsAreTransferred() throws Exception {
+    HashMap<String, Serializable> params = new HashMap<>();
+    params.put( "test1", "value1" );
+    params.put( "test2", "value2" );
+    params.put( "test3", "value3" );
+    when( repo.getName() ).thenReturn( "job.kjb" );
+    when( repo.getPath() ).thenReturn( "/home/me/job.kjb" );
+    HashMap<String, Serializable> result = SchedulerResourceUtil.handlePDIScheduling( repo, params, null );
+    assertEquals( params.size() + 3, result.size() );
+    Map<String, String> resultPdiMap = (HashMap<String, String>) result.get( ScheduleExportUtil.RUN_PARAMETERS_KEY );
+    assertEquals( "value1", resultPdiMap.get( "test1" ) );
+    assertEquals( "value2", resultPdiMap.get( "test2" ) );
+    assertEquals( "value3", resultPdiMap.get( "test3" ) );
   }
 
   @Test
