@@ -207,8 +207,10 @@ public class QuartzSchedulerIT {
     when( quartzScheduler.getJobGroupNames() ).thenReturn( new String[] { groupName } );
     when( quartzScheduler.getJobNames( eq( groupName ) ) ).thenReturn( new String[] { JOB_ID } );
     final Trigger trigger = mock( Trigger.class );
+    Date date1 = new Date();
     when( trigger.getPreviousFireTime() ).thenReturn( new Date(  ) );
-    when( trigger.getNextFireTime() ).thenReturn( new Date(  ) );
+    when( trigger.getFireTimeAfter( any( Date.class ) ) ).thenReturn( date1 );
+    when( trigger.getNextFireTime() ).thenReturn( date1 );
     final Trigger trigger2 = mock( Trigger.class );
     when( trigger2.getGroup() ).thenReturn( "MANUAL_TRIGGER" );
     when( quartzScheduler.getTriggersOfJob( eq( JOB_ID ), eq( groupName ) ) ).thenReturn( new Trigger[] { trigger, trigger2 } );
