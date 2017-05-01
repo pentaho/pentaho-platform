@@ -405,12 +405,6 @@ public class QuartzScheduler implements IScheduler {
         } else if ( trigger instanceof CronTrigger ) {
           ( (CronTrigger) trigger ).setPreviousFireTime( new Date() );
         }
-        if ( trigger.getStartTime() != null && trigger.getStartTime().before( new Date() ) ) {
-          Date newStartTime = trigger.getFireTimeAfter( new Date() );
-          if ( newStartTime != null ) {
-            trigger.setStartTime( newStartTime );
-          }
-        }
         // force the trigger to be updated with the previous fire time
         scheduler.rescheduleJob( jobId, jobKey.getUserName(), trigger );
       }
