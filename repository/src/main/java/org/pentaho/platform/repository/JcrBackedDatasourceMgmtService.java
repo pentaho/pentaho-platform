@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.di.repository.RepositoryObjectType;
@@ -183,7 +184,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
       if ( file != null ) {
         NodeRepositoryFileData data = repository.getDataForRead( file.getId(), NodeRepositoryFileData.class );
         IDatabaseConnection databaseConnection =
-            databaseHelper.dataNodeToDatabaseConnection( file.getId(), file.getTitle(), data.getNode() );
+            databaseHelper.dataNodeToDatabaseConnection( file.getId(), StringEscapeUtils.unescapeHtml( file.getTitle() ), data.getNode() );
         // IPasswordService passwordService = PentahoSystem.get(IPasswordService.class,
         // PentahoSessionHolder.getSession());
         // databaseMeta.setPassword(passwordService.decrypt(databaseMeta.getPassword()));
@@ -212,7 +213,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
         for ( RepositoryFile file : repositoryFiles ) {
           NodeRepositoryFileData data = repository.getDataForRead( file.getId(), NodeRepositoryFileData.class );
           IDatabaseConnection databaseConnection =
-              databaseHelper.dataNodeToDatabaseConnection( file.getId(), file.getTitle(), data.getNode() );
+              databaseHelper.dataNodeToDatabaseConnection( file.getId(), StringEscapeUtils.unescapeHtml( file.getTitle() ), data.getNode() );
           // IPasswordService passwordService = PentahoSystem.get(IPasswordService.class,
           // PentahoSessionHolder.getSession());
           // databaseMeta.setPassword(passwordService.decrypt(databaseMeta.getPassword()));
