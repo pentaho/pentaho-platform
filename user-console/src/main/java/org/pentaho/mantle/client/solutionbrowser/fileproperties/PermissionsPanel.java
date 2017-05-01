@@ -236,6 +236,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         if ( inheritsCheckBox.getValue() ) {
           VerticalPanel vp = new VerticalPanel();
           vp.add( new Label( Messages.getString( "permissionsWillBeLostQuestion" ) ) ); //$NON-NLS-1$
+          // Get the state of add and remove button
+          final boolean currRemoveButtonState = removeButton.isEnabled();
+          final boolean currAddButtonState = addButton.isEnabled();
           final PromptDialogBox permissionsOverwriteConfirm =
               new PromptDialogBox(
                   Messages.getString( "permissionsWillBeLostConfirmMessage" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -248,6 +251,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
               dirty = false;
               // BACKLOG-15986 Set the button state to value before the confirmation dialog
               setInheritsAcls( inheritsCheckBox.getValue(), fileInfo );
+              // Set the button state to value before the confirmation dialog
               addButton.setEnabled( currAddButtonState );
               removeButton.setEnabled( currRemoveButtonState );
             }
