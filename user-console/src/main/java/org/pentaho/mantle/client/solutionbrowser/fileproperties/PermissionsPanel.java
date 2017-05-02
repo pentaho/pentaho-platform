@@ -249,7 +249,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
               permissionsOverwriteConfirm.hide();
               inheritsCheckBox.setValue( false );
               dirty = false;
-              // Set the button state to value before the confirmation dialog
+              // BACKLOG-15986 Set the button state to value before the confirmation dialog
+              setInheritsAcls( inheritsCheckBox.getValue(), fileInfo );
               addButton.setEnabled( currAddButtonState );
               removeButton.setEnabled( currRemoveButtonState );
             }
