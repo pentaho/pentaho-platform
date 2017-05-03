@@ -54,9 +54,11 @@ public class SessionTempFileDeleter extends StandaloneTempFileDeleter implements
   public void onLogout( IPentahoSession session ) {
     // Implementation of onLogout to do the temp file cleanup as part of the 
     // logout for the user. PRD-5900
-    ITempFileDeleter realFileDeleter = (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );
-    if ( realFileDeleter != null ) {
-      realFileDeleter.doTempFileCleanup();
+    if ( session != null {
+      ITempFileDeleter realFileDeleter = (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );
+      if ( realFileDeleter != null ) {
+        realFileDeleter.doTempFileCleanup();
+      }
     }
   }
 
