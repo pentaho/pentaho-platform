@@ -1,5 +1,5 @@
 /*!
- * Copyright 2010 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2010 - 2017 Pentaho Corporation.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ import java.util.Set;
  * href="http://jira.pentaho.com/browse/BISERVER-8382">BISERVER-8382</a><br/>
  * This shouldn't differ from {@code CompiledPermissionsImpl} except for the extra lock and the
  * <code>synchronized</code> changes within {@link #canRead(Path, ItemId)}
- * 
+ *
  * @see CompiledPermissionsImpl
  */
 public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions implements AccessControlListener {
@@ -259,7 +259,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   /**
    * Changed so that access to entryCollector is done outside of a <code>monitor</code> synchronized block.<br/>
    * Should be functionally equivalent to {@link CompiledPermissions#canRead(Path, ItemId)}
-   * 
+   *
    * @see org.apache.jackrabbit.core.security.authorization.CompiledPermissions#canRead(Path, ItemId)
    */
   public boolean canRead( Path path, ItemId itemId ) throws RepositoryException {
@@ -360,5 +360,26 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   private boolean isValidPentahoNode( final NodeImpl node ) throws RepositoryException {
     return node != null && isBelowRootFolder( node )
       && JcrRepositoryFileUtils.isPentahoHierarchyNode( session, new PentahoJcrConstants( session ), node );
+  }
+
+  /**
+   * We override this method as the superclass implementation caches permissions in an LRU cache.
+   * Other than not caching the result the functionality is identical to {@link AbstractCompiledPermissions#getResult }
+   *
+   * @param absPath
+   * @return CompiledPermissions
+   * @throws RepositoryException
+   */
+  @Override
+  public Result getResult( Path absPath ) throws RepositoryException {
+    Result result;
+    synchronized ( monitor ) {
+      if ( absPath == null ) {
+        result = buildRepositoryResult();
+      } else {
+        result = buildResult( absPath );
+      }
+    }
+    return result;
   }
 }
