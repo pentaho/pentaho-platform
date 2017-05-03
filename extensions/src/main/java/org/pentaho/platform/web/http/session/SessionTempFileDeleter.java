@@ -12,27 +12,39 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.session;
 
 import org.pentaho.platform.api.util.ITempFileDeleter;
 import org.pentaho.platform.engine.core.system.StandaloneTempFileDeleter;
+import org.pentaho.platform.api.engine.ILogoutListener;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 import java.io.Serializable;
 
 public class SessionTempFileDeleter extends StandaloneTempFileDeleter implements HttpSessionBindingListener,
-    Serializable, ITempFileDeleter {
+    Serializable, ITempFileDeleter, ILogoutListener {
 
   private static final long serialVersionUID = 1379936698516655051L;
+
+  public SessionTempFileDeleter() {
+    super();
+    PentahoSystem.addLogoutListener( this );
+  }
 
   public void valueBound( HttpSessionBindingEvent event ) {
   }
 
   public void valueUnbound( HttpSessionBindingEvent event ) {
+    doTempFileCleanup();
+  }
+
+  public void onLogout( IPentahoSession session ) {
     doTempFileCleanup();
   }
 
