@@ -184,8 +184,8 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho-kettle</groupId>
-                  <artifactId>pdi-google-analytics-plugin-ce</artifactId>
+                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <artifactId>pdi-google-analytics-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
