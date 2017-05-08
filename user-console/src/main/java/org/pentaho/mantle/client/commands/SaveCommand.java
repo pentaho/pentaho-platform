@@ -310,11 +310,6 @@ public class SaveCommand extends AbstractCommand {
   private void doTabRename() {
     if ( tabName != null ) { // Save-As does not modify the name of the tab.
       PentahoTab tab = SolutionBrowserPanel.getInstance().getContentTabPanel().getSelectedTab();
-      if ( tabName.indexOf( "\"" ) != -1 ) {
-        //BACKLOG-11933, double quote ( " ) need special handling, could have done encodeUri, yet %22 brings UX issue.
-        //For now, replace double quote with 2 single quote as a fallback solution.
-        tabName = tabName.replaceAll( "\"", "''" );
-      }
       tab.setLabelText( tabName );
       tab.setLabelTooltip( tabName );
     }
