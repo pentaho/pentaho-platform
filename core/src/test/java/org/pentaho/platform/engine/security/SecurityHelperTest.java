@@ -174,7 +174,8 @@ public class SecurityHelperTest {
     assertEquals( CALLABLE_RETURNED_VALUE_OK, runningResult );
   }
 
-  @Test
+  // Temporarily leaving this test out until http://jira.pentaho.com/browse/BISERVER-13627 is addressed
+  //@Test
   /**
    * Verification for BISERVER-12365 where a Threads are sharing a SecurityContext and making concurrent calls to
    * runAsSytem() and runAsUser()
