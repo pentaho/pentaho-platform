@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
@@ -21,6 +21,8 @@ package org.pentaho.platform.engine.security;
 import org.junit.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
+
+import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -35,6 +37,8 @@ public class PentahoSecurityContextHolderStrategyTest {
     final Authentication authentication = mock( Authentication.class );
     context.setAuthentication( authentication );
 
+    final CountDownLatch doneSignal = new CountDownLatch( 1 );
+
     assertSame( authentication, strategy.getContext().getAuthentication() );
     Thread thread = new Thread( new Runnable() {
       @Override public void run() {
@@ -42,15 +46,11 @@ public class PentahoSecurityContextHolderStrategyTest {
         Authentication authentication2 = mock( Authentication.class );
         strategy.getContext().setAuthentication( authentication2 );
         assertSame( authentication2, strategy.getContext().getAuthentication() );
-        synchronized ( this ) {
-          notify();
-        }
+        doneSignal.countDown();
       }
     });
     thread.start();
-    synchronized ( thread ) {
-      thread.wait();
-    }
+    doneSignal.await();
     assertSame( authentication, strategy.getContext().getAuthentication() );
   }
 }
