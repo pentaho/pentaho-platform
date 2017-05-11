@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 package org.pentaho.platform.web.http.api.resources;
 
@@ -582,8 +582,25 @@ public class SchedulerResourceTest {
     Job mockJob = mock( Job.class );
     doReturn( mockJob ).when( schedulerResource.schedulerService ).getJobInfo( jobId );
 
-    Job testJob = schedulerResource.getJob( jobId, asCronString );
-    assertEquals( mockJob, testJob );
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( schedulerResource ).buildOkResponse( mockJob );
+
+    Response testResponse = schedulerResource.getJob( jobId, asCronString );
+    assertEquals( mockResponse, testResponse );
+
+    verify( schedulerResource.schedulerService, times( 1 ) ).getJobInfo( jobId );
+  }
+
+  @Test
+  public void testGetJobNull() throws Exception {
+    String jobId = "jobId";
+    String asCronString = "asCronString";
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( schedulerResource ).buildStatusResponse( Response.Status.NO_CONTENT );
+
+    Response testResponse = schedulerResource.getJob( jobId, asCronString );
+    assertEquals( mockResponse, testResponse );
 
     verify( schedulerResource.schedulerService, times( 1 ) ).getJobInfo( jobId );
   }

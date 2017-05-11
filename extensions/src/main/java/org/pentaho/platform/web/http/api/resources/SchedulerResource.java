@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -116,7 +116,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 401, condition = "User is not allowed to create schedules." ),
       @ResponseCode ( code = 403, condition = "Cannot create schedules for the specified file." ),
       @ResponseCode ( code = 500, condition = "An error occurred while creating a schedule." )
-  } )
+    } )
   public Response createJob( JobScheduleRequest scheduleRequest ) {
     try {
       Job job = schedulerService.createJob( scheduleRequest );
@@ -167,7 +167,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  admin	JobName	1410786491777
+   *  admin JobName 1410786491777
    * </pre>
    */
   @POST
@@ -179,7 +179,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 401, condition = "User is not allowed to update schedules." ),
       @ResponseCode ( code = 403, condition = "Cannot update schedules for the specified file." ),
       @ResponseCode ( code = 500, condition = "An error occurred while updating a schedule." )
-  } )
+    } )
   public Response updateJob( JobScheduleRequest scheduleRequest ) {
     try {
       Job job = schedulerService.updateJob( scheduleRequest );
@@ -204,7 +204,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">
    *      &lt;jobRequest&gt;
-   *      &lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;
+   *      &lt;jobId&gt;admin  JobName 1410786491777&lt;/jobId&gt;
    *      &lt;/jobRequest&gt;
    *  </pre>
    * </p>
@@ -226,7 +226,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Job triggered successfully." ),
       @ResponseCode ( code = 400, condition = "Invalid input." ),
       @ResponseCode ( code = 500, condition = "Invalid jobId." )
-  } )
+    } )
   public Response triggerNow( JobRequest jobRequest ) {
     try {
       Job job = schedulerService.triggerNow( jobRequest.getJobId() );
@@ -249,7 +249,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * <pre function="syntax.xml">
    *  &lt;job&gt;
    *  &lt;groupName&gt;admin&lt;/groupName&gt;
-   *  &lt;jobId&gt;admin	GeneratedContentCleaner	1408377444383&lt;/jobId&gt;
+   *  &lt;jobId&gt;admin  GeneratedContentCleaner 1408377444383&lt;/jobId&gt;
    *  &lt;jobName&gt;GeneratedContentCleaner&lt;/jobName&gt;
    *  &lt;jobParams&gt;
    *  &lt;jobParams&gt;
@@ -297,7 +297,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Content cleaner job successfully retrieved." ),
       @ResponseCode ( code = 204, condition = "No content cleaner job exists." ),
-  } )
+    } )
   public Job getContentCleanerJob() {
     try {
       return schedulerService.getContentCleanerJob();
@@ -321,7 +321,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *  &lt;jobs&gt;
    *  &lt;job&gt;
    *  &lt;groupName&gt;admin&lt;/groupName&gt;
-   *  &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
+   *  &lt;jobId&gt;admin  PentahoSystemVersionCheck 1408369303507&lt;/jobId&gt;
    *  &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
    *  &lt;jobParams&gt;
    *  &lt;jobParams&gt;
@@ -354,7 +354,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *  &lt;/job&gt;
    *  &lt;job&gt;
    *  &lt;groupName&gt;admin&lt;/groupName&gt;
-   *  &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
+   *  &lt;jobId&gt;admin  UpdateAuditData 1408373019115&lt;/jobId&gt;
    *  &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
    *  &lt;jobParams&gt;
    *  &lt;jobParams&gt;
@@ -409,7 +409,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Jobs retrieved successfully." ),
       @ResponseCode ( code = 500, condition = "Error while retrieving jobs." )
-  } )
+    } )
   public List<Job> getJobs( @DefaultValue ( "false" ) @QueryParam ( "asCronString" ) Boolean asCronString ) {
     try {
       return schedulerService.getJobs();
@@ -432,7 +432,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *  &lt;jobs&gt;
    *  &lt;job&gt;
    *  &lt;groupName&gt;admin&lt;/groupName&gt;
-   *  &lt;jobId&gt;admin	PentahoSystemVersionCheck	1408369303507&lt;/jobId&gt;
+   *  &lt;jobId&gt;admin  PentahoSystemVersionCheck 1408369303507&lt;/jobId&gt;
    *  &lt;jobName&gt;PentahoSystemVersionCheck&lt;/jobName&gt;
    *  &lt;jobParams&gt;
    *  &lt;jobParams&gt;
@@ -465,7 +465,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *  &lt;/job&gt;
    *  &lt;job&gt;
    *  &lt;groupName&gt;admin&lt;/groupName&gt;
-   *  &lt;jobId&gt;admin	UpdateAuditData	1408373019115&lt;/jobId&gt;
+   *  &lt;jobId&gt;admin UpdateAuditData 1408373019115&lt;/jobId&gt;
    *  &lt;jobName&gt;UpdateAuditData&lt;/jobName&gt;
    *  &lt;jobParams&gt;
    *  &lt;jobParams&gt;
@@ -518,7 +518,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Jobs retrieved successfully." ),
       @ResponseCode ( code = 500, condition = "Error while retrieving jobs." ),
-  } )
+    } )
   public List<Job> getAllJobs() {
     try {
       return schedulerService.getJobs();
@@ -549,7 +549,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved scheduling ability of repository file." ),
       @ResponseCode ( code = 500, condition = "Invalid repository file id." ),
-  } )
+    } )
   public String isScheduleAllowed( @QueryParam ( "id" ) String id ) {
     return "" + schedulerService.isScheduleAllowed( id );
   }
@@ -574,7 +574,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successful retrieved the scheduling permission." ),
       @ResponseCode ( code = 500, condition = "Unable to retrieve the scheduling permission." )
-  } )
+    } )
   public String doGetCanSchedule() {
     return schedulerService.doGetCanSchedule();
   }
@@ -599,7 +599,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the state of the scheduler." ),
       @ResponseCode ( code = 500, condition = "An error occurred when getting the state of the scheduler." )
-  } )
+    } )
   public Response getState() {
     try {
       String state = schedulerService.getState();
@@ -634,7 +634,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully started the server." ),
       @ResponseCode ( code = 500, condition = "An error occurred when resuming the scheduler." )
-  } )
+    } )
   public Response start() {
     try {
       String status = schedulerService.start();
@@ -669,7 +669,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully paused the server." ),
       @ResponseCode ( code = 500, condition = "An error occurred when pausing the scheduler." )
-  } )
+    } )
   public Response pause() {
     try {
       String status = schedulerService.pause();
@@ -704,7 +704,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully shut down the server." ),
       @ResponseCode ( code = 500, condition = "An error occurred when shutting down the scheduler." )
-  } )
+    } )
   public Response shutdown() {
     try {
       String status = schedulerService.shutdown();
@@ -723,7 +723,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">
    *      &lt;jobRequest&gt;
-   *      &lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;
+   *      &lt;jobId&gt;admin  JobName 1410786491777&lt;/jobId&gt;
    *      &lt;/jobRequest&gt;
    *  </pre>
    * </p>
@@ -744,7 +744,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the state of the requested job." ),
       @ResponseCode ( code = 500, condition = "Invalid jobId." )
-  } )
+    } )
   public Response getJobState( JobRequest jobRequest ) {
     try {
       return buildPlainTextOkResponse( schedulerService.getJobState( jobRequest ).name() );
@@ -764,7 +764,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">
    *    &lt;jobRequest&gt;
-   *    &lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;
+   *    &lt;jobId&gt;admin  JobName 1410786491777&lt;/jobId&gt;
    *    &lt;/jobRequest&gt;
    *  </pre>
    * </p>
@@ -785,7 +785,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully paused the job." ),
       @ResponseCode ( code = 500, condition = "Invalid jobId." )
-  } )
+    } )
   public Response pauseJob( JobRequest jobRequest ) {
     try {
       JobState state = schedulerService.pauseJob( jobRequest.getJobId() );
@@ -804,7 +804,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">
    *    &lt;jobRequest&gt;
-   *    &lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;
+   *    &lt;jobId&gt;admin  JobName 1410786491777&lt;/jobId&gt;
    *    &lt;/jobRequest&gt;
    *  </pre>
    * </p>
@@ -825,7 +825,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully resumed the job." ),
       @ResponseCode ( code = 500, condition = "Invalid jobId." )
-  } )
+    } )
   public Response resumeJob( JobRequest jobRequest ) {
     try {
       JobState state = schedulerService.resumeJob( jobRequest.getJobId() );
@@ -844,7 +844,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    * <br /><b>DELETE data:</b>
    *  <pre function="syntax.xml">
    *    &lt;jobRequest&gt;
-   *    &lt;jobId&gt;admin	BlockoutAction	1410786491503&lt;/jobId&gt;
+   *    &lt;jobId&gt;admin  BlockoutAction 1410786491503&lt;/jobId&gt;
    *    &lt;/jobRequest&gt;
    *  </pre>
    * </p>
@@ -865,7 +865,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully removed the job." ),
       @ResponseCode ( code = 500, condition = "Invalid jobId." )
-  } )
+    } )
   public Response removeJob( JobRequest jobRequest ) {
     try {
       if ( schedulerService.removeJob( jobRequest.getJobId() ) ) {
@@ -892,7 +892,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;job&gt;&lt;jobId&gt;admin	JobName	1410786491777&lt;/jobId&gt;&lt;jobName&gt;JobName&lt;/jobName&gt;&lt;jobParams&gt;&lt;jobParams&gt;&lt;name&gt;uiPassParam&lt;/name&gt;&lt;value&gt;MINUTES&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;&lt;value&gt;input file = /public/Steel Wheels/Top Customers (report).prpt:outputFile = /home/admin/JobName.*&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;user_locale&lt;/name&gt;&lt;value&gt;en_US&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;&lt;value&gt;admin&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;&lt;value&gt;prpt.backgroundExecution&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ParameterName&lt;/name&gt;&lt;value&gt;false&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;lineage-id&lt;/name&gt;&lt;value&gt;5212a120-3294-49e8-9c5d-c755b9766c43&lt;/value&gt;&lt;/jobParams&gt;&lt;/jobParams&gt;&lt;jobTrigger xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:type=&quot;simpleJobTrigger&quot;&gt;&lt;duration&gt;-1&lt;/duration&gt;&lt;startTime&gt;2014-08-14T11:46:00-04:00&lt;/startTime&gt;&lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;&lt;repeatCount&gt;-1&lt;/repeatCount&gt;&lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;&lt;/jobTrigger&gt;&lt;nextRun&gt;2014-08-14T11:46:00-04:00&lt;/nextRun&gt;&lt;state&gt;NORMAL&lt;/state&gt;&lt;userName&gt;admin&lt;/userName&gt;&lt;/job&gt;
+   *  &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;job&gt;&lt;jobId&gt;admin JobName 1410786491777&lt;/jobId&gt;&lt;jobName&gt;JobName&lt;/jobName&gt;&lt;jobParams&gt;&lt;jobParams&gt;&lt;name&gt;uiPassParam&lt;/name&gt;&lt;value&gt;MINUTES&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ActionAdapterQuartzJob-StreamProvider&lt;/name&gt;&lt;value&gt;input file = /public/Steel Wheels/Top Customers (report).prpt:outputFile = /home/admin/JobName.*&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;user_locale&lt;/name&gt;&lt;value&gt;en_US&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ActionAdapterQuartzJob-ActionUser&lt;/name&gt;&lt;value&gt;admin&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ActionAdapterQuartzJob-ActionId&lt;/name&gt;&lt;value&gt;prpt.backgroundExecution&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;ParameterName&lt;/name&gt;&lt;value&gt;false&lt;/value&gt;&lt;/jobParams&gt;&lt;jobParams&gt;&lt;name&gt;lineage-id&lt;/name&gt;&lt;value&gt;5212a120-3294-49e8-9c5d-c755b9766c43&lt;/value&gt;&lt;/jobParams&gt;&lt;/jobParams&gt;&lt;jobTrigger xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:type=&quot;simpleJobTrigger&quot;&gt;&lt;duration&gt;-1&lt;/duration&gt;&lt;startTime&gt;2014-08-14T11:46:00-04:00&lt;/startTime&gt;&lt;uiPassParam&gt;MINUTES&lt;/uiPassParam&gt;&lt;repeatCount&gt;-1&lt;/repeatCount&gt;&lt;repeatInterval&gt;1800&lt;/repeatInterval&gt;&lt;/jobTrigger&gt;&lt;nextRun&gt;2014-08-14T11:46:00-04:00&lt;/nextRun&gt;&lt;state&gt;NORMAL&lt;/state&gt;&lt;userName&gt;admin&lt;/userName&gt;&lt;/job&gt;
    * </pre>
    */
   @GET
@@ -900,12 +900,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the information for the requested job." ),
-      @ResponseCode ( code = 500, condition = "Invalid jobId." )
-  } )
-  public Job getJob( @QueryParam( "jobId" ) String jobId,
+      @ResponseCode ( code = 204, condition = "jobId is valid, but the job is either finished or does not exists." ),
+      @ResponseCode ( code = 500, condition = "Internal error or invalid jobId." )
+    } )
+  public Response getJob( @QueryParam( "jobId" ) String jobId,
                      @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
     try {
-      return schedulerService.getJobInfo( jobId );
+      Job jobInfo = schedulerService.getJobInfo( jobId );
+      if ( jobInfo == null ) {
+        return buildStatusResponse( Status.NO_CONTENT  );
+      }
+      return buildOkResponse( jobInfo );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
     }
@@ -947,7 +952,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *  &lt;jobs&gt;
    *  &lt;job&gt;
    *  &lt;groupName&gt;admin&lt;/groupName&gt;
-   *  &lt;jobId&gt;admin	BlockoutAction	1408457558636&lt;/jobId&gt;
+   *  &lt;jobId&gt;admin  BlockoutAction  1408457558636&lt;/jobId&gt;
    *  &lt;jobName&gt;BlockoutAction&lt;/jobName&gt;
    *  &lt;jobParams&gt;
    *  &lt;jobParams&gt;
@@ -1024,7 +1029,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved blockout jobs." ),
-  } )
+    } )
   public List<Job> getBlockoutJobs() {
     return schedulerService.getBlockOutJobs();
   }
@@ -1049,7 +1054,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces ( { TEXT_PLAIN } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully determined whether or not the system contains blockouts." ),
-  } )
+    } )
   public Response hasBlockouts() {
     Boolean hasBlockouts = schedulerService.hasBlockouts();
     return buildOkResponse( hasBlockouts.toString() );
@@ -1089,7 +1094,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  admin	BlockoutAction	1410786491209
+   * admin BlockoutAction 1410786491209
    * </pre>
    */
   @POST
@@ -1098,7 +1103,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successful operation." ),
       @ResponseCode ( code = 401, condition = "User is not authorized to create blockout." )
-  } )
+    } )
   public Response addBlockout( JobScheduleRequest jobScheduleRequest ) {
     try {
       Job job = schedulerService.addBlockout( jobScheduleRequest );
@@ -1147,7 +1152,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
-   *  admin	BlockoutAction	1410786491503
+   * admin BlockoutAction 1410786491503
    * </pre>
    */
   @POST
@@ -1156,7 +1161,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successful operation." ),
       @ResponseCode ( code = 401, condition = "User is not authorized to update blockout." )
-  } )
+    } )
   public Response updateBlockout( @QueryParam ( "jobid" ) String jobId, JobScheduleRequest jobScheduleRequest ) {
     try {
       Job job = schedulerService.updateBlockout( jobId, jobScheduleRequest );
@@ -1214,7 +1219,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successful operation." ),
       @ResponseCode ( code = 500, condition = "An error occurred while determining blockouts being fired." )
-  } )
+    } )
   public Response blockoutWillFire( JobScheduleRequest jobScheduleRequest ) {
     Boolean willFire;
     try {
@@ -1246,7 +1251,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces ( { TEXT_PLAIN } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successful operation." )
-  } )
+    } )
   public Response shouldFireNow() {
     Boolean result = schedulerService.shouldFireNow();
     return buildOkResponse( result.toString() );
@@ -1300,7 +1305,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully got the blockout status." ),
       @ResponseCode ( code = 401, condition = "User is not authorized to get the blockout status." )
-  } )
+    } )
   public Response getBlockStatus( JobScheduleRequest jobScheduleRequest ) {
     try {
       BlockStatusProxy blockStatusProxy = schedulerService.getBlockStatus( jobScheduleRequest );
@@ -1372,7 +1377,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully got the generated content for schedule" )
-  } )
+    } )
   public List<RepositoryFileDto> doGetGeneratedContentForSchedule( @QueryParam ( "lineageId" ) String lineageId ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     try {
