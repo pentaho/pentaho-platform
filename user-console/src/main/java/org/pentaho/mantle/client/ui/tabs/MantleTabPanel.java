@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.ui.tabs;
@@ -539,7 +539,17 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   public void closeTab( final PentahoTab closeTab, final boolean invokePreTabCloseHook ) {
     if ( closeTab.getContent() instanceof IFrameTabPanel ) {
       final Element frameElement = ( (IFrameTabPanel) closeTab.getContent() ).getFrame().getElement();
-      final String frameId = frameElement.getAttribute( "id" );
+      String frameId = frameElement.getAttribute( "id" ).replaceAll( "\"", "\\\"" );
+      // Analysis, Interactive Report and Dashboard documents saved using a double quote character will
+      // be unable to close after initial save. This happens because on save, not only the tab name is changed but also
+      // the tab id. In case the name contains double quotes tab it causes problems when "fireCloseTab( frameId )"
+      // is called due to conversion to JSON. Ex. for tab name a"b:
+      //    #a"b1494409287116 need to be escaped to #a\"b1494409287116.
+      if ( frameId.indexOf( "\"" ) != -1 ) {
+        frameId = frameId.replaceAll( "\"", "\\\\\"" );
+        frameElement.setAttribute( "id", frameId );
+      }
+      final String finalFrameId = frameId;
       if ( invokePreTabCloseHook && hasUnsavedChanges( frameElement ) ) {
         // prompt user
         VerticalPanel vp = new VerticalPanel();
@@ -552,7 +562,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
           }
 
           public void okPressed() {
-            fireCloseTab( frameId );
+            fireCloseTab( finalFrameId );
             ( (CustomFrame) ( (IFrameTabPanel) closeTab.getContent() ).getFrame() ).removeEventListeners( frameElement );
             clearClosingFrame( frameElement );
             MantleTabPanel.super.closeTab( closeTab, invokePreTabCloseHook );
@@ -572,7 +582,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         return;
       }
 
-      fireCloseTab( frameId );
+      fireCloseTab( finalFrameId );
       ( (CustomFrame) ( (IFrameTabPanel) closeTab.getContent() ).getFrame() ).removeEventListeners( frameElement );
       clearClosingFrame( frameElement );
     }
