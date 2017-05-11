@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
@@ -289,6 +289,13 @@ public class PooledDatasourceHelperTest {
     } catch ( Exception e ) {
       assertThat( e, instanceOf( DBDatasourceServiceException.class ) );
     }
+  }
+
+  @Test( expected = DriverNotInitializedException.class )
+  public void testDriverNotInitialized() throws DBDatasourceServiceException {
+    when( dialectService.getDialect( connection ) ).thenReturn( driverLocatorDialect );
+    when( ( (IDriverLocator) driverLocatorDialect ).initialize( nativeDriverName ) ).thenReturn( false );
+    PooledDatasourceHelper.convert( connection, () -> dialectService );
   }
 
   @After
