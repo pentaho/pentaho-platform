@@ -170,9 +170,9 @@ public class MantleController extends AbstractXulEventHandler {
     contentEditBtn = (XulToolbarbutton) document.getElementById( "editContentButton" ); //$NON-NLS-1$
 
     bf = new GwtBindingFactory( document );
-    bf.createBinding( model, "saveEnabled", saveBtn, "!disabled" ); //$NON-NLS-1$ //$NON-NLS-2$
-    bf.createBinding( model, "saveAsEnabled", saveAsBtn, "!disabled" ); //$NON-NLS-1$ //$NON-NLS-2$
-    bf.createBinding( model, "contentEditEnabled", contentEditBtn, "!disabled" ); //$NON-NLS-1$ //$NON-NLS-2$
+    bf.createBinding( model, "saveEnabled", saveBtn, "visible" ); //$NON-NLS-1$ //$NON-NLS-2$
+    bf.createBinding( model, "saveAsEnabled", saveAsBtn, "visible" ); //$NON-NLS-1$ //$NON-NLS-2$
+    bf.createBinding( model, "contentEditEnabled", contentEditBtn, "visible" ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( model, "contentEditSelected", this, "editContentSelected" ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( model, "printVisible", printBtn, "visible" );
 
@@ -280,8 +280,8 @@ public class MantleController extends AbstractXulEventHandler {
                   ( (MenuBar) themesMenu.getManagedObject() ).addItem( themeMenuItem );
                 }
 
-                bf.createBinding( model, "saveEnabled", saveMenuItem, "!disabled" ); //$NON-NLS-1$ //$NON-NLS-2$
-                bf.createBinding( model, "saveAsEnabled", saveAsMenuItem, "!disabled" ); //$NON-NLS-1$ //$NON-NLS-2$
+                bf.createBinding( model, "saveEnabled", saveMenuItem, "visible" ); //$NON-NLS-1$ //$NON-NLS-2$
+                bf.createBinding( model, "saveAsEnabled", saveAsMenuItem, "visible" ); //$NON-NLS-1$ //$NON-NLS-2$
 
                 if ( PerspectiveManager.getInstance().isLoaded() ) {
                   executeAdminContent();
@@ -710,13 +710,13 @@ public class MantleController extends AbstractXulEventHandler {
   @Bindable
   public void setSaveEnabled( boolean flag ) {
     // called by the MainToolbarModel to change state.
-    saveBtn.setDisabled( !flag );
+    saveBtn.setVisible( flag );
   }
 
   @Bindable
   public void setSaveAsEnabled( boolean flag ) {
     // called by the MainToolbarModel to change state.
-    saveAsBtn.setDisabled( !flag );
+    saveAsBtn.setVisible( flag );
   }
 
   @Override
@@ -865,7 +865,7 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void setContentEditEnabled( boolean enable ) {
-    contentEditBtn.setDisabled( !enable );
+    contentEditBtn.setVisible( enable );
   }
 
   @Bindable
@@ -946,12 +946,12 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public boolean isSaveEnabled() {
-    return !saveMenuItem.isDisabled();
+    return saveMenuItem.isVisible();
   }
 
   @Bindable
   public boolean isSaveAsEnabled() {
-    return !saveAsMenuItem.isDisabled();
+    return saveAsMenuItem.isVisible();
   }
 
   @Bindable
