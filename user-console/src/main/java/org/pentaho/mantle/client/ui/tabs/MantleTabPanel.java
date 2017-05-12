@@ -540,7 +540,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     if ( closeTab.getContent() instanceof IFrameTabPanel ) {
       final Element frameElement = ( (IFrameTabPanel) closeTab.getContent() ).getFrame().getElement();
       String frameId = frameElement.getAttribute( "id" ).replaceAll( "\"", "\\\"" );
-      // [BACKLOG-11933] Analysis, Interactive Report and Dashboard documents saved using a double quote character will
+      // Analysis, Interactive Report and Dashboard documents saved using a double quote character will
       // be unable to close after initial save. This happens because on save, not only the tab name is changed but also
       // the tab id. In case the name contains double quotes tab it causes problems when "fireCloseTab( frameId )"
       // is called due to conversion to JSON. Ex. for tab name a"b:
