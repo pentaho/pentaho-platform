@@ -205,7 +205,7 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho-kettle</groupId>
+                  <groupId>org.pentaho.kettle.plugins</groupId>
                   <artifactId>kettle-s3csvinput-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
