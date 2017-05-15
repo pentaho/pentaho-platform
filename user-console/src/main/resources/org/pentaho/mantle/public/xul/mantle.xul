@@ -78,13 +78,13 @@
       <toolbarbutton id="dummyPluginContentButton" pen:visible="false"/>
       <toolbarspacer width="20"/>
       <toolbarbutton id="editContentButton" image="images/spacer.gif" disabledimage="images/spacer.gif"
-                     onclick="mantleXulHandler.editContentClicked()" tooltiptext="${editContent}" disabled="true"
-                     type="toggle" pen:visible="true"/>
+                     onclick="mantleXulHandler.editContentClicked()" tooltiptext="${editContent}"
+                     type="toggle" pen:visible="false"/>
       <toolbarspacer id="editButtonSpacer" width="20" pen:visible="true"/>
       <toolbarbutton id="saveButton" image="images/spacer.gif" disabledimage="images/spacer.gif"
-                     onclick="mantleXulHandler.saveClicked()" tooltiptext="${save}" disabled="true"/>
+                     onclick="mantleXulHandler.saveClicked()" tooltiptext="${save}" pen:visible="false"/>
       <toolbarbutton id="saveAsButton" image="images/spacer.gif" disabledimage="images/spacer.gif"
-                     onclick="mantleXulHandler.saveAsClicked()" tooltiptext="${saveAs}" disabled="true"/>
+                     onclick="mantleXulHandler.saveAsClicked()" tooltiptext="${saveAs}" pen:visible="false"/>
 
       <toolbarspacer width="20"/>
       <toolbarbutton id="printButton" image="images/spacer.gif" disabledimage="images/spacer.gif"
