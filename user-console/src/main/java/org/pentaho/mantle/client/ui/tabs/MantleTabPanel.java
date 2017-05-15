@@ -546,7 +546,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       // is called due to conversion to JSON. Ex. for tab name a"b:
       //    #a"b1494409287116 need to be escaped to #a\"b1494409287116.
       if ( frameId.indexOf( "\"" ) != -1 ) {
-        frameId = frameId.replaceAll( "\"", "\\\\\"" );
+        frameId = frameId.replaceAll( "\"", "" );
         frameElement.setAttribute( "id", frameId );
       }
       final String finalFrameId = frameId;
