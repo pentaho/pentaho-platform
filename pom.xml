@@ -14,7 +14,7 @@
   <name>Pentaho BI Platform Community Edition</name>
   <description>Parent pom for pentaho-platform projects</description>
   <url>http://www.pentaho.com</url>
-  
+
   <scm>
     <connection>scm:git:git@github.com:pentaho/pentaho-platform.git</connection>
     <developerConnection>scm:git:git@github.com:pentaho/pentaho-platform.git</developerConnection>
@@ -126,7 +126,6 @@
   <javax.inject.version>1</javax.inject.version>
   <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
   <jaxb-api.version>2.2.2</jaxb-api.version>
-  <jaxb-impl.version>2.2.3-1</jaxb-impl.version>
   <jaxen.version>1.1.1</jaxen.version>
 
   <jaxws-spring.version>1.8</jaxws-spring.version>
@@ -248,8 +247,6 @@
   <validation-api.version>1.0.0.GA</validation-api.version>
 
   <wadl-resourcedoc-doclet.version>1.19.1</wadl-resourcedoc-doclet.version>
-  <webservices-api.version>2.1</webservices-api.version>
-  <webservices-rt.version>2.1</webservices-rt.version>
   <wsdl4j.version>1.6.2</wsdl4j.version>
   <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
   <wstx-asl.version>3.2.4</wstx-asl.version>
@@ -287,7 +284,7 @@
   <org.osgi.compendium.version>5.0.0</org.osgi.compendium.version>
   <quartz-oracle.version>1.7.2</quartz-oracle.version>
   <soap.version>2.3</soap.version>
-  <webservices.version>2.1</webservices.version>
+  <webservices.version>2.3.1</webservices.version>
   <weka.version>3.8.0.1</weka.version>
   <xalan.version>2.7.1</xalan.version>
   </properties>
@@ -336,7 +333,7 @@
       </plugins>
     </pluginManagement>
 
-  </build>  
+  </build>
 
   <profiles>
     <profile>
@@ -437,6 +434,6 @@
             </plugin>
           </plugins>
         </reporting>
-      </profile>    
+      </profile>
   </profiles>
  </project>
