@@ -23,7 +23,7 @@
 	
     <ExportManifestEntity path="public/plugin-samples">
         <ExportManifestProperty>
-            <EntityMetaData name="plugin-samples" createdDate="2015-02-17T15:03:21.570-03:00" isFolder="true" path="public/plugin-samples" isHidden="false" locale="en_US" description="plugin-samples-ddd" title="plugin-samples-nnn"/>
+            <EntityMetaData name="plugin-samples" createdDate="2015-02-17T15:03:21.570-03:00" isFolder="true" path="public/plugin-samples" isHidden="true" locale="en_US" description="plugin-samples-ddd" title="plugin-samples-nnn"/>
         </ExportManifestProperty>
         <ExportManifestProperty>
             <EntityAcl>
