@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
@@ -31,7 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
@@ -174,8 +174,7 @@ public class SecurityHelperTest {
     assertEquals( CALLABLE_RETURNED_VALUE_OK, runningResult );
   }
 
-  // Temporarily leaving this test out until http://jira.pentaho.com/browse/BISERVER-13627 is addressed
-  //@Test
+  @Test
   /**
    * Verification for BISERVER-12365 where a Threads are sharing a SecurityContext and making concurrent calls to
    * runAsSytem() and runAsUser()
@@ -185,7 +184,8 @@ public class SecurityHelperTest {
 
     IUserRoleListService userRoleListService = getUserRoleListServiceMock( "admin", new String[]{"authenticated"} );
 
-    when( userRoleListService.getRolesForUser( Matchers.<ITenant>any(), eq( "suzy" ) ) ).thenReturn( Collections.singletonList( "authenticated" ) );
+    when( userRoleListService.getRolesForUser( Matchers.<ITenant>any(), eq( "suzy" ) ) )
+      .thenReturn( Collections.singletonList( "authenticated" ) );
 
     PentahoSystem.registerObject( userRoleListService );
     PentahoSystem.registerReference(
@@ -193,17 +193,16 @@ public class SecurityHelperTest {
             .attributes( Collections.<String, Object>singletonMap( "id", "singleTenantAdminUserName" ) ).build() );
 
     SecurityContextHolder.setStrategyName( PentahoSecurityContextHolderStrategy.class.getName() );
-    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken( "suzy", "password" );
+    UsernamePasswordAuthenticationToken token =
+      new UsernamePasswordAuthenticationToken( "suzy", "password" );
 
     final SecurityContext context = new SecurityContextImpl();
 
     SecurityContextHolder.setContext( context );
     SecurityContextHolder.getContext().setAuthentication( token );
 
-    final AtomicBoolean lock = new AtomicBoolean( true );
-    final AtomicBoolean lock2 = new AtomicBoolean( true );
-
-
+    final CountDownLatch startSignal = new CountDownLatch( 1 );
+    final CountDownLatch doneSignal = new CountDownLatch( 1 );
 
     final Thread t2 = new Thread( new Runnable() {
       @Override public void run() {
@@ -211,14 +210,10 @@ public class SecurityHelperTest {
           SecurityContextHolder.setContext( context );
           SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
             @Override public Void call() throws Exception {
-              synchronized ( lock ) {
-                System.out.println( "Starting Thread 2" );
-                lock.notify();
-              }
-              synchronized ( lock2 ) {
-                lock2.wait();
-              }
-
+              System.out.println( "Starting Thread 2" );
+              startSignal.await();
+              // waiting for t1 to finish
+              doneSignal.await();
               System.out.println( "Finishing Thread 2" );
               return null;
             }
@@ -236,13 +231,8 @@ public class SecurityHelperTest {
           SecurityContextHolder.setContext( context );
           SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
             @Override public Void call() throws Exception {
-
               System.out.println( "Starting Thread 1" );
-              t2.start();
-              synchronized ( lock ) {
-                lock.wait();
-              }
-
+              startSignal.await();
               System.out.println( "Finishing Thread 1" );
               return null;
             }
@@ -256,15 +246,13 @@ public class SecurityHelperTest {
 
 
     t1.start();
-    t1.join();
-    synchronized ( lock2 ) {
-      lock2.notify();
-    }
-    t2.join();
+    t2.start();
+    startSignal.countDown();  // let all threads proceed
+    t1.join();                // waits for t1 to die
+    doneSignal.countDown();   // t2 is waiting for t1 to finish, let t2 proceed
+    t2.join();                // waits for t2 to die
 
     assertSame( token.getPrincipal(), SecurityContextHolder.getContext().getAuthentication().getPrincipal() );
-
-
   }
 
   @Test
