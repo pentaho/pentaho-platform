@@ -12,12 +12,11 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.kettle;
 
-import com.sun.xml.bind.StringInputStream;
 import org.apache.log4j.FileAppender;
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +28,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.StringBufferInputStream;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -82,7 +82,7 @@ public class KettleSystemListenerTest {
   public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws IOException, ParserConfigurationException, SAXException {
     KettleSystemListener ksl = new KettleSystemListener();
 
-    ksl.getSlaveServerConfigNode( new StringInputStream( XmlTestConstants.MALICIOUS_XML ) );
+    ksl.getSlaveServerConfigNode( new StringBufferInputStream( XmlTestConstants.MALICIOUS_XML ) );
     fail();
   }
 
@@ -93,6 +93,6 @@ public class KettleSystemListenerTest {
       + "</slave_config>";
     KettleSystemListener ksl = new KettleSystemListener();
 
-    assertNotNull( ksl.getSlaveServerConfigNode( new StringInputStream( xml ) ) );
+    assertNotNull( ksl.getSlaveServerConfigNode( new StringBufferInputStream( xml ) ) );
   }
 }

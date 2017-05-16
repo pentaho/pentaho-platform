@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringBufferInputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,8 +38,6 @@ import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
-
-import com.sun.xml.bind.StringInputStream;
 
 /**
  * This unit test focuses on validating XActionImportHandler logic, which, according to the class' javadoc, quote:
@@ -85,7 +84,7 @@ public class XActionImportHandlerTest {
 
   @Test( timeout = 2000, expected = SAXException.class )
   public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws IOException, ParserConfigurationException, SAXException {
-    handler.getImportBundleDocument( new StringInputStream( XmlTestConstants.MALICIOUS_XML ) );
+    handler.getImportBundleDocument( new StringBufferInputStream( XmlTestConstants.MALICIOUS_XML ) );
     fail();
   }
 
@@ -95,7 +94,7 @@ public class XActionImportHandlerTest {
       + "<slave_config>"
       + "</slave_config>";
 
-    assertNotNull( handler.getImportBundleDocument( new StringInputStream( xml ) ) );
+    assertNotNull( handler.getImportBundleDocument( new StringBufferInputStream( xml ) ) );
   }
 
   private InputStream getXactionAsInputStream( String xactionTestFilePath ) {

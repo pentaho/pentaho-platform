@@ -13,12 +13,11 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
 
-import com.sun.xml.bind.StringInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.junit.Before;
@@ -40,6 +39,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringBufferInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -219,7 +219,7 @@ public class LocaleImportHandlerTest {
   public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws IOException, ParserConfigurationException, SAXException {
     LocaleImportHandler lih = new LocaleImportHandler( Collections.emptyList(), null );
 
-    lih.getLocalBundleDocument( new StringInputStream( XmlTestConstants.MALICIOUS_XML ) );
+    lih.getLocalBundleDocument( new StringBufferInputStream( XmlTestConstants.MALICIOUS_XML ) );
     fail();
   }
 
@@ -230,6 +230,6 @@ public class LocaleImportHandlerTest {
       + "</slave_config>";
     LocaleImportHandler lih = new LocaleImportHandler( Collections.emptyList(), null );
 
-    assertNotNull( lih.getLocalBundleDocument( new StringInputStream( xml ) ) );
+    assertNotNull( lih.getLocalBundleDocument( new StringBufferInputStream( xml ) ) );
   }
 }
