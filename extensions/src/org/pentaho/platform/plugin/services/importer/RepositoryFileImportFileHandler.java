@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -56,6 +56,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private static final Messages messages = Messages.getInstance();
   private SolutionFileImportHelper solutionHelper = new SolutionFileImportHelper();
   private HashMap<String, IMimeType> mimeTypeMap = new HashMap<String, IMimeType>();
+
+  private List<String> knownExtensions;
 
   public RepositoryFileImportFileHandler( List<IMimeType> mimeTypes ) {
     for ( IMimeType mimeType : mimeTypes ) {
@@ -373,17 +375,22 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   /**
-   * truncate the extension from the file name for the extension
+   * truncate the extension from the file name for the extension only if it is file with known extension
    * 
    * @param name
    * @return title
    */
   protected String getTitle( String name ) {
-    if ( name != null && name.length() > 0 ) {
-      return name.substring( 0, name.lastIndexOf( '.' ) );
-    } else {
-      return name;
+    if ( !StringUtils.isEmpty( name ) ) {
+      int dotIndex = name.lastIndexOf( '.' );
+      if ( dotIndex != -1 ) {
+        String extension = name.substring( dotIndex + 1 );
+        if ( knownExtensions != null && knownExtensions.contains( extension ) ) {
+          return name.substring( 0, dotIndex );
+        }
+      }
     }
+    return name;
   }
 
   /**
@@ -459,5 +466,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   public Map<String, IMimeType> getMimeTypeMap() {
     return mimeTypeMap;
+  }
+
+  public void setKnownExtensions( List<String> knownExtensions ) {
+    this.knownExtensions = knownExtensions;
+  }
+
+  public List<String> getKnownExtensions() {
+    return knownExtensions;
   }
 }
