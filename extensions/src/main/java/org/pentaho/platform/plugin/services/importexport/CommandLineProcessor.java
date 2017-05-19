@@ -200,14 +200,6 @@ public class CommandLineProcessor {
         Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_NAME" ), true, Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_DESCRIPTION" ) );
 
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_KEY" ),
-        Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_NAME" ), true, Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_DESCRIPTION" ) );
-
-    options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_KEY" ),
-        Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_NAME" ), true, Messages
-            .getInstance().getString( "CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_DESCRIPTION" ) );
-
     options.addOption( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_CATALOG_KEY" ),
         Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_CATALOG_NAME" ), true, Messages
             .getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_CATALOG_DESCRIPTION" ) );
@@ -263,7 +255,6 @@ public class CommandLineProcessor {
       }
     } catch ( ParseException parseException ) {
       exception = parseException;
-      System.err.println( parseException.getLocalizedMessage() );
       System.out.println( parseException.getLocalizedMessage() );
       printHelp();
       log.error( parseException.getMessage(), parseException );
@@ -521,7 +512,7 @@ public class CommandLineProcessor {
         getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_NAME" ),
           false, true );
     String xmlaEnabledFlag =
-      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_DATASOURCE_ANALYSIS_XMLA_ENABLED_NAME" ),
+      getOptionValue( Messages.getInstance().getString( "CommandLineProcessor.INFO_OPTION_ANALYSIS_XMLA_ENABLED_NAME" ),
         false, true );
 
     WebResource resource = client.resource( analysisImportURL );
