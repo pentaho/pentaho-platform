@@ -34,7 +34,6 @@
     <axiom.version>1.2.8</axiom.version>
     <infobright-core.version>3.4</infobright-core.version>
     <sassyreader.version>0.5</sassyreader.version>
-    <jaxb-impl.version>2.2.3-1</jaxb-impl.version>
     <activation.version>1.1</activation.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
     <commons-vfs2.version>2.1-20150824</commons-vfs2.version>
