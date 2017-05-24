@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 package org.pentaho.platform.repository2.unified.jcr;
 
@@ -37,6 +37,9 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 
@@ -46,6 +49,7 @@ import org.springframework.extensions.jcr.JcrTemplate;
 public class RepositoryFileProxy extends RepositoryFile {
 
   private static final long serialVersionUID = 5244310953843118329L;
+  private static Logger logger = LoggerFactory.getLogger( RepositoryFileAdapter.class );
 
   private Node node;
   private PentahoJcrConstants constants;
@@ -86,10 +90,14 @@ public class RepositoryFileProxy extends RepositoryFile {
     try {
       this.absPath = node.getPath();
     } catch ( RepositoryException e ) {
-      e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+      getLogger().error( "RepositoryException was found: ", e );
     }
     this.template = template;
     this.lockHelper = PentahoSystem.get( ILockHelper.class );
+  }
+
+  public static Logger getLogger() {
+    return logger;
   }
 
   private PentahoJcrConstants getPentahoJcrConstants() {
@@ -159,7 +167,6 @@ public class RepositoryFileProxy extends RepositoryFile {
       return false;
     }
     return true;
-//    return super.equals( obj ); // To change body of overridden methods use File | Settings | File Templates.
   }
 
   @Override
@@ -177,11 +184,11 @@ public class RepositoryFileProxy extends RepositoryFile {
               }
             }
           } catch ( PathNotFoundException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( null, e );
           } catch ( ValueFormatException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( null, e );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( null, e );
           }
         }
       } );
@@ -197,7 +204,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             metadata = JcrRepositoryFileUtils.getFileMetadata( session, getId() );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -215,7 +222,7 @@ public class RepositoryFileProxy extends RepositoryFile {
         }
       }
     } catch ( RepositoryException e ) {
-      e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+      getLogger().error( "RepositoryException was found: ", e );
     }
     return creatorId;
   }
@@ -266,7 +273,7 @@ public class RepositoryFileProxy extends RepositoryFile {
 
             }
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -297,7 +304,7 @@ public class RepositoryFileProxy extends RepositoryFile {
               fileSize = node.getProperty( getPentahoJcrConstants().getPHO_FILESIZE() ).getLong();
             }
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -315,7 +322,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             id = JcrRepositoryFileUtils.getNodeId( session, getPentahoJcrConstants(), node );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -340,7 +347,7 @@ public class RepositoryFileProxy extends RepositoryFile {
               }
             }
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -369,7 +376,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           } catch ( javax.jcr.PathNotFoundException e ) {
             // Do not throw a stack trace if the locale file is missing.
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -386,7 +393,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             lock = session.getWorkspace().getLockManager().getLock( node.getPath() );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -403,7 +410,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             lockDate = lockHelper.getLockDate( session, getPentahoJcrConstants(), getLock() );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -420,7 +427,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             lockMessage = lockHelper.getLockMessage( session, getPentahoJcrConstants(), getLock() );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -437,7 +444,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             lockOwner = lockHelper.getLockOwner( session, getPentahoJcrConstants(), getLock() );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -456,7 +463,7 @@ public class RepositoryFileProxy extends RepositoryFile {
                 RepositoryFile.SEPARATOR.equals( getPath() )
                     ? "" : JcrRepositoryFileUtils.getNodeName( session, getPentahoJcrConstants(), node ); //$NON-NLS-1$
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -481,7 +488,7 @@ public class RepositoryFileProxy extends RepositoryFile {
                 new DefaultPathConversionHelper().absToRel( ( JcrRepositoryFileUtils.getAbsolutePath( session,
                     getPentahoJcrConstants(), node ) ) );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -505,7 +512,7 @@ public class RepositoryFileProxy extends RepositoryFile {
             try {
               versionId = JcrRepositoryFileUtils.getVersionId( session, getPentahoJcrConstants(), node );
             } catch ( RepositoryException e ) {
-              e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+              getLogger().error( "RepositoryException was found: ", e );
             }
           }
         } );
@@ -534,7 +541,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             folder = JcrRepositoryFileUtils.isPentahoFolder( getPentahoJcrConstants(), node );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -554,7 +561,7 @@ public class RepositoryFileProxy extends RepositoryFile {
               hidden = node.getProperty( getPentahoJcrConstants().getPHO_HIDDEN() ).getBoolean();
             }
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -593,7 +600,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             locked = JcrRepositoryFileUtils.isLocked( getPentahoJcrConstants(), node );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -610,7 +617,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             versioned = JcrRepositoryFileUtils.isVersioned( session, getPentahoJcrConstants(), node );
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -629,7 +636,7 @@ public class RepositoryFileProxy extends RepositoryFile {
               aclNode = node.getProperty( getPentahoJcrConstants().getPHO_ACLNODE() ).getBoolean();
             }
           } catch ( RepositoryException e ) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            getLogger().error( "RepositoryException was found: ", e );
           }
         }
       } );
@@ -658,7 +665,7 @@ public class RepositoryFileProxy extends RepositoryFile {
         } );
       }
     } catch ( RepositoryException e ) {
-      e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+      getLogger().error( "RepositoryException was found: ", e );
     }
   }
 

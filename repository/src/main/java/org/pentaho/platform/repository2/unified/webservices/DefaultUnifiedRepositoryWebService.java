@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.webservices;
@@ -156,28 +156,12 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   public RepositoryFileTreeDto getTreeFromRequest( final RepositoryRequest repositoryRequest ) {
     // RepositoryFileTree tree = repo.getTree( path, depth, filter, showHidden );
-
-    RepositoryFileTree tree = repo.getTree( repositoryRequest );
-
-    // Filter system folders from non-admin users.
-    // PDI uses this web-service and system folders must be returned to admin repository database connections.
-    List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     boolean isAdmin = policy.isAllowed( AdministerSecurityAction.NAME );
-    for ( RepositoryFileTree file : tree.getChildren() ) {
-      Map<String, Serializable> fileMeta = repo.getFileMetadata( file.getFile().getId() );
-      boolean isSystemFolder =
-          fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER ) ? (Boolean) fileMeta
-              .get( IUnifiedRepository.SYSTEM_FOLDER ) : false;
-      if ( !isAdmin && isSystemFolder ) {
-        continue;
-      }
-      files.add( file );
+    if ( !isAdmin ) {
+      repositoryRequest.setIncludeSystemFolders( false ); //Non Admin users can never get system folders
     }
-    tree = new RepositoryFileTree( tree.getFile(), files );
-    if ( tree == null ) {
-      return null;
-    }
+    RepositoryFileTree tree = repo.getTree( repositoryRequest );
 
     return new RepositoryFileTreeAdapter( repositoryRequest ).marshal( tree );
   }
@@ -289,7 +273,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileAclDto getAcl( String fileId ) {
-    if( repo == null ){
+    if ( repo == null ) {
       // many tests do not have a repo setup.
       return null;
     }

@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified;
@@ -263,7 +263,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
       final Class<T> dataClass ) {
     return getDataForReadInBatch( files, dataClass );
   }
-  
+
   @Override
   public List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest ) {
     return repositoryFileDao.getChildren( repositoryRequest );
@@ -273,13 +273,13 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public List<RepositoryFile> getChildren( final Serializable folderId ) {
-    return getChildren( folderId, null, null);
+    return getChildren( folderId, null, null );
   }
 
   /**
    * {@inheritDoc}
    */
-  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter) {
+  public List<RepositoryFile> getChildren( final Serializable folderId, final String filter ) {
     return getChildren( folderId, filter, null );
   }
 
@@ -459,8 +459,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
-  public void
-  restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
+  public void restoreFileAtVersion( final Serializable fileId, final Serializable versionId, final String versionMessage ) {
     Assert.notNull( fileId );
     Assert.notNull( versionId );
     repositoryFileDao.restoreFileAtVersion( fileId, versionId, versionMessage );
@@ -473,12 +472,12 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.notNull( fileId );
     return repositoryFileDao.canUnlockFile( fileId );
   }
-  
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
+  public RepositoryFileTree  getTree( RepositoryRequest repositoryRequest ) {
     return repositoryFileDao.getTree( repositoryRequest );
   }
 
@@ -493,8 +492,8 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.hasText( path );
     return getTree( new RepositoryRequest( path, showHidden, depth, filter ) );
   }
-  
-    private RepositoryFile internalCreateFile( final Serializable parentFolderId, final RepositoryFile file,
+
+  private RepositoryFile internalCreateFile( final Serializable parentFolderId, final RepositoryFile file,
       final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage ) {
     Assert.notNull( file );
     Assert.notNull( data );
