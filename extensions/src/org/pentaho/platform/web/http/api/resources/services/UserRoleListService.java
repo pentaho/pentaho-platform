@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -45,7 +45,7 @@ public class UserRoleListService {
 
   private Comparator<String> userComparator;
 
-  public String doGetRolesForUser( String user ) throws Exception {
+  public List<String> doGetRolesForUser( String user ) throws UnauthorizedException {
     if ( canAdminister() ) {
       return getRolesForUser( user );
     } else {
@@ -53,7 +53,7 @@ public class UserRoleListService {
     }
   }
 
-  public String doGetUsersInRole( String role ) throws Exception {
+  public List<String> doGetUsersInRole( String role ) throws UnauthorizedException {
     if ( canAdminister() ) {
       return getUsersInRole( role );
     } else {
@@ -147,12 +147,12 @@ public class UserRoleListService {
     return userRoleListService;
   }
 
-  protected String getRolesForUser( String user ) throws Exception {
-    return SystemService.getSystemService().getRolesForUser( user ).asXML();
+  protected List<String> getRolesForUser( String user ) {
+    return SystemService.getSystemService().getRolesForUser( user );
   }
 
-  protected String getUsersInRole( String role ) throws Exception {
-    return SystemService.getSystemService().getUsersInRole( role ).asXML();
+  protected List<String> getUsersInRole( String role )  {
+    return SystemService.getSystemService().getUsersInRole( role );
   }
 
   public void setExtraRoles( ArrayList<String> extraRoles ) {
