@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -1932,6 +1932,7 @@ public class FileServiceTest {
     verify( fileService ).addAdminRole( fileAcl );
   }
 
+  @Test
   public void testDoGetTree() {
     String pathId = ":path:to:file:file1.ext";
     int depth = 1;
@@ -1976,7 +1977,7 @@ public class FileServiceTest {
     verify( mockRequest, times( 1 ) ).setIncludeAcls( anyBoolean() );
     verify( mockCollator, times( 1 ) ).setStrength( Collator.PRIMARY );
     verify( fileService, times( 1 ) ).sortByLocaleTitle( mockCollator, mockTreeDto );
-    verify( mockTreeDto ).setChildren( mockChildrenDto );
+    //verify( mockTreeDto ).setChildren( mockChildrenDto );
 
     // Test 2 - path id is null
     pathId = null;
@@ -1991,6 +1992,10 @@ public class FileServiceTest {
 
     verify( fileService, times( 2 ) )
       .getRepositoryRequest( eq( FileUtils.PATH_SEPARATOR ), anyBoolean(), anyInt(), anyString() );
+
+    // Test 3 - includeSystemFolders is false
+    mockRequest.setIncludeSystemFolders( false );
+    doReturn( mockTreeDto ).when( fileService.defaultUnifiedRepositoryWebService ).getTreeFromRequest( mockRequest );
   }
 
   @Test

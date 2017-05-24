@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository2.unified;
@@ -35,6 +35,7 @@ public class RepositoryRequest {
   private String path;
   private boolean showHidden = false;
   private boolean includeAcls = false;
+  private boolean includeSystemFolders = true; // default: PDI uses this web-service and system folders must be returned to admin repository database connections.
   private Integer depth = -1;
   private FILES_TYPE_FILTER types = FILES_TYPE_FILTER.FILES_FOLDERS;
   private Set<String> includeMemberSet = null;
@@ -178,6 +179,14 @@ public class RepositoryRequest {
 
   public boolean isShowHidden() {
     return showHidden;
+  }
+
+  public boolean isIncludeSystemFolders() {
+    return includeSystemFolders;
+  }
+
+  public void setIncludeSystemFolders( boolean includeSystemFolders ) {
+    this.includeSystemFolders = includeSystemFolders;
   }
 
   /**
