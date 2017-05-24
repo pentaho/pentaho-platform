@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.webservices;
@@ -56,19 +56,27 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
   @Override
   public RepositoryFileTreeDto marshal( final RepositoryFileTree v ) {
     RepositoryFileTreeDto treeDto = new RepositoryFileTreeDto();
-    treeDto.setFile( RepositoryFileAdapter.toFileDto( v, membersSet, exclude, includeAcls ) );
 
-    List<RepositoryFileTreeDto> children = null;
-    if ( v.getChildren() != null ) {
-      children = new ArrayList<RepositoryFileTreeDto>();
-      for ( RepositoryFileTree child : v.getChildren() ) {
-        children.add( marshal( child ) );
+    RepositoryFileDto file = RepositoryFileAdapter.toFileDto( v, membersSet, exclude, includeAcls );
+    if ( file != null ) {
+      treeDto.setFile( RepositoryFileAdapter.toFileDto( v, membersSet, exclude, includeAcls ) );
+      List<RepositoryFileTreeDto> children = null;
+      if ( v.getChildren() != null ) {
+        children = new ArrayList<RepositoryFileTreeDto>();
+        for ( RepositoryFileTree child : v.getChildren() ) {
+          RepositoryFileTreeDto childTreeDto = marshal( child );
+          if ( childTreeDto != null ) {
+            children.add( childTreeDto );
+          }
+        }
       }
+
+      treeDto.setChildren( children );
+
+      return treeDto;
+    } else {
+      return null;
     }
-
-    treeDto.setChildren( children );
-
-    return treeDto;
   }
 
   @Override
@@ -82,10 +90,10 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
     }
 
     RepositoryFileTree repositoryFileTree = new RepositoryFileTree( RepositoryFileAdapter.toFile( v.file ), children );
-    if (v.file.getVersioningEnabled() != null) {
+    if ( v.file.getVersioningEnabled() != null ) {
       repositoryFileTree.setVersioningEnabled( v.file.getVersioningEnabled() );
     }
-    if (v.file.getVersionCommentEnabled() != null) {
+    if ( v.file.getVersionCommentEnabled() != null ) {
       repositoryFileTree.setVersionCommentEnabled( v.file.getVersionCommentEnabled() );
     }
     return repositoryFileTree;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2002 - 2017 Pentaho Corporation.  All rights reserved.
  *
  * This software was developed by Pentaho Corporation and is provided under the terms
  * of the Mozilla Public License, Version 1.1, or any later version. You may not use
@@ -1288,16 +1288,17 @@ public class FileResourceTest {
     String filter = "filter";
     Boolean showHidden = Boolean.TRUE;
     Boolean includeAcls = Boolean.TRUE;
+    Boolean includeSysDirs = Boolean.FALSE;
 
     RepositoryFileTreeDto mockRepositoryFileTreeDto = mock( RepositoryFileTreeDto.class );
     doReturn( mockRepositoryFileTreeDto ).when( fileResource.fileService )
       .doGetTree( PATH_ID, depth, filter, showHidden,
-        includeAcls );
+        includeAcls, includeSysDirs );
 
-    RepositoryFileTreeDto testDto = fileResource.doGetTree( PATH_ID, depth, filter, showHidden, includeAcls );
+    RepositoryFileTreeDto testDto = fileResource.doGetTree( PATH_ID, depth, filter, showHidden, includeAcls, includeSysDirs );
     assertEquals( mockRepositoryFileTreeDto, testDto );
 
-    verify( fileResource.fileService ).doGetTree( PATH_ID, depth, filter, showHidden, includeAcls );
+    verify( fileResource.fileService ).doGetTree( PATH_ID, depth, filter, showHidden, includeAcls, includeSysDirs );
   }
 
   @Test
