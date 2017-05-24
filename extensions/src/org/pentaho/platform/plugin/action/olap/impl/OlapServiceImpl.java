@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation.  All rights reserved.
  *
 */
 package org.pentaho.platform.plugin.action.olap.impl;
@@ -504,6 +504,14 @@ public class OlapServiceImpl implements IOlapService {
       resetCache( session );
 
       flushHostedAndRemote( session );
+
+      if ( server != null ) {
+        // clean cache for all mondrian schemas used by current mondrian server
+        server.getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
+      }
+
+      // clean cache for all mondrian schemas used by mondrian default "static" server
+      MondrianServer.forId( null ).getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
     } finally {
@@ -535,7 +543,7 @@ public class OlapServiceImpl implements IOlapService {
         }
       } catch ( Exception e ) {
         LOG.warn(
-            Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
+            Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
       } finally {
         if ( connection != null ) {
           connection.close();
