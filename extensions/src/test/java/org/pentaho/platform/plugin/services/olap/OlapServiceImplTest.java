@@ -1,5 +1,5 @@
 /*
- * Copyright 2002 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2002 - 2017 Pentaho Corporation.  All rights reserved.
  *
  * This software was developed by Pentaho Corporation and is provided under the terms
  * of the Mozilla Public License, Version 1.1, or any later version. You may not use
@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import mondrian.olap.CacheControl;
+import mondrian.olap.Connection;
 import mondrian.olap.MondrianServer;
 import mondrian.rolap.RolapConnection;
 import mondrian.rolap.RolapConnectionProperties;
+import mondrian.rolap.agg.AggregationManager;
 import mondrian.xmla.XmlaHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -78,7 +81,8 @@ public class OlapServiceImplTest {
    */
   DefaultAccessImpl accessMock = new DefaultAccessImpl();
 
-  @Before public void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
 
     repository = mock( IUnifiedRepository.class );
 
@@ -100,6 +104,12 @@ public class OlapServiceImplTest {
     session = new StandaloneSession( "admin" );
 
     server = mock( MondrianServer.class );
+
+    AggregationManager aggManagerMock = mock( AggregationManager.class );
+    CacheControl cacheControlMock = mock( CacheControl.class );
+    doReturn( aggManagerMock ).when( server ).getAggregationManager();
+    doReturn( cacheControlMock ).when( aggManagerMock ).getCacheControl(
+      any( RolapConnection .class ), any( PrintWriter.class ) );
 
     mockXmlaExtra = mock( XmlaHandler.XmlaExtra.class );
 
