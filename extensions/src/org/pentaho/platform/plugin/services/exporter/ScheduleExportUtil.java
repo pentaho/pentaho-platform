@@ -12,12 +12,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 package org.pentaho.platform.plugin.services.exporter;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -98,6 +99,9 @@ public class ScheduleExportUtil {
     for ( String key : jobParams.keySet() ) {
       Serializable serializable = jobParams.get( key );
       if ( RUN_PARAMETERS_KEY.equals( key ) ) {
+        if ( schedule.getPdiParameters() == null ) {
+          schedule.setPdiParameters( new HashMap<String, String>() );
+        }
         schedule.getPdiParameters().putAll( (Map<String, String>) serializable );
       } else {
         JobScheduleParam param = null;
