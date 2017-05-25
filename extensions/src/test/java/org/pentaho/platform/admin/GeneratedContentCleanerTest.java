@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.admin;
@@ -66,7 +66,7 @@ public class GeneratedContentCleanerTest {
     RepositoryFile file =
       new RepositoryFile.Builder( DEFAULT_STRING, FILE_ID ).folder( false ).createdDate( fixedDate ).build();
     RepositoryFileTree tree = new RepositoryFileTree( file, null );
-    when( repo.getTree( anyString(), eq( -1 ), anyString(), eq( false ) ) ).thenReturn( tree );
+    when( repo.getTree( anyString(), eq( -1 ), anyString(), eq( true ) ) ).thenReturn( tree );
 
     generatedContentCleaner.execute();
     verify( repo, never() ).deleteFile( any( Serializable.class ), eq( true ), anyString() );
@@ -83,7 +83,7 @@ public class GeneratedContentCleanerTest {
     RepositoryFileTree childRepoFileTree = new RepositoryFileTree( file, null );
     RepositoryFileTree rootRepoFileTree =
       new RepositoryFileTree( folder, Collections.singletonList( childRepoFileTree ) );
-    when( repo.getTree( anyString(), eq( -1 ), anyString(), eq( false ) ) ).thenReturn( rootRepoFileTree );
+    when( repo.getTree( anyString(), eq( -1 ), anyString(), eq( true ) ) ).thenReturn( rootRepoFileTree );
 
     Map<String, Serializable> values = new HashMap<String, Serializable>();
     values.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, "lineageIdGoesHere" );
