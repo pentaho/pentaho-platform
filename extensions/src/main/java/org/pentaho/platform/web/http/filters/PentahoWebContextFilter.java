@@ -197,15 +197,16 @@ public class PentahoWebContextFilter implements Filter {
     }
   }
 
+
   private boolean shouldUseFullyQualifiedUrl( HttpServletRequest httpRequest ) {
     final String useFullyQualifiedUrlParameter = httpRequest.getParameter( "fullyQualifiedUrl" );
     if ( useFullyQualifiedUrlParameter != null ) {
       return "true".equals( useFullyQualifiedUrlParameter );
     } else {
-      final String referer = httpRequest.getHeader( "referer" );
-      final String serverAddress = httpRequest.getScheme() + "://" + httpRequest.getServerName() + ":" + httpRequest.getServerPort();
-
-      return referer != null && !referer.startsWith( serverAddress );
+      // Returning false for now. The smart way of determining whether we should use the fully
+      // qualified url did not work behind the proxy server and this case
+      // http://jira.pentaho.com/browse/BACKLOG-16728 was created.
+      return false;
     }
   }
 
