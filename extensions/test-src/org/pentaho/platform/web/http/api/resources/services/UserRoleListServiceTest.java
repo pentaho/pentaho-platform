@@ -12,20 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.mockito.Mockito;
+import org.junit.Assert;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +35,7 @@ public class UserRoleListServiceTest {
 
   @Before
   public void setUp() {
-    userRoleListService = spy( new UserRoleListService() );
+    userRoleListService = Mockito.spy( new UserRoleListService() );
   }
 
   @After
@@ -50,47 +45,59 @@ public class UserRoleListServiceTest {
 
   @Test
   public void testDoGetRolesForUser() throws Exception {
-    doReturn( true ).when( userRoleListService ).canAdminister();
-    doReturn( "admin, guest" ).when( userRoleListService ).getRolesForUser( "Administrator" );
-    String roles = userRoleListService.doGetRolesForUser( "Administrator" );
-    assertTrue( roles.length() > 0 );
+    String user = "TestUser";
+    Mockito.doReturn( true ).when( userRoleListService ).canAdminister();
+    List<String> testRoles = new ArrayList<>();
+    testRoles.add( "Role_1" );
+    testRoles.add( "Role_2" );
+    Mockito.doReturn( testRoles ).when( userRoleListService ).getRolesForUser( user );
+    List<String> receivedRoles = userRoleListService.doGetRolesForUser( user );
+    Assert.assertTrue( receivedRoles.size() == 2 );
+    Assert.assertEquals( testRoles.get( 0 ), receivedRoles.get( 0 ) );
+    Assert.assertEquals( testRoles.get( 1 ), receivedRoles.get( 1 ) );
 
     try {
-      doReturn( false ).when( userRoleListService ).canAdminister();
-      userRoleListService.doGetRolesForUser( "unauthorized" );
+      Mockito.doReturn( false ).when( userRoleListService ).canAdminister();
+      userRoleListService.doGetRolesForUser( user );
     } catch ( Exception e ) {
-      assertTrue( e instanceof UserRoleListService.UnauthorizedException );
+      Assert.assertTrue( e instanceof UserRoleListService.UnauthorizedException );
     }
   }
 
   @Test
   public void testDoGetUsersInRole() throws Exception {
-    doReturn( true ).when( userRoleListService ).canAdminister();
-    doReturn( "Administrator, Guest" ).when( userRoleListService ).getUsersInRole( "admin" );
-    String users = userRoleListService.doGetUsersInRole( "admin" );
-    assertTrue( users.length() > 0 );
+    String role = "TestRole";
+    Mockito.doReturn( true ).when( userRoleListService ).canAdminister();
+    List<String> testUsers = new ArrayList<>();
+    testUsers.add( "User_1" );
+    testUsers.add( "User_2" );
+    Mockito.doReturn( testUsers ).when( userRoleListService ).getUsersInRole( role );
+    List<String> receivedUsers = userRoleListService.getUsersInRole( role );
+    Assert.assertTrue( receivedUsers.size() == 2 );
+    Assert.assertEquals( testUsers.get( 0 ), receivedUsers.get( 0 ) );
+    Assert.assertEquals( testUsers.get( 1 ), receivedUsers.get( 1 ) );
 
     try {
-      doReturn( false ).when( userRoleListService ).canAdminister();
-      userRoleListService.doGetUsersInRole( "unauthorized" );
+      Mockito.doReturn( false ).when( userRoleListService ).canAdminister();
+      userRoleListService.doGetUsersInRole( role );
     } catch ( Exception e ) {
-      assertTrue( e instanceof UserRoleListService.UnauthorizedException );
+      Assert.assertTrue( e instanceof UserRoleListService.UnauthorizedException );
     }
   }
 
   @Test
   public void testGetUsers() {
-    IUserRoleListService service = mock( IUserRoleListService.class );
-    doReturn( service ).when( userRoleListService ).getUserRoleListService();
+    IUserRoleListService service = Mockito.mock( IUserRoleListService.class );
+    Mockito.doReturn( service ).when( userRoleListService ).getUserRoleListService();
 
     List<String> users = new ArrayList<String>();
     users.add( "admin" );
     users.add( "joe" );
     users.add( "suzy" );
-    doReturn( users ).when( service ).getAllUsers();
+    Mockito.doReturn( users ).when( service ).getAllUsers();
 
     UserListWrapper usersWrapper = userRoleListService.getUsers();
-    assertTrue( usersWrapper.getUsers().size() == 3 );
+    Assert.assertTrue( usersWrapper.getUsers().size() == 3 );
   }
 
   @Test
@@ -99,17 +106,17 @@ public class UserRoleListServiceTest {
     roles.add( "ROLE1" );
     roles.add( "ROLE2" );
 
-    IUserRoleListService userRoleListService1 = mock( IUserRoleListService.class );
+    IUserRoleListService userRoleListService1 = Mockito.mock( IUserRoleListService.class );
 
-    doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
-    doReturn( roles ).when( userRoleListService1 ).getAllRoles();
+    Mockito.doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
+    Mockito.doReturn( roles ).when( userRoleListService1 ).getAllRoles();
 
     RoleListWrapper roleListWrapper = userRoleListService.getRoles();
 
-    verify( userRoleListService ).getUserRoleListService();
-    verify( userRoleListService1 ).getAllRoles();
+    Mockito.verify( userRoleListService ).getUserRoleListService();
+    Mockito.verify( userRoleListService1 ).getAllRoles();
 
-    assertEquals( roles, roleListWrapper.getRoles() );
+    Assert.assertEquals( roles, roleListWrapper.getRoles() );
   }
 
   @Test
@@ -120,9 +127,9 @@ public class UserRoleListServiceTest {
     roles.add( "ROLE2" );
     roles.add( "ADMIN_ROLE" );
 
-    IUserRoleListService userRoleListService1 = mock( IUserRoleListService.class );
-    doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
-    doReturn( roles ).when( userRoleListService1 ).getAllRoles();
+    IUserRoleListService userRoleListService1 = Mockito.mock( IUserRoleListService.class );
+    Mockito.doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
+    Mockito.doReturn( roles ).when( userRoleListService1 ).getAllRoles();
 
     ArrayList<String> extraRoles = new ArrayList<String>();
     extraRoles.add( "EXTRA_ROLE1" );
@@ -130,8 +137,8 @@ public class UserRoleListServiceTest {
     userRoleListService.setExtraRoles( extraRoles );
 
     RoleListWrapper roleWrapper = userRoleListService.getPermissionRoles( "ADMIN_ROLE" );
-    assertTrue( !roleWrapper.getRoles().contains( "ADMIN_ROLE" ) );
-    assertTrue( roleWrapper.getRoles().size() == 4 );
+    Assert.assertTrue( !roleWrapper.getRoles().contains( "ADMIN_ROLE" ) );
+    Assert.assertTrue( roleWrapper.getRoles().size() == 4 );
   }
 
   @Test
@@ -144,19 +151,19 @@ public class UserRoleListServiceTest {
     extraRoles.add( "ROLE3" );
     extraRoles.add( "ROLE4" );
 
-    IUserRoleListService userRoleListService1 = mock( IUserRoleListService.class );
+    IUserRoleListService userRoleListService1 = Mockito.mock( IUserRoleListService.class );
 
-    doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
-    doReturn( roles ).when( userRoleListService1 ).getAllRoles();
-    doReturn( extraRoles ).when( userRoleListService ).getExtraRoles();
+    Mockito.doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
+    Mockito.doReturn( roles ).when( userRoleListService1 ).getAllRoles();
+    Mockito.doReturn( extraRoles ).when( userRoleListService ).getExtraRoles();
 
     RoleListWrapper roleListWrapper = userRoleListService.getAllRoles();
 
-    verify( userRoleListService ).getUserRoleListService();
-    verify( userRoleListService1 ).getAllRoles();
-    verify( userRoleListService ).getExtraRoles();
+    Mockito.verify( userRoleListService ).getUserRoleListService();
+    Mockito.verify( userRoleListService1 ).getAllRoles();
+    Mockito.verify( userRoleListService ).getExtraRoles();
 
-    assertEquals( 4, roleListWrapper.getRoles().size() );
+    Assert.assertEquals( 4, roleListWrapper.getRoles().size() );
   }
 
   @Test
@@ -167,13 +174,13 @@ public class UserRoleListServiceTest {
     extraRoles.add( "ROLE3" );
     extraRoles.add( "ROLE4" );
 
-    doReturn( extraRoles ).when( userRoleListService ).getExtraRoles();
+    Mockito.doReturn( extraRoles ).when( userRoleListService ).getExtraRoles();
 
     RoleListWrapper roleListWrapper = userRoleListService.getExtraRolesList();
 
-    verify( userRoleListService ).getExtraRoles();
+    Mockito.verify( userRoleListService ).getExtraRoles();
 
-    assertEquals( 4, roleListWrapper.getRoles().size() );
-    assertEquals( extraRoles, roleListWrapper.getRoles() );
+    Assert.assertEquals( 4, roleListWrapper.getRoles().size() );
+    Assert.assertEquals( extraRoles, roleListWrapper.getRoles() );
   }
 }

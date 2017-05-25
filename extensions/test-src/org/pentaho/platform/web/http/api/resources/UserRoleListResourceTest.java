@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -20,15 +20,13 @@ package org.pentaho.platform.web.http.api.resources;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.junit.Assert;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 public class UserRoleListResourceTest {
 
@@ -36,8 +34,8 @@ public class UserRoleListResourceTest {
 
   @Before
   public void setup() {
-    userRoleListResource = spy( new UserRoleListResource() );
-    userRoleListResource.userRoleListService = mock( UserRoleListService.class );
+    userRoleListResource = Mockito.spy( new UserRoleListResource() );
+    userRoleListResource.userRoleListService = Mockito.mock( UserRoleListService.class );
   }
 
   @After
@@ -48,160 +46,108 @@ public class UserRoleListResourceTest {
   @Test
   public void testGetRolesForUser() throws Exception {
     String user = "user";
+    String role1 = "role_1";
+    String role2 = "role_2";
 
-    String roles = "roles";
-    doReturn( roles ).when( userRoleListResource.userRoleListService ).doGetRolesForUser( user );
+    List<String> listRoles = new ArrayList<>();
+    listRoles.add( role1 );
+    listRoles.add( role2 );
+    Mockito.doReturn( listRoles ).when( userRoleListResource.userRoleListService ).doGetRolesForUser( user );
 
-    Response mockResponse = mock( Response.class );
-    doReturn( mockResponse ).when( userRoleListResource ).buildOkResponse( roles, MediaType.APPLICATION_XML );
+    RolesWrapper rolesWrapper = userRoleListResource.getRolesForUser( user );
 
-    Response testResponse = userRoleListResource.getRolesForUser( user );
-    assertEquals( mockResponse, testResponse );
+    Assert.assertEquals( listRoles.size(), rolesWrapper.getRoles().size() );
+    Assert.assertEquals( listRoles.get( 0 ), rolesWrapper.getRoles().get( 0 ) );
+    Assert.assertEquals( listRoles.get( 1 ), rolesWrapper.getRoles().get( 1 ) );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).doGetRolesForUser( user );
-    verify( userRoleListResource, times( 1 ) ).buildOkResponse( roles, MediaType.APPLICATION_XML );
-  }
-
-  @Test
-  public void testGetRolesForUserError() throws Exception {
-    String user = "user";
-
-    Response mockResponse = mock( Response.class );
-    doReturn( mockResponse ).when( userRoleListResource ).buildStatusResponse( Response.Status.UNAUTHORIZED );
-
-
-    // Test 1
-    UserRoleListService.UnauthorizedException mockUnauthorizedException =
-        mock( UserRoleListService.UnauthorizedException.class );
-    doThrow( mockUnauthorizedException ).when( userRoleListResource.userRoleListService ).doGetRolesForUser( user );
-
-    Response testResponse = userRoleListResource.getRolesForUser( user );
-    assertEquals( mockResponse, testResponse );
-
-    // Test 2
-    Throwable mockThrowable = mock( RuntimeException.class );
-    doThrow( mockThrowable ).when( userRoleListResource.userRoleListService ).doGetRolesForUser( user );
-
-    try {
-      userRoleListResource.getRolesForUser( user );
-      fail();
-    } catch ( WebApplicationException e ) {
-      // expected
-    }
-
-    verify( userRoleListResource, times( 1 ) ).buildStatusResponse( Response.Status.UNAUTHORIZED );
-    verify( userRoleListResource.userRoleListService, times( 2 ) ).doGetRolesForUser( user );
+    Mockito.verify( userRoleListResource.userRoleListService, Mockito.times( 1 ) ).doGetRolesForUser( user );
   }
 
   @Test
   public void testGetUsers() throws Exception {
-    UserListWrapper mockWrapper = mock( UserListWrapper.class );
-    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getUsers();
+    UserListWrapper mockWrapper = Mockito.mock( UserListWrapper.class );
+    Mockito.doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getUsers();
 
     UserListWrapper testWrapper = userRoleListResource.getUsers();
-    assertEquals( mockWrapper, testWrapper );
+    Assert.assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).getUsers();
+    Mockito.verify( userRoleListResource.userRoleListService, Mockito.times( 1 ) ).getUsers();
   }
 
   @Test
   public void testGetPermissionUsers() throws Exception {
-    UserListWrapper mockWrapper = mock( UserListWrapper.class );
-    doReturn( mockWrapper ).when( userRoleListResource ).getUsers();
+    UserListWrapper mockWrapper = Mockito.mock( UserListWrapper.class );
+    Mockito.doReturn( mockWrapper ).when( userRoleListResource ).getUsers();
 
     UserListWrapper testWrapper = userRoleListResource.getPermissionUsers();
-    assertEquals( mockWrapper, testWrapper );
+    Assert.assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListResource, times( 1 ) ).getUsers();
+    Mockito.verify( userRoleListResource, Mockito.times( 1 ) ).getUsers();
   }
 
   @Test
   public void testGetUsersInRole() throws Exception {
     String role = "role";
+    String user1 = "user_1";
+    String user2 = "user_2";
 
-    String roles = "roles";
-    doReturn( roles ).when( userRoleListResource.userRoleListService ).doGetUsersInRole( role );
+    List<String> listUsers = new ArrayList<>();
+    listUsers.add( user1 );
+    listUsers.add( user2 );
+    Mockito.doReturn( listUsers ).when( userRoleListResource.userRoleListService ).doGetUsersInRole( role );
 
-    Response mockResponse = mock( Response.class );
-    doReturn( mockResponse ).when( userRoleListResource ).buildOkResponse( roles, MediaType.APPLICATION_XML );
+    UsersWrapper usersWrapper = userRoleListResource.getUsersInRole( role );
 
-    Response testResponse = userRoleListResource.getUsersInRole( role );
-    assertEquals( mockResponse, testResponse );
+    Assert.assertEquals( listUsers.size(), usersWrapper.getUsers().size() );
+    Assert.assertEquals( listUsers.get( 0 ), usersWrapper.getUsers().get( 0 ) );
+    Assert.assertEquals( listUsers.get( 1 ), usersWrapper.getUsers().get( 1 ) );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).doGetUsersInRole( role );
-    verify( userRoleListResource, times( 1 ) ).buildOkResponse( roles, MediaType.APPLICATION_XML );
-  }
-
-  @Test
-  public void testGetUsersInRoleError() throws Exception {
-    String role = "role";
-
-    Response mockResponse = mock( Response.class );
-    doReturn( mockResponse ).when( userRoleListResource ).buildStatusResponse( UNAUTHORIZED );
-
-    // Test 1
-    UserRoleListService.UnauthorizedException mockUnauthorizedException =
-        mock( UserRoleListService.UnauthorizedException.class );
-    doThrow( mockUnauthorizedException ).when( userRoleListResource.userRoleListService ).doGetUsersInRole( role );
-
-    Response testResponse = userRoleListResource.getUsersInRole( role );
-    assertEquals( mockResponse, testResponse );
-
-    // Test 2
-    Throwable mockThrowabe = mock( RuntimeException.class );
-    doThrow( mockThrowabe ).when( userRoleListResource.userRoleListService ).doGetUsersInRole( role );
-
-    try {
-      userRoleListResource.getUsersInRole( role );
-      fail();
-    } catch ( WebApplicationException e ) {
-      // expected
-    }
+    Mockito.verify( userRoleListResource.userRoleListService, Mockito.times( 1 ) ).doGetUsersInRole( role );
   }
 
   @Test
   public void testGetRoles() throws Exception {
-    RoleListWrapper mockWrapper = mock( RoleListWrapper.class );
+    RoleListWrapper mockWrapper = Mockito.mock( RoleListWrapper.class );
     boolean includeExtraRoles = true;
-    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getRoles( includeExtraRoles );
+    Mockito.doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getRoles( includeExtraRoles );
 
     RoleListWrapper testWrapper = userRoleListResource.getRoles( "true" );
-    assertEquals( mockWrapper, testWrapper );
+    Assert.assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).getRoles( includeExtraRoles );
+    Mockito.verify( userRoleListResource.userRoleListService, Mockito.times( 1 ) ).getRoles( includeExtraRoles );
   }
 
   @Test
   public void testGetAllRoles() throws Exception {
-    RoleListWrapper mockWrapper = mock( RoleListWrapper.class );
-    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getAllRoles();
+    RoleListWrapper mockWrapper = Mockito.mock( RoleListWrapper.class );
+    Mockito.doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getAllRoles();
 
     RoleListWrapper testWrapper = userRoleListResource.getAllRoles();
-    assertEquals( mockWrapper, testWrapper );
+    Assert.assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).getAllRoles();
+    Mockito.verify( userRoleListResource.userRoleListService, Mockito.times( 1 ) ).getAllRoles();
   }
 
   @Test
   public void testGetSystemRoles() throws Exception {
-    RoleListWrapper mockWrapper = mock( RoleListWrapper.class );
-    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getSystemRoles();
+    RoleListWrapper mockWrapper = Mockito.mock( RoleListWrapper.class );
+    Mockito.doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getSystemRoles();
 
     RoleListWrapper testWrapper = userRoleListResource.getSystemRoles();
-    assertEquals( mockWrapper, testWrapper );
+    Assert.assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).getSystemRoles();
+    Mockito.verify( userRoleListResource.userRoleListService, Mockito.times( 1 ) ).getSystemRoles();
   }
 
   @Test
   public void testGetExtraRoles() throws Exception {
-    RoleListWrapper mockWrapper = mock( RoleListWrapper.class );
-    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getExtraRolesList();
+    RoleListWrapper mockWrapper = Mockito.mock( RoleListWrapper.class );
+    Mockito.doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getExtraRolesList();
 
     RoleListWrapper testWrapper = userRoleListResource.getExtraRoles();
-    assertEquals( mockWrapper, testWrapper );
+    Assert.assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).getExtraRolesList();
+    Mockito.verify( userRoleListResource.userRoleListService, Mockito.times( 1 ) ).getExtraRolesList();
   }
 
   @Test
@@ -209,12 +155,12 @@ public class UserRoleListResourceTest {
     String adminRole = "adminRole";
     userRoleListResource.adminRole = adminRole;
 
-    RoleListWrapper mockWrapper = mock( RoleListWrapper.class );
-    doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getPermissionRoles( adminRole );
+    RoleListWrapper mockWrapper = Mockito.mock( RoleListWrapper.class );
+    Mockito.doReturn( mockWrapper ).when( userRoleListResource.userRoleListService ).getPermissionRoles( adminRole );
 
     RoleListWrapper testWrapper = userRoleListResource.getPermissionRoles();
-    assertEquals( mockWrapper, testWrapper );
+    Assert.assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListResource.userRoleListService, times( 1 ) ).getPermissionRoles( adminRole );
+    Mockito.verify( userRoleListResource.userRoleListService, Mockito.times( 1 ) ).getPermissionRoles( adminRole );
   }
 }
