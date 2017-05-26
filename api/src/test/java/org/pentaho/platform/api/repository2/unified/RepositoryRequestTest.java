@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.api.repository2.unified;
@@ -24,10 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Created by bgroves on 10/28/15.
@@ -36,6 +33,7 @@ public class RepositoryRequestTest {
 
   private static final String PATH = "path";
   private static final boolean SHOW_HIDE = true;
+  private static final boolean INCLUDE_SYSTEM_FOLDERS = false;
   private static final Integer DEPTH = 2;
   private static final String LEGACY_FILTER = "FILES||ODD_FILTER";
   private static final String INLCUDE_ONE = "includeOne";
@@ -57,6 +55,7 @@ public class RepositoryRequestTest {
     request.setExcludeMemberSet( EXCLUDE_SET );
     request.setIncludeAcls( INCLUDE_ACLS );
     request.setChildNodeFilter( CHILD_FILTER );
+    request.setIncludeSystemFolders( INCLUDE_SYSTEM_FOLDERS );
   }
 
   @Test
@@ -71,11 +70,13 @@ public class RepositoryRequestTest {
     assertNull( defaultRequest.getPath() );
     assertFalse( defaultRequest.isIncludeAcls() );
     assertNull( defaultRequest.getChildNodeFilter() );
+    assertTrue( defaultRequest.isIncludeSystemFolders() );
 
     // Test constructor with nulls
     RepositoryRequest nullRequest = new RepositoryRequest( null, null, null, null );
     assertFalse( nullRequest.isShowHidden() );
     assertEquals( new Integer( -1 ), nullRequest.getDepth() );
+    assertTrue( nullRequest.isIncludeSystemFolders() );
 
     // Test constructor with values
     assertEquals( SHOW_HIDE, request.isShowHidden() );
@@ -86,10 +87,15 @@ public class RepositoryRequestTest {
     assertEquals( PATH, request.getPath() );
     assertEquals( INCLUDE_ACLS, request.isIncludeAcls() );
     assertEquals( CHILD_FILTER, request.getChildNodeFilter() );
+    assertEquals( INCLUDE_SYSTEM_FOLDERS, request.isIncludeSystemFolders() );
 
     boolean newShowHide = !SHOW_HIDE;
     request.setShowHidden( newShowHide );
     assertEquals( newShowHide, request.isShowHidden() );
+
+    boolean newIncludeSystemFolders = !INCLUDE_SYSTEM_FOLDERS;
+    request.setShowHidden( newIncludeSystemFolders );
+    assertEquals( newIncludeSystemFolders, request.isIncludeSystemFolders() );
 
     String newPath = "newPath";
     request.setPath( newPath );
