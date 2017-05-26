@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPaneNativeListener;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -110,6 +111,11 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       $wnd.mantle_showMessage = function (title, message) {
           //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
           mantle.@org.pentaho.mantle.client.MantleApplication::showMessage(Ljava/lang/String;Ljava/lang/String;)(title, message);
+      }
+
+      $wnd.mantle_showConfirmDlg = function (title, message, okTxt, cancelTxt, callback) {
+          //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+          mantle.@org.pentaho.mantle.client.MantleApplication::showConfirmationDialog(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(title, message, okTxt, cancelTxt, callback);
       }
 
       $wnd.addGlassPaneListener = function (callback) {
@@ -230,6 +236,16 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
         }
     }-*/;
 
+  private native void notifyDialogCallbackOk( JavaScriptObject callback )
+    /*-{
+      callback.onOk();
+    }-*/;
+
+  private native void notifyDialogCallbackCancel( JavaScriptObject callback )
+    /*-{
+      callback.onCancel();
+    }-*/;
+
   public void notifyGlasspaneListeners( boolean isShown ) {
     if ( isShown ) {
       GlassPane.getInstance().show();
@@ -258,6 +274,29 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
    */
   private void showMessage( String title, String message ) {
     MessageDialogBox dialog = new MessageDialogBox( title, message, true, false, true );
+    dialog.center();
+  }
+
+  /**
+   * This method is used by things to show a 'mantle' looking confirmation dialog instead of a standard alert.
+   *
+   * @param title
+   * @param message
+   */
+  private void showConfirmationDialog( String title, String message,
+                                       String okText, String cancelText, final JavaScriptObject callback ) {
+    MessageDialogBox dialog = new MessageDialogBox( title, message, true, false, true, okText, null, cancelText );
+    dialog.setCallback( new IDialogCallback() {
+      @Override
+      public void okPressed() {
+        notifyDialogCallbackOk( callback );
+      }
+
+      @Override
+      public void cancelPressed() {
+        notifyDialogCallbackCancel( callback );
+      }
+    } );
     dialog.center();
   }
 
