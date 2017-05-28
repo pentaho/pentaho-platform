@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.admin;
@@ -35,9 +35,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import org.junit.Assert;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 /**
  * Created by rfellows on 10/19/15.
@@ -66,10 +66,12 @@ public class GeneratedContentCleanerTest {
     RepositoryFile file =
       new RepositoryFile.Builder( DEFAULT_STRING, FILE_ID ).folder( false ).createdDate( fixedDate ).build();
     RepositoryFileTree tree = new RepositoryFileTree( file, null );
-    when( repo.getTree( anyString(), eq( -1 ), anyString(), eq( false ) ) ).thenReturn( tree );
+    Mockito.when( repo.getTree( Matchers.anyString(), Matchers.eq( -1 ),
+            Matchers.anyString(), Matchers.eq( true ) ) ).thenReturn( tree );
 
     generatedContentCleaner.execute();
-    verify( repo, never() ).deleteFile( any( Serializable.class ), eq( true ), anyString() );
+    Mockito.verify( repo, Mockito.never() ).deleteFile( Matchers.any( Serializable.class ),
+            Matchers.eq( true ), Matchers.anyString() );
   }
 
   @Test
@@ -83,14 +85,15 @@ public class GeneratedContentCleanerTest {
     RepositoryFileTree childRepoFileTree = new RepositoryFileTree( file, null );
     RepositoryFileTree rootRepoFileTree =
       new RepositoryFileTree( folder, Collections.singletonList( childRepoFileTree ) );
-    when( repo.getTree( anyString(), eq( -1 ), anyString(), eq( false ) ) ).thenReturn( rootRepoFileTree );
+    Mockito.when( repo.getTree( Matchers.anyString(), Matchers.eq( -1 ), Matchers.anyString(),
+            Matchers.eq( true ) ) ).thenReturn( rootRepoFileTree );
 
     Map<String, Serializable> values = new HashMap<String, Serializable>();
     values.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, "lineageIdGoesHere" );
-    when( repo.getFileMetadata( FILE_ID ) ).thenReturn( values );
+    Mockito.when( repo.getFileMetadata( FILE_ID ) ).thenReturn( values );
 
     generatedContentCleaner.execute();
-    verify( repo ).deleteFile( eq( FILE_ID ), eq( true ), anyString() );
-    assertEquals( 0, generatedContentCleaner.getAge() );
+    Mockito.verify( repo ).deleteFile( Matchers.eq( FILE_ID ), Matchers.eq( true ), Matchers.anyString() );
+    Assert.assertEquals( 0, generatedContentCleaner.getAge() );
   }
 }
