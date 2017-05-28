@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.webservices;
@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -34,6 +35,8 @@ import javax.xml.bind.Unmarshaller;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.pentaho.di.core.logging.LogChannel;
+import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -41,6 +44,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
+import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxy;
 
 public class RepositoryFileTreeAdapterTest extends TestCase {
 
@@ -85,6 +89,27 @@ public class RepositoryFileTreeAdapterTest extends TestCase {
     RepositoryFileTree rootDir2 = adapter.unmarshal( dtoBackAgain );
     assertNotNull( rootDir2.getChildren().get( 0 ).getChildren() );
     assertEquals( rootDir, rootDir2 );
+  }
+
+  @Test
+  public void testWhenChildrenIsDeleted() throws Exception {
+    // mock RepositoryFile to return null
+    RepositoryFile mockFile = mock( RepositoryFileProxy.class );
+    when( mockFile.isHidden() ).thenReturn( null );
+
+    // create tree with the mockFile
+    RepositoryFileTree nullValueDir = new RepositoryFileTree( mockFile, Collections.<RepositoryFileTree>emptyList() );
+    RepositoryFile root = new RepositoryFile.Builder( "rootDir" ).build();
+    ArrayList<RepositoryFileTree> children = new ArrayList<RepositoryFileTree>( 1 );
+    children.add( nullValueDir );
+    RepositoryFileTree rootDir = new RepositoryFileTree( root, children );
+
+    // to DTO
+    RepositoryFileTreeAdapter adapter = new RepositoryFileTreeAdapter();
+    RepositoryFileTreeDto dtoThere = adapter.marshal( rootDir );
+
+    // as isHidden() returns null, it's expected that null was returned, so root has no children
+    assertTrue( dtoThere.getChildren().isEmpty() );
   }
 
 }

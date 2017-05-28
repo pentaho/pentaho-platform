@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -1334,6 +1334,11 @@ public class FileService {
 
   public RepositoryFileTreeDto doGetTree( String pathId, Integer depth, String filter, Boolean showHidden,
                                           Boolean includeAcls ) {
+    return doGetTree( pathId, depth, filter, showHidden, includeAcls, false /* default */ );
+  }
+
+  public RepositoryFileTreeDto doGetTree( String pathId, Integer depth, String filter, Boolean showHidden,
+                                          Boolean includeAcls, Boolean includeSystemFolders ) {
     String path = null;
     if ( pathId == null || pathId.equals( FileUtils.PATH_SEPARATOR ) ) {
       path = FileUtils.PATH_SEPARATOR;
@@ -1343,9 +1348,10 @@ public class FileService {
 
     RepositoryRequest repositoryRequest = getRepositoryRequest( path, showHidden, depth, filter );
     repositoryRequest.setIncludeAcls( includeAcls );
+    repositoryRequest.setIncludeSystemFolders( includeSystemFolders );
 
     RepositoryFileTreeDto tree = getRepoWs().getTreeFromRequest( repositoryRequest );
-    List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
+
 
     // BISERVER-9599 - Use special sort order
     if ( isShowingTitle( repositoryRequest ) ) {
@@ -1353,18 +1359,6 @@ public class FileService {
       collator.setStrength( Collator.PRIMARY ); // ignore case
       sortByLocaleTitle( collator, tree );
     }
-
-    for ( RepositoryFileTreeDto child : tree.getChildren() ) {
-      RepositoryFileDto file = child.getFile();
-      Map<String, Serializable> fileMeta = getRepository().getFileMetadata( file.getId() );
-      boolean isSystemFolder =
-        fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER ) ? (Boolean) fileMeta
-          .get( IUnifiedRepository.SYSTEM_FOLDER ) : false;
-      if ( !isSystemFolder ) {
-        filteredChildren.add( child );
-      }
-    }
-    tree.setChildren( filteredChildren );
 
     return tree;
   }

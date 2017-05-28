@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.webservices;
@@ -39,6 +39,8 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
@@ -49,6 +51,8 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
     serviceName = "unifiedRepository", portName = "unifiedRepositoryPort",
     targetNamespace = "http://www.pentaho.org/ws/1.0" )
 public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWebService {
+
+  private static Logger logger = LoggerFactory.getLogger( DefaultUnifiedRepositoryWebService.class );
 
   protected IUnifiedRepository repo;
 
@@ -82,6 +86,10 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   public DefaultUnifiedRepositoryWebService( final IUnifiedRepository repo ) {
     super();
     this.repo = repo;
+  }
+
+  public static Logger getLogger() {
+    return logger;
   }
 
   @Override
@@ -156,28 +164,15 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   public RepositoryFileTreeDto getTreeFromRequest( final RepositoryRequest repositoryRequest ) {
     // RepositoryFileTree tree = repo.getTree( path, depth, filter, showHidden );
-
-    RepositoryFileTree tree = repo.getTree( repositoryRequest );
-
-    // Filter system folders from non-admin users.
-    // PDI uses this web-service and system folders must be returned to admin repository database connections.
-    List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     boolean isAdmin = policy.isAllowed( AdministerSecurityAction.NAME );
-    for ( RepositoryFileTree file : tree.getChildren() ) {
-      Map<String, Serializable> fileMeta = repo.getFileMetadata( file.getFile().getId() );
-      boolean isSystemFolder =
-          fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER ) ? (Boolean) fileMeta
-              .get( IUnifiedRepository.SYSTEM_FOLDER ) : false;
-      if ( !isAdmin && isSystemFolder ) {
-        continue;
-      }
-      files.add( file );
+    // Filter system folders from non-admin users.
+    // PDI uses this web-service and system folders must be returned to admin repository database connections.
+    if ( !isAdmin ) {
+      repositoryRequest.setIncludeSystemFolders( false ); //Non Admin users can never get system folders
+      getLogger().warn( "User does not have administrator privileges; setting includeSystemFolders to false." );
     }
-    tree = new RepositoryFileTree( tree.getFile(), files );
-    if ( tree == null ) {
-      return null;
-    }
+    RepositoryFileTree tree = repo.getTree( repositoryRequest );
 
     return new RepositoryFileTreeAdapter( repositoryRequest ).marshal( tree );
   }
@@ -289,7 +284,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileAclDto getAcl( String fileId ) {
-    if( repo == null ){
+    if ( repo == null ) {
       // many tests do not have a repo setup.
       return null;
     }
