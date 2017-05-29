@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.system;
@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -1060,9 +1061,10 @@ public class PentahoSystem {
       Logger.debug( PentahoSystem.class, "Shutdown Listeners" ); //$NON-NLS-1$
     }
     if ( PentahoSystem.listeners != null ) {
-      Iterator systemListenerIterator = PentahoSystem.listeners.iterator();
-      while ( systemListenerIterator.hasNext() ) {
-        IPentahoSystemListener listener = (IPentahoSystemListener) systemListenerIterator.next();
+      ListIterator<IPentahoSystemListener> systemListenerIterator =
+        PentahoSystem.listeners.listIterator( PentahoSystem.listeners.size() );
+      while ( systemListenerIterator.hasPrevious() ) {
+        IPentahoSystemListener listener = systemListenerIterator.previous();
         if ( listener != null ) {
           if ( debug ) {
             Logger.debug( PentahoSystem.class, "Shutdown Listener: " + listener.getClass().getName() ); //$NON-NLS-1$
