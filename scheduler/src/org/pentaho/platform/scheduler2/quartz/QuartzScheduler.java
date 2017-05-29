@@ -469,7 +469,7 @@ public class QuartzScheduler implements IScheduler {
             job.setJobId( jobId );
             setJobTrigger( scheduler, job, trigger );
             job.setJobName( QuartzJobKey.parse( jobId ).getJobName() );
-            job.setNextRun( trigger.getNextFireTime() );
+            job.setNextRun( trigger.getFireTimeAfter( new Date() ) );
             job.setLastRun( trigger.getPreviousFireTime() );
             if ( ( filter == null ) || filter.accept( job ) ) {
               jobs.add( job );
