@@ -12,13 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
@@ -45,9 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.*;
-import static org.mockito.Mockito.*;
-
 @SuppressWarnings( "nls" )
 public class QuartzSchedulerIT {
   private static final String CRON_EXPRESSION = "1 0 0 * * ? *";
@@ -57,15 +56,15 @@ public class QuartzSchedulerIT {
 
   private QuartzScheduler scheduler;
   private Scheduler quartzScheduler;
-  private final Map<String, Serializable> jobDetails = new HashMap<>();
+  private final Map<String, Serializable> jobDetails = new HashMap();
 
   @Before
   public void init() throws SchedulerException, PlatformInitializationException, org.quartz.SchedulerException {
-    final SchedulerFactory schedulerFactory = mock( SchedulerFactory.class );
-    quartzScheduler = mock( Scheduler.class );
-    when( schedulerFactory.getScheduler() ).thenReturn( quartzScheduler );
-    scheduler = spy( new QuartzScheduler( schedulerFactory ) );
-    when( scheduler.getCurrentUser() ).thenReturn( USER_NAME );
+    final SchedulerFactory schedulerFactory = Mockito.mock( SchedulerFactory.class );
+    quartzScheduler = Mockito.mock( Scheduler.class );
+    Mockito.when( schedulerFactory.getScheduler() ).thenReturn( quartzScheduler );
+    scheduler = Mockito.spy( new QuartzScheduler( schedulerFactory ) );
+    Mockito.when( scheduler.getCurrentUser() ).thenReturn( USER_NAME );
 
     jobDetails.clear();
     jobDetails.put( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS, "RESERVEDMAPKEY_ACTIONCLASS" );
@@ -75,52 +74,52 @@ public class QuartzSchedulerIT {
 
   @Test
   public void getQuartzSchedulerTest() throws Exception {
-    assertEquals( quartzScheduler, scheduler.getQuartzScheduler() );
+    Assert.assertEquals( quartzScheduler, scheduler.getQuartzScheduler() );
   }
 
   @Test
   public void createJobTest() throws Exception {
     String actionId = "actionId";
     ComplexJobTrigger trigger = getComplexJobTrigger();
-    IBackgroundExecutionStreamProvider outputStreamProvider = mock( IBackgroundExecutionStreamProvider.class );
+    IBackgroundExecutionStreamProvider outputStreamProvider = Mockito.mock( IBackgroundExecutionStreamProvider.class );
     final Job job = scheduler.createJob( JOB_NAME, actionId, null, trigger, outputStreamProvider );
 
-    assertNotNull( job );
-    assertEquals( Job.JobState.NORMAL, job.getState() );
+    Assert.assertNotNull( job );
+    Assert.assertEquals( Job.JobState.NORMAL, job.getState() );
 
-    assertTrue( job.getJobParams().containsKey( QuartzScheduler.RESERVEDMAPKEY_ACTIONID ) );
-    assertEquals( actionId, job.getJobParams().get( QuartzScheduler.RESERVEDMAPKEY_ACTIONID ) );
-    assertTrue( job.getJobParams().containsKey( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER ) );
-    assertEquals( outputStreamProvider, job.getJobParams().get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER ) );
-    assertTrue( job.getJobParams().containsKey( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID ) );
-    assertNotNull( job.getJobParams().get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID ) );
-    assertTrue( job.getJobParams().containsKey( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ) );
-    assertEquals( USER_NAME, job.getJobParams().get( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ) );
+    Assert.assertTrue( job.getJobParams().containsKey( QuartzScheduler.RESERVEDMAPKEY_ACTIONID ) );
+    Assert.assertEquals( actionId, job.getJobParams().get( QuartzScheduler.RESERVEDMAPKEY_ACTIONID ) );
+    Assert.assertTrue( job.getJobParams().containsKey( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER ) );
+    Assert.assertEquals( outputStreamProvider, job.getJobParams().get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER ) );
+    Assert.assertTrue( job.getJobParams().containsKey( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID ) );
+    Assert.assertNotNull( job.getJobParams().get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID ) );
+    Assert.assertTrue( job.getJobParams().containsKey( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ) );
+    Assert.assertEquals( USER_NAME, job.getJobParams().get( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ) );
   }
 
   @Test
   public void createJobTest_ForUser() throws Exception {
     String actionId = "actionId";
     ComplexJobTrigger trigger = getComplexJobTrigger();
-    IBackgroundExecutionStreamProvider outputStreamProvider = mock( IBackgroundExecutionStreamProvider.class );
-    Map<String, Serializable> paramMap = new HashMap<>();
+    IBackgroundExecutionStreamProvider outputStreamProvider = Mockito.mock( IBackgroundExecutionStreamProvider.class );
+    Map<String, Serializable> paramMap = new HashMap();
     paramMap.put( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, "ninja" );
     final Job job = scheduler.createJob( JOB_NAME, paramMap, trigger, outputStreamProvider );
 
-    assertNotNull( job );
-    assertEquals( "ninja", job.getUserName() );
-    assertEquals( Job.JobState.NORMAL, job.getState() );
+    Assert.assertNotNull( job );
+    Assert.assertEquals( "ninja", job.getUserName() );
+    Assert.assertEquals( Job.JobState.NORMAL, job.getState() );
   }
 
   @Test
   public void createQuartzTriggerComplexTriggerTest() throws Exception {
     final Trigger quartzTrigger = QuartzScheduler.createQuartzTrigger( getComplexJobTrigger(), getJobKey() );
 
-    assertNotNull( quartzTrigger );
-    assertTrue( quartzTrigger instanceof CronTrigger );
-    assertEquals( SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW, quartzTrigger.getMisfireInstruction() );
-    assertEquals( CRON_EXPRESSION, ( (CronTrigger) quartzTrigger ).getCronExpression() );
-    assertEquals( USER_NAME, quartzTrigger.getGroup() );
+    Assert.assertNotNull( quartzTrigger );
+    Assert.assertTrue( quartzTrigger instanceof CronTrigger );
+    Assert.assertEquals( SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW, quartzTrigger.getMisfireInstruction() );
+    Assert.assertEquals( CRON_EXPRESSION, ( (CronTrigger) quartzTrigger ).getCronExpression() );
+    Assert.assertEquals( USER_NAME, quartzTrigger.getGroup() );
 
   }
 
@@ -136,22 +135,22 @@ public class QuartzSchedulerIT {
         repeatIntervalSeconds );
     final Trigger quartzTrigger = QuartzScheduler.createQuartzTrigger( simpleJobTrigger, getJobKey() );
 
-    assertNotNull( quartzTrigger );
-    assertTrue( quartzTrigger instanceof SimpleTrigger );
-    assertEquals( SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT,
+    Assert.assertNotNull( quartzTrigger );
+    Assert.assertTrue( quartzTrigger instanceof SimpleTrigger );
+    Assert.assertEquals( SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT,
         quartzTrigger.getMisfireInstruction() );
-    assertEquals( USER_NAME, quartzTrigger.getGroup() );
+    Assert.assertEquals( USER_NAME, quartzTrigger.getGroup() );
 
     SimpleTrigger simpleTrigger = (SimpleTrigger) quartzTrigger;
-    assertEquals( startTime, simpleTrigger.getStartTime() );
-    assertEquals( endTime, simpleTrigger.getEndTime() );
-    assertEquals( repeatCount, simpleTrigger.getRepeatCount() );
-    assertEquals( repeatIntervalSeconds * 1000, simpleTrigger.getRepeatInterval() );
+    Assert.assertEquals( startTime, simpleTrigger.getStartTime() );
+    Assert.assertEquals( endTime, simpleTrigger.getEndTime() );
+    Assert.assertEquals( repeatCount, simpleTrigger.getRepeatCount() );
+    Assert.assertEquals( repeatIntervalSeconds * 1000, simpleTrigger.getRepeatInterval() );
   }
 
   @Test( expected = SchedulerException.class )
   public void createQuartzTriggerNotDefinedTriggerTest() throws Exception {
-    final IJobTrigger trigger = mock( IJobTrigger.class );
+    final IJobTrigger trigger = Mockito.mock( IJobTrigger.class );
     QuartzScheduler.createQuartzTrigger( trigger, getJobKey() );
   }
 
@@ -161,78 +160,80 @@ public class QuartzSchedulerIT {
 
     scheduler.updateJob( JOB_ID, new HashMap<String, Serializable>(), getComplexJobTrigger() );
 
-    verify( quartzScheduler, times( 1 ) ).addJob( eq( jobDetail ), eq( true ) );
-    verify( quartzScheduler, times( 1 ) ).rescheduleJob( eq( JOB_ID ), eq( USER_NAME ), any( Trigger.class ) );
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).addJob( Mockito.eq( jobDetail ), Mockito.eq( true ) );
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).rescheduleJob( Mockito.eq( JOB_ID ), Mockito.eq( USER_NAME ), Mockito.any( Trigger.class ) );
   }
 
   @Test
   public void triggerNowTest() throws Exception {
-    final SimpleTrigger simpleTrigger = mock( SimpleTrigger.class );
-    final CronTrigger cronTrigger = mock( CronTrigger.class );
-    when( quartzScheduler.getTriggersOfJob( eq( JOB_ID ), eq( USER_NAME ) ) ).thenReturn( new Trigger[] { simpleTrigger,
-        cronTrigger
+    final SimpleTrigger simpleTrigger = Mockito.mock( SimpleTrigger.class );
+    final CronTrigger cronTrigger = Mockito.mock( CronTrigger.class );
+    Mockito.when( quartzScheduler.getTriggersOfJob( Mockito.eq( JOB_ID ), Mockito.eq( USER_NAME ) ) ).thenReturn( new Trigger[] { simpleTrigger,
+      cronTrigger
     } );
 
     scheduler.triggerNow( JOB_ID );
 
-    verify( simpleTrigger, times( 1 ) ).setPreviousFireTime( any( Date.class ) );
-    verify( cronTrigger, times( 1 ) ).setPreviousFireTime( any( Date.class ) );
-    verify( quartzScheduler, times( 1 ) ).rescheduleJob( eq( JOB_ID ), eq( USER_NAME ), eq( simpleTrigger ) );
-    verify( quartzScheduler, times( 1 ) ).rescheduleJob( eq( JOB_ID ), eq( USER_NAME ), eq( cronTrigger ) );
-    verify( quartzScheduler, times( 1 ) ).triggerJob( eq( JOB_ID ), eq( USER_NAME ) );
+    Mockito.verify( simpleTrigger, Mockito.times( 1 ) ).setPreviousFireTime( Mockito.any( Date.class ) );
+    Mockito.verify( cronTrigger, Mockito.times( 1 ) ).setPreviousFireTime( Mockito.any( Date.class ) );
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).rescheduleJob( Mockito.eq( JOB_ID ), Mockito.eq( USER_NAME ), Mockito.eq( simpleTrigger ) );
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).rescheduleJob( Mockito.eq( JOB_ID ), Mockito.eq( USER_NAME ), Mockito.eq( cronTrigger ) );
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).triggerJob( Mockito.eq( JOB_ID ), Mockito.eq( USER_NAME ) );
   }
 
   @Test
   public void getJobTest() throws Exception {
-    final CronTrigger cronTrigger = mock( CronTrigger.class );
-    when( cronTrigger.getCronExpression() ).thenReturn( CRON_EXPRESSION );
-    when( quartzScheduler.getTriggersOfJob( eq( JOB_ID ), eq( USER_NAME ) ) ).thenReturn( new Trigger[] { cronTrigger } );
+    final CronTrigger cronTrigger = Mockito.mock( CronTrigger.class );
+    Mockito.when( cronTrigger.getCronExpression() ).thenReturn( CRON_EXPRESSION );
+    Mockito.when( quartzScheduler.getTriggersOfJob( Mockito.eq( JOB_ID ), Mockito.eq( USER_NAME ) ) ).thenReturn( new Trigger[] { cronTrigger } );
     setJobDataMap( USER_NAME );
 
     final Job job = scheduler.getJob( JOB_ID );
 
-    assertEquals( JOB_ID, job.getJobId() );
-    assertEquals( jobDetails, job.getJobParams() );
-    assertEquals( USER_NAME, job.getUserName() );
-    assertEquals( JOB_NAME, job.getJobName() );
-    assertEquals( Job.JobState.NORMAL, job.getState() );
+    Assert.assertEquals( JOB_ID, job.getJobId() );
+    Assert.assertEquals( jobDetails, job.getJobParams() );
+    Assert.assertEquals( USER_NAME, job.getUserName() );
+    Assert.assertEquals( JOB_NAME, job.getJobName() );
+    Assert.assertEquals( Job.JobState.NORMAL, job.getState() );
   }
 
   @Test
   public void getJobsTest() throws Exception {
-    final IJobFilter jobFilter = mock( IJobFilter.class );
-    when( jobFilter.accept( any( Job.class ) ) ).thenReturn( true );
+    final IJobFilter jobFilter = Mockito.mock( IJobFilter.class );
+    Mockito.when( jobFilter.accept( Mockito.any( Job.class ) ) ).thenReturn( true );
 
     final String groupName = "groupName";
-    when( quartzScheduler.getJobGroupNames() ).thenReturn( new String[] { groupName } );
-    when( quartzScheduler.getJobNames( eq( groupName ) ) ).thenReturn( new String[] { JOB_ID } );
-    final Trigger trigger = mock( Trigger.class );
-    when( trigger.getPreviousFireTime() ).thenReturn( new Date(  ) );
-    when( trigger.getNextFireTime() ).thenReturn( new Date(  ) );
-    final Trigger trigger2 = mock( Trigger.class );
-    when( trigger2.getGroup() ).thenReturn( "MANUAL_TRIGGER" );
-    when( quartzScheduler.getTriggersOfJob( eq( JOB_ID ), eq( groupName ) ) ).thenReturn( new Trigger[] { trigger, trigger2 } );
+    Mockito.when( quartzScheduler.getJobGroupNames() ).thenReturn( new String[] { groupName } );
+    Mockito.when( quartzScheduler.getJobNames( Mockito.eq( groupName ) ) ).thenReturn( new String[] { JOB_ID } );
+    final Trigger trigger = Mockito.mock( Trigger.class );
+    Date date1 = new Date();
+    Mockito.when( trigger.getPreviousFireTime() ).thenReturn( new Date(  ) );
+    Mockito.when( trigger.getFireTimeAfter( Mockito.any( Date.class ) ) ).thenReturn( date1 );
+    Mockito.when( trigger.getNextFireTime() ).thenReturn( date1 );
+    final Trigger trigger2 = Mockito.mock( Trigger.class );
+    Mockito.when( trigger2.getGroup() ).thenReturn( "MANUAL_TRIGGER" );
+    Mockito.when( quartzScheduler.getTriggersOfJob( Mockito.eq( JOB_ID ), Mockito.eq( groupName ) ) ).thenReturn( new Trigger[] { trigger, trigger2 } );
     setJobDataMap( groupName );
 
     final List<Job> jobs = scheduler.getJobs( jobFilter );
 
-    assertNotNull( jobs );
-    assertEquals( 1, jobs.size() );
+    Assert.assertNotNull( jobs );
+    Assert.assertEquals( 1, jobs.size() );
 
     Job job = jobs.get( 0 );
-    assertEquals( groupName, job.getGroupName() );
-    assertEquals( USER_NAME, job.getUserName() );
-    assertEquals( jobDetails, job.getJobParams() );
-    assertEquals( JOB_ID, job.getJobId() );
-    assertEquals( JOB_NAME, job.getJobName() );
-    assertEquals( trigger.getPreviousFireTime(), job.getLastRun() );
-    assertEquals( trigger.getNextFireTime(), job.getNextRun() );
+    Assert.assertEquals( groupName, job.getGroupName() );
+    Assert.assertEquals( USER_NAME, job.getUserName() );
+    Assert.assertEquals( jobDetails, job.getJobParams() );
+    Assert.assertEquals( JOB_ID, job.getJobId() );
+    Assert.assertEquals( JOB_NAME, job.getJobName() );
+    Assert.assertEquals( trigger.getPreviousFireTime(), job.getLastRun() );
+    Assert.assertEquals( trigger.getNextFireTime(), job.getNextRun() );
   }
 
   private JobDetail setJobDataMap( String groupName ) throws org.quartz.SchedulerException {
     final JobDetail jobDetail = new JobDetail( JOB_ID, USER_NAME, BlockingQuartzJob.class );
     jobDetail.setJobDataMap( new JobDataMap( jobDetails ) );
-    when( quartzScheduler.getJobDetail( eq( JOB_ID ), eq( groupName ) ) ).thenReturn( jobDetail );
+    Mockito.when( quartzScheduler.getJobDetail( Mockito.eq( JOB_ID ), Mockito.eq( groupName ) ) ).thenReturn( jobDetail );
     return jobDetail;
   }
 
@@ -240,49 +241,49 @@ public class QuartzSchedulerIT {
   public void pauseTest() throws Exception {
     scheduler.pause();
 
-    verify( quartzScheduler, times( 1 ) ).standby();
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).standby();
   }
 
   @Test
   public void pauseJobTest() throws Exception {
     scheduler.pauseJob( JOB_ID );
 
-    verify( quartzScheduler, times( 1 ) ).pauseJob( eq( JOB_ID ), eq( USER_NAME ) );
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).pauseJob( Mockito.eq( JOB_ID ), Mockito.eq( USER_NAME ) );
   }
 
   @Test
   public void removeJobTest() throws Exception {
     scheduler.removeJob( JOB_ID );
 
-    verify( quartzScheduler, times( 1 ) ).deleteJob( eq( JOB_ID ), eq( USER_NAME ) );
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).deleteJob( Mockito.eq( JOB_ID ), Mockito.eq( USER_NAME ) );
   }
 
   @Test
   public void startTest() throws Exception {
     scheduler.start();
 
-    verify( quartzScheduler, times( 1 ) ).start();
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).start();
   }
 
   @Test
   public void resumeJobTest() throws Exception {
     scheduler.resumeJob( JOB_ID );
-    verify( quartzScheduler, times( 1 ) ).resumeJob( eq( JOB_ID ), eq( USER_NAME ) );
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).resumeJob( Mockito.eq( JOB_ID ), Mockito.eq( USER_NAME ) );
   }
 
   @Test
   public void getStatusTest() throws Exception {
-    when( quartzScheduler.isInStandbyMode() ).thenReturn( true );
-    assertEquals( IScheduler.SchedulerStatus.PAUSED, scheduler.getStatus() );
+    Mockito.when( quartzScheduler.isInStandbyMode() ).thenReturn( true );
+    Assert.assertEquals( IScheduler.SchedulerStatus.PAUSED, scheduler.getStatus() );
 
-    when( quartzScheduler.isInStandbyMode() ).thenReturn( false );
-    when( quartzScheduler.isStarted() ).thenReturn( true );
-    assertEquals( IScheduler.SchedulerStatus.RUNNING, scheduler.getStatus() );
+    Mockito.when( quartzScheduler.isInStandbyMode() ).thenReturn( false );
+    Mockito.when( quartzScheduler.isStarted() ).thenReturn( true );
+    Assert.assertEquals( IScheduler.SchedulerStatus.RUNNING, scheduler.getStatus() );
 
-    when( quartzScheduler.isInStandbyMode() ).thenThrow( new org.quartz.SchedulerException() );
+    Mockito.when( quartzScheduler.isInStandbyMode() ).thenThrow( new org.quartz.SchedulerException() );
     try {
       scheduler.getStatus();
-      fail();
+      Assert.fail();
     } catch ( SchedulerException e ) {
       // it's expected
     }
@@ -292,20 +293,20 @@ public class QuartzSchedulerIT {
   public void shutdownTest() throws Exception {
     scheduler.shutdown();
 
-    verify( quartzScheduler, times( 1 ) ).shutdown( eq( true ) );
+    Mockito.verify( quartzScheduler, Mockito.times( 1 ) ).shutdown( Mockito.eq( true ) );
   }
 
   @Test
   public void fireJobCompletedTest() throws Exception {
-    final IAction actionBean = mock( IAction.class );
+    final IAction actionBean = Mockito.mock( IAction.class );
     final String actionUser = "actionUser";
-    final ISchedulerListener schedulerListener = mock( ISchedulerListener.class );
+    final ISchedulerListener schedulerListener = Mockito.mock( ISchedulerListener.class );
     scheduler.addListener( schedulerListener );
-    final Map<String, Serializable> params = new HashMap<>();
-    final IBackgroundExecutionStreamProvider streamProvider = mock( IBackgroundExecutionStreamProvider.class );
+    final Map<String, Serializable> params = new HashMap();
+    final IBackgroundExecutionStreamProvider streamProvider = Mockito.mock( IBackgroundExecutionStreamProvider.class );
     scheduler.fireJobCompleted( actionBean, actionUser, params, streamProvider );
 
-    verify( schedulerListener, times( 1 ) ).jobCompleted( eq( actionBean ), eq( actionUser ), eq( params ), eq( streamProvider ) );
+    Mockito.verify( schedulerListener, Mockito.times( 1 ) ).jobCompleted( Mockito.eq( actionBean ), Mockito.eq( actionUser ), Mockito.eq( params ), Mockito.eq( streamProvider ) );
   }
 
   private QuartzJobKey getJobKey() throws SchedulerException {
