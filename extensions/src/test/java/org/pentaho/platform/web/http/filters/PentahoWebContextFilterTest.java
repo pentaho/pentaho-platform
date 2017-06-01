@@ -122,7 +122,7 @@ public class PentahoWebContextFilterTest {
     PentahoWebContextFilter.cache = cacheManager;
 
     when( cacheManager.getFromGlobalCache( PentahoSystem.WAIT_SECONDS ) ).thenReturn( null )
-        .thenReturn( new Integer( 30 ) );
+      .thenReturn( new Integer( 30 ) );
 
     filter.printRequireJsCfgStart( new ByteArrayOutputStream() );
     filter.printRequireJsCfgStart( new ByteArrayOutputStream() );
@@ -194,7 +194,7 @@ public class PentahoWebContextFilterTest {
 
     final String response = this.mockResponseOutputStream.toString( "UTF-8" );
 
-    assertTrue( this.responseSetsContextPathGlobal( response, this.fullyQualifiedServerURL ) );
+    assertTrue( this.responseSetsContextPathGlobal( response, this.contextRoot ) );
     assertTrue( this.requirejsManagerInitIsCalled( response, null ) );
   }
 
@@ -218,7 +218,7 @@ public class PentahoWebContextFilterTest {
     final boolean containsScript = response.contains( "requirejs-manager/js/require-init.js?requirejs=false" );
 
     final boolean containsFullyQualifiedUrlParameter = response.contains(
-        "&fullyQualifiedUrl=" + ( useFullyQualifiedUrlParameter != null ? useFullyQualifiedUrlParameter : "" )
+      "&fullyQualifiedUrl=" + ( useFullyQualifiedUrlParameter != null ? useFullyQualifiedUrlParameter : "" )
     );
 
     return containsScript && containsFullyQualifiedUrlParameter == ( useFullyQualifiedUrlParameter != null );
