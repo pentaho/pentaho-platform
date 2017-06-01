@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -1061,10 +1060,9 @@ public class PentahoSystem {
       Logger.debug( PentahoSystem.class, "Shutdown Listeners" ); //$NON-NLS-1$
     }
     if ( PentahoSystem.listeners != null ) {
-      ListIterator<IPentahoSystemListener> systemListenerIterator =
-        PentahoSystem.listeners.listIterator( PentahoSystem.listeners.size() );
-      while ( systemListenerIterator.hasPrevious() ) {
-        IPentahoSystemListener listener = systemListenerIterator.previous();
+      Iterator systemListenerIterator = PentahoSystem.listeners.iterator();
+      while ( systemListenerIterator.hasNext() ) {
+        IPentahoSystemListener listener = (IPentahoSystemListener) systemListenerIterator.next();
         if ( listener != null ) {
           if ( debug ) {
             Logger.debug( PentahoSystem.class, "Shutdown Listener: " + listener.getClass().getName() ); //$NON-NLS-1$
