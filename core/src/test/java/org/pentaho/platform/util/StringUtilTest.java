@@ -20,6 +20,10 @@ package org.pentaho.platform.util;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * Unit tests for the {@link org.pentaho.platform.util.StringUtil} class.
  */
@@ -108,5 +112,74 @@ public class StringUtilTest {
     Assert.assertTrue( StringUtil.isEmpty( "" ) );
     Assert.assertFalse( StringUtil.isEmpty( " " ) );
     Assert.assertFalse( StringUtil.isEmpty( "foo" ) );
+  }
+
+  @Test
+  public void testGetMapAsPrettyStringEmpty() {
+    // When the provided map is empty or null, the result should be an empty string
+    Assert.assertEquals( "Map = null" + System.getProperty( "line.separator" ), StringUtil.getMapAsPrettyString( null
+    ) );
+    Assert.assertEquals( "Map = " + System.getProperty( "line.separator" ) + "{" + System.getProperty( "line"
+      + ".separator" ) + "} java.util.HashMap" + System.getProperty( "line.separator" ), StringUtil
+      .getMapAsPrettyString( new HashMap() ) );
+  }
+
+  @Test
+  public void testGetMapAsPrettyString() {
+    final Map testMap = getTestMap();
+    final String output = StringUtil.getMapAsPrettyString( testMap );
+
+    final String expectedOutput = getExpectedPrettyMapOutput();
+    Assert.assertEquals( expectedOutput, output );
+  }
+
+  private String getExpectedPrettyMapOutput() {
+
+    final String NL = System.getProperty( "line.separator" );
+    final StringBuilder expectedOutput = new StringBuilder();
+    expectedOutput.append( "Map = " ).append( NL );
+    expectedOutput.append( "{" ).append( NL );
+    expectedOutput.append( "    " ).append( " =  java.lang.String" ).append( NL );
+    expectedOutput.append( "    " ).append( "null" ).append( " =  java.lang.String" ).append( NL );
+    expectedOutput.append( "    " ).append( "Suzy" ).append( " = " ).append( "null" ).append( NL );
+    expectedOutput.append( "    " ).append( "John" ).append( " = " ).append( "Doe java.lang.String" ).append( NL );
+    expectedOutput.append( "    " ).append( "map" ).append( " = " ).append( NL );
+    expectedOutput.append( "    " ).append( "{" ).append( NL );
+    expectedOutput.append( "        " ).append( "John" ).append( " = " ).append( "Doe java.lang.String" ).append( NL );
+    expectedOutput.append( "        " ).append( "testObj" ).append( " = " ).append( "someVar:testVar org.pentaho"
+      + ".platform.util.StringUtilTest$TestObject" ).append( NL );
+    expectedOutput.append( "    " ).append( "} java.util.TreeMap" ).append( NL );
+    expectedOutput.append( "    " ).append( "testObj2" ).append( " = " ).append( "someVar:testVar2 org.pentaho"
+      + ".platform.util.StringUtilTest$TestObject" );
+    expectedOutput.append( NL ).append( "} java.util.HashMap" ).append( NL );
+    return expectedOutput.toString();
+  }
+
+  private static Map getTestMap() {
+
+    final Map subMap = new TreeMap();
+    subMap.put( "John", "Doe" );
+    subMap.put( "testObj", new TestObject( "testVar" ) );
+
+    final Map testMap = new HashMap();
+    testMap.put( "", "" );
+    testMap.put( null, "" );
+    testMap.put( "Suzy", null );
+    testMap.put( "John", "Doe" );
+    testMap.put( "map", subMap );
+    testMap.put( "testObj2", new TestObject( "testVar2" ) );
+    return testMap;
+  }
+
+  static class TestObject {
+    private String someVar;
+
+    TestObject( final String someVar ) {
+      this.someVar = someVar;
+    }
+
+    public String toString() {
+      return "someVar:" + this.someVar;
+    }
   }
 }
