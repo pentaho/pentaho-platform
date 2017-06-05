@@ -12,22 +12,32 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.scheduler2.email;
+package org.pentaho.platform.plugin.action;
 
-import org.pentaho.platform.scheduler2.messsages.Messages;
+import org.pentaho.platform.api.action.IAction;
+import org.pentaho.platform.api.action.IActionInvokeStatus;
 
-/**
- * @deprecated as of 8.0, use {@link org.pentaho.platform.util.Emailer} instead
- */
-@Deprecated
-public class Emailer extends org.pentaho.platform.util.Emailer {
+public class ActionInvokeStatus implements IActionInvokeStatus {
+  private boolean requiresUpdate;
+  private Throwable throwable;
+  private IAction actionBean;
 
-  @Override
-  public String getEmailFromName() {
-    return Messages.getInstance().getString( "schedulerEmailFromName" ); //$NON-NLS-1$
+  void setRequiresUpdate( final boolean requiresUpdate ) {
+    this.requiresUpdate = requiresUpdate;
   }
 
+  public boolean requiresUpdate() {
+    return this.requiresUpdate;
+  }
+
+  void setThrowable( final Throwable throwable ) {
+    this.throwable = throwable;
+  }
+
+  public Throwable getThrowable() {
+    return this.throwable;
+  }
 }

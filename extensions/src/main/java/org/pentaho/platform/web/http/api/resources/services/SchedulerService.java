@@ -17,15 +17,6 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -63,6 +54,15 @@ import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SchedulerService {
 
@@ -491,7 +491,8 @@ public class SchedulerService {
   public boolean getAutoCreateUniqueFilename( final JobScheduleRequest scheduleRequest ) {
     ArrayList<JobScheduleParam> jobParameters = scheduleRequest.getJobParameters();
     for ( JobScheduleParam jobParameter : jobParameters ) {
-      if ( "autoCreateUniqueFilename".equals( jobParameter.getName() ) && "boolean".equals( jobParameter.getType() ) ) {
+      if ( QuartzScheduler.RESERVEDMAPKEY_AUTO_CREATE_UNIQUE_FILENAME.equals( jobParameter.getName() ) && "boolean"
+        .equals( jobParameter.getType() ) ) {
         return (Boolean) jobParameter.getValue();
       }
     }

@@ -20,6 +20,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd 
        http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true" >
 
+  <bean id="IActionInvoker" class="org.pentaho.platform.plugin.action.DefaultActionInvoker" scope="prototype"/>
+
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton"/>
   <bean id="IUITemplater" class="org.pentaho.platform.web.http.WebTemplateHelper" scope="singleton"/>

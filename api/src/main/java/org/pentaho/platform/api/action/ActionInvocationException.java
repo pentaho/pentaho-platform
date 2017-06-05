@@ -12,22 +12,21 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.scheduler2.email;
-
-import org.pentaho.platform.scheduler2.messsages.Messages;
+package org.pentaho.platform.api.action;
 
 /**
- * @deprecated as of 8.0, use {@link org.pentaho.platform.util.Emailer} instead
+ * An exception thrown when the invocation of {@link org.pentaho.platform.api.action.IAction} fails.
  */
-@Deprecated
-public class Emailer extends org.pentaho.platform.util.Emailer {
+public class ActionInvocationException extends Exception {
 
-  @Override
-  public String getEmailFromName() {
-    return Messages.getInstance().getString( "schedulerEmailFromName" ); //$NON-NLS-1$
+  public ActionInvocationException( String msg ) {
+    super( msg );
   }
 
+  public ActionInvocationException( String msg, Throwable t ) {
+    super( msg, t );
+  }
 }
