@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport;
@@ -29,6 +29,7 @@ import java.util.Collection;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.junit.AfterClass;
@@ -58,6 +59,19 @@ public class CommandLineProcessorTest extends Assert {
 
   private static boolean brokenConstructor = false;
 
+  private static final String[] ARGS_INVALID = {
+    "--import",
+    "--url=http://localhost:8080/pentaho",
+    "--username=admin",
+    "--password=password",
+    "-charset=UTF-8",
+    "--path=/home/admin/2w",
+    "--file-path=D:/test.zip",
+    "--overwrite=true",
+    "--retainOwnership=true",
+    "--permission=false"
+  };
+
   @BeforeClass
   public static void setUp() throws Exception {
     OutputStream multiOut = new MultiOutputStream( new OutputStream[] { CONSOLE_BUFFER, CONSOLE_OUT } );
@@ -72,6 +86,7 @@ public class CommandLineProcessorTest extends Assert {
     };
     clpMock = new CommandLineProcessor( null );
     mock.tearDown();
+
   }
 
   @AfterClass
@@ -181,23 +196,23 @@ public class CommandLineProcessorTest extends Assert {
 
     CommandLineProcessor clp = new CommandLineProcessor( new String[] { requestType, "-" + shortOption + "=value" } );
 
-    assertEquals( "value", clp.getOptionValue( shortOption, "", false, true ) );
-    assertEquals( "value", clp.getOptionValue( "", longOption, false, true ) );
-    assertEquals( null, clp.getOptionValue( "wrongKey", "", false, true ) );
+    assertEquals( "value", clp.getOptionValue( shortOption, false, true ) );
+    assertEquals( "value", clp.getOptionValue( longOption, false, true ) );
+    assertEquals( null, clp.getOptionValue( "wrongKey", false, true ) );
     try {
-      assertEquals( null, clp.getOptionValue( "wrongKey", "", true, true ) );
+      assertEquals( null, clp.getOptionValue( "wrongKey", true, true ) );
       fail();
     } catch ( ParseException e ) {
       // expected
     }
     try {
-      assertEquals( null, clp.getOptionValue( "wrongKey", "", false, false ) );
+      assertEquals( null, clp.getOptionValue( "wrongKey", false, false ) );
       fail();
     } catch ( ParseException e ) {
       // expected
     }
 
-    assertEquals( "value", clp.getOptionValue( shortOption, false, true ) );
+    assertEquals( "value", clp.getOptionValue( longOption, false, true ) );
     assertEquals( null, clp.getOptionValue( "wrongKey", false, true ) );
     try {
       assertEquals( null, clp.getOptionValue( "wrongKey", true, true ) );
@@ -213,4 +228,23 @@ public class CommandLineProcessorTest extends Assert {
     }
   }
 
+  @Test
+  public void testInvalidCharset() throws Exception {
+    CommandLineProcessor.main( ARGS_INVALID );
+    Assert.assertEquals( IllegalArgumentException.class, CommandLineProcessor.getException().getClass() );
+  }
+
+  @Test
+  public void testInvalidArgument1() throws Exception {
+    String[] invalid = { "--import", "--foo=wibble" };
+    CommandLineProcessor.main( invalid );
+    Assert.assertEquals( UnrecognizedOptionException.class, CommandLineProcessor.getException().getClass() );
+  }
+
+  @Test
+  public void testInvalidArgument2() throws Exception {
+    String[] invalid = { "--import", "-boo=foo" };
+    CommandLineProcessor.main( invalid );
+    Assert.assertEquals( UnrecognizedOptionException.class, CommandLineProcessor.getException().getClass() );
+  }
 }

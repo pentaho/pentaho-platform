@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.admin;
@@ -30,10 +30,12 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -43,8 +45,10 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
+import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleRecurrenceDialog;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.JsJob;
@@ -153,7 +157,21 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           deleteNowButton.addStyleName( "first" );
           deleteNowButton.addClickHandler( new ClickHandler() {
             public void onClick( ClickEvent event ) {
-              deleteContentNow( Long.parseLong( nowTextBox.getValue() ) * 86400L );
+              MessageDialogBox warning =
+                new MessageDialogBox( Messages.getString( "deleteNow" ),
+                  Messages.getString( "confirmDeleteGeneratedContentNow" ),
+                  false, false, true, Messages.getString( "yes" ), null, Messages.getString( "no" ) );
+              warning.setCallback( new IDialogCallback() {
+                @Override
+                public void okPressed() {
+                  deleteContentNow( Long.parseLong( nowTextBox.getValue() ) * 86400L );
+                }
+
+                @Override
+                public void cancelPressed() {
+                }
+              } );
+              warning.center();
             }
           } );
           nowPanelWrapper.add( nowLabelPanel );
@@ -248,6 +266,9 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
    *          in milliseconds
    */
   public void deleteContentNow( long age ) {
+
+    showLoadingIndicator();
+
     String date = DateTimeFormat.getFormat( PredefinedFormat.ISO_8601 ).format( new Date() );
     String json =
         "{\"jobName\": \"Content Cleaner\", \"actionClass\": \"org.pentaho.platform.admin.GeneratedContentCleaner\","
@@ -256,12 +277,8 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
             + "\", \"type\": \"string\" }], \"simpleJobTrigger\": { \"endTime\": null, \"repeatCount\": \"0\", "
           + "\"repeatInterval\": \"0\", \"startTime\": \"" + date + "\", \"uiPassParam\": \"RUN_ONCE\"} }";
 
-    String moduleBaseURL = GWT.getModuleBaseURL();
-    String moduleName = GWT.getModuleName();
-    String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
-
     RequestBuilder scheduleFileRequestBuilder =
-        new RequestBuilder( RequestBuilder.POST, contextURL + "api/scheduler/job" );
+        new RequestBuilder( RequestBuilder.POST, GWT.getHostPageBaseURL() + "api/scheduler/job" );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
     try {
@@ -270,10 +287,47 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
         }
 
         public void onResponseReceived( Request request, Response response ) {
+          String jobId = response.getText();
+          final RequestBuilder requestBuilder =
+            new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL()
+              + "api/scheduler/jobinfo?jobId=" + URL.encodeQueryString( jobId ) );
+          requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+          requestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
+          requestBuilder.setHeader( "accept", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
+
+          // create a timer to check if the job has finished
+          Timer t = new Timer() {
+            public void run() {
+              try {
+                requestBuilder.sendRequest( null, new RequestCallback() {
+
+                  @Override
+                  public void onResponseReceived( Request request, Response response ) {
+                    // if we're receiving a correct job info, then the job is still executing.
+                    // once the job is finished, it is removed from scheduler and we should receive a 404 code.
+                    if ( response.getStatusCode() != Response.SC_OK ) {
+                      hideLoadingIndicator();
+                      cancel();
+                    }
+                  }
+
+                  @Override
+                  public void onError( Request request, Throwable throwable ) {
+                    hideLoadingIndicator();
+                    cancel();
+                  }
+                } );
+              } catch ( RequestException e ) {
+                hideLoadingIndicator();
+                cancel();
+              }
+            }
+          };
+          t.scheduleRepeating( 1000 );
         }
       } );
     } catch ( RequestException re ) {
-      //ignored
+      hideLoadingIndicator();
     }
   }
 
@@ -336,6 +390,14 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     } catch ( RequestException re ) {
       Window.alert( re.getMessage() );
     }
+  }
+
+  private static void showLoadingIndicator() {
+    WaitPopup.getInstance().setVisible( true );
+  }
+
+  private static void hideLoadingIndicator() {
+    WaitPopup.getInstance().setVisible( false );
   }
 
 }

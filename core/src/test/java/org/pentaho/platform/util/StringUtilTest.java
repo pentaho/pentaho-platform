@@ -12,29 +12,50 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.util;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class StringUtilTest extends TestCase {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
+/**
+ * Unit tests for the {@link org.pentaho.platform.util.StringUtil} class.
+ */
+public class StringUtilTest {
+
+  @Test
   public void testTokenStringToArray() {
 
-    String[] array = StringUtil.tokenStringToArray( "This is a test to convert this string into an array", " " ); //$NON-NLS-1$ //$NON-NLS-2$
-    StringBuffer buffer = new StringBuffer();
+    String token = " "; //$NON-NLS-2$
+    String tokenString = "This is a test to convert this string into an array"; //$NON-NLS-2$
+    String[] array = StringUtil.tokenStringToArray( tokenString, token );
+    StringBuilder buffer = new StringBuilder();
 
     for ( String element : array ) {
-      buffer.append( element.toString() );
-      buffer.append( " " ); //$NON-NLS-1$
+      buffer.append( element );
+      buffer.append( token );
     }
+    Assert.assertEquals( buffer.toString().trim(), tokenString );
 
-    Assert.assertEquals( buffer.toString().trim(), "This is a test to convert this string into an array" ); //$NON-NLS-1$
+    // when tokenizedString is null, the result should be null
+    Assert.assertNull( StringUtil.tokenStringToArray( null, token ) );
+    Assert.assertNull( StringUtil.tokenStringToArray( null, null ) );
+
+    // when no token is provided, we should get back an array containing the entire input token as a single string
+    tokenString = "some text"; //$NON-NLS-2$
+    array = StringUtil.tokenStringToArray( tokenString, null );
+    Assert.assertNotNull( array );
+    Assert.assertEquals( 1, array.length );
+    Assert.assertEquals( tokenString, array[ 0 ] );
   }
 
+  @Test
   public void testDoesPathContainParentPathSegment() {
 
     String[] matchStrings = { "../bart/maggie.xml", //$NON-NLS-1$
@@ -75,14 +96,90 @@ public class StringUtilTest extends TestCase {
     }
   }
 
-  public static void main( final String[] args ) {
-    StringUtilTest test = new StringUtilTest();
+  @Test
+  public void testMain() {
     try {
-      test.testTokenStringToArray();
-      test.testDoesPathContainParentPathSegment();
+      StringUtil.main( null );
+      Assert.assertTrue( true );
+    } catch ( final Exception e ) {
+      Assert.fail( "Exception occured: " + e );
+    }
+  }
 
-    } finally {
+  @Test
+  public void testIsEmpty() {
+    Assert.assertTrue( StringUtil.isEmpty( null ) );
+    Assert.assertTrue( StringUtil.isEmpty( "" ) );
+    Assert.assertFalse( StringUtil.isEmpty( " " ) );
+    Assert.assertFalse( StringUtil.isEmpty( "foo" ) );
+  }
+
+  @Test
+  public void testGetMapAsPrettyStringEmpty() {
+    // When the provided map is empty or null, the result should be an empty string
+    Assert.assertEquals( "Map = null" + System.getProperty( "line.separator" ), StringUtil.getMapAsPrettyString( null
+    ) );
+    Assert.assertEquals( "Map = " + System.getProperty( "line.separator" ) + "{" + System.getProperty( "line"
+      + ".separator" ) + "} java.util.HashMap" + System.getProperty( "line.separator" ), StringUtil
+      .getMapAsPrettyString( new HashMap() ) );
+  }
+
+  @Test
+  public void testGetMapAsPrettyString() {
+    final Map testMap = getTestMap();
+    final String output = StringUtil.getMapAsPrettyString( testMap );
+
+    final String expectedOutput = getExpectedPrettyMapOutput();
+    Assert.assertEquals( expectedOutput, output );
+  }
+
+  private String getExpectedPrettyMapOutput() {
+
+    final String NL = System.getProperty( "line.separator" );
+    final StringBuilder expectedOutput = new StringBuilder();
+    expectedOutput.append( "Map = " ).append( NL );
+    expectedOutput.append( "{" ).append( NL );
+    expectedOutput.append( "    " ).append( " =  java.lang.String" ).append( NL );
+    expectedOutput.append( "    " ).append( "null" ).append( " =  java.lang.String" ).append( NL );
+    expectedOutput.append( "    " ).append( "Suzy" ).append( " = " ).append( "null" ).append( NL );
+    expectedOutput.append( "    " ).append( "John" ).append( " = " ).append( "Doe java.lang.String" ).append( NL );
+    expectedOutput.append( "    " ).append( "map" ).append( " = " ).append( NL );
+    expectedOutput.append( "    " ).append( "{" ).append( NL );
+    expectedOutput.append( "        " ).append( "John" ).append( " = " ).append( "Doe java.lang.String" ).append( NL );
+    expectedOutput.append( "        " ).append( "testObj" ).append( " = " ).append( "someVar:testVar org.pentaho"
+      + ".platform.util.StringUtilTest$TestObject" ).append( NL );
+    expectedOutput.append( "    " ).append( "} java.util.TreeMap" ).append( NL );
+    expectedOutput.append( "    " ).append( "testObj2" ).append( " = " ).append( "someVar:testVar2 org.pentaho"
+      + ".platform.util.StringUtilTest$TestObject" );
+    expectedOutput.append( NL ).append( "} java.util.HashMap" ).append( NL );
+    return expectedOutput.toString();
+  }
+
+  private static Map getTestMap() {
+
+    final Map subMap = new TreeMap();
+    subMap.put( "John", "Doe" );
+    subMap.put( "testObj", new TestObject( "testVar" ) );
+
+    final Map testMap = new HashMap();
+    testMap.put( "", "" );
+    testMap.put( null, "" );
+    testMap.put( "Suzy", null );
+    testMap.put( "John", "Doe" );
+    testMap.put( "map", subMap );
+    testMap.put( "testObj2", new TestObject( "testVar2" ) );
+    return testMap;
+  }
+
+  static class TestObject {
+    private String someVar;
+
+    TestObject( final String someVar ) {
+      this.someVar = someVar;
     }
 
+    public String toString() {
+      return "someVar:" + this.someVar;
+    }
   }
 }

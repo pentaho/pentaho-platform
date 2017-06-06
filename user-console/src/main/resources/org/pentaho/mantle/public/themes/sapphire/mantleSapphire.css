@@ -905,6 +905,7 @@ a:active, a:hover {
 
 #pucUserDropDown .custom-dropdown {
   width: auto;
+  min-width: 105px;
 }
 
 #pucUserDropDown .custom-dropdown-arrow {
@@ -996,12 +997,16 @@ a:active, a:hover {
 }
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem {
-  padding: 8px 10px 8px 10px;
-  text-align: center;
+  padding: 8px 5px 8px 10px;
+  text-align: left;
   width: 242px;
   font-size: 14px;
   color: #333;
   font-family: OpenSansLight, Helvetica, Arial, Sans serif;
+}
+
+div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
+  text-align: left;
 }
 
 .custom-dropdown-selected {

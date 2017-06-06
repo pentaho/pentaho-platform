@@ -345,8 +345,9 @@ public class KarafBoot implements IPentahoSystemListener {
     // the particular execution needs (Carte, Spoon, Pan, Kitchen)
     KettleClientEnvironment.ClientType clientType = getClientType();
     String extraKettleEtc = translateToExtraKettleEtc( clientType );
-
-    if ( extraKettleEtc != null ) {
+    // If clientType is null, the extraKettleEtc will return 'etc-default'
+    // Added a check to see if the folder exist before setting the system property
+    if ( extraKettleEtc != null && new File( root + extraKettleEtc ).exists() ) {
       System.setProperty( "felix.fileinstall.dir", root + "/etc" + "," + root + extraKettleEtc );
     } else {
       System.setProperty( "felix.fileinstall.dir", root + "/etc" );
@@ -381,27 +382,17 @@ public class KarafBoot implements IPentahoSystemListener {
   }
 
   protected String translateToExtraKettleEtc( KettleClientEnvironment.ClientType clientType ) {
-    String extraKettleEtc = null;
     if ( clientType != null ) {
       switch ( clientType ) {
         case SPOON:
-          extraKettleEtc = "/etc-spoon";
-          break;
         case PAN:
-          extraKettleEtc = "/etc-pan";
-          break;
         case KITCHEN:
-          extraKettleEtc = "/etc-kitchen";
-          break;
         case CARTE:
-          extraKettleEtc = "/etc-carte";
-          break;
-        default:
-          extraKettleEtc = "/etc-default";
-          break;
+        case OTHER:
+          return "/etc-" + clientType.getID().toLowerCase();
       }
     }
-    return extraKettleEtc;
+    return "/etc-default";
   }
 
   protected KettleClientEnvironment.ClientType getClientType() {

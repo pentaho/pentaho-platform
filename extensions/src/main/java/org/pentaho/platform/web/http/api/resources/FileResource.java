@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -1691,8 +1691,9 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public RepositoryFileTreeDto doGetTree( @PathParam ( "pathId" ) String pathId, @QueryParam ( "depth" ) Integer depth,
                                           @QueryParam ( "filter" ) String filter, @QueryParam ( "showHidden" ) Boolean showHidden,
-                                          @DefaultValue ( "false" ) @QueryParam ( "includeAcls" ) Boolean includeAcls ) {
-    return fileService.doGetTree( pathId, depth, filter, showHidden, includeAcls );
+                                          @DefaultValue ( "false" ) @QueryParam ( "includeAcls" ) Boolean includeAcls,
+                                          @DefaultValue ( "false" ) @QueryParam ( "includeSysDirs" ) Boolean includeSystemFolders ) {
+    return fileService.doGetTree( pathId, depth, filter, showHidden, includeAcls, includeSystemFolders );
   }
 
   /**

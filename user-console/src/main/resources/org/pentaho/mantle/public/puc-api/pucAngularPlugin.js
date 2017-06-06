@@ -1,6 +1,6 @@
 var deps = [
 	'common-ui/AnimatedAngularPlugin',
-	'mantle/puc-api/pucAngularApi',
+	'./pucAngularApi',
 	'common-ui/ring'
 ];
 

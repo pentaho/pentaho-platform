@@ -16,16 +16,16 @@
  */
 
 define([
-  "js/browser.dialogs.js",
-  "js/browser.dialogs.templates.js",
-  "js/dialogs/browser.dialog.rename.templates",
-  "js/browser.utils.js",
+  "../browser.dialogs",
+  "../browser.dialogs.templates",
+  "./browser.dialog.rename.templates",
+  "../browser.utils",
   "common-ui/util/URLEncoder",
   "dojox/html/entities",
   "common-ui/bootstrap",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery",
-  "../../../../js/utils.js"  
+  "pentaho/utils"
 ], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder, Entities) {
 
   var BrowserUtils = new Utils();

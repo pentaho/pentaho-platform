@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
@@ -236,6 +236,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         if ( inheritsCheckBox.getValue() ) {
           VerticalPanel vp = new VerticalPanel();
           vp.add( new Label( Messages.getString( "permissionsWillBeLostQuestion" ) ) ); //$NON-NLS-1$
+          // Get the state of add and remove button
+          final boolean currRemoveButtonState = removeButton.isEnabled();
+          final boolean currAddButtonState = addButton.isEnabled();
           final PromptDialogBox permissionsOverwriteConfirm =
               new PromptDialogBox(
                   Messages.getString( "permissionsWillBeLostConfirmMessage" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -246,7 +249,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
               permissionsOverwriteConfirm.hide();
               inheritsCheckBox.setValue( false );
               dirty = false;
-              refreshPermission();
+              // BACKLOG-15986 Set the button state to value before the confirmation dialog
+              setInheritsAcls( inheritsCheckBox.getValue(), fileInfo );
+              addButton.setEnabled( currAddButtonState );
+              removeButton.setEnabled( currRemoveButtonState );
             }
 
             public void okPressed() {
@@ -652,7 +658,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         NodeList permissions = ace.getElementsByTagName( PERMISSIONS_ELEMENT_NAME );
         for ( int j = 0; j < permissions.getLength(); j++ ) {
           if ( permissions.item( j ).getFirstChild() != null ) {
-            values.add( new Integer( permissions.item( j ).getFirstChild().getNodeValue() ) );            
+            values.add( new Integer( permissions.item( j ).getFirstChild().getNodeValue() ) );
           }
         }
         break;
@@ -768,12 +774,12 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   protected void setAclResponse( Response response ) {
     init( fileSummary, XMLParser.parse( response.getText() ) );
   }
-  
+
   private String getRecipientTypeByValue( String userOrRoleString ) {
     String recipientType = "";
-    if( userOrRoleString.endsWith( "(user)" ) ) {
+    if ( userOrRoleString.endsWith( "(user)" ) ) {
       recipientType = "0";
-    } else if( userOrRoleString.endsWith( "(role)" ) ) {
+    } else if ( userOrRoleString.endsWith( "(role)" ) ) {
       recipientType = "1";
     }
     return recipientType;

@@ -1,5 +1,5 @@
 /*!
- * Copyright 2010 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2010 - 2017 Pentaho Corporation.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ import java.util.Set;
  * href="http://jira.pentaho.com/browse/BISERVER-8382">BISERVER-8382</a><br/>
  * This shouldn't differ from {@code CompiledPermissionsImpl} except for the extra lock and the
  * <code>synchronized</code> changes within {@link #canRead(Path, ItemId)}
- * 
+ *
  * @see CompiledPermissionsImpl
  */
 public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions implements AccessControlListener {
@@ -78,7 +78,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   private final Object readMonitor = new Object();
 
   PentahoCompiledPermissionsImpl( Set<Principal> principals, SessionImpl session, EntryCollector entryCollector,
-      AccessControlUtils util, boolean listenToEvents ) throws RepositoryException {
+                                  AccessControlUtils util, boolean listenToEvents ) throws RepositoryException {
     this.session = session;
     this.entryCollector = entryCollector;
     this.util = util;
@@ -134,24 +134,25 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
       boolean matchesParent = false;
       boolean isAllow = false;
 
-      if( ace instanceof PentahoEntry ) {
+      if ( ace instanceof PentahoEntry ) {
 
-        entryBits = ( ( ( PentahoEntry ) ace ).getPrivilegeBits() );
-        isLocal = isExistingNode && ( ( PentahoEntry ) ace ).isLocal( nodeId );
-        matchesParent = ( !isLocal && ( ( PentahoEntry ) ace ).matches( parentPath ) );
-        isAllow = ( ( PentahoEntry ) ace ).isAllow();
+        entryBits = ( ( (PentahoEntry) ace ).getPrivilegeBits() );
+        isLocal = isExistingNode && ( (PentahoEntry) ace ).isLocal( nodeId );
+        matchesParent = ( !isLocal && ( (PentahoEntry) ace ).matches( parentPath ) );
+        isAllow = ( (PentahoEntry) ace ).isAllow();
 
       } else {
 
-        entryBits = ( ( Entry ) ace ).getPrivilegeBits();
-        isLocal = isExistingNode && ( ( Entry ) ace ).isLocal( nodeId );
-        matchesParent = ( !isLocal && ( ( Entry ) ace ).matches( parentPath ) );
-        isAllow = ( ( Entry ) ace ).isAllow();
+        entryBits = ( (Entry) ace ).getPrivilegeBits();
+        isLocal = isExistingNode && ( (Entry) ace ).isLocal( nodeId );
+        matchesParent = ( !isLocal && ( (Entry) ace ).matches( parentPath ) );
+        isAllow = ( (Entry) ace ).isAllow();
       }
 
       // check specific case: "Inherit permissions" may have been unchecked, and node operation permissions may
       // have been granted directly to the item ( thus not requiring having those permissions defined for the parent )
-      boolean isLocalAndDoesNotInheritPermissions = isLocal && isValidPentahoNode( node ) && !isEntriesInheriting( node );
+      boolean isLocalAndDoesNotInheritPermissions =
+        isLocal && isValidPentahoNode( node ) && !isEntriesInheriting( node );
       if ( matchesParent || isLocalAndDoesNotInheritPermissions ) {
         if ( isAllow ) {
           parentAllowBits.addDifference( entryBits, parentDenyBits );
@@ -159,7 +160,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
           parentDenyBits.addDifference( entryBits, parentAllowBits );
         }
       }
-      if (isAllow ) {
+      if ( isAllow ) {
         allowBits.addDifference( entryBits, denyBits );
         int permissions = PrivilegeRegistry.calculatePermissions( allowBits, parentAllowBits, true, isAcItem );
         allows |= Permission.diff( permissions, denies );
@@ -174,6 +175,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   }
 
   // ------------------------------------< AbstractCompiledPermissions >---
+
   /**
    * @see AbstractCompiledPermissions#buildResult(org.apache.jackrabbit.spi.Path)
    */
@@ -197,8 +199,8 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
       Path.Element[] elems = absPath.getElements();
       NodeImpl parent = (NodeImpl) session.getRootNode();
       for ( int i = 1; i < elems.length - 1; i++ ) {
-        Name name = elems[i].getName();
-        int index = elems[i].getIndex();
+        Name name = elems[ i ].getName();
+        int index = elems[ i ].getIndex();
         if ( !parent.hasNode( name, index ) ) {
           // last persisted node reached
           break;
@@ -243,6 +245,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   }
 
   // --------------------------------------------< CompiledPermissions >---
+
   /**
    * @see org.apache.jackrabbit.core.security.authorization.CompiledPermissions#close()
    */
@@ -256,7 +259,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   /**
    * Changed so that access to entryCollector is done outside of a <code>monitor</code> synchronized block.<br/>
    * Should be functionally equivalent to {@link CompiledPermissions#canRead(Path, ItemId)}
-   * 
+   *
    * @see org.apache.jackrabbit.core.security.authorization.CompiledPermissions#canRead(Path, ItemId)
    */
   public boolean canRead( Path path, ItemId itemId ) throws RepositoryException {
@@ -300,15 +303,15 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
         PrivilegeBits privilegeBits = null;
         boolean isAllow = false;
 
-        if( entry instanceof PentahoEntry ) {
+        if ( entry instanceof PentahoEntry ) {
 
-          privilegeBits = ( ( PentahoEntry ) entry ).getPrivilegeBits();
-          isAllow = ( ( PentahoEntry ) entry ).isAllow();
+          privilegeBits = ( (PentahoEntry) entry ).getPrivilegeBits();
+          isAllow = ( (PentahoEntry) entry ).isAllow();
 
         } else {
 
-          privilegeBits = ( ( Entry ) entry ).getPrivilegeBits();
-          isAllow = ( ( Entry ) entry ).isAllow();
+          privilegeBits = ( (Entry) entry ).getPrivilegeBits();
+          isAllow = ( (Entry) entry ).isAllow();
 
         }
 
@@ -326,9 +329,10 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
   }
 
   // ----------------------------------------< ACLModificationListener >---
+
   /**
-   * @see org.apache.jackrabbit.core.security.authorization.AccessControlListener#
-   *      acModified(org.apache.jackrabbit.core.security.authorization.AccessControlModifications)
+   * @see org.apache.jackrabbit.core.security.authorization.AccessControlListener# acModified(org.apache.jackrabbit
+   * .core.security.authorization.AccessControlModifications)
    */
   public void acModified( AccessControlModifications modifications ) {
     // ignore the details of the modifications and clear all caches.
@@ -342,7 +346,7 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
     NodeImpl aclNode = node.getNode( AccessControlConstants.N_POLICY );
     String path = aclNode != null ? aclNode.getParent().getPath() : null;
     return JcrRepositoryFileAclUtils.getAclMetadata( session, node.getPath(),
-        new ACLTemplate( aclNode, path, false /* allowUnknownPrincipals */ ) ).isEntriesInheriting();
+      new ACLTemplate( aclNode, path, false /* allowUnknownPrincipals */ ) ).isEntriesInheriting();
   }
 
   private boolean isBelowRootFolder( final NodeImpl node ) throws RepositoryException {
@@ -350,11 +354,32 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
     final String tenantRootFolderPath = ServerRepositoryPaths.getTenantRootFolderPath() + RepositoryFile.SEPARATOR;
 
     return node != null && node.getPath().startsWith( tenantRootFolderPath )
-            && node.getPath().replace( tenantRootFolderPath , "" ).length() > 0;
+      && node.getPath().replace( tenantRootFolderPath, "" ).length() > 0;
   }
 
   private boolean isValidPentahoNode( final NodeImpl node ) throws RepositoryException {
     return node != null && isBelowRootFolder( node )
-            && JcrRepositoryFileUtils.isPentahoHierarchyNode( session, new PentahoJcrConstants( session ), node );
+      && JcrRepositoryFileUtils.isPentahoHierarchyNode( session, new PentahoJcrConstants( session ), node );
+  }
+
+  /**
+   * We override this method as the superclass implementation caches permissions in an LRU cache.
+   * Other than not caching the result the functionality is identical to {@link AbstractCompiledPermissions#getResult }
+   *
+   * @param absPath
+   * @return CompiledPermissions
+   * @throws RepositoryException
+   */
+  @Override
+  public Result getResult( Path absPath ) throws RepositoryException {
+    Result result;
+    synchronized ( monitor ) {
+      if ( absPath == null ) {
+        result = buildRepositoryResult();
+      } else {
+        result = buildResult( absPath );
+      }
+    }
+    return result;
   }
 }

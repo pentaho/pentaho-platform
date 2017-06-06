@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--+
+	| Application context containing LDAP AuthenticationProvider
+	| implementation.
+	+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       						http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd
+       						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd" default-lazy-init="true">
+
+  <bean id="ldapAuthenticationProvider" class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapAuthenticationProvider">
+    <constructor-arg>
+      <ref bean="authenticator" />
+    </constructor-arg>
+    <constructor-arg>
+      <ref bean="populator" />
+    </constructor-arg>
+    <constructor-arg>
+      <ref bean="ldapRoleMapper" />
+    </constructor-arg>
+  </bean>
+
+  <!--
+    Interceptor which changes the thread context classloader to the class' current classloader.
+  -->
+  <bean id="classloaderSwitcherInterceptor" class="org.pentaho.platform.plugin.services.security.userrole.ClassloaderSwitcherInterceptor">
+  </bean>
+
+  <!--
+    This proxy bean is used to change the thread context classloader in order to escape ClassCastException in
+    org.springframework.ldap.odm.typeconversion.impl.ConversionServiceConverterManager
+  -->
+  <bean id="ldapAuthenticationProviderProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.springframework.security.authentication.AuthenticationProvider"/>
+    <property name="target" ref="ldapAuthenticationProvider"/>
+    <property name="interceptorNames">
+      <list>
+        <value>classloaderSwitcherInterceptor</value>
+      </list>
+    </property>
+    <pen:publish as-type="org.springframework.security.authentication.AuthenticationProvider">
+      <pen:attributes>
+        <pen:attr key="providerName" value="ldap"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <bean id="authenticator" class="org.springframework.security.ldap.authentication.BindAuthenticator">
+    <constructor-arg>
+      <ref bean="contextSource" />
+    </constructor-arg>
+    <property name="userSearch">
+      <ref bean="userSearch" />
+    </property>
+  </bean>
+
+  <bean id="contextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+    <constructor-arg value="${ldap.contextSource.providerUrl}"/>
+    <property name="userDn" value="${ldap.contextSource.userDn}"/>
+    <property name="password" value="${ldap.contextSource.password}"/>
+  </bean>
+
+  <!-- be sure to escape ampersands -->
+  <bean id="userSearch"
+        class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+    <constructor-arg index="0" value="${ldap.userSearch.searchBase}" />
+    <constructor-arg index="1" value="${ldap.userSearch.searchFilter}" />
+    <constructor-arg index="2">
+      <ref bean="contextSource" />
+    </constructor-arg>
+  </bean>
+
+  <!-- be sure to escape ampersands -->
+  <bean id="populator"
+        class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
+    <constructor-arg index="0">
+      <ref bean="contextSource" />
+    </constructor-arg>
+    <constructor-arg index="1" value="${ldap.populator.groupSearchBase}" />
+    <property name="groupRoleAttribute" value="${ldap.populator.groupRoleAttribute}" />
+    <!-- {0} will be replaced with user DN; {1} will be replaced with username -->
+    <property name="groupSearchFilter" value="${ldap.populator.groupSearchFilter}" />
+    <property name="rolePrefix" value="${ldap.populator.rolePrefix}" />
+    <property name="convertToUpperCase" value="${ldap.populator.convertToUpperCase}" />
+    <property name="searchSubtree" value="${ldap.populator.searchSubtree}" />
+    <property name="defaultRole" ref="defaultRole" />
+  </bean>
+
+  <bean id="ldapUserDetailsService0"
+        class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserDetailsService">
+    <constructor-arg>
+      <ref bean="userSearch" />
+    </constructor-arg>
+    <constructor-arg>
+      <ref bean="populator" />
+    </constructor-arg>
+    <constructor-arg ref="tenantedUserNameUtils"/>
+  </bean>
+
+  <!--
+    This proxy bean is used to change the thread context classloader in order to escape ClassCastException in
+    org.springframework.ldap.odm.typeconversion.impl.ConversionServiceConverterManager
+  -->
+  <bean id="ldapUserDetailsServiceProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.springframework.security.core.userdetails.UserDetailsService"/>
+    <property name="target" ref="ldapUserDetailsService0"/>
+    <property name="interceptorNames">
+      <list>
+        <value>classloaderSwitcherInterceptor</value>
+      </list>
+    </property>
+  </bean>
+
+    <!-- map ldap role to pentaho security role -->
+    <util:map id="ldapRoleMap">
+        <entry key="${ldap.adminRole}" value="Administrator"/>
+    </util:map>
+
+    <bean id="ldapRoleMapper"
+          class="org.pentaho.platform.engine.security.DefaultLdapRoleMapper">
+        <constructor-arg>
+            <ref bean="ldapRoleMap"/>
+        </constructor-arg>
+        <constructor-arg value="${ldap.allAuthoritiesSearch.roleAttribute}"/>
+    </bean>
+
+  <!--
+    LDAP is different from JDBC and others in that its authenticationProvider does not delegate to a 
+    userDetailsService. While the others use org.springframework.security.providers.dao.DaoAuthenticationProvider which
+    does the password check, LDAP binds as the user to check the password.  Because userDetailsService isn't used by 
+    authenticationProvider, defaultRole property of populator bean must be supplied to automatically inject a default
+    role. This bean is actually not used in this file but instead in applicationContext-pentaho-security-ldap.xml.
+    In that file, userRoleListService uses this bean for fetching roles for a user (e.g. during scheduled jobs). 
+  -->
+  <bean id="ldapUserDetailsService" class="org.pentaho.platform.engine.security.DefaultRoleUserDetailsServiceDecorator">
+    <property name="userDetailsService" ref="ldapUserDetailsServiceProxy" />
+    <property name="defaultRole" ref="defaultRole" />
+    <property name="roleMapper" ref="ldapRoleMapper" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="ldap"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+    <constructor-arg value="ldap"/>
+    <constructor-arg value="applicationContext-security-ldap.properties"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+
+</beans>
+

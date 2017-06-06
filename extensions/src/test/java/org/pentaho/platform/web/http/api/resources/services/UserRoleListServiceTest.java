@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -50,14 +50,20 @@ public class UserRoleListServiceTest {
 
   @Test
   public void testDoGetRolesForUser() throws Exception {
+    String user = "TestUser";
     doReturn( true ).when( userRoleListService ).canAdminister();
-    doReturn( "admin, guest" ).when( userRoleListService ).getRolesForUser( "Administrator" );
-    String roles = userRoleListService.doGetRolesForUser( "Administrator" );
-    assertTrue( roles.length() > 0 );
+    List<String> testRoles = new ArrayList<>();
+    testRoles.add( "Role_1" );
+    testRoles.add( "Role_2" );
+    doReturn( testRoles ).when( userRoleListService ).getRolesForUser( user );
+    List<String> receivedRoles = userRoleListService.doGetRolesForUser( user );
+    assertTrue( receivedRoles.size() == 2 );
+    assertEquals( testRoles.get( 0 ), receivedRoles.get( 0 ) );
+    assertEquals( testRoles.get( 1 ), receivedRoles.get( 1 ) );
 
     try {
       doReturn( false ).when( userRoleListService ).canAdminister();
-      userRoleListService.doGetRolesForUser( "unauthorized" );
+      userRoleListService.doGetRolesForUser( user );
     } catch ( Exception e ) {
       assertTrue( e instanceof UserRoleListService.UnauthorizedException );
     }
@@ -65,14 +71,20 @@ public class UserRoleListServiceTest {
 
   @Test
   public void testDoGetUsersInRole() throws Exception {
+    String role = "TestRole";
     doReturn( true ).when( userRoleListService ).canAdminister();
-    doReturn( "Administrator, Guest" ).when( userRoleListService ).getUsersInRole( "admin" );
-    String users = userRoleListService.doGetUsersInRole( "admin" );
-    assertTrue( users.length() > 0 );
+    List<String> testUsers = new ArrayList<>();
+    testUsers.add( "User_1" );
+    testUsers.add( "User_2" );
+    doReturn( testUsers ).when( userRoleListService ).getUsersInRole( role );
+    List<String> receivedUsers = userRoleListService.getUsersInRole( role );
+    assertTrue( receivedUsers.size() == 2 );
+    assertEquals( testUsers.get( 0 ), receivedUsers.get( 0 ) );
+    assertEquals( testUsers.get( 1 ), receivedUsers.get( 1 ) );
 
     try {
       doReturn( false ).when( userRoleListService ).canAdminister();
-      userRoleListService.doGetUsersInRole( "unauthorized" );
+      userRoleListService.doGetUsersInRole( role );
     } catch ( Exception e ) {
       assertTrue( e instanceof UserRoleListService.UnauthorizedException );
     }

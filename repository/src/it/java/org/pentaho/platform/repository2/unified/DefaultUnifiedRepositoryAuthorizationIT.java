@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified;
@@ -955,7 +955,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
 
   private void findInList( String name, List<String> list ) {
     for ( String listName : list ) {
-      if ( listName.equals( listName ) ) {
+      if ( name.equals( listName ) ) {
         return;
       }
     }

@@ -17,11 +17,14 @@
 
 package org.pentaho.platform.scheduler2.quartz;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
@@ -37,6 +40,7 @@ import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
@@ -46,6 +50,7 @@ import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
 import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
+import org.pentaho.platform.util.ActionUtil;
 import org.quartz.Calendar;
 import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
@@ -76,19 +81,21 @@ import java.util.regex.Pattern;
  */
 public class QuartzScheduler implements IScheduler {
 
-  public static final String RESERVEDMAPKEY_ACTIONCLASS = "ActionAdapterQuartzJob-ActionClass"; //$NON-NLS-1$
+  public static final String RESERVEDMAPKEY_ACTIONCLASS = ActionUtil.QUARTZ_ACTIONCLASS;
 
-  public static final String RESERVEDMAPKEY_ACTIONUSER = "ActionAdapterQuartzJob-ActionUser"; //$NON-NLS-1$
+  public static final String RESERVEDMAPKEY_ACTIONUSER = ActionUtil.QUARTZ_ACTIONUSER;
 
-  public static final String RESERVEDMAPKEY_ACTIONID = "ActionAdapterQuartzJob-ActionId"; //$NON-NLS-1$
+  public static final String RESERVEDMAPKEY_ACTIONID = ActionUtil.QUARTZ_ACTIONID;
 
-  public static final String RESERVEDMAPKEY_STREAMPROVIDER = "ActionAdapterQuartzJob-StreamProvider"; //$NON-NLS-1$
+  public static final String RESERVEDMAPKEY_STREAMPROVIDER = ActionUtil.QUARTZ_STREAMPROVIDER;
 
-  public static final String RESERVEDMAPKEY_UIPASSPARAM = "uiPassParam";
+  public static final String RESERVEDMAPKEY_UIPASSPARAM = ActionUtil.QUARTZ_UIPASSPARAM;
 
-  public static final String RESERVEDMAPKEY_LINEAGE_ID = "lineage-id";
+  public static final String RESERVEDMAPKEY_LINEAGE_ID = ActionUtil.QUARTZ_LINEAGE_ID;
 
-  public static final String RESERVEDMAPKEY_RESTART_FLAG = "ActionAdapterQuartzJob-Restart";
+  public static final String RESERVEDMAPKEY_RESTART_FLAG = ActionUtil.QUARTZ_RESTART_FLAG;
+
+  public static final String RESERVEDMAPKEY_AUTO_CREATE_UNIQUE_FILENAME = ActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
 
   private static final Log logger = LogFactory.getLog( QuartzScheduler.class );
 
@@ -401,12 +408,6 @@ public class QuartzScheduler implements IScheduler {
         } else if ( trigger instanceof CronTrigger ) {
           ( (CronTrigger) trigger ).setPreviousFireTime( new Date() );
         }
-        if ( trigger.getStartTime() != null && trigger.getStartTime().before( new Date() ) ) {
-          Date newStartTime = trigger.getFireTimeAfter( new Date() );
-          if ( newStartTime != null ) {
-            trigger.setStartTime( newStartTime );
-          }
-        }
         // force the trigger to be updated with the previous fire time
         scheduler.rescheduleJob( jobId, jobKey.getUserName(), trigger );
       }
@@ -475,7 +476,7 @@ public class QuartzScheduler implements IScheduler {
             job.setJobId( jobId );
             setJobTrigger( scheduler, job, trigger );
             job.setJobName( QuartzJobKey.parse( jobId ).getJobName() );
-            job.setNextRun( trigger.getNextFireTime() );
+            job.setNextRun( trigger.getFireTimeAfter( new Date() ) );
             job.setLastRun( trigger.getPreviousFireTime() );
             if ( ( filter == null ) || filter.accept( job ) ) {
               jobs.add( job );
@@ -843,6 +844,32 @@ public class QuartzScheduler implements IScheduler {
       IBackgroundExecutionStreamProvider streamProvider ) {
     for ( ISchedulerListener listener : listeners ) {
       listener.jobCompleted( actionBean, actionUser, params, streamProvider );
+    }
+  }
+
+  /**
+   * Checks if the text configuration for the input/output files is present.
+   * If not - silently returns. If present checks if the input file is allowed to be scheduled.
+   * @param jobParams scheduling job parameters
+   * @throws SchedulerException the configuration is recognized but the file can't be scheduled, is a folder or doesn't exist.
+   */
+  @Override public void validateJobParams( Map<String, Serializable> jobParams ) throws SchedulerException {
+    final Object streamProviderObj = jobParams.get( RESERVEDMAPKEY_STREAMPROVIDER );
+    if ( streamProviderObj instanceof String ) {
+      String inputFilePath = null;
+      final String inputOutputString = (String) streamProviderObj;
+      final String[] tokens = inputOutputString.split( ":" );
+      if ( !ArrayUtils.isEmpty( tokens ) && tokens.length == 2 ) {
+        inputFilePath = tokens[ 0 ].split( "=" )[ 1 ].trim();
+        if ( StringUtils.isNotBlank( inputFilePath ) ) {
+          final IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
+          final RepositoryFile repositoryFile = repository.getFile( inputFilePath );
+          if ( ( repositoryFile == null ) || repositoryFile.isFolder() || !repositoryFile.isSchedulable() ) {
+            throw new SchedulerException( Messages.getInstance().getString(
+              "QuartzScheduler.ERROR_0008_SCHEDULING_IS_NOT_ALLOWED" ) );
+          }
+        }
+      }
     }
   }
 }

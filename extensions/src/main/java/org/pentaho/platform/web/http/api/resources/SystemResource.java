@@ -12,22 +12,25 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginOperation;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
@@ -176,9 +179,22 @@ public class SystemResource extends AbstractJaxRSResource {
   @Path( "/locale" )
   @Facet ( name = "Unsupported" )
   public Response setLocaleOverride( String locale ) {
-    PentahoSessionHolder.getSession().setAttribute( "locale_override", locale );
-    if ( !StringUtils.isEmpty( locale ) ) {
-      LocaleHelper.setLocaleOverride( new Locale( locale ) );
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    Locale newLocale = null;
+    if ( session != null ) {
+      if ( !StringUtils.isEmpty( locale ) ) {
+        String localeTmp = locale.replaceAll( "-|/", "_" ); // Clean up "en-US" and "en/GB"
+        try {
+          newLocale = LocaleUtils.toLocale( localeTmp );
+          session.setAttribute( "locale_override", localeTmp );
+          LocaleHelper.setLocaleOverride( newLocale );
+        } catch ( IllegalArgumentException ex ) {
+          return Response.serverError().entity( ex.getMessage() ).build();
+        }
+      } else {
+        session.setAttribute( "locale_override", null ); // empty string or null passed in, unset locale_override variable.
+        LocaleHelper.setLocaleOverride( null );
+      }
     } else {
       LocaleHelper.setLocaleOverride( null );
     }

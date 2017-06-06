@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -96,41 +96,19 @@ public class SystemService {
   }
 
   /**
-   * Returns XML for list of Roles for a given User.
+   * Returns a list of Roles for a given User.
    */
-  public Document getRolesForUser( String user ) throws ServletException, IOException {
+  public List<String> getRolesForUser( String user ) {
     IUserRoleListService service = PentahoSystem.get( IUserRoleListService.class );
-    Element rootElement = new DefaultElement( "roles" ); //$NON-NLS-1$
-    Document doc = DocumentHelper.createDocument( rootElement );
-    if ( service != null ) {
-      List<String> roles = service.getRolesForUser( null, user );
-      for ( Iterator<String> rolesIterator = roles.iterator(); rolesIterator.hasNext(); ) {
-        String roleName = rolesIterator.next().toString();
-        if ( ( null != roleName ) && ( roleName.length() > 0 ) ) {
-          rootElement.addElement( "role" ).setText( roleName ); //$NON-NLS-1$
-        }
-      }
-    }
-    return doc;
+    return service.getRolesForUser( null, user );
   }
 
   /**
-   * Returns XML for list of Users for a given Role.
+   * Returns a list of Users for a given Role.
    */
-  public Document getUsersInRole( String role ) throws ServletException, IOException {
+  public List<String> getUsersInRole( String role ) {
     IUserRoleListService service = PentahoSystem.get( IUserRoleListService.class );
-    Element rootElement = new DefaultElement( "users" ); //$NON-NLS-1$
-    Document doc = DocumentHelper.createDocument( rootElement );
-    if ( service != null ) {
-      List<String> users = service.getUsersInRole( null, role );
-      for ( Iterator<String> usersIterator = users.iterator(); usersIterator.hasNext(); ) {
-        String username = usersIterator.next().toString();
-        if ( ( null != username ) && ( username.length() > 0 ) ) {
-          rootElement.addElement( "user" ).setText( username ); //$NON-NLS-1$
-        }
-      }
-    }
-    return doc;
+    return service.getUsersInRole( null, role );
   }
 
   /**

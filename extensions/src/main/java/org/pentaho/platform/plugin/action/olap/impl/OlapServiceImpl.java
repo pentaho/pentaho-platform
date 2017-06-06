@@ -12,29 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation.  All rights reserved.
  *
 */
 package org.pentaho.platform.plugin.action.olap.impl;
-
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -46,7 +27,6 @@ import mondrian.server.DynamicContentFinder;
 import mondrian.server.MondrianServerRegistry;
 import mondrian.spi.CatalogLocator;
 import mondrian.util.LockBox.Entry;
-
 import mondrian.xmla.XmlaHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,6 +56,25 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the IOlapService which uses the
@@ -503,7 +502,8 @@ public class OlapServiceImpl implements IOlapService {
       // Start by flushing the local cache.
       resetCache( session );
 
-      flushHostedAndRemote( session );
+      flushHostedCatalogs( session );
+      flushRemoteCatalogs( session );
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
     } finally {
@@ -511,21 +511,24 @@ public class OlapServiceImpl implements IOlapService {
     }
   }
 
-  private void flushHostedAndRemote( final IPentahoSession session )
-      throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-    flushCatalogs( getHostedCatalogNames( session ), session );
-    flushCatalogs( getRemoteCatalogNames( session ), session );
+  /**
+   * Flushes all hosted catalogs.
+   */
+  private void flushHostedCatalogs( IPentahoSession session ) throws SQLException {
+    // clean cache for all mondrian schemas used by current mondrian server
+    getServer().getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
+    // clean cache for all mondrian schemas used by mondrian default "static" server
+    MondrianServer.forId( null ).getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
   }
 
   /**
-   * Flushes all catalogs in the catalogNames collection.  If hosted=true
-   * the method breaks after the first successful schemaCacheFlush, since we
-   * know that all schemas will be flushed by the operation.
-   * For remote we assume that each needs to be flushed separately, since
-   * there are possibly multiple servers.
+   * Flushes all remote catalogs accessible to session.
+   * Unlike Hosted Catalogs, remote catalogs need to be
+   * flushed individually since they each may be running
+   * in separate instances.
    */
-  private void flushCatalogs( Collection<String> catalogNames, IPentahoSession session ) throws SQLException {
-    for ( String name : catalogNames ) {
+  private void flushRemoteCatalogs( IPentahoSession session ) throws SQLException {
+    for ( String name : getRemoteCatalogNames( session ) ) {
       OlapConnection connection = null;
       try {
         connection = getConnection( name, session );
@@ -592,18 +595,9 @@ public class OlapServiceImpl implements IOlapService {
     try {
       readLock.lock();
 
-      final List<IOlapService.Catalog> catalogs =
-        new ArrayList<IOlapService.Catalog>();
-      for ( Catalog catalog : cache ) {
-        if ( hasAccess( catalog.name, EnumSet.of( RepositoryFilePermission.READ ), session ) ) {
-          catalogs.add( catalog );
-        }
-      }
-
-      // Do not leak the cache list.
-      // Do not allow modifications on the list.
-      return Collections.unmodifiableList(
-        new ArrayList<IOlapService.Catalog>( cache ) );
+      return cache.stream()
+        .filter( catalog -> hasAccess( catalog.name, EnumSet.of( RepositoryFilePermission.READ ), session ) )
+        .collect( Collectors.toList() );
 
     } finally {
       readLock.unlock();

@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security.event;
@@ -30,7 +30,6 @@ import org.springframework.core.Ordered;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
-import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.util.Assert;
 
 /**
@@ -66,7 +65,7 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
   // =========================================================================================================
 
   public void onApplicationEvent( final ApplicationEvent event ) {
-    if ( event instanceof AuthenticationSuccessEvent || event instanceof InteractiveAuthenticationSuccessEvent ) {
+    if ( event instanceof AuthenticationSuccessEvent ) {
       logger.debug( "received " + event.getClass().getSimpleName() ); //$NON-NLS-1$
       logger.debug( "synchronizing current IPentahoSession with SecurityContext" ); //$NON-NLS-1$
       try {

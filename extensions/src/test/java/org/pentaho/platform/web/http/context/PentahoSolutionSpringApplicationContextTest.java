@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -21,7 +21,6 @@
 
 package org.pentaho.platform.web.http.context;
 
-import com.sun.xml.bind.StringInputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +35,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringBufferInputStream;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -71,7 +71,7 @@ public class PentahoSolutionSpringApplicationContextTest {
 
   @Test( timeout = 2000, expected = SAXException.class )
   public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws IOException, ParserConfigurationException, SAXException {
-    appContext.getResourceDocument( new StringInputStream( XmlTestConstants.MALICIOUS_XML ) );
+    appContext.getResourceDocument( new StringBufferInputStream( XmlTestConstants.MALICIOUS_XML ) );
     fail();
   }
 
@@ -81,6 +81,6 @@ public class PentahoSolutionSpringApplicationContextTest {
       + "<slave_config>"
       + "</slave_config>";
 
-    assertNotNull( appContext.getResourceDocument( new StringInputStream( xml ) ) );
+    assertNotNull( appContext.getResourceDocument( new StringBufferInputStream( xml ) ) );
   }
 }
