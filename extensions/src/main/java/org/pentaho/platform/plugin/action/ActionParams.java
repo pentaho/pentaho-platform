@@ -193,8 +193,8 @@ public class ActionParams {
       return;
     }
 
-    final boolean autoCreateUniqueFilename = params.containsKey( ActionUtil.INVOKER_AUTO_CREATE_UNIQUE_FILENAME )
-      ? Boolean.parseBoolean( params.get( ActionUtil.INVOKER_AUTO_CREATE_UNIQUE_FILENAME ).toString() )
+    final boolean autoCreateUniqueFilename = params.containsKey( ActionUtil.INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME )
+      ? Boolean.parseBoolean( params.get( ActionUtil.INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME ).toString() )
       : true;
 
     params.put( ActionUtil.INVOKER_STREAMPROVIDER,

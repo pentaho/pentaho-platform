@@ -77,8 +77,8 @@ public class DefaultActionInvoker implements IActionInvoker {
       boolean hasInputFile = !StringUtils.isEmpty( inputFile );
       boolean hasOutputPattern = !StringUtils.isEmpty( outputFilePattern );
       if ( hasInputFile && hasOutputPattern ) {
-        boolean autoCreateUniqueFilename = params.get( ActionUtil.INVOKER_AUTO_CREATE_UNIQUE_FILENAME ) == null || params.get(
-          ActionUtil.INVOKER_AUTO_CREATE_UNIQUE_FILENAME ).toString().equalsIgnoreCase( "true" );
+        boolean autoCreateUniqueFilename = params.get( ActionUtil.INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME ) == null
+          || params.get( ActionUtil.INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME ).toString().equalsIgnoreCase( "true" );
         streamProvider = new RepositoryFileStreamProvider( inputFile, outputFilePattern, autoCreateUniqueFilename );
         // put in the map for future lookup
         params.put( ActionUtil.INVOKER_STREAMPROVIDER, streamProvider );
@@ -139,13 +139,13 @@ public class DefaultActionInvoker implements IActionInvoker {
     }
 
     // remove the scheduling infrastructure properties
-    ActionUtil.removeFromMap( params, ActionUtil.INVOKER_ACTIONCLASS );
-    ActionUtil.removeFromMap( params, ActionUtil.INVOKER_ACTIONID );
-    ActionUtil.removeFromMap( params, ActionUtil.INVOKER_ACTIONUSER );
+    params.remove( ActionUtil.INVOKER_ACTIONCLASS );
+    params.remove( ActionUtil.INVOKER_ACTIONID );
+    params.remove( ActionUtil.INVOKER_ACTIONUSER );
     // build the stream provider
     final IBackgroundExecutionStreamProvider streamProvider = getStreamProvider( params );
-    ActionUtil.removeFromMap( params, ActionUtil.INVOKER_STREAMPROVIDER );
-    ActionUtil.removeFromMap( params, ActionUtil.INVOKER_UIPASSPARAM );
+    params.remove( ActionUtil.INVOKER_STREAMPROVIDER );
+    params.remove( ActionUtil.INVOKER_UIPASSPARAM );
 
     final ActionRunner actionBeanRunner = new ActionRunner( actionBean, actionUser, params, streamProvider );
     final ActionInvokeStatus status = new ActionInvokeStatus();

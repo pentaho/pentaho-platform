@@ -33,13 +33,11 @@ import org.pentaho.platform.util.web.MimeHelper;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class ActionUtil {
 
   private static final Log logger = LogFactory.getLog( ActionUtil.class );
-
 
 
   public static final String QUARTZ_ACTIONCLASS = "ActionAdapterQuartzJob-ActionClass"; //$NON-NLS-1$
@@ -57,9 +55,8 @@ public class ActionUtil {
   public static final String INVOKER_STREAMPROVIDER = "streamProvider"; //$NON-NLS-1$
   public static final String INVOKER_STREAMPROVIDER_INPUT_FILE = "inputFile"; //$NON-NLS-
   public static final String INVOKER_STREAMPROVIDER_OUTPUT_FILE_PATTERN = "outputFilePattern"; //$
-  public static final String INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME = "uniqueFileName"; //$NON-NLS-1$
+  public static final String INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME = QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
   public static final String INVOKER_UIPASSPARAM = QUARTZ_UIPASSPARAM;
-  public static final String INVOKER_AUTO_CREATE_UNIQUE_FILENAME = QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
   public static final String INVOKER_RESTART_FLAG = "restart"; //$NON-NLS-1$
   public static final String INVOKER_SESSION = "::session"; //$NON-NLS-1$
 
@@ -72,64 +69,6 @@ public class ActionUtil {
     KEY_MAP.put( ActionUtil.QUARTZ_ACTIONID, ActionUtil.INVOKER_ACTIONID );
     KEY_MAP.put( ActionUtil.QUARTZ_STREAMPROVIDER, ActionUtil.INVOKER_STREAMPROVIDER );
     KEY_MAP.put( ActionUtil.QUARTZ_RESTART_FLAG, ActionUtil.INVOKER_RESTART_FLAG );
-  }
-
-  /**
-   * This method finds the "sibling" of the provided {@code key}, which can be found in the {@code KEY_MAP}, either
-   * as a key within {@code KEY_MAP} or a value. Both keys, the original and the "sibling" are removed from the
-   * provided {@code map}. This is to ensure that when a key to be removed is provided, we remove both copies of the
-   * value from the {@code map}, one that corresponds to the key directly and any that may have been copied under a
-   * different key, as defined within {@code KEY_MAP}.<br><br>
-   * Example:<br>
-   * <pre>
-   * Given maps with the following content:
-   *   map:
-   *      "name" : "john".
-   *      "my-name" : "john",
-   *      "age" : "30"
-   *      "my-age" : "30"
-   *      "address" : "Boston"
-   *
-   *   KEY_MAP:
-   *     "name" : "my-name"
-   *     "age" : "my-age"
-   *
-   * Calling removeFromMap( map, "name" ) results in:
-   *   map:
-   *      "age" : "30"
-   *      "my-age" : "30"
-   *      "address" : "Boston"
-   * Calling removeFromMap( map, "my-age" ) results in:
-   *   map:
-   *      "address" : "Boston"
-   * </pre>
-   *
-   * @param map a {@link Map} of values
-   * @param key the key being removed from the map
-   */
-  public static void removeFromMap( final Map<String, ?> map, final String key ) {
-
-    if ( map == null ) {
-      // nothing to do
-      return;
-    }
-    // remove the item with this key from the map
-    map.remove( key );
-    // find this key in the KEY_MAP
-    final String mappedKey = KEY_MAP.get( key );
-    if ( mappedKey != null ) {
-      map.remove( mappedKey );
-    } else {
-      // mapped key was not found - see if we have a value in the KEY_MAP that matches this key
-      final Iterator<Map.Entry<String, String>> keyMapEntries = KEY_MAP.entrySet().iterator();
-      while ( keyMapEntries.hasNext() ) {
-        final Map.Entry<String, String> entry = keyMapEntries.next();
-        if ( key.equals( entry.getValue() ) ) {
-          map.remove( entry.getValue() );
-          break;
-        }
-      }
-    }
   }
 
   /**
