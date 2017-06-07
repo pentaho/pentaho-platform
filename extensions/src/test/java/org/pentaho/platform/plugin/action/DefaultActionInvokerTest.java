@@ -102,7 +102,7 @@ public class DefaultActionInvokerTest {
     paramMap.put( ActionUtil.INVOKER_STREAMPROVIDER, repositoryFileStreamProvider );
     paramMap.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, inputFile );
     paramMap.put( ActionUtil.INVOKER_STREAMPROVIDER_OUTPUT_FILE_PATTERN, inputFile );
-    paramMap.put( ActionUtil.INVOKER_AUTO_CREATE_UNIQUE_FILENAME, true );
+    paramMap.put( ActionUtil.INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME, true );
     IBackgroundExecutionStreamProvider iBackgroundExecutionStreamProvider = defaultActionInvoker.getStreamProvider( paramMap );
     Assert.assertEquals( iBackgroundExecutionStreamProvider, repositoryFileStreamProvider );
   }

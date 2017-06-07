@@ -101,7 +101,7 @@ public class ActionUtilTest {
     Map<String, String> testMap = new HashMap<>();
     testMap.put( "one", "one" );
     testMap.put( "two", "two" );
-    ActionUtil.removeFromMap( testMap, "one" );
+    testMap.remove( "one" );
     Assert.assertNull( testMap.get( "one" ) );
     Assert.assertEquals( testMap.get( "two" ), "two" );
   }
@@ -112,7 +112,7 @@ public class ActionUtilTest {
     testMap.put( "one", "one" );
     testMap.put( "two", "two" );
     testMap.put( "actionClass", "actionClass" );
-    ActionUtil.removeFromMap( testMap, "actionClass" );
+    testMap.remove( "actionClass" );
     Assert.assertNull( testMap.get( "actionClass" ) );
     Assert.assertEquals( testMap.get( "two" ), "two" );
   }
@@ -122,16 +122,9 @@ public class ActionUtilTest {
     Map<String, String> testMap = new HashMap<>();
     testMap.put( ActionUtil.QUARTZ_ACTIONCLASS, "one" );
     testMap.put( "two", "two" );
-    ActionUtil.removeFromMap( testMap, ActionUtil.QUARTZ_ACTIONCLASS );
+    testMap.remove( ActionUtil.QUARTZ_ACTIONCLASS );
     Assert.assertNull( testMap.get(ActionUtil.QUARTZ_ACTIONCLASS ) );
     Assert.assertEquals( testMap.get( "two" ), "two" );
-  }
-
-  @Test
-  public void removeFromMapNullMapTest() throws Exception {
-    Map<String, String> testMap = null;
-    ActionUtil.removeFromMap( testMap, "one" );
-    Assert.assertNull( testMap );
   }
 
   @Test
