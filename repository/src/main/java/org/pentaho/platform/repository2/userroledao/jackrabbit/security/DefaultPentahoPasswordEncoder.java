@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.userroledao.jackrabbit.security;
@@ -29,21 +29,21 @@ import javax.jcr.SimpleCredentials;
 
 /**
  * Default password encoder for the BI Server.
- * 
+ *
  * <p>
  * This encoder Base64-encodes the raw password.
  * </p>
- * 
+ *
  * <p>
  * This class is instantiated by Pentaho Admin Console so there should not be a dependency on classes to which PAC
  * will not have access.
  * </p>
- * 
+ *
  * <p>
  * This implementation of password encoding is completely independent of any datasource connection password
  * encoding.
  * </p>
- * 
+ *
  * @author mlowery
  */
 public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
@@ -66,10 +66,14 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
 
   public boolean isPasswordValid( final String encPass, final String rawPass, final Object salt )
     throws DataAccessException {
-    Validate.notNull( encPass, Messages.getInstance().getString(
-        "DefaultPentahoPasswordEncoder.ERROR_0002_ENCPASS_CANNOT_BE_NULL" ) ); //$NON-NLS-1$
-    Validate.notNull( rawPass, Messages.getInstance().getString(
-        "DefaultPentahoPasswordEncoder.ERROR_0001_RAWPASS_CANNOT_BE_NULL" ) ); //$NON-NLS-1$
+    try {
+      Validate.notNull( encPass, Messages.getInstance().getString(
+          "DefaultPentahoPasswordEncoder.ERROR_0002_ENCPASS_CANNOT_BE_NULL" ) ); //$NON-NLS-1$
+      Validate.notNull( rawPass, Messages.getInstance().getString(
+          "DefaultPentahoPasswordEncoder.ERROR_0001_RAWPASS_CANNOT_BE_NULL" ) ); //$NON-NLS-1$
+    } catch ( IllegalArgumentException e ) {
+      return false;
+    }
     try {
       CryptedSimpleCredentials credentials = new CryptedSimpleCredentials( "dummyUser", encPass );
       return credentials.matches( new SimpleCredentials( "dummyUser", rawPass.toCharArray() ) );
@@ -77,5 +81,4 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
       throw new RuntimeException( e );
     }
   }
-
 }
