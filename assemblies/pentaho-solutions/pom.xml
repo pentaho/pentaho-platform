@@ -163,7 +163,7 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-json-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
@@ -177,14 +177,14 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-sap-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>pdi-google-analytics-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
@@ -205,56 +205,56 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-s3csvinput-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-hl7-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>gp-bulk-loader-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-gpload-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>elasticsearch-bulk-insert-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-openerp-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-palo-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-shapefilereader-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
@@ -268,7 +268,7 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.pentaho.kettle.plugins</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-drools5-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
