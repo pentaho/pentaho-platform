@@ -74,8 +74,8 @@ public class Messages extends MessagesBase {
     return getErrorString( "ActionInvoker.ERROR_0006_MAP_NULL" );
   }
 
-  public String getRemoteEndpointFailure() {
-    return getErrorString( "ActionInvoker.ERROR_0007_RMEOTE_ENTPOINT_FAILURE" );
+  public String getRemoteEndpointFailure( final String url, final Map params ) {
+    return getErrorString( "ActionInvoker.ERROR_0007_RMEOTE_ENTPOINT_FAILURE", url,  StringUtil.getMapAsPrettyString( params ) );
   }
 
   public String getMapNullCantReturnSp() {
