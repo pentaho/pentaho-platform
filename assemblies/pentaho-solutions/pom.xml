@@ -261,7 +261,7 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho-kettle</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>lucid-db-streaming-loader-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
