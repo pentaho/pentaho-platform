@@ -167,7 +167,8 @@ public class ActionUtil {
       actionBean = actionClass.newInstance();
     } catch ( final Exception e ) {
       throw new ActionInvocationException( Messages.getInstance().getErrorString(
-        "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION", ( actionClass == null ) ? "?" : actionClass.getName() ) );
+        "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION",  StringUtils.isEmpty( actionId ) ? ( actionClass == null ?
+        "?" : actionClass.getName() ) : actionId, e ) );
     }
 
     if ( !( actionBean instanceof IAction ) ) {

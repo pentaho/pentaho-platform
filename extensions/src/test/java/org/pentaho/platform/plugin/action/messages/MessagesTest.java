@@ -85,8 +85,13 @@ public class MessagesTest {
 
   @Test
   public void testGetRemoteEndpointFailure() {
-    Assert.assertEquals( "ActionInvoker.ERROR_0007 - Unable to execute the remote endpoint", messages
-      .getRemoteEndpointFailure() );
+    final String url = "http:///foo.com/myEndpoint";
+    final Map<String, String> params = new HashMap<String, String>();
+    params.put( "key1", "val1" );
+    params.put( "key2", "val2" );
+    Assert.assertEquals( "ActionInvoker.ERROR_0007 - Unable to execute the remote endpoint \"" + url+ "\": Map = " +
+        NL + "{" + NL + "    key1 = val1 java.lang.String" + NL + "    key2 = val2 java.lang.String" + NL + "} java"
+        + ".util.HashMap" + NL, messages.getRemoteEndpointFailure( url, params ) );
   }
 
   @Test
