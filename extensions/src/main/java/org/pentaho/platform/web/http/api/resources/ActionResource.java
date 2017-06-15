@@ -18,9 +18,9 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpStatus;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.action.IAction;

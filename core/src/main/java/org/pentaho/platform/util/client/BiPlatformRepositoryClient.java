@@ -12,13 +12,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.util.client;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.dom4j.Document;
 
 public class BiPlatformRepositoryClient {
@@ -46,7 +46,7 @@ public class BiPlatformRepositoryClient {
    * document
    */
   public void connect() throws ServiceException {
-    GetMethod callMethod = new GetMethod( serverUri + "/SolutionRepositoryService?component=getSolutionRepositoryDoc" ); //$NON-NLS-1$
+    HttpGet callMethod = new HttpGet( serverUri + "/SolutionRepositoryService?component=getSolutionRepositoryDoc" ); //$NON-NLS-1$
 
     HttpClient client = ClientUtil.getClient( userId, password );
     Document doc = ClientUtil.getResultDom4jDocument( client, callMethod );
