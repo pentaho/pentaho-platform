@@ -12,20 +12,16 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.util.web;
 
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.SimpleHttpConnectionManager;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.pentaho.di.core.util.HttpClientManager;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.Messages;
 
@@ -43,61 +39,48 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class HttpUtil {
+  //7 seconds
+  public static final int PAGE_TIMEOUT = 7_000;
+  //3 seconds
+  public static final int CONNECTION_TIMEOUT = 3_000;
+
+  private static HttpClientManager httpClientManager = HttpClientManager.getInstance();
+  private static HttpClientManager.HttpClientBuilderFacade clientBuilder = httpClientManager.createBuilder();
 
   public static HttpClient getClient() {
+    clientBuilder.setSocketTimeout( PAGE_TIMEOUT ).setConnectionTimeout( CONNECTION_TIMEOUT );
 
-    int connectionTimeout = 3000;
-    int pageTimeout = 7000;
-    HttpConnectionManager connectionManager = new SimpleHttpConnectionManager();
-    HttpConnectionManagerParams connectionParams = connectionManager.getParams();
-    connectionParams.setConnectionTimeout( connectionTimeout );
-    connectionParams.setSoTimeout( pageTimeout );
-
-    HttpClient httpClient = null;
-    if ( connectionManager != null ) {
-      httpClient = new HttpClient( connectionManager );
-    }
-    return httpClient;
-
+    return clientBuilder.build();
   }
 
-  public static boolean getURLContent( final String url, final StringBuffer content ) throws MalformedURLException,
-    IOException {
-
-    HttpClient httpClient = HttpUtil.getClient();
-
+  public static boolean getURLContent( final String url, final StringBuffer content ) throws IOException {
     try {
-      HostConfiguration hostConfig = null;
-      if ( StringUtils.isNotEmpty( System.getProperty( "http.proxyHost" ) ) ) {
-        hostConfig = new HostConfiguration() {
-          @Override
-          public synchronized String getProxyHost() {
-            return System.getProperty( "http.proxyHost" );
-          }
+      HttpClient httpClient = null;
 
-          @Override
-          public synchronized int getProxyPort() {
-            return Integer.parseInt( System.getProperty( "http.proxyPort" ) );
-          }
-        };
-        httpClient.setHostConfiguration( hostConfig );
-        if ( System.getProperty( "http.proxyUser" ) != null
-          && System.getProperty( "http.proxyUser" ).trim().length() > 0 ) {
-          httpClient.getState().setProxyCredentials(
-            new AuthScope( System.getProperty( "http.proxyHost" ),
-              Integer.parseInt( System.getProperty( "http.proxyPort" ) ) ),
-            new UsernamePasswordCredentials( System.getProperty( "http.proxyUser" ),
-              System.getProperty( "http.proxyPassword" ) )
-          );
+      String host = System.getProperty( "http.proxyHost" );
+      String port = System.getProperty( "http.proxyPort" );
+
+      if ( StringUtils.isNotEmpty( host ) && StringUtils.isNotEmpty( port ) ) {
+        clientBuilder.setProxy( host, Integer.parseInt( port ) ).
+          setSocketTimeout( PAGE_TIMEOUT ).setConnectionTimeout( CONNECTION_TIMEOUT );
+        String user = System.getProperty( "http.proxyUser" );
+        if ( StringUtils.isNotBlank( user ) ) {
+          String password = System.getProperty( "http.proxyPassword" );
+          clientBuilder.setCredentials( user, password );
+          httpClient = clientBuilder.build();
+        }
+
+        if ( httpClient == null ) {
+          httpClient = getClient();
         }
       }
 
-
-      GetMethod call = new GetMethod( url );
-
-      int status = httpClient.executeMethod( hostConfig, call );
+      HttpGet call = new HttpGet( url );
+      // execute the HTTP call
+      HttpResponse httpResponse = httpClient.execute( call );
+      final int status = httpResponse.getStatusLine().getStatusCode();
       if ( status == 200 ) {
-        InputStream response = call.getResponseBodyAsStream();
+        InputStream response = httpResponse.getEntity().getContent();
         try {
           byte[] buffer = new byte[ 2048 ];
           int size = response.read( buffer );
@@ -236,7 +219,7 @@ public class HttpUtil {
     char c;
     for ( int i = 0; i < s.length(); i++ ) {
       c = s.charAt( i );
-      switch( c ) {
+      switch ( c ) {
         case 43: { // '+'
           sb.append( ' ' );
           break;

@@ -18,9 +18,9 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpStatus;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.action.IAction;
@@ -176,7 +176,7 @@ public class ActionResource {
         Optional.ofNullable( mdcContextMap ).ifPresent( s -> MDC.setContextMap( mdcContextMap ) );
 
         // instantiate the DefaultActionInvoker directly to force local invocation of the action
-        final IActionInvoker actionInvoker = new WorkerNodeActionInvokerAuditor ( resource.getDefaultActionInvoker() );
+        final IActionInvoker actionInvoker = new WorkerNodeActionInvokerAuditor( resource.getDefaultActionInvoker() );
 
         IActionInvokeStatus status = actionInvoker.invokeAction( action, actionUser, params );
 

@@ -17,7 +17,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,7 +45,6 @@ import javax.ws.rs.core.Response;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Tests the {@link ActionResource} within the context of CE.
@@ -76,7 +75,6 @@ public class ActionResourceTest {
     resourceMock = Mockito.spy( ActionResource.class );
     resource = new ActionResource();
     expectedResult = Response.status( HttpStatus.SC_ACCEPTED ).build();
-    final ExecutorService executorService = Mockito.spy( Executors.newFixedThreadPool( 1 ) );
     resource.executorService = Mockito.mock( ExecutorService.class );
 
     session = new StandaloneSession();
