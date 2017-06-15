@@ -166,9 +166,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>${commons-httpclient.version}</version>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>${httpclient.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -176,6 +176,12 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.4.6</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>
@@ -527,6 +533,10 @@
           <artifactId>xalan</artifactId>
           <groupId>xalan</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>commons-httpclient</artifactId>
+          <groupId>commons-httpclient</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -564,6 +574,11 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>pentaho-kettle</groupId>
+      <artifactId>kettle-core</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>

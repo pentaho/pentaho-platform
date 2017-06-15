@@ -180,7 +180,7 @@
     <owasp.encoder.version>1.2</owasp.encoder.version>
     <powermock.version>1.6.3</powermock.version>
     <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
-    <commons-httpclient.version>3.1</commons-httpclient.version>
+    <httpclient.version>4.5.3</httpclient.version>
     <derby.version>10.5.3.0_1</derby.version>
     <ehcache-core.version>2.5.1</ehcache-core.version>
     <mockito-core.version>1.10.19</mockito-core.version>
@@ -199,7 +199,7 @@
     <rome.version>1.0</rome.version>
     <javatar.version>2.5</javatar.version>
     <elasticsearch.version>0.16.3</elasticsearch.version>
-    <httpcore.version>4.0-beta3</httpcore.version>
+    <httpcore.version>4.4.6</httpcore.version>
     <jfreechart.version>1.0.13</jfreechart.version>
     <monetdb-jdbc.version>2.8</monetdb-jdbc.version>
     <taglibs-standard-impl.version>1.2.5</taglibs-standard-impl.version>
