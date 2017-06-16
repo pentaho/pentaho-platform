@@ -116,25 +116,25 @@ public class CommandLineProcessorTest extends Assert {
     if ( key == null ) {
       return "";
     }
-    return prefix + Messages.getInstance().getString( "CommandLineProcessor." + key );
+    return prefix + key;
   }
 
   @Test
   public void get001ConstructorTest() throws ParseException {
     try {
-      testRequestType( "INFO_OPTION_HELP_KEY", null, RequestType.HELP );
-      testRequestType( "INFO_OPTION_REST_KEY", null, RequestType.REST );
-      testRequestType( "INFO_OPTION_BACKUP_KEY", null, RequestType.BACKUP );
-      testRequestType( "INFO_OPTION_RESTORE_KEY", null, RequestType.RESTORE );
-      testRequestType( "INFO_OPTION_IMPORT_KEY", null, RequestType.IMPORT );
-      testRequestType( "INFO_OPTION_EXPORT_KEY", null, RequestType.EXPORT );
+      testRequestType( "h", null, RequestType.HELP );
+      testRequestType( "rest", null, RequestType.REST );
+      testRequestType( "backup", null, RequestType.BACKUP );
+      testRequestType( "restore", null, RequestType.RESTORE );
+      testRequestType( "i", null, RequestType.IMPORT );
+      testRequestType( "e", null, RequestType.EXPORT );
 
-      testRequestType( null, "INFO_OPTION_HELP_NAME", RequestType.HELP );
-      testRequestType( null, "INFO_OPTION_REST_NAME", RequestType.REST );
-      testRequestType( null, "INFO_OPTION_BACKUP_NAME", RequestType.BACKUP );
-      testRequestType( null, "INFO_OPTION_RESTORE_NAME", RequestType.RESTORE );
-      testRequestType( null, "INFO_OPTION_IMPORT_NAME", RequestType.IMPORT );
-      testRequestType( null, "INFO_OPTION_EXPORT_NAME", RequestType.EXPORT );
+      testRequestType( null, "help", RequestType.HELP );
+      testRequestType( null, "rest", RequestType.REST );
+      testRequestType( null, "backup", RequestType.BACKUP );
+      testRequestType( null, "restore", RequestType.RESTORE );
+      testRequestType( null, "import", RequestType.IMPORT );
+      testRequestType( null, "export", RequestType.EXPORT );
 
       try {
         createCommandLineProcessor( null, null );
@@ -190,9 +190,9 @@ public class CommandLineProcessorTest extends Assert {
   public void get004GetOptionValueTest() throws ParseException {
     depensOnConstructor();
 
-    String requestType = getOption( "-", "INFO_OPTION_IMPORT_KEY" );
-    String shortOption = getOption( "INFO_OPTION_USERNAME_KEY" );
-    String longOption = getOption( "INFO_OPTION_USERNAME_NAME" );
+    String requestType = getOption( "-", "i" );
+    String shortOption = getOption( "u" );
+    String longOption = getOption( "username" );
 
     CommandLineProcessor clp = new CommandLineProcessor( new String[] { requestType, "-" + shortOption + "=value" } );
 
