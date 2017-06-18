@@ -27,7 +27,7 @@ import java.util.Map;
 public interface IActionInvoker {
 
   /**
-   * Invokes the {@link IAction} {@code action} in the background.
+   * Invokes the {@link IAction} {@code action}.
    *
    * @param action The {@link IAction} to be invoked
    * @param user   The user invoking the action
@@ -35,6 +35,6 @@ public interface IActionInvoker {
    * @return the {@link IActionInvokeStatus} object containing information about the action invocation
    * @throws Exception if the action cannot be run for some reason
    */
-  IActionInvokeStatus runInBackground( IAction action, final String user, final Map<String, Serializable> params )
+  IActionInvokeStatus invokeAction( IAction action, final String user, final Map<String, Serializable> params )
     throws Exception;
 }

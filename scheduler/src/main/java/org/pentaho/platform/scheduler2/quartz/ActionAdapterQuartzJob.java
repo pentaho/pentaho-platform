@@ -134,7 +134,7 @@ public class ActionAdapterQuartzJob implements Job {
     }
 
     // Invoke the action and get the status of the invocation
-    final IActionInvokeStatus status = actionInvoker.runInBackground( actionBean, actionUser, params );
+    final IActionInvokeStatus status = actionInvoker.invokeAction( actionBean, actionUser, params );
 
     // Status may not be available for remote execution, which is expected
     if ( status == null ) {

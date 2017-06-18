@@ -45,30 +45,30 @@ public class DefaultActionInvokerTest {
   }
 
   @Test
-  public void runInBackgroundLocallyTest() throws Exception {
+  public void invokeActionLocallyTest() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
     testMap.put( ActionUtil.QUARTZ_ACTIONCLASS, "one" );
     testMap.put( ActionUtil.QUARTZ_ACTIONUSER, "two" );
     IAction iaction = ActionUtil.createActionBean( ActionSequenceAction.class.getName(), null );
     ActionInvokeStatus actionInvokeStatus =
-      (ActionInvokeStatus) defaultActionInvoker.runInBackground( iaction, "aUser", testMap );
+      (ActionInvokeStatus) defaultActionInvoker.invokeAction( iaction, "aUser", testMap );
     Assert.assertFalse( actionInvokeStatus.requiresUpdate() );
   }
 
   @Test
-  public void runInBackgroundTest() throws Exception {
+  public void invokeActionTest() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
     testMap.put( ActionUtil.QUARTZ_ACTIONCLASS, "one" );
     testMap.put( ActionUtil.QUARTZ_ACTIONUSER, "two" );
     IAction iaction = ActionUtil.createActionBean( ActionSequenceAction.class.getName(), null );
     ActionInvokeStatus actionInvokeStatus =
-      (ActionInvokeStatus) defaultActionInvoker.runInBackground( iaction, "aUser", testMap );
+      (ActionInvokeStatus) defaultActionInvoker.invokeAction( iaction, "aUser", testMap );
     Assert.assertFalse( actionInvokeStatus.requiresUpdate() );
   }
 
   @Test( expected = ActionInvocationException.class )
-  public void runInBackgroundLocallyWithNullsThrowsExceptionTest() throws Exception {
-    defaultActionInvoker.runInBackground( null, "aUser", null );
+  public void invokeActionLocallyWithNullsThrowsExceptionTest() throws Exception {
+    defaultActionInvoker.invokeAction( null, "aUser", null );
   }
 
 
