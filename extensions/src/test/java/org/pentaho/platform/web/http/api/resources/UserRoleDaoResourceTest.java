@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -472,7 +472,13 @@ public class UserRoleDaoResourceTest {
 
   @Test
   public void testCreateRole() throws Exception {
-    Response response = userRoleResource.createRole( "newRole" );
+    Response response = userRoleResource.createRole( "newRole", null );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+  }
+
+  @Test
+  public void testCreateRoleFormParam() throws Exception {
+    Response response = userRoleResource.createRole( null, "newRole" );
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
   }
 
@@ -483,7 +489,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoResource resource =
       new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
-      resource.createRole( "anyRoleName" );
+      resource.createRole( "anyRoleName", null );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }
@@ -496,7 +502,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoResource resource =
       new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
-      resource.createRole( "" );
+      resource.createRole( "", null );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus() );
     }
