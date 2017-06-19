@@ -99,7 +99,7 @@ public class ActionResourceTest {
 
   @Test
   public void testRunInBackgroundNegative() {
-    // verify that no matter what is passed to the runInBackground method, including nulls and other "bad" input, it
+    // verify that no matter what is passed to the invokeAction method, including nulls and other "bad" input, it
     // returns the expected status
     final String[] badStrInput = new String[] { null, "", " ", "foo" };
     for ( final String actionId : badStrInput ) {
@@ -116,7 +116,7 @@ public class ActionResourceTest {
   }
 
   /**
-   * Verifies that calling runInBackground has the desired effect, namely the executor submitting a RunnableAction
+   * Verifies that calling invokeAction has the desired effect, namely the executor submitting a RunnableAction
    * for execution.
    */
   @Test
@@ -197,22 +197,22 @@ public class ActionResourceTest {
     // verify that deserialize is called with the expected parameters
     Mockito.verify( runnableAction, Mockito.times( 1 ) ).deserialize( Mockito.any( actionClass ),
       Mockito.eq( actionParams ) );
-    // verify that runInBackgroundLocally is called with the expected parameters
-    Mockito.verify( defaultActionInvoker, Mockito.times( 1 ) ).runInBackground( Mockito.eq( action ), Mockito
+    // verify that invokeAction is called with the expected parameters
+    Mockito.verify( defaultActionInvoker, Mockito.times( 1 ) ).invokeAction( Mockito.eq( action ), Mockito
       .eq( actionUser ), Mockito.eq( params ) );
   }
 }
 
 /**
- * Test class, created so that we can override the runInBackgroundLocally to return null for testing puroses. When
- * mocking the action invoker and verifying a call to runInBackgroundLocally with Matchers, the actual values seen by
+ * Test class, created so that we can override the invokeAction to return null for testing puroses. When
+ * mocking the action invoker and verifying a call to invokeAction with Matchers, the actual values seen by
  * the method internally are null and that causes exceptions, which we want to avoid - we are only concerned with
  * ensuring that the call to the method is made with the correct parameter types.
  */
 class MyDefaultActionInvoker extends DefaultActionInvoker {
 
   @Override
-  public IActionInvokeStatus runInBackground( final IAction actionBean, final String actionUser, final
+  public IActionInvokeStatus invokeAction( final IAction actionBean, final String actionUser, final
   Map<String, Serializable> params ) throws Exception {
     return null;
   }

@@ -103,13 +103,13 @@ public class DefaultActionInvoker implements IActionInvoker {
    * @throws Exception when the {@code IAction} cannot be invoked for some reason.
    */
   @Override
-  public IActionInvokeStatus runInBackground( final IAction actionBean, final String actionUser, final
+  public IActionInvokeStatus invokeAction( final IAction actionBean, final String actionUser, final
     Map<String, Serializable> params ) throws Exception {
     ActionUtil.prepareMap( params );
     // call getStreamProvider, in addition to creating the provider, this method also adds values to the map that
     // serialize the stream provider and make it possible to deserialize and recreate it for remote execution.
     getStreamProvider( params );
-    return runInBackgroundImpl( actionBean, actionUser, params );
+    return invokeActionImpl( actionBean, actionUser, params );
   }
 
   /**
@@ -121,7 +121,7 @@ public class DefaultActionInvoker implements IActionInvoker {
    * @return the {@link IActionInvokeStatus} object containing information about the action invocation
    * @throws Exception when the {@code IAction} cannot be invoked for some reason.
    */
-  protected IActionInvokeStatus runInBackgroundImpl( final IAction actionBean, final String actionUser, final
+  protected IActionInvokeStatus invokeActionImpl( final IAction actionBean, final String actionUser, final
     Map<String, Serializable> params ) throws Exception {
 
     if ( actionBean == null || params == null ) {

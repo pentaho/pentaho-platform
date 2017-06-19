@@ -61,7 +61,7 @@ public class ActionResource {
    *
    * @param actionId     the action id, if applicable
    * @param actionClass  the action class name, if applicable
-   * @param user         the user invoking the action
+   * @param actionUser   the user invoking the action
    * @param actionParams the action parameters needed to instantiate and invoke the action
    * @return a {@link Response}
    */
@@ -77,10 +77,10 @@ public class ActionResource {
   public Response runInBackground(
     @QueryParam( ActionUtil.INVOKER_ACTIONID ) String actionId,
     @QueryParam( ActionUtil.INVOKER_ACTIONCLASS ) String actionClass,
-    @QueryParam( ActionUtil.INVOKER_ACTIONUSER ) String user,
+    @QueryParam( ActionUtil.INVOKER_ACTIONUSER ) String actionUser,
     final String actionParams ) {
 
-    executorService.submit( createRunnable( actionId, actionClass, user, actionParams ) );
+    executorService.submit( createRunnable( actionId, actionClass, actionUser, actionParams ) );
     return Response.status( HttpStatus.SC_ACCEPTED ).build();
   }
 
@@ -150,7 +150,7 @@ public class ActionResource {
         final IAction action = createActionBean( actionClass, actionId );
         final Map<String, Serializable> params = deserialize( action, actionParams );
 
-        final IActionInvokeStatus status = actionInvoker.runInBackground( action, user, params );
+        final IActionInvokeStatus status = actionInvoker.invokeAction( action, user, params );
         if ( status.getThrowable() == null ) {
           logger.info( Messages.getInstance().getRunningInBgLocallySuccess( action.getClass().getName(), params ),
             status.getThrowable() );
