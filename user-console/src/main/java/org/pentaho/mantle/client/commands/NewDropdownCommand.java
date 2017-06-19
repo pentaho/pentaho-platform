@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.commands;
@@ -24,11 +24,11 @@ import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
@@ -39,7 +39,6 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-
 import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
@@ -165,27 +164,30 @@ public class NewDropdownCommand extends AbstractCommand {
             popup.add( buttonPanel );
             for ( int i = 0; i < sorted.size(); i++ ) {
               final int finali = i;
-              Button button = new Button( Messages.getString( sorted.get( i ).getLabel() ) );
-              button.setStyleName( "pentaho-button" );
-              button.getElement().addClassName( "newToolbarDropdownButton" );
-              button.addClickHandler( new ClickHandler() {
-                public void onClick( ClickEvent event ) {
-                    if (sorted.get( finali ).getActionUrl().startsWith("javascript:")) {
-                      doEvalJS(sorted.get( finali ).getActionUrl().substring("javascript:".length()));
+              String enabledUrl = sorted.get( i ).getEnabledUrl();
+              if ( buttonEnabled( enabledUrl ) ) {
+                Button button = new Button( Messages.getString( sorted.get( i ).getLabel() ) );
+                button.setStyleName( "pentaho-button" );
+                button.getElement().addClassName( "newToolbarDropdownButton" );
+                button.addClickHandler( new ClickHandler() {
+                  public void onClick( ClickEvent event ) {
+                    if ( sorted.get( finali ).getActionUrl().startsWith( "javascript:" ) ) {
+                      doEvalJS( sorted.get( finali ).getActionUrl().substring( "javascript:".length() ) );
                     } else {
                       SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(
-                        Messages.getString( sorted.get( finali ).getTabName() ),
-                        Messages.getString( sorted.get( finali ).getTabName() ), sorted.get( finali ).getActionUrl(),
-                        false );
+                              Messages.getString( sorted.get( finali ).getTabName() ),
+                              Messages.getString( sorted.get( finali ).getTabName() ), sorted.get( finali ).getActionUrl(),
+                              false );
                     }
-                  popup.hide();
+                    popup.hide();
+                  }
+                } );
+                String name = sorted.get( i ).getName();
+                if ( "data-access".equals( name ) ) {
+                  buttonPanel.add( new HTML( "<hr style='color: #a7a7a7' />" ) );
                 }
-              } );
-              String name = sorted.get( i ).getName();
-              if ("data-access".equals(name)) {
-                  buttonPanel.add(new HTML("<hr style='color: #a7a7a7' />"));
+                buttonPanel.add( button );
               }
-              buttonPanel.add( button );
             }
             popup.setPopupPosition( anchorWidget.getAbsoluteLeft(), anchorWidget.getAbsoluteTop()
                 + anchorWidget.getOffsetHeight() );
@@ -198,6 +200,19 @@ public class NewDropdownCommand extends AbstractCommand {
           }
         }
 
+        private boolean buttonEnabled( String enabledUrl ) {
+          if ( enabledUrl == null || enabledUrl.isEmpty() ) {
+            return true;
+          } else {
+            Boolean enabled = false;
+            try {
+              enabled = Boolean.valueOf( sendRequest( enabledUrl ) );
+            } catch ( Exception e ) {
+            }
+            return enabled;
+          }
+        }
+
       } );
     } catch ( RequestException e ) {
       MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ), e.getMessage(), //$NON-NLS-1$ //$NON-NLS-2$
@@ -207,10 +222,14 @@ public class NewDropdownCommand extends AbstractCommand {
 
   }
 
-  public static native void doEvalJS(String js) /*-{
-    eval(js);
+  public static native void doEvalJS( String js ) /*-{
+    eval( js );
 }-*/;
-  
+
+  public static native String sendRequest( String url ) /*-{
+    return $wnd.sendRequest( url );
+  }-*/;
+
   private native JsArray<JsCreateNewConfig> parseJson( String json )
   /*-{
     var obj = JSON.parse(json);

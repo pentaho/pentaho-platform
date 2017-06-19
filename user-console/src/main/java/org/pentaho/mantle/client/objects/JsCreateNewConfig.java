@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.objects;
@@ -51,6 +51,16 @@ public class JsCreateNewConfig extends JavaScriptObject {
     String value = getValue();
     StringTokenizer st = new StringTokenizer( value, ',' );
     return st.tokenAt( 3 ).trim();
+  }
+
+  public final String getEnabledUrl() {
+    String value = getValue();
+    StringTokenizer st = new StringTokenizer( value, ',' );
+    if ( st.countTokens() < 5 ) {
+      return null;
+    } else {
+      return st.tokenAt( 4 ).trim();
+    }
   }
 
 }
