@@ -59,6 +59,8 @@ public class ActionUtil {
   public static final String INVOKER_UIPASSPARAM = QUARTZ_UIPASSPARAM;
   public static final String INVOKER_RESTART_FLAG = "restart"; //$NON-NLS-1$
   public static final String INVOKER_SESSION = "::session"; //$NON-NLS-1$
+  public static final String INVOKER_ASYNC_EXEC = "async"; //$NON-NLS-1$
+  public static final String INVOKER_DEFAULT_ASYNC_EXEC_VALUE = "true"; //$NON-NLS-1$
 
   private static final Map<String, String> KEY_MAP;
 
@@ -167,8 +169,8 @@ public class ActionUtil {
       actionBean = actionClass.newInstance();
     } catch ( final Exception e ) {
       throw new ActionInvocationException( Messages.getInstance().getErrorString(
-        "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION",  StringUtils.isEmpty( actionId ) ? ( actionClass == null ?
-        "?" : actionClass.getName() ) : actionId, e ) );
+        "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION",  StringUtils.isEmpty( actionId ) ? ( actionClass == null
+                      ? "?" : actionClass.getName() ) : actionId, e ) );
     }
 
     if ( !( actionBean instanceof IAction ) ) {
