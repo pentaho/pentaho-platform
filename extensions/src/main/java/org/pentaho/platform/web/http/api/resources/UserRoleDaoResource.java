@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -29,6 +29,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -396,8 +397,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "Unable to create role objects." )
     } )
-  public Response createRole( @QueryParam( "roleName" ) String roleName ) {
+  public Response createRole( @QueryParam( "roleName" ) String queryRoleName, @FormParam( "roleName" ) String formRoleName ) {
     try {
+      String roleName = queryRoleName == null ? formRoleName : queryRoleName;
       userRoleDaoService.createRole( roleName );
     } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
