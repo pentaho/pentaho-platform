@@ -30,8 +30,8 @@
    	<dependency org="javax.mail" name="mail" rev="1.4.1" transitive="false" />
         
     <!-- metro -->
-	<dependency org="org.glassfish.metro" name="webservices-api" rev="2.1" transitive="false"/>
-	<dependency org="org.glassfish.metro" name="webservices-rt" rev="2.1" transitive="false"/>
+	<dependency org="org.glassfish.metro" name="webservices-api" rev="${dependency.org.glassfish.metro.revision}" transitive="false"/>
+	<dependency org="org.glassfish.metro" name="webservices-rt" rev="${dependency.org.glassfish.metro.revision}" transitive="false"/>
     <dependency org="org.springframework" name="spring-core" rev="${dependency.spring.framework.revision}" transitive="false" conf="test->default" />
     <dependency org="org.springframework" name="spring-web"  rev="${dependency.spring.framework.revision}" transitive="false" conf="test->default" />
     <dependency org="org.springframework" name="spring-test" rev="${dependency.spring.framework.revision}" conf="test->default" />
