@@ -35,6 +35,7 @@ import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -42,6 +43,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,7 +68,7 @@ public class ActionResource {
    * @return a {@link Response}
    */
   @POST
-  @Path( "/runInBackground" )
+  @Path( "/invoke" )
   @Consumes( { TEXT_PLAIN } )
   @StatusCodes( {
       @ResponseCode( code = 200, condition = "Action invoked successfully." ),
@@ -74,28 +76,50 @@ public class ActionResource {
       @ResponseCode( code = 401, condition = "User does not have permissions to invoke action" ),
       @ResponseCode( code = 500, condition = "Error while retrieving system resources." ),
     } )
-  public Response runInBackground(
+  public Response invokeAction(
+    @QueryParam( ActionUtil.INVOKER_ASYNC_EXEC ) @DefaultValue( ActionUtil.INVOKER_DEFAULT_ASYNC_EXEC_VALUE ) String async,
     @QueryParam( ActionUtil.INVOKER_ACTIONID ) String actionId,
     @QueryParam( ActionUtil.INVOKER_ACTIONCLASS ) String actionClass,
     @QueryParam( ActionUtil.INVOKER_ACTIONUSER ) String actionUser,
     final String actionParams ) {
 
-    executorService.submit( createRunnable( actionId, actionClass, actionUser, actionParams ) );
-    return Response.status( HttpStatus.SC_ACCEPTED ).build();
+    // https://docs.oracle.com/javase/7/docs/api/java/lang/Boolean.html#parseBoolean(java.lang.String)
+    boolean isAsyncExecution = Boolean.parseBoolean( async );
+    int httpStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR; // default ( pessimistic )
+
+    if ( isAsyncExecution ) {
+
+      // default scenario for execution
+      executorService.submit( createCallable( actionId, actionClass, actionUser, actionParams ) );
+      httpStatus = HttpStatus.SC_ACCEPTED;
+
+    } else {
+
+      try {
+
+        IActionInvokeStatus status = createCallable( actionId, actionClass, actionUser, actionParams ).call();
+        httpStatus = ( status != null && status.getThrowable() == null ) ? HttpStatus.SC_OK : HttpStatus.SC_INTERNAL_SERVER_ERROR;
+
+      } catch ( Throwable t ) {
+        getLogger().error( t );
+      }
+    }
+
+    return Response.status( httpStatus ).build();
   }
 
   /**
-   * Returns a {@link RunnableAction} that creates the {@link IAction} and invokes it.
+   * Returns a {@link CallableAction} that creates the {@link IAction} and invokes it.
    *
    * @param actionId     the action id, if applicable
    * @param actionClass  the action class name, if applicable
    * @param user         the user invoking the action
    * @param actionParams the action parameters needed to instantiate and invoke the action
-   * @return a {@link RunnableAction} that creates the {@link IAction} and invokes it
+   * @return a {@link CallableAction} that creates the {@link IAction} and invokes it
    */
-  protected RunnableAction createRunnable( final String actionId, final String actionClass, final String user, final
+  protected CallableAction createCallable( final String actionId, final String actionClass, final String user, final
     String actionParams ) {
-    return new RunnableAction( this, actionId, actionClass, user, actionParams );
+    return new CallableAction( this, actionId, actionClass, user, actionParams );
   }
 
   /**
@@ -112,9 +136,9 @@ public class ActionResource {
   }
 
   /**
-   * A {@link Runnable} implementation that creates the {@link IAction} and invokes it.
+   * A {@link Callable} implementation that creates the {@link IAction} and invokes it.
    */
-  static class RunnableAction implements Runnable {
+  static class CallableAction implements Callable {
 
     protected ActionResource resource;
     protected String actionId;
@@ -122,10 +146,10 @@ public class ActionResource {
     protected String user;
     protected String actionParams;
 
-    RunnableAction() {
+    CallableAction() {
     }
 
-    public RunnableAction( final ActionResource resource, final String actionId, final String actionClass, final
+    public CallableAction( final ActionResource resource, final String actionId, final String actionClass, final
       String user, final String actionParams ) {
       this.resource = resource;
       this.actionClass = actionClass;
@@ -139,30 +163,41 @@ public class ActionResource {
     }
 
     Map<String, Serializable> deserialize( final IAction action, final String actionParams )
-      throws IOException, ActionInvocationException {
+            throws IOException, ActionInvocationException {
       return ActionParams.deserialize( action, ActionParams.fromJson( actionParams ) );
     }
 
-    public void run() {
+    @Override
+    public IActionInvokeStatus call() throws Exception {
       try {
         // instantiate the DefaultActionInvoker directly to force local invocation of the action
         final IActionInvoker actionInvoker = resource.getDefaultActionInvoker();
         final IAction action = createActionBean( actionClass, actionId );
         final Map<String, Serializable> params = deserialize( action, actionParams );
 
-        final IActionInvokeStatus status = actionInvoker.invokeAction( action, user, params );
-        if ( status.getThrowable() == null ) {
-          logger.info( Messages.getInstance().getRunningInBgLocallySuccess( action.getClass().getName(), params ),
-            status.getThrowable() );
+        IActionInvokeStatus status = actionInvoker.invokeAction( action, user, params );
+
+        if ( status != null && status.getThrowable() == null ) {
+          getLogger().info( Messages.getInstance().getRunningInBgLocallySuccess( action.getClass().getName(), params ),
+                  status.getThrowable() );
         } else {
-          logger.error( Messages.getInstance().getCouldNotInvokeActionLocally( action.getClass().getName(), params ),
-            status.getThrowable() );
+          getLogger().error( Messages.getInstance().getCouldNotInvokeActionLocally( action.getClass().getName(), params ),
+                  ( status != null ? status.getThrowable() : null ) );
         }
+
+        return status;
+
       } catch ( final Throwable thr ) {
-        logger
-          .error( Messages.getInstance().getCouldNotInvokeActionLocallyUnexpected( ( StringUtil.isEmpty( actionClass )
-            ? actionId : actionClass ), actionParams ), thr );
+        getLogger()
+                .error( Messages.getInstance().getCouldNotInvokeActionLocallyUnexpected( ( StringUtil.isEmpty( actionClass )
+                        ? actionId : actionClass ), actionParams ), thr );
       }
+
+      return null;
     }
+  }
+
+  public static Log getLogger() {
+    return logger;
   }
 }

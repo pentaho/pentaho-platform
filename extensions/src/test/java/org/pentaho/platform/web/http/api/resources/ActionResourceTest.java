@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2017 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -35,6 +35,7 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.plugin.action.DefaultActionInvoker;
 import org.pentaho.platform.plugin.action.builtin.ActionSequenceAction;
+import org.pentaho.platform.util.ActionUtil;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -106,7 +107,7 @@ public class ActionResourceTest {
       for ( final String actionClassName : badStrInput ) {
         for ( final String user : badStrInput ) {
           for ( final String params : badStrInput ) {
-            final Response response = resource.runInBackground( actionId, actionClassName, user, params );
+            final Response response = resource.invokeAction( ActionUtil.INVOKER_DEFAULT_ASYNC_EXEC_VALUE, actionId, actionClassName, user, params );
             Assert.assertNotNull( response );
             Assert.assertEquals( expectedResult.getStatus(), response.getStatus() );
           }
@@ -123,15 +124,15 @@ public class ActionResourceTest {
   public void testRunInBackground() throws Exception {
 
     // mock the RunnableAction and how it's created by the resource
-    final ActionResource.RunnableAction runnableAction = Mockito.spy( ActionResource.RunnableAction.class );
-    Mockito.doReturn( runnableAction ).when( resourceMock ).createRunnable( actionId, actionClassName, actionUser,
+    final ActionResource.CallableAction runnableAction = Mockito.spy( ActionResource.CallableAction.class );
+    Mockito.doReturn( runnableAction ).when( resourceMock ).createCallable( actionId, actionClassName, actionUser,
       actionParams );
 
     // call the runInBackground methos
-    resourceMock.runInBackground( actionId, actionClassName, actionUser, actionParams );
+    resourceMock.invokeAction( ActionUtil.INVOKER_DEFAULT_ASYNC_EXEC_VALUE, actionId, actionClassName, actionUser, actionParams );
 
     // verify that the createRunnable method was called with the expected parameters
-    Mockito.verify( resourceMock, Mockito.times( 1 ) ).createRunnable( actionId, actionClassName, actionUser,
+    Mockito.verify( resourceMock, Mockito.times( 1 ) ).createCallable( actionId, actionClassName, actionUser,
       actionParams );
 
     // verity that the executor submit method was called to execute the expected RunnableAction
@@ -141,7 +142,7 @@ public class ActionResourceTest {
   @Test
   public void testCreateRunnable() {
 
-    final ActionResource.RunnableAction runnable = resource.createRunnable( actionId, actionClassName, actionUser,
+    final ActionResource.CallableAction runnable = resource.createCallable( actionId, actionClassName, actionUser,
       actionParams );
 
     Assert.assertNotNull( runnable );
@@ -164,13 +165,13 @@ public class ActionResourceTest {
     BDDMockito.given( PentahoSystem.get( IPluginManager.class ) ).willReturn( pluginManager );
 
     // mock the RunnableAction and how it's created by the resource
-    final ActionResource.RunnableAction runnableAction = Mockito.spy( ActionResource.RunnableAction.class );
+    final ActionResource.CallableAction runnableAction = Mockito.spy( ActionResource.CallableAction.class );
     runnableAction.actionId = actionId;
     runnableAction.actionClass = actionClassName;
     runnableAction.user = actionUser;
     runnableAction.actionParams = actionParams;
     runnableAction.resource = resourceMock;
-    Mockito.doReturn( runnableAction ).when( resourceMock ).createRunnable( actionId, actionClassName, actionUser,
+    Mockito.doReturn( runnableAction ).when( resourceMock ).createCallable( actionId, actionClassName, actionUser,
       actionParams );
 
     // mock the action invoker
@@ -179,6 +180,7 @@ public class ActionResourceTest {
     // mock the DefaultActionInvoker which is created within the runnable
     final DefaultActionInvoker defaultActionInvoker = Mockito.spy( DefaultActionInvoker.class );
     Mockito.doReturn( defaultActionInvoker ).when( runnableAction.resource ).getDefaultActionInvoker();
+
     // mock the action
     final IAction action = Mockito.spy( ActionSequenceAction.class );
     Mockito.doReturn( action ).when( runnableAction ).createActionBean( actionClassName, actionId );
@@ -186,20 +188,20 @@ public class ActionResourceTest {
     final Map<String, Serializable> params = Mockito.spy( Map.class );
     Mockito.doReturn( params ).when( runnableAction ).deserialize( action, runnableAction.actionParams );
 
-    // invoke the run method directly since we want to run it in the current thread to verify that its content is
+    // invoke the call() method directly since we want to run it in the current thread to verify that its content is
     // executed as expected; given that we have already tested that the executor submit(...) method is invoked as
     // expected, we can perform this test separately and have confidence that end-to-end will also work when the
     // RunnableAction executes in a separate thread
-    runnableAction.run();
+    runnableAction.call();
 
     // within run(), we expect the createActionBean to be called with the expected parameters
     Mockito.verify( runnableAction, Mockito.times( 1 ) ).createActionBean( actionClassName, actionId );
     // verify that deserialize is called with the expected parameters
     Mockito.verify( runnableAction, Mockito.times( 1 ) ).deserialize( Mockito.any( actionClass ),
-      Mockito.eq( actionParams ) );
+            Mockito.eq( actionParams ) );
     // verify that invokeAction is called with the expected parameters
     Mockito.verify( defaultActionInvoker, Mockito.times( 1 ) ).invokeAction( Mockito.eq( action ), Mockito
-      .eq( actionUser ), Mockito.eq( params ) );
+            .eq( actionUser ), Mockito.eq( params ) );
   }
 }
 
@@ -213,7 +215,7 @@ class MyDefaultActionInvoker extends DefaultActionInvoker {
 
   @Override
   public IActionInvokeStatus invokeAction( final IAction actionBean, final String actionUser, final
-  Map<String, Serializable> params ) throws Exception {
+    Map<String, Serializable> params ) throws Exception {
     return null;
   }
 }
