@@ -170,8 +170,8 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho-kettle</groupId>
-                  <artifactId>kettle-xml-plugin</artifactId>
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>pdi-xml-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
