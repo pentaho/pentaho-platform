@@ -29,28 +29,31 @@ public interface IActionAdaptor {
   /**
    * Execute the request in the orchestration environment
    * @param (@link IAction) that holds the action for execution
+   * @param user   The user invoking the action
    * @param (@link Map) of parameters for execution
    * @return the {@link IActionInvokeStatus} object containing result of the action
    *
   */
-  public IActionInvokeStatus execute( IAction action, Map<String, Serializable> params ) throws Exception;
+  public IActionInvokeStatus execute( IAction action, final String user, final Map<String, Serializable> params ) throws Exception;
 
   /**
    * Schedule the request for execution in the orchestration environment in future
    * @param (@link IAction) that holds the action for execution
+   * @param user   The user invoking the action
    * @param (@link Map) of parameters for execution
    * @return the {@link IActionInvokeStatus} object containing result of the action
    *
    */
-  public IActionInvokeStatus schedule( IAction action, Map<String, Serializable> params ) throws Exception;
+  public IActionInvokeStatus schedule( IAction action, final String user, final Map<String, Serializable> params ) throws Exception;
 
   /**
    * Delete the request
    * @param (@link IAction) that holds the action for execution
+   * @param user   The user invoking the action
    * @param (@link Map) of parameters for execution
    * @return the {@link IActionInvokeStatus} object containing result of the action
    */
-  public IActionInvokeStatus delete( IAction action, Map<String, Serializable> params ) throws Exception;
+  public IActionInvokeStatus delete( IAction action, final String user, final Map<String, Serializable> params ) throws Exception;
 
 
 }
