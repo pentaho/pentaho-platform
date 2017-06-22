@@ -62,6 +62,10 @@ public class ActionUtil {
   public static final String INVOKER_ASYNC_EXEC = "async"; //$NON-NLS-1$
   public static final String INVOKER_DEFAULT_ASYNC_EXEC_VALUE = "true"; //$NON-NLS-1$
 
+  public static final String X_REQUEST_ID = "x-request-id"; //$NON-NLS-1$
+  public static final String REQUEST_ID = "requestId"; //$NON-NLS-1$
+  public static final String REQUEST_ID_FORMAT = "rid-%s"; //$NON-NLS-1$
+
   private static final Map<String, String> KEY_MAP;
 
   static {
