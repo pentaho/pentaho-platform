@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -118,7 +118,6 @@ public class GenericServlet extends ServletBase {
     // BISERVER-2767 - grabbing the current class loader so we can replace it at the end
     ClassLoader origContextClassloader = Thread.currentThread().getContextClassLoader();
     try {
-      InputStream in = request.getInputStream();
       String servletPath = request.getServletPath();
       String pathInfo = request.getPathInfo();
       String contentGeneratorId = ""; //$NON-NLS-1$
@@ -141,8 +140,11 @@ public class GenericServlet extends ServletBase {
       }
       urlPath = "content/" + contentGeneratorId; //$NON-NLS-1$
 
+      IParameterProvider requestParameters = new HttpRequestParameterProvider( request );
       pathParams.setParameter( "query", request.getQueryString() ); //$NON-NLS-1$
       pathParams.setParameter( "contentType", request.getContentType() ); //$NON-NLS-1$
+
+      InputStream in = request.getInputStream();
       pathParams.setParameter( "inputstream", in ); //$NON-NLS-1$
       pathParams.setParameter( "httpresponse", response ); //$NON-NLS-1$
       pathParams.setParameter( "httprequest", request ); //$NON-NLS-1$
@@ -246,7 +248,6 @@ public class GenericServlet extends ServletBase {
       // String proxyClass = PentahoSystem.getSystemSetting( module+"/plugin.xml" ,
       // "plugin/content-generators/"+contentGeneratorId,
       // "content generator not found");
-      IParameterProvider requestParameters = new HttpRequestParameterProvider( request );
       // see if this is an upload
 
       // File uploading is a service provided by UploadFileServlet where appropriate protections
