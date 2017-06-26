@@ -49,6 +49,7 @@ public class ActionUtil {
   public static final String QUARTZ_RESTART_FLAG = "ActionAdapterQuartzJob-Restart"; //$NON-NLS-1$
   public static final String QUARTZ_AUTO_CREATE_UNIQUE_FILENAME = "autoCreateUniqueFilename"; //$NON-NLS-1$
 
+  public static final String INVOKER_ACTIONPARAMS = "actionParams";
   public static final String INVOKER_ACTIONCLASS = "actionClass"; //$NON-NLS-1$
   public static final String INVOKER_ACTIONUSER = "actionUser"; //$NON-NLS-1$
   public static final String INVOKER_ACTIONID = "actionId"; //$NON-NLS-1$
@@ -61,6 +62,7 @@ public class ActionUtil {
   public static final String INVOKER_SESSION = "::session"; //$NON-NLS-1$
   public static final String INVOKER_ASYNC_EXEC = "async"; //$NON-NLS-1$
   public static final String INVOKER_DEFAULT_ASYNC_EXEC_VALUE = "true"; //$NON-NLS-1$
+  public static final String INVOKER_SYNC_VALUE = "false";
 
   public static final String X_REQUEST_ID = "x-request-id"; //$NON-NLS-1$
   public static final String REQUEST_ID = "requestId"; //$NON-NLS-1$
@@ -117,13 +119,13 @@ public class ActionUtil {
    * @throws Exception           when the required parameters are not provided
    */
   static Class<?> resolveActionClass( final String actionClassName, final String beanId ) throws
-    PluginBeanException, ActionInvocationException {
+      PluginBeanException, ActionInvocationException {
 
     Class<?> clazz = null;
 
     if ( StringUtils.isEmpty( beanId ) && StringUtils.isEmpty( actionClassName ) ) {
       throw new ActionInvocationException( Messages.getInstance().getErrorString(
-        "ActionUtil.ERROR_0001_REQUIRED_PARAM_MISSING", INVOKER_ACTIONCLASS, INVOKER_ACTIONID ) );
+          "ActionUtil.ERROR_0001_REQUIRED_PARAM_MISSING", INVOKER_ACTIONCLASS, INVOKER_ACTIONID ) );
     }
 
     for ( int i = 0; i < RETRY_COUNT; i++ ) {
@@ -153,7 +155,7 @@ public class ActionUtil {
     // and we're giving up waiting for it to become available/registered
     // which can typically happen at system startup
     throw new ActionInvocationException( Messages.getInstance().getErrorString(
-      "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION", StringUtils.isEmpty( beanId ) ? actionClassName : beanId ) );
+        "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION", StringUtils.isEmpty( beanId ) ? actionClassName : beanId ) );
   }
 
   /**
@@ -165,7 +167,7 @@ public class ActionUtil {
    * @throws Exception when the {@link IAction} cannot be created for some reason
    */
   public static IAction createActionBean( final String actionClassName, final String actionId ) throws
-    ActionInvocationException {
+      ActionInvocationException {
     Object actionBean = null;
     Class<?> actionClass = null;
     try {
@@ -173,13 +175,13 @@ public class ActionUtil {
       actionBean = actionClass.newInstance();
     } catch ( final Exception e ) {
       throw new ActionInvocationException( Messages.getInstance().getErrorString(
-        "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION",  StringUtils.isEmpty( actionId ) ? ( actionClass == null
-                      ? "?" : actionClass.getName() ) : actionId, e ) );
+          "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION", StringUtils.isEmpty( actionId ) ? ( actionClass == null
+              ? "?" : actionClass.getName() ) : actionId, e ) );
     }
 
     if ( !( actionBean instanceof IAction ) ) {
       throw new ActionInvocationException( Messages.getInstance().getErrorString(
-        "ActionUtil.ERROR_0003_ACTION_WRONG_TYPE", actionClass.getName(), IAction.class.getName() ) );
+          "ActionUtil.ERROR_0003_ACTION_WRONG_TYPE", actionClass.getName(), IAction.class.getName() ) );
     }
     return (IAction) actionBean;
   }
@@ -214,7 +216,7 @@ public class ActionUtil {
       String cc = (String) actionParams.get( "_SCH_EMAIL_CC" );
       String bcc = (String) actionParams.get( "_SCH_EMAIL_BCC" );
       if ( ( to == null || "".equals( to ) ) && ( cc == null || "".equals( cc ) )
-        && ( bcc == null || "".equals( bcc ) ) ) {
+          && ( bcc == null || "".equals( bcc ) ) ) {
         // no destination
         return;
       }
