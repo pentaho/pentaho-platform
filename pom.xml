@@ -71,7 +71,7 @@
     <gdata-analytics-meta.version>2.1</gdata-analytics-meta.version>
     <syslog4j.version>0.9.46</syslog4j.version>
     <janino.version>2.5.16</janino.version>
-    <postgresql.version>9.3-1102-jdbc4</postgresql.version>
+    <postgresql.version>42.1.1</postgresql.version>
     <bean-matchers.version>0.9</bean-matchers.version>
     <json-simple.version>1.1</json-simple.version>
     <axis2.version>1.5</axis2.version>
