@@ -118,8 +118,8 @@
            a service to the BIServer
       -->
     <!-- metro -->
-    <dependency org="org.glassfish.metro" name="webservices-api" rev="2.1" transitive="false"/>
-    <dependency org="org.glassfish.metro" name="webservices-rt" rev="2.1" transitive="false"/>
+    <dependency org="org.glassfish.metro" name="webservices-api" rev="2.3.1" transitive="false"/>
+    <dependency org="org.glassfish.metro" name="webservices-rt" rev="2.3.1" transitive="false"/>
 
     <!-- jaxws-spring extension (allows spring configuration of web services); see pentahoServices.spring.xml -->
     <dependency org="org.jvnet.jax-ws-commons.spring" name="jaxws-spring" rev="1.8" transitive="false"/>
@@ -423,6 +423,8 @@
     <exclude org="cglib" module="cglib"/>
 
     <exclude org="org.apache.xmlgraphics" module="batik-js" />
+
+    <exclude org="com.sun.xml.bind" module="jaxb-impl"/>
 
     <override org="junit" module="junit" rev="4.12"/>
     <override org="asm" module="asm" rev="3.1"/>
