@@ -1,0 +1,6 @@
+{
+"actionIds" : "prpit.backgroundExecution",
+"actionClass" : "org.pentaho.reporting.platform.plugin.SimpleReportingAction",
+"actionUser" : "admin",
+"actionParams" : "{\"serializedParams\":\"[ \\\"java.util.HashMap\\\", {\\n  \\\"actionUser\\\" : \\\"admin\\\",\\n  \\\"user_locale\\\" : [ \\\"java.util.Locale\\\", \\\"en_GB\\\" ],\\n  \\\"outputFilePattern\\\" : \\\"/home/admin/Inventory List (report).*\\\",\\n  \\\"line\\\" : [ \\\"[Ljava.lang.String;\\\", [ \\\"Classic Cars\\\", \\\"Planes\\\", \\\"Ships\\\", \\\"Trains\\\" ] ],\\n  \\\"renderMode\\\" : \\\"PARAMETER\\\",\\n  \\\"accepted-page\\\" : 0,\\n  \\\"inputFile\\\" : \\\"/public/Steel Wheels/Inventory List (report).prpt\\\",\\n  \\\"output-target\\\" : \\\"table/html;page-mode=page\\\",\\n  \\\"maximum-query-limit\\\" : 0,\\n  \\\"htmlProportionalWidth\\\" : \\\"false\\\",\\n  \\\"query-limit-ui-enabled\\\" : \\\"true\\\",\\n  \\\"lineage-id\\\" : \\\"7227c391-aadf-4b6c-845b-9368d4262938\\\",\\n  \\\"actionId\\\" : \\\"prpt.backgroundExecution\\\",\\n  \\\"HideBarSection\\\" : \\\"TRUE\\\",\\n  \\\"showParameters\\\" : \\\"true\\\",\\n  \\\"query-limit\\\" : 0,\\n  \\\"showNotes\\\" : \\\"FALSE\\\",\\n  \\\"autoCreateUniqueFilename\\\" : true\\n} ]\",\"paramsToRecreate\":[\"::session\",\"streamProvider\"]}"
+}
