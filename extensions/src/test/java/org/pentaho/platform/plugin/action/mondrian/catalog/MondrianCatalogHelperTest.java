@@ -12,15 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import java.io.IOException;
+import java.io.StringBufferInputStream;
 import java.util.Map;
 
-import com.sun.xml.bind.StringInputStream;
 import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -106,7 +106,7 @@ public class MondrianCatalogHelperTest {
 
   @Test( timeout = 2000, expected = SAXException.class )
   public void shouldNotFailAndReturnNullWhenMaliciousXmlIsGiven() throws IOException, ParserConfigurationException, SAXException {
-    mch.getMondrianXmlDocument( new StringInputStream( XmlTestConstants.MALICIOUS_XML ) );
+    mch.getMondrianXmlDocument( new StringBufferInputStream( XmlTestConstants.MALICIOUS_XML ) );
     fail();
   }
 
@@ -116,6 +116,6 @@ public class MondrianCatalogHelperTest {
       + "<slave_config>"
       + "</slave_config>";
 
-    assertNotNull( mch.getMondrianXmlDocument( new StringInputStream( xml ) ) );
+    assertNotNull( mch.getMondrianXmlDocument( new StringBufferInputStream( xml ) ) );
   }
 }

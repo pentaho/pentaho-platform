@@ -758,7 +758,7 @@
 		<dependency>
 			<groupId>org.glassfish.metro</groupId>
 			<artifactId>webservices-api</artifactId>
-			<version>${webservices-api.version}</version>
+			<version>${webservices.version}</version>
 			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
@@ -770,7 +770,7 @@
 		<dependency>
 			<groupId>org.glassfish.metro</groupId>
 			<artifactId>webservices-rt</artifactId>
-			<version>${webservices-rt.version}</version>
+			<version>${webservices.version}</version>
 			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
@@ -1019,6 +1019,12 @@
 			<artifactId>enunciate-jersey-rt</artifactId>
 			<version>${enunciate-jersey-rt.version}</version>
 			<scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                </exclusion>
+             </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.pentaho.reporting.engine</groupId>

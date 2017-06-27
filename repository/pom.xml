@@ -358,17 +358,6 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-impl</artifactId>
-			<version>${jaxb-impl.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 			<version>${jaxb-api.version}</version>
@@ -437,7 +426,7 @@
 		<dependency>
 			<groupId>org.glassfish.metro</groupId>
 			<artifactId>webservices-api</artifactId>
-			<version>${webservices-api.version}</version>
+			<version>${webservices.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -448,7 +437,7 @@
 		<dependency>
 			<groupId>org.glassfish.metro</groupId>
 			<artifactId>webservices-rt</artifactId>
-			<version>${webservices-rt.version}</version>
+			<version>${webservices.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
