@@ -75,8 +75,8 @@
     <dependency org="org.hsqldb" name="hsqldb" rev="2.3.2" conf="sampledata-libs->default" transitive="false"/>
 
     <!-- metro -->
-	<dependency org="org.glassfish.metro" name="webservices-api" rev="2.1" transitive="false"/>
-	<dependency org="org.glassfish.metro" name="webservices-rt" rev="2.1" transitive="false"/>
+	<dependency org="org.glassfish.metro" name="webservices-api" rev="2.3.1" transitive="false"/>
+	<dependency org="org.glassfish.metro" name="webservices-rt" rev="2.3.1" transitive="false"/>
 
     <!-- COMMONS -->
     <dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.0" transitive="false" />

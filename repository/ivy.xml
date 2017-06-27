@@ -49,9 +49,11 @@
     	<dependency org="com.sun.jersey" name="jersey-servlet" rev="1.16" transitive="false"/>
 
 
+		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2.2" />
+
 		<!-- metro -->
-		<dependency org="org.glassfish.metro" name="webservices-api" rev="2.1" transitive="false"/>
-		<dependency org="org.glassfish.metro" name="webservices-rt" rev="2.1" transitive="false"/>
+		<dependency org="org.glassfish.metro" name="webservices-api" rev="2.3.1" transitive="false"/>
+		<dependency org="org.glassfish.metro" name="webservices-rt" rev="2.3.1" transitive="false"/>
 
 		<!-- gwt -->
 		<dependency org="com.google.gwt" name="gwt-servlet" rev="2.5.1" transitive="false"/>
