@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 //
@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>
@@ -64,6 +65,7 @@ public class ExportManifestMondrian {
   protected String catalogName;
   protected boolean xmlaEnabled;
   @XmlElement( type = org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.Parameters.class )
+  @XmlJavaTypeAdapter( MapAdapter.class )
   protected org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters parameters;
   @XmlAttribute( name = "file" )
   protected String file;
