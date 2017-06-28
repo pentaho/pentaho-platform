@@ -164,4 +164,10 @@ public class MessagesTest {
     Assert.assertEquals( "ActionInvoker.ERROR_0001 - Cannot invoke actions remotely without an EE license",
       messages.getNoEeLicense() );
   }
+
+  @Test
+  public void testGetUnexpectedStatusCode() {
+    Assert.assertEquals( "ActionInvoker.ERROR_0013 - Received an unexpected status code: " + 100,
+      messages.getUnexpectedStatusCode( 100 ) );
+  }
 }

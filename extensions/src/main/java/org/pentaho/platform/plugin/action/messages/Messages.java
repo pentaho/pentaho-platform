@@ -111,4 +111,8 @@ public class Messages extends MessagesBase {
   public String getCouldNotInvokeActionLocallyUnexpected( final String actionIdentified, final String params ) {
     return getErrorString( "ActionInvoker.ERROR_0012_COULD_NOT_INVOKE_ACTION_LOCALLY", actionIdentified, params );
   }
+
+  public String getUnexpectedStatusCode( final int statusCode ) {
+    return getErrorString( "ActionInvoker.ERROR_0013_BAD_STATUS_CODE", statusCode );
+  }
 }

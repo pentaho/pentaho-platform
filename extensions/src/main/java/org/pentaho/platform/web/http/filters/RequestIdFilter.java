@@ -18,6 +18,7 @@ package org.pentaho.platform.web.http.filters;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.util.RequestIdUtil;
 import org.slf4j.MDC;
 
 import javax.servlet.Filter;
@@ -32,28 +33,25 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.pentaho.platform.util.ActionUtil.REQUEST_ID;
-import static org.pentaho.platform.util.ActionUtil.REQUEST_ID_FORMAT;
-import static org.pentaho.platform.util.ActionUtil.X_REQUEST_ID;
-
 public class RequestIdFilter implements Filter {
 
   private static final Log logger = LogFactory.getLog( RequestIdFilter.class );
-
   public void destroy() {
   }
 
-  public void doFilter( ServletRequest req, ServletResponse resp, FilterChain chain ) throws ServletException, IOException {
+  public void doFilter( ServletRequest req, ServletResponse resp, FilterChain chain )
+    throws ServletException, IOException {
 
     HttpServletRequest request = (HttpServletRequest) req;
-    String requestId = Optional.ofNullable( request.getHeader( X_REQUEST_ID ) ).orElse( UUID.randomUUID().toString() );
+    String requestId = Optional.ofNullable( request.getHeader( RequestIdUtil.X_REQUEST_ID ) ).orElse(
+      UUID.randomUUID().toString() );
 
     try {
 
       if ( logger.isDebugEnabled() ) {
         logger.debug( "received request with request id of: " + requestId );
       }
-      MDC.put( REQUEST_ID, String.format( REQUEST_ID_FORMAT, requestId ) );
+      MDC.put( RequestIdUtil.REQUEST_ID, RequestIdUtil.getFormattedRequestUid( requestId ) );
 
       chain.doFilter( req, resp );
 
@@ -62,8 +60,8 @@ public class RequestIdFilter implements Filter {
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Exiting request with request id of: " + requestId );
       }
-      ( (HttpServletResponse) resp ).setHeader( X_REQUEST_ID, requestId );
-      MDC.remove( X_REQUEST_ID );
+      ( (HttpServletResponse) resp ).setHeader( RequestIdUtil.X_REQUEST_ID, requestId );
+      MDC.remove( RequestIdUtil.X_REQUEST_ID );
     }
   }
 

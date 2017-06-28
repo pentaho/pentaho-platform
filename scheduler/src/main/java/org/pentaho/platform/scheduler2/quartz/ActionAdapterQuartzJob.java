@@ -27,6 +27,8 @@ import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.workitem.WorkItemLifecycleEvent;
+import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -34,6 +36,7 @@ import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
+import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -116,22 +119,31 @@ public class ActionAdapterQuartzJob implements Job {
   protected void invokeAction( final String actionClassName, final String actionId, final String actionUser, final
     JobExecutionContext context, final Map<String, Serializable> params ) throws Exception {
 
+    final String workItemUid = WorkItemLifecycleEvent.getUidFromMap( params );
+    final String workItemDetails = params.toString();
+
     // create an instance of IActionInvoker, which knows know to invoke this IAction
     final IActionInvoker actionInvoker = PentahoSystem.get( IActionInvoker.class, "IActionInvoker", PentahoSessionHolder
       .getSession() );
     if ( actionInvoker == null ) {
-      throw new LoggingJobExecutionException( Messages.getInstance().getErrorString(
+      final String failureMessage = Messages.getInstance().getErrorString(
         "ActionAdapterQuartzJob.ERROR_0002_FAILED_TO_CREATE_ACTION", //$NON-NLS-1$
-        getActionIdentifier( null, actionClassName, actionId ), StringUtil.getMapAsPrettyString( params ) ) );
+        getActionIdentifier( null, actionClassName, actionId ), StringUtil.getMapAsPrettyString( params ) );
+      WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.FAILED, failureMessage );
+      throw new LoggingJobExecutionException( failureMessage );
     }
 
     // Instantiate the requested IAction bean
     final IAction actionBean = (IAction) ActionUtil.createActionBean( actionClassName, actionId );
     if ( actionBean == null ) {
-      throw new LoggingJobExecutionException( Messages.getInstance().getErrorString(
+      final String failureMessage = Messages.getInstance().getErrorString(
         "ActionAdapterQuartzJob.ERROR_0002_FAILED_TO_CREATE_ACTION", //$NON-NLS-1$
-        getActionIdentifier( actionBean, actionClassName, actionId ), StringUtil.getMapAsPrettyString( params ) ) );
+        getActionIdentifier( actionBean, actionClassName, actionId ), StringUtil.getMapAsPrettyString( params ) );
+      WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.FAILED, failureMessage );
+      throw new LoggingJobExecutionException( failureMessage );
     }
+
+    WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.SUBMITTED );
 
     // Invoke the action and get the status of the invocation
     final IActionInvokeStatus status = actionInvoker.invokeAction( actionBean, actionUser, params );
@@ -178,6 +190,7 @@ public class ActionAdapterQuartzJob implements Job {
             QuartzJobKey jobKey = QuartzJobKey.parse( context.getJobDetail().getName() );
             String jobName = jobKey.getJobName();
             jobParams.put( QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG, Boolean.TRUE );
+            WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.RESTARTED );
             scheduler.createJob( jobName, iaction, jobParams, trigger, streamProvider );
             log.warn( "New RunOnce job created for " + jobName + " -> possible startup synchronization error" );
             return null;
@@ -207,6 +220,7 @@ public class ActionAdapterQuartzJob implements Job {
             streamProvider.setStreamingAction( null ); // remove generated content
             QuartzJobKey jobKey = QuartzJobKey.parse( context.getJobDetail().getName() );
             String jobName = jobKey.getJobName();
+            WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.RESTARTED );
             org.pentaho.platform.api.scheduler2.Job j =
               scheduler.createJob( jobName, iaction, jobParams, trigger, streamProvider );
             log.warn( "New Job: " + j.getJobId() + " created" );

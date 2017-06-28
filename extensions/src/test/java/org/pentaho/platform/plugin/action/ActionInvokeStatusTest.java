@@ -22,20 +22,19 @@ import org.junit.Test;
 
 public class ActionInvokeStatusTest {
 
-    @Test
-    public void setAndGetRequiresUpdateTest() throws Exception {
-        ActionInvokeStatus actionInvokeStatus = new ActionInvokeStatus();
-        actionInvokeStatus.setRequiresUpdate(false);
-        Assert.assertFalse(actionInvokeStatus.requiresUpdate());
-        actionInvokeStatus.setRequiresUpdate(true);
-        Assert.assertTrue(actionInvokeStatus.requiresUpdate());
-    }
+  @Test
+  public void setAndGetRequiresUpdateTest() throws Exception {
+    ActionInvokeStatus actionInvokeStatus = new ActionInvokeStatus();
+    actionInvokeStatus.setRequiresUpdate( false );
+    Assert.assertFalse( actionInvokeStatus.requiresUpdate() );
+    actionInvokeStatus.setRequiresUpdate( true );
+    Assert.assertTrue( actionInvokeStatus.requiresUpdate() );
+  }
 
-    @Test
-    public void setAndGetThrowableTest() throws Exception {
-        ActionInvokeStatus actionInvokeStatus = new ActionInvokeStatus();
-        actionInvokeStatus.setThrowable(new Throwable("test_message"));
-        Assert.assertEquals(actionInvokeStatus.getThrowable().getMessage(), "test_message");
-    }
-
+  @Test
+  public void setAndGetThrowableTest() throws Exception {
+    ActionInvokeStatus actionInvokeStatus = new ActionInvokeStatus();
+    actionInvokeStatus.setThrowable( new Throwable( "test_message" ) );
+    Assert.assertEquals( actionInvokeStatus.getThrowable().getMessage(), "test_message" );
+  }
 }

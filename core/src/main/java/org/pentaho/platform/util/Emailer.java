@@ -25,6 +25,7 @@ import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.messages.Messages;
 
 import javax.activation.DataHandler;
 import javax.mail.AuthenticationFailedException;
