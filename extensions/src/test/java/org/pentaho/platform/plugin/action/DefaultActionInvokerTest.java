@@ -36,11 +36,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultActionInvokerTest {
-
-  DefaultActionInvoker defaultActionInvoker;
+  private DefaultActionInvoker defaultActionInvoker;
 
   @Before
-  public void initialize() {
+  public void setup() {
     defaultActionInvoker = new DefaultActionInvoker();
   }
 
