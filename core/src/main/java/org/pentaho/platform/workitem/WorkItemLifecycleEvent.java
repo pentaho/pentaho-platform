@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -34,6 +35,7 @@ import java.util.UUID;
 /**
  * This class encapsulates all information pertaining to a "work item" at a specific point in its lifecycle.
  */
+@XmlRootElement
 public class WorkItemLifecycleEvent {
 
   private static final Log logger = LogFactory.getLog( WorkItemLifecycleEvent.class );
