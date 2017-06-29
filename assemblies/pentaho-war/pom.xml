@@ -422,8 +422,8 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>pdi-pur-plugin</artifactId>
+      <groupId>org.pentaho.di.plugins</groupId>
+      <artifactId>pdi-pur-plugin-core</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
       <exclusions>
@@ -877,8 +877,8 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle5-log4j-plugin</artifactId>
+      <groupId>org.pentaho.di.plugins</groupId>
+      <artifactId>kettle-log4j-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
