@@ -12,86 +12,86 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2017 Pentaho Corporation.  All rights reserved.
  */
+
 package org.pentaho.platform.plugin.action;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.ActionUtil;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.ActionResource;
 
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
-import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.IOException;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FileFilter;
+import java.net.URLDecoder;
 
 public class ActionInvokerSystemListener implements IPentahoSystemListener {
 
-  private String environmentVariablesFilepath;
-  private static final Log logger = LogFactory.getLog( IPentahoSystemListener.class );
+  private static final Log logger = LogFactory.getLog( ActionInvokerSystemListener.class );
   private static final String WORK_ITEM_FILE_EXTENSION = ".json";
   private static final String DEFAULT_CONTENT_FOLDER = "system/default-content";
+  private String environmentVariablesFolder;
 
-  private Map<String, JSONObject> parseJsonFiles( )  {
-    Map<String, JSONObject> dotJsons = new HashMap<>();
+  @Override
+  public boolean startup( IPentahoSession session ) {
     final String solutionPath = PentahoSystem.getApplicationContext().getSolutionPath( DEFAULT_CONTENT_FOLDER );
-    if ( StringUtils.isEmpty( solutionPath ) ) {
-      logger.info( getClass().getName() + " Empty solution path" );
+
+    File[] files;
+    if ( !StringUtils.isEmpty( environmentVariablesFolder ) ) {
+      files = listFiles( new File( environmentVariablesFolder ), WORK_ITEM_FILE_EXTENSION );
+      logger.info( "Reading " + WORK_ITEM_FILE_EXTENSION + " files from " + environmentVariablesFolder );
     } else {
-      File[] jsonFiles = listFiles( new File( solutionPath ), WORK_ITEM_FILE_EXTENSION );
-      if ( jsonFiles != null ) {
-        for ( File jsonFile : jsonFiles ) {
-          JSONObject jsonObject = getJsonFromFile( jsonFile );
-          if ( jsonObject != null ) {
-            dotJsons.put( jsonFile.getAbsolutePath(), jsonObject );
-          }
-        }
+      files = listFiles( new File( solutionPath ), WORK_ITEM_FILE_EXTENSION );
+      logger.info( "Reading " + WORK_ITEM_FILE_EXTENSION + " files from " + solutionPath );
+    }
+    for ( File file : files ) {
+
+      logger.info( "Attempting to read data from " + file.getAbsolutePath() );
+      try {
+        String encoded = IOUtils.toString( new FileInputStream( file ) );
+        Payload payload = new Payload( encoded, LocaleHelper.UTF_8 );
+
+        logger.info( "Issuing Work Item request" );
+
+        Response response = payload.issueRequest();
+
+        logger.info( "Work Item Request Issued and status returned was " + response.getStatus() );
+      } catch ( IOException e ) {
+        logger.error( "error reading file " + file.getAbsolutePath() );
+      } catch ( IllegalArgumentException e ) {
+        logger.error( "Payload could not be recreated. Will not process." );
+      } finally {
+        renameFile( file.getAbsolutePath() );
       }
     }
-    return dotJsons;
+    return true;
   }
 
-  private JSONObject getJsonFromFile( final File file )  {
-    FileReader fr;
-    try {
-      fr = new FileReader( file );
-    } catch ( FileNotFoundException e ) {
-      logger.error( e.getMessage() );
-      return null;
+  private void renameFile( final String filename ) {
+    logger.info( "Renaming file " + filename );
+    File dotJson = new File( filename );
+    File dotJsonDotCurTime = new File( filename + "." + System.currentTimeMillis() );
+    if ( !dotJson.renameTo( dotJsonDotCurTime ) ) {
+      logger.error( "Could not rename file " + filename );
     }
-    try {
-      JSONParser jsonParser = new JSONParser();
-      JSONObject jsonObject = (JSONObject) jsonParser.parse( fr );
-      String jsonString = jsonObject.toJSONString();
-      fr.close();
-      return (JSONObject) jsonParser.parse( jsonString );
-    } catch ( ParseException e ) {
-      logger.error( "File: " + file.getAbsolutePath() + " is not valid json, and will not be processed" );
-      try {
-        fr.close();
-      } catch ( IOException ex ) {
-        ex.getMessage();
-      }
-      //rename the file here and allow the chronos container to die because of bad input
-      renameFile( file.getAbsolutePath() );
-    } catch ( IOException e ) {
-      logger.error( e.getMessage() );
-      renameFile( file.getAbsolutePath() );
-    }
-    return null;
+  }
+
+
+  @Override
+  public void shutdown( ) {
+
   }
 
   private File[] listFiles( final File folder, final String fileExtension ) {
@@ -108,64 +108,40 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
     return null;
   }
 
-  private void renameFile( final String filename ) {
-    File dotJson = new File( filename );
-    File dotJsonDotCurTime = new File( filename + "." + System.currentTimeMillis() );
-    dotJson.renameTo( dotJsonDotCurTime );
+  private void setEnvironmentVariablesFolder( String environmentVariablesFolder ) {
+    this.environmentVariablesFolder = environmentVariablesFolder;
   }
 
-  /**
-   * System listener looks for JSON files at start up and runs them as work items
-   * @param session
-   * @return
-   */
-  @Override
-  public boolean startup( IPentahoSession session ) {
-    Response status;
-    Map<String, JSONObject> jsonFiles = new HashMap<>(); //map between the json objects and the filenames from which they were consumed
-    if ( environmentVariablesFilepath != null ) {
-      JSONObject environmentVariables = getJsonFromFile( new File( environmentVariablesFilepath ) );
-      jsonFiles.put( environmentVariablesFilepath, environmentVariables );
-    } else {
-      jsonFiles = parseJsonFiles();
+  public class Payload {
+    private String actionUser;
+    private String actionId;
+    private String actionClass;
+    private String actionParams;
+
+
+    public Payload( String urlEncodedJson, String enc ) {
+      buildPayload( urlEncodedJson, enc );
     }
-    for ( String filename : jsonFiles.keySet() ) {
-      JSONObject json = jsonFiles.get( filename );
-      WorkItemRequestPayload payload = new WorkItemRequestPayload( json );
-      if ( !payload.isValid() ) {
-        logger.error( "File: " + filename + " is missing required parameters, skipping" );
-        renameFile( filename );
-      } else {
-        try {
-          status = issueRequest( payload );
-          if ( status == null ) {
-            logger.error( "File: " + filename + " has parameters formatted in an unparsable way. Could not process work item." );
-          }
-          //todo- sometype of status handling once WI lifecycle is defined
-        } catch ( Exception e ) {
-          logger.error( "Error processing " + filename + " skipping" );
-        } finally {
-          renameFile( filename );
-        }
+
+    private void buildPayload( String urlEncodedJson, String enc ) {
+      try {
+        JSONObject jsonVars = new JSONObject( urlEncodedJson );
+        actionClass = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONCLASS ), enc );
+        actionId = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONID ), enc );
+        actionUser = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONUSER ), enc );
+        actionParams = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONPARAMS ), enc );
+      } catch ( JSONException | IOException e ) {
+        throw new IllegalArgumentException( e );
       }
     }
-    return true;
-  }
 
-  private Response issueRequest( final WorkItemRequestPayload payload ) {
-    return new ActionResource().invokeAction(
-        ActionUtil.INVOKER_SYNC_VALUE,
-        payload.getActionId(),
-        payload.getActionClass(),
-        payload.getActionUser(),
-        payload.getActionParams( ) );
-  }
+    public Payload( String json ) {
+      buildPayload( json, LocaleHelper.UTF_8 );
+    }
 
-  @Override
-  public void shutdown( ) {
-
-  }
-  public void setEnvironmentVariablesFilepath( String environmentVariablesFilepath ) {
-    this.environmentVariablesFilepath = environmentVariablesFilepath;
+    public Response issueRequest( ) {
+      ActionResource actionResource = new ActionResource();
+      return actionResource.invokeAction( ActionUtil.INVOKER_SYNC_VALUE, actionId, actionClass, actionUser, actionParams );
+    }
   }
 }
