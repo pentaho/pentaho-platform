@@ -27,8 +27,6 @@ import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.workitem.WorkItemLifecycleEvent;
-import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -36,6 +34,8 @@ import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
+import org.pentaho.platform.workitem.WorkItemLifecycleEvent;
+import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -67,7 +67,6 @@ public class ActionAdapterQuartzJob implements Job {
 
     try {
       invokeAction( actionClassName, actionId, actionUser, context, jobDataMap.getWrappedMap() );
-
     } catch ( Throwable t ) {
       // We should not distinguish between checked and unchecked exceptions here. All job execution failures
       // should result in a rethrow of a quartz exception
@@ -116,34 +115,27 @@ public class ActionAdapterQuartzJob implements Job {
    * @param params          the {@link Map} or parameters needed to invoke the {@link IAction}
    * @throws Exception when the {@code IAction} cannot be invoked for some reason.
    */
-  protected void invokeAction( final String actionClassName, final String actionId, final String actionUser, final
-    JobExecutionContext context, final Map<String, Serializable> params ) throws Exception {
+  protected void invokeAction( final String actionClassName, final String actionId, final String actionUser,
+                               final JobExecutionContext context, final Map<String, Serializable> params )
+    throws Exception {
 
-    final String workItemUid = WorkItemLifecycleEvent.getUidFromMap( params );
-    final String workItemDetails = params.toString();
+    final String workItemUid = WorkItemLifecycleEvent.fetchUid( params );
+    final Object workItemDetails = params;
+    WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.SUBMITTED );
 
     // create an instance of IActionInvoker, which knows know to invoke this IAction
     final IActionInvoker actionInvoker = PentahoSystem.get( IActionInvoker.class, "IActionInvoker", PentahoSessionHolder
       .getSession() );
-    if ( actionInvoker == null ) {
+    // Instantiate the requested IAction bean
+    final IAction actionBean = (IAction) ActionUtil.createActionBean( actionClassName, actionId );
+    if ( actionInvoker == null || actionBean == null ) {
       final String failureMessage = Messages.getInstance().getErrorString(
         "ActionAdapterQuartzJob.ERROR_0002_FAILED_TO_CREATE_ACTION", //$NON-NLS-1$
         getActionIdentifier( null, actionClassName, actionId ), StringUtil.getMapAsPrettyString( params ) );
-      WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.FAILED, failureMessage );
+      WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.FAILED,
+        failureMessage );
       throw new LoggingJobExecutionException( failureMessage );
     }
-
-    // Instantiate the requested IAction bean
-    final IAction actionBean = (IAction) ActionUtil.createActionBean( actionClassName, actionId );
-    if ( actionBean == null ) {
-      final String failureMessage = Messages.getInstance().getErrorString(
-        "ActionAdapterQuartzJob.ERROR_0002_FAILED_TO_CREATE_ACTION", //$NON-NLS-1$
-        getActionIdentifier( actionBean, actionClassName, actionId ), StringUtil.getMapAsPrettyString( params ) );
-      WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.FAILED, failureMessage );
-      throw new LoggingJobExecutionException( failureMessage );
-    }
-
-    WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.SUBMITTED );
 
     // Invoke the action and get the status of the invocation
     final IActionInvokeStatus status = actionInvoker.invokeAction( actionBean, actionUser, params );
