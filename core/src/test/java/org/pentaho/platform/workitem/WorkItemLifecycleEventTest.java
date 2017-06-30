@@ -17,13 +17,14 @@
 
 package org.pentaho.platform.workitem;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.util.ActionUtil;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public class WorkItemLifecycleEventTest {
 
@@ -38,61 +39,60 @@ public class WorkItemLifecycleEventTest {
     final WorkItemLifecycleEvent workItemLifecycleRecord = new WorkItemLifecycleEvent( workItemUid,
       workItemDetails, lifecyclePhase, lifecycleDetails, currentTimeStamp );
 
-    Assert.assertEquals( workItemUid, workItemLifecycleRecord.getWorkItemUid() );
-    Assert.assertEquals( workItemDetails, workItemLifecycleRecord.getWorkItemDetails() );
-    Assert.assertEquals( lifecyclePhase, workItemLifecycleRecord.getWorkItemLifecyclePhase() );
-    Assert.assertEquals( lifecycleDetails, workItemLifecycleRecord.getLifecycleDetails() );
-    Assert.assertEquals( currentTimeStamp, workItemLifecycleRecord.getSourceTimestamp() );
+    assertEquals( workItemUid, workItemLifecycleRecord.getWorkItemUid() );
+    assertEquals( workItemDetails, workItemLifecycleRecord.getWorkItemDetails() );
+    assertEquals( lifecyclePhase, workItemLifecycleRecord.getWorkItemLifecyclePhase() );
+    assertEquals( lifecycleDetails, workItemLifecycleRecord.getLifecycleDetails() );
+    assertEquals( currentTimeStamp, workItemLifecycleRecord.getSourceTimestamp() );
 
     // source host name and ip should be set within the constructor
-    Assert.assertNotNull( workItemLifecycleRecord.getSourceHostName() );
-    Assert.assertNotNull( workItemLifecycleRecord.getSourceHostIp() );
+    assertNotNull( workItemLifecycleRecord.getSourceHostName() );
+    assertNotNull( workItemLifecycleRecord.getSourceHostIp() );
   }
 
   @Test
   public void testNulls() {
 
-    final WorkItemLifecycleEvent workItemLifecycleRecord = new WorkItemLifecycleEvent( null, null, null, null,
-      currentTimeStamp );
-    Assert.assertNull( workItemLifecycleRecord.getWorkItemDetails() );
-    Assert.assertNull( workItemLifecycleRecord.getWorkItemLifecyclePhase() );
-    Assert.assertNull( workItemLifecycleRecord.getLifecycleDetails() );
+    final WorkItemLifecycleEvent workItemLifecycleRecord = new WorkItemLifecycleEvent(
+      null, null, null, null, currentTimeStamp );
+    assertNull( workItemLifecycleRecord.getWorkItemDetails() );
+    assertNull( workItemLifecycleRecord.getWorkItemLifecyclePhase() );
+    assertNull( workItemLifecycleRecord.getLifecycleDetails() );
 
     // workItemUid should be generated, if one is not provided in the constructor
-    Assert.assertNotNull( workItemLifecycleRecord.getWorkItemUid() );
+    assertNotNull( workItemLifecycleRecord.getWorkItemUid() );
     // if null sourceTimestamp is passed, it is initialized when the WorkItemLifecycleRecord is initialized
-    Assert.assertNotNull( workItemLifecycleRecord.getSourceTimestamp() );
+    assertNotNull( workItemLifecycleRecord.getSourceTimestamp() );
     // source host name and ip should be set within the constructor
-    Assert.assertNotNull( workItemLifecycleRecord.getSourceHostName() );
-    Assert.assertNotNull( workItemLifecycleRecord.getSourceHostIp() );
+    assertNotNull( workItemLifecycleRecord.getSourceHostName() );
+    assertNotNull( workItemLifecycleRecord.getSourceHostIp() );
   }
 
   @Test
-  public void testGetUidFromMap() {
-    Assert.assertNotNull( WorkItemLifecycleEvent.getUidFromMap( null ) );
+  public void testFetchUid() {
+    assertNotNull( WorkItemLifecycleEvent.fetchUid( null ) );
 
     final Map map = new HashMap<>();
-    Assert.assertNotNull( WorkItemLifecycleEvent.getUidFromMap( map ) );
+    assertNotNull( WorkItemLifecycleEvent.fetchUid( map ) );
     // the map should now contain a uid
     final String uid = (String) map.get( ActionUtil.WORK_ITEM_UID );
-    Assert.assertNotNull( uid );
+    assertNotNull( uid );
 
     // calling getUidFromMap on a map that contains the uid, should return in the uid being returned
-    Assert.assertEquals( uid, WorkItemLifecycleEvent.getUidFromMap( map ) );
+    assertEquals( uid, WorkItemLifecycleEvent.fetchUid( map ) );
     // the map should still only have one element
-    Assert.assertEquals( 1, map.size() );
+    assertEquals( 1, map.size() );
 
     // set uid within map to null and verify that a new value is generated
     map.put( ActionUtil.WORK_ITEM_UID, null );
-    Assert.assertNotNull( WorkItemLifecycleEvent.getUidFromMap( map ) );
+    assertNotNull( WorkItemLifecycleEvent.fetchUid( map ) );
     // the map should still only have one element
-    Assert.assertEquals( 1, map.size() );
+    assertEquals( 1, map.size() );
 
     // set uid within map to empty string and verify that a new value is generated
     map.put( ActionUtil.WORK_ITEM_UID, "" );
-    Assert.assertNotNull( WorkItemLifecycleEvent.getUidFromMap( map ) );
+    assertNotNull( WorkItemLifecycleEvent.fetchUid( map ) );
     // the map should still only have one element
-    Assert.assertEquals( 1, map.size() );
-
+    assertEquals( 1, map.size() );
   }
 }

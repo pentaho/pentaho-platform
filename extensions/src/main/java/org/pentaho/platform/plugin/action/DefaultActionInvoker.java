@@ -127,8 +127,8 @@ public class DefaultActionInvoker implements IActionInvoker {
   protected IActionInvokeStatus invokeActionImpl( final IAction actionBean, final String actionUser, final
     Map<String, Serializable> params ) throws Exception {
 
-    final String workItemUid = WorkItemLifecycleEvent.getUidFromMap( params );
-    final String workItemDetails = params == null ? null : params.toString();
+    final String workItemUid = WorkItemLifecycleEvent.fetchUid( params );
+    final Object workItemDetails = params;
 
     if ( actionBean == null || params == null ) {
       final String failureMessage = Messages.getInstance().getCantInvokeNullAction();

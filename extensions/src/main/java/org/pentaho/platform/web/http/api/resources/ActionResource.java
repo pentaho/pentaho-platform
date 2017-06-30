@@ -92,17 +92,17 @@ public class ActionResource {
 
     IAction action = null;
     Map<String, Serializable> params = null;
-    String workItemDetails = null;
+    Object workItemDetails = null;
     try {
       action = createActionBean( actionClass, actionId );
       params = deserialize( action, actionParams );
-      workItemDetails = params.toString();
+      workItemDetails = params;
     } catch ( final Exception e ) {
       logger.error( e.getLocalizedMessage() );
       // we're not able to get the work item UID at this point
       WorkItemLifecyclePublisher.publish( "?", workItemDetails, WorkItemLifecyclePhase.FAILED, e.getLocalizedMessage() );
     }
-    final String workItemUid = WorkItemLifecycleEvent.getUidFromMap( params );
+    final String workItemUid = WorkItemLifecycleEvent.fetchUid( params );
     WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.RECEIVED );
 
     // https://docs.oracle.com/javase/7/docs/api/java/lang/Boolean.html#parseBoolean(java.lang.String)
@@ -180,8 +180,6 @@ public class ActionResource {
 
     @Override
     public IActionInvokeStatus call() {
-      final String workItemUid = WorkItemLifecycleEvent.getUidFromMap( params );
-      final String workItemDetails = StringUtil.getMapAsPrettyString( params );
       try {
         Optional.ofNullable( mdcContextMap ).ifPresent( s -> MDC.setContextMap( mdcContextMap ) );
 
@@ -204,7 +202,7 @@ public class ActionResource {
       } catch ( final Throwable thr ) {
         getLogger()
           .error( Messages.getInstance().getCouldNotInvokeActionLocallyUnexpected( action.getClass().getName(),
-            workItemDetails ), thr );
+            StringUtil.getMapAsPrettyString( params ) ), thr );
       }
 
       return null;

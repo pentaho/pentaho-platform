@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.util.ActionUtil;
+import org.pentaho.platform.util.ObjectSerializationUtil;
 import org.pentaho.platform.util.StringUtil;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -41,7 +42,7 @@ public class WorkItemLifecycleEvent {
   private static final Log logger = LogFactory.getLog( WorkItemLifecycleEvent.class );
 
   private String workItemUid;
-  private String workItemDetails;
+  private Object workItemDetails;
   private WorkItemLifecyclePhase workItemLifecyclePhase;
   private String lifecycleDetails;
   private Date sourceTimestamp;
@@ -70,17 +71,17 @@ public class WorkItemLifecycleEvent {
    * Creates the {@link WorkItemLifecycleEvent} with all the required parameters.
    *
    * @param workItemUid            a {@link String} containing unique identifier for the {@link WorkItemLifecycleEvent}
-   * @param workItemDetails        a {@link String} containing details of the {@link WorkItemLifecycleEvent}
+   * @param workItemDetails        an {@link Object} containing details of the {@link WorkItemLifecycleEvent}
    * @param workItemLifecyclePhase a {@link WorkItemLifecyclePhase} representing the lifecycle event
    * @param lifecycleDetails       a {@link String} containing any additional details about the lifecycle event, such as
    *                               pertinent failure messages
    * @param sourceTimestamp        a {@link Date} representing the time the lifecycle change occurred.
    */
 
-  public WorkItemLifecycleEvent( final String workItemUid, final String workItemDetails, final WorkItemLifecyclePhase
+  public WorkItemLifecycleEvent( final String workItemUid, final Object workItemDetails, final WorkItemLifecyclePhase
     workItemLifecyclePhase, final String lifecycleDetails, final Date sourceTimestamp ) {
     this.workItemUid = workItemUid;
-    this.workItemDetails = workItemDetails;
+    this.workItemDetails = ObjectSerializationUtil.normalize( workItemDetails );
     this.workItemLifecyclePhase = workItemLifecyclePhase;
     this.lifecycleDetails = lifecycleDetails;
     this.sourceTimestamp = sourceTimestamp;
@@ -110,7 +111,7 @@ public class WorkItemLifecycleEvent {
    * @param map a {@link Map} that may contain the {@code ActionUtil.WORK_ITEM_UID}
    * @return {@code ActionUtil.WORK_ITEM_UID} from the {@link Map} or a new uid
    */
-  public static String getUidFromMap( final Map map ) {
+  public static String fetchUid( final Map map ) {
     String workItemUid;
     if ( map == null || StringUtil.isEmpty( (String) map.get( ActionUtil.WORK_ITEM_UID ) ) ) {
       workItemUid = UUID.randomUUID().toString();
@@ -131,11 +132,11 @@ public class WorkItemLifecycleEvent {
     this.workItemUid = workItemUid;
   }
 
-  public String getWorkItemDetails() {
+  public Object getWorkItemDetails() {
     return workItemDetails;
   }
 
-  public void setWorkItemDetails( final String workItemDetails ) {
+  public void setWorkItemDetails( final Object workItemDetails ) {
     this.workItemDetails = workItemDetails;
   }
 
@@ -195,16 +196,14 @@ public class WorkItemLifecycleEvent {
       .append( "lifecycleDetails", this.lifecycleDetails )
       .append( "sourceTimestamp", this.sourceTimestamp )
       .append( "sourceHostName", this.sourceHostName )
-      .append( "sourceHostIp", this.sourceHostIp )
-      .toString();
+      .append( "sourceHostIp", this.sourceHostIp ).toString();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder()
       .append( this.getWorkItemUid() )
-      .append( this.getWorkItemLifecyclePhase() )
-      .toHashCode();
+      .append( this.getWorkItemLifecyclePhase() ).toHashCode();
   }
 
   @Override
@@ -217,8 +216,7 @@ public class WorkItemLifecycleEvent {
     } else {
       return new EqualsBuilder()
         .append( this.getWorkItemUid(), otherCast.getWorkItemUid() )
-        .append( this.getWorkItemLifecyclePhase(), otherCast.getWorkItemLifecyclePhase() )
-        .isEquals();
+        .append( this.getWorkItemLifecyclePhase(), otherCast.getWorkItemLifecyclePhase() ).isEquals();
     }
   }
 }
