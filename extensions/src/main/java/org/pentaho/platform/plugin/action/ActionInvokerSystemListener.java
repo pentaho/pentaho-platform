@@ -56,6 +56,12 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
       files = listFiles( new File( solutionPath ), WORK_ITEM_FILE_EXTENSION );
       logger.info( "Reading " + WORK_ITEM_FILE_EXTENSION + " files from " + solutionPath );
     }
+
+    if ( files == null || files.length == 0 ) {
+      logger.info( "No " + WORK_ITEM_FILE_EXTENSION + " files found. Exiting." );
+      return true;
+    }
+
     for ( File file : files ) {
 
       logger.info( "Attempting to read data from " + file.getAbsolutePath() );
