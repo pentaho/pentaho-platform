@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.plugin.action;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -38,11 +39,12 @@ import java.util.Map;
 /**
  * This is a POJO representing the parameters coming in to the ActionResource.runInBackground()
  * endpoint. The incoming json fromatted params should be converted and used in the runInBackground method
- * singnature (TODO: investigate using the jax rs entity body reader customization for this).
+ * singnature.
  * <p>
  * This class provides logic to serialize and de-serialize the action parameters.
  * TODO: in the future investigate replacing this class with generic platform API if any.
  */
+@JsonRootName( "ActionParams" )
 public class ActionParams {
   private static final Log logger = LogFactory.getLog( ActionParams.class );
 
@@ -57,7 +59,7 @@ public class ActionParams {
    * For this the name of those are captured so that they could be recreated as needed
    * on the other side.
    */
-  private List<String> paramsToRecreate;
+  private List<String> paramsToRecreate = new ArrayList<>(  );
 
   public String getSerializedParams() {
     return serializedParams;
