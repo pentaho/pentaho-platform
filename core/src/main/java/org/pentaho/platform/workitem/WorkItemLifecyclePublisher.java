@@ -49,29 +49,29 @@ public class WorkItemLifecyclePublisher {
 
   /**
    * A convenience method for publishing changes to the work item's lifecycles that calls
-   * {@link #publish(String, String, WorkItemLifecyclePhase, String, Date)} with a null {@code lifecycleDetails} and
+   * {@link #publish(String, Object, WorkItemLifecyclePhase, String, Date)} with a null {@code lifecycleDetails} and
    * {@code sourceTimestamp}
    *
    * @param workItemUid            a {@link String} containing unique identifier for the {@link WorkItemLifecycleEvent}
-   * @param workItemDetails        a {@link String} containing details of the {@link WorkItemLifecycleEvent}
+   * @param workItemDetails        an {@link Object} containing details of the {@link WorkItemLifecycleEvent}
    * @param workItemLifecyclePhase a {@link WorkItemLifecyclePhase} representing the lifecycle event
    */
-  public static void publish( final String workItemUid, final String workItemDetails, final WorkItemLifecyclePhase
+  public static void publish( final String workItemUid, final Object workItemDetails, final WorkItemLifecyclePhase
     workItemLifecyclePhase ) {
     publish( workItemUid, workItemDetails, workItemLifecyclePhase, null, null );
   }
 
   /**
    * A convenience method for publishing changes to the work item's lifecycles that calls
-   * {@link #publish(String, String, WorkItemLifecyclePhase, String, Date)} with a null {@code sourceTimestamp}
+   * {@link #publish(String, Object, WorkItemLifecyclePhase, String, Date)} with a null {@code sourceTimestamp}
    *
    * @param workItemUid            a {@link String} containing unique identifier for the {@link WorkItemLifecycleEvent}
-   * @param workItemDetails        a {@link String} containing details of the {@link WorkItemLifecycleEvent}
+   * @param workItemDetails        an {@link Object} containing details of the {@link WorkItemLifecycleEvent}
    * @param workItemLifecyclePhase a {@link WorkItemLifecyclePhase} representing the lifecycle event
    * @param lifecycleDetails       a {@link String} containing any additional details about the lifecycle event, such as
    *                               pertinent failure messages
    */
-  public static void publish( final String workItemUid, final String workItemDetails, final WorkItemLifecyclePhase
+  public static void publish( final String workItemUid, final Object workItemDetails, final WorkItemLifecyclePhase
     workItemLifecyclePhase, final String lifecycleDetails ) {
     publish( workItemUid, workItemDetails, workItemLifecyclePhase, lifecycleDetails, null );
   }
@@ -81,20 +81,20 @@ public class WorkItemLifecyclePublisher {
    * {@link WorkItemLifecycleEvent} and calls the {@link #publish(WorkItemLifecycleEvent)} method
    *
    * @param workItemUid            a {@link String} containing unique identifier for the {@link WorkItemLifecycleEvent}
-   * @param workItemDetails        a {@link String} containing details of the {@link WorkItemLifecycleEvent}
+   * @param workItemDetails        an {@link Object} containing details of the {@link WorkItemLifecycleEvent}
    * @param workItemLifecyclePhase a {@link WorkItemLifecyclePhase} representing the lifecycle event
    * @param lifecycleDetails       a {@link String} containing any additional details about the lifecycle event, such as
    *                               pertinent failure messages
    * @param sourceTimestamp        a {@link Date} representing the time the lifecycle change occurred.
    */
-  public static void publish( final String workItemUid, final String workItemDetails, final WorkItemLifecyclePhase
+  public static void publish( final String workItemUid, final Object workItemDetails, final WorkItemLifecyclePhase
     workItemLifecyclePhase, final String lifecycleDetails, final Date sourceTimestamp ) {
     final WorkItemLifecycleEvent workItemLifecycleEvent = createEvent( workItemUid, workItemDetails,
       workItemLifecyclePhase, lifecycleDetails, sourceTimestamp );
     publish( workItemLifecycleEvent );
   }
 
-  protected static WorkItemLifecycleEvent createEvent( final String workItemUid, final String workItemDetails, final
+  protected static WorkItemLifecycleEvent createEvent( final String workItemUid, final Object workItemDetails, final
     WorkItemLifecyclePhase workItemLifecyclePhase, final String lifecycleDetails, final Date sourceTimestamp ) {
     return  new WorkItemLifecycleEvent( workItemUid, workItemDetails,
       workItemLifecyclePhase, lifecycleDetails, sourceTimestamp );
@@ -118,7 +118,8 @@ public class WorkItemLifecyclePublisher {
   }
 
   private static WorkItemLifecyclePublisher instance;
-  public static synchronized WorkItemLifecyclePublisher getInstance() {
+
+  private static synchronized WorkItemLifecyclePublisher getInstance() {
     if ( instance == null ) {
       synchronized ( WorkItemLifecyclePublisher.class ) {
         if ( instance == null ) {
