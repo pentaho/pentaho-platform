@@ -41,7 +41,7 @@ public class WorkItemLifecycleEvent {
   private static final Log logger = LogFactory.getLog( WorkItemLifecycleEvent.class );
 
   private String workItemUid;
-  private String workItemDetails;
+  private Object workItemDetails;
   private WorkItemLifecyclePhase workItemLifecyclePhase;
   private String lifecycleDetails;
   private Date sourceTimestamp;
@@ -70,17 +70,18 @@ public class WorkItemLifecycleEvent {
    * Creates the {@link WorkItemLifecycleEvent} with all the required parameters.
    *
    * @param workItemUid            a {@link String} containing unique identifier for the {@link WorkItemLifecycleEvent}
-   * @param workItemDetails        a {@link String} containing details of the {@link WorkItemLifecycleEvent}
+   * @param workItemDetails        an {@link Object} containing details of the {@link WorkItemLifecycleEvent}
    * @param workItemLifecyclePhase a {@link WorkItemLifecyclePhase} representing the lifecycle event
    * @param lifecycleDetails       a {@link String} containing any additional details about the lifecycle event, such as
    *                               pertinent failure messages
    * @param sourceTimestamp        a {@link Date} representing the time the lifecycle change occurred.
    */
 
-  public WorkItemLifecycleEvent( final String workItemUid, final String workItemDetails, final WorkItemLifecyclePhase
+  public WorkItemLifecycleEvent( final String workItemUid, final Object workItemDetails, final WorkItemLifecyclePhase
     workItemLifecyclePhase, final String lifecycleDetails, final Date sourceTimestamp ) {
     this.workItemUid = workItemUid;
-    this.workItemDetails = workItemDetails;
+    // trim the details to only the information we care about
+    this.workItemDetails = getTrimmedWorkItemDetails( workItemDetails );
     this.workItemLifecyclePhase = workItemLifecyclePhase;
     this.lifecycleDetails = lifecycleDetails;
     this.sourceTimestamp = sourceTimestamp;
@@ -103,6 +104,28 @@ public class WorkItemLifecycleEvent {
     this.sourceHostIp = HOST_IP;
   }
 
+  private String getTrimmedWorkItemDetails( final Object fullWorkItemDetails ) {
+    if ( fullWorkItemDetails == null ) {
+      return null;
+    }
+    // if we have a map, we can pull out specific information from it, and ignore the rest
+    if ( fullWorkItemDetails instanceof Map ) {
+      final Map detailsMap = (Map) fullWorkItemDetails;
+      String detailsStr = "";
+      String delim = "";
+      if ( detailsMap.get( ActionUtil.INVOKER_ACTIONUSER ) != null ) {
+        detailsStr += delim + detailsMap.get( ActionUtil.INVOKER_ACTIONUSER );
+        delim = "|";
+      }
+      if ( detailsMap.get( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE ) != null ) {
+        detailsStr += delim + detailsMap.get( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE );
+      }
+      return detailsStr;
+    } else {
+      return fullWorkItemDetails.toString();
+    }
+  }
+
   /**
    * Looks up the {@code ActionUtil.WORK_ITEM_UID} within the {@link Map}. If available, the value is returned,
    * otherwise a new uid is generated and placed within the {@link Map}.
@@ -110,7 +133,7 @@ public class WorkItemLifecycleEvent {
    * @param map a {@link Map} that may contain the {@code ActionUtil.WORK_ITEM_UID}
    * @return {@code ActionUtil.WORK_ITEM_UID} from the {@link Map} or a new uid
    */
-  public static String getUidFromMap( final Map map ) {
+  public static String fetchUid( final Map map ) {
     String workItemUid;
     if ( map == null || StringUtil.isEmpty( (String) map.get( ActionUtil.WORK_ITEM_UID ) ) ) {
       workItemUid = UUID.randomUUID().toString();
@@ -131,11 +154,11 @@ public class WorkItemLifecycleEvent {
     this.workItemUid = workItemUid;
   }
 
-  public String getWorkItemDetails() {
+  public Object getWorkItemDetails() {
     return workItemDetails;
   }
 
-  public void setWorkItemDetails( final String workItemDetails ) {
+  public void setWorkItemDetails( final Object workItemDetails ) {
     this.workItemDetails = workItemDetails;
   }
 

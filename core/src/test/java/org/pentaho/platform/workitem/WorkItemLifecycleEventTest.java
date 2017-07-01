@@ -68,29 +68,29 @@ public class WorkItemLifecycleEventTest {
   }
 
   @Test
-  public void testGetUidFromMap() {
-    Assert.assertNotNull( WorkItemLifecycleEvent.getUidFromMap( null ) );
+  public void testFetchUid() {
+    Assert.assertNotNull( WorkItemLifecycleEvent.fetchUid( null ) );
 
     final Map map = new HashMap<>();
-    Assert.assertNotNull( WorkItemLifecycleEvent.getUidFromMap( map ) );
+    Assert.assertNotNull( WorkItemLifecycleEvent.fetchUid( map ) );
     // the map should now contain a uid
     final String uid = (String) map.get( ActionUtil.WORK_ITEM_UID );
     Assert.assertNotNull( uid );
 
-    // calling getUidFromMap on a map that contains the uid, should return in the uid being returned
-    Assert.assertEquals( uid, WorkItemLifecycleEvent.getUidFromMap( map ) );
+    // calling fetchUid on a map that contains the uid, should return in the uid being returned
+    Assert.assertEquals( uid, WorkItemLifecycleEvent.fetchUid( map ) );
     // the map should still only have one element
     Assert.assertEquals( 1, map.size() );
 
     // set uid within map to null and verify that a new value is generated
     map.put( ActionUtil.WORK_ITEM_UID, null );
-    Assert.assertNotNull( WorkItemLifecycleEvent.getUidFromMap( map ) );
+    Assert.assertNotNull( WorkItemLifecycleEvent.fetchUid( map ) );
     // the map should still only have one element
     Assert.assertEquals( 1, map.size() );
 
     // set uid within map to empty string and verify that a new value is generated
     map.put( ActionUtil.WORK_ITEM_UID, "" );
-    Assert.assertNotNull( WorkItemLifecycleEvent.getUidFromMap( map ) );
+    Assert.assertNotNull( WorkItemLifecycleEvent.fetchUid( map ) );
     // the map should still only have one element
     Assert.assertEquals( 1, map.size() );
 
