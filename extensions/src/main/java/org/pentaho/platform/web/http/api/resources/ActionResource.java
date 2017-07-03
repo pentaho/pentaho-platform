@@ -23,12 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.pentaho.platform.api.action.ActionInvocationException;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.action.IActionInvokeStatus;
 import org.pentaho.platform.api.action.IActionInvoker;
-import org.pentaho.platform.workitem.WorkItemLifecycleEvent;
-import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.ActionParams;
@@ -36,8 +33,10 @@ import org.pentaho.platform.plugin.action.DefaultActionInvoker;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
-import org.slf4j.MDC;
+import org.pentaho.platform.workitem.WorkItemLifecycleEvent;
+import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
+import org.slf4j.MDC;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -45,7 +44,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
@@ -53,7 +51,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * This resource performs action related tasks, such as running/invoking the action in the background.
@@ -76,7 +74,7 @@ public class ActionResource {
    */
   @POST
   @Path( "/invoke" )
-  @Consumes( { TEXT_PLAIN } )
+  @Consumes( { APPLICATION_JSON } )
   @StatusCodes( {
       @ResponseCode( code = 200, condition = "Action invoked successfully." ),
       @ResponseCode( code = 400, condition = "Bad input - could not invoke action." ),
@@ -88,14 +86,14 @@ public class ActionResource {
     @QueryParam( ActionUtil.INVOKER_ACTIONID ) String actionId,
     @QueryParam( ActionUtil.INVOKER_ACTIONCLASS ) String actionClass,
     @QueryParam( ActionUtil.INVOKER_ACTIONUSER ) String actionUser,
-    final String actionParams ) {
+    final ActionParams actionParams ) {
 
     IAction action = null;
     Map<String, Serializable> params = null;
     String workItemDetails = null;
     try {
       action = createActionBean( actionClass, actionId );
-      params = deserialize( action, actionParams );
+      params = ActionParams.deserialize( action, actionParams );
       workItemDetails = params.toString();
     } catch ( final Exception e ) {
       logger.error( e.getLocalizedMessage() );
@@ -135,11 +133,6 @@ public class ActionResource {
 
   protected IAction createActionBean( final String actionClass, final String actionId ) throws Exception {
     return ActionUtil.createActionBean( actionClass, actionId );
-  }
-
-  protected Map<String, Serializable> deserialize( final IAction action, final String actionParams )
-    throws IOException, ActionInvocationException {
-    return ActionParams.deserialize( action, ActionParams.fromJson( actionParams ) );
   }
 
   /**

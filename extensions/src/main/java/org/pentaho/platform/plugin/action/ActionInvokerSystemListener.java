@@ -145,9 +145,10 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
       buildPayload( json, LocaleHelper.UTF_8 );
     }
 
-    public Response issueRequest( ) {
+    public Response issueRequest( ) throws IOException {
       ActionResource actionResource = new ActionResource();
-      return actionResource.invokeAction( ActionUtil.INVOKER_SYNC_VALUE, actionId, actionClass, actionUser, actionParams );
+      return actionResource.invokeAction( ActionUtil.INVOKER_SYNC_VALUE, actionId, actionClass, actionUser,
+        ActionParams.fromJson( actionParams ) );
     }
   }
 }

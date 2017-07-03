@@ -33,6 +33,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.platform.plugin.action.ActionParams;
 import org.pentaho.platform.plugin.action.DefaultActionInvoker;
 import org.pentaho.platform.plugin.action.builtin.ActionSequenceAction;
 import org.pentaho.platform.util.ActionUtil;
@@ -65,8 +66,10 @@ public class ActionResourceTest {
   private Class<? extends IAction> actionClass = ActionSequenceAction.class;
   private String actionClassName = actionClass.getName();
   private String actionUser = "user";
-  private String actionParams = "{\"serializedParams\": \"[ \\\"java.util.HashMap\\\", {\\\"actionUser\\\" : "
-    + "\\\"" + actionUser + "\\\", \\\"actionId\\\" : \\\"" + actionId + "\\\"} ]\"}";
+  private String workItemUid = "uid";
+  private ActionParams actionParams;
+  private String actionParamsJson = "{\"serializedParams\": \"[ \\\"java.util.HashMap\\\", {\\\"actionUser\\\" : "
+    + "\\\"" + actionUser + "\\\", \\\"workItemUid\\\" : \\\"" + workItemUid + "\\\", \\\"actionId\\\" : \\\"" + actionId + "\\\"} ]\"}";
 
   @Before
   public void setUp() throws Exception {
@@ -85,7 +88,7 @@ public class ActionResourceTest {
     actionMock = Mockito.spy( IAction.class );
     actionMapMock = Mockito.spy( Map.class );
     Mockito.doReturn( actionMock ).when( resourceMock ).createActionBean( actionClassName, actionId );
-    Mockito.doReturn( actionMapMock ).when( resourceMock ).deserialize( actionMock, actionParams );
+    actionParams = ActionParams.fromJson( actionParamsJson );
   }
 
   @After
@@ -110,26 +113,23 @@ public class ActionResourceTest {
    */
   @Test
   public void testRunInBackground() throws Exception {
-
+    final Map<String,Serializable> paramMap = ActionParams.deserialize( actionMock , actionParams );
     // mock the RunnableAction and how it's created by the resource
-    final ActionResource.CallableAction runnableAction = Mockito.spy( ActionResource.CallableAction.class );
-    Mockito.doReturn( runnableAction ).when( resourceMock ).createCallable( actionMock, actionUser, actionMapMock );
+    final ActionResource.CallableAction callableAction = Mockito.spy( ActionResource.CallableAction.class );
+    Mockito.doReturn( callableAction ).when( resourceMock ).createCallable( actionMock, actionUser, paramMap );
 
     // call the runInBackground methos
     resourceMock
       .invokeAction( ActionUtil.INVOKER_DEFAULT_ASYNC_EXEC_VALUE, actionId, actionClassName, actionUser, actionParams );
 
     // verify that the createRunnable method was called with the expected parameters
-    Mockito.verify( resourceMock, Mockito.times( 1 ) ).createCallable( actionMock, actionUser, actionMapMock );
+    Mockito.verify( resourceMock, Mockito.times( 1 ) ).createCallable( actionMock, actionUser, paramMap ) ;
 
     // within invokeAction(), we expect the createActionBean to be called with the expected parameters
     Mockito.verify( resourceMock, Mockito.times( 1 ) ).createActionBean( actionClassName, actionId );
-    // verify that deserialize is called with the expected parameters
-    Mockito.verify( resourceMock, Mockito.times( 1 ) ).deserialize( Mockito.any( actionClass ),
-      Mockito.eq( actionParams ) );
 
     // verity that the executor submit method was called to execute the expected RunnableAction
-    Mockito.verify( resourceMock.executorService, Mockito.times( 1 ) ).submit( runnableAction );
+    Mockito.verify( resourceMock.executorService, Mockito.times( 1 ) ).submit( callableAction );
   }
 
   @Test
@@ -174,14 +174,14 @@ public class ActionResourceTest {
     /*
 
     Mockito.doReturn( actionMock ).when( resourceMock ).createActionBean( actionClassName, actionId );
-    Mockito.doReturn( actionMapMock ).when( resourceMock ).deserialize( actionMock, actionParams );
+    Mockito.doReturn( actionMapMock ).when( resourceMock ).deserialize( actionMock, actionParamsJson );
      */
     // mock the action
     //final IAction action = Mockito.spy( ActionSequenceAction.class );
     //Mockito.doReturn( action ).when( runnableAction ).createActionBean( actionClassName, actionId );
     // mock the params
     //final Map<String, Serializable> params = Mockito.spy( Map.class );
-    //Mockito.doReturn( params ).when( runnableAction ).deserialize( action, runnableAction.actionParams );
+    //Mockito.doReturn( params ).when( runnableAction ).deserialize( action, runnableAction.actionParamsJson );
 
     // invoke the call() method directly since we want to run it in the current thread to verify that its content is
     // executed as expected; given that we have already tested that the executor submit(...) method is invoked as
