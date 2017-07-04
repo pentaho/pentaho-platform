@@ -48,7 +48,7 @@
     <jsf-api.version>1.1</jsf-api.version>
     <xercesImpl.version>2.9.1</xercesImpl.version>
     <jsp-api.version>2.1</jsp-api.version>
-    <castor.version>1.0.5</castor.version>
+    <castor.version>1.4.1</castor.version>
     <kfs.version>0.3</kfs.version>
     <jersey.version>1.19.1</jersey.version>
     <LucidDbClient-minimal.version>0.9.4</LucidDbClient-minimal.version>
