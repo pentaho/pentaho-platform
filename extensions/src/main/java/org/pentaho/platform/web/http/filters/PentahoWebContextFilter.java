@@ -79,11 +79,9 @@ public class PentahoWebContextFilter implements Filter {
   private static final ThreadLocal<byte[]> THREAD_LOCAL_REQUIRE_SCRIPT = new ThreadLocal<>();
   protected static ICacheManager cache = PentahoSystem.getCacheManager( null );
 
-  private Map<String, String> environmentVariables;
-
   @Override
   public void init( FilterConfig filterConfig ) throws ServletException {
-    this.environmentVariables = new HashMap<>();
+    // TODO Auto-generated method stub
   }
 
   @Override
@@ -115,23 +113,24 @@ public class PentahoWebContextFilter implements Filter {
       try {
         response.setContentType( "text/javascript" );
         OutputStream out = response.getOutputStream();
+        HashMap<String, String> webContextVariables = getWebContextVariables( httpRequest );
 
         out.write( initialCommentBytes );
 
-        printWebContextVar( out, "CONTEXT_PATH", getContextPathVar( httpRequest ) );
+        printWebContextVar( out, webContextVariables, "CONTEXT_PATH" );
 
-        printWebContextVar( out, "FULL_QUALIFIED_URL", getFullyQualifiedServerUrlVar() );
+        printWebContextVar( out, webContextVariables, "FULL_QUALIFIED_URL" );
 
-        printWebContextVar( out, "SERVER_PROTOCOL", getServerProtocolVar() );
+        printWebContextVar( out, webContextVariables, "SERVER_PROTOCOL" );
 
-        printWebContextVar( out, "PENTAHO_CONTEXT_NAME", getContextNameVar( httpRequest ) );
+        printWebContextVar( out, webContextVariables, "PENTAHO_CONTEXT_NAME" );
 
-        printWebContextVar( out, "active_theme", getActiveThemeVar( httpRequest ) );
+        printWebContextVar( out, webContextVariables, "active_theme" );
 
-        printWebContextVar( out, "requireCfg", getRequireCfgVar(), false, false );
+        printWebContextVar( out, webContextVariables, "requireCfg", false, false );
 
         // config for 'pentaho/context' amd module
-        printPentahoEnvironmentConfig( out, httpRequest );
+        printPentahoEnvironmentConfig( out, webContextVariables );
 
         // Let all plugins contribute to the RequireJS config
         printResourcesForContext( REQUIRE_JS, out, httpRequest, false );
@@ -144,18 +143,20 @@ public class PentahoWebContextFilter implements Filter {
           out.write( requireScriptBytes );
         }
 
-        printWebContextVar( out, "SESSION_NAME", getSessionNameVar() );
+        printWebContextVar( out, webContextVariables, "SESSION_NAME" );
+
         // Compute the effective locale and set it in the global scope. Also provide it as a module if the RequireJs
         // system is available.
-        printWebContextVar( out, "SESSION_LOCALE", getLocaleVar( httpRequest ) );
+        printWebContextVar( out, webContextVariables, "SESSION_LOCALE" );
+        printLocaleModule( out, webContextVariables );
 
-        printWebContextVar( out, "HOME_FOLDER", getHomeFolderVar() );
+        printWebContextVar( out, webContextVariables, "HOME_FOLDER" );
 
-        printWebContextVar( out, "RESERVED_CHARS", getReservedCharsVar() );
+        printWebContextVar( out, webContextVariables, "RESERVED_CHARS" );
 
-        printWebContextVar( out, "RESERVED_CHARS_DISPLAY", getReservedCharsDisplayVar() );
+        printWebContextVar( out, webContextVariables, "RESERVED_CHARS_DISPLAY" );
 
-        printWebContextVar( out, "RESERVED_CHARS_REGEX_PATTERN", getReservedRegexPatternVar(), true, false );
+        printWebContextVar( out, webContextVariables, "RESERVED_CHARS_REGEX_PATTERN", true, false );
 
         boolean noOsgiRequireConfig = "true".equals( request.getParameter( "noOsgiRequireConfig" ) );
         if ( !noOsgiRequireConfig && !"anonymousUser".equals( getSession().getName() ) ) {
@@ -221,142 +222,145 @@ public class PentahoWebContextFilter implements Filter {
 
   // region get Environment Variables
   private String getActiveThemeVar( HttpServletRequest request ) {
-    return this.environmentVariables.computeIfAbsent( "active_theme", s -> {
-      IPentahoSession session = getSession();
+    IPentahoSession session = getSession();
 
-      String activeTheme = (String) session.getAttribute( "pentaho-user-theme" );
+    String activeTheme = (String) session.getAttribute( "pentaho-user-theme" );
 
-      String ua = request.getHeader( "User-Agent" );
-      // check if we're coming from a mobile device, if so, lock to system default (crystal)
-      if ( StringUtils.isNotEmpty( ua ) && ua.matches( ".*(?i)(iPad|iPod|iPhone|Android).*" ) ) {
-        activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
+    String ua = request.getHeader( "User-Agent" );
+    // check if we're coming from a mobile device, if so, lock to system default (crystal)
+    if ( StringUtils.isNotEmpty( ua ) && ua.matches( ".*(?i)(iPad|iPod|iPhone|Android).*" ) ) {
+      activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
+    }
+
+    if ( activeTheme == null ) {
+      IUserSettingService settingsService = getUserSettingsService();
+
+      try {
+        activeTheme = settingsService.getUserSetting( "pentaho-user-theme", null ).getSettingValue();
+      } catch ( Exception ignored ) {
+        // the user settings service is not valid in the agile-bi deployment of the server
       }
 
       if ( activeTheme == null ) {
-        IUserSettingService settingsService = getUserSettingsService();
-
-        try {
-          activeTheme = settingsService.getUserSetting( "pentaho-user-theme", null ).getSettingValue();
-        } catch ( Exception ignored ) {
-          // the user settings service is not valid in the agile-bi deployment of the server
-        }
-
-        if ( activeTheme == null ) {
-          activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
-        }
+        activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
       }
+    }
 
-      return activeTheme;
+    return activeTheme;
 
-    } );
+  }
+
+  HashMap<String, String> getWebContextVariables( HttpServletRequest request ) {
+    HashMap<String, String> map = new HashMap<>();
+
+    map.put( "requireCfg", getRequireCfgVar() );                             // Global JS variable
+
+    map.put( "PENTAHO_CONTEXT_NAME", getContextNameVar( request ) );         // Global JS environment variable
+    map.put( "FULL_QUALIFIED_URL", getFullyQualifiedServerUrlVar() );        // Global JS environment variable
+    map.put( "CONTEXT_PATH", getContextPathVar( request ) );                 // Global JS environment variable
+    map.put( "SERVER_PROTOCOL", getServerProtocolVar() );                    // Global JS environment variable
+
+    map.put( "active_theme", getActiveThemeVar( request ) );                 // Global JS environment variable
+    map.put( "SESSION_LOCALE", getLocaleVar( request ) );                    // Global JS environment variable
+    map.put( "SESSION_NAME", getSessionNameVar() );                          // Global JS environment variable
+    map.put( "HOME_FOLDER", getHomeFolderVar() );                            // Global JS environment variable
+
+    map.put( "RESERVED_CHARS", getReservedCharsVar() );                      // Global JS environment variable
+    map.put( "RESERVED_CHARS_DISPLAY", getReservedCharsDisplayVar() );       // Global JS environment variable
+    map.put( "RESERVED_CHARS_REGEX_PATTERN", getReservedRegexPatternVar() ); // Global JS environment variable
+
+    return map;
   }
 
   private String getLocaleVar( HttpServletRequest request ) {
-    return this.environmentVariables.computeIfAbsent( "SESSION_LOCALE", s -> {
-      String requestLocale = request.getParameter( "locale" );
+    String requestLocale = request.getParameter( "locale" );
 
-      boolean hasLocaleParam = StringUtils.isNotEmpty( requestLocale );
+    boolean hasLocaleParam = StringUtils.isNotEmpty( requestLocale );
 
-      return hasLocaleParam ? requestLocale : LocaleHelper.getLocale().toString();
-    } );
+    return hasLocaleParam ? requestLocale : LocaleHelper.getLocale().toString();
   }
 
   private String getSessionNameVar() {
-    return this.environmentVariables.computeIfAbsent( "SESSION_NAME", s -> {
-      if ( getSession() == null ) {
-        return null;
-      }
+    if ( getSession() == null ) {
+      return null;
+    }
 
-      return getSession().getName();
-    } );
+    return getSession().getName();
   }
 
   private String getHomeFolderVar() {
-    return this.environmentVariables.computeIfAbsent( "HOME_FOLDER", s -> {
-      if ( getSession() == null ) {
-        return null;
-      }
+    if ( getSession() == null ) {
+      return null;
+    }
 
-      String sessionName = getSession().getName();
-      return ClientRepositoryPaths.getUserHomeFolderPath( sessionName );
-    } );
+    String sessionName = getSession().getName();
+    return ClientRepositoryPaths.getUserHomeFolderPath( sessionName );
   }
 
   private String getReservedCharsVar() {
-    return this.environmentVariables.computeIfAbsent( "RESERVED_CHARS", s -> {
-      StringBuilder sb = new StringBuilder();
-      for ( char c : getRepositoryReservedChars() ) {
-        sb.append( c );
-      }
+    StringBuilder sb = new StringBuilder();
+    for ( char c : getRepositoryReservedChars() ) {
+      sb.append( c );
+    }
 
-      return sb.toString();
-    } );
+    return sb.toString();
   }
 
   private String getReservedCharsDisplayVar() {
-    return this.environmentVariables.computeIfAbsent( "RESERVED_CHARS_DISPLAY", s -> {
-      List<Character> reservedCharacters = JcrRepositoryFileUtils.getReservedChars();
-      StringBuffer sb = new StringBuffer();
-      for ( int i = 0; i < reservedCharacters.size(); i++ ) {
-        if ( reservedCharacters.get( i ) >= 0x07 && reservedCharacters.get( i ) <= 0x0d ) {
-          sb.append( StringEscapeUtils.escapeJava( "" + reservedCharacters.get( i ) ) );
-        } else {
-          sb.append( reservedCharacters.get( i ) );
-        }
-
-        if ( i + 1 < reservedCharacters.size() ) {
-          sb.append( ", " );
-        }
+    List<Character> reservedCharacters = JcrRepositoryFileUtils.getReservedChars();
+    StringBuffer sb = new StringBuffer();
+    for ( int i = 0; i < reservedCharacters.size(); i++ ) {
+      if ( reservedCharacters.get( i ) >= 0x07 && reservedCharacters.get( i ) <= 0x0d ) {
+        sb.append( StringEscapeUtils.escapeJava( "" + reservedCharacters.get( i ) ) );
+      } else {
+        sb.append( reservedCharacters.get( i ) );
       }
 
-      return sb.toString();
-    } );
+      if ( i + 1 < reservedCharacters.size() ) {
+        sb.append( ", " );
+      }
+    }
+
+    return sb.toString();
   }
 
   private String getReservedRegexPatternVar() {
-    return this.environmentVariables.computeIfAbsent( "RESERVED_CHARS_REGEX_PATTERN", s ->
-            "/" + makeReservedCharPattern() + "/" );
+    return "/" + makeReservedCharPattern() + "/";
   }
 
   private String getContextNameVar( HttpServletRequest request ) {
-    return this.environmentVariables.computeIfAbsent( "PENTAHO_CONTEXT_NAME", s -> request.getParameter( CONTEXT ) );
+    return request.getParameter( CONTEXT );
   }
 
-  protected String getFullyQualifiedServerUrlVar() {
-    return this.environmentVariables.computeIfAbsent( "FULL_QUALIFIED_URL", s -> {
-      // split out a fully qualified url, guaranteed to have a trailing slash
-      String fullyQualifiedServerURL = getApplicationContext().getFullyQualifiedServerURL();
-      if ( !fullyQualifiedServerURL.endsWith( "/" ) ) {
-        fullyQualifiedServerURL += "/";
-      }
-      return fullyQualifiedServerURL;
-    } );
+  private String getFullyQualifiedServerUrlVar() {
+    // split out a fully qualified url, guaranteed to have a trailing slash
+    String fullyQualifiedServerURL = getApplicationContext().getFullyQualifiedServerURL();
+    if ( !fullyQualifiedServerURL.endsWith( "/" ) ) {
+      fullyQualifiedServerURL += "/";
+    }
+    return fullyQualifiedServerURL;
   }
 
   private String getContextPathVar( HttpServletRequest request ) {
-    return this.environmentVariables.computeIfAbsent( "CONTEXT_PATH", s -> {
-      // split out a fully qualified url, guaranteed to have a trailing slash
-      IPentahoRequestContext requestContext = getRequestContext();
-      String contextPath = requestContext.getContextPath();
+    // split out a fully qualified url, guaranteed to have a trailing slash
+    IPentahoRequestContext requestContext = getRequestContext();
+    String contextPath = requestContext.getContextPath();
 
-      final boolean shouldUseFullyQualifiedUrl = shouldUseFullyQualifiedUrl( request );
-      if ( shouldUseFullyQualifiedUrl ) {
-        contextPath = getFullyQualifiedServerUrlVar();
-      }
+    final boolean shouldUseFullyQualifiedUrl = shouldUseFullyQualifiedUrl( request );
+    if ( shouldUseFullyQualifiedUrl ) {
+      contextPath = getFullyQualifiedServerUrlVar();
+    }
 
-      return contextPath;
-    } );
+    return contextPath;
   }
 
   private String getServerProtocolVar() {
-    return this.environmentVariables.computeIfAbsent( "SERVER_PROTOCOL", s -> {
-      String fullyQualifiedServerURL = getFullyQualifiedServerUrlVar();
-      if ( fullyQualifiedServerURL.startsWith( "http" ) ) {
-        return fullyQualifiedServerURL.substring( 0, fullyQualifiedServerURL.indexOf( ":" ) );
-      }
+    String fullyQualifiedServerURL = getFullyQualifiedServerUrlVar();
+    if ( fullyQualifiedServerURL.startsWith( "http" ) ) {
+      return fullyQualifiedServerURL.substring( 0, fullyQualifiedServerURL.indexOf( ":" ) );
+    }
 
-      return "http";
-    } );
+    return "http";
   }
 
   private String getRequireCfgVar() {
@@ -372,7 +376,7 @@ public class PentahoWebContextFilter implements Filter {
             .append( "\n  bundles: {}," )
             .append( "\n  config: { \"pentaho/service\": {} }," )
             .append( "\n  packages: []" )
-            .append( "}" );
+            .append( "\n}" );
 
     return requireCfg.toString();
   }
@@ -410,9 +414,9 @@ public class PentahoWebContextFilter implements Filter {
     }
 
     List<String> externalResources = pluginManager.getExternalResourcesForContext( contextName );
-    out.write( ( "<!-- Injecting web resources defined in by plugins as external-resources for: "
+    out.write( ( "\n<!-- Injecting web resources defined in by plugins as external-resources for: "
         + Encode.forHtml(
-        contextName ) + "-->\n" ).getBytes() ); //$NON-NLS-1$ //$NON-NLS-2$
+        contextName ) + "-->" ).getBytes() ); //$NON-NLS-1$ //$NON-NLS-2$
     if ( externalResources != null ) {
 
       for ( String res : externalResources ) {
@@ -420,10 +424,10 @@ public class PentahoWebContextFilter implements Filter {
           continue;
         }
         if ( res.endsWith( JS ) && !printCssOnly ) {
-          out.write( ( "document.write(\"<script language='javascript' type='text/javascript' src='\" + CONTEXT_PATH + \"" + res.trim() + reqStr + "'></scr\"+\"ipt>\");\n" //$NON-NLS-1$ //$NON-NLS-2$
+          out.write( ( "\ndocument.write(\"<script language='javascript' type='text/javascript' src='\" + CONTEXT_PATH + \"" + res.trim() + reqStr + "'></scr\"+\"ipt>\");" //$NON-NLS-1$ //$NON-NLS-2$
           ).getBytes() );
         } else if ( res.endsWith( CSS ) ) {
-          out.write( ( "document.write(\"<link rel='stylesheet' type='text/css' href='\" + CONTEXT_PATH + \"" + res.trim() + reqStr + "'/>\");\n\n" //$NON-NLS-1$ //$NON-NLS-2$
+          out.write( ( "\ndocument.write(\"<link rel='stylesheet' type='text/css' href='\" + CONTEXT_PATH + \"" + res.trim() + reqStr + "'/>\");" //$NON-NLS-1$ //$NON-NLS-2$
           ).getBytes() );
         }
       }
@@ -431,12 +435,14 @@ public class PentahoWebContextFilter implements Filter {
 
   }
 
-  private void printWebContextVar( OutputStream out, String variable, String value ) throws IOException {
-    printWebContextVar( out, variable, value, true, true );
+  private void printWebContextVar( OutputStream out, HashMap<String, String> webContextVariables,
+                                   String variable ) throws IOException {
+    printWebContextVar( out, webContextVariables, variable, true, true );
   }
 
-  private void printWebContextVar( OutputStream out, String variable, String value,
-                                   boolean deprecated, boolean escapeValue ) throws IOException {
+  private void printWebContextVar( OutputStream out, HashMap<String, String> webContextVariables,
+                                   String variable, boolean deprecated, boolean escapeValue ) throws IOException {
+    String value = webContextVariables.get( variable );
     if ( escapeValue ) {
       value = escapeEnvironmentVar( value );
     }
@@ -449,26 +455,33 @@ public class PentahoWebContextFilter implements Filter {
             new StringBuilder( deprecatedComment );
     environmentVariable.append( "\nvar " ).append( variable ).append( " = " ).append( value ).append( ";\n" );
 
-    if ( variable.equals( "SESSION_LOCALE" ) ) {
-      // If RequireJs is available, supply a module
-      environmentVariable
-              .append( "if (typeof(pen) !== 'undefined' && pen.define) {\n" )
-              .append( "  pen.define('Locale', {locale: " ).append( value ).append( " })\n};\n\n" );
-    }
-
     out.write( environmentVariable.toString().getBytes( "UTF-8" ) );
   }
 
-  private void printPentahoEnvironmentConfig( OutputStream out, HttpServletRequest request ) throws IOException {
-    String theme = escapeEnvironmentVar( getActiveThemeVar( request ) );
-    String locale = escapeEnvironmentVar( getLocaleVar( request ) );
-    String userID = escapeEnvironmentVar( getSessionNameVar() );
-    String userHome = escapeEnvironmentVar( getHomeFolderVar() );
+  private void printLocaleModule( OutputStream out, HashMap<String, String> webContextVariables ) throws IOException {
+    String value = escapeEnvironmentVar( webContextVariables.get( "SESSION_LOCALE" ) );
 
-    String reservedChars = escapeEnvironmentVar( getReservedCharsVar() );
-    String serverURL = escapeEnvironmentVar( getServerUrl( request ) );
+    StringBuilder localeModule = new StringBuilder( "// If RequireJs is available, supply a module" );
 
-    StringBuilder environmentModule = new StringBuilder( "// configuration for 'pentaho/context' amd module\n" );
+    localeModule
+            .append( "if (typeof(pen) !== 'undefined' && pen.define) {\n" )
+            .append( "  pen.define('Locale', {locale: " ).append( value ).append( " })\n};\n\n" );
+
+
+    out.write( localeModule.toString().getBytes( "UTF-8" ) );
+  }
+
+  private void printPentahoEnvironmentConfig( OutputStream out,
+                                              HashMap<String, String> webContextVariables ) throws IOException {
+    String theme = escapeEnvironmentVar( webContextVariables.get( "active_theme" ) );
+    String locale = escapeEnvironmentVar( webContextVariables.get( "SESSION_LOCALE" ) );
+    String userID = escapeEnvironmentVar( webContextVariables.get( "SESSION_NAME" ) );
+    String userHome = escapeEnvironmentVar( webContextVariables.get( "HOME_FOLDER" ) );
+
+    String reservedChars = escapeEnvironmentVar( webContextVariables.get( "RESERVED_CHARS" ) );
+    String serverURL = escapeEnvironmentVar( getServerUrl( webContextVariables ) );
+
+    StringBuilder environmentModule = new StringBuilder( "\n// configuration for 'pentaho/context' amd module" );
     environmentModule
             //TODO: when we rename the module 'pentaho/context' to 'pentaho/environment', also change it here
             .append( "\nrequireCfg.config[\"pentaho/context\"] = {" )
@@ -493,8 +506,8 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   private void printDocumentWrite( OutputStream out, String location ) throws IOException {
-    String script = "\ndocument.write(\"<script type='text/javascript' " +
-            "src='\" + CONTEXT_PATH + \"" + location + "'></scr\"+\"ipt>\");\n";
+    String script = "\ndocument.write(\"<script type='text/javascript' "
+            + "src='\" + CONTEXT_PATH + \"" + location + "'></scr\"+\"ipt>\");\n";
 
     out.write( script.getBytes( "UTF-8" ) );
   }
@@ -508,18 +521,18 @@ public class PentahoWebContextFilter implements Filter {
     return value;
   }
 
-  String getServerUrl( HttpServletRequest request ) {
-    String url = getFullyQualifiedServerUrlVar();
+  String getServerUrl( HashMap<String, String> webContextVariables ) {
+    String url = webContextVariables.get( "FULL_QUALIFIED_URL" );
     if ( url != null && !url.isEmpty() ) {
       return url;
     }
 
-    url = getContextPathVar( request );
+    url = webContextVariables.get( "CONTEXT_PATH" );
     if ( url != null && !url.isEmpty() ) {
       return url;
     }
 
-    url = getServerProtocolVar();
+    url = webContextVariables.get( "SERVER_PROTOCOL" );
     if ( url != null && !url.isEmpty() ) {
       return url;
     }

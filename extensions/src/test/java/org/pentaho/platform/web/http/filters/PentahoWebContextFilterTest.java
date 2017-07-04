@@ -45,6 +45,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -185,7 +186,9 @@ public class PentahoWebContextFilterTest {
 
     final String response = executeWebContextFilter();
 
-    String fullyQualifiedServerURL = this.pentahoWebContextFilter.getFullyQualifiedServerUrlVar();
+    String fullyQualifiedServerURL = this.pentahoWebContextFilter
+            .getWebContextVariables( this.mockRequest ).get( "FULL_QUALIFIED_URL" );
+
     assertTrue( this.responseSetsContextPathGlobal( response, fullyQualifiedServerURL ) );
     assertTrue( this.requirejsManagerInitIsCalled( response, "true" ) );
   }
@@ -305,7 +308,7 @@ public class PentahoWebContextFilterTest {
 
   @Test
   public void testWebContextDefinesPentahoEnvironmentModuleConfig() throws ServletException, IOException {
-    doReturn( this.fullyQualifiedServerURL ).when( this.pentahoWebContextFilter ).getServerUrl( this.mockRequest );
+    doReturn( this.fullyQualifiedServerURL ).when( this.pentahoWebContextFilter ).getServerUrl( any() );
 
     String serverUrl = "\"" + StringEscapeUtils.escapeJavaScript( this.fullyQualifiedServerURL ) + "\"";
     String userHome = "\"" + StringEscapeUtils.escapeJavaScript( "/home/" + this.sessionName ) + "\"";
