@@ -35,6 +35,25 @@ public interface IActionInvoker {
    * @return the {@link IActionInvokeStatus} object containing information about the action invocation
    * @throws Exception if the action cannot be run for some reason
    */
-  IActionInvokeStatus invokeAction( IAction action, final String user, final Map<String, Serializable> params )
-    throws Exception;
+  default IActionInvokeStatus invokeAction( IAction action, final String user, final Map<String, Serializable> params )
+    throws Exception {
+    return invokeAction( action, user, params, null );
+  }
+
+  /**
+   * Invokes the {@link IAction} {@code action} with teh credential. The default implementation is provided
+   * so the existing ActionInvoker does not have to change.
+   *
+   * @param action The {@link IAction} to be invoked
+   * @param user   The user invoking the action
+   * @param params the {@link Map} or parameters needed to invoke the {@link IAction}
+   *
+   * @return the {@link IActionInvokeStatus} object containing information about the action invocation
+   * @throws Exception if the action cannot be run for some reason
+   */
+  default IActionInvokeStatus invokeAction( IAction action, final String user, final Map<String, Serializable> params,
+          IWorkerNodeCredential credential ) throws Exception {
+    throw new UnsupportedOperationException(  );
+  }
+
 }
