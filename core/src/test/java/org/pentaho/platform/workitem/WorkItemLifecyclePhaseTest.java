@@ -32,7 +32,6 @@ public class WorkItemLifecyclePhaseTest {
     Assert.assertEquals( "Succeeded", WorkItemLifecyclePhase.SUCCEEDED.getName() );
     Assert.assertEquals( "Failed", WorkItemLifecyclePhase.FAILED.getName() );
     Assert.assertEquals( "Restarted", WorkItemLifecyclePhase.RESTARTED.getName() );
-
   }
 
   @Test
@@ -55,21 +54,5 @@ public class WorkItemLifecyclePhaseTest {
       WorkItemLifecyclePhase.FAILED.getDescription() );
     Assert.assertEquals( "The work item execution has been restarted",
       WorkItemLifecyclePhase.RESTARTED.getDescription() );
-  }
-
-
-  @Test
-  public void testGet() {
-
-    Assert.assertNull( WorkItemLifecyclePhase.get( "foo" ) );
-    Assert.assertNull( WorkItemLifecyclePhase.get( "" ) );
-    Assert.assertNull( WorkItemLifecyclePhase.get( null ) );
-
-    Assert.assertEquals( WorkItemLifecyclePhase.FAILED, WorkItemLifecyclePhase.get( WorkItemLifecyclePhase
-      .getMessageBundle().getString( "LifecyclePhase.FAILED" ) ) );
-    Assert.assertEquals( WorkItemLifecyclePhase.SUBMITTED, WorkItemLifecyclePhase.get( WorkItemLifecyclePhase
-      .getMessageBundle().getString( "LifecyclePhase.SUBMITTED" ) ) );
-    Assert.assertEquals( WorkItemLifecyclePhase.DISPATCHED, WorkItemLifecyclePhase.get( WorkItemLifecyclePhase
-      .getMessageBundle().getString( "LifecyclePhase.DISPATCHED" ) ) );
   }
 }

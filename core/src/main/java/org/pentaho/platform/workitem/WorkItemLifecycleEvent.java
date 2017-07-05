@@ -22,14 +22,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -70,7 +68,7 @@ public class WorkItemLifecycleEvent {
    * Creates the {@link WorkItemLifecycleEvent} with all the required parameters.
    *
    * @param workItemUid            a {@link String} containing unique identifier for the {@link WorkItemLifecycleEvent}
-   * @param workItemDetails        a {@link String} containing details of the {@link WorkItemLifecycleEvent}
+   * @param workItemDetails        an {@link String} containing details of the {@link WorkItemLifecycleEvent}
    * @param workItemLifecyclePhase a {@link WorkItemLifecyclePhase} representing the lifecycle event
    * @param lifecycleDetails       a {@link String} containing any additional details about the lifecycle event, such as
    *                               pertinent failure messages
@@ -101,26 +99,6 @@ public class WorkItemLifecycleEvent {
     // set the default values for host name and ip, they can be changed directly if needed
     this.sourceHostName = HOST_NAME;
     this.sourceHostIp = HOST_IP;
-  }
-
-  /**
-   * Looks up the {@code ActionUtil.WORK_ITEM_UID} within the {@link Map}. If available, the value is returned,
-   * otherwise a new uid is generated and placed within the {@link Map}.
-   *
-   * @param map a {@link Map} that may contain the {@code ActionUtil.WORK_ITEM_UID}
-   * @return {@code ActionUtil.WORK_ITEM_UID} from the {@link Map} or a new uid
-   */
-  public static String getUidFromMap( final Map map ) {
-    String workItemUid;
-    if ( map == null || StringUtil.isEmpty( (String) map.get( ActionUtil.WORK_ITEM_UID ) ) ) {
-      workItemUid = UUID.randomUUID().toString();
-    } else {
-      workItemUid = (String) map.get( ActionUtil.WORK_ITEM_UID );
-    }
-    if ( map != null ) {
-      map.put( ActionUtil.WORK_ITEM_UID, workItemUid );
-    }
-    return workItemUid;
   }
 
   public String getWorkItemUid() {

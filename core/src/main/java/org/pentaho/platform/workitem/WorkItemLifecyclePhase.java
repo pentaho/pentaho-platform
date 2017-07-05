@@ -24,7 +24,6 @@ import org.pentaho.platform.util.messages.Messages;
  * An enumeration of the known lifecycle events for the work item.
  */
 public enum WorkItemLifecyclePhase {
-
   /**
    * The work item has been submitted for execution
    */
@@ -59,34 +58,21 @@ public enum WorkItemLifecyclePhase {
   RESTARTED( "LifecyclePhase.RESTARTED" );
 
   private String nameMessageKey;
+  private String name;
+  private String description;
 
   WorkItemLifecyclePhase( final String nameMessageKey ) {
     this.nameMessageKey = nameMessageKey;
+    this.name = getMessageBundle().getString( nameMessageKey );
+    this.description = getMessageBundle().getString( nameMessageKey + "_DESC" );
   }
 
   public String getName() {
-    return getMessageBundle().getString( nameMessageKey );
+    return this.name;
   }
 
   public String getDescription() {
-    return getMessageBundle().getString( nameMessageKey + "_DESC" );
-  }
-
-  /**
-   * Returns an instance of {@link WorkItemLifecyclePhase} whose name matches the provided {@code name}.
-   *
-   * @param name the name of the {@link WorkItemLifecyclePhase} being fetched
-   * @return an instance of {@link WorkItemLifecyclePhase} whose name matches the provided {@code name} or null, if no
-   * match is found
-   */
-  public static WorkItemLifecyclePhase get( final String name ) {
-    final WorkItemLifecyclePhase[] instances = WorkItemLifecyclePhase.class.getEnumConstants();
-    for ( final WorkItemLifecyclePhase instance : instances ) {
-      if ( instance.getName().equals( name ) ) {
-        return instance;
-      }
-    }
-    return null;
+    return this.description;
   }
 
   public String toString() {

@@ -33,7 +33,6 @@ import org.pentaho.platform.plugin.action.DefaultActionInvoker;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
-import org.pentaho.platform.workitem.WorkItemLifecycleEvent;
 import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
 import org.slf4j.MDC;
@@ -90,20 +89,20 @@ public class ActionResource {
 
     IAction action = null;
     Map<String, Serializable> params = null;
-    String workItemDetails = null;
+
     try {
       action = createActionBean( actionClass, actionId );
       params = ActionParams.deserialize( action, actionParams );
-      workItemDetails = params.toString();
     } catch ( final Exception e ) {
       logger.error( e.getLocalizedMessage() );
       // we're not able to get the work item UID at this point
-      WorkItemLifecyclePublisher.publish( "?", workItemDetails, WorkItemLifecyclePhase.FAILED, e.getLocalizedMessage() );
+      WorkItemLifecyclePublisher.publish( "?", params, WorkItemLifecyclePhase.FAILED, e.getLocalizedMessage() );
+      return Response.status( HttpStatus.SC_BAD_REQUEST ).build();
     }
-    final String workItemUid = WorkItemLifecycleEvent.getUidFromMap( params );
-    WorkItemLifecyclePublisher.publish( workItemUid, workItemDetails, WorkItemLifecyclePhase.RECEIVED );
 
-    // https://docs.oracle.com/javase/7/docs/api/java/lang/Boolean.html#parseBoolean(java.lang.String)
+    final String workItemUid = ActionUtil.extractUid( params );
+    WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.RECEIVED );
+
     final boolean isAsyncExecution = Boolean.parseBoolean( async );
     int httpStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR; // default ( pessimistic )
 
@@ -173,8 +172,6 @@ public class ActionResource {
 
     @Override
     public IActionInvokeStatus call() {
-      final String workItemUid = WorkItemLifecycleEvent.getUidFromMap( params );
-      final String workItemDetails = StringUtil.getMapAsPrettyString( params );
       try {
         Optional.ofNullable( mdcContextMap ).ifPresent( s -> MDC.setContextMap( mdcContextMap ) );
 
@@ -197,7 +194,7 @@ public class ActionResource {
       } catch ( final Throwable thr ) {
         getLogger()
           .error( Messages.getInstance().getCouldNotInvokeActionLocallyUnexpected( action.getClass().getName(),
-            workItemDetails ), thr );
+            StringUtil.getMapAsPrettyString( params ) ), thr );
       }
 
       return null;
