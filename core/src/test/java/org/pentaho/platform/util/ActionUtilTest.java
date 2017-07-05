@@ -143,4 +143,16 @@ public class ActionUtilTest {
     Assert.assertEquals( testMap.get( ActionUtil.QUARTZ_ACTIONCLASS ), null );
     Assert.assertEquals( testMap.get( ActionUtil.QUARTZ_ACTIONUSER ), null );
   }
+
+  @Test
+  public void testExtractUid() {
+    final Map<String, Serializable> params = new HashMap<>();
+
+    Assert.assertNotNull( ActionUtil.extractUid( params ) );
+    // the map should now contain a uid
+    Assert.assertTrue( params.containsKey( ActionUtil.WORK_ITEM_UID ) );
+    final String uid = (String) params.get( ActionUtil.WORK_ITEM_UID );
+    Assert.assertEquals( uid, ActionUtil.extractUid( params ) );
+    Assert.assertEquals( 1, params.size() );
+  }
 }

@@ -34,6 +34,7 @@ import org.pentaho.platform.util.web.MimeHelper;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class ActionUtil {
 
@@ -102,6 +103,27 @@ public class ActionUtil {
 
     params.clear();
     params.putAll( replaced );
+  }
+
+  /**
+   * Looks up the {@code ActionUtil.WORK_ITEM_UID} within the {@link Map}. If available, the value is returned,
+   * otherwise a new uid is generated and placed within the {@link Map}.
+   *
+   * @param params a {@link Map} that may contain the {@code ActionUtil.WORK_ITEM_UID}
+   * @return {@code ActionUtil.WORK_ITEM_UID} from the {@link Map} or a new uid
+   */
+  public static String extractUid( final Map<String, Serializable> params ) {
+    if ( params == null ) {
+      return UUID.randomUUID().toString();
+    }
+
+    String uid = (String) params.get( WORK_ITEM_UID );
+    if ( uid == null ) {
+      uid = UUID.randomUUID().toString();
+      params.put( WORK_ITEM_UID, uid );
+    }
+
+    return uid;
   }
 
   private static final long RETRY_COUNT = 6;

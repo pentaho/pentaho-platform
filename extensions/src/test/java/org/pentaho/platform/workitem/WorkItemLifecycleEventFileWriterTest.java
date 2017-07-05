@@ -42,6 +42,4 @@ public class WorkItemLifecycleEventFileWriterTest {
       "ERROR_0001_MISSING_WORK_ITEM_LIFECYCLE - Work item lifecycle information is missing, cannot publish", listener
         .getMessageBundle().getErrorString( "ERROR_0001_MISSING_WORK_ITEM_LIFECYCLE" ) );
   }
-
-  // TODO: finish
 }
