@@ -268,6 +268,20 @@ public class PentahoWebContextFilterTest {
   }
 
   @Test
+  public void testWebContextDefinesLocaleModule() throws ServletException, IOException {
+    String sessionLocale = "fo_BA";
+    when( this.mockRequest.getParameter( "locale" ) ).thenReturn( sessionLocale );
+    final String response = executeWebContextFilter();
+
+    String expected = "// If RequireJs is available, supply a module" +
+            "\nif (typeof(pen) !== 'undefined' && pen.define) {" +
+            "\n  pen.define('Locale', {locale: \"" + sessionLocale + "\" });" +
+            "\n}\n";
+
+    assertTrue( response.contains( expected ) );
+  }
+
+  @Test
   public void testWebContextDefinesHomeFolder() throws ServletException, IOException {
     final String response = executeWebContextFilter();
 

@@ -464,8 +464,9 @@ public class PentahoWebContextFilter implements Filter {
     StringBuilder localeModule = new StringBuilder( "// If RequireJs is available, supply a module" );
 
     localeModule
-            .append( "if (typeof(pen) !== 'undefined' && pen.define) {\n" )
-            .append( "  pen.define('Locale', {locale: " ).append( value ).append( " })\n};\n\n" );
+            .append( "\nif (typeof(pen) !== 'undefined' && pen.define) {" )
+            .append( "\n  pen.define('Locale', {locale: " ).append( value ).append( " });" )
+            .append( "\n}\n" );
 
 
     out.write( localeModule.toString().getBytes( "UTF-8" ) );
