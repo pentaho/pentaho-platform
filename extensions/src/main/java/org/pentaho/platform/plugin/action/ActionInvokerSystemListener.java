@@ -44,15 +44,20 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
   private static final String DEFAULT_CONTENT_FOLDER = "system/default-content";
   private String environmentVariablesFolder;
 
+
+  public String getSolutionPath( ) {
+    return PentahoSystem.getApplicationContext().getSolutionPath( DEFAULT_CONTENT_FOLDER );
+  }
+
   @Override
   public boolean startup( IPentahoSession session ) {
-    final String solutionPath = PentahoSystem.getApplicationContext().getSolutionPath( DEFAULT_CONTENT_FOLDER );
+    final String solutionPath = getSolutionPath();
 
-    File[] files;
+    File[] files = null;
     if ( !StringUtils.isEmpty( environmentVariablesFolder ) ) {
       files = listFiles( new File( environmentVariablesFolder ), WORK_ITEM_FILE_EXTENSION );
       logger.info( "Reading " + WORK_ITEM_FILE_EXTENSION + " files from " + environmentVariablesFolder );
-    } else {
+    } else if ( !StringUtils.isEmpty( solutionPath ) ) {
       files = listFiles( new File( solutionPath ), WORK_ITEM_FILE_EXTENSION );
       logger.info( "Reading " + WORK_ITEM_FILE_EXTENSION + " files from " + solutionPath );
     }
@@ -71,7 +76,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
 
         logger.info( "Issuing Work Item request" );
 
-        Response response = payload.issueRequest();
+        Response response = issueRequest( payload );
 
         logger.info( "Work Item Request Issued and status returned was " + response.getStatus() );
       } catch ( IOException e ) {
@@ -83,6 +88,11 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
       }
     }
     return true;
+  }
+
+  //for unit testability
+  Response issueRequest( Payload payload ) throws IOException {
+    return payload.issueRequest();
   }
 
   private void renameFile( final String filename ) {
@@ -100,7 +110,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
 
   }
 
-  private File[] listFiles( final File folder, final String fileExtension ) {
+  File[] listFiles( final File folder, final String fileExtension ) {
     if ( folder.isDirectory() && folder.canRead() ) {
       return folder.listFiles( new FileFilter() {
         @Override
@@ -114,15 +124,19 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
     return null;
   }
 
-  private void setEnvironmentVariablesFolder( String environmentVariablesFolder ) {
+  public void setEnvironmentVariablesFolder( String environmentVariablesFolder ) {
     this.environmentVariablesFolder = environmentVariablesFolder;
+  }
+
+  public ActionResource getActionResource( ) {
+    return new ActionResource();
   }
 
   public class Payload {
     private String actionUser;
     private String actionId;
     private String actionClass;
-    private String actionParams;
+    private ActionParams actionParams;
 
 
     public Payload( String urlEncodedJson, String enc ) {
@@ -135,7 +149,8 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
         actionClass = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONCLASS ), enc );
         actionId = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONID ), enc );
         actionUser = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONUSER ), enc );
-        actionParams = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONPARAMS ), enc );
+        String stringActionParams = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONPARAMS ), enc );
+        actionParams = ActionParams.fromJson( stringActionParams );
       } catch ( JSONException | IOException e ) {
         throw new IllegalArgumentException( e );
       }
@@ -146,9 +161,9 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
     }
 
     public Response issueRequest( ) throws IOException {
-      ActionResource actionResource = new ActionResource();
+      ActionResource actionResource = getActionResource();
       return actionResource.invokeAction( ActionUtil.INVOKER_SYNC_VALUE, actionId, actionClass, actionUser,
-        ActionParams.fromJson( actionParams ) );
+          actionParams );
     }
   }
 }
