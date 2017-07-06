@@ -23,19 +23,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.pentaho.platform.api.action.ActionInvocationException;
+import org.pentaho.platform.api.action.IAction;
+import org.pentaho.platform.api.action.IActionInvokeStatus;
+import org.pentaho.platform.api.action.IActionInvoker;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.web.http.api.resources.ActionResource;
 
-import javax.ws.rs.core.Response;
+import java.io.Serializable;
 import java.io.File;
-import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.Map;
 
 public class ActionInvokerSystemListener implements IPentahoSystemListener {
 
@@ -44,11 +48,16 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
   private static final String DEFAULT_CONTENT_FOLDER = "system/default-content";
   private String environmentVariablesFolder;
 
-
-  public String getSolutionPath( ) {
+  //for unit testability
+  String getSolutionPath( ) {
     return PentahoSystem.getApplicationContext().getSolutionPath( DEFAULT_CONTENT_FOLDER );
   }
 
+  /**
+   * Runs Work Items described in json files upon startup of the Pentaho Server.
+   * @param session
+   * @return
+   */
   @Override
   public boolean startup( IPentahoSession session ) {
     final String solutionPath = getSolutionPath();
@@ -68,21 +77,22 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
     }
 
     for ( File file : files ) {
-
       logger.info( "Attempting to read data from " + file.getAbsolutePath() );
       try {
-        String encoded = IOUtils.toString( new FileInputStream( file ) );
+        FileInputStream fileInputStream = new FileInputStream( file );
+        String encoded = IOUtils.toString( fileInputStream );
+        fileInputStream.close();
         Payload payload = new Payload( encoded, LocaleHelper.UTF_8 );
-
         logger.info( "Issuing Work Item request" );
-
-        Response response = issueRequest( payload );
-
-        logger.info( "Work Item Request Issued and status returned was " + response.getStatus() );
+        try {
+          IActionInvokeStatus status = issueRequest( payload );
+        } catch ( Exception e ) {
+          //send status to chronos
+        }
       } catch ( IOException e ) {
-        logger.error( "error reading file " + file.getAbsolutePath() );
+        logger.error( "Error reading files. " );
       } catch ( IllegalArgumentException e ) {
-        logger.error( "Payload could not be recreated. Will not process." );
+        logger.error( file.getName() + " Payload could not be recreated. Will not process." );
       } finally {
         renameFile( file.getAbsolutePath() );
       }
@@ -91,7 +101,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
   }
 
   //for unit testability
-  Response issueRequest( Payload payload ) throws IOException {
+  IActionInvokeStatus issueRequest( Payload payload ) throws Exception {
     return payload.issueRequest();
   }
 
@@ -103,7 +113,6 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
       logger.error( "Could not rename file " + filename );
     }
   }
-
 
   @Override
   public void shutdown( ) {
@@ -119,51 +128,59 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
         }
       } );
     } else {
-      logger.error( folder.getAbsolutePath() + " is not a valid directory" );
+      logger.info( folder.getAbsolutePath() + " no .json files found." );
     }
     return null;
   }
+  IAction getActionBean( String actionClass, String actionId ) throws ActionInvocationException {
+    return ActionUtil.createActionBean( actionClass, actionId );
+  }
 
+  /**
+   * Sets the location of the folder where the system listener will consume json files from.
+   * If unset, the listener defaults to the system/default-content folder.
+   * @param environmentVariablesFolder
+   */
   public void setEnvironmentVariablesFolder( String environmentVariablesFolder ) {
     this.environmentVariablesFolder = environmentVariablesFolder;
   }
 
-  public ActionResource getActionResource( ) {
-    return new ActionResource();
+  public IActionInvoker getActionInvoker( ) {
+    return PentahoSystem.get( IActionInvoker.class );
   }
 
-  public class Payload {
+  class Payload {
     private String actionUser;
-    private String actionId;
-    private String actionClass;
-    private ActionParams actionParams;
+
+    private IAction action;
+    private Map<String, Serializable> actionMap;
 
 
-    public Payload( String urlEncodedJson, String enc ) {
+    Payload( String urlEncodedJson, String enc ) {
       buildPayload( urlEncodedJson, enc );
     }
 
     private void buildPayload( String urlEncodedJson, String enc ) {
       try {
         JSONObject jsonVars = new JSONObject( urlEncodedJson );
-        actionClass = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONCLASS ), enc );
-        actionId = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONID ), enc );
+        String actionClass = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONCLASS ), enc );
+        String actionId = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONID ), enc );
         actionUser = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONUSER ), enc );
+        action = getActionBean( actionClass, actionId );
         String stringActionParams = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONPARAMS ), enc );
-        actionParams = ActionParams.fromJson( stringActionParams );
-      } catch ( JSONException | IOException e ) {
+        ActionParams actionParams = ActionParams.fromJson( stringActionParams );
+        actionMap = ActionParams.deserialize( action, actionParams );
+      } catch ( JSONException | IOException | ActionInvocationException e ) {
         throw new IllegalArgumentException( e );
       }
     }
 
-    public Payload( String json ) {
+    Payload( String json ) {
       buildPayload( json, LocaleHelper.UTF_8 );
     }
 
-    public Response issueRequest( ) throws IOException {
-      ActionResource actionResource = getActionResource();
-      return actionResource.invokeAction( ActionUtil.INVOKER_SYNC_VALUE, actionId, actionClass, actionUser,
-          actionParams );
+    IActionInvokeStatus issueRequest( ) throws Exception {
+      return getActionInvoker().invokeAction( action, actionUser, actionMap );
     }
   }
 }
