@@ -16,7 +16,6 @@
 */
 package org.pentaho.platform.plugin.action;
 
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -24,24 +23,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.pentaho.platform.api.action.IAction;
+import org.pentaho.platform.api.action.IActionInvokeStatus;
 import org.pentaho.platform.api.engine.IPentahoSession;
-
-import javax.ws.rs.core.Response;
-
 
 import java.io.File;
 import java.io.FileInputStream;
 
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
-import org.pentaho.platform.web.http.api.resources.ActionResource;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 
@@ -59,7 +55,7 @@ public class ActionInvokerSystemListenerTest {
 
   private static final String noJsonFilesFolder = resourcesFolder + "/NoJsonFiles";
   private IPentahoSession mockSession;
-  private ActionResource actionResource;
+  private DefaultActionInvoker actionInvoker;
   private StandaloneApplicationContext applicationContext;
   private ActionInvokerSystemListener actionInvokerSystemListener;
   private static final String DEFAULT_CONTENT_FOLDER = resourcesFolder + "/system/default-content";
@@ -77,11 +73,10 @@ public class ActionInvokerSystemListenerTest {
   @Before
   public void init( ) {
     mockSession = mock( IPentahoSession.class );
-    actionResource = mock( ActionResource.class );
+    actionInvoker = mock( DefaultActionInvoker.class );
     applicationContext = mock( StandaloneApplicationContext.class );
 
   }
-
 
   @Test
   public void testStartup( ) throws Exception {
@@ -108,14 +103,15 @@ public class ActionInvokerSystemListenerTest {
   public void testStartup( String absFileName, boolean environmentVariablesFolderSet ) throws Exception {
     ActionInvokerSystemListener tempActionInvokerSystemListener = new ActionInvokerSystemListener();
     actionInvokerSystemListener = spy( tempActionInvokerSystemListener );
+    IAction action = spy( IAction.class );
+    doReturn( action ).when( actionInvokerSystemListener ).getActionBean( anyString(), anyString() );
     if ( environmentVariablesFolderSet ) {
       actionInvokerSystemListener.setEnvironmentVariablesFolder( absFileName );
     }
     doReturn( absFileName ).when( actionInvokerSystemListener ).getSolutionPath();
-    doReturn( actionResource ).when( actionInvokerSystemListener ).getActionResource();
-    int httpStatus = HttpStatus.SC_ACCEPTED;
-    Response response = Response.status( httpStatus ).build();
-    doReturn( response ).when( actionResource ).invokeAction( anyString(), anyString(), anyString(), anyString(), any() );
+    doReturn( actionInvoker ).when( actionInvokerSystemListener ).getActionInvoker();
+    IActionInvokeStatus status = new ActionInvokeStatus();
+    doReturn( status ).when( actionInvoker ).invokeAction( any(), any(), any() );
     boolean res = actionInvokerSystemListener.startup( mockSession );
     Assert.assertTrue( res );
   }
@@ -137,18 +133,15 @@ public class ActionInvokerSystemListenerTest {
   @Test
   public void testPayload( ) throws Exception {
     File validMockWi = new File( resourcesFolder + "/" + files[ 2 ] );
-    ActionInvokerSystemListener.Payload payload = new ActionInvokerSystemListener().new Payload( IOUtils.toString( new FileInputStream( validMockWi ) ) );
+    ActionInvokerSystemListener temp = new ActionInvokerSystemListener();
+    ActionInvokerSystemListener spy = spy( temp );
+    IAction action = spy( IAction.class );
+    doReturn( action ).when( spy ).getActionBean( anyString(), anyString() );
+    spy.new Payload( IOUtils.toString( new FileInputStream( validMockWi ) ) );
     File valid_unencoded = new File( resourcesFolder + "/" + files[ 0 ] );
-    payload = new ActionInvokerSystemListener().new Payload( IOUtils.toString( new FileInputStream( valid_unencoded ) ) );
+    spy.new Payload( IOUtils.toString( new FileInputStream( valid_unencoded ) ) );
     //no exceptions thrown, payloads successfully created
     Assert.assertTrue( true );
-  }
-
-  @Test
-  public void testGetActionResource( ) {
-    ActionInvokerSystemListener testActionInvokerSystemListener = new ActionInvokerSystemListener();
-    ActionResource actionResource = testActionInvokerSystemListener.getActionResource();
-    Assert.assertTrue( actionResource.getClass() == ActionResource.class );
   }
 
   @After
