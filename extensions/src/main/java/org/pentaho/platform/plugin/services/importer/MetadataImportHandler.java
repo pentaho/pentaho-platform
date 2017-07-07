@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -173,7 +173,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
             // This metadata file came from a DataSourceWizard, it may have embedded mondrian schema
             // that would incorrectly inform the system that there is mondrian schema attached. By
             // definition we only want to import the metadata portion.
-            if ( logicalModel.getProperty( logicalModel.PROPERTY_OLAP_DIMS ) != null ) {
+            if ( logicalModel.getProperty( LogicalModel.PROPERTY_OLAP_DIMS ) != null ) {
               // This logical model is an Olap model that needs to be removed from metadata
               iterator.remove();
             } else {
