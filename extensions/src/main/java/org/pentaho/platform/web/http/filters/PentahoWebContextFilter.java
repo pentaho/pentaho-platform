@@ -60,6 +60,8 @@ public class PentahoWebContextFilter implements Filter {
   private static final String REQUIREJS_CONFIG_LOCATION = "content/common-ui/resources/web/require-cfg.js";
   private static final String REQUIREJS_INIT_LOCATION = "osgi/requirejs-manager/js/require-init.js";
 
+  private static final String DEFAULT_SERVICES_ROOT = "osgi/cxf/";
+
   static final String FILTER_APPLIED = "__pentaho_web_context_filter_applied"; //$NON-NLS-1$
   static final String initialComment =
       "/** webcontext.js is created by a PentahoWebContextFilter. This filter searches for an " + //$NON-NLS-1$
@@ -480,7 +482,8 @@ public class PentahoWebContextFilter implements Filter {
     String userHome = escapeEnvironmentVar( webContextVariables.get( "HOME_FOLDER" ) );
 
     String reservedChars = escapeEnvironmentVar( webContextVariables.get( "RESERVED_CHARS" ) );
-    String serverURL = escapeEnvironmentVar( getServerUrl( webContextVariables ) );
+    String serverRoot = escapeEnvironmentVar( getServerRoot( webContextVariables ) );
+    String serverServices = escapeEnvironmentVar( getServerServices( webContextVariables ) );
 
     StringBuilder environmentModule = new StringBuilder( "\n// configuration for 'pentaho/context' amd module" );
     environmentModule
@@ -498,7 +501,8 @@ public class PentahoWebContextFilter implements Filter {
             .append( "\n  reservedChars: " ).append( reservedChars ).append( "," )
 
             .append( "\n  server: {" )
-            .append( "\n    url: " ).append( serverURL )
+            .append( "\n    root: " ).append( serverRoot ).append( "," )
+            .append( "\n    services: " ).append( serverServices )
             .append( "\n  }" )
 
             .append( "\n};\n" );
@@ -522,23 +526,30 @@ public class PentahoWebContextFilter implements Filter {
     return value;
   }
 
-  String getServerUrl( HashMap<String, String> webContextVariables ) {
-    String url = webContextVariables.get( "FULL_QUALIFIED_URL" );
-    if ( url != null && !url.isEmpty() ) {
-      return url;
+  String getServerRoot( HashMap<String, String> webContextVariables ) {
+    String root = webContextVariables.get( "FULL_QUALIFIED_URL" );
+    if ( root != null && !root.isEmpty() ) {
+      return root;
     }
 
-    url = webContextVariables.get( "CONTEXT_PATH" );
-    if ( url != null && !url.isEmpty() ) {
-      return url;
+    root = webContextVariables.get( "CONTEXT_PATH" );
+    if ( root != null && !root.isEmpty() ) {
+      return root;
     }
 
-    url = webContextVariables.get( "SERVER_PROTOCOL" );
-    if ( url != null && !url.isEmpty() ) {
-      return url;
+    root = webContextVariables.get( "SERVER_PROTOCOL" );
+    if ( root != null && !root.isEmpty() ) {
+      return root;
     }
 
     return null;
+  }
+
+  private String getServerServices( HashMap<String, String> webContextVariables ) {
+    String contextPath = webContextVariables.get( "CONTEXT_PATH" );
+    String servicesRoot = PentahoSystem.getSystemSetting( PentahoSystem.SERVICES_ROOT, DEFAULT_SERVICES_ROOT );
+
+    return contextPath + servicesRoot;
   }
 
   private boolean shouldUseFullyQualifiedUrl( HttpServletRequest httpRequest ) {

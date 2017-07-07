@@ -10,3 +10,4 @@ build-utils/test-lib
 .idea/
 target/
 *.iml
+pentaho.log
