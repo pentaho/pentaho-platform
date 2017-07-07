@@ -17,24 +17,20 @@
 
 package org.pentaho.platform.api.action;
 
-import java.io.Serializable;
-import java.util.Map;
-
 /**
- * The purpose of this interface is to provide functionality needed to invoke an {@link IAction} instance in a
- * generic fashion.
+ * Interface that defines methods related to connecting to secure orchestration tool
  */
-public interface IActionInvoker {
+public interface ISecureActionInvoker extends IActionInvoker {
 
   /**
-   * Invokes the {@link IAction} {@code action}.
-   *
-   * @param action The {@link IAction} to be invoked
-   * @param user   The user invoking the action
-   * @param params the {@link Map} or parameters needed to invoke the {@link IAction}
-   * @return the {@link IActionInvokeStatus} object containing information about the action invocation
-   * @throws Exception if the action cannot be run for some reason
+   * Check to see if the security is enabled
+   * @return boolean
    */
-  IActionInvokeStatus invokeAction( IAction action, final String user, final Map<String, Serializable> params )
-        throws Exception;
+  public boolean isSecurityEnabled();
+
+  /**
+   * Get the worker node credentials
+   * @return IWorkerNodeCredential
+   */
+  public IWorkerNodeCredential getCredential();
 }
