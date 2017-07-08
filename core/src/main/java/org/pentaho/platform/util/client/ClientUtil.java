@@ -12,19 +12,19 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.util.client;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
+import org.pentaho.di.core.util.HttpClientManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,39 +34,39 @@ public class ClientUtil {
   /**
    * Returns an instance of an HttpClient. Only one is created per ConnectionServiceClient so all calls should be
    * made synchronously.
-   * 
+   *
    * @return The HTTP client to be used for web service calls
    */
   public static HttpClient getClient( String userId, String password ) {
+    HttpClientManager.HttpClientBuilderFacade clientBuilder = HttpClientManager.getInstance().createBuilder();
 
-    HttpClient httpClientInstance = new HttpClient();
-    if ( ( userId != null ) && ( userId.length() > 0 ) && ( password != null ) && ( password.length() > 0 ) ) {
-      Credentials creds = new UsernamePasswordCredentials( userId, password );
-      httpClientInstance.getState().setCredentials( AuthScope.ANY, creds );
-      httpClientInstance.getParams().setAuthenticationPreemptive( true );
+    if ( StringUtils.isNotEmpty( userId ) && StringUtils.isNotEmpty( password ) ) {
+      clientBuilder.setCredentials( userId, password );
     }
-    return httpClientInstance;
+
+    return clientBuilder.build();
   }
 
   /**
    * Submits an HTTP result with the provided HTTPMethod and returns a dom4j document of the response
-   * 
+   *
    * @param callMethod
    * @return
-   * @throws ConnectionServiceException
+   * @throws ServiceException
    */
-  public static org.dom4j.Document getResultDom4jDocument( HttpClient client, HttpMethod callMethod )
+  public static org.dom4j.Document getResultDom4jDocument( HttpClient client, HttpUriRequest callMethod )
     throws ServiceException {
 
     try {
       // execute the HTTP call
-      int status = client.executeMethod( callMethod );
+      HttpResponse httpResponse = client.execute( callMethod );
+      final int status = httpResponse.getStatusLine().getStatusCode();
       if ( status != HttpStatus.SC_OK ) {
         throw new ServiceException( "Web service call failed with code " + status ); //$NON-NLS-1$
       }
       // get the result as a string
-      InputStream in = callMethod.getResponseBodyAsStream();
-      byte[] buffer = new byte[2048];
+      InputStream in = httpResponse.getEntity().getContent();
+      byte[] buffer = new byte[ 2048 ];
       int n = in.read( buffer );
       StringBuilder sb = new StringBuilder();
       while ( n != -1 ) {

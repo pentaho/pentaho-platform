@@ -12,54 +12,66 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+* Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
 */
 
 package org.pentaho.platform.util.client;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import org.apache.commons.io.input.ReaderInputStream;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.dom4j.Document;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.io.input.ReaderInputStream;
-import org.dom4j.Document;
-import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ClientUtilsTest {
 
   private static final String XML_TEXT =
-      "<Level1>\n" + " <Level2>\n" + "   <Props>\n" + "    <ObjectID>AAAAA</ObjectID>\n"
-          + "    <SAPIDENT>31-8200</SAPIDENT>\n" + "    <Quantity>1</Quantity>\n"
-          + "    <Merkmalname>TX_B</Merkmalname>\n" + "    <Merkmalswert> 600</Merkmalswert>\n" + "   </Props>\n"
-          + "   <Props>\n" + "    <ObjectID>AAAAA</ObjectID>\n" + "    <SAPIDENT>31-8200</SAPIDENT>\n"
-          + "    <Quantity>3</Quantity>\n" + "    <Merkmalname>TX_B</Merkmalname>\n"
-          + "    <Merkmalswert> 900</Merkmalswert>\n" + "   </Props>\n" + " </Level2></Level1>";
+    "<Level1>\n" + " <Level2>\n" + "   <Props>\n" + "    <ObjectID>AAAAA</ObjectID>\n"
+      + "    <SAPIDENT>31-8200</SAPIDENT>\n" + "    <Quantity>1</Quantity>\n"
+      + "    <Merkmalname>TX_B</Merkmalname>\n" + "    <Merkmalswert> 600</Merkmalswert>\n" + "   </Props>\n"
+      + "   <Props>\n" + "    <ObjectID>AAAAA</ObjectID>\n" + "    <SAPIDENT>31-8200</SAPIDENT>\n"
+      + "    <Quantity>3</Quantity>\n" + "    <Merkmalname>TX_B</Merkmalname>\n"
+      + "    <Merkmalswert> 900</Merkmalswert>\n" + "   </Props>\n" + " </Level2></Level1>";
 
   private static final String XML_BROKEN =
-      "<Level1>\n" + " <Level2>\n" + "   <Props>\n" + "    <ObjectID>AAAAA</ObjectID>\n"
-          + "    <SAPIDENT>31-8200</SAPIDENT>\n";
+    "<Level1>\n" + " <Level2>\n" + "   <Props>\n" + "    <ObjectID>AAAAA</ObjectID>\n"
+      + "    <SAPIDENT>31-8200</SAPIDENT>\n";
+
+  private static final int OK_CODE = 200;
 
   @Test
   public void getHttpClientTest() {
-
-    HttpClient clientSpy = spy( ClientUtil.getClient( "admin", "password" ) );
-    GetMethod method = mock( GetMethod.class );
+    HttpResponse httpResponseMock = mock( HttpResponse.class );
+    HttpEntity httpEntityMock = mock( HttpEntity.class );
+    StatusLine statusLineMock = mock( StatusLine.class );
+    HttpClient httpClientMock = mock( HttpClient.class );
+    HttpGet method = mock( HttpGet.class );
 
     try {
-      doReturn( 200 ).when( clientSpy ).executeMethod( method );
+      when( httpResponseMock.getStatusLine() ).thenReturn( statusLineMock );
+      when( httpClientMock.execute( any( HttpUriRequest.class ) ) ).thenReturn( httpResponseMock );
+      when( statusLineMock.getStatusCode() ).thenReturn( OK_CODE );
+      when( httpResponseMock.getStatusLine() ).thenReturn( statusLineMock );
+
       InputStream inputStream = new ReaderInputStream( new StringReader( XML_TEXT ) );
-      when( method.getResponseBodyAsStream() ).thenReturn( inputStream );
-      Document document = ClientUtil.getResultDom4jDocument( clientSpy, method );
+      when( httpResponseMock.getEntity() ).thenReturn( httpEntityMock );
+      when( httpEntityMock.getContent() ).thenReturn( inputStream );
+      Document document = ClientUtil.getResultDom4jDocument( httpClientMock, method );
       assertTrue( document.getRootElement().getName().equals( "Level1" ) );
     } catch ( IOException | ServiceException e ) {
       assertTrue( "Shouldn't have thrown exception here", false );
@@ -68,36 +80,57 @@ public class ClientUtilsTest {
 
   @Test( expected = ServiceException.class )
   public void testgetResultDom4jDocumentException() throws Exception {
+    HttpResponse httpResponseMock = mock( HttpResponse.class );
+    StatusLine statusLineMock = mock( StatusLine.class );
+    HttpClient httpClientMock = mock( HttpClient.class );
+    HttpGet method = mock( HttpGet.class );
 
-    HttpClient client = spy( ClientUtil.getClient( "username", "password" ) );
-    GetMethod method = mock( GetMethod.class );
-    doReturn( 500 ).when( client ).executeMethod( method );
+    when( httpResponseMock.getStatusLine() ).thenReturn( statusLineMock );
+    when( httpClientMock.execute( any( HttpUriRequest.class ) ) ).thenReturn( httpResponseMock );
+    when( statusLineMock.getStatusCode() ).thenReturn( 500 );
+
     Document document = null;
-    document = ClientUtil.getResultDom4jDocument( client, method );
+    document = ClientUtil.getResultDom4jDocument( httpClientMock, method );
     assertNull( document );
   }
 
   @Test( expected = ServiceException.class )
   public void testgetResultDom4jDocumentException2() throws Exception {
-    HttpClient client = spy( ClientUtil.getClient( "username", "password" ) );
-    GetMethod method = mock( GetMethod.class );
-    doReturn( 200 ).when( client ).executeMethod( method );
+    HttpResponse httpResponseMock = mock( HttpResponse.class );
+    HttpEntity httpEntityMock = mock( HttpEntity.class );
+    StatusLine statusLineMock = mock( StatusLine.class );
+    HttpClient httpClientMock = mock( HttpClient.class );
+    HttpGet method = mock( HttpGet.class );
+
+    when( httpResponseMock.getStatusLine() ).thenReturn( statusLineMock );
+    when( httpClientMock.execute( any( HttpUriRequest.class ) ) ).thenReturn( httpResponseMock );
+    when( statusLineMock.getStatusCode() ).thenReturn( OK_CODE );
+
     Document document = null;
-    when( method.getResponseBodyAsStream() ).thenThrow( new IOException() );
-    document = ClientUtil.getResultDom4jDocument( client, method );
+    when( httpResponseMock.getEntity() ).thenReturn( httpEntityMock );
+    when( httpEntityMock.getContent() ).thenThrow( new IOException() );
+
+    document = ClientUtil.getResultDom4jDocument( httpClientMock, method );
     assertNull( document );
   }
 
   @Test( expected = ServiceException.class )
   public void testgetResultDom4jDocumentException3() throws Exception {
+    HttpResponse httpResponseMock = mock( HttpResponse.class );
+    HttpEntity httpEntityMock = mock( HttpEntity.class );
+    StatusLine statusLineMock = mock( StatusLine.class );
+    HttpClient httpClientMock = mock( HttpClient.class );
+    HttpGet method = mock( HttpGet.class );
 
-    HttpClient client = spy( ClientUtil.getClient( "username", "password" ) );
-    GetMethod method = mock( GetMethod.class );
-    doReturn( 200 ).when( client ).executeMethod( method );
+    when( httpResponseMock.getStatusLine() ).thenReturn( statusLineMock );
+    when( httpClientMock.execute( any( HttpUriRequest.class ) ) ).thenReturn( httpResponseMock );
+    when( statusLineMock.getStatusCode() ).thenReturn( OK_CODE );
+
     InputStream inputStream = new ReaderInputStream( new StringReader( XML_BROKEN ) );
-    when( method.getResponseBodyAsStream() ).thenReturn( inputStream );
+    when( httpResponseMock.getEntity() ).thenReturn( httpEntityMock );
+    when( httpEntityMock.getContent() ).thenReturn( inputStream );
     Document document = null;
-    document = ClientUtil.getResultDom4jDocument( client, method );
+    document = ClientUtil.getResultDom4jDocument( httpClientMock, method );
     assertNull( document );
   }
 
