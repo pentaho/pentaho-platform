@@ -487,7 +487,7 @@ public class PentahoWebContextFilter implements Filter {
 
     StringBuilder environmentModule = new StringBuilder( "\n// configuration for 'pentaho/context' amd module" );
     environmentModule
-            //TODO: when we rename the module 'pentaho/context' to 'pentaho/environment', also change it here
+            //TODO Rename the module 'pentaho/context' to 'pentaho/environment' when BACKLOG-16424 is completed
             .append( "\nrequireCfg.config[\"pentaho/context\"] = {" )
 
             .append( "\n  theme: " ).append( theme ).append( "," )
@@ -545,7 +545,7 @@ public class PentahoWebContextFilter implements Filter {
     return null;
   }
 
-  private String getServerServices( HashMap<String, String> webContextVariables ) {
+  String getServerServices( HashMap<String, String> webContextVariables ) {
     String contextPath = webContextVariables.get( "CONTEXT_PATH" );
     String servicesRoot = PentahoSystem.getSystemSetting( PentahoSystem.SERVICES_ROOT, DEFAULT_SERVICES_ROOT );
 

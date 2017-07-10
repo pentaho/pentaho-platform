@@ -322,10 +322,14 @@ public class PentahoWebContextFilterTest {
 
   @Test
   public void testWebContextDefinesPentahoEnvironmentModuleConfig() throws ServletException, IOException {
-    doReturn( this.fullyQualifiedServerURL ).when( this.pentahoWebContextFilter ).getServerUrl( any() );
+    doReturn( this.fullyQualifiedServerURL ).when( this.pentahoWebContextFilter ).getServerRoot( any() );
+    String mockServerServices = this.fullyQualifiedServerURL + "services/";
+    doReturn( mockServerServices ).when( this.pentahoWebContextFilter ).getServerServices( any() );
 
-    String serverUrl = "\"" + StringEscapeUtils.escapeJavaScript( this.fullyQualifiedServerURL ) + "\"";
-    String userHome = "\"" + StringEscapeUtils.escapeJavaScript( "/home/" + this.sessionName ) + "\"";
+    String serverRoot = escapeEnvironmentVariable( this.fullyQualifiedServerURL );
+    String serverServices = escapeEnvironmentVariable( mockServerServices );
+    String userHome = escapeEnvironmentVariable( "/home/" + this.sessionName );
+
     String sessionLocale = "fo_BA";
     when( this.mockRequest.getParameter( "locale" ) ).thenReturn( sessionLocale );
 
@@ -335,6 +339,7 @@ public class PentahoWebContextFilterTest {
 
     final String response = executeWebContextFilter();
 
+    //TODO Rename the module 'pentaho/context' to 'pentaho/environment' when BACKLOG-16424 is completed
     String contextModuleConfig = "requireCfg.config[\"pentaho/context\"] = {" +
             "\n  theme: \"" + this.activeTheme + "\"," +
             "\n  locale: \"" + sessionLocale + "\"," +
@@ -344,7 +349,8 @@ public class PentahoWebContextFilterTest {
             "\n  }," +
             "\n  reservedChars: \"" + reservedChars + "\"," +
             "\n  server: {" +
-            "\n    url: " + serverUrl +
+            "\n    root: " + serverRoot + "," +
+            "\n    services: " + serverServices +
             "\n  }" +
             "\n};";
 
@@ -360,6 +366,7 @@ public class PentahoWebContextFilterTest {
     assertTrue( this.requirejsManagerInitIsCalled( response, null ) );
   }
 
+  // region Auxiliary Methods
   private boolean responseSetsContextPathGlobal( String response, String contextRoot ) {
     return response.contains( getWebContextVarDefinition( "CONTEXT_PATH", contextRoot ) );
   }
@@ -375,7 +382,7 @@ public class PentahoWebContextFilterTest {
   }
 
   private String getWebContextVarDefinition( String variable, String value ) {
-    String escapedValue = "\"" + StringEscapeUtils.escapeJavaScript( value ) + "\"";
+    String escapedValue = escapeEnvironmentVariable( value );
 
     return "\n/** @deprecated - use 'pentaho/context' module's variable instead */" +
             "\nvar " + variable + " = " + escapedValue + ";";
@@ -386,4 +393,10 @@ public class PentahoWebContextFilterTest {
 
     return this.mockResponseOutputStream.toString( "UTF-8" );
   }
+
+  private String escapeEnvironmentVariable( String value ) {
+    return "\"" + StringEscapeUtils.escapeJavaScript( value ) + "\"";
+  }
+  // endregion
+
 }
