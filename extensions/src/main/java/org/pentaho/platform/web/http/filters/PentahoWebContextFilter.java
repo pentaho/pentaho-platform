@@ -154,7 +154,7 @@ public class PentahoWebContextFilter implements Filter {
 
         printWebContextVar( out, webContextVariables, "requireCfg", false, false );
 
-        // config for 'pentaho/context' amd module
+        // config for 'pentaho/environment' amd module
         printPentahoEnvironmentConfig( out, webContextVariables );
 
         // Let all plugins contribute to the RequireJS config
@@ -476,7 +476,7 @@ public class PentahoWebContextFilter implements Filter {
     }
 
     String deprecatedComment = deprecated
-            ? "\n/** @deprecated - use 'pentaho/context' module's variable instead */"
+            ? "\n/** @deprecated - use 'pentaho/environment' module's variable instead */"
             : "";
 
     StringBuilder environmentVariable =
@@ -512,10 +512,9 @@ public class PentahoWebContextFilter implements Filter {
 
     String serverServices = escapeEnvironmentVar( getServerServices( webContextVariables ) );
 
-    StringBuilder environmentModule = new StringBuilder( "\n// configuration for 'pentaho/context' amd module" );
+    StringBuilder environmentModule = new StringBuilder( "\n// configuration for 'pentaho/environment' amd module" );
     environmentModule
-            // TODO Rename the module 'pentaho/context' to 'pentaho/environment' when BACKLOG-16424 is completed
-            .append( "\nrequireCfg.config[\"pentaho/context\"] = {" )
+            .append( "\nrequireCfg.config[\"pentaho/environment\"] = {" )
 
             .append( "\n  theme: " ).append( theme ).append( "," )
             .append( "\n  locale: " ).append( locale ).append( "," )

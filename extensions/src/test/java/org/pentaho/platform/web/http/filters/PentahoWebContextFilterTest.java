@@ -349,8 +349,7 @@ public class PentahoWebContextFilterTest {
 
     final String response = executeWebContextFilter();
 
-    // TODO Rename the module 'pentaho/context' to 'pentaho/environment' when BACKLOG-16424 is completed
-    String contextModuleConfig = "requireCfg.config[\"pentaho/context\"] = {" +
+    String contextModuleConfig = "requireCfg.config[\"pentaho/environment\"] = {" +
             "\n  theme: \"" + this.activeTheme + "\"," +
             "\n  locale: \"" + sessionLocale + "\"," +
             "\n  user: {" +
@@ -394,7 +393,7 @@ public class PentahoWebContextFilterTest {
   private String getWebContextVarDefinition( String variable, String value ) {
     String escapedValue = escapeEnvironmentVariable( value );
 
-    return "\n/** @deprecated - use 'pentaho/context' module's variable instead */" +
+    return "\n/** @deprecated - use 'pentaho/environment' module's variable instead */" +
             "\nvar " + variable + " = " + escapedValue + ";";
   }
 
