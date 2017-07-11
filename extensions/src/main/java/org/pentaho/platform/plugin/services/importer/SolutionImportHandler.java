@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -34,6 +34,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.core.Response;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -275,7 +276,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       ManifestFile manifestFile = getImportSession().getManifestFile( sourcePath, file != null );
 
       bundleBuilder.hidden( isFileHidden( file, manifestFile, sourcePath ) );
-      bundleBuilder.schedulable( isSchedulable( file, manifestFile ) );
+      boolean isSchedulable = isSchedulable( file, manifestFile );
+
+      if ( isSchedulable ) {
+        bundleBuilder.schedulable( isSchedulable );
+      } else {
+        bundleBuilder.schedulable( fileIsScheduleInputSource( manifest, sourcePath ) );
+      }
 
       IPlatformImportBundle platformImportBundle = build( bundleBuilder );
       importer.importFile( platformImportBundle );
@@ -587,6 +594,28 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         }
       }
     }
+  }
+  /**
+   * See BISERVER-13481 . For backward compatibility we must check if there are any schedules
+   * which refers to this file. If yes make this file schedulable
+   */
+  @VisibleForTesting
+  boolean fileIsScheduleInputSource( ExportManifest manifest, String sourcePath ) {
+    boolean isSchedulable = false;
+    if ( sourcePath != null && manifest != null
+            && manifest.getScheduleList() != null ) {
+      String path = sourcePath.startsWith( "/" ) ? sourcePath : "/" + sourcePath;
+      isSchedulable = manifest.getScheduleList().stream()
+              .anyMatch( schedule -> path.equals( schedule.getInputFile() ) );
+    }
+
+    if ( isSchedulable ) {
+      log.warn( "File [" + sourcePath + "] doesn't have schedulable permission ( isSchedulable = false) "
+              + "but there are some schedule(s) in import bundle which refers the file " );
+      log.warn( "Assigning 'isSchedulable=true' permission for file [" + sourcePath + "] ... " );
+    }
+
+    return isSchedulable;
   }
 
   private boolean isFileHidden( RepositoryFile file, ManifestFile manifestFile, String sourcePath ) {

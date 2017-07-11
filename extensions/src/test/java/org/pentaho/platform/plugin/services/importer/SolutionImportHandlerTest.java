@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -653,6 +653,25 @@ public class SolutionImportHandlerTest {
     Assert.assertTrue( runIsSchedulable( repoFile, manifestFile ) );
 
     Assert.assertEquals( RepositoryFile.SCHEDULABLE_BY_DEFAULT, runIsSchedulable( null, manifestFile ) );
+  }
+
+  @Test
+  public void testFileIsScheduleInputSource() {
+    ExportManifest manifest = Mockito.mock( ExportManifest.class );
+    SolutionImportHandler spyHandler = Mockito.spy( importHandler );
+    List<JobScheduleRequest> scheduleRequests = new ArrayList<>();
+    for ( int i = 0 ; i < 10; i++ ) {
+      JobScheduleRequest jobScheduleRequest = new JobScheduleRequest();
+      jobScheduleRequest.setInputFile( "/public/test/file" + i );
+      scheduleRequests.add( jobScheduleRequest );
+    }
+    Assert.assertFalse( spyHandler.fileIsScheduleInputSource( manifest, null ) );
+
+    Mockito.when( manifest.getScheduleList() ).thenReturn( scheduleRequests );
+
+    Assert.assertFalse( spyHandler.fileIsScheduleInputSource( manifest, "/public/file" ) );
+    Assert.assertTrue( spyHandler.fileIsScheduleInputSource( manifest, "/public/test/file3" ) );
+    Assert.assertTrue( spyHandler.fileIsScheduleInputSource( manifest, "public/test/file3" ) );
   }
 
   private Boolean runIsSchedulable( RepositoryFile file, ManifestFile manifestFile ) {
