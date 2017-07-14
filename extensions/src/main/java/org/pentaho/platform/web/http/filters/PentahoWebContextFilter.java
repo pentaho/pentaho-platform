@@ -12,13 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002 - 2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.filters;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -32,11 +34,14 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.ConfigurationAdminNonOsgiProxy;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +49,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -60,7 +67,12 @@ public class PentahoWebContextFilter implements Filter {
   private static final String REQUIREJS_CONFIG_LOCATION = "content/common-ui/resources/web/require-cfg.js";
   private static final String REQUIREJS_INIT_LOCATION = "osgi/requirejs-manager/js/require-init.js";
 
-  private static final String DEFAULT_SERVICES_ROOT = "osgi/cxf/";
+  static final String DEFAULT_OSGI_BRIDGE = "osgi/";
+  static final String DEFAULT_SERVICES_ROOT = "cxf/";
+
+  static final String PLATFORM_OSGI_BRIDGE_ID = "proxy";
+  private static final String SERVICES_PERSISTENCE_ID = "org.apache.cxf.osgi";
+  private static final String SERVICES_CONTEXT_PROPERTY = "org.apache.cxf.servlet.context";
 
   static final String FILTER_APPLIED = "__pentaho_web_context_filter_applied"; //$NON-NLS-1$
   static final String initialComment =
@@ -81,9 +93,20 @@ public class PentahoWebContextFilter implements Filter {
   private static final ThreadLocal<byte[]> THREAD_LOCAL_REQUIRE_SCRIPT = new ThreadLocal<>();
   protected static ICacheManager cache = PentahoSystem.getCacheManager( null );
 
+  private LazyInitializer<String> lazyServicesPath;
+  private ConfigurationAdminNonOsgiProxy configurationAdminProxy;
+
   @Override
   public void init( FilterConfig filterConfig ) throws ServletException {
-    // TODO Auto-generated method stub
+    this.configurationAdminProxy = new ConfigurationAdminNonOsgiProxy();
+    this.lazyServicesPath = new LazyInitializer<String>() {
+
+      @Override
+      protected String initialize() throws ConcurrentException {
+        return initializeServicesPath();
+      }
+    };
+
   }
 
   @Override
@@ -101,8 +124,8 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   @Override
-  public void doFilter( ServletRequest request, ServletResponse response, FilterChain chain ) throws IOException,
-      ServletException {
+  public void doFilter( ServletRequest request, ServletResponse response, FilterChain chain )
+          throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -252,7 +275,7 @@ public class PentahoWebContextFilter implements Filter {
 
   }
 
-  HashMap<String, String> getWebContextVariables( HttpServletRequest request ) {
+  HashMap<String, String> getWebContextVariables( HttpServletRequest request ) throws IOException {
     HashMap<String, String> map = new HashMap<>();
 
     map.put( "requireCfg", getRequireCfgVar() );                             // Global JS variable
@@ -270,6 +293,9 @@ public class PentahoWebContextFilter implements Filter {
     map.put( "RESERVED_CHARS", getReservedCharsVar() );                      // Global JS environment variable
     map.put( "RESERVED_CHARS_DISPLAY", getReservedCharsDisplayVar() );       // Global JS environment variable
     map.put( "RESERVED_CHARS_REGEX_PATTERN", getReservedRegexPatternVar() ); // Global JS environment variable
+
+    map.put( PLATFORM_OSGI_BRIDGE_ID, getOsgiBridgePath( request ) );        // Internal variable
+    map.put( SERVICES_CONTEXT_PROPERTY, getServicesPath() );                 // Internal variable
 
     return map;
   }
@@ -474,8 +500,8 @@ public class PentahoWebContextFilter implements Filter {
     out.write( localeModule.toString().getBytes( "UTF-8" ) );
   }
 
-  private void printPentahoEnvironmentConfig( OutputStream out,
-                                              HashMap<String, String> webContextVariables ) throws IOException {
+  private void printPentahoEnvironmentConfig( OutputStream out, HashMap<String, String> webContextVariables )
+          throws IOException {
     String theme = escapeEnvironmentVar( webContextVariables.get( "active_theme" ) );
     String locale = escapeEnvironmentVar( webContextVariables.get( "SESSION_LOCALE" ) );
     String userID = escapeEnvironmentVar( webContextVariables.get( "SESSION_NAME" ) );
@@ -483,11 +509,12 @@ public class PentahoWebContextFilter implements Filter {
 
     String reservedChars = escapeEnvironmentVar( webContextVariables.get( "RESERVED_CHARS" ) );
     String serverRoot = escapeEnvironmentVar( getServerRoot( webContextVariables ) );
+
     String serverServices = escapeEnvironmentVar( getServerServices( webContextVariables ) );
 
     StringBuilder environmentModule = new StringBuilder( "\n// configuration for 'pentaho/context' amd module" );
     environmentModule
-            //TODO Rename the module 'pentaho/context' to 'pentaho/environment' when BACKLOG-16424 is completed
+            // TODO Rename the module 'pentaho/context' to 'pentaho/environment' when BACKLOG-16424 is completed
             .append( "\nrequireCfg.config[\"pentaho/context\"] = {" )
 
             .append( "\n  theme: " ).append( theme ).append( "," )
@@ -518,12 +545,62 @@ public class PentahoWebContextFilter implements Filter {
   }
   // endregion
 
+  private String getServicesPath() {
+    try {
+      return this.lazyServicesPath.get();
+    } catch (ConcurrentException ce) {
+      return DEFAULT_SERVICES_ROOT;
+    }
+  }
+
+  private String getOsgiBridgePath( HttpServletRequest request ) {
+    String osgiBridgeMapping = "";
+    ServletContext servletContext = request.getServletContext();
+
+    ServletRegistration osgiBridgeRegistration = servletContext.getServletRegistration( PLATFORM_OSGI_BRIDGE_ID );
+    if ( osgiBridgeRegistration != null ) {
+      Collection<String> osgiBridgeMappings = osgiBridgeRegistration.getMappings();
+
+      boolean hasMappings = osgiBridgeMappings != null && osgiBridgeMappings.size() > 0;
+      if ( hasMappings ) {
+        // Assuming that only one mapping is defined
+        osgiBridgeMapping = (String) osgiBridgeMappings.toArray()[0];
+      }
+    }
+
+    if ( StringUtils.isEmpty( osgiBridgeMapping ) ) {
+      osgiBridgeMapping = DEFAULT_OSGI_BRIDGE;
+    }
+
+    return normalizeURL( osgiBridgeMapping );
+  }
+
   private String escapeEnvironmentVar( String value ) {
     if ( value != null ) {
       value = "\"" + StringEscapeUtils.escapeJavaScript( value ) + "\"";
     }
 
     return value;
+  }
+
+  private String normalizeURL( String url ) {
+    boolean isUrlValid = StringUtils.isNotEmpty( url );
+
+    if ( isUrlValid && url.startsWith( "/" ) ) {
+      url = url.substring( 1 );
+    }
+
+    // Special case for osgi bridge mapping defined in Platform's web.xml
+    if ( isUrlValid && url.endsWith( "*" ) ) {
+      int urlLength = url.length();
+      url = url.substring( 0, urlLength - 1 );
+    }
+
+    if ( isUrlValid && !url.endsWith( "/" ) ) {
+      url = url + "/";
+    }
+
+    return url;
   }
 
   String getServerRoot( HashMap<String, String> webContextVariables ) {
@@ -547,9 +624,10 @@ public class PentahoWebContextFilter implements Filter {
 
   String getServerServices( HashMap<String, String> webContextVariables ) {
     String contextPath = webContextVariables.get( "CONTEXT_PATH" );
-    String servicesRoot = PentahoSystem.getSystemSetting( PentahoSystem.SERVICES_ROOT, DEFAULT_SERVICES_ROOT );
+    String osgiBridge = webContextVariables.get( PLATFORM_OSGI_BRIDGE_ID );
+    String servicesRoot = webContextVariables.get( SERVICES_CONTEXT_PROPERTY );
 
-    return contextPath + servicesRoot;
+    return contextPath + osgiBridge + servicesRoot;
   }
 
   private boolean shouldUseFullyQualifiedUrl( HttpServletRequest httpRequest ) {
@@ -601,6 +679,21 @@ public class PentahoWebContextFilter implements Filter {
 
   IUserSettingService getUserSettingsService() {
     return PentahoSystem.get( IUserSettingService.class, getSession() );
+  }
+
+  String initializeServicesPath() {
+    Dictionary<String, Object> properties = this.configurationAdminProxy.getProperties( SERVICES_PERSISTENCE_ID );
+
+    String servicesRoot = "";
+    if ( properties != null ) {
+      servicesRoot = (String) properties.get( SERVICES_CONTEXT_PROPERTY );
+    }
+
+    if ( StringUtils.isEmpty( servicesRoot ) ) {
+      servicesRoot = DEFAULT_SERVICES_ROOT;
+    }
+
+    return normalizeURL( servicesRoot );
   }
   // endregion
 }
