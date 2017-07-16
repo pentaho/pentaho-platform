@@ -17,28 +17,28 @@
 package org.pentaho.platform.plugin.action;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.action.IActionInvokeStatus;
+import org.pentaho.platform.api.action.IActionInvoker;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.io.File;
 import java.io.FileInputStream;
 
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 
 
 @RunWith( MockitoJUnitRunner.class )
@@ -56,7 +56,6 @@ public class ActionInvokerSystemListenerTest {
   private static final String noJsonFilesFolder = resourcesFolder + "/NoJsonFiles";
   private IPentahoSession mockSession;
   private DefaultActionInvoker actionInvoker;
-  private StandaloneApplicationContext applicationContext;
   private ActionInvokerSystemListener actionInvokerSystemListener;
   private static final String DEFAULT_CONTENT_FOLDER = resourcesFolder + "/system/default-content";
   private static final String HTTP_202 = "202";
@@ -74,8 +73,6 @@ public class ActionInvokerSystemListenerTest {
   public void init( ) {
     mockSession = mock( IPentahoSession.class );
     actionInvoker = mock( DefaultActionInvoker.class );
-    applicationContext = mock( StandaloneApplicationContext.class );
-
   }
 
   @Test
@@ -153,6 +150,24 @@ public class ActionInvokerSystemListenerTest {
         f.renameTo( new File( resourcesFolder + "/" + f.getName().substring( 0, f.getName().lastIndexOf( "." ) ) ) );
       }
     }
+  }
+
+  @Test
+  public void testPayloadIssueReqest()  throws Exception {
+    final File validMockWi = new File( resourcesFolder + "/" + files[ 2 ] );
+
+    final ActionInvokerSystemListener listener = spy( new ActionInvokerSystemListener() );
+    IAction action = spy( IAction.class );
+    doReturn( action ).when( listener ).getActionBean( anyString(), anyString() );
+    IActionInvoker invoker = spy( IActionInvoker.class );
+    when( listener.getActionInvoker() ).thenReturn( invoker );
+    when( invoker.invokeAction( anyObject(), anyObject(), anyObject() ) ).thenReturn( null );
+
+    final ActionInvokerSystemListener.Payload payload = Mockito.spy( listener.new Payload( IOUtils.toString( new
+      FileInputStream( validMockWi ) ) ) );
+    payload.issueRequest();
+    // verify that when Payload.publishWorkItemStatus( WorkItemLifecyclePhase.RECEIVED, null ) is called
+    verify( payload, times( 1 ) ).publishWorkItemStatus(  WorkItemLifecyclePhase.RECEIVED, null );
   }
 }
 

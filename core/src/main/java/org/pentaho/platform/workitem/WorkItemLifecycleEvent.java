@@ -43,7 +43,6 @@ public class WorkItemLifecycleEvent {
   private WorkItemLifecyclePhase workItemLifecyclePhase;
   private String lifecycleDetails;
   private Date sourceTimestamp;
-  private Date targetTimestamp;
   private String sourceHostName;
   private String sourceHostIp;
   private static String HOST_NAME;
@@ -61,7 +60,7 @@ public class WorkItemLifecycleEvent {
   /**
    * Default constructor, needed for serialization purposes.
    */
-  protected WorkItemLifecycleEvent() {
+  public WorkItemLifecycleEvent() {
   }
 
   /**
@@ -91,10 +90,6 @@ public class WorkItemLifecycleEvent {
     if ( this.sourceTimestamp == null ) {
       this.sourceTimestamp = new Date();
     }
-    // target timestamp is always a fresh date, set at the time the event object is created; this is because the
-    // original event may be created on a different host, where  the clock is off; the target timestamp is guaranteed
-    // to be expressed in terms of a common clock on the target host, where the event is actually persisted
-    this.targetTimestamp = new Date();
 
     // set the default values for host name and ip, they can be changed directly if needed
     this.sourceHostName = HOST_NAME;
@@ -139,14 +134,6 @@ public class WorkItemLifecycleEvent {
 
   public void setSourceTimestamp( final Date sourceTimestamp ) {
     this.sourceTimestamp = sourceTimestamp;
-  }
-
-  public Date getTargetTimestamp() {
-    return targetTimestamp;
-  }
-
-  public void setTargetTimestamp( final Date targetTimestamp ) {
-    this.targetTimestamp = targetTimestamp;
   }
 
   public String getSourceHostName() {
