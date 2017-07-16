@@ -32,12 +32,14 @@ import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
+import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
 
-import java.io.Serializable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URLDecoder;
 import java.util.Map;
 
@@ -77,27 +79,41 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
     }
 
     for ( File file : files ) {
+      Payload payload = null;
       logger.info( "Attempting to read data from " + file.getAbsolutePath() );
       try {
         FileInputStream fileInputStream = new FileInputStream( file );
         String encoded = IOUtils.toString( fileInputStream );
         fileInputStream.close();
-        Payload payload = new Payload( encoded, LocaleHelper.UTF_8 );
+        payload = new Payload( encoded, LocaleHelper.UTF_8 );
         logger.info( "Issuing Work Item request" );
         try {
           IActionInvokeStatus status = issueRequest( payload );
         } catch ( Exception e ) {
-          //send status to chronos
+          // TODO: send status to chronos
         }
       } catch ( IOException e ) {
+        publishFailedWorkItemStatus( payload, e.toString() );
         logger.error( "Error reading files. " );
       } catch ( IllegalArgumentException e ) {
+        publishFailedWorkItemStatus( payload, e.toString() );
         logger.error( file.getName() + " Payload could not be recreated. Will not process." );
       } finally {
         renameFile( file.getAbsolutePath() );
       }
     }
     return true;
+  }
+
+  private void publishFailedWorkItemStatus( final Payload payload, final String failureMessage ) {
+    if ( payload != null ) {
+      payload.publishWorkItemStatus( WorkItemLifecyclePhase.FAILED, failureMessage );
+    } else {
+      // when payload is null, we have no way of getting the wok item id or any other work item related details, the
+      // best we can do is log the failure message, disconnected from all other logs related to the work item; this
+      // should theoretically never occur, but we cover this just in case
+      WorkItemLifecyclePublisher.publish( "?", null, WorkItemLifecyclePhase.FAILED, failureMessage );
+    }
   }
 
   //for unit testability
@@ -151,7 +167,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
 
   class Payload {
     private String actionUser;
-
+    private String workItemUid;
     private IAction action;
     private Map<String, Serializable> actionMap;
 
@@ -166,6 +182,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
         String actionClass = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONCLASS ), enc );
         String actionId = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONID ), enc );
         actionUser = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONUSER ), enc );
+        workItemUid = URLDecoder.decode( jsonVars.getString( ActionUtil.WORK_ITEM_UID ), enc );
         action = getActionBean( actionClass, actionId );
         String stringActionParams = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONPARAMS ), enc );
         ActionParams actionParams = ActionParams.fromJson( stringActionParams );
@@ -180,7 +197,12 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
     }
 
     IActionInvokeStatus issueRequest( ) throws Exception {
+      publishWorkItemStatus( WorkItemLifecyclePhase.RECEIVED, null );
       return getActionInvoker().invokeAction( action, actionUser, actionMap );
+    }
+
+    void publishWorkItemStatus( final WorkItemLifecyclePhase phase, final String failureMessage ) {
+      WorkItemLifecyclePublisher.publish( workItemUid, actionMap, phase, failureMessage );
     }
   }
 }

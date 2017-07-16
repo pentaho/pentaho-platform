@@ -50,6 +50,9 @@ public class BlockingQuartzJob implements Job {
             "Job '" + jobExecutionContext.getJobDetail().getName()
                 + "' attempted to run during a blockout period.  This job was not executed" );
       }
+    } catch ( ActionAdapterQuartzJob.LoggingJobExecutionException le ) {
+      // thrown by the execution code - if execution fails, there's nothing we can do, no point in trying to execute
+      // the job again
     } catch ( SchedulerException e ) {
       getLogger().warn(
           "Got Exception retrieving the Blockout Manager for job '" + jobExecutionContext.getJobDetail().getName()

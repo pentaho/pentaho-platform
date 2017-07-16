@@ -17,9 +17,6 @@
 
 package org.pentaho.platform.workitem;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.pentaho.platform.util.messages.Messages;
-
 /**
  * An enumeration of the known lifecycle events for the work item.
  */
@@ -27,62 +24,33 @@ public enum WorkItemLifecyclePhase {
   /**
    * The work item has been submitted for execution
    */
-  SUBMITTED( "LifecyclePhase.SUBMITTED" ),
+  SUBMITTED,
   /**
    * The work item has been dispatched to the component responsible for its execution
    */
-  DISPATCHED( "LifecyclePhase.DISPATCHED" ),
+  DISPATCHED,
   /**
    * The work item has been received by the component responsible for its execution
    */
-  RECEIVED( "LifecyclePhase.RECEIVED" ),
+  RECEIVED,
   /**
    * The work item execution has been rejected
    */
-  REJECTED( "LifecyclePhase.REJECTED" ),
+  REJECTED,
   /**
    * The work item execution is in progress
    */
-  IN_PROGRESS( "LifecyclePhase.IN_PROGRESS" ),
+  IN_PROGRESS,
   /**
    * The work item execution has succeeded
    */
-  SUCCEEDED( "LifecyclePhase.SUCCEEDED" ),
+  SUCCEEDED,
   /**
    * The work item execution has failed
    */
-  FAILED( "LifecyclePhase.FAILED" ),
+  FAILED,
   /**
    * The work item execution has been restarted
    */
-  RESTARTED( "LifecyclePhase.RESTARTED" );
-
-  private String nameMessageKey;
-  private String name;
-  private String description;
-
-  WorkItemLifecyclePhase( final String nameMessageKey ) {
-    this.nameMessageKey = nameMessageKey;
-    this.name = getMessageBundle().getString( nameMessageKey );
-    this.description = getMessageBundle().getString( nameMessageKey + "_DESC" );
-  }
-
-  public String getName() {
-    return this.name;
-  }
-
-  public String getDescription() {
-    return this.description;
-  }
-
-  public String toString() {
-    return new ToStringBuilder( this )
-      .append( "name", this.getName() )
-      .append( "description", this.getDescription() )
-      .toString();
-  }
-
-  protected static Messages getMessageBundle() {
-    return Messages.getInstance();
-  }
+  RESTARTED;
 }
