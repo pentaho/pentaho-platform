@@ -96,3 +96,10 @@ function updateHelperDiv( id ) {
         $(selectSelector).css('width', $(outerDivId).outerWidth());
     }
 }
+
+function sendRequest( url ) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", url, false ); // send synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
