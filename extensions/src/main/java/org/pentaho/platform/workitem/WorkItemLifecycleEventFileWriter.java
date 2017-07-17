@@ -24,6 +24,7 @@ import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.pentaho.platform.spring.ApplicationEventDispatcher;
 import org.pentaho.platform.workitem.messages.Messages;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -64,7 +65,7 @@ public class WorkItemLifecycleEventFileWriter {
   }
 
   @EventListener
-  @Async
+  @Async( ApplicationEventDispatcher.ASYNC_ANNOTATION_QUALIFIER )
   public void onWorkItemLifecycleEvent( final WorkItemLifecycleEvent workItemLifecycleEvent ) {
 
     if ( workItemLifecycleEvent == null ) {
