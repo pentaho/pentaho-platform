@@ -68,9 +68,26 @@
   <!-- custom Pentaho begin -->
 
   <!-- replaces Spring's default ApplicationEventMulticaster; do not change bean id -->
-  <bean id="applicationEventMulticaster" class="org.pentaho.platform.engine.security.event.OrderedApplicationEventMulticaster">
-    <property name="taskExecutor">
-      <bean class="org.springframework.core.task.SyncTaskExecutor" />
+  <bean id="applicationEventMulticaster" class="org.pentaho.platform.spring.ApplicationEventDispatcher">
+    <property name="defaultMulticaster">
+      <bean class="org.pentaho.platform.engine.security.event.OrderedApplicationEventMulticaster">
+        <property name="taskExecutor">
+          <bean class="org.springframework.core.task.SyncTaskExecutor" />
+        </property>
+      </bean>
+    </property>
+
+    <property name="asyncMulticaster">
+      <bean class="org.springframework.context.event.SimpleApplicationEventMulticaster">
+        <property name="taskExecutor">
+          <bean class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+            <property name="maxPoolSize" value="5" />
+            <property name="corePoolSize" value="5" />
+            <property name="keepAliveSeconds" value="60" />
+            <property name="queueCapacity" value="10000" />
+          </bean>
+        </property>
+      </bean>
     </property>
   </bean>
 
