@@ -96,7 +96,7 @@ public class ActionResource {
     } catch ( final Exception e ) {
       logger.error( e.getLocalizedMessage() );
       // we're not able to get the work item UID at this point
-      WorkItemLifecyclePublisher.publish( "?", params, WorkItemLifecyclePhase.FAILED, e.getLocalizedMessage() );
+      WorkItemLifecyclePublisher.publish( "?", params, WorkItemLifecyclePhase.FAILED, e.toString() );
       return Response.status( HttpStatus.SC_BAD_REQUEST ).build();
     }
 

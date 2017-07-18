@@ -25,6 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.util.StringUtil;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -43,7 +45,6 @@ public class WorkItemLifecycleEvent {
   private WorkItemLifecyclePhase workItemLifecyclePhase;
   private String lifecycleDetails;
   private Date sourceTimestamp;
-  private Date targetTimestamp;
   private String sourceHostName;
   private String sourceHostIp;
   private static String HOST_NAME;
@@ -61,7 +62,7 @@ public class WorkItemLifecycleEvent {
   /**
    * Default constructor, needed for serialization purposes.
    */
-  protected WorkItemLifecycleEvent() {
+  public WorkItemLifecycleEvent() {
   }
 
   /**
@@ -91,10 +92,6 @@ public class WorkItemLifecycleEvent {
     if ( this.sourceTimestamp == null ) {
       this.sourceTimestamp = new Date();
     }
-    // target timestamp is always a fresh date, set at the time the event object is created; this is because the
-    // original event may be created on a different host, where  the clock is off; the target timestamp is guaranteed
-    // to be expressed in terms of a common clock on the target host, where the event is actually persisted
-    this.targetTimestamp = new Date();
 
     // set the default values for host name and ip, they can be changed directly if needed
     this.sourceHostName = HOST_NAME;
@@ -133,20 +130,13 @@ public class WorkItemLifecycleEvent {
     this.lifecycleDetails = lifecycleDetails;
   }
 
+  @XmlJavaTypeAdapter( DateAdapter.class )
   public Date getSourceTimestamp() {
     return sourceTimestamp;
   }
 
   public void setSourceTimestamp( final Date sourceTimestamp ) {
     this.sourceTimestamp = sourceTimestamp;
-  }
-
-  public Date getTargetTimestamp() {
-    return targetTimestamp;
-  }
-
-  public void setTargetTimestamp( final Date targetTimestamp ) {
-    this.targetTimestamp = targetTimestamp;
   }
 
   public String getSourceHostName() {
@@ -197,6 +187,22 @@ public class WorkItemLifecycleEvent {
         .append( this.getWorkItemUid(), otherCast.getWorkItemUid() )
         .append( this.getWorkItemLifecyclePhase(), otherCast.getWorkItemLifecyclePhase() )
         .isEquals();
+    }
+  }
+
+  /**
+   * An implementation of {@link XmlAdapter} that allows us to [de]serialize Dates as longs (milliseconds).
+   */
+  static class DateAdapter extends XmlAdapter<String, Date> {
+
+    @Override
+    public String marshal( final Date date ) throws Exception {
+      return date.getTime() + "";
+    }
+
+    @Override
+    public Date unmarshal( final String dateStr ) throws Exception {
+      return new Date( Long.parseLong( dateStr ) );
     }
   }
 }
