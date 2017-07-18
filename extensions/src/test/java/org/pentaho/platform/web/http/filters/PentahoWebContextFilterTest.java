@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002 - 2017 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -34,13 +34,13 @@ import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -85,6 +85,14 @@ public class PentahoWebContextFilterTest {
 
     this.mockRequest = mock( HttpServletRequest.class );
 
+    ServletContext mockServletContext = mock( ServletContext.class );
+    ServletRegistration mockServletRegistration = mock( ServletRegistration.class );
+    Collection<String> mappings = new ArrayList<>(1);
+    mappings.add( PentahoWebContextFilter.DEFAULT_OSGI_BRIDGE );
+    when( mockServletRegistration.getMappings() ).thenReturn( mappings );
+    when( mockServletContext.getServletRegistration( PentahoWebContextFilter.PLATFORM_OSGI_BRIDGE_ID ) )
+            .thenReturn( mockServletRegistration );
+    when( this.mockRequest.getServletContext() ).thenReturn( mockServletContext );
     when( this.mockRequest.getRequestURI() ).thenReturn( "/somewhere/" + PentahoWebContextFilter.WEB_CONTEXT_JS );
 
     when( this.mockRequest.getScheme() ).thenReturn( this.serverScheme );
@@ -127,7 +135,7 @@ public class PentahoWebContextFilterTest {
     when( mockSession.getName() ).thenReturn( this.sessionName );
     doReturn( mockSession ).when( this.pentahoWebContextFilter ).getSession();
 
-    this.reservedChars = new ArrayList<>(2);
+    this.reservedChars = new ArrayList<>( 2 );
     this.reservedChars.add('r');
     this.reservedChars.add('c');
     doReturn( this.reservedChars ).when( this.pentahoWebContextFilter ).getRepositoryReservedChars();
@@ -135,6 +143,8 @@ public class PentahoWebContextFilterTest {
 
     IPluginManager mockPluginManager = mock( IPluginManager.class );
     doReturn( mockPluginManager ).when( this.pentahoWebContextFilter ).getPluginManager();
+    doReturn( PentahoWebContextFilter.DEFAULT_SERVICES_ROOT )
+            .when( this.pentahoWebContextFilter ).initializeServicesPath();
 
     this.pentahoWebContextFilter.init( mockFilterConfig );
   }
@@ -339,7 +349,7 @@ public class PentahoWebContextFilterTest {
 
     final String response = executeWebContextFilter();
 
-    //TODO Rename the module 'pentaho/context' to 'pentaho/environment' when BACKLOG-16424 is completed
+    // TODO Rename the module 'pentaho/context' to 'pentaho/environment' when BACKLOG-16424 is completed
     String contextModuleConfig = "requireCfg.config[\"pentaho/context\"] = {" +
             "\n  theme: \"" + this.activeTheme + "\"," +
             "\n  locale: \"" + sessionLocale + "\"," +

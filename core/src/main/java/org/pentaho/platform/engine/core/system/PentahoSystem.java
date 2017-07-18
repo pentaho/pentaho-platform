@@ -128,8 +128,6 @@ public class PentahoSystem {
 
   public static final String WAIT_SECONDS = "waitSeconds";
 
-  public static final String SERVICES_ROOT = "servicesRoot";
-
   private static Map globalAttributes;
 
   private static SimpleParameterProvider globalParameters;
