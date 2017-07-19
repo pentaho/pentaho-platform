@@ -169,8 +169,7 @@ public class DefaultActionInvoker implements IActionInvoker {
         WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.SUCCEEDED );
       }
     } catch ( final Throwable t ) {
-      WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED,
-        t.getLocalizedMessage() );
+      WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, t.toString() );
       status.setThrowable( t );
     }
     status.setRequiresUpdate( requiresUpdate );

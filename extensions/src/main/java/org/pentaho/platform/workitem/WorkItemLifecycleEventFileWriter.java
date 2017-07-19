@@ -17,19 +17,21 @@
 
 package org.pentaho.platform.workitem;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.helpers.DateTimeDateFormat;
+import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.workitem.messages.Messages;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,20 @@ public class WorkItemLifecycleEventFileWriter {
 
   private static String WORK_ITEM_LOG_FILE = "work-item-status";
 
+  // this path should be relative to the working dir, the tomcat bin directory
+  private static String WORK_ITEM_LOG_FILE_PATH = ".." + File.separator + "logs" + File.separator
+    + WORK_ITEM_LOG_FILE + ".log";
+
   private static List<String> DEFAULT_ENV_VARS = new ArrayList<String>();
+
+  // use the default log4j date pattern for all work item status logs
+  protected static DateFormat DATE_FORMAT = new DateTimeDateFormat();
+
+  // the pattern of the log message
+  private static String WORK_ITEM_LOG_CONVERSION_PATTERN = "%d %m%n";
+
+  // the pattern used for the log name when daily rollover occurs
+  private static String WORK_ITEM_LOG_FILE_NAME_PATTERN = "'.'yyyy-MM-dd";
 
   static {
     DEFAULT_ENV_VARS.add( "HOSTNAME" );
@@ -60,7 +75,7 @@ public class WorkItemLifecycleEventFileWriter {
   }
 
   public List<String> getEnvVars() {
-    return CollectionUtils.isEmpty( this.envVars ) ? DEFAULT_ENV_VARS : this.envVars;
+    return this.envVars;
   }
 
   @EventListener
@@ -80,44 +95,77 @@ public class WorkItemLifecycleEventFileWriter {
     getLogger().info( getMessage( workItemLifecycleEvent ) );
   }
 
-  private String getMessage( final WorkItemLifecycleEvent workItemLifecycleEvent ) {
-    final StringBuilder message = new StringBuilder();
-    message.append( workItemLifecycleEvent.getTargetTimestamp().getTime() ).append( "|" );
-    message.append( workItemLifecycleEvent.getWorkItemUid() ).append( "|" );
-    message.append( workItemLifecycleEvent.getWorkItemLifecyclePhase().getName() ).append( "|" );
-    message.append( workItemLifecycleEvent.getSourceTimestamp().getTime() ).append( "|" );
-    message.append( workItemLifecycleEvent.getSourceHostName() ).append( "|" );
-    message.append( workItemLifecycleEvent.getSourceHostIp() ).append( "|" );
-    if ( workItemLifecycleEvent.getWorkItemDetails() != null ) {
-      message.append( workItemLifecycleEvent.getWorkItemDetails() ).append( "|" );
-    }
-    message.append( workItemLifecycleEvent.getWorkItemDetails() );
+  /**
+   * A convenience method that pads the string representation of this {@link WorkItemLifecyclePhase} such that all
+   * padded names are of the same length. This allows us to line up values within logs and makes the logs slightly
+   * more readable.
+   *
+   * @return {@link String} containing a padded string representation of this {@link WorkItemLifecyclePhase}
+   */
+  public static String getPaddedLifecyclePhaseNameName( final WorkItemLifecyclePhase phase ) {
+    return String.format( "%-" + getMaxWorkItemLifecycleLength() + "s", phase.toString() );
+  }
 
-    for ( final String fieldName : envVars ) {
-      if ( System.getenv( fieldName )  != null ) {
-        message.append( "|" +  System.getenv( fieldName ) );
+  private static int getMaxWorkItemLifecycleLength() {
+    final WorkItemLifecyclePhase[] values = WorkItemLifecyclePhase.class.getEnumConstants();
+    int maxNameLength = 0;
+    for ( final WorkItemLifecyclePhase value : values ) {
+      final int enumLength = value.toString().length();
+      if ( enumLength > maxNameLength ) {
+        maxNameLength = enumLength;
+      }
+    }
+    return maxNameLength;
+  }
+
+  protected String getMessage( final WorkItemLifecycleEvent workItemLifecycleEvent ) {
+    final StringBuilder message = new StringBuilder();
+    message.append( workItemLifecycleEvent.getWorkItemUid() ).append( "|" );
+    message.append( getPaddedLifecyclePhaseNameName( workItemLifecycleEvent.getWorkItemLifecyclePhase() ) )
+      .append( "|" );
+    message.append( DATE_FORMAT.format( workItemLifecycleEvent.getSourceTimestamp() ) ).append( "|" );
+    message.append( workItemLifecycleEvent.getSourceHostName() ).append( "|" );
+    message.append( workItemLifecycleEvent.getSourceHostIp() );
+    // work item details may be empty, in which case there's no need to log it
+    if ( !StringUtil.isEmpty( workItemLifecycleEvent.getWorkItemDetails() ) ) {
+      message.append( "|" ).append( workItemLifecycleEvent.getWorkItemDetails() );
+    }
+    // lifecycle details may be empty, in which case there's no need to log it
+    if ( !StringUtil.isEmpty( workItemLifecycleEvent.getLifecycleDetails() ) ) {
+      message.append( "|" ).append( workItemLifecycleEvent.getLifecycleDetails() );
+    }
+
+    if ( envVars != null ) {
+      for ( final String fieldName : envVars ) {
+        if ( !StringUtil.isEmpty( getEnvVarValue( fieldName ) ) ) {
+          message.append( "|" + getEnvVarValue( fieldName ) );
+        }
       }
     }
     return message.toString();
   }
 
+  protected String getEnvVarValue( final String envVarName ) {
+    return  System.getenv( envVarName );
+  }
+
   private Logger workItemLogger = null;
 
-  private Logger getLogger() {
+  protected Logger getLogger() {
     if ( workItemLogger == null ) {
       synchronized ( WorkItemLifecycleEventFileWriter.class ) {
         if ( workItemLogger == null ) {
           workItemLogger = Logger.getLogger( WorkItemLifecycleEventFileWriter.class );
 
           final PatternLayout layout = new PatternLayout();
-          layout.setConversionPattern( "%m%n" );
+          layout.setConversionPattern( WORK_ITEM_LOG_CONVERSION_PATTERN );
 
           final DailyRollingFileAppender fileAppender = new DailyRollingFileAppender();
-          fileAppender.setFile( ".." + File.separator + "logs" + File.separator + WORK_ITEM_LOG_FILE + ".log" );
+          fileAppender.setFile( WORK_ITEM_LOG_FILE_PATH );
           fileAppender.setLayout( layout );
           fileAppender.activateOptions();
           fileAppender.setAppend( false );
-          fileAppender.setDatePattern( "'.'yyyy-MM-dd" );
+          fileAppender.setDatePattern( WORK_ITEM_LOG_FILE_NAME_PATTERN );
 
           // The log level is arbitrary, it just needs to match the level used to log the work item lifecycle event
           workItemLogger.setLevel( Level.INFO );
