@@ -547,7 +547,7 @@ public class PentahoWebContextFilter implements Filter {
   private String getServicesPath() {
     try {
       return this.lazyServicesPath.get();
-    } catch (ConcurrentException ce) {
+    } catch ( ConcurrentException ce ) {
       return DEFAULT_SERVICES_ROOT;
     }
   }
