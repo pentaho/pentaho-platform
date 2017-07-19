@@ -192,8 +192,30 @@ public class ActionResourceTest {
     // verify that invokeAction is called with the expected parameters
     Mockito.verify( defaultActionInvoker, Mockito.times( 1 ) ).invokeAction( Mockito.eq( actionMock ), Mockito
       .eq( actionUser ), Mockito.eq( actionMapMock ) );
+
   }
-}
+
+
+
+  @Test
+  public void testAuditInvoker() throws Exception {
+
+    // Mock the IPluginManager, so that when we call ActionHelper.createActionBean, IPluginManager is not null
+    IPluginManager pluginManager = Mockito.mock( IPluginManager.class );
+    PowerMockito.mockStatic( PentahoSystem.class );
+    BDDMockito.given( PentahoSystem.get( IPluginManager.class ) ).willReturn( pluginManager );
+    // mock the action invoker
+    final IActionInvoker actionInvoker = Mockito.spy( MyDefaultActionInvoker.class );
+
+    final WorkerNodeActionInvokerAuditor wnActionInvokerAuditer = new WorkerNodeActionInvokerAuditor( actionInvoker );
+    WorkerNodeActionInvokerAuditor wnaiu = Mockito.spy( wnActionInvokerAuditer );
+    wnaiu.invokeAction( actionMock, actionUser, actionMapMock );
+
+    Mockito.verify( actionInvoker, Mockito.times( 1 ) ).invokeAction(  Mockito.eq( actionMock ), Mockito.eq( actionUser ),  Mockito.eq( actionMapMock ) );
+
+    Mockito.verify( wnaiu, Mockito.times( 2 ) ).makeAuditRecord( Mockito.anyLong() ,Mockito.anyString(), Mockito.anyMap() ,  Mockito.anyString() );
+
+  }}
 
 /**
  * Test class, created so that we can override the invokeAction to return null for testing puroses. When
