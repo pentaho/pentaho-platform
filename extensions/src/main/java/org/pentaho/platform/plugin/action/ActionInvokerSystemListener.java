@@ -32,6 +32,7 @@ import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.api.resources.WorkerNodeActionInvokerAuditor;
 
 import java.io.Serializable;
 import java.io.File;
@@ -146,7 +147,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
   }
 
   public IActionInvoker getActionInvoker( ) {
-    return PentahoSystem.get( IActionInvoker.class );
+    return new WorkerNodeActionInvokerAuditor( PentahoSystem.get( IActionInvoker.class ) );
   }
 
   class Payload {
