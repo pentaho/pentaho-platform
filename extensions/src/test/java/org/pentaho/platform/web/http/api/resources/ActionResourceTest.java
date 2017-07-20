@@ -113,7 +113,7 @@ public class ActionResourceTest {
    */
   @Test
   public void testRunInBackground() throws Exception {
-    final Map<String,Serializable> paramMap = ActionParams.deserialize( actionMock , actionParams );
+    final Map<String, Serializable> paramMap = ActionParams.deserialize( actionMock, actionParams );
     // mock the RunnableAction and how it's created by the resource
     final ActionResource.CallableAction callableAction = Mockito.spy( ActionResource.CallableAction.class );
     Mockito.doReturn( callableAction ).when( resourceMock ).createCallable( actionMock, actionUser, paramMap );
@@ -123,7 +123,7 @@ public class ActionResourceTest {
       .invokeAction( ActionUtil.INVOKER_DEFAULT_ASYNC_EXEC_VALUE, actionId, actionClassName, actionUser, actionParams );
 
     // verify that the createRunnable method was called with the expected parameters
-    Mockito.verify( resourceMock, Mockito.times( 1 ) ).createCallable( actionMock, actionUser, paramMap ) ;
+    Mockito.verify( resourceMock, Mockito.times( 1 ) ).createCallable( actionMock, actionUser, paramMap );
 
     // within invokeAction(), we expect the createActionBean to be called with the expected parameters
     Mockito.verify( resourceMock, Mockito.times( 1 ) ).createActionBean( actionClassName, actionId );
@@ -213,9 +213,10 @@ public class ActionResourceTest {
 
     Mockito.verify( actionInvoker, Mockito.times( 1 ) ).invokeAction(  Mockito.eq( actionMock ), Mockito.eq( actionUser ),  Mockito.eq( actionMapMock ) );
 
-    Mockito.verify( wnaiu, Mockito.times( 2 ) ).makeAuditRecord( Mockito.anyLong() ,Mockito.anyString(), Mockito.anyMap() ,  Mockito.anyString() );
+    Mockito.verify( wnaiu, Mockito.times( 2 ) ).makeAuditRecord( Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap(),  Mockito.anyString() );
 
-  }}
+  }
+}
 
 /**
  * Test class, created so that we can override the invokeAction to return null for testing puroses. When
@@ -227,7 +228,7 @@ class MyDefaultActionInvoker extends DefaultActionInvoker {
 
   @Override
   public IActionInvokeStatus invokeAction( final IAction actionBean, final String actionUser, final
-  Map<String, Serializable> params ) throws Exception {
+    Map<String, Serializable> params ) throws Exception {
     return null;
   }
 }
