@@ -124,6 +124,7 @@
     <pentaho-concurrent.version>1.0.0</pentaho-concurrent.version>
     <xmlunit.version>1.6</xmlunit.version>
     <se-jcr.version>0.9</se-jcr.version>
+    <secondstring.version>20060615</secondstring.version>
     <pentaho-cwm.version>1.5.4</pentaho-cwm.version>
     <trilead-ssh2.version>build213</trilead-ssh2.version>
     <spring-ldap-core.version>2.1.0.RELEASE</spring-ldap-core.version>
