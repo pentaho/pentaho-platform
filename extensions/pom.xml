@@ -1595,6 +1595,18 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>secondstring</groupId>
+      <artifactId>secondstring</artifactId>
+      <version>${secondstring.version}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
       <version>${commons-validator.version}</version>
