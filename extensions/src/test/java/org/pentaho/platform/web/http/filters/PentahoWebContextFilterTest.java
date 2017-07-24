@@ -339,14 +339,14 @@ public class PentahoWebContextFilterTest {
   public void testWebContextDefinesPentahoEnvironmentModuleConfig() throws ServletException, IOException {
     doReturn( this.fullyQualifiedServerURL ).when( this.pentahoWebContextFilter ).getServerRoot( any() );
 
-    String mockServerOsgiRoot = this.fullyQualifiedServerURL + "osgi/";
-    doReturn( mockServerOsgiRoot ).when( this.pentahoWebContextFilter ).getServerOsgiRoot( any() );
+    String mockServerPackages = this.fullyQualifiedServerURL + "osgi/";
+    doReturn( mockServerPackages ).when( this.pentahoWebContextFilter ).getServerPackages( any() );
 
     String mockServerServices = this.fullyQualifiedServerURL + "services/";
     doReturn( mockServerServices ).when( this.pentahoWebContextFilter ).getServerServices( any() );
 
     String serverRoot = escapeEnvironmentVariable( this.fullyQualifiedServerURL );
-    String serverOsgiRoot = escapeEnvironmentVariable( mockServerOsgiRoot );
+    String serverPackages = escapeEnvironmentVariable( mockServerPackages );
     String serverServices = escapeEnvironmentVariable( mockServerServices );
     String userHome = escapeEnvironmentVariable( "/home/" + this.sessionName );
 
@@ -369,7 +369,7 @@ public class PentahoWebContextFilterTest {
             "\n  reservedChars: \"" + reservedChars + "\"," +
             "\n  server: {" +
             "\n    root: " + serverRoot + "," +
-            "\n    osgiRoot: " + serverOsgiRoot + "," +
+            "\n    packages: " + serverPackages + "," +
             "\n    services: " + serverServices +
             "\n  }" +
             "\n};";

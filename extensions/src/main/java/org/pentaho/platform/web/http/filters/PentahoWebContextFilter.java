@@ -509,7 +509,7 @@ public class PentahoWebContextFilter implements Filter {
 
     String reservedChars = escapeEnvironmentVar( webContextVariables.get( "RESERVED_CHARS" ) );
     String serverRoot = escapeEnvironmentVar( getServerRoot( webContextVariables ) );
-    String osgiRoot = escapeEnvironmentVar( getServerOsgiRoot( webContextVariables ) );
+    String serverPackages = escapeEnvironmentVar( getServerPackages( webContextVariables ) );
 
     String serverServices = escapeEnvironmentVar( getServerServices( webContextVariables ) );
 
@@ -529,7 +529,7 @@ public class PentahoWebContextFilter implements Filter {
 
             .append( "\n  server: {" )
             .append( "\n    root: " ).append( serverRoot ).append( "," )
-            .append( "\n    osgiRoot: " ).append( osgiRoot ).append( "," )
+            .append( "\n    packages: " ).append( serverPackages ).append( "," )
             .append( "\n    services: " ).append( serverServices )
             .append( "\n  }" )
 
@@ -623,7 +623,7 @@ public class PentahoWebContextFilter implements Filter {
     return null;
   }
 
-  String getServerOsgiRoot( HashMap<String, String> webContextVariables ) {
+  String getServerPackages( HashMap<String, String> webContextVariables ) {
     String root = getServerRoot( webContextVariables );
     String osgiPath = webContextVariables.get( PLATFORM_OSGI_BRIDGE_ID );
 
