@@ -33,8 +33,6 @@ import java.util.Map;
 public class WorkerNodeActionInvokerAuditor implements IActionInvoker {
 
   private final IActionInvoker actionInvoker;
-  public static final String WORKER_NODE_SUFFIX = "%s.worker-node";
-
 
   public WorkerNodeActionInvokerAuditor( IActionInvoker actionInvoker ) {
     this.actionInvoker = actionInvoker;
@@ -61,7 +59,7 @@ public class WorkerNodeActionInvokerAuditor implements IActionInvoker {
             getValue( actionParams, ActionUtil.INVOKER_ACTIONUSER ),
             getValue( actionParams, ActionUtil.INVOKER_STREAMPROVIDER ),
             className,
-            String.format( WORKER_NODE_SUFFIX, getValue( actionParams, ActionUtil.INVOKER_ACTIONID ) ),
+            getValue( actionParams, ActionUtil.INVOKER_ACTIONID ),
             messageType,
             getValue( actionParams, ActionUtil.QUARTZ_LINEAGE_ID ),
             null,
