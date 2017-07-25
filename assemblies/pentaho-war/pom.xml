@@ -41,7 +41,7 @@
     <dteapi.version>2.2.1</dteapi.version>
     <dataadapterapi.version>2.2.1</dataadapterapi.version>
     <jackrabbit.version>2.10.0</jackrabbit.version>
-    <tika-core.version>1.3</tika-core.version>
+    <tika-core.version>1.15</tika-core.version>
   </properties>
 
   <build>
