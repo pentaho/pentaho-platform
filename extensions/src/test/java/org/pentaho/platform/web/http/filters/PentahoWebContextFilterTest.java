@@ -34,13 +34,16 @@ import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.servlet.*;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -223,6 +226,7 @@ public class PentahoWebContextFilterTest {
     assertTrue( this.requirejsManagerInitIsCalled( response, null ) );
   }
 
+  // region Defines Environment variable
   @Test
   public void testWebContextDefinesContextPath() throws ServletException, IOException {
     final String response = executeWebContextFilter();
@@ -309,6 +313,7 @@ public class PentahoWebContextFilterTest {
 
     assertTrue( response.contains( getWebContextVarDefinition( "RESERVED_CHARS", reservedChars ) ) );
   }
+  // endregion
 
   @Test
   public void testDoGetDefinesRequireCfg() throws ServletException, IOException {
@@ -333,10 +338,15 @@ public class PentahoWebContextFilterTest {
   @Test
   public void testWebContextDefinesPentahoEnvironmentModuleConfig() throws ServletException, IOException {
     doReturn( this.fullyQualifiedServerURL ).when( this.pentahoWebContextFilter ).getServerRoot( any() );
+
+    String mockServerPackages = this.fullyQualifiedServerURL + "osgi/";
+    doReturn( mockServerPackages ).when( this.pentahoWebContextFilter ).getServerPackages( any() );
+
     String mockServerServices = this.fullyQualifiedServerURL + "services/";
     doReturn( mockServerServices ).when( this.pentahoWebContextFilter ).getServerServices( any() );
 
     String serverRoot = escapeEnvironmentVariable( this.fullyQualifiedServerURL );
+    String serverPackages = escapeEnvironmentVariable( mockServerPackages );
     String serverServices = escapeEnvironmentVariable( mockServerServices );
     String userHome = escapeEnvironmentVariable( "/home/" + this.sessionName );
 
@@ -349,7 +359,7 @@ public class PentahoWebContextFilterTest {
 
     final String response = executeWebContextFilter();
 
-    String contextModuleConfig = "requireCfg.config[\"pentaho/environment\"] = {" +
+    String environmentModuleConfig = "requireCfg.config[\"pentaho/environment\"] = {" +
             "\n  theme: \"" + this.activeTheme + "\"," +
             "\n  locale: \"" + sessionLocale + "\"," +
             "\n  user: {" +
@@ -359,11 +369,12 @@ public class PentahoWebContextFilterTest {
             "\n  reservedChars: \"" + reservedChars + "\"," +
             "\n  server: {" +
             "\n    root: " + serverRoot + "," +
+            "\n    packages: " + serverPackages + "," +
             "\n    services: " + serverServices +
             "\n  }" +
             "\n};";
 
-    assertTrue( response.contains( contextModuleConfig ) );
+    assertTrue( response.contains( environmentModuleConfig ) );
   }
 
   @Test

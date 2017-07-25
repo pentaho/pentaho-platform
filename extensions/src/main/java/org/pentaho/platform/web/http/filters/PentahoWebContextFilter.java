@@ -509,6 +509,7 @@ public class PentahoWebContextFilter implements Filter {
 
     String reservedChars = escapeEnvironmentVar( webContextVariables.get( "RESERVED_CHARS" ) );
     String serverRoot = escapeEnvironmentVar( getServerRoot( webContextVariables ) );
+    String serverPackages = escapeEnvironmentVar( getServerPackages( webContextVariables ) );
 
     String serverServices = escapeEnvironmentVar( getServerServices( webContextVariables ) );
 
@@ -528,6 +529,7 @@ public class PentahoWebContextFilter implements Filter {
 
             .append( "\n  server: {" )
             .append( "\n    root: " ).append( serverRoot ).append( "," )
+            .append( "\n    packages: " ).append( serverPackages ).append( "," )
             .append( "\n    services: " ).append( serverServices )
             .append( "\n  }" )
 
@@ -621,12 +623,19 @@ public class PentahoWebContextFilter implements Filter {
     return null;
   }
 
-  String getServerServices( HashMap<String, String> webContextVariables ) {
-    String contextPath = webContextVariables.get( "CONTEXT_PATH" );
-    String osgiBridge = webContextVariables.get( PLATFORM_OSGI_BRIDGE_ID );
-    String servicesRoot = webContextVariables.get( SERVICES_CONTEXT_PROPERTY );
+  String getServerPackages( HashMap<String, String> webContextVariables ) {
+    String root = getServerRoot( webContextVariables );
+    String osgiPath = webContextVariables.get( PLATFORM_OSGI_BRIDGE_ID );
 
-    return contextPath + osgiBridge + servicesRoot;
+    return root + osgiPath;
+  }
+
+  String getServerServices( HashMap<String, String> webContextVariables ) {
+    String root = getServerRoot( webContextVariables );
+    String osgiPath = webContextVariables.get( PLATFORM_OSGI_BRIDGE_ID );
+    String servicesPath = webContextVariables.get( SERVICES_CONTEXT_PROPERTY );
+
+    return root + osgiPath + servicesPath;
   }
 
   private boolean shouldUseFullyQualifiedUrl( HttpServletRequest httpRequest ) {
