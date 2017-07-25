@@ -146,6 +146,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
           usersAndRolesList.removeItem( usersAndRolesList.getSelectedIndex() );
           existingUsersAndRoles.remove( userOrRoleNameString );
         }
+        if ( usersAndRolesList.getItemCount() > 0 ) {
+          usersAndRolesList.setSelectedIndex( 0 );
+        }
+        buildPermissionsTable( fileInfo );
       }
     } );
 
@@ -373,7 +377,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     writePermissionCheckBox.setEnabled( !inheritCheckBoxValue && !managePermissionCheckBoxValue
         && !deletePermissionCheckBoxValue );
     addButton.setEnabled( !inheritCheckBoxValue );
-    removeButton.setEnabled( !inheritCheckBoxValue );
+    removeButton.setEnabled( isRemovable() );
   }
 
   /**
@@ -425,10 +429,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       managePermissionCheckBox.setEnabled( false );
     }
 
-    addButton.setEnabled( !inheritsCheckBox.getValue() );
-    removeButton.setEnabled( !( isOwner( userOrRoleString, USER_TYPE, fileInfo ) || isOwner( userOrRoleString,
-        ROLE_TYPE, fileInfo ) || !isModifiableUserOrRole( fileInfo, userOrRoleString, recipientType ) )
-        && !inheritsCheckBox.getValue() );
   }
 
   /**
@@ -507,13 +507,15 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
    * @param fileInfo
    */
   public void init( RepositoryFile fileSummary, Document fileInfo ) {
-    this.fileInfo = fileInfo;
     this.origFileInfo = fileInfo;
     this.origInheritAclFlag = isInheritsAcls( fileInfo );
     initializePermissionPanel( fileInfo );
   }
 
   private void initializePermissionPanel( Document fileInfo ) {
+
+    this.fileInfo = fileInfo;
+
     usersAndRolesList.clear();
     existingUsersAndRoles.clear();
 
@@ -590,13 +592,17 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     Element newPermission = fileInfo.createElement( PERMISSIONS_ELEMENT_NAME );
     Element newRecipient = fileInfo.createElement( RECIPIENT_ELEMENT_NAME );
     Element newRecipientType = fileInfo.createElement( RECIPIENT_TYPE_ELEMENT_NAME );
+    Element modifiableElementName = fileInfo.createElement( MODIFIABLE_ELEMENT_NAME );
     Text textNode = fileInfo.createTextNode( recipientName );
     newRecipient.appendChild( textNode );
     textNode = fileInfo.createTextNode( Integer.toString( recipientType ) );
     newRecipientType.appendChild( textNode );
+    textNode = fileInfo.createTextNode( Boolean.toString( true ) );
+    modifiableElementName.appendChild( textNode );
     newAces.appendChild( newPermission );
     newAces.appendChild( newRecipient );
     newAces.appendChild( newRecipientType );
+    newAces.appendChild( modifiableElementName );
 
     fileInfo.getDocumentElement().appendChild( newAces );
     // Base recipient is created at this point.
@@ -784,5 +790,37 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       recipientType = "1";
     }
     return recipientType;
+  }
+
+  private Boolean isRemovable() {
+
+    if ( inheritsCheckBox.getValue() ) {
+      return false;
+    }
+
+    if ( usersAndRolesList.getItemCount() == 0 ) {
+      return false;
+    }
+
+    List<String> items = SelectUserOrRoleDialog.getSelectedItemsValue( usersAndRolesList );
+
+    if ( !items.isEmpty() ) {
+      for ( String userOrRoleString : items ) {
+        String recipientType = getRecipientTypeByValue( userOrRoleString );
+        String userOrRoleNameString = userOrRoleString.substring( 0, userOrRoleString.length() - 6 );
+        if ( !isRemovableUserOrRole( userOrRoleNameString, recipientType ) ) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private Boolean isRemovableUserOrRole( String userOrRoleString, String recipientType ) {
+    return !( isOwner( userOrRoleString, USER_TYPE, fileInfo ) || isOwner( userOrRoleString,
+      ROLE_TYPE, fileInfo ) || !isModifiableUserOrRole( fileInfo, userOrRoleString, recipientType ) )
+      && !inheritsCheckBox.getValue();
   }
 }
