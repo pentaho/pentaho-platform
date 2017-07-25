@@ -70,8 +70,10 @@
 		<!-- begin JCR/Jackrabbit -->
 		<dependency org="org.apache.jackrabbit"    	name="jackrabbit-core"            rev="2.10.0" >
 			<exclude name="concurrent" />
+			<exclude org="org.apache.tika" module="tika-core" />
 		</dependency>
 		<dependency org="pentaho" name="pentaho-concurrent" rev="${dependency.pentaho-concurrent.revision}"/>
+		<dependency org="org.apache.tika" name="tika-core" rev="${dependency.tika-core.revision}" transitive="false"/>
 
     	<dependency org="org.apache.jackrabbit" name="jackrabbit-data" rev="2.10.0" transitive="false">
       		<artifact name="jackrabbit-data" type="jar"/>
