@@ -23,10 +23,13 @@ import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -72,6 +75,15 @@ public class GetResource extends ServletBase {
       if ( resLower.endsWith( ".xsl" ) ) { //$NON-NLS-1$
         resourcePath = "system/custom/xsl/" + resource; //$NON-NLS-1$
       } else if ( resLower.endsWith( ".mondrian.xml" ) ) { //$NON-NLS-1$
+        // Ensure user is authenticated by checking the default role
+        String defaultRole = PentahoSystem.get( String.class, "defaultRole", null ); // gets defaultRole from pentahoObjects-s-s.x
+        if ( defaultRole != null ) {
+          if ( !SecurityHelper.isGranted( session, new SimpleGrantedAuthority( defaultRole ) ) ) {
+            response.setStatus( HttpServletResponse.SC_FORBIDDEN );
+            return;
+          }
+        }
+        // If no defaultRole is defined, then just continue action as per normal.
         resourcePath = resource;
       } else if ( resLower.endsWith( ".jpg" ) || resLower.endsWith( ".jpeg" )
         || resLower.endsWith( ".gif" ) || resLower.endsWith(
