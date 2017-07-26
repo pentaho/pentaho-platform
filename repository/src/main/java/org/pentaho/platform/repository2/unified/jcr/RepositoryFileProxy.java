@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * User: nbaker Date: 5/28/13
  */
@@ -195,7 +197,8 @@ public class RepositoryFileProxy extends RepositoryFile {
     return createdDate;
   }
 
-  private Map<String, Serializable> getMetadata() throws RepositoryException {
+  @VisibleForTesting
+  Map<String, Serializable> getMetadata() throws RepositoryException {
     if ( metadata == null ) {
       this.executeOperation( new SessionOperation() {
         @Override
@@ -578,7 +581,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             Map<String, Serializable> metadata = getMetadata();
             if ( metadata != null ) {
-              schedulable = BooleanUtils.toBoolean( (String) metadata.get( SCHEDULABLE_KEY ) );
+              schedulable = metadata.get( SCHEDULABLE_KEY ) != null ? BooleanUtils.toBoolean( (String) metadata.get( SCHEDULABLE_KEY ) ) : null;
             }
           } catch ( Exception e ) {
             e.printStackTrace();
