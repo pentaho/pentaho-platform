@@ -31,20 +31,22 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.Messages;
 import org.pentaho.platform.util.web.MimeHelper;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
 
 public class ActionUtil {
 
   private static final Log logger = LogFactory.getLog( ActionUtil.class );
 
-
   public static final String QUARTZ_ACTIONCLASS = "ActionAdapterQuartzJob-ActionClass"; //$NON-NLS-1$
   public static final String QUARTZ_ACTIONUSER = "ActionAdapterQuartzJob-ActionUser"; //$NON-NLS-1$
   public static final String QUARTZ_ACTIONID = "ActionAdapterQuartzJob-ActionId"; //$NON-NLS-1$
   public static final String QUARTZ_STREAMPROVIDER = "ActionAdapterQuartzJob-StreamProvider"; //$NON-NLS-1$
+  public static final String QUARTZ_STREAMPROVIDER_INPUT_FILE =
+    "ActionAdapterQuartzJob-StreamProvider-InputFile"; //$NON-NLS-1$
   public static final String QUARTZ_UIPASSPARAM = "uiPassParam"; //$NON-NLS-1$
   public static final String QUARTZ_LINEAGE_ID = "lineage-id"; //$NON-NLS-1$
   public static final String QUARTZ_RESTART_FLAG = "ActionAdapterQuartzJob-Restart"; //$NON-NLS-1$
@@ -67,6 +69,12 @@ public class ActionUtil {
 
   public static final String WORK_ITEM_UID = "workItemUid"; //$NON-NLS-1$
 
+  /**
+   * Regex representing characters that are allowed in the work item id (in compliance with chronos job names).
+   */
+  private static final String WORK_ITEM_ID_INVALID_CHARS = "[^\\w\\\\.-]+";
+
+  private static final int WORK_ITEM_ID_LENGTH_LIMIT = 1000;
 
   private static final Map<String, String> KEY_MAP;
 
@@ -76,6 +84,7 @@ public class ActionUtil {
     KEY_MAP.put( ActionUtil.QUARTZ_ACTIONUSER, ActionUtil.INVOKER_ACTIONUSER );
     KEY_MAP.put( ActionUtil.QUARTZ_ACTIONID, ActionUtil.INVOKER_ACTIONID );
     KEY_MAP.put( ActionUtil.QUARTZ_STREAMPROVIDER, ActionUtil.INVOKER_STREAMPROVIDER );
+    KEY_MAP.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE, ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE );
     KEY_MAP.put( ActionUtil.QUARTZ_RESTART_FLAG, ActionUtil.INVOKER_RESTART_FLAG );
   }
 
@@ -114,16 +123,73 @@ public class ActionUtil {
    */
   public static String extractUid( final Map<String, Serializable> params ) {
     if ( params == null ) {
-      return UUID.randomUUID().toString();
+      return generateWorkItemUid( params );
     }
 
     String uid = (String) params.get( WORK_ITEM_UID );
     if ( uid == null ) {
-      uid = UUID.randomUUID().toString();
+      uid = generateWorkItemUid( params );
       params.put( WORK_ITEM_UID, uid );
     }
 
     return uid;
+  }
+
+  /**
+   * @param params a {@link Map} containing action/work item related attributes, in particular {@code inputFile} and
+   *               {@code actionUser}, which are both used for the purpose of generating the uid.
+   * @return a unique id for the work item
+   * @see {@link #generateWorkItemUid(String, String)}
+   */
+  public static String generateWorkItemUid( final Map<String, Serializable> params ) {
+    if ( params == null ) {
+      return generateWorkItemUid( null, null );
+    }
+    // at the time this method is called, the quartz specific map keys may not have been mapped to their
+    // corresponding action keys (see KEY_MAP), fall back on the quartz key, if the action key cannot be found
+    final String userName = Optional.ofNullable( (String) params.get( INVOKER_ACTIONUSER ) ).orElse( (String) params
+      .get( QUARTZ_ACTIONUSER ) );
+    final String inputFilePath = Optional.ofNullable( (String) params.get( INVOKER_STREAMPROVIDER_INPUT_FILE ) )
+      .orElse( (String) params.get( QUARTZ_STREAMPROVIDER_INPUT_FILE ) );
+    return generateWorkItemUid( inputFilePath, userName );
+  }
+
+
+  /**
+   * Returns a unique id for a work item which includes the input file name (derived from {@code inputFilePath}),
+   * {@code user} and {@code date}, in the following format: WI-%input file name%-%user%-%date%, stripping any
+   * invalid characters.
+   *
+   * @param inputFilePath the path of the input file of the action being invoked - optional
+   * @param userName      the user executing the action
+   * @return a unique id for the work item
+   */
+  public static String generateWorkItemUid( final String inputFilePath,
+                                            final String userName ) {
+
+    if ( StringUtil.isEmpty( inputFilePath ) ) {
+      logger.info( "Input file path is not provided and will not be part of the work item uid." );
+    }
+    if ( StringUtil.isEmpty( userName ) ) {
+      logger.info( "User name is not provided and will not be part of the work item uid." );
+    }
+    // we only care about the file name, not the full path, which may be long and not very helpful
+    String inputFileName =  ( new File(  inputFilePath == null ? "" : inputFilePath ) ).getName();
+
+    // sanitize inputFileName and user name by removing invalid characters
+    final String sanitizedInputFileName = inputFileName.replaceAll( WORK_ITEM_ID_INVALID_CHARS, "_" );
+    final String sanitizedUserName = ( userName == null ? "" : userName ).replaceAll( WORK_ITEM_ID_INVALID_CHARS, "_" );
+
+    String workItemId = String.format( "WI-%s-%s-%s", sanitizedInputFileName, sanitizedUserName,
+      System.currentTimeMillis() );
+    // remove any double dash, in case user name or inputFileName is missing
+    workItemId = workItemId.replaceAll( "[-]+", "-" );
+
+    if ( workItemId.length() > WORK_ITEM_ID_LENGTH_LIMIT ) {
+      logger.info( String.format( "Work item id exceeds max character limit of %d: %d", WORK_ITEM_ID_LENGTH_LIMIT,
+        workItemId.length() ) );
+    }
+    return workItemId;
   }
 
   private static final long RETRY_COUNT = 6;

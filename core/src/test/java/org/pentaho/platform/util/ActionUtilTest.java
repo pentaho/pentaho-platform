@@ -18,7 +18,6 @@
 package org.pentaho.platform.util;
 
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
@@ -36,11 +35,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 
 @RunWith( PowerMockRunner.class )
-@PrepareForTest( PentahoSystem.class )
+@PrepareForTest( { PentahoSystem.class, ActionUtil.class } )
 public class ActionUtilTest {
 
   @Test( expected = ActionInvocationException.class )
@@ -69,7 +69,7 @@ public class ActionUtilTest {
   @Test
   public void resolveClassTestHappyPathNoBeanID() throws Exception {
     Class<?> aClass = ActionUtil.resolveActionClass( MyTestAction.class.getName(), "" );
-    Assert.assertEquals( MyTestAction.class, aClass );
+    assertEquals( MyTestAction.class, aClass );
   }
 
   @Test
@@ -86,13 +86,13 @@ public class ActionUtilTest {
 
     Class<?> aClass = ActionUtil.resolveActionClass( MyTestAction.class.getName(), beanId );
 
-    Assert.assertEquals( MyTestAction.class, aClass );
+    assertEquals( MyTestAction.class, aClass );
   }
 
   @Test
   public void createActionBeanHappyPath() throws ActionInvocationException {
     IAction iaction = ActionUtil.createActionBean( MyTestAction.class.getName(), null );
-    Assert.assertEquals( iaction.getClass(), MyTestAction.class );
+    assertEquals( iaction.getClass(), MyTestAction.class );
   }
 
 
@@ -102,8 +102,8 @@ public class ActionUtilTest {
     testMap.put( "one", "one" );
     testMap.put( "two", "two" );
     testMap.remove( "one" );
-    Assert.assertNull( testMap.get( "one" ) );
-    Assert.assertEquals( testMap.get( "two" ), "two" );
+    assertNull( testMap.get( "one" ) );
+    assertEquals( testMap.get( "two" ), "two" );
   }
 
   @Test
@@ -113,8 +113,8 @@ public class ActionUtilTest {
     testMap.put( "two", "two" );
     testMap.put( "actionClass", "actionClass" );
     testMap.remove( "actionClass" );
-    Assert.assertNull( testMap.get( "actionClass" ) );
-    Assert.assertEquals( testMap.get( "two" ), "two" );
+    assertNull( testMap.get( "actionClass" ) );
+    assertEquals( testMap.get( "two" ), "two" );
   }
 
   @Test
@@ -123,15 +123,15 @@ public class ActionUtilTest {
     testMap.put( ActionUtil.QUARTZ_ACTIONCLASS, "one" );
     testMap.put( "two", "two" );
     testMap.remove( ActionUtil.QUARTZ_ACTIONCLASS );
-    Assert.assertNull( testMap.get(ActionUtil.QUARTZ_ACTIONCLASS ) );
-    Assert.assertEquals( testMap.get( "two" ), "two" );
+    assertNull( testMap.get( ActionUtil.QUARTZ_ACTIONCLASS ) );
+    assertEquals( testMap.get( "two" ), "two" );
   }
 
   @Test
   public void prepareMapNullTest() throws Exception {
     Map<String, Serializable> testMap = null;
     ActionUtil.prepareMap( testMap );
-    Assert.assertNull( testMap );
+    assertNull( testMap );
   }
 
   @Test
@@ -140,19 +140,126 @@ public class ActionUtilTest {
     testMap.put( ActionUtil.QUARTZ_ACTIONCLASS, "one" );
     testMap.put( ActionUtil.QUARTZ_ACTIONUSER, "two" );
     ActionUtil.prepareMap( testMap );
-    Assert.assertEquals( testMap.get( ActionUtil.QUARTZ_ACTIONCLASS ), null );
-    Assert.assertEquals( testMap.get( ActionUtil.QUARTZ_ACTIONUSER ), null );
+    assertEquals( testMap.get( ActionUtil.QUARTZ_ACTIONCLASS ), null );
+    assertEquals( testMap.get( ActionUtil.QUARTZ_ACTIONUSER ), null );
   }
 
   @Test
   public void testExtractUid() {
     final Map<String, Serializable> params = new HashMap<>();
 
-    Assert.assertNotNull( ActionUtil.extractUid( params ) );
+    assertNotNull( ActionUtil.extractUid( params ) );
     // the map should now contain a uid
-    Assert.assertTrue( params.containsKey( ActionUtil.WORK_ITEM_UID ) );
+    assertTrue( params.containsKey( ActionUtil.WORK_ITEM_UID ) );
     final String uid = (String) params.get( ActionUtil.WORK_ITEM_UID );
-    Assert.assertEquals( uid, ActionUtil.extractUid( params ) );
-    Assert.assertEquals( 1, params.size() );
+    assertEquals( uid, ActionUtil.extractUid( params ) );
+    assertEquals( 1, params.size() );
+  }
+
+  /**
+   * Mocks the value returned by a call to System.currentTimeMillis(), so that we can properly test the generated
+   * work item uids, which contain the current timestamp.
+   */
+  private long freezeTime() {
+    // mock the value returned by a call to System.currentTimeMillis(), so that we can properrly test the generated
+    // work item uids, which contain the current millis
+    final long currentTime = System.currentTimeMillis();
+    PowerMockito.mockStatic( System.class );
+    PowerMockito.when( System.currentTimeMillis() ).thenReturn( currentTime );
+    return currentTime;
+  }
+
+  @Test
+  public void testGenerateWorkItemUidWithMap() throws NoSuchFieldException, IllegalAccessException {
+
+    final long currentTime = freezeTime();
+    Map map = null;
+    String result;
+
+    // null map
+    result = ActionUtil.generateWorkItemUid( map );
+    assertEquals( "WI-" + currentTime, result );
+
+    // empty map
+    map = new HashMap();
+    result = ActionUtil.generateWorkItemUid( map );
+    assertEquals( "WI-" + currentTime, result );
+
+    // quartz username only
+    map = new HashMap();
+    map.put( ActionUtil.QUARTZ_ACTIONUSER, "quartzAdmin" );
+    result = ActionUtil.generateWorkItemUid( map );
+    assertEquals( "WI-quartzAdmin-" + currentTime, result );
+
+    // action username only
+    map = new HashMap();
+    map.put( ActionUtil.INVOKER_ACTIONUSER, "actionAdmin" );
+    result = ActionUtil.generateWorkItemUid( map );
+    assertEquals( "WI-actionAdmin-" + currentTime, result );
+
+    // quartz and action username
+    map = new HashMap();
+    map.put( ActionUtil.QUARTZ_ACTIONUSER, "quartzAdmin" );
+    map.put( ActionUtil.INVOKER_ACTIONUSER, "actionAdmin" );
+    result = ActionUtil.generateWorkItemUid( map );
+    assertEquals( "WI-actionAdmin-" + currentTime, result );
+
+    // quartz username only
+    map = new HashMap();
+    map.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE, "quartzInputFile" );
+    result = ActionUtil.generateWorkItemUid( map );
+    assertEquals( "WI-quartzInputFile-" + currentTime, result );
+
+    // action username only
+    map = new HashMap();
+    map.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, "adminInputFile" );
+    result = ActionUtil.generateWorkItemUid( map );
+    assertEquals( "WI-adminInputFile-" + currentTime, result );
+
+    // quartz and action username
+    map = new HashMap();
+    map.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE, "quartzInputFile" );
+    map.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, "adminInputFile" );
+    result = ActionUtil.generateWorkItemUid( map );
+    assertEquals( "WI-adminInputFile-" + currentTime, result );
+
+    // all values present
+    map = new HashMap();
+    map.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE, "quartzInputFile" );
+    map.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, "adminInputFile" );
+    map.put( ActionUtil.QUARTZ_ACTIONUSER, "quartzAdmin" );
+    map.put( ActionUtil.INVOKER_ACTIONUSER, "actionAdmin" );
+    result = ActionUtil.generateWorkItemUid( map );
+    assertEquals( "WI-adminInputFile-actionAdmin-" + currentTime, result );
+
+  }
+
+  @Test
+  public void testGenerateWorkItemUid() throws NoSuchFieldException, IllegalAccessException {
+
+    final long currentTime = freezeTime();
+    String result;
+
+    // simple case
+    result = ActionUtil.generateWorkItemUid( "Test.prpt", "admin" );
+    assertEquals( "WI-Test.prpt-admin-" + currentTime, result );
+
+    // bad characters
+    result = ActionUtil.generateWorkItemUid( "!@#$%^&*.prpt", "adm&*&in" );
+    assertEquals( "WI-_.prpt-adm_in-" + currentTime, result );
+
+    // all bad characters
+    result = ActionUtil.generateWorkItemUid( "!@#$%^&*.prpt", "&*&(*&" );
+    assertEquals( "WI-_.prpt-_-" + currentTime, result );
+
+    // file path and spaces
+    result = ActionUtil.generateWorkItemUid( "folder/Test File.prpt", "adm&*&in" );
+    assertEquals( "WI-Test_File.prpt-adm_in-" + currentTime, result );
+
+    // missing user and file
+    result = ActionUtil.generateWorkItemUid( "", "" );
+    assertEquals( "WI-" + currentTime, result );
+    result = ActionUtil.generateWorkItemUid( null, null );
+    assertEquals( "WI-" + currentTime, result );
   }
 }
