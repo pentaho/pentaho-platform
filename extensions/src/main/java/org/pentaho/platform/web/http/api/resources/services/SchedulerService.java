@@ -44,6 +44,7 @@ import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
+import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.ComplexJobTriggerProxy;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
@@ -147,9 +148,11 @@ public class SchedulerService {
       String actionId =
         getExtension( scheduleRequest.getInputFile() )
           + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
+      final String inputFile = scheduleRequest.getInputFile();
+      parameterMap.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE,  inputFile );
       job =
         getScheduler().createJob( scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
-          new RepositoryFileStreamProvider( scheduleRequest.getInputFile(), outputFile,
+          new RepositoryFileStreamProvider( inputFile, outputFile,
             getAutoCreateUniqueFilename( scheduleRequest ) )
         );
     } else {
