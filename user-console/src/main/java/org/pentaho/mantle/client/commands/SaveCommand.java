@@ -285,7 +285,7 @@ public class SaveCommand extends AbstractCommand {
     } else if (frame.handle_puc_save) {
       try {
         var result = frame.handle_puc_save(path, filename, overwrite, errorCallback);
-        if (isSavedSuccessfully){
+        if (isSavedSuccessfully && result){
           //We need to decode the result, but we double encoded '/' and '\' in URLEncoder.js to work around a Tomcat issue
           var almostDecodedResult = result.replace(/%255C/g, "%5C").replace(/%252F/g, "%2F");
           //Now we decode
