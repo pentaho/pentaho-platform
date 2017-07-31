@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 package org.pentaho.platform.web.http.api.resources.utils;
 
@@ -166,6 +166,90 @@ public class EscapeUtilsTest {
     }
     Assert.assertNull( ce.getEscapeSequence( 1 ) );
     Assert.assertNull( ce.getEscapeSequence( (int) '%' ) );
+  }
+
+  @Test
+  public void testEscapeLongJson() {
+    final String src = "{\n"
+             + " \"name\": \"query\",\n"
+             + " \"value\": \""
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(4,'Wednesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(3,'Tuesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(6,'Friday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(7,'Saturday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(1,'Sunday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(2,'Monday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(5,'Thursday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(4,'Wednesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(3,'Tuesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(6,'Friday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(7,'Saturday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(1,'Sunday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(2,'Monday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(5,'Thursday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(4,'Wednesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(3,'Tuesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(6,'Friday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(7,'Saturday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(1,'Sunday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(2,'Monday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(5,'Thursday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(4,'Wednesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(3,'Tuesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(6,'Friday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(7,'Saturday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(1,'Sunday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(2,'Monday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(5,'Thursday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(4,'Wednesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(3,'Tuesday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(6,'Friday' );\\r\\n"
+             + "INSERT INTO \\\"days\\\" ( \\\"day\\\",\\\"week_day\\\" ) VALUES(7,'Saturday' );\"\n"
+             + "}";
+    final String expected = "{"
+             + "\"name\":\"query\","
+             + "\"value\":\""
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(4,\\u0027Wednesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(3,\\u0027Tuesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(6,\\u0027Friday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(7,\\u0027Saturday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(1,\\u0027Sunday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(2,\\u0027Monday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(5,\\u0027Thursday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(4,\\u0027Wednesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(3,\\u0027Tuesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(6,\\u0027Friday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(7,\\u0027Saturday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(1,\\u0027Sunday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(2,\\u0027Monday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(5,\\u0027Thursday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(4,\\u0027Wednesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(3,\\u0027Tuesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(6,\\u0027Friday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(7,\\u0027Saturday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(1,\\u0027Sunday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(2,\\u0027Monday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(5,\\u0027Thursday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(4,\\u0027Wednesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(3,\\u0027Tuesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(6,\\u0027Friday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(7,\\u0027Saturday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(1,\\u0027Sunday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(2,\\u0027Monday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(5,\\u0027Thursday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(4,\\u0027Wednesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(3,\\u0027Tuesday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(6,\\u0027Friday\\u0027 );\\r\\n"
+             + "INSERT INTO \\u0022days\\u0022 ( \\u0022day\\u0022,\\u0022week_day\\u0022 ) VALUES(7,\\u0027Saturday\\u0027 );\""
+             + "}";
+    String actual = null;
+    try {
+      actual = EscapeUtils.escapeJson( src );
+    } catch ( IOException e ) {
+      e.printStackTrace();
+      Assert.fail( "Exception is not expected: " + e.getClass().getName() + " " + e.getMessage() );
+    }
+    Assert.assertEquals( expected, actual );
   }
 
 }

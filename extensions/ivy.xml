@@ -280,8 +280,8 @@
 
     <dependency org="net.sf.kosmosfs" name="kfs" rev="0.3" transitive="false"/>
     <dependency org="xmlenc" name="xmlenc" rev="0.52" transitive="false"/>
-    <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.5.2" changing="true" transitive="false"/>
-    <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.5.2" changing="true" transitive="false"/>
+    <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.9.13" changing="true" transitive="false"/>
+    <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.9.13" changing="true" transitive="false"/>
 
     <dependency org="org.odftoolkit" name="odfdom-java" rev="0.8.6" conf="default->default" transitive="false"/>
     <dependency org="org.apache.poi" name="poi" rev="3.12" conf="default->default" transitive="false"/>
