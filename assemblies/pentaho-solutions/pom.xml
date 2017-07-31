@@ -142,7 +142,7 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho</groupId>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>pdi-teradata-tpt-plugin-package</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
