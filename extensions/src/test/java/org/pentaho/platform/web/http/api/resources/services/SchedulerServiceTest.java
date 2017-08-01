@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 package org.pentaho.platform.web.http.api.resources.services;
 
@@ -94,7 +94,7 @@ public class SchedulerServiceTest {
   @Test
   public void testCreateJob() throws Exception {
 
-    List<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
+    List<JobScheduleParam> jobParameters = new ArrayList<>();
     JobScheduleParam jobScheduleParam1 = mock( JobScheduleParam.class );
     doReturn( "name1" ).when( jobScheduleParam1 ).getName();
     doReturn( "value1" ).when( jobScheduleParam1 ).getValue();
@@ -181,7 +181,7 @@ public class SchedulerServiceTest {
   @Test
   public void testCreateJobException() throws Exception {
 
-    List<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
+    List<JobScheduleParam> jobParameters = new ArrayList<>();
     JobScheduleParam jobScheduleParam1 = mock( JobScheduleParam.class );
     doReturn( "name1" ).when( jobScheduleParam1 ).getName();
     doReturn( "value1" ).when( jobScheduleParam1 ).getValue();
@@ -315,7 +315,7 @@ public class SchedulerServiceTest {
 
     IJobFilter jobFilter = mock( IJobFilter.class );
 
-    List<Job> jobs = new ArrayList<Job>();
+    List<Job> jobs = new ArrayList<>();
 
     IPentahoSession session = mock( IPentahoSession.class );
     doReturn( session ).when( schedulerService ).getSession();
@@ -349,7 +349,7 @@ public class SchedulerServiceTest {
 
     IJobFilter jobFilter = mock( IJobFilter.class );
 
-    List<Job> jobs = new ArrayList<Job>();
+    List<Job> jobs = new ArrayList<>();
 
     IPentahoSession session = mock( IPentahoSession.class );
     doReturn( session ).when( schedulerService ).getSession();
@@ -626,7 +626,7 @@ public class SchedulerServiceTest {
     doReturn( mockPentahoSession ).when( schedulerService ).getSession();
     doReturn( "admin" ).when( mockPentahoSession ).getName();
     doReturn( true ).when( schedulerService ).canAdminister( mockPentahoSession );
-    List<Job> mockJobs = new ArrayList<Job>();
+    List<Job> mockJobs = new ArrayList<>();
     mockJobs.add( mock( Job.class ) );
     doReturn( mockJobs ).when( schedulerService.scheduler ).getJobs( any( IJobFilter.class ) );
 
@@ -749,7 +749,7 @@ public class SchedulerServiceTest {
     Map<String, Serializable> mockJobParams = mock( Map.class );
     doReturn( mockJobParams ).when( mockJob ).getJobParams();
 
-    Set<String> jobParamsKeyset = new HashSet<String>();
+    Set<String> jobParamsKeyset = new HashSet<>();
     doReturn( jobParamsKeyset ).when( mockJobParams ).keySet();
 
     String jobParamKey = "key";
@@ -859,7 +859,7 @@ public class SchedulerServiceTest {
   @Test
   public void testGetBlockoutJobs() {
 
-    List<Job> jobs = new ArrayList<Job>();
+    List<Job> jobs = new ArrayList<>();
 
     doReturn( jobs ).when( schedulerService.blockoutManager ).getBlockOutJobs();
 
@@ -873,7 +873,7 @@ public class SchedulerServiceTest {
   @Test
   public void testHasBlockouts() {
 
-    List<Job> jobs = new ArrayList<Job>();
+    List<Job> jobs = new ArrayList<>();
 
     doReturn( jobs ).when( schedulerService.blockoutManager ).getBlockOutJobs();
 
@@ -900,9 +900,9 @@ public class SchedulerServiceTest {
     JobScheduleParam jobScheduleParamMock1 = mock( JobScheduleParam.class );
     JobScheduleParam jobScheduleParamMock2 = mock( JobScheduleParam.class );
 
-    List<JobScheduleParam> jobScheduleParams = new ArrayList<JobScheduleParam>();
+    List<JobScheduleParam> jobScheduleParams = new ArrayList<>();
 
-    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doReturn( true ).when( schedulerService ).canAdminister();
     doNothing().when( jobScheduleRequest ).setActionClass( anyString() );
     doReturn( jobScheduleParams ).when( jobScheduleRequest ).getJobParameters();
     doReturn( jobScheduleParamMock1 ).when( schedulerService ).getJobScheduleParam( anyString(), anyString() );
@@ -915,7 +915,7 @@ public class SchedulerServiceTest {
     assertNotNull( job );
     assertEquals( 2, jobScheduleParams.size() );
 
-    verify( schedulerService ).isScheduleAllowed();
+    verify( schedulerService ).canAdminister();
     verify( jobScheduleRequest ).setActionClass( anyString() );
     verify( jobScheduleRequest, times( 2 ) ).getJobParameters();
     verify( schedulerService ).updateStartDateForTimeZone( jobScheduleRequest );
@@ -927,7 +927,7 @@ public class SchedulerServiceTest {
 
     // Test 1
     JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
-    doReturn( false ).when( schedulerService ).isScheduleAllowed();
+    doReturn( false ).when( schedulerService ).canAdminister();
 
     try {
       schedulerService.addBlockout( jobScheduleRequest );
@@ -942,9 +942,9 @@ public class SchedulerServiceTest {
     JobScheduleParam jobScheduleParamMock1 = mock( JobScheduleParam.class );
     JobScheduleParam jobScheduleParamMock2 = mock( JobScheduleParam.class );
 
-    List<JobScheduleParam> jobScheduleParams = new ArrayList<JobScheduleParam>();
+    List<JobScheduleParam> jobScheduleParams = new ArrayList<>();
 
-    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doReturn( true ).when( schedulerService ).canAdminister();
     doNothing().when( jobScheduleRequest ).setActionClass( anyString() );
     doReturn( jobScheduleParams ).when( jobScheduleRequest ).getJobParameters();
     doReturn( jobScheduleParamMock1 ).when( schedulerService ).getJobScheduleParam( anyString(), anyString() );
@@ -971,7 +971,7 @@ public class SchedulerServiceTest {
       //Should catch exception
     }
 
-    verify( schedulerService, times( 3 ) ).isScheduleAllowed();
+    verify( schedulerService, times( 3 ) ).canAdminister();
     verify( jobScheduleRequest, times( 2 ) ).setActionClass( anyString() );
     verify( jobScheduleRequest, times( 4 ) ).getJobParameters();
     verify( schedulerService, times( 2 ) ).updateStartDateForTimeZone( jobScheduleRequest );
@@ -985,7 +985,7 @@ public class SchedulerServiceTest {
     JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
     Job jobMock = mock( Job.class );
 
-    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doReturn( true ).when( schedulerService ).canAdminister();
     doReturn( true ).when( schedulerService ).removeJob( anyString() );
     doReturn( jobMock ).when( schedulerService ).addBlockout( jobScheduleRequest );
 
@@ -993,7 +993,7 @@ public class SchedulerServiceTest {
 
     assertNotNull( job );
 
-    verify( schedulerService ).isScheduleAllowed();
+    verify( schedulerService ).canAdminister();
     verify( schedulerService ).removeJob( anyString() );
     verify( schedulerService ).addBlockout( jobScheduleRequest );
   }
@@ -1006,17 +1006,17 @@ public class SchedulerServiceTest {
     Job job = mock( Job.class );
 
     // Test 1
-    doReturn( false ).when( schedulerService ).isScheduleAllowed();
+    doReturn( false ).when( schedulerService ).canAdminister();
 
     try {
       schedulerService.updateBlockout( jobId, jobScheduleRequest );
       fail();
-    } catch ( IllegalArgumentException e ) {
+    } catch ( IllegalAccessException e ) {
       // Should catch the exception
     }
 
     // Test 2
-    doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    doReturn( true ).when( schedulerService ).canAdminister();
     doThrow( new SchedulerException( "" ) ).when( schedulerService ).removeJob( anyString() );
 
     try {
@@ -1032,7 +1032,7 @@ public class SchedulerServiceTest {
     try {
       schedulerService.updateBlockout( jobId, jobScheduleRequest );
       fail();
-    } catch ( IllegalArgumentException e ) {
+    } catch ( IllegalAccessException e ) {
       // Should catch the exception
     }
 
@@ -1057,7 +1057,7 @@ public class SchedulerServiceTest {
       // Should catch the exception
     }
 
-    verify( schedulerService, times( 5 ) ).isScheduleAllowed();
+    verify( schedulerService, times( 5 ) ).canAdminister();
     verify( schedulerService, times( 4 ) ).removeJob( anyString() );
     verify( schedulerService, times( 2 ) ).addBlockout( jobScheduleRequest );
   }
