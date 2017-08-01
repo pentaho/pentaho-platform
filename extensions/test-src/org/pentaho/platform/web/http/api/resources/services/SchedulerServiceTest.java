@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 package org.pentaho.platform.web.http.api.resources.services;
 
@@ -77,7 +77,7 @@ public class SchedulerServiceTest {
   @Test
   public void testCreateJob() throws Exception {
 
-    List<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
+    List<JobScheduleParam> jobParameters = new ArrayList<>();
     JobScheduleParam jobScheduleParam1 = Mockito.mock( JobScheduleParam.class );
     Mockito.doReturn( "name1" ).when( jobScheduleParam1 ).getName();
     Mockito.doReturn( "value1" ).when( jobScheduleParam1 ).getValue();
@@ -165,7 +165,7 @@ public class SchedulerServiceTest {
   @Test
   public void testCreateJobException() throws Exception {
 
-    List<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
+    List<JobScheduleParam> jobParameters = new ArrayList<>();
     JobScheduleParam jobScheduleParam1 = Mockito.mock( JobScheduleParam.class );
     Mockito.doReturn( "name1" ).when( jobScheduleParam1 ).getName();
     Mockito.doReturn( "value1" ).when( jobScheduleParam1 ).getValue();
@@ -300,7 +300,7 @@ public class SchedulerServiceTest {
 
     IJobFilter jobFilter = Mockito.mock( IJobFilter.class );
 
-    List<Job> jobs = new ArrayList<Job>();
+    List<Job> jobs = new ArrayList<>();
 
     IPentahoSession session = Mockito.mock( IPentahoSession.class );
     Mockito.doReturn( session ).when( schedulerService ).getSession();
@@ -333,8 +333,6 @@ public class SchedulerServiceTest {
   public void testGetContentCleanerJobException() throws Exception {
 
     IJobFilter jobFilter = Mockito.mock( IJobFilter.class );
-
-    List<Job> jobs = new ArrayList<Job>();
 
     IPentahoSession session = Mockito.mock( IPentahoSession.class );
     Mockito.doReturn( session ).when( schedulerService ).getSession();
@@ -886,9 +884,9 @@ public class SchedulerServiceTest {
     JobScheduleParam jobScheduleParamMock1 = Mockito.mock( JobScheduleParam.class );
     JobScheduleParam jobScheduleParamMock2 = Mockito.mock( JobScheduleParam.class );
 
-    List<JobScheduleParam> jobScheduleParams = new ArrayList<JobScheduleParam>();
+    List<JobScheduleParam> jobScheduleParams = new ArrayList<>();
 
-    Mockito.doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    Mockito.doReturn( true ).when( schedulerService ).canAdminister();
     Mockito.doNothing().when( jobScheduleRequest ).setActionClass( Mockito.anyString() );
     Mockito.doReturn( jobScheduleParams ).when( jobScheduleRequest ).getJobParameters();
     Mockito.doReturn( jobScheduleParamMock1 ).when( schedulerService ).getJobScheduleParam( Mockito.anyString(), Mockito.anyString() );
@@ -901,7 +899,7 @@ public class SchedulerServiceTest {
     Assert.assertNotNull( job );
     Assert.assertEquals( 2, jobScheduleParams.size() );
 
-    Mockito.verify( schedulerService ).isScheduleAllowed();
+    Mockito.verify( schedulerService ).canAdminister();
     Mockito.verify( jobScheduleRequest ).setActionClass( Mockito.anyString() );
     Mockito.verify( jobScheduleRequest, Mockito.times( 2 ) ).getJobParameters();
     Mockito.verify( schedulerService ).updateStartDateForTimeZone( jobScheduleRequest );
@@ -913,7 +911,7 @@ public class SchedulerServiceTest {
 
     // Test 1
     JobScheduleRequest jobScheduleRequest = Mockito.mock( JobScheduleRequest.class );
-    Mockito.doReturn( false ).when( schedulerService ).isScheduleAllowed();
+    Mockito.doReturn( false ).when( schedulerService ).canAdminister();
 
     try {
       schedulerService.addBlockout( jobScheduleRequest );
@@ -928,9 +926,9 @@ public class SchedulerServiceTest {
     JobScheduleParam jobScheduleParamMock1 = Mockito.mock( JobScheduleParam.class );
     JobScheduleParam jobScheduleParamMock2 = Mockito.mock( JobScheduleParam.class );
 
-    List<JobScheduleParam> jobScheduleParams = new ArrayList<JobScheduleParam>();
+    List<JobScheduleParam> jobScheduleParams = new ArrayList<>();
 
-    Mockito.doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    Mockito.doReturn( true ).when( schedulerService ).canAdminister();
     Mockito.doNothing().when( jobScheduleRequest ).setActionClass( Mockito.anyString() );
     Mockito.doReturn( jobScheduleParams ).when( jobScheduleRequest ).getJobParameters();
     Mockito.doReturn( jobScheduleParamMock1 ).when( schedulerService ).getJobScheduleParam( Mockito.anyString(), Mockito.anyString() );
@@ -957,7 +955,7 @@ public class SchedulerServiceTest {
       //Should catch exception
     }
 
-    Mockito.verify( schedulerService, Mockito.times( 3 ) ).isScheduleAllowed();
+    Mockito.verify( schedulerService, Mockito.times( 3 ) ).canAdminister();
     Mockito.verify( jobScheduleRequest, Mockito.times( 2 ) ).setActionClass( Mockito.anyString() );
     Mockito.verify( jobScheduleRequest, Mockito.times( 4 ) ).getJobParameters();
     Mockito.verify( schedulerService, Mockito.times( 2 ) ).updateStartDateForTimeZone( jobScheduleRequest );
@@ -971,7 +969,7 @@ public class SchedulerServiceTest {
     JobScheduleRequest jobScheduleRequest = Mockito.mock( JobScheduleRequest.class );
     Job jobMock = Mockito.mock( Job.class );
 
-    Mockito.doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    Mockito.doReturn( true ).when( schedulerService ).canAdminister();
     Mockito.doReturn( true ).when( schedulerService ).removeJob( Mockito.anyString() );
     Mockito.doReturn( jobMock ).when( schedulerService ).addBlockout( jobScheduleRequest );
 
@@ -979,7 +977,7 @@ public class SchedulerServiceTest {
 
     Assert.assertNotNull( job );
 
-    Mockito.verify( schedulerService ).isScheduleAllowed();
+    Mockito.verify( schedulerService ).canAdminister();
     Mockito.verify( schedulerService ).removeJob( Mockito.anyString() );
     Mockito.verify( schedulerService ).addBlockout( jobScheduleRequest );
   }
@@ -989,20 +987,19 @@ public class SchedulerServiceTest {
 
     String jobId = "jobId";
     JobScheduleRequest jobScheduleRequest = Mockito.mock( JobScheduleRequest.class );
-    Job job = Mockito.mock( Job.class );
 
     // Test 1
-    Mockito.doReturn( false ).when( schedulerService ).isScheduleAllowed();
+    Mockito.doReturn( false ).when( schedulerService ).canAdminister();
 
     try {
       schedulerService.updateBlockout( jobId, jobScheduleRequest );
       Assert.fail();
-    } catch ( IllegalArgumentException e ) {
+    } catch ( IllegalAccessException e ) {
       // Should catch the exception
     }
 
     // Test 2
-    Mockito.doReturn( true ).when( schedulerService ).isScheduleAllowed();
+    Mockito.doReturn( true ).when( schedulerService ).canAdminister();
     Mockito.doThrow( new SchedulerException( "" ) ).when( schedulerService ).removeJob( Mockito.anyString() );
 
     try {
@@ -1018,7 +1015,7 @@ public class SchedulerServiceTest {
     try {
       schedulerService.updateBlockout( jobId, jobScheduleRequest );
       Assert.fail();
-    } catch ( IllegalArgumentException e ) {
+    } catch ( IllegalAccessException e ) {
       // Should catch the exception
     }
 
@@ -1043,7 +1040,7 @@ public class SchedulerServiceTest {
       // Should catch the exception
     }
 
-    Mockito.verify( schedulerService, Mockito.times( 5 ) ).isScheduleAllowed();
+    Mockito.verify( schedulerService, Mockito.times( 5 ) ).canAdminister();
     Mockito.verify( schedulerService, Mockito.times( 4 ) ).removeJob( Mockito.anyString() );
     Mockito.verify( schedulerService, Mockito.times( 2 ) ).addBlockout( jobScheduleRequest );
   }
