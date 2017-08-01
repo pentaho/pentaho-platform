@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -129,7 +129,8 @@ public class SchedulerService {
 
     IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
 
-    HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
+    HashMap<String, Serializable> parameterMap = new HashMap<>();
+
     for ( JobScheduleParam param : scheduleRequest.getJobParameters() ) {
       parameterMap.put( param.getName(), param.getValue() );
     }
@@ -325,8 +326,8 @@ public class SchedulerService {
       for ( String key : job.getJobParams().keySet() ) {
         Serializable value = job.getJobParams().get( key );
         if ( value != null && value.getClass() != null && value.getClass().isArray() ) {
-          String[] sa = ( new String[0] ).getClass().cast( value );
-          ArrayList<String> list = new ArrayList<String>();
+          String[] sa = ( new String[ 0 ] ).getClass().cast( value );
+          ArrayList<String> list = new ArrayList<>();
           for ( int i = 0; i < sa.length; i++ ) {
             list.add( sa[i] );
           }
@@ -356,8 +357,9 @@ public class SchedulerService {
     return getBlockoutManager().shouldFireNow();
   }
 
-  public Job addBlockout( JobScheduleRequest jobScheduleRequest ) throws IOException, IllegalAccessException, SchedulerException {
-    if ( isScheduleAllowed() ) {
+  public Job addBlockout( JobScheduleRequest jobScheduleRequest )
+    throws IOException, IllegalAccessException, SchedulerException {
+    if ( canAdminister() ) {
       jobScheduleRequest.setActionClass( BlockoutAction.class.getCanonicalName() );
       jobScheduleRequest.getJobParameters().add( getJobScheduleParam( IBlockoutManager.DURATION_PARAM,
           jobScheduleRequest.getDuration() ) );
@@ -382,14 +384,14 @@ public class SchedulerService {
 
   public Job updateBlockout( String jobId, JobScheduleRequest jobScheduleRequest )
     throws IllegalAccessException, SchedulerException, IOException {
-    if ( isScheduleAllowed() ) {
+    if ( canAdminister() ) {
       boolean isJobRemoved = removeJob( jobId );
       if ( isJobRemoved ) {
         Job job = addBlockout( jobScheduleRequest );
         return job;
       }
     }
-    throw new IllegalArgumentException();
+    throw new IllegalAccessException();
   }
 
   public BlockStatusProxy getBlockStatus( JobScheduleRequest jobScheduleRequest ) throws SchedulerException {
@@ -423,7 +425,7 @@ public class SchedulerService {
     jobRequest.setComplexJobTrigger( proxyTrigger );
     jobRequest.setInputFile( "aaaaa" );
     jobRequest.setOutputFile( "bbbbb" );
-    ArrayList<JobScheduleParam> jobParams = new ArrayList<JobScheduleParam>();
+    ArrayList<JobScheduleParam> jobParams = new ArrayList<>();
     jobParams.add( new JobScheduleParam( "param1", "aString" ) );
     jobParams.add( new JobScheduleParam( "param2", 1 ) );
     jobParams.add( new JobScheduleParam( "param3", true ) );
