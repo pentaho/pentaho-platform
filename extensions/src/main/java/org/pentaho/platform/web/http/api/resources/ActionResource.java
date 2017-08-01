@@ -176,7 +176,7 @@ public class ActionResource {
         Optional.ofNullable( mdcContextMap ).ifPresent( s -> MDC.setContextMap( mdcContextMap ) );
 
         // instantiate the DefaultActionInvoker directly to force local invocation of the action
-        final IActionInvoker actionInvoker = new WorkerNodeActionInvokerAuditor( resource.getDefaultActionInvoker() );
+        final IActionInvoker actionInvoker = new WorkerNodeActionInvokerAuditor ( resource.getDefaultActionInvoker() );
 
         IActionInvokeStatus status = actionInvoker.invokeAction( action, actionUser, params );
 
