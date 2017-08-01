@@ -97,6 +97,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   boolean origInheritAclFlag = false;
 
+  boolean isAdmin = false;
+
   ListBox usersAndRolesList = new ListBox( true );
 
   Label permissionsLabel = new Label( Messages.getString( "permissionsColon" ) ); //$NON-NLS-1$
@@ -128,6 +130,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     usersAndRolesList.getElement().setId( "sharePanelUsersAndRolesList" );
     addButton.getElement().setId( "sharePanelAddButton" );
     removeButton.getElement().setId( "sharePanelRemoveButton" );
+
+    setAdmin();
 
     removeButton.addClickHandler( new ClickHandler() {
 
@@ -425,7 +429,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
     refreshPermission();
 
-    if ( !isModifiableUserOrRole( fileInfo, userOrRoleString, recipientType ) ) {
+    if ( ( perms.contains( PERM_GRANT_PERM ) || perms.contains( PERM_ALL ) )
+      && ( !isModifiableUserOrRole( fileInfo, userOrRoleString, recipientType )
+        || ( !isAdmin && ( isOwner( userOrRoleString, USER_TYPE, fileInfo )
+        || isOwner( userOrRoleString, ROLE_TYPE, fileInfo ) ) ) ) && !inheritsCheckBox.getValue() ) {
       managePermissionCheckBox.setEnabled( false );
     }
 
@@ -822,5 +829,26 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     return !( isOwner( userOrRoleString, USER_TYPE, fileInfo ) || isOwner( userOrRoleString,
       ROLE_TYPE, fileInfo ) || !isModifiableUserOrRole( fileInfo, userOrRoleString, recipientType ) )
       && !inheritsCheckBox.getValue();
+  }
+
+  private void setAdmin() {
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
+      requestBuilder.setHeader( "accept", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
+      requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" ); //$NON-NLS-1$ //$NON-NLS-2$
+      requestBuilder.sendRequest( null, new RequestCallback() {
+
+        public void onError( Request request, Throwable caught ) {
+          isAdmin = false;
+        }
+
+        public void onResponseReceived( Request request, Response response ) {
+          isAdmin = "true".equalsIgnoreCase( response.getText() ); //$NON-NLS-1$
+        }
+      } );
+    } catch ( RequestException e ) {
+      isAdmin = false;
+    }
   }
 }
