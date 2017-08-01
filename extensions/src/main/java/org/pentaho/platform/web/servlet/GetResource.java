@@ -78,7 +78,7 @@ public class GetResource extends ServletBase {
         // Ensure user is authenticated by checking the default role
         String defaultRole = PentahoSystem.get( String.class, "defaultRole", null ); // gets defaultRole from pentahoObjects-s-s.x
         if ( defaultRole != null ) {
-          if ( !SecurityHelper.isGranted( session, new SimpleGrantedAuthority( defaultRole ) ) ) {
+          if ( !SecurityHelper.getInstance().isGranted( session, new SimpleGrantedAuthority( defaultRole ) ) ) {
             response.setStatus( HttpServletResponse.SC_FORBIDDEN );
             return;
           }
