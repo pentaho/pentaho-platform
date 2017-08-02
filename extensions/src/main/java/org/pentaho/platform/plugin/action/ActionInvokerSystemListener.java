@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.plugin.action;
 
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,6 +31,7 @@ import org.pentaho.platform.api.action.IActionInvoker;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.WorkerNodeActionInvokerAuditor;
@@ -47,72 +49,89 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
   private static final Log logger = LogFactory.getLog( ActionInvokerSystemListener.class );
   private static final String WORK_ITEM_FILE_EXTENSION = ".json";
   private static final String DEFAULT_CONTENT_FOLDER = "system/default-content";
+  private static final String ERROR = "error";
+  private static final String OK = "ok";
+  private static final String WI_STATUS = "wi-status.";
   private String environmentVariablesFolder;
-
   //for unit testability
   String getSolutionPath( ) {
     return PentahoSystem.getApplicationContext().getSolutionPath( DEFAULT_CONTENT_FOLDER );
   }
 
+  //places a failure breadcrumb in the specified folder
+  private void placeBreadcrumbFile( String folderPath, boolean success ) {
+    String ext = ERROR;
+    if ( success ) {
+      ext = OK;
+    }
+    File breadcrumb = new File( folderPath, WI_STATUS + ext );
+
+    try {
+      if ( !breadcrumb.createNewFile() ) {
+        logger.error( Messages.getInstance().getErrorString( "ActionInvokerSystemListener.ERROR_0004_COULD_NOT_WRITE_STATUS" ) );
+      }
+    } catch ( IOException e ) {
+      logger.error( Messages.getInstance().getErrorString( "ActionInvokerSystemListener.ERROR_0004_COULD_NOT_WRITE_STATUS" ) );
+    }
+  }
   /**
    * Runs Work Items described in json files upon startup of the Pentaho Server.
-   * @param session
-   * @return
+   *
+   * @param session The Pentaho Session  {@link IPentahoSession}
+   * @return always returns true, so that the pentaho server starts up
    */
   @Override
   public boolean startup( IPentahoSession session ) {
     final String solutionPath = getSolutionPath();
-
+    boolean workItemSuccess = false;
     File[] files = null;
     if ( !StringUtils.isEmpty( environmentVariablesFolder ) ) {
       files = listFiles( new File( environmentVariablesFolder ), WORK_ITEM_FILE_EXTENSION );
-      logger.info( "Reading " + WORK_ITEM_FILE_EXTENSION + " files from " + environmentVariablesFolder );
+      logger.info( Messages.getInstance().getString( "ActionInvokerSystemListener.INFO_0001_READ_FILES_FROM_FOLDER", environmentVariablesFolder, WORK_ITEM_FILE_EXTENSION ) );
     } else if ( !StringUtils.isEmpty( solutionPath ) ) {
       files = listFiles( new File( solutionPath ), WORK_ITEM_FILE_EXTENSION );
-      logger.info( "Reading " + WORK_ITEM_FILE_EXTENSION + " files from " + solutionPath );
+      logger.info( Messages.getInstance().getString( "ActionInvokerSystemListener.INFO_0003_READ_DATA_FROM_FILE", WORK_ITEM_FILE_EXTENSION, solutionPath ) );
     }
 
     if ( files == null || files.length == 0 ) {
-      logger.info( "No " + WORK_ITEM_FILE_EXTENSION + " files found. Exiting." );
+      logger.info( Messages.getInstance().getString( "ActionInvokerSystemListener.INFO_0002_NO_FILES_FOUND", WORK_ITEM_FILE_EXTENSION ) );
+      placeBreadcrumbFile( getSolutionPath(), false );
       return true;
     }
 
     for ( File file : files ) {
-      logger.info( "Attempting to read data from " + file.getAbsolutePath() );
+      logger.info( Messages.getInstance().getString( "ActionInvokerSystemListener.INFO_0003_READ_DATA_FROM_FILE", file.getAbsolutePath() ) );
+      FileInputStream fileInputStream = null;
       try {
-        FileInputStream fileInputStream = new FileInputStream( file );
+        fileInputStream = new FileInputStream( file );
         String encoded = IOUtils.toString( fileInputStream );
-        fileInputStream.close();
         Payload payload = new Payload( encoded, LocaleHelper.UTF_8 );
-        logger.info( "Issuing Work Item request" );
+        logger.info( Messages.getInstance().getString( "ActionInvokerSystemListener.INFO_0004_ISSUE_REQUEST" ) );
         try {
           IActionInvokeStatus status = issueRequest( payload );
+          if ( status != null && status.getThrowable() == null ) {
+            logger.info( Messages.getInstance().getString( "ActionInvokerSystemListener.INFO_0005_REQUEST_SUCCEEDED"  ) );
+            workItemSuccess = true;
+          } else {
+            logger.error( Messages.getInstance().getErrorString( "ActionInvokerSystemListener.ERROR_0001_REQUEST_FAILED" ) );
+          }
         } catch ( Exception e ) {
-          //send status to chronos
+          logger.error( e.getMessage() );
         }
       } catch ( IOException e ) {
-        logger.error( "Error reading files. " );
+        logger.error( Messages.getInstance().getErrorString( "ActionInvokerSystemListener_ERROR_0002_ERROR_READING_FILES" ) );
       } catch ( IllegalArgumentException e ) {
-        logger.error( file.getName() + " Payload could not be recreated. Will not process." );
+        logger.error( Messages.getInstance().getErrorString( "ActionInvokerSystemListener_ERROR_0003_COULD_NOT_PROCESS", file.getName() ) );
       } finally {
-        renameFile( file.getAbsolutePath() );
+        FileUtils.closeQuietly( fileInputStream );
+        placeBreadcrumbFile( getSolutionPath(), workItemSuccess );
       }
     }
     return true;
   }
 
-  //for unit testability
-  IActionInvokeStatus issueRequest( Payload payload ) throws Exception {
+  private IActionInvokeStatus issueRequest( Payload payload ) throws Exception {
     return payload.issueRequest();
-  }
-
-  private void renameFile( final String filename ) {
-    logger.info( "Renaming file " + filename );
-    File dotJson = new File( filename );
-    File dotJsonDotCurTime = new File( filename + "." + System.currentTimeMillis() );
-    if ( !dotJson.renameTo( dotJsonDotCurTime ) ) {
-      logger.error( "Could not rename file " + filename );
-    }
   }
 
   @Override
@@ -129,10 +148,11 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
         }
       } );
     } else {
-      logger.info( folder.getAbsolutePath() + " no .json files found." );
+      logger.info( Messages.getInstance().getString( "ActionInvokerSystemListener_INFO_0006_NO_FILES_FOUND", folder.getAbsolutePath() ) );
     }
     return null;
   }
+
   IAction getActionBean( String actionClass, String actionId ) throws ActionInvocationException {
     return ActionUtil.createActionBean( actionClass, actionId );
   }
@@ -140,7 +160,8 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
   /**
    * Sets the location of the folder where the system listener will consume json files from.
    * If unset, the listener defaults to the system/default-content folder.
-   * @param environmentVariablesFolder
+   *
+   * @param environmentVariablesFolder The folder where work item files will be placed
    */
   public void setEnvironmentVariablesFolder( String environmentVariablesFolder ) {
     this.environmentVariablesFolder = environmentVariablesFolder;
