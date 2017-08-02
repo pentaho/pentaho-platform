@@ -37,7 +37,6 @@ import static org.mockito.Mockito.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 
@@ -56,10 +55,8 @@ public class ActionInvokerSystemListenerTest {
   private static final String noJsonFilesFolder = resourcesFolder + "/NoJsonFiles";
   private IPentahoSession mockSession;
   private DefaultActionInvoker actionInvoker;
-  private StandaloneApplicationContext applicationContext;
   private ActionInvokerSystemListener actionInvokerSystemListener;
   private static final String DEFAULT_CONTENT_FOLDER = resourcesFolder + "/system/default-content";
-  private static final String HTTP_202 = "202";
 
   private String[] files = {
     "environment.json",
@@ -74,8 +71,6 @@ public class ActionInvokerSystemListenerTest {
   public void init( ) {
     mockSession = mock( IPentahoSession.class );
     actionInvoker = mock( DefaultActionInvoker.class );
-    applicationContext = mock( StandaloneApplicationContext.class );
-
   }
 
   @Test
@@ -146,13 +141,11 @@ public class ActionInvokerSystemListenerTest {
 
   @After
   public void cleanup( ) {
-    // Remove timestamp extension from all JSON files
-    File resourceDir = new File( resourcesFolder );
-    for ( File f : resourceDir.listFiles() ) {
-      if ( !f.getName().endsWith( "json" ) && !f.isDirectory() && f.getName().contains( "json" ) ) {
-        f.renameTo( new File( resourcesFolder + "/" + f.getName().substring( 0, f.getName().lastIndexOf( "." ) ) ) );
-      }
-    }
+    // delete wi.json
+    File wiJson = new File( getAbsoluteFilename( resourcesFolder ) + "/wi-status.ok" );
+    wiJson.delete();
+    File wiJsonError = new File( getAbsoluteFilename( resourcesFolder ) + "/NoJsonFiles/wi-status.error" );
+    wiJsonError.delete();
   }
 }
 

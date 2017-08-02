@@ -13,13 +13,19 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.utils;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 import static org.pentaho.platform.web.http.api.resources.utils.FileUtils.containsReservedCharacter;
@@ -30,6 +36,25 @@ import static org.pentaho.platform.web.http.api.resources.utils.FileUtils.contai
 public class FileUtilsTest {
 
   private static final char[] TEST_RESERVED = new char[] {'/', '%'};
+
+  @Test
+  public void testCloseQuietly( ) {
+    File newFile = new File( new File( "src/test/resources/newFile.txt" ).getAbsolutePath() );
+    try {
+      newFile.createNewFile();
+      FileInputStream fileInputStream = new FileInputStream( newFile );
+      fileInputStream = Mockito.spy( fileInputStream );
+      Mockito.doThrow( new IOException() ).when( fileInputStream ).close();
+      Assert.assertFalse( FileUtils.closeQuietly( fileInputStream ) );
+      Assert.assertTrue( FileUtils.closeQuietly( new FileInputStream( newFile ) ) );
+      Mockito.doCallRealMethod().when( fileInputStream ).close();
+      fileInputStream.close();
+      Assert.assertTrue( newFile.delete() );
+    } catch ( IOException e ) {
+      Assert.fail();
+    }
+    Assert.assertFalse( FileUtils.closeQuietly( null ) );
+  }
 
   @Test
   public void containsReservedCharacter_Empty() {

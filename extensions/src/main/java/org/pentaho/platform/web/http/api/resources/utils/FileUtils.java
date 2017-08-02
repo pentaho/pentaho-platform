@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.utils;
@@ -24,6 +24,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.web.http.messages.Messages;
+
+import java.io.FileInputStream;
 
 public class FileUtils {
   public static final String PATH_SEPARATOR = "/";
@@ -42,6 +44,24 @@ public class FileUtils {
       path = PATH_SEPARATOR + path;
     }
     return path;
+  }
+
+  /**
+   * Gracefully closes a fileInputStream
+   * @param fileInputStream The {@link FileInputStream}
+   * @return returns true if the file input stream is successfully closed, false otherwise
+   */
+  public static boolean closeQuietly( FileInputStream fileInputStream ) {
+    if ( fileInputStream != null ) {
+      try {
+        fileInputStream.close();
+      } catch ( Exception e ) {
+        logger.error( e.getMessage() );
+        return false;
+      }
+      return true;
+    }
+    return false;
   }
 
   /**
