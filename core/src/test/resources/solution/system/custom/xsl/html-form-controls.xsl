@@ -853,8 +853,8 @@
 	<!-- ######################################################################################################## -->
 
 	<xsl:template name="build-items">
-		<xsl:variable name="messages" select="msg:getInstance()" />
 		<xsl:param name="parent" />
+		<xsl:variable name="messages" select="msg:getInstance()" />
 
 		<!-- add an empty item, cause otherwise deselection is not possible -->
 		<option value="">
