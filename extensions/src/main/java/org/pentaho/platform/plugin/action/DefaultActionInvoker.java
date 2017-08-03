@@ -176,4 +176,9 @@ public class DefaultActionInvoker implements IActionInvoker {
 
     return status;
   }
+
+  @Override
+  public boolean isSupportedAction( IAction action ) {
+    return true; // supports all
+  }
 }

@@ -70,4 +70,9 @@ public class WorkerNodeActionInvokerAuditor implements IActionInvoker {
   private String getValue( Map<String, Serializable> actionParams, String key ) {
     return actionParams.get( key ) != null ? actionParams.get( key ).toString() : "";
   }
+
+  @Override
+  public boolean isSupportedAction( IAction action ) {
+    return false; // not needed
+  }
 }

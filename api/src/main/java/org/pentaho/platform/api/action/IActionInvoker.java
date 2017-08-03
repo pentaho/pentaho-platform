@@ -37,4 +37,12 @@ public interface IActionInvoker {
    */
   IActionInvokeStatus invokeAction( IAction action, final String user, final Map<String, Serializable> params )
         throws Exception;
+
+  /**
+   * Predicate that tells whether an {@link IActionInvoker} can handle a given {@link IAction}
+   *
+   * @param action The {@link IAction} to be handled
+   * @return true if the {@link IActionInvoker} can handle a given {@link IAction}
+   */
+  boolean isSupportedAction( IAction action );
 }
