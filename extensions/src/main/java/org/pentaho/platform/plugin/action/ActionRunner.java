@@ -39,6 +39,8 @@ import org.pentaho.platform.scheduler2.quartz.SchedulerOutputPathResolver;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.beans.ActionHarness;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
+import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
 
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -68,14 +70,17 @@ public class ActionRunner implements Callable<Boolean> {
   }
 
   public Boolean call() throws ActionInvocationException {
+    final String workItemUid = ActionUtil.extractUid( params );
     try {
-      return callImpl();
+      final boolean result = callImpl();
+      WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.SUCCEEDED );
+      return result;
     } catch ( final Throwable t ) {
       // ensure that the main thread isn't blocked on lock
       synchronized ( lock ) {
         lock.notifyAll();
       }
-
+      WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, t.toString() );
       // We should not distinguish between checked and unchecked exceptions here. All job execution failures
       // should result in a rethrow of the exception
       throw new ActionInvocationException( Messages.getInstance().getActionFailedToExecute( actionBean //$NON-NLS-1$

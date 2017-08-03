@@ -105,8 +105,9 @@ public class DefaultActionInvoker implements IActionInvoker {
    * @throws Exception when the {@code IAction} cannot be invoked for some reason.
    */
   @Override
-  public IActionInvokeStatus invokeAction( final IAction actionBean, final String actionUser, final
-    Map<String, Serializable> params ) throws Exception {
+  public IActionInvokeStatus invokeAction( final IAction actionBean,
+                                           final String actionUser,
+                                           final Map<String, Serializable> params ) throws Exception {
     ActionUtil.prepareMap( params );
     // call getStreamProvider, in addition to creating the provider, this method also adds values to the map that
     // serialize the stream provider and make it possible to deserialize and recreate it for remote execution.
@@ -123,8 +124,9 @@ public class DefaultActionInvoker implements IActionInvoker {
    * @return the {@link IActionInvokeStatus} object containing information about the action invocation
    * @throws Exception when the {@code IAction} cannot be invoked for some reason.
    */
-  protected IActionInvokeStatus invokeActionImpl( final IAction actionBean, final String actionUser, final
-    Map<String, Serializable> params ) throws Exception {
+  protected IActionInvokeStatus invokeActionImpl( final IAction actionBean,
+                                                  final String actionUser,
+                                                  final Map<String, Serializable> params ) throws Exception {
 
     final String workItemUid = ActionUtil.extractUid( params );
 
@@ -166,7 +168,6 @@ public class DefaultActionInvoker implements IActionInvoker {
         requiresUpdate = SecurityHelper.getInstance().runAsAnonymous( actionBeanRunner );
       } else {
         requiresUpdate = SecurityHelper.getInstance().runAsUser( actionUser, actionBeanRunner );
-        WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.SUCCEEDED );
       }
     } catch ( final Throwable t ) {
       WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, t.toString() );
