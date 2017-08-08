@@ -1,4 +1,5 @@
 {
+  "workItemUid" : "work-item-uid",
   "actionId" : "prpt.backgroundExecution",
   "actionClass" : "org.pentaho.reporting.platform.plugin.SimpleReportingAction",
   "actionUser" : "admin",
