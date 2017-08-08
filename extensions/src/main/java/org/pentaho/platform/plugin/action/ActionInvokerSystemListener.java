@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.plugin.action;
 
-import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -35,12 +34,15 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.WorkerNodeActionInvokerAuditor;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
+import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
 
-import java.io.Serializable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URLDecoder;
 import java.util.Map;
 
@@ -53,6 +55,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
   private static final String OK = "ok";
   private static final String WI_STATUS = "wi-status.";
   private String environmentVariablesFolder;
+
   //for unit testability
   String getSolutionPath( ) {
     return PentahoSystem.getApplicationContext().getSolutionPath( DEFAULT_CONTENT_FOLDER );
@@ -100,12 +103,13 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
     }
 
     for ( File file : files ) {
+      Payload payload = null;
       logger.info( Messages.getInstance().getString( "ActionInvokerSystemListener.INFO_0003_READ_DATA_FROM_FILE", file.getAbsolutePath() ) );
       FileInputStream fileInputStream = null;
       try {
         fileInputStream = new FileInputStream( file );
         String encoded = IOUtils.toString( fileInputStream );
-        Payload payload = new Payload( encoded, LocaleHelper.UTF_8 );
+        payload = new Payload( encoded, LocaleHelper.UTF_8 );
         logger.info( Messages.getInstance().getString( "ActionInvokerSystemListener.INFO_0004_ISSUE_REQUEST" ) );
         try {
           IActionInvokeStatus status = issueRequest( payload );
@@ -119,8 +123,10 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
           logger.error( e.getMessage() );
         }
       } catch ( IOException e ) {
+        publishFailedWorkItemStatus( payload, e.toString() );
         logger.error( Messages.getInstance().getErrorString( "ActionInvokerSystemListener_ERROR_0002_ERROR_READING_FILES" ) );
       } catch ( IllegalArgumentException e ) {
+        publishFailedWorkItemStatus( payload, e.toString() );
         logger.error( Messages.getInstance().getErrorString( "ActionInvokerSystemListener_ERROR_0003_COULD_NOT_PROCESS", file.getName() ) );
       } finally {
         FileUtils.closeQuietly( fileInputStream );
@@ -128,6 +134,17 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
       }
     }
     return true;
+  }
+
+  private void publishFailedWorkItemStatus( final Payload payload, final String failureMessage ) {
+    if ( payload != null ) {
+      payload.publishWorkItemStatus( WorkItemLifecyclePhase.FAILED, failureMessage );
+    } else {
+      // when payload is null, we have no way of getting the work item id or any other work item related details, the
+      // best we can do is log the failure message, disconnected from all other logs related to the work item; this
+      // should theoretically never occur, but we cover this just in case
+      WorkItemLifecyclePublisher.publish( "?", null, WorkItemLifecyclePhase.FAILED, failureMessage );
+    }
   }
 
   private IActionInvokeStatus issueRequest( Payload payload ) throws Exception {
@@ -173,7 +190,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
 
   class Payload {
     private String actionUser;
-
+    private String workItemUid;
     private IAction action;
     private Map<String, Serializable> actionMap;
 
@@ -188,6 +205,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
         String actionClass = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONCLASS ), enc );
         String actionId = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONID ), enc );
         actionUser = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONUSER ), enc );
+        workItemUid = URLDecoder.decode( jsonVars.getString( ActionUtil.WORK_ITEM_UID ), enc );
         action = getActionBean( actionClass, actionId );
         String stringActionParams = URLDecoder.decode( jsonVars.getString( ActionUtil.INVOKER_ACTIONPARAMS ), enc );
         ActionParams actionParams = ActionParams.fromJson( stringActionParams );
@@ -202,7 +220,12 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
     }
 
     IActionInvokeStatus issueRequest( ) throws Exception {
+      publishWorkItemStatus( WorkItemLifecyclePhase.RECEIVED, null );
       return getActionInvoker().invokeAction( action, actionUser, actionMap );
+    }
+
+    void publishWorkItemStatus( final WorkItemLifecyclePhase phase, final String failureMessage ) {
+      WorkItemLifecyclePublisher.publish( workItemUid, actionMap, phase, failureMessage );
     }
   }
 }
