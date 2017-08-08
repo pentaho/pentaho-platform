@@ -102,8 +102,8 @@ public class MessageFormatterTest {
     assertEquals( "<html><head><title>Pentaho BI Platform - Start Action</title><link rel=\"stylesheet\" "
       + "type=\"text/css\" href=\"/pentaho-style/active/default.css\"></head><body dir=\"LTR\"><table "
       + "cellspacing=\"10\"><tr><td class=\"portlet-section\" colspan=\"3\">Action Successful<hr "
-      + "size=\"1\"/></td></tr><tr><td class=\"portlet-font\" valign=\"top\">Test=&lt;img%20src=&quot;http://www"
-      + ".pentaho.com/sites/all/themes/pentaho_resp/logo.svg&quot;%20/&gt;<br/></td></tr></table></body></html>",
+      + "size=\"1\"/></td></tr><tr><td class=\"portlet-font\" valign=\"top\">Test=<img%20src=\"http://www"
+      + ".pentaho.com/sites/all/themes/pentaho_resp/logo.svg\"%20/><br/></td></tr></table></body></html>",
       messageBuffer.toString() );
   }
 
