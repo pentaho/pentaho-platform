@@ -12,11 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.javascript;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Context;
@@ -255,6 +256,9 @@ public class JavascriptRule extends ComponentBase {
             "JSRULE.ERROR_0006_INVALID_JS_VARIABLE", inputName ) ); //$NON-NLS-1$
       }
       inputValue = getInputValue( inputName );
+      if ( inputValue instanceof String ) {
+        inputValue = StringEscapeUtils.escapeHtml( (String) inputValue );
+      }
       Object wrapper;
       if ( inputValue instanceof IPentahoResultSet ) {
         JavaScriptResultSet results = new JavaScriptResultSet();
