@@ -240,7 +240,7 @@ public class SaveCommand extends AbstractCommand {
     String unableToSaveMessage = Messages.getString( "unableToSaveMessage" );
     String save = Messages.getString( "save" );
     String error = Messages.getString( "error" );
-    String errorEncounteredWhileSaving = Messages.getString( " error.EncounteredWhileSaving" );
+    String errorEncounteredWhileSaving = Messages.getString( "error.EncounteredWhileSaving" );
 
     doSaveAsNativeWrapper( elementId, filename, path, type, overwrite, save, unableToSaveMessage, error,
       errorEncounteredWhileSaving );
