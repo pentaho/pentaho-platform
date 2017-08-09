@@ -63,8 +63,12 @@ public class UserRoleDaoService {
   }
 
   public RoleListWrapper getRolesForUser( String user ) throws UncategorizedUserRoleDaoException {
-    ITenant tenant = TenantUtils.getCurrentTenant();
-    return new RoleListWrapper( getRoleDao().getUserRoles( tenant, user ) );
+    if ( canAdminister() ) { // Fix for PPP-3840
+      ITenant tenant = TenantUtils.getCurrentTenant();
+      return new RoleListWrapper( getRoleDao().getUserRoles( tenant, user ) );
+    } else {
+      throw new SecurityException();
+    }
   }
 
   public void assignRolesToUser( String userName, String roleNames )
