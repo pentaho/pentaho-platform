@@ -422,7 +422,7 @@ public class MessageFormatter implements IMessageFormatter {
             if ( doWrapper ) {
               messageBuffer.append( outputName ).append( "=" ); //$NON-NLS-1$
             }
-            messageBuffer.append( StringEscapeUtils.escapeHtml( value.toString() ) );
+            messageBuffer.append( value.toString() );
             if ( doWrapper ) {
               messageBuffer.append( "<br/>" ); //$NON-NLS-1$
             }
