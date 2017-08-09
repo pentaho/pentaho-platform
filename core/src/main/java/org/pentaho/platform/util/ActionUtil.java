@@ -70,11 +70,11 @@ public class ActionUtil {
   public static final String WORK_ITEM_UID = "workItemUid"; //$NON-NLS-1$
 
   /**
-   * Regex representing characters that are allowed in the work item id (in compliance with chronos job names).
+   * Regex representing characters that are allowed in the work item uid (in compliance with chronos job names).
    */
-  private static final String WORK_ITEM_ID_INVALID_CHARS = "[^\\w\\\\.-]+";
+  private static final String WORK_ITEM_UID_INVALID_CHARS = "[^\\w\\\\.-]+";
 
-  private static final int WORK_ITEM_ID_LENGTH_LIMIT = 1000;
+  private static final int WORK_ITEM_UID_LENGTH_LIMIT = 1000;
 
   private static final Map<String, String> KEY_MAP;
 
@@ -177,19 +177,19 @@ public class ActionUtil {
     String inputFileName =  ( new File(  inputFilePath == null ? "" : inputFilePath ) ).getName();
 
     // sanitize inputFileName and user name by removing invalid characters
-    final String sanitizedInputFileName = inputFileName.replaceAll( WORK_ITEM_ID_INVALID_CHARS, "_" );
-    final String sanitizedUserName = ( userName == null ? "" : userName ).replaceAll( WORK_ITEM_ID_INVALID_CHARS, "_" );
+    final String sanitizedInputFileName = inputFileName.replaceAll( WORK_ITEM_UID_INVALID_CHARS, "_" );
+    final String sanitizedUserName = ( userName == null ? "" : userName ).replaceAll( WORK_ITEM_UID_INVALID_CHARS, "_" );
 
-    String workItemId = String.format( "WI-%s-%s-%s", sanitizedInputFileName, sanitizedUserName,
+    String workItemUid = String.format( "WI-%s-%s-%s", sanitizedInputFileName, sanitizedUserName,
       System.currentTimeMillis() );
     // remove any double dash, in case user name or inputFileName is missing
-    workItemId = workItemId.replaceAll( "[-]+", "-" );
+    workItemUid = workItemUid.replaceAll( "[-]+", "-" );
 
-    if ( workItemId.length() > WORK_ITEM_ID_LENGTH_LIMIT ) {
-      logger.info( String.format( "Work item id exceeds max character limit of %d: %d", WORK_ITEM_ID_LENGTH_LIMIT,
-        workItemId.length() ) );
+    if ( workItemUid.length() > WORK_ITEM_UID_LENGTH_LIMIT ) {
+      logger.info( String.format( "Work item uid exceeds max character limit of %d: %d", WORK_ITEM_UID_LENGTH_LIMIT,
+        workItemUid.length() ) );
     }
-    return workItemId;
+    return workItemUid;
   }
 
   private static final long RETRY_COUNT = 6;
