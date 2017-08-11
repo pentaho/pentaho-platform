@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -22,8 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.di.repository.RepositoryObjectType;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
@@ -181,6 +183,44 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       bundlePath = bundlePath.substring( 1 );
     }
     return bundlePath;
+  }
+
+  /**
+   * Performs one-way conversion on incoming String to produce a syntactically valid JCR path (section 4.6 Path Syntax).
+   */
+  public static String checkAndSanitize( final String in ) {
+    if ( in == null ) {
+      throw new IllegalArgumentException();
+    }
+    String extension = null;
+    if ( in.endsWith( RepositoryObjectType.CLUSTER_SCHEMA.getExtension() ) ) {
+      extension = RepositoryObjectType.CLUSTER_SCHEMA.getExtension();
+    } else if ( in.endsWith( RepositoryObjectType.DATABASE.getExtension() ) ) {
+      extension = RepositoryObjectType.DATABASE.getExtension();
+    } else if ( in.endsWith( RepositoryObjectType.JOB.getExtension() ) ) {
+      extension = RepositoryObjectType.JOB.getExtension();
+    } else if ( in.endsWith( RepositoryObjectType.PARTITION_SCHEMA.getExtension() ) ) {
+      extension = RepositoryObjectType.PARTITION_SCHEMA.getExtension();
+    } else if ( in.endsWith( RepositoryObjectType.SLAVE_SERVER.getExtension() ) ) {
+      extension = RepositoryObjectType.SLAVE_SERVER.getExtension();
+    } else if ( in.endsWith( RepositoryObjectType.TRANSFORMATION.getExtension() ) ) {
+      extension = RepositoryObjectType.TRANSFORMATION.getExtension();
+    }
+    String out = in;
+    if ( extension != null ) {
+      out = out.substring( 0, out.length() - extension.length() );
+    }
+    if ( out.contains( "/" ) || out.equals( ".." ) || out.equals( "." ) || StringUtils.isBlank( out ) ) {
+      throw new IllegalArgumentException();
+    }
+    if ( System.getProperty( "KETTLE_COMPATIBILITY_PUR_OLD_NAMING_MODE", "N" ).equals( "Y" ) ) {
+      out = out.replaceAll( "[/:\\[\\]\\*'\"\\|\\s\\.]", "_" ); //$NON-NLS-1$//$NON-NLS-2$
+    }
+    if ( extension != null ) {
+      return out + extension;
+    } else {
+      return out;
+    }
   }
 
   public IRepositoryImportLogger getRepositoryImportLogger() {
