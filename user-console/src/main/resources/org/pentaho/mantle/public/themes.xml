@@ -12,4 +12,7 @@
   <sapphire>
     <file>mantleSapphire.css</file>
   </sapphire>
+  <ruby>
+    <file>mantleRuby.css</file>
+  </ruby>
 </themes>
