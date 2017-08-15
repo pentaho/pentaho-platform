@@ -25,7 +25,6 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.UUIDUtil;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 
@@ -75,7 +74,7 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
       String fileName = getRequestParameter( standardRequestParameters, parsedMultiPartRequestParameters, "file_name" ); //$NON-NLS-1$
 
       if ( StringUtils.isEmpty( fileName ) ) {
-        fileName = UUIDUtil.getUUID().toString();
+        throw new ServletException( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0010_FILE_NAME_INVALID" ) );
       }
       boolean isTemporary = false;
       if ( temporary != null ) {
