@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -87,6 +87,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   public static final String RESERVEDMAPKEY_LINEAGE_ID = "lineage-id";
 
+  private static final String XMI_EXTENSION = ".xmi";
+
   private static final String sep = ";";
 
   private IUnifiedRepository repository; // TODO inject via Spring
@@ -138,6 +140,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       for ( ExportManifestMetadata exportManifestMetadata : metadataList ) {
 
         String domainId = exportManifestMetadata.getDomainId();
+        if ( domainId != null && !domainId.endsWith( XMI_EXTENSION ) ) {
+          domainId = domainId + XMI_EXTENSION;
+        }
         boolean overWriteInRepository = isOverwriteFile();
         RepositoryFileImportBundle.Builder bundleBuilder =
             new RepositoryFileImportBundle.Builder().charSet( "UTF-8" )
