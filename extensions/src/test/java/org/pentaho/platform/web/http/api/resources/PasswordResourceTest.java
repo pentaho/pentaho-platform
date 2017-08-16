@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2014 Pentaho Corporation.  All rights reserved.
+ * Copyright 2014-2017 Pentaho Corporation.  All rights reserved.
  */
 package org.pentaho.platform.web.http.api.resources;
 
@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.util.Base64PasswordService;
+import org.pentaho.platform.util.KettlePasswordService;
 import org.pentaho.platform.util.PasswordHelper;
 
 import javax.ws.rs.core.Response;
@@ -34,7 +34,7 @@ public class PasswordResourceTest {
     PasswordResource resource = getPasswordResource( policy );
     Mockito.when( policy.isAllowed( AdministerSecurityAction.NAME ) ).thenReturn( true );
     Response response = resource.encryptPassword( "password" );
-    Assert.assertTrue( response.getEntity().toString().contains( "ENC:cGFzc3dvcmQ=" ) );
+    Assert.assertTrue( response.getEntity().toString().contains( "ENC:Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde" ) );
     Assert.assertEquals( 200, response.getStatus() );
     Assert.assertEquals( 200, resource.encryptionForm().getStatus() );
   }
@@ -56,7 +56,7 @@ public class PasswordResourceTest {
       }
 
       @Override PasswordHelper getPasswordHelper() {
-        return new PasswordHelper( new Base64PasswordService() );
+        return new PasswordHelper( new KettlePasswordService() );
       }
     };
   }

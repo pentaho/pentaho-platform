@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2016 Pentaho Corporation. All rights reserved.
+ * Copyright 2017 Pentaho Corporation. All rights reserved.
  */
 package org.pentaho.platform.osgi;
 
@@ -218,7 +218,6 @@ class ServerSocketBasedKarafInstanceResolver implements IKarafInstanceResolver {
         // Some other error, move to next candidate
       }
     } while ( instanceNo == null && testInstance++ <= MAX_NUMBER_OF_KARAF_INSTANCES );
-
     if ( instanceNo == null ) {
       throw new KarafInstanceResolverException( "Unable to resolve Karaf Instance number" );
     }

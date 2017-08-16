@@ -17,7 +17,7 @@ PentahoSystem which is initialized after Spring
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
     <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService" scope="prototype" />
   <bean id="IDBDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService" scope="prototype" />
-  <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton" />
+  <bean id="IPasswordService" class="org.pentaho.platform.util.KettlePasswordService" scope="singleton" />
     
     <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
        not directly from the PentahoObjectFactory. -->

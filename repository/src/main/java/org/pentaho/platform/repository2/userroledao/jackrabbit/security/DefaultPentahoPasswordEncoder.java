@@ -31,7 +31,7 @@ import javax.jcr.SimpleCredentials;
  * Default password encoder for the BI Server.
  *
  * <p>
- * This encoder Base64-encodes the raw password.
+ * This encoder uses Jackrabbit to encode the raw password.
  * </p>
  *
  * <p>
@@ -51,7 +51,7 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
   public String encodePassword( final String rawPass, final Object salt ) throws DataAccessException {
     Validate.notNull( rawPass, Messages.getInstance().getString(
         "DefaultPentahoPasswordEncoder.ERROR_0001_RAWPASS_CANNOT_BE_NULL" ) ); //$NON-NLS-1$
-    // same code as org.pentaho.platform.util.Base64PasswordService.encrypt()
+
     if ( StringUtil.isEmpty( rawPass ) ) {
       return rawPass;
     }

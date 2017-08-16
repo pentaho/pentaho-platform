@@ -13,28 +13,28 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 package org.pentaho.platform.util;
 
-import junit.framework.Assert;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class PasswordHelperTest {
   @Test
   public void testDecryptsWhenPasswordIndicatesEncryption() throws Exception {
-    PasswordHelper helper = new PasswordHelper( new Base64PasswordService() );
+    PasswordHelper helper = new PasswordHelper( new KettlePasswordService() );
     String contra = "uuddlrlrbas";
     String druidia = "12345";
-    Assert.assertEquals( contra, helper.getPassword( "ENC:dXVkZGxybHJiYXM=" ) );
-    Assert.assertEquals( druidia, helper.getPassword( druidia ) );
-    Assert.assertEquals( "", helper.getPassword( "" ) );
-    Assert.assertNull(helper.getPassword( null ) );
+    assertEquals( contra, helper.getPassword( "ENC:Encrypted 2be98afc86ad28780af15bc7ccc90aec9" ) );
+    assertEquals( druidia, helper.getPassword( druidia ) );
+    assertEquals( "", helper.getPassword( "" ) );
+    assertNull(helper.getPassword( null ) );
   }
 
   @Test
   public void testEncryptsPassword() throws Exception {
-    PasswordHelper helper = new PasswordHelper( new Base64PasswordService() );
-    Assert.assertEquals( "ENC:cGFzc3dvcmQ=", helper.encrypt( "password" ) );
+    PasswordHelper helper = new PasswordHelper( new KettlePasswordService() );
+    assertEquals( "ENC:Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde", helper.encrypt( "password" ) );
   }
 }

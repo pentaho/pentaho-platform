@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2016 Pentaho Corporation. All rights reserved.
+ * Copyright 2016-2017 Pentaho Corporation. All rights reserved.
  */
 package org.pentaho.platform.osgi;
 
@@ -56,7 +56,7 @@ public class KarafInstance {
   private ServerSocket instanceSocket;
   private String cachePath;
   private final String cacheParentFolder;
-  private HashMap<String, KarafInstancePort> instancePorts = new HashMap<String, KarafInstancePort>();
+  private HashMap<String, KarafInstancePort> instancePorts = new HashMap<>();
 
   private static final int BANNER_WIDTH = 79;
   private static final String USED_PORT_FILENAME = "PortsAssigned.txt";
@@ -67,6 +67,10 @@ public class KarafInstance {
   private String instanceFilePath;
   private String clientType;
   private FileLock cacheLock;
+
+  static {
+    getResolver(); // Eliminate race condition by getting the resolver
+  }
 
   public KarafInstance( String root, String clientType ) {
     this( root, System.getProperty( "karaf.etc" ) + "/" + YAML_FILE_NAME, "default" );

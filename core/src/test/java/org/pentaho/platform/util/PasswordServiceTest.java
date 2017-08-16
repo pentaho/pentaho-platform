@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.util;
@@ -26,7 +26,7 @@ public class PasswordServiceTest extends TestCase {
 
   public void testPasswordService() {
     String password = "password"; //$NON-NLS-1$
-    IPasswordService passwordService = new Base64PasswordService();
+    IPasswordService passwordService = new KettlePasswordService();
     String encryptedPassword = null;
     try {
       encryptedPassword = passwordService.encrypt( password );
