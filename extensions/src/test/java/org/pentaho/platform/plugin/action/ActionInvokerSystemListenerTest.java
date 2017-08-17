@@ -75,28 +75,28 @@ public class ActionInvokerSystemListenerTest {
   }
 
   @Test
-  public void testStartup( ) throws Exception {
+  public void testRunWorkItemFromFile( ) throws Exception {
     //test consumption of a set of files
     String absFileName = getAbsoluteFilename( resourcesFolder );
-    testStartup( absFileName, true );
-    testStartup( absFileName, false );
+    testRunWorkItemFromFile( absFileName, true );
+    testRunWorkItemFromFile( absFileName, false );
 
     //test a folder with no json files
     absFileName = getAbsoluteFilename( noJsonFilesFolder );
-    testStartup( absFileName, true );
-    testStartup( absFileName, false );
+    testRunWorkItemFromFile( absFileName, true );
+    testRunWorkItemFromFile( absFileName, false );
 
     //test non-existent filepath
     absFileName = DEFAULT_CONTENT_FOLDER;
-    testStartup( absFileName, true );
-    testStartup( absFileName, false );
+    testRunWorkItemFromFile( absFileName, true );
+    testRunWorkItemFromFile( absFileName, false );
 
     //test null input
-    testStartup( null, true );
-    testStartup( null, false );
+    testRunWorkItemFromFile( null, true );
+    testRunWorkItemFromFile( null, false );
   }
 
-  public void testStartup( String absFileName, boolean environmentVariablesFolderSet ) throws Exception {
+  public void testRunWorkItemFromFile( String absFileName, boolean environmentVariablesFolderSet ) throws Exception {
     ActionInvokerSystemListener tempActionInvokerSystemListener = new ActionInvokerSystemListener();
     actionInvokerSystemListener = spy( tempActionInvokerSystemListener );
     IAction action = spy( IAction.class );
@@ -108,7 +108,7 @@ public class ActionInvokerSystemListenerTest {
     doReturn( actionInvoker ).when( actionInvokerSystemListener ).getActionInvoker();
     IActionInvokeStatus status = new ActionInvokeStatus();
     doReturn( status ).when( actionInvoker ).invokeAction( any(), any(), any() );
-    boolean res = actionInvokerSystemListener.startup( mockSession );
+    boolean res = actionInvokerSystemListener.runWorkItemFromFile( mockSession );
     Assert.assertTrue( res );
   }
 
