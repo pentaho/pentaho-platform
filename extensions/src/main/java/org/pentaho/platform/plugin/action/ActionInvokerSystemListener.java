@@ -21,8 +21,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.pentaho.di.core.util.HttpClientManager;
 import org.pentaho.platform.api.action.ActionInvocationException;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.action.IActionInvokeStatus;
@@ -43,6 +49,8 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Map;
 
@@ -54,7 +62,12 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
   private static final String ERROR = "error";
   private static final String OK = "ok";
   private static final String WI_STATUS = "wi-status.";
+  private static final String IS_ALIVE_ENDPOINT = "/pentaho/ping/alive.gif";
+  private static final String WN_HOST = "localhost";
+  private static final String HTTP_SCHEME = "http";
+  private static final int WN_PORT = 8080;
   private String environmentVariablesFolder;
+
 
   //for unit testability
   String getSolutionPath( ) {
@@ -77,14 +90,76 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
       logger.error( Messages.getInstance().getErrorString( "ActionInvokerSystemListener.ERROR_0004_COULD_NOT_WRITE_STATUS" ) );
     }
   }
+
+  private int pingIsAlive( ) {
+    try {
+      final HttpClient client = HttpClientManager.getInstance().createDefaultClient();
+      final URIBuilder uriBuilder = new URIBuilder()
+          .setScheme( HTTP_SCHEME )
+          .setHost( WN_HOST )
+          .setPort( WN_PORT )
+          .setPath( IS_ALIVE_ENDPOINT );
+      final URI pingIsAliveURI = uriBuilder.build();
+      final HttpGet pingIsAlive = new HttpGet( pingIsAliveURI.toString()  );
+      final HttpResponse response = client.execute( pingIsAlive );
+      return response.getStatusLine().getStatusCode();
+    } catch ( URISyntaxException | IOException e ) {
+      logger.error( e.getMessage() );
+    }
+    return HttpStatus.SC_INTERNAL_SERVER_ERROR;
+  }
+
+  private void waitUntilServerIsAlive( ) {
+    int timeout = 600000;
+    final int sleep_time = 5000;
+    boolean isAlive = false;
+    while ( !isAlive ) {
+      int statusCode = pingIsAlive();
+      if ( statusCode == HttpStatus.SC_OK ) {
+        isAlive = true;
+      } else {
+        if ( timeout == 0 ) {
+          placeBreadcrumbFile( getSolutionPath(), false );
+        } else {
+          try {
+            Thread.sleep( sleep_time );
+          } catch ( InterruptedException e ) {
+            logger.error( e.getMessage() );
+          }
+          timeout = timeout - sleep_time;
+        }
+      }
+    }
+  }
   /**
-   * Runs Work Items described in json files upon startup of the Pentaho Server.
+   * Launches a background thread which will run work items only after the pentaho server is successfully initialized
+   * @param session The Pentaho Session  {@link IPentahoSession}
+   * @return always returns true immediately, so that the pentaho server starts up
+   */
+  @Override
+  public boolean startup( IPentahoSession session ) {
+    try {
+      final Runnable runnable = new Runnable() {
+        public void run( ) {
+          waitUntilServerIsAlive();
+          runWorkItemFromFile( session );
+        }
+      };
+      final Thread s = new Thread( runnable );
+      s.start();
+    } catch ( Exception e ) {
+      logger.error( e.getMessage() );
+    }
+    return true;
+  }
+
+  /**
+   * Runs Work Items described in json files upon runWorkItemFromFile of the Pentaho Server.
    *
    * @param session The Pentaho Session  {@link IPentahoSession}
    * @return always returns true, so that the pentaho server starts up
    */
-  @Override
-  public boolean startup( IPentahoSession session ) {
+  public boolean runWorkItemFromFile( IPentahoSession session ) {
     final String solutionPath = getSolutionPath();
     boolean workItemSuccess = false;
     File[] files = null;
