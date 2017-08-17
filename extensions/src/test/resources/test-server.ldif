@@ -15,7 +15,7 @@ uid: admin
 cn: admin
 businesscategory: cn=ceo,ou=roles,dc=pentaho,dc=org
 businesscategory: cn=Admin,ou=roles,dc=pentaho,dc=org
-userpassword:: cGFzc3dvcmQ=
+userpassword:: Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde
 sn: Pentaho
 
 dn: uid=suzy,ou=users,dc=pentaho,dc=org
@@ -27,7 +27,7 @@ objectclass: person
 objectclass: top
 uid: suzy
 cn: suzy
-userpassword:: cGFzc3dvcmQ=
+userpassword:: Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde
 businesscategory: cn=cto,ou=roles,dc=pentaho,dc=org
 businesscategory: cn=is,ou=roles,dc=pentaho,dc=org
 sn: Pentaho
@@ -43,7 +43,7 @@ uid: tiffany
 cn: tiffany
 businesscategory: cn=devmgr,ou=roles,dc=pentaho,dc=org
 businesscategory: cn=dev,ou=roles,dc=pentaho,dc=org
-userpassword:: cGFzc3dvcmQ=
+userpassword:: Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde
 sn: Pentaho
 
 dn: uid=pat,ou=users,dc=pentaho,dc=org
@@ -55,7 +55,7 @@ objectclass: top
 uid: pat
 cn: pat
 businesscategory: cn=dev,ou=roles,dc=pentaho,dc=org
-userpassword:: cGFzc3dvcmQ=
+userpassword:: Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde
 sn: Pentaho
 
 dn: ou=groups,dc=pentaho,dc=org

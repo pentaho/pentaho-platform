@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.config;
@@ -31,10 +31,10 @@ import java.util.StringTokenizer;
 /**
  * By default, this class will initialize itself from <code>resource/config/console.xml</code> (relative to the current
  * working directory).
- * 
+ *
  * @author Steven Barkdull
  * @author mlowery
- * 
+ *
  */
 public class AppConfigProperties {
 
@@ -50,7 +50,7 @@ public class AppConfigProperties {
   public static final String KEY_BISERVER_BASE_URL = "biserver-base-url"; //$NON-NLS-1$
   public static final String KEY_BISERVER_CONTEXT_PATH = "biserver-context-path"; //$NON-NLS-1$
   public static final String KEY_PLATFORM_USERNAME = "platform-username"; //$NON-NLS-1$
-  public static final String DEFAULT_VALUE_PASSWORD_SERVICE_CLASS = "org.pentaho.platform.util.Base64PasswordService"; //$NON-NLS-1$
+  public static final String DEFAULT_VALUE_PASSWORD_SERVICE_CLASS = "org.pentaho.platform.util.KettlePasswordService"; //$NON-NLS-1$
   public static final String DEFAULT_BISERVER_BASE_URL = "http://localhost:8080/pentaho"; //$NON-NLS-1$
   public static final String DEFAULT_BISERVER_CONTEXT_PATH = "/pentaho"; //$NON-NLS-1$
   public static final String DEFAULT_PLATFORM_USERNAME = "admin"; //$NON-NLS-1$
@@ -178,7 +178,7 @@ public class AppConfigProperties {
    */
   public List<String> getDefaultRoles() {
     String defaultRolesString = getDefaultRolesString();
-    List<String> defaultRoles = new ArrayList<String>();
+    List<String> defaultRoles = new ArrayList<>();
     if ( ( defaultRolesString != null ) && ( defaultRolesString.trim().length() > 0 ) ) {
       StringTokenizer tokenizer = new StringTokenizer( defaultRolesString, "," ); //$NON-NLS-1$
       while ( tokenizer.hasMoreTokens() ) {

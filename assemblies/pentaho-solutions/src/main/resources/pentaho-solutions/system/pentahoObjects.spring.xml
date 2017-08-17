@@ -80,7 +80,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     <property name="nonPooledDatasourceService" ref="nonPooledOrJndiDatasourceService" />
   </bean>
   
-  <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton"/>
+  <bean id="IPasswordService" class="org.pentaho.platform.util.KettlePasswordService" scope="singleton"/>
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider"
         scope="singleton"/>
 

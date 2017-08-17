@@ -12,4 +12,4 @@ GRANT DBA TO "hibuser"
 GRANT DBA TO "pentaho_user"
 SET WRITE_DELAY 20
 SET SCHEMA PUBLIC
-INSERT INTO DATASOURCE VALUES('SampleData',20,'org.hsqldb.jdbcDriver',5,'pentaho_user','cGFzc3dvcmQ=','jdbc:hsqldb:hsql://localhost:9001/sampledata','select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES',1000)
+INSERT INTO DATASOURCE VALUES('SampleData',20,'org.hsqldb.jdbcDriver',5,'pentaho_user','Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde','jdbc:hsqldb:hsql://localhost:9001/sampledata','select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES',1000)

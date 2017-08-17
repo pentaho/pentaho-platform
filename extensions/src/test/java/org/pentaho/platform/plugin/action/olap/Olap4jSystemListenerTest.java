@@ -13,16 +13,16 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 package org.pentaho.platform.plugin.action.olap;
 
-import junit.framework.Assert;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.util.Base64PasswordService;
+import org.pentaho.platform.util.KettlePasswordService;
 import org.pentaho.platform.util.PasswordHelper;
 
 import java.util.Arrays;
@@ -35,20 +35,20 @@ public class Olap4jSystemListenerTest {
     final IPentahoSession mockSession = Mockito.mock( IPentahoSession.class );
     Olap4jSystemListener listener = new Olap4jSystemListener() {
       @Override IOlapService getOlapService( IPentahoSession session ) {
-        Assert.assertSame( mockSession, session );
+        assertSame( mockSession, session );
         return mockOlapService;
       }
 
       @Override PasswordHelper getPasswordHelper() {
-        return new PasswordHelper( new Base64PasswordService() );
+        return new PasswordHelper( new KettlePasswordService() );
       }
     };
     final IPentahoSession oSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession( mockSession );
     try {
       Properties properties1 = makeProperties(
-        "aName", "idk", "jdbc:mongolap:host=remote;user=admin;Password=ENC:YWRtaW4=;port=1234",
-        "aUser", "ENC:YVBhc3N3b3Jk" );
+        "aName", "idk", "jdbc:mongolap:host=remote;user=admin;Password=ENC:Encrypted 2be98afc86aa7f2e4cb79ce71da9fa6d4;port=1234",
+        "aUser", "ENC:Encrypted 2be98afc86aa7f2859b18bd63c99dbdde" );
       Properties properties2 = makeProperties(
         "bName", "istilldk", "jdbc:mongolap:host=remoteb;user=admin;password=admin;port=1234", "bUser", "bPassword" );
       listener.setOlap4jConnectionList( Arrays.asList( properties1, properties2 ) );
@@ -76,12 +76,12 @@ public class Olap4jSystemListenerTest {
     final IPentahoSession mockSession = Mockito.mock( IPentahoSession.class );
     Olap4jSystemListener listener = new Olap4jSystemListener() {
       @Override IOlapService getOlapService( IPentahoSession session ) {
-        Assert.assertSame( mockSession, session );
+        assertSame( mockSession, session );
         return mockOlapService;
       }
 
       @Override PasswordHelper getPasswordHelper() {
-        return new PasswordHelper( new Base64PasswordService() );
+        return new PasswordHelper( new KettlePasswordService() );
       }
     };
     Properties properties1 = makeProperties( "aName", "idk", "jdbc:mongolap:host=remote", "aUser", "aPassword" );
@@ -94,7 +94,7 @@ public class Olap4jSystemListenerTest {
     Mockito.doThrow( new RuntimeException( "something amazing happend" ) )
       .when( mockOlapService )
       .removeCatalog( "defunctConnection", mockSession );
-    Assert.assertTrue( listener.startup( mockSession ) );
+    assertTrue( listener.startup( mockSession ) );
   }
 
   private Properties makeProperties(

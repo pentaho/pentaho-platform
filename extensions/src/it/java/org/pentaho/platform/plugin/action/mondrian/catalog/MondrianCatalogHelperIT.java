@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
@@ -121,7 +121,7 @@ public class MondrianCatalogHelperIT {
       .thenReturn( rolapConn );
 
     booter = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
-    booter.define( IPasswordService.class, Base64PasswordService.class, Scope.GLOBAL );
+    booter.define( IPasswordService.class, KettlePasswordService.class, Scope.GLOBAL );
     booter.define( IDatabaseConnection.class, DatabaseConnection.class, Scope.GLOBAL );
     booter.define( IDatabaseDialectService.class, DatabaseDialectService.class, Scope.GLOBAL );
     booter.define( IAclAwareMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL );

@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -186,7 +186,7 @@ public class KarafBootTest {
       File karafHome = new File( System.getProperty( "karaf.home" ) );
 
       try {
-        assertEquals( tempDirectory, karafHome );
+        assertEquals( tempDirectory.getCanonicalFile(), karafHome.getCanonicalFile() ); // Wasn't working in Windows with ~1 file names
       } catch ( AssertionError ae ) {
         // don't throw an assertion error just yet; OSX likes to add its own files/folders into
         // a folder ( think .DS_Store file or .Trash folder ), and also has its saying on the
