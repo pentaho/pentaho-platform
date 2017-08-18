@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -261,6 +261,19 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     sample.addLogicalModel( "test" );
     domainRepositorySpy.storeDomain( sample, true );
     assertEquals( 1, domainRepositorySpy.getDomain( SAMPLE_DOMAIN_ID ).getLogicalModels().size() );
+
+    MockDomain xmiExtensionSample = new MockDomain( SAMPLE_DOMAIN_ID + ".xmi" );
+    try {
+      domainRepositorySpy.storeDomain( sample, false ); fail( "A duplicate domain with overwrite=false should fail" );
+    } catch ( DomainAlreadyExistsException success ) {
+    }
+
+    xmiExtensionSample.addLogicalModel( "test1" );
+    xmiExtensionSample.addLogicalModel( "test2" );
+
+    domainRepositorySpy.storeDomain( xmiExtensionSample, true );
+
+    assertEquals( 2, domainRepositorySpy.getDomain( SAMPLE_DOMAIN_ID ).getLogicalModels().size() );
 
     final RepositoryFile folder = domainRepositorySpy.getMetadataDir();
     assertNotNull( folder );
