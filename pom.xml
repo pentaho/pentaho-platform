@@ -191,7 +191,7 @@
     <snmp4j.version>1.9.3d</snmp4j.version>
     <batik.version>1.8</batik.version>
     <itext.version>2.1.7</itext.version>
-    <mondrian.version>3.15-SNAPSHOT</mondrian.version>
+    <mondrian.version>8.0-SNAPSHOT</mondrian.version>
     <mockito-all.version>1.10.19</mockito-all.version>
     <org.apache.karaf.jaas.version>2.4.2</org.apache.karaf.jaas.version>
     <log4j.version>1.2.17</log4j.version>
