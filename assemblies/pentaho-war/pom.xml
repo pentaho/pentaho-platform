@@ -34,6 +34,7 @@
     <replacer.version>1.5.2</replacer.version>
     <dteapi.version>2.2.1</dteapi.version>
     <dataadapterapi.version>2.2.1</dataadapterapi.version>
+    <kafka-clients.version>0.10.2.1</kafka-clients.version>
   </properties>
   <dependencies>
     <dependency>
@@ -1084,6 +1085,17 @@
       <groupId>org.apache.tika</groupId>
       <artifactId>tika-core</artifactId>
       <version>${tika-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>${kafka-clients.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
   <build>
