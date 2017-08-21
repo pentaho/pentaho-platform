@@ -331,8 +331,12 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
     this.solutionBrowserShowing = solutionBrowserShowing;
   }
 
-  private native boolean isIEBrowser()
+  private boolean isIEBrowser() {
+    return getUserAgent().contains( "msie" );
+  }
+
+  private static native String getUserAgent()
   /*-{
-    return !!document.documentMode;
+    return navigator.userAgent.toLowerCase();
   }-*/;
 }
