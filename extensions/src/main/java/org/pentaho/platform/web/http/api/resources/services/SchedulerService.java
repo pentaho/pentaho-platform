@@ -25,6 +25,7 @@ import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
+import org.pentaho.platform.api.engine.ServiceException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
@@ -117,6 +118,10 @@ public class SchedulerService {
     }
 
     if ( hasInputFile ) {
+      if ( file == null ) {
+        logger.error( "Cannot find input source file " + scheduleRequest.getInputFile() + " Aborting schedule..." );
+        throw new SchedulerException( new ServiceException( "Cannot find input source file " + scheduleRequest.getInputFile() ) );
+      }
       Map<String, Serializable> metadata = getRepository().getFileMetadata( file.getId() );
       if ( metadata.containsKey( RepositoryFile.SCHEDULABLE_KEY ) ) {
         boolean schedulable = BooleanUtils.toBoolean( (String) metadata.get( RepositoryFile.SCHEDULABLE_KEY ) );
