@@ -22,9 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.ActionUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.ApplicationEventPublisherAware;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -33,15 +32,14 @@ import java.util.Map;
 /**
  * A class for common utility methods related to work item lifecycles.
  */
-@Configuration
-public class WorkItemLifecyclePublisher {
+public class WorkItemLifecyclePublisher implements ApplicationEventPublisherAware {
 
   private static String PUBLISHER_BEAN_NAME = "workItemLifecyclePublisher";
   private static final Log log = LogFactory.getLog( WorkItemLifecyclePublisher.class );
 
-  @Autowired
   private ApplicationEventPublisher publisher = null;
 
+  @Override
   public void setApplicationEventPublisher( final ApplicationEventPublisher publisher ) {
     this.publisher = publisher;
   }
@@ -164,7 +162,6 @@ public class WorkItemLifecyclePublisher {
    * @param workItemLifecycleEvent the {@link WorkItemLifecycleEvent}
    */
   protected void publishImpl( final WorkItemLifecycleEvent workItemLifecycleEvent ) {
-
     if ( getApplicationEventPublisher() != null ) {
       getApplicationEventPublisher().publishEvent( workItemLifecycleEvent );
     } else {

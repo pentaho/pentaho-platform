@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.util.StringUtil;
+import org.springframework.context.ApplicationEvent;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -36,7 +37,7 @@ import java.util.UUID;
  * This class encapsulates all information pertaining to a "work item" at a specific point in its lifecycle.
  */
 @XmlRootElement
-public class WorkItemLifecycleEvent {
+public class WorkItemLifecycleEvent extends ApplicationEvent {
 
   private static final Log logger = LogFactory.getLog( WorkItemLifecycleEvent.class );
 
@@ -63,6 +64,7 @@ public class WorkItemLifecycleEvent {
    * Default constructor, needed for serialization purposes.
    */
   public WorkItemLifecycleEvent() {
+    super("");
   }
 
   /**
@@ -78,6 +80,8 @@ public class WorkItemLifecycleEvent {
 
   public WorkItemLifecycleEvent( final String workItemUid, final String workItemDetails, final WorkItemLifecyclePhase
     workItemLifecyclePhase, final String lifecycleDetails, final Date sourceTimestamp ) {
+    super("");
+
     this.workItemUid = workItemUid;
     this.workItemDetails = workItemDetails;
     this.workItemLifecyclePhase = workItemLifecyclePhase;
