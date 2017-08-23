@@ -64,7 +64,7 @@ public class WorkItemLifecycleEvent extends ApplicationEvent {
    * Default constructor, needed for serialization purposes.
    */
   public WorkItemLifecycleEvent() {
-    super("");
+    super( "" );
   }
 
   /**
@@ -80,7 +80,7 @@ public class WorkItemLifecycleEvent extends ApplicationEvent {
 
   public WorkItemLifecycleEvent( final String workItemUid, final String workItemDetails, final WorkItemLifecyclePhase
     workItemLifecyclePhase, final String lifecycleDetails, final Date sourceTimestamp ) {
-    super("");
+    super( "" );
 
     this.workItemUid = workItemUid;
     this.workItemDetails = workItemDetails;
