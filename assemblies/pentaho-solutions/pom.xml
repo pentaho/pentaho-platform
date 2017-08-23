@@ -121,6 +121,13 @@
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>pdi-core-plugins</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-big-data-plugin</artifactId>
                   <version>${project.version}</version>
