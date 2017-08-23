@@ -26,9 +26,7 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.helpers.DateTimeDateFormat;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.workitem.messages.Messages;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
+import org.springframework.context.ApplicationListener;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -39,8 +37,7 @@ import java.util.List;
  * This component listens for {@link WorkItemLifecycleEvent}s and writes the information stored within the event into
  * a log file.
  */
-@Component
-public class WorkItemLifecycleEventFileWriter {
+public class WorkItemLifecycleEventFileWriter implements ApplicationListener<WorkItemLifecycleEvent>  {
 
   private static final Log log = LogFactory.getLog( WorkItemLifecycleEventFileWriter.class );
 
@@ -78,9 +75,8 @@ public class WorkItemLifecycleEventFileWriter {
     return this.envVars;
   }
 
-  @EventListener
-  @Async
-  public void onWorkItemLifecycleEvent( final WorkItemLifecycleEvent workItemLifecycleEvent ) {
+  @Override
+  public void onApplicationEvent( final WorkItemLifecycleEvent workItemLifecycleEvent ) {
 
     if ( workItemLifecycleEvent == null ) {
       log.error( getMessageBundle().getErrorString( "ERROR_0001_MISSING_WORK_ITEM_LIFECYCLE" ) );

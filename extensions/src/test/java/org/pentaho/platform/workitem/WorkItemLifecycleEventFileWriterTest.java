@@ -110,7 +110,7 @@ public class WorkItemLifecycleEventFileWriterTest {
 
   @Test
   public void testOnWorkItemLifecycleEvent() {
-    listener.onWorkItemLifecycleEvent( event );
+    listener.onApplicationEvent( event );
     verify( listener, times( 1 ) ).getLogger();
     verify( listener, times( 1 ) ).getMessage( event );
   }
