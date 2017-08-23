@@ -79,13 +79,6 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>pentaho</groupId>
-                  <artifactId>sparkl</artifactId>
-                  <version>${project.version}</version>
-                  <type>zip</type>
-                  <outputDirectory>${prepared.plugins.directory}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>pentaho</groupId>
                   <artifactId>pentaho-jpivot-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
