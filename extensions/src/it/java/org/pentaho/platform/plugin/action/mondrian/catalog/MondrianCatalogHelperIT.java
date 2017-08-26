@@ -57,7 +57,7 @@ import org.pentaho.platform.plugin.services.cache.CacheManager;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils;
-import org.pentaho.platform.util.Base64PasswordService;
+import org.pentaho.platform.util.KettlePasswordService;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.plugin.UserRoleMapperIT.TestUserRoleListService;
