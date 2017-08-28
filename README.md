@@ -93,7 +93,6 @@ To skip test
 
 ```
 $ mvn clean install -DskipTests
-
 ```
 
 To get log as text file
@@ -107,9 +106,8 @@ __IntelliJ__
 
 * Don't use IntelliJ's built-in maven. Make it use the same one you use from the commandline.
   * Project Preferences -> Build, Execution, Deployment -> Build Tools -> Maven ==> Maven home directory
+
 ````
-
-
 For issue tracking and bug report please use
 [Jira](http://jira.pentaho.com/browse/biserver). Its master branch is built upon commit
 merges in [Jenkins Continuous Integration](http://ci.pentaho.com/job/BISERVER-CE/)
