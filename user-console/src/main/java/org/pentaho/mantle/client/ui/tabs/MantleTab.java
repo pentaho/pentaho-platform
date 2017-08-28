@@ -19,16 +19,6 @@ package org.pentaho.mantle.client.ui.tabs;
 
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.Frame;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.utils.FrameUtils;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
-import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
-
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -37,9 +27,12 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -47,6 +40,13 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.FrameUtils;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
+import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 
 public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
 
@@ -91,8 +91,9 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
 
   public void createDeepLink() {
     if ( getContent() instanceof IFrameTabPanel ) {
-      PromptDialogBox dialogBox =
-          new PromptDialogBox(
+
+      MantleDialogBox dialogBox =
+          new MantleDialogBox(
               Messages.getString( "deepLink" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
               true );
 
@@ -138,8 +139,8 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       VerticalPanel vp = new VerticalPanel();
       vp.add( new Label( Messages.getString( "openWindowQuestion" ) ) ); //$NON-NLS-1$
 
-      final PromptDialogBox openNewWindowConfirmDialog =
-          new PromptDialogBox(
+      final MantleDialogBox openNewWindowConfirmDialog =
+          new MantleDialogBox(
               Messages.getString( "openWindowConfirm" ), Messages.getString( "yes" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       final IDialogCallback callback = new IDialogCallback() {
 
@@ -166,8 +167,8 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       VerticalPanel vp = new VerticalPanel();
       vp.add( new Label( Messages.getString( "reloadQuestion" ) ) ); //$NON-NLS-1$
 
-      final PromptDialogBox reloadConfirmDialog =
-          new PromptDialogBox(
+      final MantleDialogBox reloadConfirmDialog =
+          new MantleDialogBox(
               Messages.getString( "reloadConfirm" ), Messages.getString( "yes" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       final IDialogCallback callback = new IDialogCallback() {
 
@@ -335,4 +336,33 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
   /*-{
     return !!document.documentMode;
   }-*/;
+
+  private class MantleDialogBox extends PromptDialogBox {
+
+    public MantleDialogBox( String title, String okText, String cancelText, boolean autoHide, boolean modal,
+                            Widget content ) {
+      super( title, okText, cancelText, autoHide, modal, content );
+    }
+
+    public MantleDialogBox( String deepLink, String ok, String cancel, boolean autoHide, boolean modal ) {
+      super( deepLink, ok, cancel, autoHide, modal );
+    }
+
+    @Override
+    public void center() {
+      super.center();
+      if ( isIEBrowser() ) {
+        this.getElement().getStyle().setZIndex( Integer.MAX_VALUE );
+        final FocusPanel background = getPageBackground();
+        if ( background != null ) {
+          Frame iFrame = new Frame( "about:blank" );
+          Style iFrameStyle = iFrame.getElement().getStyle();
+          iFrameStyle.setWidth( 100, Style.Unit.PCT );
+          iFrameStyle.setHeight( 100, Style.Unit.PCT );
+          iFrameStyle.setBorderStyle( Style.BorderStyle.NONE );
+          background.add( iFrame );
+        }
+      }
+    }
+  }
 }
