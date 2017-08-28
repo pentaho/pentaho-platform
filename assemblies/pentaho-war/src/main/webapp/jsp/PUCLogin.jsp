@@ -179,6 +179,12 @@
 <div id="login-wrapper">
   <div id="login-background">
     <div id="login-logo"></div>
+	
+	<script type="text/javascript">
+      if (window.active_theme === 'ruby') {
+		document.write('<div id="login-title"><%=Messages.getInstance().getString("UI.PUC.LOGIN.HEADER")%></div>');
+	  }	  
+	</script>
 
 <% 
 		String cleanedLang = Encode.forHtmlAttribute(request.getLocale().toString());
