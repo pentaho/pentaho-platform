@@ -12,15 +12,11 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.ui.tabs;
 
-import com.google.gwt.dom.client.Node;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.Frame;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
@@ -290,23 +286,6 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       closeAllTabsMenuItem.getElement().setId( "closeAllTabs" ); //$NON-NLS-1$
     }
     popupMenu.setWidget( menuBar );
-
-    if ( isIEBrowser() ) {
-      Frame iFrame = new Frame( "about:blank" );
-      Style iFrameStyle = iFrame.getElement().getStyle();
-      iFrameStyle.setWidth( 100, Style.Unit.PCT );
-      iFrameStyle.setHeight( 100, Style.Unit.PCT );
-      iFrameStyle.setBorderStyle( Style.BorderStyle.NONE );
-      iFrameStyle.setTop( 0, Unit.PX );
-      iFrameStyle.setPosition( Style.Position.ABSOLUTE );
-      iFrameStyle.setZIndex( -1 );
-      Element element = popupMenu.getElement();
-      Node firstChild = element.getFirstChild();
-      if ( firstChild != null ) {
-        firstChild.appendChild( iFrame.getElement() );
-      }
-    }
-
     popupMenu.hide();
     popupMenu.show();
   }
@@ -330,9 +309,4 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
   public void setSolutionBrowserShowing( boolean solutionBrowserShowing ) {
     this.solutionBrowserShowing = solutionBrowserShowing;
   }
-
-  private native boolean isIEBrowser()
-  /*-{
-    return !!document.documentMode;
-  }-*/;
 }
