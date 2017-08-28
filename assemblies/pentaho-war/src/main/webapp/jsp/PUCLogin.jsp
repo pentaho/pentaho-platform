@@ -154,7 +154,7 @@
 %>
 
 <meta name="gwt:property" content="locale=<%=Encode.forHtmlAttribute(request.getLocale().toString())%>">
-<link rel="shortcut icon" href="/pentaho-style/favicon.ico" />
+<link rel="shortcut icon" href="/pentaho-style/favicon.ico?v=ruby" />
 
 <style type="text/css">
   #login-background,

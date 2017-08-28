@@ -45,7 +45,7 @@
   <title>Pentaho User Console</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="gwt:property" content="locale=<%=Encode.forHtmlAttribute(effectiveLocale.toString())%>">
-  <link rel="shortcut icon" href="/pentaho-style/favicon.ico"/>
+  <link rel="shortcut icon" href="/pentaho-style/favicon.ico?v=ruby"/>
   <link rel='stylesheet' href='mantle/MantleStyle.css'/>
   <link rel="stylesheet" href="content/data-access/resources/gwt/datasourceEditorDialog.css"/>
   <link rel="stylesheet" href="mantle/Widgets.css"/>
