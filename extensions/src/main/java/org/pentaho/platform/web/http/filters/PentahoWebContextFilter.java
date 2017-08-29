@@ -74,6 +74,8 @@ public class PentahoWebContextFilter implements Filter {
   private static final String SERVICES_PERSISTENCE_ID = "org.apache.cxf.osgi";
   private static final String SERVICES_CONTEXT_PROPERTY = "org.apache.cxf.servlet.context";
 
+  static final String USE_FULL_URL_PARAM = "useFullyQualifiedUrl";
+
   static final String FILTER_APPLIED = "__pentaho_web_context_filter_applied"; //$NON-NLS-1$
   static final String initialComment =
       "/** webcontext.js is created by a PentahoWebContextFilter. This filter searches for an " + //$NON-NLS-1$
@@ -185,10 +187,10 @@ public class PentahoWebContextFilter implements Filter {
 
         boolean noOsgiRequireConfig = "true".equals( request.getParameter( "noOsgiRequireConfig" ) );
         if ( !noOsgiRequireConfig && !"anonymousUser".equals( getSession().getName() ) ) {
-          final String useFullyQualifiedUrlParameter = httpRequest.getParameter( "fullyQualifiedUrl" );
+          final String useFullyQualifiedUrlParameter = httpRequest.getParameter( USE_FULL_URL_PARAM );
 
           String requireInitSrc = REQUIREJS_INIT_LOCATION + "?requirejs=false" + ( useFullyQualifiedUrlParameter != null
-                  ? "&fullyQualifiedUrl=" + useFullyQualifiedUrlParameter
+                  ? "&" + USE_FULL_URL_PARAM + "=" + useFullyQualifiedUrlParameter
                   : "" );
 
           printDocumentWrite( out, requireInitSrc );
@@ -605,12 +607,8 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   String getServerRoot( HashMap<String, String> webContextVariables ) {
-    String root = webContextVariables.get( "FULL_QUALIFIED_URL" );
-    if ( root != null && !root.isEmpty() ) {
-      return root;
-    }
+    String root = webContextVariables.get( "CONTEXT_PATH" );
 
-    root = webContextVariables.get( "CONTEXT_PATH" );
     if ( root != null && !root.isEmpty() ) {
       return root;
     }
@@ -639,15 +637,9 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   private boolean shouldUseFullyQualifiedUrl( HttpServletRequest httpRequest ) {
-    final String useFullyQualifiedUrlParameter = httpRequest.getParameter( "fullyQualifiedUrl" );
-    if ( useFullyQualifiedUrlParameter != null ) {
-      return "true".equals( useFullyQualifiedUrlParameter );
-    } else {
-      // Returning false for now. The smart way of determining whether we should use the fully
-      // qualified url did not work behind the proxy server and this case
-      // http://jira.pentaho.com/browse/BACKLOG-16728 was created.
-      return false;
-    }
+    final String useFullyQualifiedUrlParameter = httpRequest.getParameter( USE_FULL_URL_PARAM );
+
+    return "true".equals( useFullyQualifiedUrlParameter );
   }
 
   private static String makeReservedCharPattern() {

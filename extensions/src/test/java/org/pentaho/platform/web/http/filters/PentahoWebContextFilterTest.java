@@ -195,7 +195,7 @@ public class PentahoWebContextFilterTest {
 
   @Test
   public void testDoGetWithFullyQualifiedUrlTrue() throws ServletException, IOException {
-    when( this.mockRequest.getParameter( "fullyQualifiedUrl" ) ).thenReturn( "true" );
+    when( this.mockRequest.getParameter( PentahoWebContextFilter.USE_FULL_URL_PARAM ) ).thenReturn( "true" );
 
     final String response = executeWebContextFilter();
 
@@ -208,7 +208,7 @@ public class PentahoWebContextFilterTest {
 
   @Test
   public void testDoGetWithFullyQualifiedUrlFalse() throws ServletException, IOException {
-    when( this.mockRequest.getParameter( "fullyQualifiedUrl" ) ).thenReturn( "false" );
+    when( this.mockRequest.getParameter( PentahoWebContextFilter.USE_FULL_URL_PARAM ) ).thenReturn( "false" );
 
     final String response = executeWebContextFilter();
 
@@ -393,9 +393,10 @@ public class PentahoWebContextFilterTest {
 
   private boolean requirejsManagerInitIsCalled( String response, String useFullyQualifiedUrlParameter ) {
     final boolean containsScript = response.contains( "requirejs-manager/js/require-init.js?requirejs=false" );
+    final String parameterValue = useFullyQualifiedUrlParameter != null ? useFullyQualifiedUrlParameter : "";
 
     final boolean containsFullyQualifiedUrlParameter = response.contains(
-      "&fullyQualifiedUrl=" + ( useFullyQualifiedUrlParameter != null ? useFullyQualifiedUrlParameter : "" )
+      "&" + PentahoWebContextFilter.USE_FULL_URL_PARAM + "=" + parameterValue
     );
 
     return containsScript && containsFullyQualifiedUrlParameter == ( useFullyQualifiedUrlParameter != null );
