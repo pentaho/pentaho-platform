@@ -84,12 +84,12 @@
 }
 
 .adminCatTreeItem .tree-item-custom-widget:hover {
-  background: #005DA6;
+  background: #CC0000;
 }
 
 .adminCatTreeItem .tree-item-custom-widget.tree-item-custom-widget-selected,
 .adminCatTreeItem .tree-item-custom-widget.tree-item-custom-widget-selected:hover {
-  background: #0F2B5B;
+  background: #7C0B2B;
 }
 
 .adminCatTreeItem .tree-item-custom-widget:hover .gwt-Label,
