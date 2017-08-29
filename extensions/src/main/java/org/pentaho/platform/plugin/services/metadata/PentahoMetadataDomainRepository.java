@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -108,6 +108,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   // The default mime-type for locale files
   private static final String LOCALE_MIME_TYPE = "text/plain";
+
+  private static final String XMI_EXTENSION = ".xmi";
 
   // caching immutable object
   private static final EnumSet<RepositoryFilePermission> READ = EnumSet.of( RepositoryFilePermission.READ );
@@ -299,7 +301,10 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
 
     // Check to see if the domain already exists
-    final RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
+    RepositoryFile domainFile = getMetadataRepositoryFile( domainId );
+    if ( domainFile == null && domainId.endsWith( XMI_EXTENSION ) ) {
+      domainFile = getMetadataRepositoryFile( domainId.substring( 0, domainId.length() - XMI_EXTENSION.length() ) );
+    }
     if ( !overwrite && domainFile != null ) {
       final String errorString =
         messages.getErrorString( "PentahoMetadataDomainRepository.ERROR_0002_DOMAIN_ALREADY_EXISTS", domainId );
