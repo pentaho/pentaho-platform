@@ -63,15 +63,19 @@ public class UserRoleDaoService {
   }
 
   public RoleListWrapper getRolesForUser( String user ) throws UncategorizedUserRoleDaoException {
-    ITenant tenant = TenantUtils.getCurrentTenant();
-    return new RoleListWrapper( getRoleDao().getUserRoles( tenant, user ) );
+    if ( canAdminister() ) { // Fix for PPP-3840
+      ITenant tenant = TenantUtils.getCurrentTenant();
+      return new RoleListWrapper( getRoleDao().getUserRoles( tenant, user ) );
+    } else {
+      throw new SecurityException();
+    }
   }
 
   public void assignRolesToUser( String userName, String roleNames )
     throws NotFoundException, UncategorizedUserRoleDaoException, SecurityException {
     if ( canAdminister() ) {
       StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
-      Set<String> assignedRoles = new HashSet<String>();
+      Set<String> assignedRoles = new HashSet<>();
       ITenant tenant = TenantUtils.getCurrentTenant();
 
       //Build the set of roles the user already contians
@@ -93,7 +97,7 @@ public class UserRoleDaoService {
     throws NotFoundException, UncategorizedUserRoleDaoException, SecurityException {
     if ( canAdminister() ) {
       StringTokenizer tokenizer = new StringTokenizer( roleNames, "\t" );
-      Set<String> assignedRoles = new HashSet<String>();
+      Set<String> assignedRoles = new HashSet<>();
       ITenant tenant = TenantUtils.getCurrentTenant();
 
       for ( IPentahoRole pentahoRole : getRoleDao().getUserRoles( tenant, userName ) ) {

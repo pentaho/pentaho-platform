@@ -79,7 +79,7 @@ public class UserRoleDaoServiceTest {
 
   @Test
   public void testGetUsers() throws Exception {
-    List<IPentahoUser> userList = new ArrayList<IPentahoUser>();
+    List<IPentahoUser> userList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     when( roleDao.getUsers() ).thenReturn( userList );
     PentahoSystem.registerObject( roleDao );
@@ -91,7 +91,7 @@ public class UserRoleDaoServiceTest {
 
   @Test
   public void testGetRolesForUser() throws Exception {
-    List<IPentahoRole> roleList = new ArrayList<IPentahoRole>();
+    List<IPentahoRole> roleList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenReturn( roleList );
     PentahoSystem.registerObject( roleDao );
@@ -102,6 +102,11 @@ public class UserRoleDaoServiceTest {
     String tenantPath = "testPath";
     when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( tenantPath );
     PentahoSessionHolder.setSession( session );
+
+    //Used by the canAdminister call
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
 
     assertEquals( wrapRoleList.getRoles(), userRoleService.getRolesForUser( "admin" ).getRoles() );
   }
@@ -340,7 +345,7 @@ public class UserRoleDaoServiceTest {
 
   @Test
   public void testGetRoles() throws Exception {
-    List<IPentahoRole> roleList = new ArrayList<IPentahoRole>();
+    List<IPentahoRole> roleList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     when( roleDao.getRoles() ).thenReturn( roleList );
     PentahoSystem.registerObject( roleDao );
@@ -359,7 +364,7 @@ public class UserRoleDaoServiceTest {
     when( policy.isAllowed( anyString() ) ).thenReturn( true );
     PentahoSystem.registerObject( policy );
 
-    List<IPentahoUser> userList = new ArrayList<IPentahoUser>();
+    List<IPentahoUser> userList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     when( roleDao.getRoleMembers( any( ITenant.class ), anyString() ) ).thenReturn( userList );
     PentahoSystem.registerObject( roleDao );
@@ -383,7 +388,7 @@ public class UserRoleDaoServiceTest {
     when( policy.isAllowed( anyString() ) ).thenReturn( false );
     PentahoSystem.registerObject( policy );
 
-    List<IPentahoUser> userList = new ArrayList<IPentahoUser>();
+    List<IPentahoUser> userList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     when( roleDao.getRoleMembers( any( ITenant.class ), anyString() ) ).thenReturn( userList );
     PentahoSystem.registerObject( roleDao );
@@ -454,7 +459,7 @@ public class UserRoleDaoServiceTest {
     LogicalRoleAssignment roleAssignment = mock( LogicalRoleAssignment.class );
     when( roleAssignment.getRoleName() ).thenReturn( roleName );
     when( roleAssignment.getLogicalRoles() ).thenReturn( roleList );
-    ArrayList<LogicalRoleAssignment> roles = new ArrayList<LogicalRoleAssignment>();
+    ArrayList<LogicalRoleAssignment> roles = new ArrayList<>();
     roles.add( roleAssignment );
 
     LogicalRoleAssignments roleAssignments = mock( LogicalRoleAssignments.class );
@@ -497,7 +502,7 @@ public class UserRoleDaoServiceTest {
     RoleBindingStruct roleBindingStruct = mock( RoleBindingStruct.class );
     roleBindingStruct.logicalRoleNameMap = localizedNameEntry;
     roleBindingStruct.bindingMap = testBindingMap;
-    roleBindingStruct.immutableRoles = new HashSet<String>();
+    roleBindingStruct.immutableRoles = new HashSet<>();
 
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
     when( roleBindingDao.getRoleBindingStruct( anyString() ) ).thenReturn( roleBindingStruct );
