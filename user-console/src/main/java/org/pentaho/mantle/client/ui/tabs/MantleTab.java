@@ -12,19 +12,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.ui.tabs;
 
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.utils.FrameUtils;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
-import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
-
+import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -33,9 +27,12 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -43,6 +40,13 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.FrameUtils;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
+import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 
 public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
 
@@ -87,10 +91,11 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
 
   public void createDeepLink() {
     if ( getContent() instanceof IFrameTabPanel ) {
-      PromptDialogBox dialogBox =
-          new PromptDialogBox(
-              Messages.getString( "deepLink" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-              true );
+
+      MantleDialogBox dialogBox =
+              new MantleDialogBox(
+                      Messages.getString( "deepLink" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                      true );
 
       String startup = ( (IFrameTabPanel) getContent() ).getUrl();
       if ( !StringUtils.isEmpty( ( (IFrameTabPanel) getContent() ).getDeepLinkUrl() ) ) {
@@ -134,9 +139,9 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       VerticalPanel vp = new VerticalPanel();
       vp.add( new Label( Messages.getString( "openWindowQuestion" ) ) ); //$NON-NLS-1$
 
-      final PromptDialogBox openNewWindowConfirmDialog =
-          new PromptDialogBox(
-              Messages.getString( "openWindowConfirm" ), Messages.getString( "yes" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      final MantleDialogBox openNewWindowConfirmDialog =
+              new MantleDialogBox(
+                      Messages.getString( "openWindowConfirm" ), Messages.getString( "yes" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       final IDialogCallback callback = new IDialogCallback() {
 
         public void cancelPressed() {
@@ -162,9 +167,9 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       VerticalPanel vp = new VerticalPanel();
       vp.add( new Label( Messages.getString( "reloadQuestion" ) ) ); //$NON-NLS-1$
 
-      final PromptDialogBox reloadConfirmDialog =
-          new PromptDialogBox(
-              Messages.getString( "reloadConfirm" ), Messages.getString( "yes" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      final MantleDialogBox reloadConfirmDialog =
+              new MantleDialogBox(
+                      Messages.getString( "reloadConfirm" ), Messages.getString( "yes" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       final IDialogCallback callback = new IDialogCallback() {
 
         public void cancelPressed() {
@@ -194,7 +199,7 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
     popupMenu.addCloseHandler( new CloseHandler<PopupPanel>() {
       public void onClose( CloseEvent<PopupPanel> event ) {
         FrameUtils.setEmbedVisibility( ( (IFrameTabPanel) getTabPanel().getSelectedTab().getContent() ).getFrame(),
-            true );
+                true );
         new Timer() {
           public void run() {
             getContent().getElement().getStyle().setHeight( 100, Unit.PCT );
@@ -230,18 +235,18 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
     menuBar.setAutoOpen( true );
     if ( getContent() instanceof IFrameTabPanel ) {
       MenuItem backMenuItem =
-          new MenuItem( Messages.getString( "back" ), new TabCommand( TABCOMMANDTYPE.BACK, popupMenu ) ); //$NON-NLS-1$
+              new MenuItem( Messages.getString( "back" ), new TabCommand( TABCOMMANDTYPE.BACK, popupMenu ) ); //$NON-NLS-1$
       menuBar.addItem( backMenuItem );
       backMenuItem.getElement().setId( "back" ); //$NON-NLS-1$
       menuBar.addSeparator();
       MenuItem reloadTabMenuItem =
-          new MenuItem( Messages.getString( "reloadTab" ), new TabCommand( TABCOMMANDTYPE.RELOAD, popupMenu ) ); //$NON-NLS-1$
+              new MenuItem( Messages.getString( "reloadTab" ), new TabCommand( TABCOMMANDTYPE.RELOAD, popupMenu ) ); //$NON-NLS-1$
       menuBar.addItem( reloadTabMenuItem );
       reloadTabMenuItem.getElement().setId( "reloadTab" ); //$NON-NLS-1$
     }
     if ( getTabPanel().getTabCount() > 1 ) {
       MenuItem reloadAllTabsMenuItem =
-          new MenuItem( Messages.getString( "reloadAllTabs" ), new TabCommand( TABCOMMANDTYPE.RELOAD_ALL, popupMenu ) ); //$NON-NLS-1$
+              new MenuItem( Messages.getString( "reloadAllTabs" ), new TabCommand( TABCOMMANDTYPE.RELOAD_ALL, popupMenu ) ); //$NON-NLS-1$
       menuBar.addItem( reloadAllTabsMenuItem );
       reloadAllTabsMenuItem.getElement().setId( "reloadAllTabs" ); //$NON-NLS-1$
     } else {
@@ -253,26 +258,26 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
     menuBar.addSeparator();
     if ( getContent() instanceof IFrameTabPanel ) {
       MenuItem openTabInNewWindowMenuItem =
-          new MenuItem(
-              Messages.getString( "openTabInNewWindow" ), new TabCommand( TABCOMMANDTYPE.NEW_WINDOW, popupMenu ) ); //$NON-NLS-1$
+              new MenuItem(
+                      Messages.getString( "openTabInNewWindow" ), new TabCommand( TABCOMMANDTYPE.NEW_WINDOW, popupMenu ) ); //$NON-NLS-1$
       menuBar.addItem( openTabInNewWindowMenuItem );
       openTabInNewWindowMenuItem.getElement().setId( "openTabInNewWindow" ); //$NON-NLS-1$
       MenuItem createDeepLinkMenuItem =
-          new MenuItem(
-              Messages.getString( "createDeepLink" ), new TabCommand( TABCOMMANDTYPE.CREATE_DEEP_LINK, popupMenu ) ); //$NON-NLS-1$
+              new MenuItem(
+                      Messages.getString( "createDeepLink" ), new TabCommand( TABCOMMANDTYPE.CREATE_DEEP_LINK, popupMenu ) ); //$NON-NLS-1$
       menuBar.addItem( createDeepLinkMenuItem );
       createDeepLinkMenuItem.getElement().setId( "deepLink" ); //$NON-NLS-1$
       menuBar.addSeparator();
     }
     menuBar
-        .addItem( new MenuItem( Messages.getString( "closeTab" ), new TabCommand( TABCOMMANDTYPE.CLOSE, popupMenu ) ) ); //$NON-NLS-1$
+            .addItem( new MenuItem( Messages.getString( "closeTab" ), new TabCommand( TABCOMMANDTYPE.CLOSE, popupMenu ) ) ); //$NON-NLS-1$
     if ( getTabPanel().getTabCount() > 1 ) {
       MenuItem closeOtherTabsMenuItem =
-          new MenuItem( Messages.getString( "closeOtherTabs" ), new TabCommand( TABCOMMANDTYPE.CLOSE_OTHERS, popupMenu ) ); //$NON-NLS-1$
+              new MenuItem( Messages.getString( "closeOtherTabs" ), new TabCommand( TABCOMMANDTYPE.CLOSE_OTHERS, popupMenu ) ); //$NON-NLS-1$
       menuBar.addItem( closeOtherTabsMenuItem );
       closeOtherTabsMenuItem.getElement().setId( "closeOtherTabs" ); //$NON-NLS-1$
       MenuItem closeAllTabsMenuItem =
-          new MenuItem( Messages.getString( "closeAllTabs" ), new TabCommand( TABCOMMANDTYPE.CLOSE_ALL, popupMenu ) ); //$NON-NLS-1$
+              new MenuItem( Messages.getString( "closeAllTabs" ), new TabCommand( TABCOMMANDTYPE.CLOSE_ALL, popupMenu ) ); //$NON-NLS-1$
       menuBar.addItem( closeAllTabsMenuItem );
       closeAllTabsMenuItem.getElement().setId( "closeAllTabs" ); //$NON-NLS-1$
     } else {
@@ -286,6 +291,23 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       closeAllTabsMenuItem.getElement().setId( "closeAllTabs" ); //$NON-NLS-1$
     }
     popupMenu.setWidget( menuBar );
+
+    if ( isIEBrowser() ) {
+      Frame iFrame = new Frame( "about:blank" );
+      Style iFrameStyle = iFrame.getElement().getStyle();
+      iFrameStyle.setWidth( 100, Style.Unit.PCT );
+      iFrameStyle.setHeight( 100, Style.Unit.PCT );
+      iFrameStyle.setBorderStyle( Style.BorderStyle.NONE );
+      iFrameStyle.setTop( 0, Unit.PX );
+      iFrameStyle.setPosition( Style.Position.ABSOLUTE );
+      iFrameStyle.setZIndex( -1 );
+      Element element = popupMenu.getElement();
+      Node firstChild = element.getFirstChild();
+      if ( firstChild != null ) {
+        firstChild.appendChild( iFrame.getElement() );
+      }
+    }
+
     popupMenu.hide();
     popupMenu.show();
   }
@@ -308,5 +330,39 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
 
   public void setSolutionBrowserShowing( boolean solutionBrowserShowing ) {
     this.solutionBrowserShowing = solutionBrowserShowing;
+  }
+
+  private native boolean isIEBrowser()
+  /*-{
+    return !!document.documentMode;
+  }-*/;
+
+  private class MantleDialogBox extends PromptDialogBox {
+
+    public MantleDialogBox( String title, String okText, String cancelText, boolean autoHide, boolean modal,
+                            Widget content ) {
+      super( title, okText, cancelText, autoHide, modal, content );
+    }
+
+    public MantleDialogBox( String deepLink, String ok, String cancel, boolean autoHide, boolean modal ) {
+      super( deepLink, ok, cancel, autoHide, modal );
+    }
+
+    @Override
+    public void center() {
+      super.center();
+      if ( isIEBrowser() ) {
+        this.getElement().getStyle().setZIndex( Integer.MAX_VALUE );
+        final FocusPanel background = getPageBackground();
+        if ( background != null ) {
+          Frame iFrame = new Frame( "about:blank" );
+          Style iFrameStyle = iFrame.getElement().getStyle();
+          iFrameStyle.setWidth( 100, Style.Unit.PCT );
+          iFrameStyle.setHeight( 100, Style.Unit.PCT );
+          iFrameStyle.setBorderStyle( Style.BorderStyle.NONE );
+          background.add( iFrame );
+        }
+      }
+    }
   }
 }
