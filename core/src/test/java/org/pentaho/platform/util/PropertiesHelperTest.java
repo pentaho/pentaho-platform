@@ -32,9 +32,9 @@ public class PropertiesHelperTest {
     properties.setProperty( "foodmart.name", "Foodmart" );
     properties.setProperty( "foodmart.connectString", "jdbc:mondrian:host=aplace" );
     properties.setProperty( "sample.name", "Samples" );
-    properties.setProperty( "sample.connectString", "jdbc:mondrian4:host=overthere" );
+    properties.setProperty( "sample.connectString", "jdbc:mondrian:host=overthere" );
     properties.setProperty( "name", "noName" );
-    properties.setProperty( "connectString", "jdbc:mondrian4:blah" );
+    properties.setProperty( "connectString", "jdbc:mondrian:blah" );
     List<Properties> list = PropertiesHelper.segment( properties );
     Collections.sort( list, new Comparator<Properties>() {
       @Override public int compare( Properties o1, Properties o2 ) {
@@ -46,9 +46,9 @@ public class PropertiesHelperTest {
     Assert.assertEquals( "jdbc:mondrian:host=aplace", foodmart.getProperty( "connectString" ) );
     Properties sample = list.get( 1 );
     Assert.assertEquals( "Samples", sample.getProperty( "name" ) );
-    Assert.assertEquals( "jdbc:mondrian4:host=overthere", sample.getProperty( "connectString" ) );
+    Assert.assertEquals( "jdbc:mondrian:host=overthere", sample.getProperty( "connectString" ) );
     Properties noname = list.get( 2 );
     Assert.assertEquals( "noName", noname.getProperty( "name" ) );
-    Assert.assertEquals( "jdbc:mondrian4:blah", noname.getProperty( "connectString" ) );
+    Assert.assertEquals( "jdbc:mondrian:blah", noname.getProperty( "connectString" ) );
   }
 }

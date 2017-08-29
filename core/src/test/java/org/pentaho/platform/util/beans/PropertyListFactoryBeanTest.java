@@ -31,7 +31,7 @@ public class PropertyListFactoryBeanTest {
     properties.setProperty( "foodmart.name", "Foodmart" );
     properties.setProperty( "foodmart.connectString", "jdbc:mondrian:host=aplace" );
     properties.setProperty( "sample.name", "Samples" );
-    properties.setProperty( "sample.connectString", "jdbc:mondrian4:host=overthere" );
+    properties.setProperty( "sample.connectString", "jdbc:mondrian:host=overthere" );
     bean.setProperties( properties );
     List<Properties> list = (List<Properties>) bean.getObject();
     Properties foodmart = list.get( 0 );
@@ -39,6 +39,6 @@ public class PropertyListFactoryBeanTest {
     Assert.assertEquals( "jdbc:mondrian:host=aplace", foodmart.getProperty( "connectString" ) );
     Properties sample = list.get( 1 );
     Assert.assertEquals( "Samples", sample.getProperty( "name" ) );
-    Assert.assertEquals( "jdbc:mondrian4:host=overthere", sample.getProperty( "connectString" ) );
+    Assert.assertEquals( "jdbc:mondrian:host=overthere", sample.getProperty( "connectString" ) );
   }
 }
