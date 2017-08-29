@@ -71,7 +71,7 @@ span{
 .main-menu-opt > h3,
 .main-menu-opt > p,
 .main-menu-opt > span{
-  color: #cc0000;
+  color: #005da6;
 }
 
 .main-menu a{
@@ -266,11 +266,10 @@ ul.footer-links li a:hover{
 
 a.try-pentaho-btn{
   padding: 10px 30px;
-  border: 1px solid #cc0000;
-  border-radius: 4px;
+  border: none;
   font-size: 16px;
-  background-color: transparent;
-  color: #cc0000;
+  background-color: #005da6;
+  color: #FFFFFF;
   transition: background-color .1s ease;
   -webkit-transition: background-color .1s ease;
   -moz-transition: background-color .1s ease;
@@ -279,7 +278,7 @@ a.try-pentaho-btn{
 }
 a.try-pentaho-btn:hover{
   text-decoration: none;
-  background-color: #7C0B2B;
+  background-color: #0f2b5b;
   color: #FFFFFF
 }
 
