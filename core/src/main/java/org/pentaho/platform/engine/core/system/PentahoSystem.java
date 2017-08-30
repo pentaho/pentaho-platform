@@ -128,17 +128,21 @@ public class PentahoSystem {
 
   public static final String WAIT_SECONDS = "waitSeconds";
 
+  public static final String CORS_REQUESTS_ALLOWED = "cors-requests-allowed";
+
+  public static final String CORS_REQUESTS_ALLOWED_DOMAINS = "cors-requests-allowed-domains";
+
   private static Map globalAttributes;
 
   private static SimpleParameterProvider globalParameters;
 
   private static ISystemSettings systemSettingsService;
 
-  private static List<IPentahoPublisher> administrationPlugins = new ArrayList<IPentahoPublisher>();
+  private static List<IPentahoPublisher> administrationPlugins = new ArrayList<>();
 
-  private static List<IPentahoSystemListener> listeners = new ArrayList<IPentahoSystemListener>();
+  private static List<IPentahoSystemListener> listeners = new ArrayList<>();
 
-  private static List<ISessionStartupAction> sessionStartupActions = new ArrayList<ISessionStartupAction>();
+  private static List<ISessionStartupAction> sessionStartupActions = new ArrayList<>();
 
   private static AggregateObjectFactory aggObjectFactory = new AggregateObjectFactory();
 
@@ -146,11 +150,11 @@ public class PentahoSystem {
 
   private static final Map initializationFailureDetailsMap = Collections.synchronizedMap( new HashMap() );
 
-  private static final List<String> RequiredObjects = new ArrayList<String>();
+  private static final List<String> RequiredObjects = new ArrayList<>();
 
-  private static final List<String> KnownOptionalObjects = new ArrayList<String>();
+  private static final List<String> KnownOptionalObjects = new ArrayList<>();
 
-  private static final List<String> IgnoredObjects = new ArrayList<String>();
+  private static final List<String> IgnoredObjects = new ArrayList<>();
 
   public static final int SYSTEM_NOT_INITIALIZED = -1;
 
