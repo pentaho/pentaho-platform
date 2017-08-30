@@ -12,19 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.admin;
-
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.messages.Messages;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
@@ -44,7 +35,16 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.ui.custom.HorizontalScrollWrapper;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel,
     UpdatePasswordController {
@@ -164,6 +164,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     }
   }
 
+  private void showXulErrorMessage( String title, String message ) {
+    GwtMessageBox messageBox = new GwtMessageBox();
+    messageBox.setTitle( title );
+    messageBox.setMessage( message );
+    messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
+    messageBox.setWidth( 520 );
+    messageBox.show();
+  }
+
   private void displayErrorInMessageBox( String title, String message ) {
     MessageDialogBox messageBox =
         new MessageDialogBox( title, message, false, false, true, Messages.getString( "close" ) );
@@ -206,7 +215,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     }
   }
 
-  public void updatePassword( String newPassword ) {
+  public void updatePassword( String newPassword, String administratorPassword, final ServiceCallback callback ) {
 
     String userName = usersListBox.getValue( usersListBox.getSelectedIndex() );
     String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/updatePassword";
@@ -215,18 +224,25 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
       String json =
-          "{\"userName\": \"" + encodeUri( userName ) + "\", \"password\": \"" + encodeUri( newPassword ) + "\"}";
+          "{\"userName\": \"" + encodeUri( userName ) + "\", \"password\": \"" + encodeUri( newPassword ) + "\", \"administratorPassword\": \"" + encodeUri( administratorPassword ) + "\"}";
       executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
-          displayErrorInMessageBox( Messages.getString( "Error" ), exception.getLocalizedMessage() );
+          showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
+          callback.serviceResult( false );
         }
 
         public void onResponseReceived( Request request, Response response ) {
-
+          if ( response.getStatusCode() != Response.SC_OK ) {
+            showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
+            callback.serviceResult( false );
+          } else {
+            callback.serviceResult( true );
+          }
         }
       } );
     } catch ( RequestException e ) {
-      displayErrorInMessageBox( Messages.getString( "Error" ), e.getLocalizedMessage() );
+      showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
+      callback.serviceResult(false);
     }
   }
 
@@ -754,9 +770,13 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
   class EditPasswordListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
-      ChangePasswordDialog changePasswordDialog = new ChangePasswordDialog( UserRolesAdminPanelController.this );
-      changePasswordDialog.show();
+      openChangePasswordDialog();
     }
+  }
+
+  private void openChangePasswordDialog() {
+    ChangePasswordDialog changePasswordDialog = new ChangePasswordDialog( this );
+    changePasswordDialog.show();
   }
 
   private final native String encodeUri( String URI )

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -21,7 +21,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 
@@ -504,7 +510,7 @@ public class UserRoleDaoResourceTest {
 
   @Test
   public void testUpdatePassword() throws Exception {
-    Response response = userRoleResource.updatePassword( new User( "name", "newPassword" ) );
+    Response response = userRoleResource.updatePassword( new UserChangePasswordDTO( "name", "newPassword", "bogusPassword" ) );
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
   }
 
@@ -515,7 +521,7 @@ public class UserRoleDaoResourceTest {
     UserRoleDaoResource resource =
       new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
-      resource.updatePassword( new User( "name", "newPassword" ) );
+      resource.updatePassword( new UserChangePasswordDTO( "name", "newPassword", "bogusPassword" ) );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }

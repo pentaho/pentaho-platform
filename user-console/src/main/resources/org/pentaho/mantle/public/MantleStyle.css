@@ -871,3 +871,30 @@ code {
 .ng-app-view {
   z-index: 999999;
 }
+
+/* change-password-dialog */
+.pentaho-dialog.pentaho-dialog-change-password .Caption {
+  line-height: 24px;
+}
+
+.pentaho-dialog.pentaho-dialog-change-password .gwt-Label {
+  line-height: 14px;
+  margin-bottom: 6px;
+}
+
+.pentaho-dialog.pentaho-dialog-change-password .button-panel {
+  margin: 19px 0 0;
+}
+
+.pentaho-dialog.pentaho-dialog-change-password .gwt-PasswordTextBox {
+  padding: 9px 9px;
+}
+
+.pentaho-dialog.pentaho-dialog-change-password .spacer {
+  height: 16px;
+}
+
+.pentaho-dialog.pentaho-dialog-change-password .spacer.spacer-border-top {
+  border-top: 1px solid #cccccc;
+  height: 15px;
+}

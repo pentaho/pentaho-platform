@@ -12,11 +12,31 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.mantle.client.admin;
+package org.pentaho.platform.web.http.api.resources;
 
-public interface UpdatePasswordController {
-  void updatePassword( String newPassword, String administratorPassword, final ServiceCallback callback );
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+public class UserChangePasswordDTO extends User {
+  private String administratorPassword;
+
+  public UserChangePasswordDTO() {
+  }
+
+  public UserChangePasswordDTO( String userName, String password, String administratorPassword ) {
+    super( userName, password );
+
+    this.administratorPassword = administratorPassword;
+  }
+
+  public String getAdministratorPassword() {
+    return administratorPassword;
+  }
+
+  public void setAdministratorPassword( String administratorPassword ) {
+    this.administratorPassword = administratorPassword;
+  }
 }
