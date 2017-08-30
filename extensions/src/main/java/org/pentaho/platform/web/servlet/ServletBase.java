@@ -35,9 +35,9 @@ public abstract class ServletBase extends HttpServlet implements ILogger {
 
   public static final boolean debug = PentahoSystem.debug;
 
-  private static String ORIGIN_HEADER = "origin";
-  private static String CORS_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
-  private static String CORS_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
+  static String ORIGIN_HEADER = "origin";
+  static String CORS_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
+  static String CORS_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
 
   private int loggingLevel = ILogger.ERROR;
 
@@ -152,14 +152,12 @@ public abstract class ServletBase extends HttpServlet implements ILogger {
   }
 
   private boolean isCorsRequestsAllowed() {
-    String isCorsAllowed = PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED, "false" );
-    return isCorsAllowed.equals( "true" );
+    String isCorsAllowed = this.getCorsRequestsAllowedSystemProperty();
+    return "true".equals( isCorsAllowed );
   }
 
   private List<String> getCorsRequestsAllowedDomains() {
-    String allowedDomains =
-        PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED_DOMAINS, null );
-
+    String allowedDomains = this.getCorsAllowedDomainsSystemProperty();
     boolean hasDomains = !StringUtil.isEmpty( allowedDomains );
 
     return hasDomains ? Arrays.asList( allowedDomains.split( "\\s*,\\s*" ) ) : null;
@@ -170,6 +168,13 @@ public abstract class ServletBase extends HttpServlet implements ILogger {
     return allowedDomains != null && allowedDomains.contains( domain );
   }
 
+  // region package-private methods for unit testing mock/spying
+  String getCorsRequestsAllowedSystemProperty() {
+    return PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED, "false" );
+  }
 
-
+  String getCorsAllowedDomainsSystemProperty() {
+    return PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED_DOMAINS, null );
+  }
+  // endregion
 }
