@@ -13,12 +13,14 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.fileio;
 
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.ISourcesStreamEvents;
 import org.pentaho.platform.api.repository2.unified.IStreamListener;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -179,7 +181,19 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     // RepositoryFileWriter
     // but I couldn't figure out a clean way to do that. For now, charsetName is passed in here and we use it if
     // available.
-    final SimpleRepositoryFileData payload = new SimpleRepositoryFileData( bis, charsetName, mimeType );
+    final IRepositoryFileData payload;
+    Converter converter;
+
+    if ( "ktr".equalsIgnoreCase( ext ) ) {
+      converter = PentahoSystem.get( Converter.class, null, Collections.singletonMap( "name", "PDITransformationStreamConverter" ) );
+      mimeType = "application/vnd.pentaho.transformation";
+    } else if ( "kjb".equalsIgnoreCase( ext ) ) {
+      converter = PentahoSystem.get( Converter.class, null, Collections.singletonMap( "name", "PDIJobStreamConverter" ) );
+      mimeType = "application/vnd.pentaho.job";
+    } else {
+      converter = null;
+    }
+    payload = convert( converter, bis, mimeType );
     if ( !flushed ) {
       RepositoryFile file = repository.getFile( path );
       RepositoryFile parentFolder = getParent( path );
@@ -213,8 +227,8 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
           }
         }
         file =
-            new RepositoryFile.Builder( RepositoryFilenameUtils.getName( path ) ).hidden( hidden ).versioned( true )
-                .build(); // Default
+            new RepositoryFile.Builder( RepositoryFilenameUtils.getName( path ) ).hidden( hidden )
+                .title( RepositoryFile.DEFAULT_LOCALE, baseFileName ).versioned( true ).build(); // Default
         // versioned to true so that we're keeping history
         file =
             repository.createFile( parentFolder.getId(), file, payload,
@@ -269,6 +283,16 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
       repository.updateFile( file, payload, "New File" ); //$NON-NLS-1$
     }
     flushed = true;
+  }
+
+  IRepositoryFileData convert( Converter converter, ByteArrayInputStream bis, String mimeType ) {
+    final IRepositoryFileData payload;
+    if ( converter != null ) {
+      payload = converter.convert( bis, charsetName, mimeType );
+    } else {
+      payload = new SimpleRepositoryFileData( bis, charsetName, mimeType );
+    }
+    return payload;
   }
 
   public String getFilePath() {
