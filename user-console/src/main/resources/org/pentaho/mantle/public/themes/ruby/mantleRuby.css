@@ -1002,7 +1002,7 @@ a:active, a:hover {
   text-align: left;
   width: 242px;
   font-size: 14px;
-  color: #333;
+  color: #414141;
   font-family: OpenSansLight, Helvetica, Arial, Sans serif;
 }
 
@@ -1025,7 +1025,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
 }
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-selected {
-  color: #50798c;
+  color: #414141;
   background-color: transparent;
 }
 
