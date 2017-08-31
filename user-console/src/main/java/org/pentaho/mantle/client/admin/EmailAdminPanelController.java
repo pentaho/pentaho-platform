@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.admin;
@@ -42,20 +42,13 @@ import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
 
-public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
+public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel {
 
+  private static EmailAdminPanelController emailAdminPanelController;
+  private final EmailTestDialog etd = new EmailTestDialog();
   private boolean isDirty = false;
   private JsEmailConfiguration emailConfig;
-  private static EmailAdminPanelController emailAdminPanelController;
   private EmailTester emailTester = null;
-  private final EmailTestDialog etd = new EmailTestDialog();
-
-  public static EmailAdminPanelController getInstance() {
-    if ( emailAdminPanelController == null ) {
-      emailAdminPanelController = new EmailAdminPanelController();
-    }
-    return emailAdminPanelController;
-  }
 
   private EmailAdminPanelController() {
     activate();
@@ -114,8 +107,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
           emailConfig.setSmtpPort( Integer.parseInt( portTextBox.getValue() ) );
           setDirty( true );
         } else {
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-              , false, true ).center();
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ),
+              false, false, true ).center();
         }
       }
     } );
@@ -170,8 +163,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
         if ( isPortValid( portTextBox.getValue() ) ) {
           setEmailConfig();
         } else {
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-              , false, true ).center();
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ),
+              false, false, true ).center();
         }
       }
     } );
@@ -184,13 +177,11 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
     } );
   }
 
-  public void updatePassword( String password ) {
-    emailConfig.setPassword( password );
-    passwordTextBox.setValue( password );
-    if ( !StringUtils.isEmpty( passwordTextBox.getValue() ) ) {
-      passwordTextBox.setEnabled( false );
+  public static EmailAdminPanelController getInstance() {
+    if ( emailAdminPanelController == null ) {
+      emailAdminPanelController = new EmailAdminPanelController();
     }
-    setDirty( true );
+    return emailAdminPanelController;
   }
 
   // -- Remote Calls.
@@ -279,9 +270,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
     if ( isDirty ) {
-      MessageDialogBox messageBox = new MessageDialogBox( Messages.getString( "confirm" )
-          , Messages.getString( "dirtyStateMessage" ), false, false, true, Messages.getString( "yes" ), null
-          , Messages.getString( "no" ) );
+      MessageDialogBox messageBox = new MessageDialogBox( Messages.getString( "confirm" ),
+          Messages.getString( "dirtyStateMessage" ), false, false, true,
+          Messages.getString( "yes" ), null, Messages.getString( "no" ) );
       messageBox.setCallback( new IDialogCallback() {
 
         @Override
@@ -291,8 +282,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
             callback.onSuccess( true );
             setDirty( false );
           } else {
-            new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-                , false, true ).center();
+            new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ),
+                false, false, true ).center();
           }
         }
 
@@ -331,7 +322,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
               changeHandler.onChange( null );
             }
           }
-        } .schedule( 100 );
+        }.schedule( 100 );
       }
     } );
   }

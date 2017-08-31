@@ -56,18 +56,32 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UserRoleDaoServiceTest {
   private UserRoleDaoService userRoleService;
 
+  private final static String SESSION_USER_NAME = "lucyInTheSky";
+  private final static String SESSION_USER_PASSWORD = "oldLucyPassword";
+
+  private final static String OTHER_USER_NAME = "motherMary";
+  private final static String OTHER_USER_PASSWORD = "oldMotherMaryPassword";
+
+  private final static String A_NEW_PASSWORD = "correct_horse_battery_staple";
+  private final static String A_WRONG_PASSWORD = "123456";
+
   @Before
   public void setUp() throws Exception {
     PentahoSystem.init();
+
+    SecurityHelper.setMockInstance( mock( ISecurityHelper.class ) );
+
     userRoleService = new UserRoleDaoService();
-    final IPentahoSession pentahoSession = mock( IPentahoSession.class );
-    when( pentahoSession.getName() ).thenReturn( "name" );
-    PentahoSessionHolder.setSession( pentahoSession );
   }
 
   @After
@@ -103,10 +117,7 @@ public class UserRoleDaoServiceTest {
     when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( tenantPath );
     PentahoSessionHolder.setSession( session );
 
-    //Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     assertEquals( wrapRoleList.getRoles(), userRoleService.getRolesForUser( "admin" ).getRoles() );
   }
@@ -116,10 +127,7 @@ public class UserRoleDaoServiceTest {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
-    //Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     //Create session that will generate tenant
     IPentahoSession session = mock( IPentahoSession.class );
@@ -147,10 +155,7 @@ public class UserRoleDaoServiceTest {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
-    //canAdminister should return false
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, false );
 
     userRoleService.assignRolesToUser( userName, roleNames );
   }
@@ -160,10 +165,7 @@ public class UserRoleDaoServiceTest {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
-    //Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     //Create session that will generate tenant
     IPentahoSession session = mock( IPentahoSession.class );
@@ -183,10 +185,7 @@ public class UserRoleDaoServiceTest {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
-    //Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     //Create session that will generate tenant
     IPentahoSession session = mock( IPentahoSession.class );
@@ -206,10 +205,7 @@ public class UserRoleDaoServiceTest {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
-    //Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     //Create session that will generate tenant
     IPentahoSession session = mock( IPentahoSession.class );
@@ -243,10 +239,7 @@ public class UserRoleDaoServiceTest {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
-    //canAdminister should return false
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, false );
 
     userRoleService.removeRolesFromUser( userName, roleNames );
   }
@@ -256,10 +249,7 @@ public class UserRoleDaoServiceTest {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
-    //Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     //Create session that will generate tenant
     IPentahoSession session = mock( IPentahoSession.class );
@@ -280,10 +270,7 @@ public class UserRoleDaoServiceTest {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
-    //Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     //Create session that will generate tenant
     IPentahoSession session = mock( IPentahoSession.class );
@@ -302,9 +289,7 @@ public class UserRoleDaoServiceTest {
   public void testDeleteUsers() {
     String users = "admin\tsuzy\t";
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     IPentahoUser user = mock( IPentahoUser.class );
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
@@ -319,9 +304,7 @@ public class UserRoleDaoServiceTest {
   public void testDeleteUsersSecurityException() {
     String users = "admin\tsuzy\t";
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, false );
 
     userRoleService.deleteUsers( users );
   }
@@ -330,9 +313,7 @@ public class UserRoleDaoServiceTest {
   public void testDeleteUsersUncategorizedUserRoleDaoException() {
     String users = "admin\tsuzy\t";
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     IPentahoUser user = mock( IPentahoUser.class );
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
@@ -360,9 +341,7 @@ public class UserRoleDaoServiceTest {
 
   @Test
   public void testGetRoleMembers() {
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     List<IPentahoUser> userList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
@@ -384,9 +363,7 @@ public class UserRoleDaoServiceTest {
 
   @Test( expected = SecurityException.class )
   public void testGetRoleMembersSecurityException() {
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, false );
 
     List<IPentahoUser> userList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
@@ -410,9 +387,7 @@ public class UserRoleDaoServiceTest {
   public void testDeleteRole() {
     String roles = "role1\trole2\t";
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     IPentahoRole role = mock( IPentahoRole.class );
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
@@ -427,9 +402,7 @@ public class UserRoleDaoServiceTest {
   public void testDeleteRolesSecurityException() {
     String roles = "role1\trole2\t";
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, false );
 
     userRoleService.deleteUsers( roles );
   }
@@ -438,9 +411,7 @@ public class UserRoleDaoServiceTest {
   public void testDeleteRoleUncategorizedUserRoleDaoException() {
     String roles = "role1\trole2\t";
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
     when( roleDao.getRole( any( ITenant.class ), anyString() ) ).thenThrow(
@@ -465,9 +436,7 @@ public class UserRoleDaoServiceTest {
     LogicalRoleAssignments roleAssignments = mock( LogicalRoleAssignments.class );
     when( roleAssignments.getAssignments() ).thenReturn( roles );
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
     PentahoSystem.registerObject( roleBindingDao );
@@ -480,18 +449,14 @@ public class UserRoleDaoServiceTest {
   public void testSetLogicalRolesSecurityException() {
     LogicalRoleAssignments roleAssignments = mock( LogicalRoleAssignments.class );
 
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, false );
 
     userRoleService.setLogicalRoles( roleAssignments );
   }
 
   @Test
   public void testGetRoleBindingStruct() {
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     Map<String, String> localizedNameEntry = new HashMap<>();
     localizedNameEntry.put( "testEntry", "testValue" );
@@ -517,9 +482,7 @@ public class UserRoleDaoServiceTest {
 
   @Test( expected = SecurityException.class )
   public void testGetRoleBindingStructSecurityException() {
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, false );
 
     userRoleService.getRoleBindingStruct( "en" );
   }
@@ -557,10 +520,7 @@ public class UserRoleDaoServiceTest {
     PentahoSystem.registerObject( repo );
     UserRoleDaoService service = new UserRoleDaoService();
 
-    // Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     Assert.assertTrue( validationFailed( service, new User( "\\", "pass" ) ) );
     Assert.assertTrue( validationFailed( service, new User( "/www", "pass" ) ) );
@@ -596,123 +556,216 @@ public class UserRoleDaoServiceTest {
 
   @Test
   public void testChangePassByAdminSuccess() throws Exception {
-    // Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
-    IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    IPentahoUser pentahoUser = mock( IPentahoUser.class );
-    doReturn( "old pass" ).when( pentahoUser ).getPassword();
-    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
-    PentahoSystem.registerObject( roleDao );
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
 
-    SecurityHelper.setMockInstance( mock( ISecurityHelper.class ) );
-    userRoleService.changeUserPassword( "name", "newpass", "old pass" );
+    userRoleService.changeUserPassword( OTHER_USER_NAME, A_NEW_PASSWORD, OTHER_USER_PASSWORD );
   }
 
   @Test
   public void testChangeOwnPasswordSuccess() throws Exception {
-    // Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, false );
 
-    IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    IPentahoUser pentahoUser = mock( IPentahoUser.class );
-    doReturn( "old pass" ).when( pentahoUser ).getPassword();
-    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
-    PentahoSystem.registerObject( roleDao );
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
 
-    SecurityHelper.setMockInstance( mock( ISecurityHelper.class ) );
-    userRoleService.changeUserPassword( "name", "newpass", "old pass" );
+    userRoleService.changeUserPassword( SESSION_USER_NAME, A_NEW_PASSWORD, SESSION_USER_PASSWORD );
   }
 
   @Test( expected = SecurityException.class )
   public void testChangePasswordNoPermissions() throws Exception {
-    // Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, false );
 
-    IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    IPentahoUser pentahoUser = mock( IPentahoUser.class );
-    doReturn( "old pass" ).when( pentahoUser ).getPassword();
-    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
-    PentahoSystem.registerObject( roleDao );
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
 
-    SecurityHelper.setMockInstance( mock( ISecurityHelper.class ) );
-    userRoleService.changeUserPassword( "admin", "newpass", "old pass" );
+    userRoleService.changeUserPassword( OTHER_USER_NAME, A_NEW_PASSWORD, OTHER_USER_PASSWORD );
   }
 
   @Test( expected = SecurityException.class )
   public void testChangePassWrongName() throws Exception {
-    // Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    // tests when the username can't be found in the UserRoleDao,
+    // even thou it is the current session username (not sure when this can happen)
 
-    IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    doReturn( null ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
-    PentahoSystem.registerObject( roleDao );
-    userRoleService.changeUserPassword( "name", "newpass", "old pass" );
+    setupMockSessionUser( SESSION_USER_NAME, false );
+
+    registerMockUserRoleDao();
+
+    userRoleService.changeUserPassword( OTHER_USER_NAME, A_NEW_PASSWORD, OTHER_USER_PASSWORD );
   }
 
   @Test( expected = SecurityException.class )
   public void testChangePassWrongPass() throws Exception {
-    // Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
-    IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    IPentahoUser pentahoUser = mock( IPentahoUser.class );
-    doReturn( "wrong old pass" ).when( pentahoUser ).getPassword();
-    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), anyString() );
-    PentahoSystem.registerObject( roleDao );
-    userRoleService.changeUserPassword( "name", "newpass", "old pass" );
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
+
+    userRoleService.changeUserPassword( OTHER_USER_NAME, A_NEW_PASSWORD, A_WRONG_PASSWORD );
   }
 
   @Test( expected = UserRoleDaoService.ValidationFailedException.class )
   public void testCreateRoleEmptyName() throws Exception {
-    // Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     userRoleService.createRole( "" );
   }
 
   @Test( expected = UserRoleDaoService.ValidationFailedException.class )
   public void testCreateRoleNullName() throws Exception {
-    // Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
     userRoleService.createRole( null );
   }
 
   @Test
-  public void testUpdatePassword() throws Exception {
-    // Used by the canAdminister call
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-    PentahoSystem.registerObject( policy );
+  public void testUpdatePasswordWithAdminCredentials() throws Exception {
+    setupMockSessionUser( SESSION_USER_NAME, true );
 
-    IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    PentahoSystem.registerObject( roleDao );
-    userRoleService.updatePassword( new User( "name", "password" ) );
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+    addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
+
+    userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ), SESSION_USER_PASSWORD );
+
+    verify( roleDao, times( 1 ) ).setPassword( any( ITenant.class ), eq( OTHER_USER_NAME ), eq( A_NEW_PASSWORD ) );
+  }
+
+  @Test
+  public void testSelfUpdatePasswordWithAdminCredentials() throws Exception {
+    setupMockSessionUser( SESSION_USER_NAME, true );
+
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+
+    userRoleService.updatePassword( new User( SESSION_USER_NAME, A_NEW_PASSWORD ), SESSION_USER_PASSWORD );
+
+    verify( roleDao, times( 1 ) ).setPassword( any( ITenant.class ), eq( SESSION_USER_NAME ), eq( A_NEW_PASSWORD ) );
+  }
+
+  @Test( expected = SecurityException.class )
+  public void testUpdatePasswordWithWrongAdminCredentials() throws Exception {
+    setupMockSessionUser( SESSION_USER_NAME, true );
+
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+    addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
+
+    userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ), A_WRONG_PASSWORD );
+  }
+
+  @Test( expected = SecurityException.class )
+  public void testUpdatePasswordWithNotAdminCredentials() throws Exception {
+    setupMockSessionUser( SESSION_USER_NAME, false );
+
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+    addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
+
+    userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ), SESSION_USER_PASSWORD );
+  }
+
+  @Test( expected = SecurityException.class )
+  public void testSelfUpdatePasswordWithNotAdminCredentials() throws Exception {
+    setupMockSessionUser( SESSION_USER_NAME, false );
+
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+
+    userRoleService.updatePassword( new User( SESSION_USER_NAME, A_NEW_PASSWORD ), SESSION_USER_PASSWORD );
+  }
+
+  @Test
+  public void testUpdatePassword() throws Exception {
+    setupMockSessionUser( SESSION_USER_NAME, true );
+
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+    addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
+
+    userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ) );
+
+    verify( roleDao, times( 1 ) ).setPassword( any( ITenant.class ), eq( OTHER_USER_NAME ), eq( A_NEW_PASSWORD ) );
+  }
+
+  @Test
+  public void testSelfUpdatePassword() throws Exception {
+    setupMockSessionUser( SESSION_USER_NAME, true );
+
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+
+    userRoleService.updatePassword( new User( SESSION_USER_NAME, A_NEW_PASSWORD ) );
+
+    verify( roleDao, times( 1 ) ).setPassword( any( ITenant.class ), eq( SESSION_USER_NAME ), eq( A_NEW_PASSWORD ) );
   }
 
   @Test( expected = SecurityException.class )
   public void testUpdatePasswordNotAdmin() throws Exception {
+    setupMockSessionUser( SESSION_USER_NAME, false );
+
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+    addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
+
+    userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ) );
+  }
+
+  @Test( expected = SecurityException.class )
+  public void testSelfUpdatePasswordNotAdmin() throws Exception {
+    setupMockSessionUser( SESSION_USER_NAME, false );
+
+    IUserRoleDao roleDao = registerMockUserRoleDao();
+    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+
+    userRoleService.updatePassword( new User( SESSION_USER_NAME, A_NEW_PASSWORD ) );
+  }
+
+  private void setupMockSessionUser( String username, boolean canAdminister ) {
+    registerMockSession( username );
+
     // Used by the canAdminister call
+    registerMockAuthorizationPolicy( canAdminister );
+  }
+
+  private IPentahoSession registerMockSession( String username ) {
+    final IPentahoSession pentahoSession = mock( IPentahoSession.class );
+    when( pentahoSession.getName() ).thenReturn( username );
+
+    PentahoSessionHolder.setSession( pentahoSession );
+
+    return pentahoSession;
+  }
+
+  private IUserRoleDao registerMockUserRoleDao() {
+    IUserRoleDao roleDao = mock( IUserRoleDao.class );
+    PentahoSystem.registerObject( roleDao );
+    return roleDao;
+  }
+
+  private void addMockUserToUserRoleDao( IUserRoleDao roleDao, String username, String password ) {
+    IPentahoUser pentahoUser = createMockPentahoUser( username, password );
+
+    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), eq( username ) );
+  }
+
+  private IPentahoUser createMockPentahoUser( String username, String password ) {
+    IPentahoUser pentahoUser = mock( IPentahoUser.class );
+    doReturn( username ).when( pentahoUser ).getUsername();
+    doReturn( password ).when( pentahoUser ).getPassword();
+
+    return pentahoUser;
+  }
+
+  private IAuthorizationPolicy registerMockAuthorizationPolicy( final boolean isAllowed ) {
     IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    when( policy.isAllowed( anyString() ) ).thenReturn( isAllowed );
+
     PentahoSystem.registerObject( policy );
 
-    userRoleService.updatePassword( new User( "name", "password" ) );
+    return policy;
   }
 
 }
