@@ -762,11 +762,11 @@ a:active, a:hover {
 
 .files-list-panel {
   background: white;
-  border: 1px solid #abc9d9;
+  border: 1px solid #cccccc;
 }
 
 .files-toolbar {
-  border: 1px solid #abc9d9;
+  border: 1px solid #cccccc;
   background-color: #fff;
 }
 
@@ -776,7 +776,7 @@ a:active, a:hover {
 
 .puc-navigator-panel {
   background-color: #f1f1f1;
-  border-right: 1px solid #abc9d9;
+  border-right: 1px solid #cccccc;
 }
 
 .mantle-toolbar-combo-button-hovering {
@@ -815,7 +815,7 @@ a:active, a:hover {
 }
 
 .files-toolbar .toolbar-button-hovering {
-  border: 1px solid #005DA6;
+  border: 1px solid #cccccc;
 }
 
 /*========== Launch Page Styles ================= */
