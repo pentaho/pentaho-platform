@@ -107,8 +107,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
           emailConfig.setSmtpPort( Integer.parseInt( portTextBox.getValue() ) );
           setDirty( true );
         } else {
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-              , false, true ).center();
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ),
+              false, false, true ).center();
         }
       }
     } );
@@ -163,8 +163,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
         if ( isPortValid( portTextBox.getValue() ) ) {
           setEmailConfig();
         } else {
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-              , false, true ).center();
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ),
+              false, false, true ).center();
         }
       }
     } );
@@ -270,9 +270,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
     if ( isDirty ) {
-      MessageDialogBox messageBox = new MessageDialogBox( Messages.getString( "confirm" )
-          , Messages.getString( "dirtyStateMessage" ), false, false, true, Messages.getString( "yes" ), null
-          , Messages.getString( "no" ) );
+      MessageDialogBox messageBox = new MessageDialogBox( Messages.getString( "confirm" ),
+          Messages.getString( "dirtyStateMessage" ), false, false, true,
+          Messages.getString( "yes" ), null, Messages.getString( "no" ) );
       messageBox.setCallback( new IDialogCallback() {
 
         @Override
@@ -282,8 +282,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
             callback.onSuccess( true );
             setDirty( false );
           } else {
-            new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-                , false, true ).center();
+            new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ),
+                false, false, true ).center();
           }
         }
 

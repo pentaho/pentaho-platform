@@ -242,7 +242,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       } );
     } catch ( RequestException e ) {
       showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
-      callback.serviceResult(false);
+      callback.serviceResult( false );
     }
   }
 
