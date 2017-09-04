@@ -1377,8 +1377,8 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
 }
 
 .schedulesPanel .pentaho-table .cellTableSelectedRow {
-  background: #7C0B2B;
-  border-color: #7C0B2B;
+  background: #CC0000;
+  border-color: #CC0000;
   color: #FFF;
 }
 
