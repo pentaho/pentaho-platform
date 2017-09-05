@@ -325,7 +325,8 @@
 }
 
 .fileLabelSelected {
-  background-color: #E6EFF6;
+  background-color: rgba(204, 0, 0, 0.2);
+  color: #FFFFFF;
 }
 
 .permissionsTable {
