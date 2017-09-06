@@ -193,7 +193,7 @@
     <itext.version>2.1.7</itext.version>
     <mondrian.version>8.0-SNAPSHOT</mondrian.version>
     <mockito-all.version>1.10.19</mockito-all.version>
-    <org.apache.karaf.jaas.version>2.4.2</org.apache.karaf.jaas.version>
+    <org.apache.karaf.jaas.version>3.0.3</org.apache.karaf.jaas.version>
     <log4j.version>1.2.17</log4j.version>
     <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
     <rome.version>1.0</rome.version>
