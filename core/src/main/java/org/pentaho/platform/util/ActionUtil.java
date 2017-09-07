@@ -72,7 +72,7 @@ public class ActionUtil {
   /**
    * Regex representing characters that are allowed in the work item uid (in compliance with chronos job names).
    */
-  private static final String WORK_ITEM_UID_INVALID_CHARS = "[^\\w\\\\.-]+";
+  private static final String WORK_ITEM_UID_INVALID_CHARS = "[^\\w\\\\-]+";
 
   private static final int WORK_ITEM_UID_LENGTH_LIMIT = 1000;
 
