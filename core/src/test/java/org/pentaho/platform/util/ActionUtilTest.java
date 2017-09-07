@@ -242,19 +242,19 @@ public class ActionUtilTest {
 
     // simple case
     result = ActionUtil.generateWorkItemUid( "Test.prpt", "admin" );
-    assertEquals( "WI-Test.prpt-admin-" + currentTime, result );
+    assertEquals( "WI-Test_prpt-admin-" + currentTime, result );
 
     // bad characters
     result = ActionUtil.generateWorkItemUid( "!@#$%^&*.prpt", "adm&*&in" );
-    assertEquals( "WI-_.prpt-adm_in-" + currentTime, result );
+    assertEquals( "WI-_prpt-adm_in-" + currentTime, result );
 
     // all bad characters
     result = ActionUtil.generateWorkItemUid( "!@#$%^&*.prpt", "&*&(*&" );
-    assertEquals( "WI-_.prpt-_-" + currentTime, result );
+    assertEquals( "WI-_prpt-_-" + currentTime, result );
 
     // file path and spaces
     result = ActionUtil.generateWorkItemUid( "folder/Test File.prpt", "adm&*&in" );
-    assertEquals( "WI-Test_File.prpt-adm_in-" + currentTime, result );
+    assertEquals( "WI-Test_File_prpt-adm_in-" + currentTime, result );
 
     // missing user and file
     result = ActionUtil.generateWorkItemUid( "", "" );
