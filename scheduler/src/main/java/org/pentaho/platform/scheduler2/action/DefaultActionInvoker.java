@@ -15,22 +15,23 @@
  * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.plugin.action;
+package org.pentaho.platform.scheduler2.action;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.action.ActionInvokeStatus;
 import org.pentaho.platform.api.action.ActionInvocationException;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.action.IActionInvokeStatus;
 import org.pentaho.platform.api.action.IActionInvoker;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.plugin.action.messages.Messages;
+import org.pentaho.platform.scheduler2.messsages.Messages;
+import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
 import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
 
@@ -45,54 +46,17 @@ public class DefaultActionInvoker implements IActionInvoker {
   private static final Log logger = LogFactory.getLog( DefaultActionInvoker.class );
 
   /**
-   * Gets the stream provider from the {@code INVOKER_STREAMPROVIDER,} or builds it from the input file and output
-   * dir {@link Map} values. Returns {@code null} if information needed to build the stream provider is not present in
-   * the {@code map}, which is perfectly ok for some {@link org.pentaho.platform.api.action.IAction} types.
+   * Gets the stream provider from the {@code RESERVEDMAPKEY_STREAMPROVIDER} key within the {@code params} {@link Map}.
    *
-   * @param params the {@link Map} or parameters needed to invoke the {@link org.pentaho.platform.api.action.IAction}
+   * @param params the {@link Map} or parameters needed to invoke the {@link IAction}
    * @return a {@link IBackgroundExecutionStreamProvider} represented in the {@code params} {@link Map}
    */
   protected IBackgroundExecutionStreamProvider getStreamProvider( final Map<String, Serializable> params ) {
-
     if ( params == null ) {
       logger.warn( Messages.getInstance().getMapNullCantReturnSp() );
       return null;
     }
-    IBackgroundExecutionStreamProvider streamProvider = null;
-
-    final Object objsp = params.get( ActionUtil.INVOKER_STREAMPROVIDER );
-    if ( objsp != null && IBackgroundExecutionStreamProvider.class.isAssignableFrom( objsp.getClass() ) ) {
-      streamProvider = (IBackgroundExecutionStreamProvider) objsp;
-      if ( streamProvider instanceof RepositoryFileStreamProvider ) {
-        params.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, ( (RepositoryFileStreamProvider) streamProvider )
-          .getInputFilePath() );
-        params.put( ActionUtil.INVOKER_STREAMPROVIDER_OUTPUT_FILE_PATTERN, ( (RepositoryFileStreamProvider)
-          streamProvider ).getOutputFilePath() );
-        params.put( ActionUtil.INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME, ( (RepositoryFileStreamProvider)
-          streamProvider ).autoCreateUniqueFilename() );
-      }
-    } else {
-      final String inputFile = params.get( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE ) == null ? null : params.get(
-        ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE ).toString();
-      final String outputFilePattern = params.get( ActionUtil.INVOKER_STREAMPROVIDER_OUTPUT_FILE_PATTERN ) == null
-        ? null : params.get( ActionUtil.INVOKER_STREAMPROVIDER_OUTPUT_FILE_PATTERN ).toString();
-      boolean hasInputFile = !StringUtils.isEmpty( inputFile );
-      boolean hasOutputPattern = !StringUtils.isEmpty( outputFilePattern );
-      if ( hasInputFile && hasOutputPattern ) {
-        boolean autoCreateUniqueFilename = params.get( ActionUtil.INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME ) == null
-          || params.get( ActionUtil.INVOKER_STREAMPROVIDER_UNIQUE_FILE_NAME ).toString().equalsIgnoreCase( "true" );
-        streamProvider = new RepositoryFileStreamProvider( inputFile, outputFilePattern, autoCreateUniqueFilename );
-        // put in the map for future lookup
-        params.put( ActionUtil.INVOKER_STREAMPROVIDER, streamProvider );
-      } else {
-        if ( logger.isWarnEnabled() ) {
-          logger.warn( Messages.getInstance().getMissingParamsCantReturnSp( String.format( "%s, %s",
-            ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, ActionUtil.INVOKER_STREAMPROVIDER_OUTPUT_FILE_PATTERN ),
-            params ) ); //$NON-NLS-1$
-        }
-      }
-    }
-    return streamProvider;
+    return ( IBackgroundExecutionStreamProvider ) params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
   }
 
   /**
@@ -108,15 +72,11 @@ public class DefaultActionInvoker implements IActionInvoker {
   public IActionInvokeStatus invokeAction( final IAction actionBean,
                                            final String actionUser,
                                            final Map<String, Serializable> params ) throws Exception {
-    ActionUtil.prepareMap( params );
-    // call getStreamProvider, in addition to creating the provider, this method also adds values to the map that
-    // serialize the stream provider and make it possible to deserialize and recreate it for remote execution.
-    getStreamProvider( params );
     return invokeActionImpl( actionBean, actionUser, params );
   }
 
   /**
-   * Invokes the provided {@link IAction} locally as the provided {@code actionUser}.
+   * Invokes the provided {@link IAction} as the provided {@code actionUser}.
    *
    * @param actionBean the {@link IAction} being invoked
    * @param actionUser The user invoking the {@link IAction}
@@ -124,9 +84,9 @@ public class DefaultActionInvoker implements IActionInvoker {
    * @return the {@link IActionInvokeStatus} object containing information about the action invocation
    * @throws Exception when the {@code IAction} cannot be invoked for some reason.
    */
-  protected IActionInvokeStatus invokeActionImpl( final IAction actionBean,
-                                                  final String actionUser,
-                                                  final Map<String, Serializable> params ) throws Exception {
+  protected final IActionInvokeStatus invokeActionImpl( final IAction actionBean,
+                                           final String actionUser,
+                                           final Map<String, Serializable> params ) throws Exception {
 
     final String workItemUid = ActionUtil.extractUid( params );
 
@@ -149,16 +109,17 @@ public class DefaultActionInvoker implements IActionInvoker {
     }
 
     // remove the scheduling infrastructure properties
-    params.remove( ActionUtil.INVOKER_ACTIONCLASS );
-    params.remove( ActionUtil.INVOKER_ACTIONID );
-    params.remove( ActionUtil.INVOKER_ACTIONUSER );
+    ActionUtil.removeKeyFromMap( params, ActionUtil.INVOKER_ACTIONCLASS );
+    ActionUtil.removeKeyFromMap( params, ActionUtil.INVOKER_ACTIONID );
+    ActionUtil.removeKeyFromMap( params, ActionUtil.INVOKER_ACTIONUSER );
     // build the stream provider
     final IBackgroundExecutionStreamProvider streamProvider = getStreamProvider( params );
-    params.remove( ActionUtil.INVOKER_STREAMPROVIDER );
-    params.remove( ActionUtil.INVOKER_UIPASSPARAM );
+    ActionUtil.removeKeyFromMap( params, ActionUtil.INVOKER_STREAMPROVIDER );
+    ActionUtil.removeKeyFromMap( params, ActionUtil.INVOKER_UIPASSPARAM );
 
     final ActionRunner actionBeanRunner = new ActionRunner( actionBean, actionUser, params, streamProvider );
-    final ActionInvokeStatus status = new ActionInvokeStatus();
+    final IActionInvokeStatus status = new ActionInvokeStatus();
+    status.setStreamProvider( streamProvider );
 
     boolean requiresUpdate = false;
     try {

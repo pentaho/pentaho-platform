@@ -15,15 +15,16 @@
  * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.plugin.action;
+package org.pentaho.platform.action;
 
 import org.pentaho.platform.api.action.IActionInvokeStatus;
 
 public class ActionInvokeStatus implements IActionInvokeStatus {
   private boolean requiresUpdate;
   private Throwable throwable;
+  private Object streamProvider;
 
-  void setRequiresUpdate( final boolean requiresUpdate ) {
+  public void setRequiresUpdate( final boolean requiresUpdate ) {
     this.requiresUpdate = requiresUpdate;
   }
 
@@ -31,11 +32,19 @@ public class ActionInvokeStatus implements IActionInvokeStatus {
     return this.requiresUpdate;
   }
 
-  void setThrowable( final Throwable throwable ) {
+  public void setThrowable( final Throwable throwable ) {
     this.throwable = throwable;
   }
 
   public Throwable getThrowable() {
     return this.throwable;
+  }
+
+  public void setStreamProvider( final Object streamProvider ) {
+    this.streamProvider = streamProvider;
+  }
+
+  public Object getStreamProvider() {
+    return this.streamProvider;
   }
 }

@@ -30,6 +30,7 @@ import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.scheduler2.action.DefaultActionInvoker;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.ActionUtil;
@@ -46,6 +47,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 /**
@@ -122,9 +124,10 @@ public class ActionAdapterQuartzJob implements Job {
 
     WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.SUBMITTED );
 
-    // create an instance of IActionInvoker, which knows know to invoke this IAction
-    final IActionInvoker actionInvoker = PentahoSystem.get( IActionInvoker.class, "IActionInvoker", PentahoSessionHolder
-      .getSession() );
+    // creates an instance of IActionInvoker, which knows how to invoke this IAction - if the IActionInvoker bean is
+    // not defined through spring, fall back on the default action invoker
+    final IActionInvoker actionInvoker = Optional.ofNullable(PentahoSystem.get( IActionInvoker.class,
+      "IActionInvoker", PentahoSessionHolder.getSession() ) ).orElse( new DefaultActionInvoker() );
     // Instantiate the requested IAction bean
     final IAction actionBean = (IAction) ActionUtil.createActionBean( actionClassName, actionId );
 
@@ -151,8 +154,7 @@ public class ActionAdapterQuartzJob implements Job {
 
     final boolean requiresUpdate = status.requiresUpdate();
     final Throwable throwable = status.getThrowable();
-
-    Object objsp = params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    Object objsp = status.getStreamProvider();
     IBackgroundExecutionStreamProvider sp = null;
     if ( objsp != null && IBackgroundExecutionStreamProvider.class.isAssignableFrom( objsp.getClass() ) ) {
       sp = (IBackgroundExecutionStreamProvider) objsp;

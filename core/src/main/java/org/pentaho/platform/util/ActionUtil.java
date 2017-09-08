@@ -34,6 +34,7 @@ import org.pentaho.platform.util.web.MimeHelper;
 import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -86,6 +87,50 @@ public class ActionUtil {
     KEY_MAP.put( ActionUtil.QUARTZ_STREAMPROVIDER, ActionUtil.INVOKER_STREAMPROVIDER );
     KEY_MAP.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE, ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE );
     KEY_MAP.put( ActionUtil.QUARTZ_RESTART_FLAG, ActionUtil.INVOKER_RESTART_FLAG );
+  }
+
+  /**
+   * Removes the provided {@code key} from the {@code params} {@link Map} , if it exists, as well as its
+   * "equivalent", as defined within the {@code KEY_MAP}. If the provided {@code key} is a key within the {@code
+   * KEY_MAP}, its "equivalent" is the value. If the provided {@code key} is a value within the {@code KEY_MAP}, its
+   * "equivalent" is the key.<br><br>
+   * Example: Given a {@code KEY_MAP} that looks like this:<br>
+   *   <ul><li>firstName=first.name</li>
+   *   <li>lastName=last.name</li>
+   *   <li>addr=address</li>
+   *   <li>person.age=age</li></ul>
+   * a call to {@code removeKeyFromMap( map, "firstName")} will attempt to remove the "firstName" and "first.name" keys
+   * from the provided map. Likewise, a call to  {@code removeKeyFromMap( map, "last.name")} will attempt to remove the
+   * "last.name" and "lastName" keys from the provided map.
+   *
+   * @param params the {@link Map} from which keys are being removed
+   * @param key the {@code String} key being removed from the map
+   */
+  public static void removeKeyFromMap( final Map<String, ?> params, final String key ) {
+    if ( params == null || key == null ) {
+      logger.debug( "Map or key are null, cannot remove." );
+      return;
+    }
+    // remove the key itself
+    params.remove( key );
+
+    // also remove the keys equivalent in the KEY_MAP, whether its a key or a value itself
+    if ( KEY_MAP.keySet().contains( key ) ) {
+      params.remove( KEY_MAP.get( key ) );
+    } else if ( KEY_MAP.values().contains( key ) ) {
+      final Iterator<Map.Entry<String, String>> keyMapIter = KEY_MAP.entrySet().iterator();
+      while ( keyMapIter.hasNext() ) {
+        final Map.Entry<String, String> entry = keyMapIter.next();
+        final String keyMapKey = entry.getKey();
+        final String keyMapValue = entry.getValue();
+        if ( key.equals( keyMapValue ) ) {
+          params.remove( keyMapKey );
+          // the KEY_MAP is built by us in a controlled fashion, therefore we know that once we've found one matching
+          // value, we are done
+          break;
+        }
+      }
+    }
   }
 
   /**

@@ -18,6 +18,7 @@
 package org.pentaho.platform.util;
 
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
@@ -261,5 +262,48 @@ public class ActionUtilTest {
     assertEquals( "WI-" + currentTime, result );
     result = ActionUtil.generateWorkItemUid( null, null );
     assertEquals( "WI-" + currentTime, result );
+  }
+
+  @Test
+  public void testRemoveKeyFromMap() {
+    // null map - verify no exception is thrown
+    try {
+      ActionUtil.removeKeyFromMap( null, null );
+      ActionUtil.removeKeyFromMap( null, "" );
+    } catch ( final Exception e ) {
+      Assert.fail();
+    }
+
+    final Map<String, Serializable> map = new HashMap();
+    map.put( ActionUtil.QUARTZ_ACTIONCLASS, "actionClass" );
+    map.put( ActionUtil.QUARTZ_ACTIONUSER, "user" );
+    map.put( ActionUtil.INVOKER_ACTIONUSER, "user" );
+    map.put( ActionUtil.QUARTZ_ACTIONID, "actionId" );
+    map.put( ActionUtil.INVOKER_ACTIONID, "actionId" );
+    map.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, "inputFile" );
+    // clone the original map
+    final Map<String, Serializable> clone = new HashMap( map );
+
+    // bad keys, verify map isn't changed
+    ActionUtil.removeKeyFromMap( map, null );
+    Assert.assertEquals( map, clone );
+    ActionUtil.removeKeyFromMap( map, "" );
+    Assert.assertEquals( map, clone );
+    ActionUtil.removeKeyFromMap( map, "some key" );
+    Assert.assertEquals( map, clone );
+
+    // verify that when KEY_MAP key is provided, both values are removed
+    ActionUtil.removeKeyFromMap( map, ActionUtil.QUARTZ_ACTIONUSER );
+    Assert.assertEquals( 4, map.size() );
+    // verify that the expected keys are no longer present in the map
+    Assert.assertNull( map.get( ActionUtil.QUARTZ_ACTIONUSER ) );
+    Assert.assertNull( map.get( ActionUtil.INVOKER_ACTIONUSER ) );
+
+    // verify that when KEY_MAP value is provided, both values are removed
+    ActionUtil.removeKeyFromMap( map, ActionUtil.INVOKER_ACTIONID );
+    Assert.assertEquals( 2, map.size() );
+    // verify that the expected keys are no longer present in the map
+    Assert.assertNull( map.get( ActionUtil.INVOKER_ACTIONID ) );
+    Assert.assertNull( map.get( ActionUtil.QUARTZ_ACTIONID ) );
   }
 }
