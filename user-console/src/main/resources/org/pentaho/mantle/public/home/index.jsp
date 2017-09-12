@@ -118,6 +118,11 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
       });
 
     });
+	
+	// Set a variable that the inner html pages can read to determine if the ruby theme is active
+	if (window.active_theme === "ruby") { 
+	  this.css_custom_location = "css/ccp-ruby.css";
+	}
   </script>
 </head>
 
