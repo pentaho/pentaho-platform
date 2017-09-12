@@ -1,0 +1,91 @@
+.ccp-header h1{
+  font-size: 24px;
+  color: #414141;
+  border-bottom: 1px solid #bfbfbf;
+}
+
+.sub .ccp-header h2 {
+  color: #414141;
+  font-size: 24px;
+}
+
+.close-btn:before, .close-btn:after {
+  background-color: #333333;
+}
+
+.sub .dl-menuwrapper button:after {
+  background: #333333;
+  top: 15px;
+  box-shadow: 0 8px 0 #333333, 0 16px 0 #333333;
+}
+
+body.sub .ccp-header{
+  border-bottom: 1px solid #eeeeee;
+}
+
+a.sub-menu-btn{
+  color: #7C0B2B;
+}
+
+.semi-bold{
+  font-weight: normal;
+}
+
+.sub-page-sub-header a {
+  color: #7C0B2B;
+}
+
+.main-menu-opt:hover,
+.sub-menu-item:hover {
+  background: #d1d1d1;
+  border: 1px solid #d1d1d1;
+}
+
+.sub-menu-item{
+  background: #f0f0f0;
+  border: 1px solid #f0f0f0;
+}
+
+a.live-chat-btn{
+  background: #cc0000 url(../img/chat-icon.svg) no-repeat 10px center;
+  color: #FFFFFF;
+}
+
+a.live-chat-btn:hover{
+  background: #7C0B2B url(../img/chat-icon.svg) no-repeat 10px center;
+}
+
+a.try-pentaho-btn{
+  background-color: #ffffff;
+  color: #cc0000;
+  border: 1px solid #cc0000;
+  border-radius: 4px;
+}
+
+.main-menu-opt.marketplace,
+.main-menu-opt.report-bug,
+.main-menu-opt.source-code,
+.main-menu-opt.translate{
+  background: #ebebeb;
+}
+
+a.try-pentaho-btn:hover{
+  background-color: #cc0000;
+  color: #FFFFFF
+}
+
+.main-menu-opt{
+  background: #ebebeb;
+  border: 1px solid #ebebeb;
+}
+
+.main-menu-opt:hover,
+.sub-menu-item:hover {
+  background: #c7c7c7;
+  border: 1px solid #c7c7c7;
+}
+
+.main-menu-opt h2{
+  font-weight: 300;
+  color: #414141;
+}
