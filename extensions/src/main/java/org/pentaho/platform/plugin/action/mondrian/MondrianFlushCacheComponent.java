@@ -48,7 +48,7 @@ public class MondrianFlushCacheComponent extends ComponentBase {
 
   @Override
   protected boolean validateAction() {
-    return getLookupRule() != null;
+    return true;
   }
 
   @Override
