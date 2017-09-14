@@ -56,7 +56,7 @@ public class DefaultActionInvoker implements IActionInvoker {
       logger.warn( Messages.getInstance().getMapNullCantReturnSp() );
       return null;
     }
-    return ( IBackgroundExecutionStreamProvider ) params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    return (IBackgroundExecutionStreamProvider) params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
   }
 
   /**
@@ -84,7 +84,7 @@ public class DefaultActionInvoker implements IActionInvoker {
    * @return the {@link IActionInvokeStatus} object containing information about the action invocation
    * @throws Exception when the {@code IAction} cannot be invoked for some reason.
    */
-  protected final IActionInvokeStatus invokeActionImpl( final IAction actionBean,
+  protected IActionInvokeStatus invokeActionImpl( final IAction actionBean,
                                            final String actionUser,
                                            final Map<String, Serializable> params ) throws Exception {
 

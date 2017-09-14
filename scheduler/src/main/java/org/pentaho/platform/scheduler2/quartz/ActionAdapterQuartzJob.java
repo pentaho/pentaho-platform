@@ -126,7 +126,7 @@ public class ActionAdapterQuartzJob implements Job {
 
     // creates an instance of IActionInvoker, which knows how to invoke this IAction - if the IActionInvoker bean is
     // not defined through spring, fall back on the default action invoker
-    final IActionInvoker actionInvoker = Optional.ofNullable(PentahoSystem.get( IActionInvoker.class,
+    final IActionInvoker actionInvoker = Optional.ofNullable( PentahoSystem.get( IActionInvoker.class,
       "IActionInvoker", PentahoSessionHolder.getSession() ) ).orElse( new DefaultActionInvoker() );
     // Instantiate the requested IAction bean
     final IAction actionBean = (IAction) ActionUtil.createActionBean( actionClassName, actionId );
