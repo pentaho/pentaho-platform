@@ -115,9 +115,9 @@ public class ActionUtil {
     params.remove( key );
 
     // also remove the keys equivalent in the KEY_MAP, whether its a key or a value itself
-    if ( KEY_MAP.keySet().contains( key ) ) {
+    if ( KEY_MAP.containsKey( key ) ) {
       params.remove( KEY_MAP.get( key ) );
-    } else if ( KEY_MAP.values().contains( key ) ) {
+    } else if ( KEY_MAP.containsValue( key ) ) {
       final Iterator<Map.Entry<String, String>> keyMapIter = KEY_MAP.entrySet().iterator();
       while ( keyMapIter.hasNext() ) {
         final Map.Entry<String, String> entry = keyMapIter.next();
