@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function(global) {
+(function() {
   /* globals requireCfg, CONTEXT_PATH */
   /* eslint dot-notation: 0, require-jsdoc: 0 */
 
-  var requireTypes = requireCfg.config["pentaho/service"] || (requireCfg.config["pentaho/service"] = {});
+  var requireInstInfo = requireCfg.config["pentaho/instanceInfo"] || (requireCfg.config["pentaho/instanceInfo"] = {});
 
   requireCfg.paths["pentaho/config/deploy"] = CONTEXT_PATH + "content/config/deploy";
-  requireTypes["pentaho/config/deploy/config"] = "pentaho.config.spec.IRuleSet";
+  requireInstInfo["pentaho/config/deploy/config"] = {type: "pentaho.config.spec.IRuleSet"};
 
-})(this);
+})();
