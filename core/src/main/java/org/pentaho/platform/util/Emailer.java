@@ -184,8 +184,14 @@ public class Emailer {
         props.put( "mail.password", service.getEmailConfig().getPassword() );
         setAuthenticator( new Authenticator() {
           protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication( service.getEmailConfig().getUserId(), service.getEmailConfig()
-              .getPassword() );
+            String decrypted;
+            try {
+              Base64PasswordService ps = new Base64PasswordService();
+              decrypted = ps.decrypt( service.getEmailConfig().getPassword() );
+            } catch ( Exception e ) {
+              decrypted = service.getEmailConfig().getPassword();
+            }
+            return new PasswordAuthentication( service.getEmailConfig().getUserId(), decrypted );
           }
         } );
       }

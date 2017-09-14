@@ -171,11 +171,15 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
     passwordTextBox.addKeyUpHandler( new KeyUpHandler() {
       public void onKeyUp( final KeyUpEvent keyUpEvent ) {
-        emailConfig.setPassword( passwordTextBox.getValue() );
+        emailConfig.setPassword( b64encode( passwordTextBox.getValue() ) );
         setDirty( true );
       }
     } );
   }
+
+  private static native String b64encode( String a ) /*-{
+    return window.btoa(a);
+  }-*/;
 
   public static EmailAdminPanelController getInstance() {
     if ( emailAdminPanelController == null ) {
