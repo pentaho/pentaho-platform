@@ -254,9 +254,9 @@ public class PentahoWebContextFilter implements Filter {
     String activeTheme = (String) session.getAttribute( "pentaho-user-theme" );
 
     String ua = request.getHeader( "User-Agent" );
-    // check if we're coming from a mobile device, if so, lock to system default (crystal)
+    // check if we're coming from a mobile device, if so, lock to system default (ruby)
     if ( StringUtils.isNotEmpty( ua ) && ua.matches( ".*(?i)(iPad|iPod|iPhone|Android).*" ) ) {
-      activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
+      activeTheme = PentahoSystem.getSystemSetting( "default-theme", "ruby" );
     }
 
     if ( activeTheme == null ) {
@@ -269,7 +269,7 @@ public class PentahoWebContextFilter implements Filter {
       }
 
       if ( activeTheme == null ) {
-        activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
+        activeTheme = PentahoSystem.getSystemSetting( "default-theme", "ruby" );
       }
     }
 

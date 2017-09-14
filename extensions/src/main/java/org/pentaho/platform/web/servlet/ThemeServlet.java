@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -73,9 +73,9 @@ public class ThemeServlet extends ServletBase {
       String activeTheme = (String) getPentahoSession( req ).getAttribute( "pentaho-user-theme" );
 
       String ua = req.getHeader( "User-Agent" );
-      // check if we're coming from a mobile device, if so, lock to system default (crystal)
+      // check if we're coming from a mobile device, if so, lock to system default (ruby)
       if ( !StringUtils.isEmpty( ua ) && ua.matches( ".*(?i)(iPad|iPod|iPhone|Android).*" ) ) {
-        activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
+        activeTheme = PentahoSystem.getSystemSetting( "default-theme", "ruby" );
       }
       if ( activeTheme == null ) {
         try {
@@ -84,7 +84,7 @@ public class ThemeServlet extends ServletBase {
                                         // server
         }
         if ( activeTheme == null ) {
-          activeTheme = PentahoSystem.getSystemSetting( "default-theme", "crystal" );
+          activeTheme = PentahoSystem.getSystemSetting( "default-theme", "ruby" );
         }
       }
 
