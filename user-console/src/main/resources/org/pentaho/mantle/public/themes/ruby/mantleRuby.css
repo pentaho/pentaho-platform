@@ -79,22 +79,13 @@
   border-top: 1px solid #CCC;
 }
 
-.adminCatTreeItem .tree-item-custom-widget .gwt-Label {
-  color: #999;
-}
-
 .adminCatTreeItem .tree-item-custom-widget:hover {
-  background: #CC0000;
+  background: #E0E0E0;
 }
 
 .adminCatTreeItem .tree-item-custom-widget.tree-item-custom-widget-selected,
 .adminCatTreeItem .tree-item-custom-widget.tree-item-custom-widget-selected:hover {
-  background: #7C0B2B;
-}
-
-.adminCatTreeItem .tree-item-custom-widget:hover .gwt-Label,
-.adminCatTreeItem .tree-item-custom-widget.tree-item-custom-widget-selected .gwt-Label {
-  color: #FFF;
+  background: rgba(204, 0, 0, 0.2);
 }
 
 .adminCatTreeItem .tree-item-custom-widget {
@@ -444,7 +435,7 @@ a:active, a:hover {
 }
 
 .backgroundContentHeaderTableCell {
-  background-color: #8ab3c6;
+  /*background-color: #8ab3c6;*/
   /*
    background: -moz-linear-gradient(top, #1a1a1a 0%, #333333 50%, #000000 51%, #000000 100%);
    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1a1a1a), color-stop(50%,#333333), color-stop(51%,#000000), color-stop(100%,#000000));
@@ -1011,9 +1002,14 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
   text-align: left;
 }
 
+div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover {
+  background-color: #E0E0E0;
+  color: #000;
+}
+
 .custom-dropdown-selected {
-  background-color: #7C0B2B !important;
-  color: #FFF !important;
+  background-color: rgba(204, 0, 0, 0.2) !important;
+  color: #000 !important;
 }
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled {
@@ -1360,6 +1356,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
 
 .pentaho-table .cellTableEvenRow.cellTableHoveredRow,
 .pentaho-table .cellTableOddRow.cellTableHoveredRow {
+  background-color: #E0E0E0;
 }
 
 .pentaho-table .cellTableEvenRowCell.cellTableHoveredRowCell,
@@ -1373,14 +1370,14 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
 }
 
 .pentaho-table .cellTableSelectedRow {
-  background: #CC0000;
-  color: #FFF;
+  background-color: rgba(204, 0, 0, 0.2);
+  color: #000;
 }
 
 .schedulesPanel .pentaho-table .cellTableSelectedRow {
-  background: #CC0000;
-  border-color: #CC0000;
-  color: #FFF;
+  background-color: rgba(204, 0, 0, 0.2);
+  border-color: rgb(204, 0, 0);
+  color: #000;
 }
 
 /**
