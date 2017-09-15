@@ -141,7 +141,7 @@
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
-				<artifactItem>
+                <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>pdi-addsequence-plugin</artifactId>
                   <version>${project.version}</version>
