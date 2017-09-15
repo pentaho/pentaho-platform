@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -35,7 +35,9 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.ws.rs.core.MediaType.*;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.WILDCARD;
 
 /**
  * Resource manages themes for the platform
@@ -108,7 +110,7 @@ public class ThemeResource extends AbstractJaxRSResource {
     IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
     return Response.ok(
       StringUtils.defaultIfEmpty( (String) getPentahoSession().getAttribute( "pentaho-user-theme" ), settingsService
-        .getUserSetting( "pentaho-user-theme", PentahoSystem.getSystemSetting( "default-theme", "onyx" ) )
+        .getUserSetting( "pentaho-user-theme", PentahoSystem.getSystemSetting( "default-theme", "ruby" ) )
           .getSettingValue() ) ).type( MediaType.TEXT_PLAIN ).build();
   }
 
