@@ -17,8 +17,6 @@
 
 package org.pentaho.platform.workitem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.ActionUtil;
@@ -35,7 +33,6 @@ import java.util.Map;
 public class WorkItemLifecyclePublisher implements ApplicationEventPublisherAware {
 
   private static String PUBLISHER_BEAN_NAME = "workItemLifecyclePublisher";
-  private static final Log log = LogFactory.getLog( WorkItemLifecyclePublisher.class );
 
   private ApplicationEventPublisher publisher = null;
 
@@ -112,9 +109,6 @@ public class WorkItemLifecyclePublisher implements ApplicationEventPublisherAwar
     final WorkItemLifecyclePublisher publisher = getInstance();
     if ( publisher != null ) {
       publisher.publishImpl( workItemLifecycleEvent );
-    } else {
-      log.debug( String.format( "'%s' publisher bean is not available, unable to publish work item  lifecycle: %s",
-        PUBLISHER_BEAN_NAME, workItemLifecycleEvent.toString() ) );
     }
   }
 
@@ -164,9 +158,6 @@ public class WorkItemLifecyclePublisher implements ApplicationEventPublisherAwar
   protected void publishImpl( final WorkItemLifecycleEvent workItemLifecycleEvent ) {
     if ( getApplicationEventPublisher() != null ) {
       getApplicationEventPublisher().publishEvent( workItemLifecycleEvent );
-    } else {
-      log.debug( String.format( "Publisher in bean '%s' is not available, unable to publish work item lifecycle: "
-        + "%s", PUBLISHER_BEAN_NAME, workItemLifecycleEvent.toString() ) );
     }
   }
 }

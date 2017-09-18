@@ -15,7 +15,7 @@
  *
  * Copyright 2017 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.platform.plugin.action;
+package org.pentaho.platform.scheduler2.action;
 
 import org.junit.Rule;
 import org.junit.Test;

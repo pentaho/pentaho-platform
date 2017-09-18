@@ -12,12 +12,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.messsages;
 
+import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.messages.MessagesBase;
+
+import java.util.Map;
 
 public class Messages extends MessagesBase {
 
@@ -31,5 +34,30 @@ public class Messages extends MessagesBase {
 
   public static Messages getInstance() {
     return instance;
+  }
+
+  public String getRunningInBackgroundLocally( final String actionIdentifier, final Map params ) {
+    return getString( "ActionInvoker.INFO_0001_RUNNING_IN_BG_LOCALLY", actionIdentifier,
+      StringUtil.getMapAsPrettyString( params ) );
+  }
+
+  public String getCantInvokeNullAction() {
+    return getErrorString( "ActionInvoker.ERROR_0005_ACTION_NULL" );
+  }
+
+  public String getActionFailedToExecute( final String actionIdentifier ) {
+    return getErrorString( "ActionInvoker.ERROR_0004_ACTION_FAILED", actionIdentifier );
+  }
+
+  public String getSkipRemovingOutputFile( final String fileName ) {
+    return getString( "ActionInvoker.WARN_0001_SKIP_REMOVING_OUTPUT_FILE", fileName );
+  }
+
+  public String getCannotGetRepoFile( final String fileName, final String msg ) {
+    return getErrorString( "ActionInvoker.ERROR_0010_CANNOT_GET_REPO_FILE", fileName, msg );
+  }
+
+  public String getMapNullCantReturnSp() {
+    return getErrorString( "ActionInvoker.ERROR_0008_MAP_NULL_CANT_RETURN_SP" );
   }
 }

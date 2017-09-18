@@ -24,13 +24,17 @@ package org.pentaho.platform.api.action;
  */
 public interface IActionInvokeStatus {
 
+  void setRequiresUpdate( final boolean requiresUpdate );
+
   /**
-   * Returns true if the  {@link IAction} that was just invoked needs to be resubmitted. Used for scheduling purposes
+   * Returns true if the {@link IAction} that was just invoked needs to be resubmitted. Used for scheduling purposes
    * only.
    *
-   * @return true if the  {@link IAction} that was just invoked needs to be resubmitted and false otherwise
+   * @return true if the {@link IAction} that was just invoked needs to be resubmitted and false otherwise
    */
   boolean requiresUpdate();
+
+  void setThrowable( final Throwable throwable );
 
   /**
    * Returns a {@link Throwable} instance, if any occurred when the {@link IAction} was being invoked.
@@ -38,4 +42,13 @@ public interface IActionInvokeStatus {
    * @return a {@link Throwable} instance, if any occurred when the {@link IAction} was being invoked
    */
   Throwable getThrowable();
+
+  /**
+   * Returns the object representing the stream provider containing the file associated with the given action.
+   *
+   * @return the object representing the stream provider containing the file associated with the given action.
+   */
+  Object getStreamProvider();
+
+  void setStreamProvider( final Object streamProvider );
 }

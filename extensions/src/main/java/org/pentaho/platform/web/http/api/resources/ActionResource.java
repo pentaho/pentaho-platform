@@ -29,7 +29,7 @@ import org.pentaho.platform.api.action.IActionInvoker;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.ActionParams;
-import org.pentaho.platform.plugin.action.DefaultActionInvoker;
+import org.pentaho.platform.plugin.action.LocalActionInvoker;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
@@ -135,7 +135,9 @@ public class ActionResource {
   }
 
   /**
-   * Returns the appropriate {@link IActionInvoker}.
+   * Returns the appropriate {@link IActionInvoker}, as defined in spring config. This is safe to do, as this
+   * resource class is only expected to be used by the worker node, where the spring configuration for the {@code
+   * IActionInvoker} bean is expected to exist.
    *
    * @return the {@link IActionInvoker}
    */
@@ -143,8 +145,8 @@ public class ActionResource {
     return PentahoSystem.get( IActionInvoker.class, "IActionInvoker", PentahoSessionHolder.getSession() );
   }
 
-  DefaultActionInvoker getDefaultActionInvoker() {
-    return new DefaultActionInvoker();
+  IActionInvoker getDefaultActionInvoker() {
+    return new LocalActionInvoker();
   }
 
   /**
