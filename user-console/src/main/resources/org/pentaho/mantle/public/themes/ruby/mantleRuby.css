@@ -97,7 +97,7 @@
 .adminCatTreeItem .tree-item-custom-widget:hover,
 .adminCatTreeItem .tree-item-custom-widget.tree-item-custom-widget-selected,
 .adminCatTreeItem .tree-item-custom-widget.tree-item-custom-widget-selected:hover {
-  background-image: url(images/dropdown_right_arrow_white.png);
+  background-image: url(images/dropdown_right_arrow_blue.png);
   background-repeat: no-repeat;
   background-position: right 10px center;
 }
@@ -1002,7 +1002,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
   text-align: left;
 }
 
-div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover {
+div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-MenuItem-disabled) {
   background-color: #E0E0E0;
   color: #000;
 }
