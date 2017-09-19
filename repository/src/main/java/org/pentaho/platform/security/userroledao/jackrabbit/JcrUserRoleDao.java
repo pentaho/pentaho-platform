@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.security.userroledao.jackrabbit;
@@ -120,7 +120,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       } );
     } catch ( DataAccessException e ) {
       if ( ( e instanceof JcrSystemException ) && ( e.getCause() instanceof AuthorizableExistsException ) ) {
-        throw new AlreadyExistsException( "" );
+        throw new AlreadyExistsException( Messages.getInstance().getString(
+                "JcrUserRoleDao.Role.Already.Exists" ) );
       }
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
           "JcrUserRoleDao.ERROR_0002_CREATING_ROLE", e.getLocalizedMessage() ), e );
@@ -141,7 +142,8 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       } );
     } catch ( DataAccessException e ) {
       if ( ( e instanceof JcrSystemException ) && ( e.getCause() instanceof AuthorizableExistsException ) ) {
-        throw new AlreadyExistsException( "" );
+        throw new AlreadyExistsException( Messages.getInstance().getString(
+                "JcrUserRoleDao.User.Already.Exists" ) );
       }
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
           "JcrUserRoleDao.ERROR_0003_CREATING_USER", e.getLocalizedMessage() ), e );
