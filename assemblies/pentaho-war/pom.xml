@@ -466,7 +466,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.karaf.jaas</groupId>
+      <groupId>org.pentaho.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.boot</artifactId>
       <version>${org.apache.karaf.jaas.version}</version>
       <scope>compile</scope>
@@ -478,7 +478,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.karaf.jaas</groupId>
+      <groupId>org.pentaho.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.modules</artifactId>
       <version>${org.apache.karaf.jaas.version}</version>
       <scope>compile</scope>
@@ -490,7 +490,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.karaf.jaas</groupId>
+      <groupId>org.pentaho.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.config</artifactId>
       <version>${org.apache.karaf.jaas.version}</version>
       <scope>compile</scope>
