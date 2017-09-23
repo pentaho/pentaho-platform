@@ -59,6 +59,8 @@ public class ActionAdapterQuartzJob implements Job {
 
   static final Log log = LogFactory.getLog( ActionAdapterQuartzJob.class );
 
+  private IActionInvoker actionInvoker = new DefaultActionInvoker(); // default
+
   public void execute( JobExecutionContext context ) throws JobExecutionException {
     JobDataMap jobDataMap = context.getMergedJobDataMap();
     String actionUser = jobDataMap.getString( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER );
@@ -127,7 +129,7 @@ public class ActionAdapterQuartzJob implements Job {
     // creates an instance of IActionInvoker, which knows how to invoke this IAction - if the IActionInvoker bean is
     // not defined through spring, fall back on the default action invoker
     final IActionInvoker actionInvoker = Optional.ofNullable( PentahoSystem.get( IActionInvoker.class,
-      "IActionInvoker", PentahoSessionHolder.getSession() ) ).orElse( new DefaultActionInvoker() );
+      "IActionInvoker", PentahoSessionHolder.getSession() ) ).orElse( getActionInvoker() );
     // Instantiate the requested IAction bean
     final IAction actionBean = (IAction) ActionUtil.createActionBean( actionClassName, actionId );
 
@@ -247,4 +249,11 @@ public class ActionAdapterQuartzJob implements Job {
 
   }
 
+  public IActionInvoker getActionInvoker() {
+    return actionInvoker;
+  }
+
+  public void setActionInvoker( IActionInvoker actionInvoker ) {
+    this.actionInvoker = actionInvoker;
+  }
 }
