@@ -42,7 +42,7 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.WorkerNodeActionInvokerAuditor;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
-import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
+import org.pentaho.platform.workitem.WorkItemLifecycleEventUtil;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -225,7 +225,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
       // when payload is null, we have no way of getting the work item id or any other work item related details, the
       // best we can do is log the failure message, disconnected from all other logs related to the work item; this
       // should theoretically never occur, but we cover this just in case
-      WorkItemLifecyclePublisher.publish( "?", null, WorkItemLifecyclePhase.FAILED, failureMessage );
+      WorkItemLifecycleEventUtil.publish( "?", null, WorkItemLifecyclePhase.FAILED, failureMessage );
     }
   }
 
@@ -307,7 +307,7 @@ public class ActionInvokerSystemListener implements IPentahoSystemListener {
     }
 
     void publishWorkItemStatus( final WorkItemLifecyclePhase phase, final String failureMessage ) {
-      WorkItemLifecyclePublisher.publish( workItemUid, actionMap, phase, failureMessage );
+      WorkItemLifecycleEventUtil.publish( workItemUid, actionMap, phase, failureMessage );
     }
   }
 }

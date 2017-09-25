@@ -17,19 +17,17 @@
 
 package org.pentaho.platform.workitem;
 
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
+import org.pentaho.platform.api.workitem.IWorkItemLifecycleEvent;
+import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
+import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventSubscriber;
 
-/**
- * A dummy listener used for testing purposes.
- */
-@Component
-public class DummyListenerA {
+import java.util.List;
 
-  @EventListener
-  @Async
-  public void onWorkItemLifecycleEvent( final WorkItemLifecycleEvent event ) {
-    WorkItemLifecyclePublisherTest.LISTENER_A_CALLED = true;
-  }
+public class DummyPublisher implements IWorkItemLifecycleEventPublisher {
+
+  public void publish( final IWorkItemLifecycleEvent event ) { }
+
+  public void setSubscribers( final List<IWorkItemLifecycleEventSubscriber> subscribers ) { }
+
+  public List<IWorkItemLifecycleEventSubscriber> getSubscribers() { return null; }
 }

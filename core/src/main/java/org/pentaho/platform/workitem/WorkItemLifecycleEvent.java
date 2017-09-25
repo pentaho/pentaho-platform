@@ -22,8 +22,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.workitem.IWorkItemLifecycleEvent;
 import org.pentaho.platform.util.StringUtil;
-import org.springframework.context.ApplicationEvent;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -37,7 +37,7 @@ import java.util.UUID;
  * This class encapsulates all information pertaining to a "work item" at a specific point in its lifecycle.
  */
 @XmlRootElement
-public class WorkItemLifecycleEvent extends ApplicationEvent {
+public class WorkItemLifecycleEvent implements IWorkItemLifecycleEvent {
 
   private static final Log logger = LogFactory.getLog( WorkItemLifecycleEvent.class );
 
@@ -63,9 +63,7 @@ public class WorkItemLifecycleEvent extends ApplicationEvent {
   /**
    * Default constructor, needed for serialization purposes.
    */
-  public WorkItemLifecycleEvent() {
-    super( "" );
-  }
+  public WorkItemLifecycleEvent() { }
 
   /**
    * Creates the {@link WorkItemLifecycleEvent} with all the required parameters.
@@ -80,7 +78,6 @@ public class WorkItemLifecycleEvent extends ApplicationEvent {
 
   public WorkItemLifecycleEvent( final String workItemUid, final String workItemDetails, final WorkItemLifecyclePhase
     workItemLifecyclePhase, final String lifecycleDetails, final Date sourceTimestamp ) {
-    super( "" );
 
     this.workItemUid = workItemUid;
     this.workItemDetails = workItemDetails;
@@ -197,7 +194,7 @@ public class WorkItemLifecycleEvent extends ApplicationEvent {
   /**
    * An implementation of {@link XmlAdapter} that allows us to [de]serialize Dates as longs (milliseconds).
    */
-  static class DateAdapter extends XmlAdapter<String, Date> {
+  public static class DateAdapter extends XmlAdapter<String, Date> {
 
     @Override
     public String marshal( final Date date ) throws Exception {

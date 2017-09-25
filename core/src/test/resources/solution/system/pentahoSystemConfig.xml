@@ -18,17 +18,4 @@ used by the system you should edit those files and not this one. This file shoul
 
   <bean id="pentahoSystemProxy" class="org.pentaho.platform.engine.core.system.SpringPentahoSystemProxy"/>
 
-  <bean id="workItemLifecyclePublisher" class="org.pentaho.platform.workitem.WorkItemLifecyclePublisher" />
-  <bean class="org.pentaho.platform.workitem.DummyListenerA" />
-  <bean class="org.pentaho.platform.workitem.DummyListenerB" />
-
-  <context:component-scan base-package="org.pentaho.platform.workitem">
-    <context:include-filter type="annotation" expression="org.pentaho.platform.workitem.WorkItemLifecyclePublisher"/>
-    <context:include-filter type="annotation"
-                            expression="org.pentaho.platform.workitem.DummyListenerA"/>
-    <context:include-filter type="annotation"
-                            expression="org.pentaho.platform.workitem.DummyListenerB"/>
-    <context:exclude-filter type="regex" expression=".*"/>
-  </context:component-scan>
-
 </beans>
