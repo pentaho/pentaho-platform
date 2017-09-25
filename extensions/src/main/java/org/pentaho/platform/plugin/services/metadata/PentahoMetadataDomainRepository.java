@@ -336,7 +336,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       // now, try to see if the xmi can be parsed (ie, check if it's valid xmi)
       byte[] xmiBytes = xmi.getBytes( DEFAULT_ENCODING );
       inputStream2 = new java.io.ByteArrayInputStream( xmiBytes );
-      xmiParser.parseXmi( inputStream2 );
+      xmiParser.parseXmi( inputStream2, true );
       // xmi is valid. Create a new inputstream for the actual import action.
       inputStream2.reset();
     } catch ( Exception ex ) {
