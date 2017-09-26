@@ -557,7 +557,7 @@ public class JcrRepositoryFileUtils {
     Node localeNodes = null;
 
     // TODO localization of files and folders must be identical
-    if ( folder.getTitle() != folder.getName() ) { // Title is different from the name
+    if ( !folder.getTitle().equals( folder.getName() ) ) { // Title is different from the name
       localeNodes = folderNode.addNode( pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE() );
       Map<String, Properties> localPropertiesMap = new HashMap<String, Properties>();
       Properties titleProps = new Properties();
