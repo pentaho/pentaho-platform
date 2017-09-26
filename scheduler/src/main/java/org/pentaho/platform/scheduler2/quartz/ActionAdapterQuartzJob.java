@@ -27,7 +27,6 @@ import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.action.DefaultActionInvoker;
@@ -36,7 +35,7 @@ import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
-import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
+import org.pentaho.platform.workitem.WorkItemLifecycleEventUtil;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -124,12 +123,12 @@ public class ActionAdapterQuartzJob implements Job {
 
     final String workItemUid = ActionUtil.extractUid( params );
 
-    WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.SUBMITTED );
+    WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.SUBMITTED );
 
     // creates an instance of IActionInvoker, which knows how to invoke this IAction - if the IActionInvoker bean is
     // not defined through spring, fall back on the default action invoker
-    final IActionInvoker actionInvoker = Optional.ofNullable( PentahoSystem.get( IActionInvoker.class,
-      "IActionInvoker", PentahoSessionHolder.getSession() ) ).orElse( getActionInvoker() );
+    final IActionInvoker actionInvoker = Optional.ofNullable( PentahoSystem.get( IActionInvoker.class ) ).orElse(
+      getActionInvoker() );
     // Instantiate the requested IAction bean
     final IAction actionBean = (IAction) ActionUtil.createActionBean( actionClassName, actionId );
 
@@ -137,7 +136,7 @@ public class ActionAdapterQuartzJob implements Job {
       final String failureMessage = Messages.getInstance().getErrorString(
         "ActionAdapterQuartzJob.ERROR_0002_FAILED_TO_CREATE_ACTION", //$NON-NLS-1$
         getActionIdentifier( null, actionClassName, actionId ), StringUtil.getMapAsPrettyString( params ) );
-      WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, failureMessage );
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, failureMessage );
       throw new LoggingJobExecutionException( failureMessage );
     }
 
@@ -185,7 +184,7 @@ public class ActionAdapterQuartzJob implements Job {
             QuartzJobKey jobKey = QuartzJobKey.parse( context.getJobDetail().getName() );
             String jobName = jobKey.getJobName();
             jobParams.put( QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG, Boolean.TRUE );
-            WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.RESTARTED );
+            WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.RESTARTED );
             scheduler.createJob( jobName, iaction, jobParams, trigger, streamProvider );
             log.warn( "New RunOnce job created for " + jobName + " -> possible startup synchronization error" );
             return null;
@@ -215,7 +214,7 @@ public class ActionAdapterQuartzJob implements Job {
             streamProvider.setStreamingAction( null ); // remove generated content
             QuartzJobKey jobKey = QuartzJobKey.parse( context.getJobDetail().getName() );
             String jobName = jobKey.getJobName();
-            WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.RESTARTED );
+            WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.RESTARTED );
             org.pentaho.platform.api.scheduler2.Job j =
               scheduler.createJob( jobName, iaction, jobParams, trigger, streamProvider );
             log.warn( "New Job: " + j.getJobId() + " created" );

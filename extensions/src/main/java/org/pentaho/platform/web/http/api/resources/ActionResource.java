@@ -34,7 +34,7 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
-import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
+import org.pentaho.platform.workitem.WorkItemLifecycleEventUtil;
 import org.slf4j.MDC;
 
 import javax.ws.rs.Consumes;
@@ -96,12 +96,12 @@ public class ActionResource {
     } catch ( final Exception e ) {
       logger.error( e.getLocalizedMessage() );
       // we're not able to get the work item UID at this point
-      WorkItemLifecyclePublisher.publish( "?", params, WorkItemLifecyclePhase.FAILED, e.toString() );
+      WorkItemLifecycleEventUtil.publish( "?", params, WorkItemLifecyclePhase.FAILED, e.toString() );
       return Response.status( HttpStatus.SC_BAD_REQUEST ).build();
     }
 
     final String workItemUid = ActionUtil.extractUid( params );
-    WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.RECEIVED );
+    WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.RECEIVED );
 
     final boolean isAsyncExecution = Boolean.parseBoolean( async );
     int httpStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR; // default ( pessimistic )

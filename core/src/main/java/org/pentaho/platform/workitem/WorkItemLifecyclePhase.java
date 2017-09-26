@@ -17,10 +17,12 @@
 
 package org.pentaho.platform.workitem;
 
+import org.pentaho.platform.api.workitem.IWorkItemLifecyclePhase;
+
 /**
  * An enumeration of the known lifecycle events for the work item.
  */
-public enum WorkItemLifecyclePhase {
+public enum WorkItemLifecyclePhase implements IWorkItemLifecyclePhase {
   /**
    * The work item has been submitted for execution
    */
