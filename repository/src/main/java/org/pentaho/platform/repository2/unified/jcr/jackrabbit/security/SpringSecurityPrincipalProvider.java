@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
@@ -396,20 +396,18 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
           List<String> roles = getUserRoleListService().getRolesForUser( JcrTenantUtils.getCurrentTenant(), username );
           authorities = new ArrayList<GrantedAuthority>( roles.size() );
-          for ( int i = 0; i < roles.size(); i++ ) {
-            authorities.add( new SimpleGrantedAuthority( roles.get( i ) ) );
+          for ( String role : roles ) {
+            authorities.add( new SimpleGrantedAuthority( role ) );
           }
         } else {
           authorities = new ArrayList<GrantedAuthority>( auth.getAuthorities().size() );
-          for ( GrantedAuthority authority : auth.getAuthorities() ) {
-            authorities.add( authority );
-          }
+          authorities.addAll( auth.getAuthorities() );
         }
 
         auths = new ArrayList<GrantedAuthority>( authorities.size() );
         // cache the roles while we're here
-        for ( int i = 0; i < authorities.size(); i++ ) {
-          String role = authorities.get( i ).getAuthority();
+        for ( GrantedAuthority authority : authorities ) {
+          String role = authority.getAuthority();
           final String tenatedRoleString = JcrTenantUtils.getTenantedRole( role );
           if ( cacheManager != null ) {
             Object rolePrincipal = cacheManager.getFromRegionCache( ROLE_CACHE_REGION, role );

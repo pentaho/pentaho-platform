@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
@@ -360,8 +360,8 @@ public class SecurityHelper implements ISecurityHelper {
     List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
     if ( roles != null ) {
       grantedAuthorities = new ArrayList<GrantedAuthority>( roles.size() );
-      for ( int i = 0; i < roles.size(); i++ ) {
-        grantedAuthorities.add( new SimpleGrantedAuthority( roles.get( i ) ) );
+      for ( String role : roles ) {
+        grantedAuthorities.add( new SimpleGrantedAuthority( role ) );
       }
     }
 
