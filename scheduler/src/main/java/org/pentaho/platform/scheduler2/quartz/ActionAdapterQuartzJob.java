@@ -140,6 +140,10 @@ public class ActionAdapterQuartzJob implements Job {
       throw new LoggingJobExecutionException( failureMessage );
     }
 
+    if ( actionBean instanceof BlockoutAction ) {
+      params.put( IBlockoutManager.SCHEDULED_FIRE_TIME, context.getScheduledFireTime() );
+    }
+
     // Invoke the action and get the status of the invocation
     final IActionInvokeStatus status = actionInvoker.invokeAction( actionBean, actionUser, params );
 
@@ -164,9 +168,6 @@ public class ActionAdapterQuartzJob implements Job {
 
 
     final Map<String, Serializable> jobParams = new HashMap<String, Serializable>( params ); // shallow copy
-    if ( actionBean instanceof BlockoutAction ) {
-      params.put( IBlockoutManager.SCHEDULED_FIRE_TIME, context.getScheduledFireTime() );
-    }
 
     final IScheduler scheduler = PentahoSystem.getObjectFactory().get( IScheduler.class, "IScheduler2", null );
     if ( throwable != null ) {
