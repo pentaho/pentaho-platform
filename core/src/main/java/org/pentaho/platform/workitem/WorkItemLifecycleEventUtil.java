@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.workitem;
 
+import org.pentaho.platform.api.workitem.IWorkItemLifecycleEvent;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.ActionUtil;
@@ -62,10 +63,11 @@ public class WorkItemLifecycleEventUtil {
 
   /**
    * A convenience method for publishing changes to the work item's lifecycles that creates an instance of {@link
-   * WorkItemLifecycleEvent} and calls the {@link #publish(WorkItemLifecycleEvent)} method
+   * WorkItemLifecycleEvent} and calls the {@link #publish(IWorkItemLifecycleEvent)} method
    *
-   * @param workItemUid            a {@link String} containing unique identifier for the {@link WorkItemLifecycleEvent}
-   * @param details                an {@link Map} containing details of the {@link WorkItemLifecycleEvent}
+   * @param workItemUid            a {@link String} containing unique identifier for the {@link
+   *                               IWorkItemLifecycleEvent}
+   * @param details                an {@link Map} containing details of the {@link IWorkItemLifecycleEvent}
    * @param workItemLifecyclePhase a {@link WorkItemLifecyclePhase} representing the lifecycle event
    * @param lifecycleDetails       a {@link String} containing any additional details about the lifecycle event, such as
    *                               pertinent failure messages
@@ -76,29 +78,29 @@ public class WorkItemLifecycleEventUtil {
                               final WorkItemLifecyclePhase workItemLifecyclePhase,
                               final String lifecycleDetails,
                               final Date sourceTimestamp ) {
-    final WorkItemLifecycleEvent workItemLifecycleEvent = createEvent( workItemUid, extractDetails( details ),
+    final IWorkItemLifecycleEvent workItemLifecycleEvent = createEvent( workItemUid, extractDetails( details ),
       workItemLifecyclePhase, lifecycleDetails, sourceTimestamp );
     publish( workItemLifecycleEvent );
   }
 
-  protected static WorkItemLifecycleEvent createEvent( final String workItemUid,
-                                                       final String workItemDetails,
-                                                       final WorkItemLifecyclePhase workItemLifecyclePhase,
-                                                       final String lifecycleDetails,
-                                                       final Date sourceTimestamp ) {
-    return new WorkItemLifecycleEvent( workItemUid, workItemDetails,
-      workItemLifecyclePhase, lifecycleDetails, sourceTimestamp );
+  protected static IWorkItemLifecycleEvent createEvent( final String workItemUid,
+                                                        final String workItemDetails,
+                                                        final WorkItemLifecyclePhase workItemLifecyclePhase,
+                                                        final String lifecycleDetails,
+                                                        final Date sourceTimestamp ) {
+    return new WorkItemLifecycleEvent( workItemUid, workItemDetails, workItemLifecyclePhase, lifecycleDetails,
+      sourceTimestamp );
   }
 
   /**
    * A convenience method for publishing changes to the work item's lifecycles. Fetches the {@link
    * IWorkItemLifecycleEventPublisher} bean, and if available, calls its post method. Otherwise does nothing, as the
    * {@link IWorkItemLifecycleEventPublisher} bean may not be available, which is a perfectly valid scenario, if we do
-   * not care about publishing {@link WorkItemLifecycleEvent}'s.
+   * not care about publishing {@link IWorkItemLifecycleEvent}'s.
    *
-   * @param workItemLifecycleEvent the {@link WorkItemLifecycleEvent}
+   * @param workItemLifecycleEvent the {@link IWorkItemLifecycleEvent}
    */
-  public static void publish( final WorkItemLifecycleEvent workItemLifecycleEvent ) {
+  public static void publish( final IWorkItemLifecycleEvent workItemLifecycleEvent ) {
     final IWorkItemLifecycleEventPublisher publisher = PentahoSystem.get( IWorkItemLifecycleEventPublisher.class );
     if ( publisher != null ) {
       publisher.publish( workItemLifecycleEvent );
