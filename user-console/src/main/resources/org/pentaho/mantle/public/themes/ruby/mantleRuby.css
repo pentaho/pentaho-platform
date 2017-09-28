@@ -1110,6 +1110,12 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   background-image: url(images/dropdown_right_arrow_white.png);
 }
 
+.gwt-MenuBar-vertical.puc-logout-option tr:hover .gwt-MenuItem-selected,
+.gwt-MenuBar-vertical.puc-logout-option tr:hover .subMenuIcon-selected {
+  background-color: #c0c0c0;
+  color: #414141;
+}
+
 .gwt-MenuBar-vertical tr:hover .gwt-MenuItem-selected, .gwt-MenuBar-vertical tr:hover .subMenuIcon-selected {
     background-color: #cc0000;
     color: #FFF;
