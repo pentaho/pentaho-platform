@@ -15,7 +15,7 @@
  * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.plugin.action;
+package org.pentaho.platform.scheduler2.action;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -34,13 +34,13 @@ import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.engine.core.output.FileContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.ActionSequenceCompatibilityFormatter;
-import org.pentaho.platform.plugin.action.messages.Messages;
+import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.scheduler2.quartz.SchedulerOutputPathResolver;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.beans.ActionHarness;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
-import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
+import org.pentaho.platform.workitem.WorkItemLifecycleEventUtil;
 
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -73,14 +73,14 @@ public class ActionRunner implements Callable<Boolean> {
     final String workItemUid = ActionUtil.extractUid( params );
     try {
       final boolean result = callImpl();
-      WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.SUCCEEDED );
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.SUCCEEDED );
       return result;
     } catch ( final Throwable t ) {
       // ensure that the main thread isn't blocked on lock
       synchronized ( lock ) {
         lock.notifyAll();
       }
-      WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, t.toString() );
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, t.toString() );
       // We should not distinguish between checked and unchecked exceptions here. All job execution failures
       // should result in a rethrow of the exception
       throw new ActionInvocationException( Messages.getInstance().getActionFailedToExecute( actionBean //$NON-NLS-1$
@@ -147,7 +147,7 @@ public class ActionRunner implements Callable<Boolean> {
       }
       actionParams.put( "outputStream", stream );
       // The lineage_id is only useful for the metadata and not needed at this level see PDI-10171
-      actionParams.remove( ActionUtil.QUARTZ_LINEAGE_ID );
+      ActionUtil.removeKeyFromMap( actionParams, ActionUtil.QUARTZ_LINEAGE_ID );
       actionHarness.setValues( actionParams );
     }
 

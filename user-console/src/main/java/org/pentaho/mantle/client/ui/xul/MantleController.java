@@ -280,8 +280,8 @@ public class MantleController extends AbstractXulEventHandler {
                   ( (MenuBar) themesMenu.getManagedObject() ).addItem( themeMenuItem );
                 }
 
-                bf.createBinding( model, "saveEnabled", saveMenuItem, "visible" ); //$NON-NLS-1$ //$NON-NLS-2$
-                bf.createBinding( model, "saveAsEnabled", saveAsMenuItem, "visible" ); //$NON-NLS-1$ //$NON-NLS-2$
+                bf.createBinding( model, "saveEnabled", saveMenuItem, "!disabled" ); //$NON-NLS-1$ //$NON-NLS-2$
+                bf.createBinding( model, "saveAsEnabled", saveAsMenuItem, "!disabled" ); //$NON-NLS-1$ //$NON-NLS-2$
 
                 if ( PerspectiveManager.getInstance().isLoaded() ) {
                   executeAdminContent();
@@ -946,12 +946,12 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public boolean isSaveEnabled() {
-    return saveMenuItem.isVisible();
+    return saveMenuItem.isDisabled();
   }
 
   @Bindable
   public boolean isSaveAsEnabled() {
-    return saveAsMenuItem.isVisible();
+    return saveAsMenuItem.isDisabled();
   }
 
   @Bindable

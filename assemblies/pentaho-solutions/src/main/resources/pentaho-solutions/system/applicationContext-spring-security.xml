@@ -43,7 +43,6 @@
         <ref bean="anonymousAuthenticationProvider" />
       </util:list>
     </constructor-arg>
-    <property name="eraseCredentialsAfterAuthentication" value="false" />
     <property name="authenticationEventPublisher">
       <ref bean="defaultAuthenticationEventPublisher" />
     </property>

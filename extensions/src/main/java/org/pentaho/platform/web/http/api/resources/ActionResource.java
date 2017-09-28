@@ -29,12 +29,12 @@ import org.pentaho.platform.api.action.IActionInvoker;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.ActionParams;
-import org.pentaho.platform.plugin.action.DefaultActionInvoker;
+import org.pentaho.platform.plugin.action.LocalActionInvoker;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
-import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
+import org.pentaho.platform.workitem.WorkItemLifecycleEventUtil;
 import org.slf4j.MDC;
 
 import javax.ws.rs.Consumes;
@@ -96,12 +96,12 @@ public class ActionResource {
     } catch ( final Exception e ) {
       logger.error( e.getLocalizedMessage() );
       // we're not able to get the work item UID at this point
-      WorkItemLifecyclePublisher.publish( "?", params, WorkItemLifecyclePhase.FAILED, e.toString() );
+      WorkItemLifecycleEventUtil.publish( "?", params, WorkItemLifecyclePhase.FAILED, e.toString() );
       return Response.status( HttpStatus.SC_BAD_REQUEST ).build();
     }
 
     final String workItemUid = ActionUtil.extractUid( params );
-    WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.RECEIVED );
+    WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.RECEIVED );
 
     final boolean isAsyncExecution = Boolean.parseBoolean( async );
     int httpStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR; // default ( pessimistic )
@@ -135,7 +135,9 @@ public class ActionResource {
   }
 
   /**
-   * Returns the appropriate {@link IActionInvoker}.
+   * Returns the appropriate {@link IActionInvoker}, as defined in spring config. This is safe to do, as this
+   * resource class is only expected to be used by the worker node, where the spring configuration for the {@code
+   * IActionInvoker} bean is expected to exist.
    *
    * @return the {@link IActionInvoker}
    */
@@ -143,8 +145,8 @@ public class ActionResource {
     return PentahoSystem.get( IActionInvoker.class, "IActionInvoker", PentahoSessionHolder.getSession() );
   }
 
-  DefaultActionInvoker getDefaultActionInvoker() {
-    return new DefaultActionInvoker();
+  IActionInvoker getDefaultActionInvoker() {
+    return new LocalActionInvoker();
   }
 
   /**

@@ -86,6 +86,17 @@ public class NonPooledOrJndiDatasourceServiceTest {
   }
 
   @Test
+  public void testRetrieveJNDIConnection_4() throws Exception {
+    service = spy( getPreparedService( mgmtService, cacheManager, null, null ) );
+    when( mgmtService.getDatasourceByName( testName ) ).thenReturn( connection );
+    when( service.getJndiDataSource( testName ) ).thenThrow( DBDatasourceServiceException.class ).thenCallRealMethod();
+    when( connection.getAccessType() ).thenReturn( DatabaseAccessType.JNDI );
+    service.retrieve( testName );
+    verify( service, times( 2 ) ).getJndiDataSource( anyString() );
+    verify( cacheManager, never() ).putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, testName, jndiDataSource );
+  }
+
+  @Test
   public void testRetrieveDatabaseConnection() throws Exception {
     when( mgmtService.getDatasourceByName( testName ) ).thenReturn( connection );
     when( connection.getAccessType() ).thenReturn( DatabaseAccessType.ODBC );

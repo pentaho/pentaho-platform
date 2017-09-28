@@ -12,30 +12,20 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2017 Pentaho Corporation. All rights reserved.
  */
 
-package org.pentaho.platform.plugin.action;
+package org.pentaho.platform.api.workitem;
 
-import org.pentaho.platform.api.action.IActionInvokeStatus;
+/**
+ * A common interface for components wishing to listen for {@link IWorkItemLifecycleEvent}s.
+ */
+public interface IWorkItemLifecycleEventSubscriber {
 
-public class ActionInvokeStatus implements IActionInvokeStatus {
-  private boolean requiresUpdate;
-  private Throwable throwable;
-
-  void setRequiresUpdate( final boolean requiresUpdate ) {
-    this.requiresUpdate = requiresUpdate;
-  }
-
-  public boolean requiresUpdate() {
-    return this.requiresUpdate;
-  }
-
-  void setThrowable( final Throwable throwable ) {
-    this.throwable = throwable;
-  }
-
-  public Throwable getThrowable() {
-    return this.throwable;
-  }
+  /**
+   * Handler for the {@link IWorkItemLifecycleEvent}.
+   *
+   * @param event the {@link IWorkItemLifecycleEvent} being handled
+   */
+  void handleEvent( final IWorkItemLifecycleEvent event );
 }

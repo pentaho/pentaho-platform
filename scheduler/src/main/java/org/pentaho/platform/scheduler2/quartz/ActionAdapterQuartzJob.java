@@ -27,15 +27,15 @@ import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.scheduler2.action.DefaultActionInvoker;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
-import org.pentaho.platform.workitem.WorkItemLifecyclePublisher;
+import org.pentaho.platform.workitem.WorkItemLifecycleEventUtil;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -46,6 +46,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 /**
@@ -56,6 +57,8 @@ import java.util.concurrent.Callable;
 public class ActionAdapterQuartzJob implements Job {
 
   static final Log log = LogFactory.getLog( ActionAdapterQuartzJob.class );
+
+  private IActionInvoker actionInvoker = new DefaultActionInvoker(); // default
 
   public void execute( JobExecutionContext context ) throws JobExecutionException {
     JobDataMap jobDataMap = context.getMergedJobDataMap();
@@ -120,11 +123,12 @@ public class ActionAdapterQuartzJob implements Job {
 
     final String workItemUid = ActionUtil.extractUid( params );
 
-    WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.SUBMITTED );
+    WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.SUBMITTED );
 
-    // create an instance of IActionInvoker, which knows know to invoke this IAction
-    final IActionInvoker actionInvoker = PentahoSystem.get( IActionInvoker.class, "IActionInvoker", PentahoSessionHolder
-      .getSession() );
+    // creates an instance of IActionInvoker, which knows how to invoke this IAction - if the IActionInvoker bean is
+    // not defined through spring, fall back on the default action invoker
+    final IActionInvoker actionInvoker = Optional.ofNullable( PentahoSystem.get( IActionInvoker.class ) ).orElse(
+      getActionInvoker() );
     // Instantiate the requested IAction bean
     final IAction actionBean = (IAction) ActionUtil.createActionBean( actionClassName, actionId );
 
@@ -132,8 +136,12 @@ public class ActionAdapterQuartzJob implements Job {
       final String failureMessage = Messages.getInstance().getErrorString(
         "ActionAdapterQuartzJob.ERROR_0002_FAILED_TO_CREATE_ACTION", //$NON-NLS-1$
         getActionIdentifier( null, actionClassName, actionId ), StringUtil.getMapAsPrettyString( params ) );
-      WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, failureMessage );
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, failureMessage );
       throw new LoggingJobExecutionException( failureMessage );
+    }
+
+    if ( actionBean instanceof BlockoutAction ) {
+      params.put( IBlockoutManager.SCHEDULED_FIRE_TIME, context.getScheduledFireTime() );
     }
 
     // Invoke the action and get the status of the invocation
@@ -151,8 +159,7 @@ public class ActionAdapterQuartzJob implements Job {
 
     final boolean requiresUpdate = status.requiresUpdate();
     final Throwable throwable = status.getThrowable();
-
-    Object objsp = params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    Object objsp = status.getStreamProvider();
     IBackgroundExecutionStreamProvider sp = null;
     if ( objsp != null && IBackgroundExecutionStreamProvider.class.isAssignableFrom( objsp.getClass() ) ) {
       sp = (IBackgroundExecutionStreamProvider) objsp;
@@ -161,9 +168,6 @@ public class ActionAdapterQuartzJob implements Job {
 
 
     final Map<String, Serializable> jobParams = new HashMap<String, Serializable>( params ); // shallow copy
-    if ( actionBean instanceof BlockoutAction ) {
-      params.put( IBlockoutManager.SCHEDULED_FIRE_TIME, context.getScheduledFireTime() );
-    }
 
     final IScheduler scheduler = PentahoSystem.getObjectFactory().get( IScheduler.class, "IScheduler2", null );
     if ( throwable != null ) {
@@ -181,7 +185,7 @@ public class ActionAdapterQuartzJob implements Job {
             QuartzJobKey jobKey = QuartzJobKey.parse( context.getJobDetail().getName() );
             String jobName = jobKey.getJobName();
             jobParams.put( QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG, Boolean.TRUE );
-            WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.RESTARTED );
+            WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.RESTARTED );
             scheduler.createJob( jobName, iaction, jobParams, trigger, streamProvider );
             log.warn( "New RunOnce job created for " + jobName + " -> possible startup synchronization error" );
             return null;
@@ -211,7 +215,7 @@ public class ActionAdapterQuartzJob implements Job {
             streamProvider.setStreamingAction( null ); // remove generated content
             QuartzJobKey jobKey = QuartzJobKey.parse( context.getJobDetail().getName() );
             String jobName = jobKey.getJobName();
-            WorkItemLifecyclePublisher.publish( workItemUid, params, WorkItemLifecyclePhase.RESTARTED );
+            WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.RESTARTED );
             org.pentaho.platform.api.scheduler2.Job j =
               scheduler.createJob( jobName, iaction, jobParams, trigger, streamProvider );
             log.warn( "New Job: " + j.getJobId() + " created" );
@@ -245,4 +249,11 @@ public class ActionAdapterQuartzJob implements Job {
 
   }
 
+  public IActionInvoker getActionInvoker() {
+    return actionInvoker;
+  }
+
+  public void setActionInvoker( IActionInvoker actionInvoker ) {
+    this.actionInvoker = actionInvoker;
+  }
 }

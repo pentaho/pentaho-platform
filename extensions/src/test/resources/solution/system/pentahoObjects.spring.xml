@@ -11,7 +11,7 @@ PentahoSystem which is initialized after Spring
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
        default-lazy-init="true">
 
-  <bean id="IActionInvoker" class="org.pentaho.platform.plugin.action.DefaultActionInvoker" scope="prototype"/>
+  <bean id="IActionInvoker" class="org.pentaho.platform.plugin.action.LocalActionInvoker" scope="prototype"/>
 
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
   <bean id="IUnifiedRepository" class="org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository" scope="prototype" />

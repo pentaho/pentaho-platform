@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.plugin.action;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -29,6 +28,7 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import java.util.Map;
  * This class provides logic to serialize and de-serialize the action parameters.
  * TODO: in the future investigate replacing this class with generic platform API if any.
  */
-@JsonRootName( "ActionParams" )
+@XmlRootElement
 public class ActionParams {
   private static final Log logger = LogFactory.getLog( ActionParams.class );
 

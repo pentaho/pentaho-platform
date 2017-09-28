@@ -34,7 +34,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.plugin.action.ActionParams;
-import org.pentaho.platform.plugin.action.DefaultActionInvoker;
+import org.pentaho.platform.plugin.action.LocalActionInvoker;
 import org.pentaho.platform.plugin.action.builtin.ActionSequenceAction;
 import org.pentaho.platform.util.ActionUtil;
 import org.powermock.api.mockito.PowerMockito;
@@ -102,7 +102,7 @@ public class ActionResourceTest {
   public void testGetActionInvoker() {
     final IActionInvoker actionInvoker = resource.getActionInvoker();
     Assert.assertNotNull( actionInvoker );
-    Assert.assertEquals( DefaultActionInvoker.class, actionInvoker.getClass() );
+    Assert.assertEquals( LocalActionInvoker.class, actionInvoker.getClass() );
   }
 
   /**
@@ -163,23 +163,11 @@ public class ActionResourceTest {
     Mockito.doReturn( runnableAction ).when( resourceMock ).createCallable( actionMock, actionUser, actionMapMock );
 
     // mock the action invoker
-    final IActionInvoker actionInvoker = Mockito.spy( MyDefaultActionInvoker.class );
+    final IActionInvoker actionInvoker = Mockito.spy( MyLocalActionInvoker.class );
     Mockito.doReturn( actionInvoker ).when( runnableAction.resource ).getActionInvoker();
     // mock the DefaultActionInvoker which is created within the runnable
-    final DefaultActionInvoker defaultActionInvoker = Mockito.spy( DefaultActionInvoker.class );
+    final IActionInvoker defaultActionInvoker = Mockito.spy( LocalActionInvoker.class );
     Mockito.doReturn( defaultActionInvoker ).when( runnableAction.resource ).getDefaultActionInvoker();
-
-    /*
-
-    Mockito.doReturn( actionMock ).when( resourceMock ).createActionBean( actionClassName, actionId );
-    Mockito.doReturn( actionMapMock ).when( resourceMock ).deserialize( actionMock, actionParamsJson );
-     */
-    // mock the action
-    //final IAction action = Mockito.spy( ActionSequenceAction.class );
-    //Mockito.doReturn( action ).when( runnableAction ).createActionBean( actionClassName, actionId );
-    // mock the params
-    //final Map<String, Serializable> params = Mockito.spy( Map.class );
-    //Mockito.doReturn( params ).when( runnableAction ).deserialize( action, runnableAction.actionParamsJson );
 
     // invoke the call() method directly since we want to run it in the current thread to verify that its content is
     // executed as expected; given that we have already tested that the executor submit(...) method is invoked as
@@ -203,7 +191,7 @@ public class ActionResourceTest {
     PowerMockito.mockStatic( PentahoSystem.class );
     BDDMockito.given( PentahoSystem.get( IPluginManager.class ) ).willReturn( pluginManager );
     // mock the action invoker
-    final IActionInvoker actionInvoker = Mockito.spy( MyDefaultActionInvoker.class );
+    final IActionInvoker actionInvoker = Mockito.spy( MyLocalActionInvoker.class );
 
     final WorkerNodeActionInvokerAuditor wnActionInvokerAuditer = new WorkerNodeActionInvokerAuditor( actionInvoker );
     WorkerNodeActionInvokerAuditor wnaiu = Mockito.spy( wnActionInvokerAuditer );
@@ -222,7 +210,7 @@ public class ActionResourceTest {
  * the method internally are null and that causes exceptions, which we want to avoid - we are only concerned with
  * ensuring that the call to the method is made with the correct parameter types.
  */
-class MyDefaultActionInvoker extends DefaultActionInvoker {
+class MyLocalActionInvoker extends LocalActionInvoker {
 
   @Override
   public IActionInvokeStatus invokeAction( final IAction actionBean, final String actionUser, final

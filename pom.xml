@@ -20,6 +20,8 @@
     <url>https://github.com/pentaho/pentaho-platform</url>
   </scm>
   <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <urlrewrite.version>3.2.0</urlrewrite.version>
     <commons-fileupload.version>1.3.2</commons-fileupload.version>
     <jsr305.version>1.3.9</jsr305.version>
@@ -363,9 +365,6 @@
                 <inherited>false</inherited>
               </reportSet>
             </reportSets>
-            <configuration>
-              <linkJavadoc>true</linkJavadoc>
-            </configuration>
           </plugin>
           <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
@@ -378,9 +377,6 @@
                 <inherited>false</inherited>
               </reportSet>
             </reportSets>
-            <configuration>
-              <failOnError>false</failOnError>
-            </configuration>
           </plugin>
           <plugin>
             <artifactId>maven-checkstyle-plugin</artifactId>
@@ -393,12 +389,6 @@
                 <inherited>false</inherited>
               </reportSet>
             </reportSets>
-            <configuration>
-              <configLocation>${checkstyle-config-url}</configLocation>
-              <propertiesLocation>${checkstyle-properties-url}</propertiesLocation>
-              <linkXRef>true</linkXRef>
-              <cacheFile />
-            </configuration>
           </plugin>
         </plugins>
       </reporting>

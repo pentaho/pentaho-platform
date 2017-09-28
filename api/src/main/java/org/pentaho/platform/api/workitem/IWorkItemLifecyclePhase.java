@@ -15,22 +15,18 @@
  * Copyright (c) 2017 Pentaho Corporation. All rights reserved.
  */
 
-package org.pentaho.platform.workitem;
-
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
+package org.pentaho.platform.api.workitem;
 
 /**
- * A dummy listener used for testing purposes.
+ * A common interface for work item lifecycle phases.
  */
-@Component
-public class DummyListenerB {
+public interface IWorkItemLifecyclePhase {
 
-  @EventListener
-  @Async
-  public void onWorkItemLifecycleEvent( final WorkItemLifecycleEvent event ) {
-    WorkItemLifecyclePublisherTest.LISTENER_B_CALLED = true;
-  }
+  /**
+   * Returns the string representation of this phase.
+   *
+   * @return the string representation of this phase
+   */
+  String toString();
+
 }
-

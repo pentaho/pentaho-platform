@@ -24,6 +24,7 @@ import org.pentaho.platform.api.action.ActionInvocationException;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.plugin.action.builtin.ActionSequenceAction;
+import org.pentaho.platform.action.ActionInvokeStatus;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
 
@@ -35,12 +36,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultActionInvokerTest {
-  private DefaultActionInvoker defaultActionInvoker;
+public class LocalActionInvokerTest {
+  private LocalActionInvoker defaultActionInvoker;
 
   @Before
   public void setup() {
-    defaultActionInvoker = new DefaultActionInvoker();
+    defaultActionInvoker = new LocalActionInvoker();
   }
 
   @Test

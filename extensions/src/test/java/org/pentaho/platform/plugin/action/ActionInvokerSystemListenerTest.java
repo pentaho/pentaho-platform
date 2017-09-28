@@ -31,6 +31,7 @@ import org.pentaho.platform.api.action.IActionInvokeStatus;
 import org.pentaho.platform.api.action.IActionInvoker;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.action.ActionInvokeStatus;
 import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -55,7 +56,7 @@ public class ActionInvokerSystemListenerTest {
 
   private static final String noJsonFilesFolder = resourcesFolder + "/NoJsonFiles";
   private IPentahoSession mockSession;
-  private DefaultActionInvoker actionInvoker;
+  private IActionInvoker actionInvoker;
   private ActionInvokerSystemListener actionInvokerSystemListener;
   private static final String DEFAULT_CONTENT_FOLDER = resourcesFolder + "/system/default-content";
 
@@ -71,7 +72,7 @@ public class ActionInvokerSystemListenerTest {
   @Before
   public void init( ) {
     mockSession = mock( IPentahoSession.class );
-    actionInvoker = mock( DefaultActionInvoker.class );
+    actionInvoker = mock( LocalActionInvoker.class );
   }
 
   @Test

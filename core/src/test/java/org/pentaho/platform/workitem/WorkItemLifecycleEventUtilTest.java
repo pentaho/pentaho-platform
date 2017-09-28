@@ -19,30 +19,33 @@ package org.pentaho.platform.workitem;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-public class WorkItemLifecyclePublisherTest {
+import static org.mockito.Matchers.isA;
+import static org.powermock.api.mockito.PowerMockito.when;
 
-  private AbstractApplicationContext contextMock = null;
-  private WorkItemLifecyclePublisher publisherMock = null;
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( { PentahoSystem.class } )
+public class WorkItemLifecycleEventUtilTest {
+
+  private IWorkItemLifecycleEventPublisher publisherMock = null;
   private WorkItemLifecycleEvent workItemLifecycleEventMock = null;
   private String workItemUid = "foo";
   private String workItemDetails = "foe";
   private WorkItemLifecyclePhase lifecyclePhase = WorkItemLifecyclePhase.DISPATCHED;
   private String lifecycleDetails = "foe";
 
-  public static boolean LISTENER_A_CALLED = false;
-  public static boolean LISTENER_B_CALLED = false;
-  public static boolean LISTENER_C_CALLED = false;
-
   @Before
   public void setup() throws Exception {
-    contextMock = Mockito.spy( new ClassPathXmlApplicationContext( "/solution/system/pentahoSystemConfig.xml" ) );
-
-    publisherMock = Mockito.spy( contextMock.getBean( WorkItemLifecyclePublisher.class ) );
-    publisherMock.setApplicationEventPublisher( contextMock );
+    PowerMockito.mockStatic( PentahoSystem.class );
+    publisherMock = Mockito.spy( new DummyPublisher() );
+    when( PentahoSystem.get( isA( IWorkItemLifecycleEventPublisher.class.getClass() ) ) ).thenReturn( publisherMock );
 
     workItemLifecycleEventMock = Mockito.spy( new WorkItemLifecycleEvent( workItemUid, workItemDetails,
       lifecyclePhase, lifecycleDetails, null ) );
@@ -50,15 +53,8 @@ public class WorkItemLifecyclePublisherTest {
 
   @Test
   public void testPublisher() throws InterruptedException {
-    publisherMock.publishImpl( workItemLifecycleEventMock );
+    WorkItemLifecycleEventUtil.publish( workItemLifecycleEventMock );
     // verify that the publishEvent method is called as expected
-    Mockito.verify( contextMock, Mockito.times( 1 ) ).publishEvent( workItemLifecycleEventMock );
-
-    // This isn't ideal, but the only way to verify that the correct listeners - those that are wired through spring
-    // (which run in a separate thread) were invoked, and that those that were not wired are not invoked
-    Thread.sleep( 100 );
-    org.pentaho.di.core.util.Assert.assertTrue( LISTENER_A_CALLED );
-    org.pentaho.di.core.util.Assert.assertTrue( LISTENER_B_CALLED );
-    org.pentaho.di.core.util.Assert.assertFalse( LISTENER_C_CALLED );
+    Mockito.verify( publisherMock, Mockito.times( 1 ) ).publish( workItemLifecycleEventMock );
   }
 }
