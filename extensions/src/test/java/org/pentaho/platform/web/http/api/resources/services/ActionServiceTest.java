@@ -15,7 +15,7 @@
  * Copyright (c) 2017 Pentaho Corporation..  All rights reserved.
  */
 
-package org.pentaho.platform.web.http.api.resources;
+package org.pentaho.platform.web.http.api.resources.services;
 
 import org.apache.http.HttpStatus;
 import org.junit.After;
@@ -37,6 +37,7 @@ import org.pentaho.platform.plugin.action.ActionParams;
 import org.pentaho.platform.plugin.action.LocalActionInvoker;
 import org.pentaho.platform.plugin.action.builtin.ActionSequenceAction;
 import org.pentaho.platform.util.ActionUtil;
+import org.pentaho.platform.web.http.api.resources.WorkerNodeActionInvokerAuditor;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -47,16 +48,16 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Tests the {@link ActionResource} within the context of CE.
+ * Tests the {@link ActionService} within the context of CE.
  */
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( PentahoSystem.class )
-public class ActionResourceTest {
+public class ActionServiceTest {
 
   private IAction actionMock;
   private Map<String, Serializable> actionMapMock;
-  private ActionResource resource;
-  private ActionResource resourceMock;
+  private ActionService resource;
+  private ActionService resourceMock;
   private Response expectedResult;
   private StandaloneSession session;
   private StandaloneSpringPentahoObjectFactory springFactory;
@@ -72,8 +73,8 @@ public class ActionResourceTest {
 
   @Before
   public void setUp() throws Exception {
-    resourceMock = Mockito.spy( ActionResource.class );
-    resource = new ActionResource();
+    resourceMock = Mockito.spy( ActionService.class );
+    resource = new ActionService();
     expectedResult = Response.status( HttpStatus.SC_ACCEPTED ).build();
     resource.executorService = Mockito.mock( ExecutorService.class );
 
@@ -113,7 +114,7 @@ public class ActionResourceTest {
   public void testRunInBackground() throws Exception {
     final Map<String, Serializable> paramMap = ActionParams.deserialize( actionMock, actionParams );
     // mock the RunnableAction and how it's created by the resource
-    final ActionResource.CallableAction callableAction = Mockito.spy( ActionResource.CallableAction.class );
+    final ActionService.CallableAction callableAction = Mockito.spy( ActionService.CallableAction.class );
     Mockito.doReturn( callableAction ).when( resourceMock ).createCallable( actionMock, actionUser, paramMap );
 
     // call the runInBackground methos
@@ -133,7 +134,7 @@ public class ActionResourceTest {
   @Test
   public void testCreateRunnable() {
 
-    final ActionResource.CallableAction runnable = resource.createCallable( actionMock, actionUser, actionMapMock );
+    final ActionService.CallableAction runnable = resource.createCallable( actionMock, actionUser, actionMapMock );
 
     Assert.assertNotNull( runnable );
     Assert.assertEquals( resource, runnable.resource );
@@ -155,7 +156,7 @@ public class ActionResourceTest {
     BDDMockito.given( PentahoSystem.get( IPluginManager.class ) ).willReturn( pluginManager );
 
     // mock the RunnableAction and how it's created by the resource
-    final ActionResource.CallableAction runnableAction = Mockito.spy( ActionResource.CallableAction.class );
+    final ActionService.CallableAction runnableAction = Mockito.spy( ActionService.CallableAction.class );
     runnableAction.action = actionMock;
     runnableAction.actionUser = actionUser;
     runnableAction.params = actionMapMock;
