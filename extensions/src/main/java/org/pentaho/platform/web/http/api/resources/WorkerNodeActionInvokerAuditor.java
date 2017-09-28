@@ -52,7 +52,7 @@ public class WorkerNodeActionInvokerAuditor implements IActionInvoker {
   }
 
 
-  protected void makeAuditRecord( final float time, final String messageType,
+  public void makeAuditRecord( final float time, final String messageType,
                                  final Map<String, Serializable> actionParams, String className ) {
 
     AuditHelper.audit( PentahoSessionHolder.getSession() != null ? PentahoSessionHolder.getSession().getId() : "",

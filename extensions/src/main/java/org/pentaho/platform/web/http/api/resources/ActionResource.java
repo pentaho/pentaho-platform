@@ -17,25 +17,15 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpStatus;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.action.IActionInvokeStatus;
-import org.pentaho.platform.api.action.IActionInvoker;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.ActionParams;
-import org.pentaho.platform.plugin.action.LocalActionInvoker;
-import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.ActionUtil;
-import org.pentaho.platform.util.StringUtil;
-import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
-import org.pentaho.platform.workitem.WorkItemLifecycleEventUtil;
-import org.slf4j.MDC;
+import org.pentaho.platform.web.http.api.resources.services.ActionService;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -43,12 +33,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -57,10 +41,10 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  */
 @Path( "/action" )
 public class ActionResource {
+
   protected static final Log logger = LogFactory.getLog( ActionResource.class );
-  protected static final int MAX_THREADS = 8;
-  protected static ExecutorService executorService = Executors.newFixedThreadPool( MAX_THREADS,
-    new ThreadFactoryBuilder().setNameFormat( "worker-thread-%d" ).build() );
+
+  private ActionService service = new ActionService(); // default
 
   /**
    * Runs the action defined within the provided json feed in the background asynchronously.
@@ -87,123 +71,35 @@ public class ActionResource {
     @QueryParam( ActionUtil.INVOKER_ACTIONUSER ) String actionUser,
     final ActionParams actionParams ) {
 
-    IAction action = null;
-    Map<String, Serializable> params = null;
-
-    try {
-      action = createActionBean( actionClass, actionId );
-      params = ActionParams.deserialize( action, actionParams );
-    } catch ( final Exception e ) {
-      logger.error( e.getLocalizedMessage() );
-      // we're not able to get the work item UID at this point
-      WorkItemLifecycleEventUtil.publish( "?", params, WorkItemLifecyclePhase.FAILED, e.toString() );
-      return Response.status( HttpStatus.SC_BAD_REQUEST ).build();
-    }
-
-    final String workItemUid = ActionUtil.extractUid( params );
-    WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.RECEIVED );
-
     final boolean isAsyncExecution = Boolean.parseBoolean( async );
     int httpStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR; // default ( pessimistic )
 
     if ( isAsyncExecution ) {
+
       // default scenario for execution
-      executorService.submit( createCallable( action, actionUser, params ) );
+      getService().invokeAction( async, actionId, actionClass, actionUser, actionParams );
       httpStatus = HttpStatus.SC_ACCEPTED;
+
     } else {
-      final IActionInvokeStatus status = createCallable( action, actionUser, params ).call();
+
+      final IActionInvokeStatus status = getService().invokeAction( async, actionId, actionClass, actionUser, actionParams );
       httpStatus = ( status != null && status.getThrowable() == null ) ? HttpStatus.SC_OK : HttpStatus
         .SC_INTERNAL_SERVER_ERROR;
+
     }
 
     return Response.status( httpStatus ).build();
   }
 
-  /**
-   * Returns a {@link CallableAction} that creates the {@link IAction} and invokes it.
-   *
-   * @param actionUser   the user invoking the action
-   * @return a {@link CallableAction} that creates the {@link IAction} and invokes it
-   */
-  protected CallableAction createCallable( final IAction action, final String actionUser, final Map<String,
-    Serializable> params ) {
-    return new CallableAction( this, action, actionUser, params );
-  }
-
-  protected IAction createActionBean( final String actionClass, final String actionId ) throws Exception {
-    return ActionUtil.createActionBean( actionClass, actionId );
-  }
-
-  /**
-   * Returns the appropriate {@link IActionInvoker}, as defined in spring config. This is safe to do, as this
-   * resource class is only expected to be used by the worker node, where the spring configuration for the {@code
-   * IActionInvoker} bean is expected to exist.
-   *
-   * @return the {@link IActionInvoker}
-   */
-  IActionInvoker getActionInvoker() {
-    return PentahoSystem.get( IActionInvoker.class, "IActionInvoker", PentahoSessionHolder.getSession() );
-  }
-
-  IActionInvoker getDefaultActionInvoker() {
-    return new LocalActionInvoker();
-  }
-
-  /**
-   * A {@link Callable} implementation that creates the {@link IAction} and invokes it.
-   */
-  static class CallableAction implements Callable {
-
-    protected ActionResource resource;
-    protected IAction action;
-    protected String actionUser;
-    protected Map<String, Serializable> params;
-
-    private Map<String, String> mdcContextMap = MDC.getCopyOfContextMap();
-
-    CallableAction() {
-    }
-
-    public CallableAction( final ActionResource resource, final IAction action, final String actionUser, final
-      Map<String, Serializable> params ) {
-      this.resource = resource;
-      this.action = action;
-      this.actionUser = actionUser;
-      this.params = params;
-    }
-
-    @Override
-    public IActionInvokeStatus call() {
-      try {
-        Optional.ofNullable( mdcContextMap ).ifPresent( s -> MDC.setContextMap( mdcContextMap ) );
-
-        // instantiate the DefaultActionInvoker directly to force local invocation of the action
-        final IActionInvoker actionInvoker = new WorkerNodeActionInvokerAuditor( resource.getDefaultActionInvoker() );
-
-        IActionInvokeStatus status = actionInvoker.invokeAction( action, actionUser, params );
-
-        if ( status != null && status.getThrowable() == null ) {
-          getLogger().info( Messages.getInstance().getRunningInBgLocallySuccess( action.getClass().getName(), params ),
-            status.getThrowable() );
-        } else {
-          final String failureMessage = Messages.getInstance().getCouldNotInvokeActionLocally( action.getClass()
-            .getName(), params );
-          getLogger().error( failureMessage, ( status != null ? status.getThrowable() : null ) );
-        }
-
-        return status;
-
-      } catch ( final Throwable thr ) {
-        getLogger()
-          .error( Messages.getInstance().getCouldNotInvokeActionLocallyUnexpected( action.getClass().getName(),
-            StringUtil.getMapAsPrettyString( params ) ), thr );
-      }
-
-      return null;
-    }
-  }
-
   public static Log getLogger() {
     return logger;
+  }
+
+  public ActionService getService() {
+    return service;
+  }
+
+  public void setService(ActionService service) {
+    this.service = service;
   }
 }
