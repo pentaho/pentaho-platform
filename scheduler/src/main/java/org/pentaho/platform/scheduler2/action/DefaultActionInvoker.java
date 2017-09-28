@@ -56,7 +56,9 @@ public class DefaultActionInvoker implements IActionInvoker {
       logger.warn( Messages.getInstance().getMapNullCantReturnSp() );
       return null;
     }
-    return (IBackgroundExecutionStreamProvider) params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+
+    final Object obj = params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    return ( obj instanceof IBackgroundExecutionStreamProvider ) ? (IBackgroundExecutionStreamProvider) obj : null;
   }
 
   /**
