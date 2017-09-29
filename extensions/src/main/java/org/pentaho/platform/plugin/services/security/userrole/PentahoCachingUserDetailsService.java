@@ -90,7 +90,7 @@ public class PentahoCachingUserDetailsService implements UserDetailsService {
       throw new UsernameNotFoundException( e.getMessage(), e );
     }
 
-    return new User( user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(),
+    return new User( user.getUsername(), ( user.getPassword() == null ? "ignored" : user.getPassword() ), user.isEnabled(), user.isAccountNonExpired(),
       user.isCredentialsNonExpired(), user.isAccountNonLocked(), user.getAuthorities() );
   }
 }
