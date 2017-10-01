@@ -12,13 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.security.userroledao.ws;
 
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -90,8 +91,14 @@ public class UserRoleWebService implements IUserRoleWebService {
 
   @Override
   public boolean createUser( ProxyPentahoUser proxyUser ) throws UserRoleException {
-    getDao().createUser( proxyUser.getTenant(), proxyUser.getName(), proxyUser.getPassword(),
-        proxyUser.getDescription(), null );
+    try {
+      getDao().createUser( proxyUser.getTenant(), proxyUser.getName(), proxyUser.getPassword(),
+              proxyUser.getDescription(), null );
+    } catch ( AlreadyExistsException e ) {
+      // User doesn't want see a stack trace. We need to use this workaround. See details in PDI-14357.
+      e.setStackTrace( new StackTraceElement[0] );
+      throw e;
+    }
     return true;
   }
 
@@ -215,7 +222,13 @@ public class UserRoleWebService implements IUserRoleWebService {
 
   @Override
   public boolean createRole( ProxyPentahoRole proxyRole ) throws UserRoleException {
-    getDao().createRole( proxyRole.getTenant(), proxyRole.getName(), proxyRole.getDescription(), new String[0] );
+    try {
+      getDao().createRole( proxyRole.getTenant(), proxyRole.getName(), proxyRole.getDescription(), new String[0] );
+    } catch ( AlreadyExistsException e ) {
+      // User doesn't want see a stack trace. We need to use this workaround. See details in PDI-14357.
+      e.setStackTrace( new StackTraceElement[0] );
+      throw e;
+    }
     return false;
   }
 

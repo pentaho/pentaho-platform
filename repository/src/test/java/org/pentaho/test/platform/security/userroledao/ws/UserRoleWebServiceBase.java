@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.test.platform.security.userroledao.ws;
@@ -21,6 +21,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -817,4 +818,49 @@ public class UserRoleWebServiceBase {
   protected String getSolutionPath() {
     return SOLUTION_PATH;
   }
+
+  @Test
+  public void testCreateDuplicateRole() throws UserRoleException {
+    UserRoleDaoMock userRoleDao = Mockito.mock( UserRoleDaoMock.class );
+    Mockito.doThrow( new AlreadyExistsException( "That role already exists." ) ).when( userRoleDao ).
+            createRole( Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any() );
+
+    UserRoleWebService userRoleWebService = new UserRoleWebService() {
+      @Override
+      protected IUserRoleDao getDao() throws UserRoleException {
+        return userRoleDao;
+      }
+    };
+
+    ProxyPentahoRole proxyPentahoRole = new ProxyPentahoRole();
+    try {
+      userRoleWebService.createRole(proxyPentahoRole);
+      Assert.fail();
+    } catch ( AlreadyExistsException e ) {
+      Assert.assertEquals( 0, e.getStackTrace().length );
+    }
+  }
+
+  @Test
+  public void testCreateDuplicateUser() throws UserRoleException {
+    UserRoleDaoMock userRoleDao = Mockito.mock( UserRoleDaoMock.class );
+    Mockito.doThrow( new AlreadyExistsException( "That user name already exists." ) ).when( userRoleDao ).
+            createUser(  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any() );
+
+    UserRoleWebService userRoleWebService = new UserRoleWebService() {
+      @Override
+      protected IUserRoleDao getDao() throws UserRoleException {
+        return userRoleDao;
+      }
+    };
+
+    ProxyPentahoUser proxyPentahoUser = new ProxyPentahoUser();
+    try {
+      userRoleWebService.createUser( proxyPentahoUser );
+      Assert.fail();
+    } catch ( AlreadyExistsException e ) {
+      Assert.assertEquals( 0, e.getStackTrace().length );
+    }
+  }
+
 }
