@@ -49,9 +49,12 @@ public class NonPooledOrJndiDatasourceService extends BaseDatasourceService {
         ds = resolveDatabaseConnection( databaseConnection );
         // Database does not have the datasource, look in jndi now
       } else {
-        ds = getJndiDataSource( dsName );
+        try {
+          ds = getJndiDataSource( dsName );
+        } catch ( DBDatasourceServiceException e ) {
+          //Ignore, Maybe jndi name is specified as database name in the connection
+        }
       }
-      //Maybe jndi name is specified as database name in the connection
       if ( ds == null && databaseConnection != null ) {
         ds = getJndiDataSource( databaseConnection.getDatabaseName() );
       }
