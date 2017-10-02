@@ -33,6 +33,23 @@
 	<log-level>DEBUG</log-level>
 
 	<!--
+	    cors-requests-allowed:
+	      Flag indicating if cross-origin requests are allowed or not.
+	      accepted values are: true | false
+	-->
+	<cors-requests-allowed>false</cors-requests-allowed>
+
+	<!--
+		cors-requests-allowed-domains:
+		  Comma separated list of domains allowed to do cross-origin requests to the server.
+
+		Example:
+		  http://domainA.com, http://localhost:1337
+
+	-->
+	<cors-requests-allowed-domains><!-- allowed domains here --></cors-requests-allowed-domains>
+
+	<!--
 		The configuration of publishers, system listeners, and session actions has been moved to
 		the systemListeners.xml, adminPlugins.xml, and sessionStartupActions.xml files which 
 		can be found in the "system" folder within your configured pentaho solution directory.
