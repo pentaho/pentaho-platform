@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.admin;
@@ -114,8 +114,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
           emailConfig.setSmtpPort( Integer.parseInt( portTextBox.getValue() ) );
           setDirty( true );
         } else {
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-              , false, true ).center();
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ),
+                  false, false, true ).center();
         }
       }
     } );
@@ -170,19 +170,23 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
         if ( isPortValid( portTextBox.getValue() ) ) {
           setEmailConfig();
         } else {
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-              , false, true ).center();
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ),
+                  false, false, true ).center();
         }
       }
     } );
 
     passwordTextBox.addKeyUpHandler( new KeyUpHandler() {
       public void onKeyUp( final KeyUpEvent keyUpEvent ) {
-        emailConfig.setPassword( passwordTextBox.getValue() );
+        emailConfig.setPassword( b64encode( passwordTextBox.getValue() ) );
         setDirty( true );
       }
     } );
   }
+
+  private static native String b64encode( String a ) /*-{
+    return window.btoa(a);
+  }-*/;
 
   public void updatePassword( String password ) {
     emailConfig.setPassword( password );
@@ -279,9 +283,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
   public void passivate( final AsyncCallback<Boolean> callback ) {
     if ( isDirty ) {
-      MessageDialogBox messageBox = new MessageDialogBox( Messages.getString( "confirm" )
-          , Messages.getString( "dirtyStateMessage" ), false, false, true, Messages.getString( "yes" ), null
-          , Messages.getString( "no" ) );
+      MessageDialogBox messageBox = new MessageDialogBox( Messages.getString( "confirm" ),
+              Messages.getString( "dirtyStateMessage" ), false, false, true,
+              Messages.getString( "yes" ), null, Messages.getString( "no" ) );
       messageBox.setCallback( new IDialogCallback() {
 
         @Override
@@ -291,8 +295,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
             callback.onSuccess( true );
             setDirty( false );
           } else {
-            new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ), false
-                , false, true ).center();
+            new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "portValidationLength" ),
+                    false, false, true ).center();
           }
         }
 

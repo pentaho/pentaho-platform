@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.email;
@@ -25,6 +25,7 @@ import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.messsages.Messages;
+import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
 import javax.activation.DataHandler;
@@ -180,8 +181,14 @@ public class Emailer {
         props.put( "mail.password", service.getEmailConfig().getPassword() );
         setAuthenticator( new Authenticator() {
           protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication( service.getEmailConfig().getUserId(), service.getEmailConfig()
-                .getPassword() );
+            String decrypted;
+            try {
+              Base64PasswordService ps = new Base64PasswordService();
+              decrypted = ps.decrypt( service.getEmailConfig().getPassword() );
+            } catch ( Exception e ) {
+              decrypted = service.getEmailConfig().getPassword();
+            }
+            return new PasswordAuthentication( service.getEmailConfig().getUserId(), decrypted );
           }
         } );
       }

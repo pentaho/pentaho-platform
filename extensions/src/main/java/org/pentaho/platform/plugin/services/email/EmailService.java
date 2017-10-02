@@ -13,11 +13,12 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.email;
 
+import com.google.gwt.user.server.Base64Utils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -153,7 +154,14 @@ public class EmailService implements IEmailService {
       Authenticator authenticator = new Authenticator() {
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
-          return new PasswordAuthentication( emailConfig.getUserId(), emailConfig.getPassword() );
+          String decoded;
+          try {
+            byte[] b = Base64Utils.fromBase64( emailConfig.getPassword() );
+            decoded = new String( b, "UTF-8" );
+          } catch ( Exception e ) {
+            decoded = emailConfig.getPassword();
+          }
+          return new PasswordAuthentication( emailConfig.getUserId(), decoded );
         }
       };
       session = Session.getInstance( emailProperties, authenticator );
