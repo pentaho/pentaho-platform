@@ -834,7 +834,7 @@ public class UserRoleWebServiceBase {
 
     ProxyPentahoRole proxyPentahoRole = new ProxyPentahoRole();
     try {
-      userRoleWebService.createRole(proxyPentahoRole);
+      userRoleWebService.createRole( proxyPentahoRole );
       Assert.fail();
     } catch ( AlreadyExistsException e ) {
       Assert.assertEquals( 0, e.getStackTrace().length );
@@ -859,6 +859,30 @@ public class UserRoleWebServiceBase {
       userRoleWebService.createUser( proxyPentahoUser );
       Assert.fail();
     } catch ( AlreadyExistsException e ) {
+      Assert.assertEquals( 0, e.getStackTrace().length );
+    }
+  }
+
+  @Test
+  public void testCreateBlankRole() throws UserRoleException {
+    UserRoleWebService userRoleWebService = new UserRoleWebService();
+    ProxyPentahoRole proxyPentahoRole = new ProxyPentahoRole();
+    try {
+      userRoleWebService.createRole( proxyPentahoRole );
+      Assert.fail();
+    } catch ( UserRoleException e ) {
+      Assert.assertEquals( 0, e.getStackTrace().length );
+    }
+  }
+
+  @Test
+  public void testCreateBlankUser() throws UserRoleException {
+    UserRoleWebService userRoleWebService = new UserRoleWebService();
+    ProxyPentahoUser proxyPentahoUser = new ProxyPentahoUser();
+    try {
+      userRoleWebService.createUser( proxyPentahoUser );
+      Assert.fail();
+    } catch ( UserRoleException e ) {
       Assert.assertEquals( 0, e.getStackTrace().length );
     }
   }
