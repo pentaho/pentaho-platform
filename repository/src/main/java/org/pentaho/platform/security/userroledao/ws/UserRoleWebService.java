@@ -91,6 +91,13 @@ public class UserRoleWebService implements IUserRoleWebService {
 
   @Override
   public boolean createUser( ProxyPentahoUser proxyUser ) throws UserRoleException {
+    if ( StringUtils.isBlank( proxyUser.getName() ) ) {
+      UserRoleException blankUserException = new UserRoleException( Messages.getInstance().getString(
+        "HibernateUserRoleDao.ERROR_0002_USERNAME_CANNOT_BE_BLANK" ) );
+      // User doesn't want see a stack trace. We need to use this workaround. See details in PDI-14357.
+      blankUserException.setStackTrace( new StackTraceElement[0] );
+      throw blankUserException;
+    }
     try {
       getDao().createUser( proxyUser.getTenant(), proxyUser.getName(), proxyUser.getPassword(),
               proxyUser.getDescription(), null );
@@ -222,6 +229,13 @@ public class UserRoleWebService implements IUserRoleWebService {
 
   @Override
   public boolean createRole( ProxyPentahoRole proxyRole ) throws UserRoleException {
+    if ( StringUtils.isBlank( proxyRole.getName() ) ) {
+      UserRoleException blankRoleException = new UserRoleException( Messages.getInstance().getString(
+        "HibernateUserRoleDao.ERROR_0006_ROLE_NAME_CANNOT_BE_BLANK" ) );
+      // User doesn't want see a stack trace. We need to use this workaround. See details in PDI-14357.
+      blankRoleException.setStackTrace( new StackTraceElement[0] );
+      throw blankRoleException;
+    }
     try {
       getDao().createRole( proxyRole.getTenant(), proxyRole.getName(), proxyRole.getDescription(), new String[0] );
     } catch ( AlreadyExistsException e ) {
