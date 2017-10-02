@@ -77,7 +77,7 @@
     </MimeTypeDefinitions>
   </ImportHandler>
   
-  <ImportHandler class="com.pentaho.repository.importexport.PDIImportFileHandler">
+  <ImportHandler class="org.pentaho.platform.plugin.services.importer.PDIImportFileHandler">
     <MimeTypeDefinitions>
       <MimeTypeDefinition mimeType="application/vnd.pentaho.job" converter="PDIJobStreamConverter" hidden="true" versionEnabled="true" versionCommentEnabled="true">
         <extension>kjb</extension>

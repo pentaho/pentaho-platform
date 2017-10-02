@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr;
@@ -110,6 +110,7 @@ public class PluginClassLoader extends URLClassLoader {
               .getAbsolutePath(), libDir.getAbsolutePath() ), e );
     }
     addJars( urls, libDir );
+    addJars( urls, pluginDir );
     return urls.toArray( new URL[urls.size()] );
   }
 
