@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.net.URL;
 
 @SuppressWarnings( "nls" )
-public class RepositorySyncWebServiceClientIT extends RepositorySyncWebServiceTest implements Serializable {
+public class RepositorySyncWebServiceClientIT extends RepositorySyncWebServiceIT implements Serializable {
 
   private static final long serialVersionUID = -6806897012063786589L; /* EESOURCE: UPDATE SERIALVERUID */
 

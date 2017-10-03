@@ -50,7 +50,7 @@ import java.util.Properties;
 /**
  * This test case writes to the current user's home .kettleTest folder and then cleans it up afterwards  
  */
-public class RepositorySyncWebServiceTest implements Serializable {
+public class RepositorySyncWebServiceIT implements Serializable {
 
   private static final long serialVersionUID = -5736355727016778872L; /* EESOURCE: UPDATE SERIALVERUID */
 
@@ -163,7 +163,7 @@ public class RepositorySyncWebServiceTest implements Serializable {
   }
 
   @RepositoryPlugin( id = "PentahoEnterpriseRepository", name = "PentahoEnterpriseRepository",
-      metaClass = "com.pentaho.pdi.ws.RepositorySyncWebServiceTest$TestRepositoryMeta" )
+      metaClass = "com.pentaho.pdi.ws.RepositorySyncWebServiceIT$TestRepositoryMeta" )
   public static class TestRepositoryMeta extends BaseRepositoryMeta implements RepositoryMeta {
     public TestRepositoryMeta() {
       super( "PentahoEnterpriseRepository" );
@@ -282,7 +282,7 @@ public class RepositorySyncWebServiceTest implements Serializable {
     RepositoryPluginType.getInstance().registerCustom( TestRepositoryMeta.class, "PentahoEnterpriseRepository",
         "PentahoEnterpriseRepository", "PentahoEnterpriseRepository", "PentahoEnterpriseRepository", "" );
     PluginRegistry.getInstance().getPlugin( RepositoryPluginType.class, "PentahoEnterpriseRepository" ).getClassMap()
-        .put( RepositoryMeta.class, "com.pentaho.pdi.ws.RepositorySyncWebServiceTest$TestRepositoryMeta" );
+        .put( RepositoryMeta.class, "com.pentaho.pdi.ws.RepositorySyncWebServiceIT$TestRepositoryMeta" );
 
     RepositorySyncStatus status = webservice.sync( "test id", "http://localhost:8080/pentaho-di" );
 
