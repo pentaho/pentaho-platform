@@ -34,8 +34,8 @@ import org.pentaho.platform.plugin.services.importexport.PentahoMetadataFileInfo
 import org.pentaho.platform.plugin.services.metadata.IAclAwarePentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.plugin.services.metadata.IModelAnnotationsAwareMetadataDomainRepositoryImporter;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
-import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository.messages.Messages;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -128,8 +128,10 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       }
 
       return domainId;
-    } catch ( DomainIdNullException | DomainStorageException e ) {
-      throw new PlatformImportException( e.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, e );
+    } catch ( DomainIdNullException dine ) {
+      throw new PlatformImportException( dine.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, dine );
+    } catch ( DomainStorageException dse ) {
+      throw new PlatformImportException( dse.getMessage(), PlatformImportException.PUBLISH_TO_SERVER_FAILED, dse );
     } catch ( DomainAlreadyExistsException daee ) {
       throw new PlatformImportException( messages
           .getString( "PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR" ),
@@ -139,7 +141,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       final String errorMessage =
           messages.getErrorString( "MetadataImportHandler.ERROR_0001_IMPORTING_METADATA", domainId, e
               .getLocalizedMessage() );
-      log.error( e );
+      log.error( errorMessage, e );
       throw new PlatformImportException( errorMessage, e );
     }
   }
@@ -159,7 +161,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       xmi = new String( is, "UTF-8" );
 
       // now, try to see if the xmi can be parsed (ie, check if it's valid xmi)
-      Domain domain = xmiParser.parseXmi( new java.io.ByteArrayInputStream( is ), true );
+      Domain domain = xmiParser.parseXmi( new java.io.ByteArrayInputStream( is ) );
 
       boolean changed = false;
       if ( domain.getLogicalModels().size() > 1 ) {
