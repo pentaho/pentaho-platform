@@ -60,6 +60,9 @@
    <!-- ================ -->
    <!-- Limit categories -->
    <!-- ================ -->
+    <category name="org.apache.hadoop.io.retry">
+        <priority value="INFO" />
+    </category>
 
    <category name="org.hibernate">
      <priority value="ERROR" />
