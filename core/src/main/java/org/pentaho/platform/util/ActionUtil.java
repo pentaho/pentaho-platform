@@ -27,6 +27,7 @@ import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.Messages;
 import org.pentaho.platform.util.web.MimeHelper;
@@ -161,12 +162,23 @@ public class ActionUtil {
 
   /**
    * Looks up the {@code ActionUtil.WORK_ITEM_UID} within the {@link Map}. If available, the value is returned,
-   * otherwise a new uid is generated and placed within the {@link Map}.
+   * otherwise a new uid is generated and placed within the {@link Map}. This is done ONLY if the
+   * {@link IWorkItemLifecycleEventPublisher} bean is defined, if the bean is not defined, {@code null} is returned.
+   * It is the caller's responsibility to handle this case gracefully.
    *
    * @param params a {@link Map} that may contain the {@code ActionUtil.WORK_ITEM_UID}
-   * @return {@code ActionUtil.WORK_ITEM_UID} from the {@link Map} or a new uid
+   * @return {@code ActionUtil.WORK_ITEM_UID} from the {@link Map} or a new uid, or {@code null} in the absence of
+   * the {@link IWorkItemLifecycleEventPublisher} bean
    */
   public static String extractUid( final Map<String, Serializable> params ) {
+    final IWorkItemLifecycleEventPublisher publisher = PentahoSystem.get( IWorkItemLifecycleEventPublisher.class );
+    // if the published bean is null, we do not want to generate the work item UID, as this is a worker nodes
+    // concept, and we do not want any worker nodes related information in the logs. Given that
+    // IWorkItemLifecycleEventPublisher only exists when worker nodes are enabled, we can use the existence of this
+    // bean to determine whether to generate the work item UID or not
+    if ( publisher == null ) {
+      return null;
+    }
     if ( params == null ) {
       return generateWorkItemUid( params );
     }

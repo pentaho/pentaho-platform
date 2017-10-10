@@ -27,7 +27,9 @@ import org.pentaho.platform.api.action.ActionInvocationException;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.workitem.DummyPublisher;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -38,7 +40,9 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( { PentahoSystem.class, ActionUtil.class } )
@@ -147,6 +151,10 @@ public class ActionUtilTest {
 
   @Test
   public void testExtractUid() {
+    // fake the publisher, so that a call to extractUid returns a value and puts it in the params map
+    PowerMockito.mockStatic( PentahoSystem.class );
+    when( PentahoSystem.get( isA( IWorkItemLifecycleEventPublisher.class.getClass() ) ) ).thenReturn( new DummyPublisher() );
+
     final Map<String, Serializable> params = new HashMap<>();
 
     assertNotNull( ActionUtil.extractUid( params ) );
@@ -155,6 +163,15 @@ public class ActionUtilTest {
     final String uid = (String) params.get( ActionUtil.WORK_ITEM_UID );
     assertEquals( uid, ActionUtil.extractUid( params ) );
     assertEquals( 1, params.size() );
+  }
+
+  @Test
+  public void testExtractUidWithoutPublisher() {
+    // by default, there is no IWorkItemLifecycleEventPublisher bean, call to extractUid should return null
+    final Map<String, Serializable> params = new HashMap<>();
+
+    assertNull( ActionUtil.extractUid( params ) );
+    assertFalse( params.containsKey( ActionUtil.WORK_ITEM_UID ) );
   }
 
   /**
