@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.test.platform.plugin;
@@ -231,7 +231,7 @@ public class MultipleComponentIT extends BaseTest {
    */
 
   public void testMiscExceptionClasses() {
-    // Making sure we create an instance of all the Pentaho
+    // Making sure we create an instance of all the Hitachi Vantara
     // Exception classes.
     startTest();
     Exception ex = new RepositoryException();

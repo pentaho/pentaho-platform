@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.commons.system;
@@ -62,7 +62,7 @@ public class PentahoSystemDatabaseDialectProvider implements IDatabaseDialectPro
   }
 
   /**
-   * Returns collection of database dialects registered to the Pentaho System.
+   * Returns collection of database dialects registered to the Hitachi Vantara System.
    *
    * @param usableOnly
    * @return dialects collection

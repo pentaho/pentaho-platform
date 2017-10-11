@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2014 Pentaho Corporation. All rights reserved.
+ * Copyright 2014 - 2017 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.api.monitoring.snmp;

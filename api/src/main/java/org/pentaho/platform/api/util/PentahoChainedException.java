@@ -12,12 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 /**
  *
- * This is the base class for all Pentaho exceptions. This class handles
+ * This is the base class for all Hitachi Vantara exceptions. This class handles
  * chaining of exceptions so that it's possible to chain back to the root
  * of an exception.
  *
@@ -28,7 +28,7 @@ package org.pentaho.platform.api.util;
 import java.io.PrintStream;
 
 /**
- * This is the base Pentaho Exception class that handles chained exceptions.
+ * This is the base Hitachi Vantara Exception class that handles chained exceptions.
  */
 public class PentahoChainedException extends RuntimeException {
 

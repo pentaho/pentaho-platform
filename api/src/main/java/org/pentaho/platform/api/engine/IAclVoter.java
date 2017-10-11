@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.api.engine;
@@ -45,7 +45,7 @@ public interface IAclVoter {
   public IAclEntry[] getEffectiveAcls( IPentahoSession session, IAclHolder holder );
 
   /**
-   * Determines whether the user is a super-manager of Pentaho. Uses the Manager Role.
+   * Determines whether the user is a super-manager of Hitachi Vantara. Uses the Manager Role.
    *
    * @param session
    * @return <code>true</code> if the user is a super-manager

@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr;/*
@@ -30,7 +30,7 @@ package org.pentaho.platform.repository2.unified.jcr;/*
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 - 2017 Hitachi Vantara.  All rights reserved.
  *
  * User: pminutillo
  * Date: 2/12/13

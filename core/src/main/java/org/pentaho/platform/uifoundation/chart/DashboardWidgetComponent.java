@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 package org.pentaho.platform.uifoundation.chart;
 
@@ -43,7 +43,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 /**
- * This class is a Pentaho user interface component.
+ * This class is a Hitachi Vantara user interface component.
  * <p/>
  * It generates dial images that can be embedded into JSPs, portals or other HTML supporting user interface.
  * <p/>

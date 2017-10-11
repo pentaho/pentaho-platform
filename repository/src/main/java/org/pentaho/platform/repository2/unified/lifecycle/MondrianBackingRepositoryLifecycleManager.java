@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.lifecycle;
@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
 import java.io.Serializable;
 
 /**
- * Initializes folders used by Pentaho Mondrian.
+ * Initializes folders used by Hitachi Vantara Mondrian.
  * 
  * @author Ezequiel Cuellar
  */

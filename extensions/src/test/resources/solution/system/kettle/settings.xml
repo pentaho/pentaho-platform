@@ -1,6 +1,6 @@
 <kettle-repository>
 
-  <!-- The values within <properties> are passed directly to the Kettle Pentaho components. -->
+  <!-- The values within <properties> are passed directly to the Kettle Hitachi Vantara components. -->
        
 	<!-- This is the location of the Kettle repositories.xml file, leave empty if the default is used: $HOME/.kettle/repositories.xml -->
 	<repositories.xml.file></repositories.xml.file>

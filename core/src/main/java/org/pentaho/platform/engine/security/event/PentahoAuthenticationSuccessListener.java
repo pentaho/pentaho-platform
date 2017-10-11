@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security.event;
@@ -33,7 +33,7 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.util.Assert;
 
 /**
- * Synchronizes the Pentaho session's principal with the Spring Security {@code Authentication}. This listener fires
+ * Synchronizes the Hitachi Vantara session's principal with the Spring Security {@code Authentication}. This listener fires
  * either on interactive or non-interactive logins.
  * 
  * <p>

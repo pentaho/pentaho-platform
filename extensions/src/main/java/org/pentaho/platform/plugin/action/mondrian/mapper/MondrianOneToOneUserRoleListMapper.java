@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.mondrian.mapper;
@@ -31,7 +31,7 @@ package org.pentaho.platform.plugin.action.mondrian.mapper;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2005 - 2009 Pentaho Corporation.  All rights reserved.
+ * Copyright 2005 - 2017 Hitachi Vantara.  All rights reserved.
  *
  *
  * Created December 12, 2009
@@ -50,7 +50,7 @@ public class MondrianOneToOneUserRoleListMapper extends MondrianAbstractPlatform
   protected boolean failOnEmptyRoleList = true;
 
   /**
-   * This mapper maps directly from a Pentaho to a Mondrian role. This is useful when your roles exist both in the
+   * This mapper maps directly from a Hitachi Vantara to a Mondrian role. This is useful when your roles exist both in the
    * platform and identically named in the mondrian catalog.
    */
   protected String[] mapRoles( String[] mondrianRoles, String[] platformRoles ) throws PentahoAccessControlException {

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.cache;
@@ -130,7 +130,7 @@ public class CacheManager implements ICacheManager {
    * The constructor performs the following tasks:
    * <p>
    * <ul>
-   * <li>Gets the Pentaho System Settings</li>
+   * <li>Gets the Hitachi Vantara System Settings</li>
    * <li>Reads the <code>cache-provider/class</code> element.</li>
    * <li>Reads the <code>cache-provider/region</code> element.</li>
    * <li>Reads in any properties under <code>cache-provider/properties/*</li>

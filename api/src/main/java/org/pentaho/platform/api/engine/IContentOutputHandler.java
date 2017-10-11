@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.api.engine;
@@ -20,7 +20,7 @@ package org.pentaho.platform.api.engine;
 import org.pentaho.platform.api.repository.IContentItem;
 
 /**
- * Interface for a class used to stream contents from a Pentaho action sequence to a destination of some kind, e.g.
+ * Interface for a class used to stream contents from a Hitachi Vantara action sequence to a destination of some kind, e.g.
  * file, database, content management system (CMS)
  * 
  * @author jdixon

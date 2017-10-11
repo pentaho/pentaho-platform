@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2005 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2005 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.test.platform.engine.core;
@@ -51,7 +51,7 @@ import java.util.Set;
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2009 Pentaho Corporation.  All rights reserved. 
+ * Copyright 2009 - 2017 Hitachi Vantara.  All rights reserved. 
  * 
  */
 public class PluginManagerAdapter implements IPluginManager {

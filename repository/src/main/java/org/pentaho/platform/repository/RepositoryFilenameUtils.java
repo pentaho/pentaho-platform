@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.repository;
@@ -28,7 +28,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.springframework.util.StringUtils;
 
 /**
- * General filename and filepath manipulation utilities for the Pentaho Repository. NOTE: these methods will work
+ * General filename and filepath manipulation utilities for the Hitachi Vantara Repository. NOTE: these methods will work
  * independently of the underlying operating system. Most methods will translate a backslash (\) to a forward slash (/)
  * but should be be depended upon to make that translation.
  * <p/>
@@ -45,7 +45,7 @@ import org.springframework.util.StringUtils;
  * impossible to determine if the filename corresponds to a file or a directory. As a result, we have chosen to say it
  * corresponds to a file.
  * <p/>
- * This class only supports Pentaho Repository (Unix) style names. Prefixes are matched as follows:
+ * This class only supports Hitachi Vantara Repository (Unix) style names. Prefixes are matched as follows:
  * 
  * <pre>
  * a/b/c.txt           --> ""          --> relative

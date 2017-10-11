@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.userroledao.jackrabbit.security;
@@ -35,7 +35,7 @@ import javax.jcr.SimpleCredentials;
  * </p>
  *
  * <p>
- * This class is instantiated by Pentaho Admin Console so there should not be a dependency on classes to which PAC
+ * This class is instantiated by Hitachi Vantara Admin Console so there should not be a dependency on classes to which PAC
  * will not have access.
  * </p>
  *

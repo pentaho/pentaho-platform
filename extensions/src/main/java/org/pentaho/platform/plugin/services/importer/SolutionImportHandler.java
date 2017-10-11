@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -300,7 +300,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     if ( manifest != null ) {
       importSchedules( manifest.getScheduleList() );
 
-      // Add Pentaho Connections
+      // Add Hitachi Vantara Connections
       List<org.pentaho.database.model.DatabaseConnection> datasourceList = manifest.getDatasourceList();
       if ( datasourceList != null ) {
         IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );

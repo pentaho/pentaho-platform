@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -103,7 +103,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   // The default encoding for file storage
   private static final String DEFAULT_ENCODING = "UTF-8";
 
-  // The default mime-type for the Pentaho Domain files
+  // The default mime-type for the Hitachi Vantara Domain files
   private static final String DOMAIN_MIME_TYPE = "text/xml";
 
   // The default mime-type for locale files
