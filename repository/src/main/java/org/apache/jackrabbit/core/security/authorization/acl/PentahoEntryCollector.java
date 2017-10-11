@@ -39,6 +39,7 @@ import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.id.NodeId;
+import org.apache.jackrabbit.core.security.authorization.AccessControlModifications;
 import org.apache.jackrabbit.core.security.authorization.PrivilegeBits;
 import org.apache.jackrabbit.core.security.authorization.PrivilegeManagerImpl;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -84,10 +85,18 @@ public class PentahoEntryCollector extends EntryCollector {
 
   private List<MagicAceDefinition> magicAceDefinitions = new ArrayList<MagicAceDefinition>();
 
+  private List<MagicAceDefinition> getMagicAceDefinitions() {
+    return Collections.unmodifiableList( magicAceDefinitions );
+  }
+
   @SuppressWarnings( "rawtypes" )
   public PentahoEntryCollector( final SessionImpl systemSession, final NodeId rootID,  final Map configuration )
     throws RepositoryException {
     super( systemSession, rootID );
+    createMagicAceDefinitions( systemSession );
+  }
+
+  private void createMagicAceDefinitions( SessionImpl systemSession ) throws RepositoryException {
     ClassLoader loader = this.getClass().getClassLoader();
     InputStream yamlFileInputStream = loader.getResourceAsStream( "jcr/config.yaml" );
     magicAceDefinitions = MagicAceDefinition.parseYamlMagicAceDefinitions( yamlFileInputStream, systemSession );
@@ -264,7 +273,7 @@ public class PentahoEntryCollector extends EntryCollector {
     }
 
     ITenant tenant = JcrTenantUtils.getTenant();
-    for ( final MagicAceDefinition def : magicAceDefinitions ) {
+    for ( final MagicAceDefinition def : getMagicAceDefinitions() ) {
       match = false;
 
       String substitutedPath = MessageFormat.format( def.path, tenant.getRootFolderAbsolutePath() );
@@ -511,6 +520,24 @@ public class PentahoEntryCollector extends EntryCollector {
     }
 
     return entry;
+  }
+
+  @Override protected void notifyListeners( AccessControlModifications modifications ) {
+    super.notifyListeners( modifications );
+    /* Update cache for all affected access controlled nodes */
+    for ( Object key : modifications.getNodeIdentifiers() ) {
+      if ( !( key instanceof NodeId ) ) {
+        log.warn( "Cannot process AC modificationMap entry. Keys must be NodeId." );
+        continue;
+      }
+
+      try {
+        createMagicAceDefinitions( systemSession );
+      } catch ( RepositoryException e ) {
+        log.error( "Failed to recreate magic ace definitions on repository policy changed", e );
+      }
+    }
+    super.notifyListeners( modifications );
   }
 
   static class PentahoEntries extends Entries {
