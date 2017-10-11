@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -333,7 +333,7 @@ public class ViewAction extends ServletBase {
      */
 
     // Proposed fix for bug BISERVER-97 by Ezequiel Cuellar
-    // Changed to set parameterXsl from the value specified specified in the Pentaho.xml tag "default-parameter-xsl"
+    // Changed to set parameterXsl from the value specified specified in the Hitachi Vantara.xml tag "default-parameter-xsl"
     // Proposed fix for bug BISERVER-238 by Ezequiel Cuellar
     // Code refactoring. DefaultParameterForm.xsl was always getting set so I just refactored the code
     // by adding a default value of DefaultParameterForm.xsl when getting the value of default-parameter-xsl

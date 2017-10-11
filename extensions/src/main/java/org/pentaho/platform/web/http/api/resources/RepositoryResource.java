@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
 */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -352,7 +352,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
    *
    *&lt;div class=&quot;groupOption&quot;&gt;
    *&lt;input checked=&quot;checked&quot; name=&quot;securityProvider&quot; type=&quot;radio&quot; value=&quot;jackrabbit&quot; /&gt;
-   *&lt;div class=&quot;pentahoSecurityLabel authValue&quot;&gt;Local - Use basic Pentaho authentication&lt;/div&gt;
+   *&lt;div class=&quot;pentahoSecurityLabel authValue&quot;&gt;Local - Use basic Hitachi Vantara authentication&lt;/div&gt;
    *&lt;/div&gt;
    *&lt;div class=&quot;groupOption&quot;&gt;
    *&lt;input name=&quot;securityProvider&quot; type=&quot;radio&quot; value=&quot;ldap&quot; /&gt;

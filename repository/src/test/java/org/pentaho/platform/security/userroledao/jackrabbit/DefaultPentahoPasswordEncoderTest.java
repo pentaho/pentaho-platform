@@ -20,7 +20,7 @@ import org.pentaho.test.platform.security.userroledao.ws.UserRoleWebServiceBase;
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 public class DefaultPentahoPasswordEncoderTest {
 

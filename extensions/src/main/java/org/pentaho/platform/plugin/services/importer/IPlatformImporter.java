@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -23,7 +23,7 @@ import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger
 import java.util.Map;
 
 /**
- * Implementations handle importing the given content into the Pentaho System.
+ * Implementations handle importing the given content into the Hitachi Vantara System.
  * <p/>
  * User: nbaker Date: 6/18/12
  */

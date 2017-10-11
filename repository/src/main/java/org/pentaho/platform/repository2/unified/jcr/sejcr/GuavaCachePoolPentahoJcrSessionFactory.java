@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2014 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2014 - 2017 Hitachi Vantara.  All rights reserved.
  */
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 

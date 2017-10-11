@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 package org.pentaho.platform.plugin.services.connections;
 
@@ -34,7 +34,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 
-//This driver will delegate to drivers found in the Pentaho Object System
+//This driver will delegate to drivers found in the Hitachi Vantara Object System
 //For example it can delegate to the Mondrian 4 Olap4J Driver that lives in an OSGI Bundle
 public class PentahoSystemDriver implements Driver {
   static {

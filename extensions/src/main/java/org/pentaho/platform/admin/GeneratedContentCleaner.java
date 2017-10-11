@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.admin;
@@ -46,7 +46,7 @@ import java.util.Map;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 - 2017 Hitachi Vantara.  All rights reserved.
  * 
  * @created March 18, 2013
  * @author Michael D'Amour

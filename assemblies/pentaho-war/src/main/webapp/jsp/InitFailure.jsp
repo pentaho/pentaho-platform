@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
 --%>
 
 <%@ page
@@ -24,7 +24,7 @@
           java.util.List" 
 %><%
 /*
- * Copyright 2006 - 2010 Pentaho Corporation.  All rights reserved. 
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved. 
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.

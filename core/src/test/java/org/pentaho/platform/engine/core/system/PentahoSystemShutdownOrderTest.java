@@ -24,7 +24,7 @@ import java.util.List;
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2017 Pentaho Corporation.  All rights reserved.
+ * Copyright 2017 Hitachi Vantara.  All rights reserved.
  */
 
 public class PentahoSystemShutdownOrderTest {

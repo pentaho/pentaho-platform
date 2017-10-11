@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.context;
@@ -54,7 +54,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 /**
- * Overrides <code>getResourceByPath</code> so that relative paths are relative to the Pentaho solution repository's
+ * Overrides <code>getResourceByPath</code> so that relative paths are relative to the Hitachi Vantara solution repository's
  * system directory instead of being relative to servlet context root.
  * 
  * @author mlowery

@@ -12,9 +12,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 - 2017 Hitachi Vantara.  All rights reserved.
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;

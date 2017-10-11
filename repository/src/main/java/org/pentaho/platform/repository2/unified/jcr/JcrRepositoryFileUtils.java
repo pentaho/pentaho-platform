@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.jcr;
@@ -1052,7 +1052,7 @@ public class JcrRepositoryFileUtils {
   private static VersionSummary toVersionSummary( final PentahoJcrConstants pentahoJcrConstants,
       final VersionHistory versionHistory, final Version version ) throws RepositoryException {
     List<String> labels = Arrays.asList( versionHistory.getVersionLabels( version ) );
-    // get custom Pentaho properties (i.e. author and message)
+    // get custom Hitachi Vantara properties (i.e. author and message)
     Node nodeAtVersion = getNodeAtVersion( pentahoJcrConstants, version );
     String author = "BASE_VERSION";
     if ( nodeAtVersion.hasProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR() ) ) {

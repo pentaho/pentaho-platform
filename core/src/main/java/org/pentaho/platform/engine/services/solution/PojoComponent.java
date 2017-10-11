@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.services.solution;
@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class interfaces with a plain old Java object and makes it available as a component within the Pentaho
+ * This class interfaces with a plain old Java object and makes it available as a component within the Hitachi Vantara
  * platform.
  * 
  * Resources and Input Parameters are set on a Pojo via setters. Any public setter is available to both, without
