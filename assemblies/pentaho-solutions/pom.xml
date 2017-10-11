@@ -120,9 +120,37 @@
                   <type>zip</type>
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
                 </artifactItem>
+        	    <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>pdi-autodoc-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
-                  <artifactId>pdi-core-plugins</artifactId>
+                  <artifactId>pdi-append-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>pdi-analyticquery-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>pdi-addsequence-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem> 
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>pdi-abort-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
