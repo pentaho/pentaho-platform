@@ -1113,6 +1113,10 @@
               <include>**/context.xml</include>
               <targetPath>META-INF</targetPath>
             </resource>
+            <resource>
+              <directory>src/main/resources-filtered/</directory>
+              <filtering>true</filtering>
+            </resource>
           </webResources>
           <webXml>${package.resources.directory}/WEB-INF/web.xml</webXml>
           <webappDirectory>${prepared.war.directory}</webappDirectory>
