@@ -27,7 +27,7 @@
     <!--
 	This is the URL to the user guide
     -->
-    <documentation-url>https://help.pentaho.com/Documentation/${doc.version}/0D0/Pentaho_Business_Analytics</documentation-url>
+    <documentation-url>https://help.pentaho.com/Documentation/${doc.version}/Products</documentation-url>
 
 	<log-file>server.log</log-file>
 	<log-level>DEBUG</log-level>
