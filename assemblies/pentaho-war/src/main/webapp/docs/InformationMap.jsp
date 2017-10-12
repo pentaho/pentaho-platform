@@ -42,10 +42,10 @@ $('document').ready(function(){
    $('#puc_customize').attr("href", docBase + '0R0/090');
    $('#custom_dashboards').attr("href", docBase + '0R0/120');
    $('#ba_perf').attr("href", docBase + '0P0/100');
-   $('#agg_designer').attr("href", docBase + '0N0/010');
+   $('#agg_designer').attr("href", docBase + 'Products/Aggregation_Designer');
    $('#analyzer').attr("href", docBase + '0N0/020');
    $('#pme').attr("href", docBase + '0N0/110');
-   $('#report_designer').attr("href", docBase + '0L0/130');
+   $('#report_designer').attr("href", docBase + 'Products/Report_Designer');
    $('#puc_plugins').attr("href", docBase + '0L0/120');
    $('#define_data').attr("href", docBase + '0L0/0A0');
    $('#ba_install_select').attr("href", docBase + '0F0/0M0');
