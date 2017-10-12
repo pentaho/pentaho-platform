@@ -12,6 +12,12 @@
 
   <fileSets>
     <fileSet>
+      <directory>${basedir}/src/main/resources-filtered</directory>
+      <outputDirectory>.</outputDirectory>
+      <filtered>true</filtered>
+    </fileSet>
+
+    <fileSet>
       <directory>${basedir}/src/main/resources</directory>
       <outputDirectory>.</outputDirectory>
     </fileSet>

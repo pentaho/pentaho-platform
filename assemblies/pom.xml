@@ -21,6 +21,9 @@
     <pentaho-server.kettle.plugins.directory>${pentaho-server.system.directory}/kettle/pluggins</pentaho-server.kettle.plugins.directory>
     <package.id>pentaho-server</package.id>
     <pentaho-server.directory>${project.build.directory}/${package.id}</pentaho-server.directory>
+
+    <!-- parsedVersion properties are dynamically created by the build-helper-maven-plugin:create-doc-version-property -->
+    <doc.version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}</doc.version>
   </properties>
   <build>
     <pluginManagement>
@@ -47,6 +50,18 @@
         <configuration>
           <skipSource>true</skipSource>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>create-doc-version-property</id>
+            <goals>
+              <goal>parse-version</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
