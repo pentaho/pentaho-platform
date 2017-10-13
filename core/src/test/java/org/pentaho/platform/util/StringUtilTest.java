@@ -19,15 +19,69 @@ package org.pentaho.platform.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 /**
  * Unit tests for the {@link org.pentaho.platform.util.StringUtil} class.
  */
 public class StringUtilTest {
+
+  @Test
+  public void testTrim() {
+    Assert.assertEquals( StringUtil.trimToEmpty( " foo " ), "foo" );
+    Assert.assertEquals( StringUtil.trimToEmpty(  "\n foo \t" ), "foo" );
+    for ( int i = 0; i <= 32; i++ ) {
+      Assert.assertEquals( StringUtil.trimToEmpty( (char) i  + "foo" ), "foo" );
+    }
+    Assert.assertEquals( StringUtil.trimToEmpty( "" ), "" );
+    Assert.assertEquals( StringUtil.trimToEmpty( null ), "" );
+  }
+
+  @Test
+  public void testTrimStringMap() {
+
+    Map<String, String> nullMap = null;
+    Assert.assertNull( StringUtil.trimStringMap( nullMap ) );
+
+    Map<String, String> stringMap = new HashMap<>();
+    stringMap.put( " spaces ", " spacesval " );
+    stringMap.put( "\t tabs \t", "\t tabsval \t" );
+    stringMap.put( "\n newline \n", "\n newlineval \n" );
+    stringMap.put( "empty", "" );
+    stringMap.put( "null", null );
+    stringMap.put( null, null );
+    stringMap = StringUtil.trimStringMap( stringMap );
+
+    Assert.assertEquals( stringMap.get( "spaces" ), "spacesval" );
+    Assert.assertEquals( stringMap.get( "tabs" ), "tabsval" );
+    Assert.assertEquals( stringMap.get( "newline" ), "newlineval" );
+    Assert.assertEquals( stringMap.get( "empty" ), "" );
+    Assert.assertEquals( stringMap.get( "null" ), "" );
+    Assert.assertEquals( stringMap.get( "" ), "" );
+  }
+
+  @Test
+  public void testTrimStringList() {
+    List<String> stringList = new ArrayList<>();
+    for ( int i = 0; i <= 32; i++ ) {
+      stringList.add( (char) i  + "foo" );
+    }
+    stringList.add( "" );
+    stringList.add( null );
+    stringList = StringUtil.trimStringList( stringList );
+    for ( int i = 0; i <= 32; i++ ) {
+      Assert.assertEquals( stringList.get( i ), "foo" );
+    }
+    Assert.assertEquals( stringList.get( 33 ), "" );
+    Assert.assertEquals( stringList.get( 34 ), "" );
+    Assert.assertEquals( StringUtil.trimStringList( null ), null );
+    List<String> empty = new ArrayList();
+    Assert.assertEquals( StringUtil.trimStringList( empty ), empty );
+  }
 
   @Test
   public void testTokenStringToArray() {
