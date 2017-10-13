@@ -40,16 +40,15 @@ import org.slf4j.LoggerFactory;
 public class BarrierBeanProcessor {
   private Logger logger = LoggerFactory.getLogger( BarrierBeanProcessor.class );
   private static BarrierBeanProcessor barrierBeanProcessor;
-  
   private IServiceBarrierManager serviceBarrierManager = IServiceBarrierManager.LOCATOR.getManager();
   private Map<String, List<BarrierBean>> barrierBeans = new ConcurrentHashMap<String, List<BarrierBean>>();
   private Map<String, Set<String>> beanBarriers = new ConcurrentHashMap<String, Set<String>>();
-  
+
   private BarrierBeanProcessor() {
   }
-  
+
   public static BarrierBeanProcessor getInstance() {
-    if ( barrierBeanProcessor == null ){
+    if ( barrierBeanProcessor == null ) {
       barrierBeanProcessor = new BarrierBeanProcessor();
     }
     return barrierBeanProcessor;
@@ -59,7 +58,7 @@ public class BarrierBeanProcessor {
    * This method can be run multiple times for multiple barrierBean files. Only one list of barrierBeans is maintained
    * so that plugins can add their own barrierBeans if necessary.  Registered barrierBeans will be held just prior
    * to bean initialization.  See {@link BarrierBeanPostProcessor}
-   * 
+   *
    * @param barrierBeanFilePath
    * @return
    */
@@ -68,37 +67,45 @@ public class BarrierBeanProcessor {
     File barrierBeanFile = new File( barrierBeanFilePath );
     if ( barrierBeanFile.exists() ) {
 
+      FileInputStream fileInput = null;
       try {
-        FileInputStream fileInput = new FileInputStream( barrierBeanFile );
+        fileInput = new FileInputStream( barrierBeanFile );
         barrierBeanProperties.load( fileInput );
-        fileInput.close();
       } catch ( FileNotFoundException e ) {
         e.printStackTrace();
       } catch ( IOException e ) {
         e.printStackTrace();
+      } finally {
+        if ( fileInput != null ) {
+          try {
+            fileInput.close();
+          } catch ( IOException e ) {
+            e.printStackTrace();
+          }
+        }
       }
-      
+
       registerBarrierBeans( barrierBeanProperties );
 
     }
   }
-  
+
   /**
-   * This method can be run multiple times for multiple barrierBean property sets. Only one list of barrierBeans is maintained
-   * so that plugins can add their own barrierBeans if necessary.  Registered barrierBeans will be held just prior
-   * to bean initialization.  See {@link BarrierBeanPostProcessor}
-   * 
+   * This method can be run multiple times for multiple barrierBean property sets. Only one list of barrierBeans is
+   * maintained so that plugins can add their own barrierBeans if necessary.  Registered barrierBeans will be held just
+   * prior to bean initialization.  See {@link BarrierBeanPostProcessor}
+   *
    * @param barrierBeanFilePath
    * @return
    */
   @SuppressWarnings( "unchecked" )
-  public void registerBarrierBeans( Properties barrierBeanProperties ){
+  public void registerBarrierBeans( Properties barrierBeanProperties ) {
     Enumeration<Object> enuKeys = barrierBeanProperties.keys();
     while ( enuKeys.hasMoreElements() ) {
       String barrierName = (String) enuKeys.nextElement();
       IServiceBarrier barrier = serviceBarrierManager.getServiceBarrier( barrierName );
       List<BarrierBean> theseBarrierBeans =
-          BarrierBean.convertString( barrierBeanProperties.getProperty( barrierName ) );
+        BarrierBean.convertString( barrierBeanProperties.getProperty( barrierName ) );
       if ( theseBarrierBeans.size() > 0 ) {
         for ( BarrierBean barrierBean : theseBarrierBeans ) {
           //Add the beans/barriers to the maps
@@ -113,12 +120,12 @@ public class BarrierBeanProcessor {
 
         List<BarrierBean> finalBarrierBeans = (List<BarrierBean>) barrierBeans.get( barrierName );
         finalBarrierBeans =
-            finalBarrierBeans == null ? theseBarrierBeans : ListUtils.union( finalBarrierBeans, theseBarrierBeans );
+          finalBarrierBeans == null ? theseBarrierBeans : ListUtils.union( finalBarrierBeans, theseBarrierBeans );
         barrierBeans.put( barrierName, finalBarrierBeans );
       }
     }
   }
-  
+
   /**
    * @return Returns a map where key = barrier name, value = list of {@link BarrierBean}s
    */
@@ -132,8 +139,8 @@ public class BarrierBeanProcessor {
   public Map<String, Set<String>> getBeanBarriers() {
     return beanBarriers;
   }
-  
-  public void awaitBarrier( String barrierName ){
+
+  public void awaitBarrier( String barrierName ) {
     // Check the service barrier
     try {
       serviceBarrierManager.getServiceBarrier( barrierName ).awaitAvailability();
@@ -141,6 +148,6 @@ public class BarrierBeanProcessor {
       // This should never happen
       logger.error( "ServiceBarrier Interrupted", e1 );
     }
-  } 
-  
+  }
+
 }
