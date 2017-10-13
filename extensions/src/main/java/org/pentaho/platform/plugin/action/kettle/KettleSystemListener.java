@@ -58,13 +58,6 @@ public class KettleSystemListener implements IPentahoSystemListener {
 
   public boolean startup( final IPentahoSession session ) {
 
-    if ( usePlatformLogFile ) {
-      KettleLogStore.init( false, false );
-      initLogging();
-    }
-
-    hookInDataSourceProvider();
-
     // Default DI_HOME System Property if not set
     if ( StringUtils.isEmpty( System.getProperty( "DI_HOME" ) ) ) {
       String defaultKettleHomePath = PentahoSystem.getApplicationContext().getSolutionPath( "system" + File.separator
@@ -73,6 +66,13 @@ public class KettleSystemListener implements IPentahoSystemListener {
           + " will be used." );
       System.setProperty( "DI_HOME", defaultKettleHomePath );
     }
+
+    if ( usePlatformLogFile ) {
+      KettleLogStore.init( false, false );
+      initLogging();
+    }
+
+    hookInDataSourceProvider();
 
     try {
       KettleSystemListener.environmentInit( session );
