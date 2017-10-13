@@ -18,6 +18,7 @@
 package org.pentaho.platform.util;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class StringUtil {
 
@@ -115,5 +117,32 @@ public class StringUtil {
     final ByteArrayOutputStream writtenBytes = new ByteArrayOutputStream();
     MapUtils.debugPrint( new PrintStream( writtenBytes ), "Map", map );
     return writtenBytes.toString();
+  }
+
+  /**
+   * Returns a map of String key-value pairs, in which each key and corresponding value has been trimmed of whitespace.
+   * @param map the {@link Map} of String key-value pairs to be trimmed
+   * @return a trimmed String {@link Map}
+   */
+  public static Map<String, String> trimStringMap( Map<String, String> map ) {
+    return map == null ? map : map.entrySet().stream().collect( Collectors.toMap( e -> StringUtils.trimToEmpty( e.getKey() ), e -> StringUtils.trimToEmpty( e.getValue() ) ) );
+  }
+
+  /**
+   * Returns a List of Strings in which each String has been trimmed of whitespace.
+   * @param list the {@link List} of Strings to be trimmed
+   * @return a trimmed {@link List} of Strings
+   */
+  public static List<String> trimStringList( List<String> list ) {
+    return list == null ? list : list.stream().map( StringUtils::trimToEmpty ).collect( Collectors.toList() );
+  }
+
+  /**
+   * Wrapper method around StringUtils.trim
+   * @param string the {@link String} to be trimmed
+   * @return the trimmed {@link String}
+   */
+  public static String trimToEmpty( String string ) {
+    return StringUtils.trimToEmpty( string );
   }
 }
