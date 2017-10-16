@@ -936,18 +936,6 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.castor</groupId>
-      <artifactId>castor-maven-plugins</artifactId>
-      <version>${castor.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.castor</groupId>
       <artifactId>castor-xml</artifactId>
       <version>${castor.version}</version>
       <scope>compile</scope>
@@ -960,43 +948,7 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.castor</groupId>
-      <artifactId>castor-xml-annotations</artifactId>
-      <version>${castor.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.castor</groupId>
-      <artifactId>castor-xml-diff</artifactId>
-      <version>${castor.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.castor</groupId>
       <artifactId>castor-xml-schema</artifactId>
-      <version>${castor.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.castor</groupId>
-      <artifactId>castor-testsuite-xml-framework</artifactId>
       <version>${castor.version}</version>
       <scope>compile</scope>
       <exclusions>
