@@ -18,9 +18,11 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 
 @XmlRootElement
+@XmlSeeAlso( SystemRolesMap.class )
 public class LogicalRoleAssignments {
   ArrayList<LogicalRoleAssignment> assignments = new ArrayList<LogicalRoleAssignment>();
 
