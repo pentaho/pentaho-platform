@@ -17,7 +17,7 @@
 	  document.write('<link rel="stylesheet" type="text/css" href="'+window.parent.css_custom_location+'">'); 
 	}
   </script>
-
+  
   <!--[if lt IE 9]>
       <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
@@ -34,15 +34,15 @@
             <div class="col-xs-11">
               <div id="dl-menu" class="dl-menuwrapper pull-left">
                 <button class="dl-trigger">Open Menu</button>
-                <h2>Documentation</h2>
+                <h2>Marketplace</h2>
                 <ul class="dl-menu">
                   <li>
                     <a href="index.html" class="home">Home</a>
-                    <a href="#" target="_blank" class="documentation">Documentation</a>
+                    <a href="ccp_sub-documentation.html" class="documentation">Documentation</a>
                     <a href="ccp_sub-forums.html" class="forums">Forums</a>
                     <a href="ccp_sub-mailing-lists.html" class="mailing-lists">Mailing List</a>
                     <a href="ccp_sub-blogs.html" class="blogs">Blogs</a>
-                    <a href="ccp_sub-marketplace.html" class="marketplace">Marketplace</a>
+                    <a href="#" class="marketplace">Marketplace</a>
                     <a href="ccp_sub-report-bug.html" class="report-bug">Report a Bug</a>
                     <a href="ccp_sub-get-the-source.html" class="get-the-source">Get the Source</a>
                   </li>
@@ -66,15 +66,15 @@
             <div class="sub-page-sub-header">
               <div class="row">
                 <div class="col-xs-10 text-left">
-                  <p>
-                    Documentation and information for the Pentaho Analytics Suite.
+                  <p style="padding-top: 0">
+                    Pentaho Marketplace allows users to explore and test the plugins that are most relevant for them.
+                    It means high quality and useful plugins that users can use to get the most out of their business.
                   </p>
                 </div>
                 <div class="col-xs-2">
                 <a href="#" class="live-chat-btn" onclick="CCP.liveChat()">Live Chat</a>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -83,11 +83,17 @@
     </div>
     <div class="row">
       <div class="col-xs-12">
-        <a href="https://help.pentaho.com/Documentation" target="_blank" class="sub-menu-btn">
-          <div class="sub-menu-item">Documentation</div>
+        <a href="http://www.pentaho.com/marketplace/" target="_blank" class="sub-menu-btn">
+          <div class="sub-menu-item">Get translation packs</div>
         </a>
-        <a href="http://wiki.pentaho.com/display/COM/Community+Wiki+Home" target="_blank" class="sub-menu-btn">
-          <div class="sub-menu-item">Wiki</div>
+        <a href="http://wiki.pentaho.com/display/ServerDoc2x/Developing+Plugins" target="_blank" class="sub-menu-btn">
+          <div class="sub-menu-item">Develop plugins</div>
+        </a>
+        <a href="https://github.com/pentaho/marketplace-metadata" target="_blank" class="sub-menu-btn">
+          <div class="sub-menu-item">Submit your plugins</div>
+        </a>
+        <a href="http://www.pentaho.com/marketplace/" target="_blank" class="sub-menu-btn">
+          <div class="sub-menu-item semi-bold">Pentaho Marketplace</div>
         </a>
       </div>
     </div>
@@ -113,6 +119,12 @@
             <li>
               <a href="http://community.pentaho.com/" target="_blank">Community</a>
             </li>
+            <li>
+              <a href="${doc.base.url}" target="_blank">Documentation</a>
+            </li>
+            <li>
+              <a href="http://wiki.pentaho.com/display/COM/Community+Wiki+Home" target="_blank">Wiki</a>
+            </li>
           </ul>
         </div>
         <div class="col-xs-4">
@@ -130,17 +142,17 @@
   <script src="js/main.js" charset="utf-8"></script>
 
   <script>
-    $(document).ready(function() {
-      $('#dl-menu').dlmenu();
+  $(document).ready(function() {
+    $('#dl-menu').dlmenu();
 
-      // sets the menu item correspondent to the current page to active
-      var a = document.location.href.match(/[^\/]+$/)[0];
-      var pagename = a.substring(a.indexOf('-') + 1, a.indexOf('.'));
-      $("ul.dl-menu li a." + pagename).addClass("active");
+    // sets the menu item correspondent to the current page to active
+    var a = document.location.href.match(/[^\/]+$/)[0];
+    var pagename = a.substring(a.indexOf('-') + 1,a.indexOf('.'));
+    $("ul.dl-menu li a." + pagename).addClass("active");
 
 
-    });
-  </script>
+  });
+</script>
 
 </body>
 

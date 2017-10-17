@@ -325,7 +325,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
           <td><%=Messages.getInstance().getString("UI.PUC.DOCS.HEADER")%></td>
         </tr>
         <tr>
-          <td valign="top" class="bannercontent"><%=Messages.getInstance().getString("UI.PUC.DOCS.HEADER.VISIT_INFO", "<a href=\"http://help.pentaho.com\" target=\"_blank\">Pentaho InfoCenter</a>")%><br /></td>
+          <td valign="top" class="bannercontent"><%=Messages.getInstance().getString("UI.PUC.DOCS.HEADER.VISIT_INFO", "<a href=\"${doc.base.url}\" target=\"_blank\">Pentaho InfoCenter</a>")%><br /></td>
         </tr>
       </table>
     </div>
