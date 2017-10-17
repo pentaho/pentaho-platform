@@ -43,6 +43,10 @@ import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.SystemRolesMap;
 import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -284,13 +288,20 @@ public class UserRoleDaoService {
   public void updatePassword( User user, String administratorPassword ) throws SecurityException {
     final IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
 
-    final IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", pentahoSession );
-    IPentahoUser pentahoUser = roleDao.getUser( null, pentahoSession.getName() );
+    AuthenticationProvider authenticator = PentahoSystem.get( AuthenticationProvider.class, pentahoSession );
+    if ( authenticator == null ) {
+      throw new SecurityException();
+    }
 
-    if ( credentialValid( pentahoUser, administratorPassword ) ) {
-      updatePassword( user );
-    } else {
+    try {
+      Authentication authentication = authenticator.authenticate( new UsernamePasswordAuthenticationToken( pentahoSession.getName(), administratorPassword ) );
+
+      if ( authentication.isAuthenticated() ) {
+        updatePassword( user );
+      } else {
+        throw new SecurityException();
+      }
+    } catch ( AuthenticationException e ) {
       throw new SecurityException();
     }
   }
