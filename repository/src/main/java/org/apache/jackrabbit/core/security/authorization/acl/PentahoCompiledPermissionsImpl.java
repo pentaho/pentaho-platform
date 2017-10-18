@@ -18,7 +18,6 @@
 package org.apache.jackrabbit.core.security.authorization.acl;
 
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
-import org.apache.jackrabbit.core.ItemImpl;
 import org.apache.jackrabbit.core.ItemManager;
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
@@ -186,13 +185,8 @@ public class PentahoCompiledPermissionsImpl extends AbstractCompiledPermissions 
 
     ItemManager itemMgr = session.getItemManager();
     try {
-      ItemImpl item = itemMgr.getItem( absPath );
-      if ( item.isNode() ) {
-        node = (NodeImpl) item;
-        existingNode = true;
-      } else {
-        node = (NodeImpl) item.getParent();
-      }
+      node = itemMgr.getNode( absPath );
+      existingNode = true;
     } catch ( RepositoryException e ) {
       // path points to a non-persisted item.
       // -> find the nearest persisted node starting from the root.
