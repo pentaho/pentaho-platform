@@ -43,6 +43,10 @@ import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.SystemRolesMap;
 import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -284,14 +288,21 @@ public class UserRoleDaoService {
   public void updatePassword( User user, String administratorPassword ) throws SecurityException {
     final IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
 
-    final IUserRoleDao roleDao =
-        PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", pentahoSession );
-    IPentahoUser pentahoUser = roleDao.getUser( null, pentahoSession.getName() );
+    AuthenticationProvider authenticator = PentahoSystem.get( AuthenticationProvider.class, pentahoSession );
+    if ( authenticator == null ) {
+      throw new SecurityException( "Authentication Provider not found, can not re-authenticate logged-in user" );
+    }
 
-    if ( credentialValid( pentahoUser, administratorPassword ) ) {
-      updatePassword( user );
-    } else {
-      throw new SecurityException();
+    try {
+      Authentication authentication = authenticator.authenticate( new UsernamePasswordAuthenticationToken( pentahoSession.getName(), administratorPassword ) );
+
+      if ( authentication.isAuthenticated() ) {
+        updatePassword( user );
+      } else {
+        throw new SecurityException( "Logged-in user re-authentication failed" );
+      }
+    } catch ( AuthenticationException e ) {
+      throw new SecurityException( "Logged-in user re-authentication failed", e );
     }
   }
 
@@ -305,10 +316,10 @@ public class UserRoleDaoService {
       if ( puser != null ) {
         roleDao.setPassword( null, userName, password );
       } else {
-        throw new SecurityException();
+        throw new SecurityException( "User not found" );
       }
     } else {
-      throw new SecurityException();
+      throw new SecurityException( "Logged-in user is not authorized to change password" );
     }
   }
 

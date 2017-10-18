@@ -43,6 +43,10 @@ import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.SystemRolesMap;
 import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +60,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -624,8 +629,10 @@ public class UserRoleDaoServiceTest {
   public void testUpdatePasswordWithAdminCredentials() throws Exception {
     setupMockSessionUser( SESSION_USER_NAME, true );
 
+    AuthenticationProvider authenticationProvider = registerMockAuthenticationProvider();
+    addMockUserToAuthenticationProvider( authenticationProvider, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+
     IUserRoleDao roleDao = registerMockUserRoleDao();
-    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
     addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
 
     userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ), SESSION_USER_PASSWORD );
@@ -636,6 +643,9 @@ public class UserRoleDaoServiceTest {
   @Test
   public void testSelfUpdatePasswordWithAdminCredentials() throws Exception {
     setupMockSessionUser( SESSION_USER_NAME, true );
+
+    AuthenticationProvider authenticationProvider = registerMockAuthenticationProvider();
+    addMockUserToAuthenticationProvider( authenticationProvider, SESSION_USER_NAME, SESSION_USER_PASSWORD );
 
     IUserRoleDao roleDao = registerMockUserRoleDao();
     addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
@@ -649,8 +659,10 @@ public class UserRoleDaoServiceTest {
   public void testUpdatePasswordWithWrongAdminCredentials() throws Exception {
     setupMockSessionUser( SESSION_USER_NAME, true );
 
+    AuthenticationProvider authenticationProvider = registerMockAuthenticationProvider();
+    addMockUserToAuthenticationProvider( authenticationProvider, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+
     IUserRoleDao roleDao = registerMockUserRoleDao();
-    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
     addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
 
     userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ), A_WRONG_PASSWORD );
@@ -660,8 +672,10 @@ public class UserRoleDaoServiceTest {
   public void testUpdatePasswordWithNotAdminCredentials() throws Exception {
     setupMockSessionUser( SESSION_USER_NAME, false );
 
+    AuthenticationProvider authenticationProvider = registerMockAuthenticationProvider();
+    addMockUserToAuthenticationProvider( authenticationProvider, SESSION_USER_NAME, SESSION_USER_PASSWORD );
+
     IUserRoleDao roleDao = registerMockUserRoleDao();
-    addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
     addMockUserToUserRoleDao( roleDao, OTHER_USER_NAME, OTHER_USER_PASSWORD );
 
     userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ), SESSION_USER_PASSWORD );
@@ -670,6 +684,9 @@ public class UserRoleDaoServiceTest {
   @Test( expected = SecurityException.class )
   public void testSelfUpdatePasswordWithNotAdminCredentials() throws Exception {
     setupMockSessionUser( SESSION_USER_NAME, false );
+
+    AuthenticationProvider authenticationProvider = registerMockAuthenticationProvider();
+    addMockUserToAuthenticationProvider( authenticationProvider, SESSION_USER_NAME, SESSION_USER_PASSWORD );
 
     IUserRoleDao roleDao = registerMockUserRoleDao();
     addMockUserToUserRoleDao( roleDao, SESSION_USER_NAME, SESSION_USER_PASSWORD );
@@ -749,6 +766,26 @@ public class UserRoleDaoServiceTest {
     IPentahoUser pentahoUser = createMockPentahoUser( username, password );
 
     doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), eq( username ) );
+  }
+
+  private AuthenticationProvider registerMockAuthenticationProvider() {
+    AuthenticationProvider authenticationProvider = mock( AuthenticationProvider.class );
+    PentahoSystem.registerObject( authenticationProvider );
+    return authenticationProvider;
+  }
+
+  private void addMockUserToAuthenticationProvider( AuthenticationProvider authenticationProvider, String username, String password ) {
+    Authentication mockAuthentication = mock( Authentication.class );
+    doReturn( true ).when( mockAuthentication ).isAuthenticated();
+
+    doAnswer( invocationOnMock -> {
+      UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) invocationOnMock.getArguments()[0];
+      if ( token.getName().equals( username ) && token.getCredentials().equals( password ) ) {
+        return mockAuthentication;
+      }
+
+      throw mock( AuthenticationException.class );
+    } ).when( authenticationProvider ).authenticate( any( UsernamePasswordAuthenticationToken.class ) );
   }
 
   private IPentahoUser createMockPentahoUser( String username, String password ) {
