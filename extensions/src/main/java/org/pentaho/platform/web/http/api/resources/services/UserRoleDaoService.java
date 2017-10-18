@@ -290,7 +290,7 @@ public class UserRoleDaoService {
 
     AuthenticationProvider authenticator = PentahoSystem.get( AuthenticationProvider.class, pentahoSession );
     if ( authenticator == null ) {
-      throw new SecurityException();
+      throw new SecurityException( "Authentication Provider not found, can not re-authenticate logged-in user" );
     }
 
     try {
@@ -299,10 +299,10 @@ public class UserRoleDaoService {
       if ( authentication.isAuthenticated() ) {
         updatePassword( user );
       } else {
-        throw new SecurityException();
+        throw new SecurityException( "Logged-in user re-authentication failed" );
       }
     } catch ( AuthenticationException e ) {
-      throw new SecurityException();
+      throw new SecurityException( "Logged-in user re-authentication failed", e );
     }
   }
 
@@ -316,10 +316,10 @@ public class UserRoleDaoService {
       if ( puser != null ) {
         roleDao.setPassword( null, userName, password );
       } else {
-        throw new SecurityException();
+        throw new SecurityException( "User not found" );
       }
     } else {
-      throw new SecurityException();
+      throw new SecurityException( "Logged-in user is not authorized to change password" );
     }
   }
 
