@@ -124,7 +124,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
       resourceNode.setProperty( pentahoJcrConstants.getJCR_ENCODING(), data.getEncoding() );
     }
     resourceNode.setProperty( pentahoJcrConstants.getJCR_DATA(), session.getValueFactory().createBinary(
-        data.getStream() ) );
+        data.getInputStream() ) );
     resourceNode.setProperty( pentahoJcrConstants.getJCR_MIMETYPE(), data.getMimeType() );
   }
 
