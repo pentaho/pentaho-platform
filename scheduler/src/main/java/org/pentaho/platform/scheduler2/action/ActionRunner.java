@@ -164,12 +164,23 @@ public class ActionRunner implements Callable<Boolean> {
         }
       }
       ActionUtil.sendEmail( actionParams, params, outputFilePath );
+      deleteEmptyFile();
     }
     if ( actionBean instanceof IPostProcessingAction ) {
       closeContentOutputStreams( (IPostProcessingAction) actionBean );
       markContentAsGenerated( (IPostProcessingAction) actionBean );
     }
     return updateJob;
+  }
+
+  private void deleteEmptyFile() {
+    IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
+    RepositoryFile file = repo.getFile( outputFilePath );
+    Long emptyFileSize = new Long( 0 );
+    Long fileSize = file.getFileSize();
+    if ( fileSize.equals( emptyFileSize ) ) {
+      repo.deleteFile( file.getId(), true, null );
+    }
   }
 
   private void closeContentOutputStreams( IPostProcessingAction actionBean ) {
