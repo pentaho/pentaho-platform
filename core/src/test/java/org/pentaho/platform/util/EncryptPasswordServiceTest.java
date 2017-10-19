@@ -13,25 +13,22 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2017 Pentaho Corporation.  All rights reserved.
+ * Copyright 2017 Hitachi Vantara.  All rights reserved.
  */
 package org.pentaho.platform.util;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.crypto.Cipher;
 import java.io.File;
-import java.io.FileWriter;
-import java.util.Base64;
-import java.util.Properties;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class EncryptPasswordServiceTest {
-    String userHome;
+    private String userHome;
 
     @Before
     public void setUp() {
@@ -42,23 +39,37 @@ public class EncryptPasswordServiceTest {
         cleanKeyFile();
     }
 
+    private boolean verifyUnlimitedJCE() {
+        boolean verified = false;
+        try {
+            verified = Cipher.getMaxAllowedKeyLength("AES") >= 256;
+        } catch (Exception ex) {
+        }
+        return verified;
+    }
+
     @Test
     public void testEncryptAndDecrypt() {
         System.out.println("testEncryptDecrypt");
 
-        String plainText = "This is plain text";
-        try {
-            EncryptPasswordService service = new EncryptPasswordService();
+        if (verifyUnlimitedJCE()) {
+            String plainText = "This is plain text";
+            try {
+                EncryptPasswordService service = new EncryptPasswordService();
 
-            System.out.println("clear text: " + plainText);
-            String encrypted = service.encrypt(plainText);
-            System.out.println("encrypted : " + encrypted);
-            String decrypted = service.decrypt(encrypted);
-            System.out.println("decrypted : " + decrypted);
+                System.out.println("clear text: " + plainText);
+                String encrypted = service.encrypt(plainText);
+                System.out.println("encrypted : " + encrypted);
+                String decrypted = service.decrypt(encrypted);
+                System.out.println("decrypted : " + decrypted);
 
-            Assert.assertEquals(plainText, decrypted);
-        } catch (Exception ex) {
-            fail(ex.getMessage());
+                assertEquals(plainText, decrypted);
+            } catch (Exception ex) {
+                fail(ex.getMessage());
+            }
+        } else {
+            System.out.println("JCE is not with unlimited strength. ");
+            System.out.println("Download and patch the JDK/JRE: http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html");
         }
     }
 
@@ -66,21 +77,26 @@ public class EncryptPasswordServiceTest {
     public void testSaveAndLoadKey() {
         System.out.println("testSaveLoadKey");
 
-        String plainText = "This is plain text";
-        try {
-            System.out.println("clear text: " + plainText);
+        if (verifyUnlimitedJCE()) {
+            String plainText = "This is plain text";
+            try {
+                System.out.println("clear text: " + plainText);
 
-            EncryptPasswordService encrypt = new EncryptPasswordService();
-            String encrypted = encrypt.encrypt(plainText);
-            System.out.println("encrypted : " + encrypted);
+                EncryptPasswordService encrypt = new EncryptPasswordService();
+                String encrypted = encrypt.encrypt(plainText);
+                System.out.println("encrypted : " + encrypted);
 
-            EncryptPasswordService decrypt = new EncryptPasswordService();
-            String decrypted = decrypt.decrypt(encrypted);
-            System.out.println("decrypted : " + decrypted);
+                EncryptPasswordService decrypt = new EncryptPasswordService();
+                String decrypted = decrypt.decrypt(encrypted);
+                System.out.println("decrypted : " + decrypted);
 
-            Assert.assertEquals(plainText, decrypted);
-        } catch (Exception ex) {
-            fail(ex.getMessage());
+                assertEquals(plainText, decrypted);
+            } catch (Exception ex) {
+                fail(ex.getMessage());
+            }
+        } else {
+            System.out.println("JCE is not with unlimited strength. ");
+            System.out.println("Download and patch the JDK/JRE: http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html");
         }
     }
 
