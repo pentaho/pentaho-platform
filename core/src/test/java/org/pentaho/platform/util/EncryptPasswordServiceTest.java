@@ -28,91 +28,95 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class EncryptPasswordServiceTest {
-    private String userHome;
+  private String userHome;
 
-    @Before
-    public void setUp() {
-        userHome = System.getProperty("user.home");
-        System.setProperty("user.home", ".");
+  @Before
+  public void setUp() {
+    userHome = System.getProperty( "user.home" );
+    System.setProperty( "user.home", "." );
 
-        System.out.println("clean the encryption key file");
-        cleanKeyFile();
+    System.out.println( "clean the encryption key file" );
+    cleanKeyFile();
+  }
+
+  private boolean verifyUnlimitedJCE() {
+    boolean verified = false;
+    try {
+      verified = Cipher.getMaxAllowedKeyLength( "AES" ) >= 256;
+    } catch ( Exception ex ) {
     }
+    return verified;
+  }
 
-    private boolean verifyUnlimitedJCE() {
-        boolean verified = false;
-        try {
-            verified = Cipher.getMaxAllowedKeyLength("AES") >= 256;
-        } catch (Exception ex) {
-        }
-        return verified;
+  @Test
+  public void testEncryptAndDecrypt() {
+    System.out.println( "testEncryptDecrypt" );
+
+    if ( verifyUnlimitedJCE() ) {
+      String plainText = "This is plain text";
+      try {
+        EncryptPasswordService service = new EncryptPasswordService();
+
+        System.out.println( "clear text: " + plainText );
+        String encrypted = service.encrypt( plainText );
+        System.out.println( "encrypted : " + encrypted );
+        String decrypted = service.decrypt( encrypted );
+        System.out.println( "decrypted : " + decrypted );
+
+        assertEquals( plainText, decrypted );
+      } catch ( Exception ex ) {
+        fail( ex.getMessage() );
+      }
+    } else {
+      System.out.println( "JCE is not with unlimited strength. " );
+      System.out.println(
+        "Download and patch the JDK/JRE: http://www.oracle"
+          + ".com/technetwork/java/javase/downloads/jce8-download-2133166.html" );
     }
+  }
 
-    @Test
-    public void testEncryptAndDecrypt() {
-        System.out.println("testEncryptDecrypt");
+  @Test
+  public void testSaveAndLoadKey() {
+    System.out.println( "testSaveLoadKey" );
 
-        if (verifyUnlimitedJCE()) {
-            String plainText = "This is plain text";
-            try {
-                EncryptPasswordService service = new EncryptPasswordService();
+    if ( verifyUnlimitedJCE() ) {
+      String plainText = "This is plain text";
+      try {
+        System.out.println( "clear text: " + plainText );
 
-                System.out.println("clear text: " + plainText);
-                String encrypted = service.encrypt(plainText);
-                System.out.println("encrypted : " + encrypted);
-                String decrypted = service.decrypt(encrypted);
-                System.out.println("decrypted : " + decrypted);
+        EncryptPasswordService encrypt = new EncryptPasswordService();
+        String encrypted = encrypt.encrypt( plainText );
+        System.out.println( "encrypted : " + encrypted );
 
-                assertEquals(plainText, decrypted);
-            } catch (Exception ex) {
-                fail(ex.getMessage());
-            }
-        } else {
-            System.out.println("JCE is not with unlimited strength. ");
-            System.out.println("Download and patch the JDK/JRE: http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html");
-        }
+        EncryptPasswordService decrypt = new EncryptPasswordService();
+        String decrypted = decrypt.decrypt( encrypted );
+        System.out.println( "decrypted : " + decrypted );
+
+        assertEquals( plainText, decrypted );
+      } catch ( Exception ex ) {
+        fail( ex.getMessage() );
+      }
+    } else {
+      System.out.println( "JCE is not with unlimited strength. " );
+      System.out.println(
+        "Download and patch the JDK/JRE: http://www.oracle"
+          + ".com/technetwork/java/javase/downloads/jce8-download-2133166.html" );
     }
+  }
 
-    @Test
-    public void testSaveAndLoadKey() {
-        System.out.println("testSaveLoadKey");
+  @After
+  public void tearDown() {
+    //clean the encryption key file
+    System.out.println( "clean the encryption key file" );
+    cleanKeyFile();
 
-        if (verifyUnlimitedJCE()) {
-            String plainText = "This is plain text";
-            try {
-                System.out.println("clear text: " + plainText);
+    System.setProperty( "user.home", userHome );
+  }
 
-                EncryptPasswordService encrypt = new EncryptPasswordService();
-                String encrypted = encrypt.encrypt(plainText);
-                System.out.println("encrypted : " + encrypted);
-
-                EncryptPasswordService decrypt = new EncryptPasswordService();
-                String decrypted = decrypt.decrypt(encrypted);
-                System.out.println("decrypted : " + decrypted);
-
-                assertEquals(plainText, decrypted);
-            } catch (Exception ex) {
-                fail(ex.getMessage());
-            }
-        } else {
-            System.out.println("JCE is not with unlimited strength. ");
-            System.out.println("Download and patch the JDK/JRE: http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html");
-        }
+  private void cleanKeyFile() {
+    File f = new File( System.getProperty( "user.home" ), EncryptPasswordService.SECURITY_DATA_FILE );
+    if ( f.exists() ) {
+      f.delete();
     }
-
-    @After
-    public void tearDown() {
-        //clean the encryption key file
-        System.out.println("clean the encryption key file");
-        cleanKeyFile();
-
-        System.setProperty("user.home", userHome);
-    }
-
-    private void cleanKeyFile() {
-        File f = new File(System.getProperty("user.home"), EncryptPasswordService.SECURITY_DATA_FILE);
-        if (f.exists()) {
-            f.delete();
-        }
-    }
+  }
 }
