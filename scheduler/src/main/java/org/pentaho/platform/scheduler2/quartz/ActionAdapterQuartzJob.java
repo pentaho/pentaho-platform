@@ -193,8 +193,8 @@ public class ActionAdapterQuartzJob implements Job {
         } );
       } else {
         log.warn( "RunOnce already created, skipping" );
-        throw new Exception( throwable );
       }
+      throw new JobExecutionException( throwable );
     }
 
     scheduler.fireJobCompleted( actionBean, actionUser, params, streamProvider );
