@@ -37,7 +37,7 @@ import java.util.Properties;
 import java.util.Random;
 
 public class EncryptPasswordService implements IPasswordService {
-  static String SECURITY_DATA_FILE = "security_data.properties";
+  private static String SECURITY_DATA_FILE = "security_data.properties";
 
   private final String ALGORITHM = "PBKDF2WithHmacSHA1";
   private final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
@@ -169,9 +169,9 @@ public class EncryptPasswordService implements IPasswordService {
       }
     }
   }
-}
 
-class EncryptionKey {
-  String password;
-  byte[] saltBytes, ivBytes;
+  private class EncryptionKey {
+    String password;
+    byte[] saltBytes, ivBytes;
+  }
 }

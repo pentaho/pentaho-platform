@@ -114,7 +114,7 @@ public class EncryptPasswordServiceTest {
   }
 
   private void cleanKeyFile() {
-    File f = new File( System.getProperty( "user.home" ), EncryptPasswordService.SECURITY_DATA_FILE );
+    File f = new File( System.getProperty( "user.home" ), "security_data.properties" );
     if ( f.exists() ) {
       f.delete();
     }
