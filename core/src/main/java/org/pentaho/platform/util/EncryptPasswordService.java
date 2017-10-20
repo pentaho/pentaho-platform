@@ -108,7 +108,15 @@ public class EncryptPasswordService implements IPasswordService {
         key.saltBytes = generateSalt();
       }
 
-      String encrypted = _encrypt( key, plainText );
+      SecretKeySpec secret = createSecret( key );
+      Cipher cipher = Cipher.getInstance( TRANSFORMATION );
+      cipher.init( Cipher.ENCRYPT_MODE, secret );
+
+      AlgorithmParameters params = cipher.getParameters();
+      key.ivBytes = params.getParameterSpec( IvParameterSpec.class ).getIV();
+
+      byte[] encryptedTextBytes = cipher.doFinal( plainText.getBytes( StandardCharsets.UTF_8 ) );
+      String encrypted = Base64.getEncoder().encodeToString( encryptedTextBytes );
 
       if ( !keyFile.exists() ) {
         try ( FileWriter writer = new FileWriter( keyFile ) ) {
@@ -135,7 +143,12 @@ public class EncryptPasswordService implements IPasswordService {
         readKeyFile();
       }
 
-      return _decrypt( key, encryptedPassword );
+      SecretKeySpec secret = createSecret( key );
+      Cipher cipher = Cipher.getInstance( TRANSFORMATION );
+      cipher.init( Cipher.DECRYPT_MODE, secret, new IvParameterSpec( key.ivBytes ) );
+
+      byte[] decryptedTextBytes = cipher.doFinal( Base64.getDecoder().decode( encryptedPassword ) );
+      return new String( decryptedTextBytes, StandardCharsets.UTF_8 );
     } catch ( Exception ex ) {
       throw new PasswordServiceException( ex.getMessage() );
     }
@@ -156,36 +169,9 @@ public class EncryptPasswordService implements IPasswordService {
       }
     }
   }
-
-  private String _encrypt( EncryptionKey key, String plainText ) throws Exception {
-    SecretKeySpec secret = createSecret( key );
-    Cipher cipher = Cipher.getInstance( TRANSFORMATION );
-    cipher.init( Cipher.ENCRYPT_MODE, secret );
-
-    AlgorithmParameters params = cipher.getParameters();
-    key.ivBytes = params.getParameterSpec( IvParameterSpec.class ).getIV();
-
-    byte[] encryptedTextBytes = cipher.doFinal( plainText.getBytes( StandardCharsets.UTF_8 ) );
-    return Base64.getEncoder().encodeToString( encryptedTextBytes );
-  }
-
-  private String _decrypt( EncryptionKey key, String encrypted ) throws Exception {
-    SecretKeySpec secret = createSecret( key );
-    Cipher cipher = Cipher.getInstance( TRANSFORMATION );
-    cipher.init( Cipher.DECRYPT_MODE, secret, new IvParameterSpec( key.ivBytes ) );
-
-    byte[] decryptedTextBytes = cipher.doFinal( Base64.getDecoder().decode( encrypted ) );
-    return new String( decryptedTextBytes, StandardCharsets.UTF_8 );
-  }
 }
 
 class EncryptionKey {
   String password;
   byte[] saltBytes, ivBytes;
-
-  public String toString() {
-    return password + "|" +
-      Base64.getEncoder().encodeToString( saltBytes ) + "|" +
-      Base64.getEncoder().encodeToString( ivBytes );
-  }
 }
