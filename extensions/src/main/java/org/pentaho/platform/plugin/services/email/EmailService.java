@@ -155,11 +155,17 @@ public class EmailService implements IEmailService {
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
           String decoded;
+          String tmp = emailConfig.getPassword();
           try {
-            byte[] b = Base64Utils.fromBase64( emailConfig.getPassword() );
+            byte[] b;
+            if ( tmp.startsWith( "ENC:" ) ) {
+              b = Base64Utils.fromBase64( tmp.substring( 4, tmp.length() ) );
+            } else {
+              b = Base64Utils.fromBase64( tmp );
+            }
             decoded = new String( b, "UTF-8" );
           } catch ( Exception e ) {
-            decoded = emailConfig.getPassword();
+            decoded = tmp;
           }
           return new PasswordAuthentication( emailConfig.getUserId(), decoded );
         }
