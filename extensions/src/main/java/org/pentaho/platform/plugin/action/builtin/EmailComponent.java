@@ -33,6 +33,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
+import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.platform.util.PasswordHelper;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
@@ -56,14 +57,14 @@ import java.util.Properties;
 
 /**
  * @author James Dixon
- * 
+ *
  *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
  *         Code Templates
  */
 public class EmailComponent extends ComponentBase {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1584906077946023715L;
 
@@ -84,7 +85,7 @@ public class EmailComponent extends ComponentBase {
   protected boolean validateSystemSettings() {
 
     final IEmailService service =
-        PentahoSystem.get( IEmailService.class, "IEmailService", PentahoSessionHolder.getSession() );
+            PentahoSystem.get( IEmailService.class, "IEmailService", PentahoSessionHolder.getSession() );
     String mailhost = service.getEmailConfig().getSmtpHost();
     boolean authenticate = service.getEmailConfig().isAuthenticate();
     defaultFrom = service.getEmailConfig().getDefaultFrom();
@@ -102,10 +103,10 @@ public class EmailComponent extends ComponentBase {
         OutputStream feedbackStream = getFeedbackOutputStream();
         StringBuffer messageBuffer = new StringBuffer();
         PentahoSystem
-            .get( IMessageFormatter.class, getSession() )
-            .formatErrorMessage(
-              "text/html", Messages.getInstance().getString( "Email.USER_COULD_NOT_SEND_EMAIL" ),
-              Messages.getInstance().getString( "Email.USER_SETTINGS_HELP" ), messageBuffer ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                .get( IMessageFormatter.class, getSession() )
+                .formatErrorMessage(
+                        "text/html", Messages.getInstance().getString( "Email.USER_COULD_NOT_SEND_EMAIL" ),
+                        Messages.getInstance().getString( "Email.USER_SETTINGS_HELP" ), messageBuffer ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         try {
           feedbackStream.write( messageBuffer.toString().getBytes( LocaleHelper.getSystemEncoding() ) );
         } catch ( Exception e ) {
@@ -138,7 +139,7 @@ public class EmailComponent extends ComponentBase {
     // make sure that we can get a "to" email address
     if ( !( getActionDefinition() instanceof EmailAction ) ) {
       error( Messages.getInstance().getErrorString(
-          "ComponentBase.ERROR_0001_UNKNOWN_ACTION_TYPE", getActionDefinition().getElement().asXML() ) ); //$NON-NLS-1$
+              "ComponentBase.ERROR_0001_UNKNOWN_ACTION_TYPE", getActionDefinition().getElement().asXML() ) ); //$NON-NLS-1$
       result = false;
     } else {
       EmailAction emailAction = (EmailAction) getActionDefinition();
@@ -192,10 +193,10 @@ public class EmailComponent extends ComponentBase {
      * ((Map)attachParameter).entrySet().iterator(); it.hasNext(); ) { Map.Entry entry = (Map.Entry)it.next();
      * AttachStruct attachData = getAttachData( context, (String)entry.getValue(), (String)entry.getKey() ); if (
      * attachData != null ) { attachments.add( attachData ); } } } }
-     * 
+     *
      * int maxSize = Integer.MAX_VALUE; try { maxSize = new Integer( props.getProperty( "mail.max.attach.size" )
      * ).intValue(); } catch( Throwable t ) { //ignore if not set to a valid value }
-     * 
+     *
      * if ( totalAttachLength > maxSize ) { // Sort them in order TreeMap tm = new TreeMap(); for( int idx=0;
      * idx<attachments.size(); idx++ ) { // tm.put( new Integer( )) } }
      */
@@ -214,7 +215,7 @@ public class EmailComponent extends ComponentBase {
       OutputStream feedbackStream = getFeedbackOutputStream();
       if ( feedbackStream != null ) {
         createFeedbackParameter(
-            "to", Messages.getInstance().getString( "Email.USER_ENTER_EMAIL_ADDRESS" ), "", "", true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                "to", Messages.getInstance().getString( "Email.USER_ENTER_EMAIL_ADDRESS" ), "", "", true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         setFeedbackMimeType( "text/html" ); //$NON-NLS-1$
         return true;
       } else {
@@ -237,7 +238,7 @@ public class EmailComponent extends ComponentBase {
     try {
       Properties props = new Properties();
       final IEmailService service =
-          PentahoSystem.get( IEmailService.class, "IEmailService", PentahoSessionHolder.getSession() );
+              PentahoSystem.get( IEmailService.class, "IEmailService", PentahoSessionHolder.getSession() );
       props.put( "mail.smtp.host", service.getEmailConfig().getSmtpHost() );
       props.put( "mail.smtp.port", ObjectUtils.toString( service.getEmailConfig().getSmtpPort() ) );
       props.put( "mail.transport.protocol", service.getEmailConfig().getSmtpProtocol() );
@@ -256,7 +257,7 @@ public class EmailComponent extends ComponentBase {
       Session session;
       if ( service.getEmailConfig().isAuthenticate() ) {
         props.put( "mail.userid", service.getEmailConfig().getUserId() );
-        props.put( "mail.password", service.getEmailConfig().getPassword() );
+        props.put( "mail.password", decrypt( service.getEmailConfig().getPassword() ) );
         Authenticator authenticator = new EmailAuthenticator();
         session = Session.getInstance( props, authenticator );
       } else {
@@ -296,7 +297,7 @@ public class EmailComponent extends ComponentBase {
         msg.setText( messagePlain, LocaleHelper.getSystemEncoding() );
       } else if ( emailAttachments.length == 0 ) {
         if ( messagePlain != null ) {
-          msg.setContent( messagePlain, "text/plain; charset=" + LocaleHelper.getSystemEncoding() ); //$NON-NLS-1$          
+          msg.setContent( messagePlain, "text/plain; charset=" + LocaleHelper.getSystemEncoding() ); //$NON-NLS-1$
         }
         if ( messageHtml != null ) {
           msg.setContent( messageHtml, "text/html; charset=" + LocaleHelper.getSystemEncoding() ); //$NON-NLS-1$
@@ -372,6 +373,21 @@ public class EmailComponent extends ComponentBase {
       error( Messages.getInstance().getErrorString( "Email.ERROR_0011_SEND_FAILED", to ), e ); //$NON-NLS-1$
     }
     return false;
+  }
+
+  private static String decrypt( String encoded ) {
+    String decrypted;
+    try {
+      Base64PasswordService ps = new Base64PasswordService();
+      if ( encoded.startsWith( "ENC:" ) ) {
+        decrypted = ps.decrypt( encoded.substring( 4, encoded.length() ) );
+      } else {
+        decrypted = ps.decrypt( encoded );
+      }
+    } catch ( Exception e ) {
+      decrypted = encoded;
+    }
+    return decrypted;
   }
 
   @Override
