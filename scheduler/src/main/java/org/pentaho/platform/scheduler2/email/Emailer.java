@@ -12,10 +12,10 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
-package org.pentaho.platform.scheduler2.email;
+package org.pentaho.platform.util;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,9 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.scheduler2.messsages.Messages;
-import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.util.messages.Messages;
 
 import javax.activation.DataHandler;
 import javax.mail.AuthenticationFailedException;
@@ -156,10 +155,14 @@ public class Emailer {
     props.put( "body", body );
   }
 
+  public String getEmailFromName() {
+    return Messages.getInstance().getString( "emailFromName" ); //$NON-NLS-1$
+  }
+
   public boolean setup() {
     try {
       final IEmailService service =
-          PentahoSystem.get( IEmailService.class, "IEmailService", PentahoSessionHolder.getSession() );
+              PentahoSystem.get( IEmailService.class, "IEmailService", PentahoSessionHolder.getSession() );
       props.put( "mail.smtp.host", service.getEmailConfig().getSmtpHost() );
       props.put( "mail.smtp.port", ObjectUtils.toString( service.getEmailConfig().getSmtpPort() ) );
       props.put( "mail.transport.protocol", service.getEmailConfig().getSmtpProtocol() );
@@ -171,7 +174,7 @@ public class Emailer {
 
       String fromName = service.getEmailConfig().getFromName();
       if ( StringUtils.isEmpty( fromName ) ) {
-        fromName = Messages.getInstance().getString( "schedulerEmailFromName" );
+        fromName = getEmailFromName();
       }
       props.put( "mail.from.name", fromName );
       props.put( "mail.debug", ObjectUtils.toString( service.getEmailConfig().isDebug() ) );
@@ -184,7 +187,12 @@ public class Emailer {
             String decrypted;
             try {
               Base64PasswordService ps = new Base64PasswordService();
-              decrypted = ps.decrypt( service.getEmailConfig().getPassword() );
+              String pass = service.getEmailConfig().getPassword();
+              if ( pass.startsWith( "ENC:" ) ) {
+                decrypted = ps.decrypt( service.getEmailConfig().getPassword().substring( 4, pass.length() ) );
+              } else {
+                decrypted = ps.decrypt( service.getEmailConfig().getPassword() );
+              }
             } catch ( Exception e ) {
               decrypted = service.getEmailConfig().getPassword();
             }
@@ -221,7 +229,7 @@ public class Emailer {
     String body = props.getProperty( "body" );
 
     logger.info( "Going to send an email to " + to + " from " + from + " with the subject '" + subject
-        + "' and the body " + body );
+            + "' and the body " + body );
 
     try {
       // Get a Session object
