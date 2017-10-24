@@ -187,7 +187,12 @@ public class Emailer {
             String decrypted;
             try {
               Base64PasswordService ps = new Base64PasswordService();
-              decrypted = ps.decrypt( service.getEmailConfig().getPassword() );
+              String pass = service.getEmailConfig().getPassword();
+              if ( pass.startsWith( "ENC:" ) ) {
+                decrypted = ps.decrypt( service.getEmailConfig().getPassword().substring( 4, pass.length() ) );
+              } else {
+                decrypted = ps.decrypt( service.getEmailConfig().getPassword() );
+              }
             } catch ( Exception e ) {
               decrypted = service.getEmailConfig().getPassword();
             }
