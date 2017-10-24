@@ -286,6 +286,21 @@ public class CacheManager implements ICacheManager {
     return returnValue;
   }
 
+  public boolean addCacheRegion( String region, Cache cache ) {
+    if ( cacheEnabled ) {
+      if ( !cacheEnabled( region ) ) {
+        regionCache.put( region, cache );
+      } else {
+        CacheManager.logger.warn( Messages.getInstance().getString(
+          "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) );
+      }
+    } else {
+      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) );
+      return false;
+    }
+    return true;
+  }
+
   public void clearRegionCache( String region ) {
     if ( cacheEnabled ) {
       Cache cache = regionCache.get( region );
