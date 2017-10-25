@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
-package org.pentaho.platform.util;
+package org.pentaho.platform.scheduler2.email;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,8 +24,9 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.scheduler2.messsages.Messages;
+import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.util.messages.Messages;
 
 import javax.activation.DataHandler;
 import javax.mail.AuthenticationFailedException;
@@ -155,10 +156,6 @@ public class Emailer {
     props.put( "body", body );
   }
 
-  public String getEmailFromName() {
-    return Messages.getInstance().getString( "emailFromName" ); //$NON-NLS-1$
-  }
-
   public boolean setup() {
     try {
       final IEmailService service =
@@ -174,7 +171,7 @@ public class Emailer {
 
       String fromName = service.getEmailConfig().getFromName();
       if ( StringUtils.isEmpty( fromName ) ) {
-        fromName = getEmailFromName();
+        fromName = Messages.getInstance().getString( "schedulerEmailFromName" );
       }
       props.put( "mail.from.name", fromName );
       props.put( "mail.debug", ObjectUtils.toString( service.getEmailConfig().isDebug() ) );
