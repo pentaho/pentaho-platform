@@ -37,6 +37,7 @@ import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.Privilege;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -135,16 +136,9 @@ public class PentahoACLProvider extends ACLProvider {
       final AccessControlEntry[] acEntries = acList.getAccessControlEntries();
       if ( acEntries != null ) {
         for ( AccessControlEntry acEntry : acEntries ) {
-          if ( acEntry.getPrincipal() != null && acEntry.getPrincipal().equals( everyone ) ) {
-            if ( acEntry.getPrivileges() != null ) {
-              for ( Privilege privilege : acEntry.getPrivileges() ) {
-                if ( jcrReadAccessControlPriv.equals( privilege ) ) {
-                  // If the everyone principal already has the JCR_READ_ACCESS_CONTROL privilege, there's no need to
-                  // update ACL
-                  return false;
-                }
-              }
-            }
+          if ( acEntry.getPrincipal() != null && acEntry.getPrincipal().equals( everyone )
+            && acEntry.getPrivileges() != null ) {
+            return !Arrays.asList( acEntry.getPrivileges() ).contains( jcrReadAccessControlPriv );
           }
         }
       }
