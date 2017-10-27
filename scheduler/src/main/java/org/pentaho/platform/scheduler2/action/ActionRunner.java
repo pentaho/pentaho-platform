@@ -164,6 +164,9 @@ public class ActionRunner implements Callable<Boolean> {
         }
       }
       ActionUtil.sendEmail( actionParams, params, outputFilePath );
+      IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
+      RepositoryFile file = repo.getFile( outputFilePath );
+      repo.deleteFile( file.getId(), true, null );
     }
     if ( actionBean instanceof IPostProcessingAction ) {
       closeContentOutputStreams( (IPostProcessingAction) actionBean );
