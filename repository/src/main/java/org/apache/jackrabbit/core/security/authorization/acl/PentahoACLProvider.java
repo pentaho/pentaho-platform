@@ -17,10 +17,15 @@
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import org.apache.jackrabbit.api.security.principal.PrincipalManager;
+import org.apache.jackrabbit.core.NodeImpl;
+import org.apache.jackrabbit.core.SessionImpl;
+import org.apache.jackrabbit.core.id.NodeId;
+import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -31,16 +36,10 @@ import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.Privilege;
-
-import org.apache.jackrabbit.api.security.principal.PrincipalManager;
-import org.apache.jackrabbit.core.NodeImpl;
-import org.apache.jackrabbit.core.SessionImpl;
-import org.apache.jackrabbit.core.id.NodeId;
-import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
-import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Customization of {@link ACLProvider}.
@@ -118,6 +117,39 @@ public class PentahoACLProvider extends ACLProvider {
       editor.setPolicy( rootPath, acList );
       session.save();
     }
+  }
+
+  /**
+   * Returns true if the root acl needs updating (if the JCR_READ_ACCESS_CONTROL privilege is missing from the
+   * 'everyone' principle) and false otherwise.
+   */
+  protected boolean requireRootAclUpdate( ACLEditor editor ) throws RepositoryException {
+    final String rootPath = session.getRootNode().getPath();
+    final AccessControlPolicy[] acls = editor.getPolicies( rootPath );
+    if ( acls != null &&  acls.length > 0 ) {
+      final PrincipalManager pMgr = session.getPrincipalManager();
+      final AccessControlManager acMgr = session.getAccessControlManager();
+      final Privilege jcrReadAccessControlPriv =  acMgr.privilegeFromName( Privilege.JCR_READ_ACCESS_CONTROL );
+      final Principal everyone = pMgr.getEveryone();
+      final AccessControlList acList = (AccessControlList) acls[0];
+      final AccessControlEntry[] acEntries = acList.getAccessControlEntries();
+      if ( acEntries != null ) {
+        for ( AccessControlEntry acEntry : acEntries ) {
+          if ( acEntry.getPrincipal() != null && acEntry.getPrincipal().equals( everyone ) ) {
+            if ( acEntry.getPrivileges() != null ) {
+              for ( Privilege privilege : acEntry.getPrivileges() ) {
+                if ( jcrReadAccessControlPriv.equals( privilege ) ) {
+                  // If the everyone principal already has the JCR_READ_ACCESS_CONTROL privilege, there's no need to
+                  // update ACL
+                  return false;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return true;
   }
 
   /**
