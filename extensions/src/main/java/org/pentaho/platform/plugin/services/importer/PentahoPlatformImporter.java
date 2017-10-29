@@ -132,14 +132,14 @@ public class PentahoPlatformImporter implements IPlatformImporter {
         );
       } catch ( IOException e1 ) {
         throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR" ),
+            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR", e1.getLocalizedMessage() ),
             PlatformImportException.PUBLISH_GENERAL_ERROR, e1
         );
       } catch ( PlatformImportException pe ) {
         throw pe; // if already converted - just rethrow
       } catch ( Exception e1 ) {
         throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR" ),
+            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR", e1.getLocalizedMessage() ),
             PlatformImportException.PUBLISH_GENERAL_ERROR, e1
         );
       }
