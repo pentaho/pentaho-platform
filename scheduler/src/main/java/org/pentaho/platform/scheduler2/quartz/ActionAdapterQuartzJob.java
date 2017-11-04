@@ -32,10 +32,13 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.action.DefaultActionInvoker;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.messsages.Messages;
+import org.pentaho.platform.scheduler2.ws.ListParamValue;
+import org.pentaho.platform.scheduler2.ws.MapParamValue;
+import org.pentaho.platform.scheduler2.ws.StringParamValue;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
-import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.pentaho.platform.workitem.WorkItemLifecycleEventUtil;
+import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -43,8 +46,10 @@ import org.quartz.JobExecutionException;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -105,6 +110,28 @@ public class ActionAdapterQuartzJob implements Job {
     invokeAction( actionClass, actionId, actionUser, context, params );
   }
 
+  private static Map<String, Serializable> getSerializableMap( final Map<String, Serializable> originalMap ) {
+    final Map<String, Serializable> serializableMap = new HashMap<>( );
+
+    final Iterator<Map.Entry<String, Serializable>> iter = originalMap.entrySet().iterator();
+    while ( iter.hasNext() ) {
+      final Map.Entry<String, Serializable> entry = iter.next();
+      final String key = entry.getKey();
+      final Serializable value = entry.getValue();
+      if (value instanceof MapParamValue ) {
+        serializableMap.put( key, new HashMap<String, Serializable>( (MapParamValue) value ) );
+      } else if (value instanceof ListParamValue ) {
+        serializableMap.put( key, new ArrayList<Serializable>( (ListParamValue) value ) );
+      } else if (value instanceof StringParamValue ) {
+        serializableMap.put( key, ( (StringParamValue) value ).getStringValue() );
+      } else {
+        serializableMap.put( key, value );
+      }
+    }
+
+    return serializableMap;
+  }
+
   /**
    * Invokes the {@link IAction} bean that is created from the provided {@code actionClassName} and {@code actionId} as
    * the provided {@code actionUser}. If the {@code IAction} execution fails as-is, the scheduler attempts to re-create
@@ -145,7 +172,7 @@ public class ActionAdapterQuartzJob implements Job {
     }
 
     // Invoke the action and get the status of the invocation
-    final IActionInvokeStatus status = actionInvoker.invokeAction( actionBean, actionUser, params );
+    final IActionInvokeStatus status = actionInvoker.invokeAction( actionBean, actionUser, getSerializableMap( params ) );
 
     // Status may not be available for remote execution, which is expected
     if ( status == null ) {
