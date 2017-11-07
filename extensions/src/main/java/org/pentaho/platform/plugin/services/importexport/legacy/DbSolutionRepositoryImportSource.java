@@ -234,7 +234,7 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
             lastModificationDate = new Date( rs.getLong( 6 ) );
           }
           currentFile =
-              new RepositoryFile.Builder( name ).hidden( false ).folder( folder ).lastModificationDate(
+              new RepositoryFile.Builder( name ).setHidden( false ).setFolder( folder ).setLastModificationDate(
                 lastModificationDate ).build();
           // currentTmpFile holds contents (i.e. data) of currentFile
           currentTmpFile = null;

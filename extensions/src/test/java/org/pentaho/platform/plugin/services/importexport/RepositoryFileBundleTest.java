@@ -44,7 +44,7 @@ public class RepositoryFileBundleTest {
   static final String USER_NAME = "user name";
   static final String MIME_NAME = "mimeName";
   static final String CHAR_SET = "UTF-8";
-  static final RepositoryFile repositoryFile = new RepositoryFile.Builder( FILE_NAME ).path( PATH ).build();
+  static final RepositoryFile repositoryFile = new RepositoryFile.Builder( FILE_NAME ).setPath( PATH ).build();
   static final RepositoryFileSid sid = new RepositoryFileSid( USER_NAME );
   static final RepositoryFileAce ace1 = new RepositoryFileAce( sid, RepositoryFilePermission.READ,
       RepositoryFilePermission.WRITE, RepositoryFilePermission.DELETE );
@@ -106,7 +106,7 @@ public class RepositoryFileBundleTest {
     equalBundle = new RepositoryFileBundle( repositoryFile, acl, "diffPath", null, CHAR_SET, MIME_NAME );
     assertNotEquals( repositoryFileBundle, equalBundle );
 
-    RepositoryFile repoFile = new RepositoryFile.Builder( "diffName" ).path( PATH ).build();
+    RepositoryFile repoFile = new RepositoryFile.Builder( "diffName" ).setPath( PATH ).build();
     equalBundle = new RepositoryFileBundle( repoFile, acl, PATH, null, CHAR_SET, MIME_NAME );
     assertNotEquals( repositoryFileBundle, equalBundle );
   }

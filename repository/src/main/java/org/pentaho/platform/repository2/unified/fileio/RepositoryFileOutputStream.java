@@ -220,7 +220,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
           }
           for ( String folderName : foldersToCreate ) {
             parentFolder =
-                repository.createFolder( parentFolder.getId(), new RepositoryFile.Builder( folderName ).folder( true )
+                repository.createFolder( parentFolder.getId(), new RepositoryFile.Builder( folderName ).setFolder( true )
                     .build(), null );
           }
         } else {
@@ -346,11 +346,11 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
 
   private RepositoryFile buildRepositoryFile( String fileName, String extension, String baseFileName ) {
     RepositoryFile.Builder fileBuilder = new RepositoryFile.Builder( fileName )
-      .hidden( hidden )
-      .versioned( true ); // Default versioned to true so that we're keeping history
+      .setHidden( hidden )
+      .setVersioned( true ); // Default versioned to true so that we're keeping history
 
     if ( isKettleExtension( extension ) ) {
-      fileBuilder.title( RepositoryFile.DEFAULT_LOCALE, baseFileName );
+      fileBuilder.setTitle( RepositoryFile.DEFAULT_LOCALE, baseFileName );
     }
 
     return fileBuilder.build();

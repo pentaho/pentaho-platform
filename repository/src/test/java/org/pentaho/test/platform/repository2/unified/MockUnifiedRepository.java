@@ -130,7 +130,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   protected void init() {
     RepositoryFile rootFolder =
-        new RepositoryFile.Builder( "" ).path( RepositoryFile.SEPARATOR ).folder( true ).build();
+        new RepositoryFile.Builder( "" ).setPath( RepositoryFile.SEPARATOR ).setFolder( true ).build();
 
     RepositoryFileAcl rootFolderAcl =
         new RepositoryFileAcl.Builder( root() ).entriesInheriting( false ).ace( everyone(), READ ).build();
@@ -139,7 +139,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     idManager.register( root );
 
     RepositoryFile publicFolder =
-        new RepositoryFile.Builder( "public" ).path( RepositoryFile.SEPARATOR + "public" ).folder( true ).build();
+        new RepositoryFile.Builder( "public" ).setPath( RepositoryFile.SEPARATOR + "public" ).setFolder( true ).build();
 
     RepositoryFileAcl publicFolderAcl =
         new RepositoryFileAcl.Builder( root() ).entriesInheriting( false ).ace( everyone(), READ, WRITE ).build();
@@ -149,7 +149,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     idManager.register( pub );
 
     RepositoryFile etcFolder =
-        new RepositoryFile.Builder( "etc" ).path( RepositoryFile.SEPARATOR + "etc" ).folder( true ).build();
+        new RepositoryFile.Builder( "etc" ).setPath( RepositoryFile.SEPARATOR + "etc" ).setFolder( true ).build();
 
     RepositoryFileAcl etcFolderAcl = new RepositoryFileAcl.Builder( root() ).entriesInheriting( true ).build();
 
@@ -331,8 +331,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
     FileRecord parentFolder = idManager.getFileById( parentFolderId );
     RepositoryFile fileFromRepo =
-        new RepositoryFile.Builder( file ).path( parentFolder.getPath() + RepositoryFile.SEPARATOR + file.getName() )
-            .title( findTitle( file ) ).description( findDesc( file ) ).build();
+        new RepositoryFile.Builder( file ).setPath( parentFolder.getPath() + RepositoryFile.SEPARATOR + file.getName() )
+            .setTitle( findTitle( file ) ).setDescription( findDesc( file ) ).build();
     RepositoryFileAcl aclFromRepo = new RepositoryFileAcl.Builder( acl ).build();
     FileRecord fileRecord = new FileRecord( fileFromRepo, data, aclFromRepo, new HashMap<String, Serializable>() );
     idManager.register( fileRecord );
@@ -411,10 +411,10 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
     FileRecord parentFolder = idManager.getFileById( parentFolderId );
     RepositoryFile fileFromRepo =
-        new RepositoryFile.Builder( file ).path(
+        new RepositoryFile.Builder( file ).setPath(
             parentFolder.getPath()
                 + ( parentFolder.getPath().endsWith( RepositoryFile.SEPARATOR ) ? "" : RepositoryFile.SEPARATOR )
-                + file.getName() ).title( findTitle( file ) ).description( findDesc( file ) ).build();
+                + file.getName() ).setTitle( findTitle( file ) ).setDescription( findDesc( file ) ).build();
     RepositoryFileAcl aclFromRepo = new RepositoryFileAcl.Builder( acl ).build();
     FileRecord fileRecord = new FileRecord( fileFromRepo, null, aclFromRepo, new HashMap<String, Serializable>() );
     idManager.register( fileRecord );
@@ -483,7 +483,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       throw new AccessDeniedException( "access denied" );
     }
     FileRecord fileRecord = idManager.getFileById( file.getId() );
-    fileRecord.setFile( new RepositoryFile.Builder( file ).title( findTitle( file ) ).description( findDesc( file ) )
+    fileRecord.setFile( new RepositoryFile.Builder( file ).setTitle( findTitle( file ) ).setDescription( findDesc( file ) )
         .build() );
     IRepositoryFileData oldData = fileRecord.getData();
     fileRecord.setData( data );
@@ -556,7 +556,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
             + ( dest.getPath().endsWith( RepositoryFile.SEPARATOR ) ? newName : RepositoryFile.SEPARATOR + newName );
 
     FileRecord newChild =
-        new FileRecord( new RepositoryFile.Builder( src.getFile() ).name( newName ).path( newPath ).build(), src
+        new FileRecord( new RepositoryFile.Builder( src.getFile() ).setName( newName ).setPath( newPath ).build(), src
             .getData(), src.getAcl(), src.getMetadata() );
     if ( !move ) {
       idManager.register( newChild );
@@ -752,8 +752,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     fileRecord.setMetadata( restored.getMetadata() );
     // reset properties that aren't versioned
     RepositoryFile orig = fileRecord.getFile();
-    fileRecord.setFile( new RepositoryFile.Builder( restored.getFile() ).locked( orig.isLocked() ).lockDate(
-        orig.getLockDate() ).lockMessage( orig.getLockMessage() ).lockOwner( orig.getLockOwner() ).build() );
+    fileRecord.setFile( new RepositoryFile.Builder( restored.getFile() ).setLocked( orig.isLocked() ).setLockDate(
+        orig.getLockDate() ).setLockMessage( orig.getLockMessage() ).setLockOwner( orig.getLockOwner() ).build() );
   }
 
   @Override
@@ -964,7 +964,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
     public void register( final FileRecord fileRecord ) {
       Serializable fileId = UUID.randomUUID().toString();
-      fileRecord.setFile( new RepositoryFile.Builder( fileRecord.getFile() ).id( fileId ).build() );
+      fileRecord.setFile( new RepositoryFile.Builder( fileRecord.getFile() ).setId( fileId ).build() );
       fileRecord.setAcl( new RepositoryFileAcl.Builder( fileRecord.getAcl() ).id( fileId ).build() );
       idMap.put( fileId, fileRecord );
     }
@@ -1006,7 +1006,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
         versionMap.put( fileId, history );
       }
       FileRecord fileRecord = idManager.getFileById( fileId );
-      fileRecord.setFile( new RepositoryFile.Builder( fileRecord.getFile() ).versionId( history.size() ).build() );
+      fileRecord.setFile( new RepositoryFile.Builder( fileRecord.getFile() ).setVersionId( history.size() ).build() );
       history.add( new FrozenFileRecord( history.size(), fileRecord.getFile(), fileRecord.getData(), fileRecord
           .getMetadata(), author, versionMessage, date ) );
     }
@@ -1040,7 +1040,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
         if ( r == null ) {
           throw new UnifiedRepositoryException( String.format( "version [%s] does not exist", versionId ) );
         }
-        history.add( new FrozenFileRecord( history.size(), new RepositoryFile.Builder( r.getFile() ).versionId(
+        history.add( new FrozenFileRecord( history.size(), new RepositoryFile.Builder( r.getFile() ).setVersionId(
             history.size() ).build(), r.getData(), r.getMetadata(), author, versionMessage, date ) );
         return history.get( history.size() - 1 );
       }
@@ -1171,7 +1171,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       }
 
       RepositoryFile popFile =
-          new RepositoryFile.Builder( deletedRecord.getFile() ).originalParentFolderPath( origPath ).deletedDate(
+          new RepositoryFile.Builder( deletedRecord.getFile() ).setOriginalParentFolderPath( origPath ).setDeletedDate(
               new Date() ).build();
       deletedRecord.setFile( popFile );
 
@@ -1205,7 +1205,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       trash.getIdToOrigPathMap().remove( fileId );
 
       RepositoryFile popFile =
-          new RepositoryFile.Builder( found.getFile() ).originalParentFolderPath( null ).deletedDate( null ).build();
+          new RepositoryFile.Builder( found.getFile() ).setOriginalParentFolderPath( null ).setDeletedDate( null ).build();
       found.setFile( popFile );
     }
 
@@ -1262,8 +1262,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       if ( r.getFile().getLockOwner() != null ) {
         throw new IllegalStateException( "file is already locked" );
       }
-      r.setFile( new RepositoryFile.Builder( r.getFile() ).lockOwner( currentUserProvider.getUser() ).lockDate(
-          new Date() ).lockMessage( message ).locked( true ).build() );
+      r.setFile( new RepositoryFile.Builder( r.getFile() ).setLockOwner( currentUserProvider.getUser() ).setLockDate(
+          new Date() ).setLockMessage( message ).setLocked( true ).build() );
     }
 
     public void unlockFile( final Serializable fileId ) {
@@ -1274,8 +1274,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       if ( r.getFile().getLockOwner() == null ) {
         throw new IllegalStateException( "file is not locked" );
       }
-      r.setFile( new RepositoryFile.Builder( r.getFile() ).lockOwner( null ).lockDate( null ).lockMessage( null )
-          .locked( false ).build() );
+      r.setFile( new RepositoryFile.Builder( r.getFile() ).setLockOwner( null ).setLockDate( null ).setLockMessage( null )
+          .setLocked( false ).build() );
     }
 
   }
@@ -1404,8 +1404,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       throw new AccessDeniedException( "access denied" );
     }
     FileRecord fileRecord = idManager.getFileById( folder.getId() );
-    fileRecord.setFile( new RepositoryFile.Builder( folder ).hidden( folder.isHidden() ).title( findTitle( folder ) )
-        .description( findDesc( folder ) ).aclNode( folder.isAclNode() ).build() );
+    fileRecord.setFile( new RepositoryFile.Builder( folder ).setHidden( folder.isHidden() ).setTitle( findTitle( folder ) )
+        .setDescription( findDesc( folder ) ).setAclNode( folder.isAclNode() ).build() );
     if ( folder.isVersioned() ) {
       versionManager.createVersion( fileRecord.getFile().getId(), currentUserProvider.getUser(), versionMessage,
           new Date() );

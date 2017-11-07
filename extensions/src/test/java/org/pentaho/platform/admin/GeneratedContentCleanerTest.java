@@ -64,7 +64,7 @@ public class GeneratedContentCleanerTest {
   public void testExecute_noFilesToDelete() throws Exception {
     final Date fixedDate = new SimpleDateFormat( "d/m/yyyy" ).parse( "1/1/2015" );
     RepositoryFile file =
-      new RepositoryFile.Builder( DEFAULT_STRING, FILE_ID ).folder( false ).createdDate( fixedDate ).build();
+      new RepositoryFile.Builder( DEFAULT_STRING, FILE_ID ).setFolder( false ).setCreatedDate( fixedDate ).build();
     RepositoryFileTree tree = new RepositoryFileTree( file, null );
     when( repo.getTree( anyString(), eq( -1 ), anyString(), eq( true ) ) ).thenReturn( tree );
 
@@ -76,9 +76,9 @@ public class GeneratedContentCleanerTest {
   public void testExecute_oldFilesInFolderDeleted() throws Exception {
     final Date fixedDate = new SimpleDateFormat( "d/m/yyyy" ).parse( "1/1/2015" );
     RepositoryFile folder =
-      new RepositoryFile.Builder( FOlDER_ID, DEFAULT_STRING ).folder( true ).build();
+      new RepositoryFile.Builder( FOlDER_ID, DEFAULT_STRING ).setFolder( true ).build();
     RepositoryFile file =
-      new RepositoryFile.Builder( FILE_ID, DEFAULT_STRING ).folder( false ).createdDate( fixedDate ).build();
+      new RepositoryFile.Builder( FILE_ID, DEFAULT_STRING ).setFolder( false ).setCreatedDate( fixedDate ).build();
 
     RepositoryFileTree childRepoFileTree = new RepositoryFileTree( file, null );
     RepositoryFileTree rootRepoFileTree =

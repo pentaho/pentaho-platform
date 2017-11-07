@@ -42,7 +42,7 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
   // ~ Instance fields
   // =================================================================================================
 
-  private InputStream stream;
+  private transient InputStream stream;
 
   private String encoding;
 

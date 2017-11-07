@@ -56,7 +56,7 @@ public class RepositoryFileIoTest {
   }
 
   private RepositoryFile createFile( String fileName ) {
-    return new RepositoryFile.Builder( fileName ).path( publicDirPath + "/" + fileName ).build();
+    return new RepositoryFile.Builder( fileName ).setPath( publicDirPath + "/" + fileName ).build();
   }
 
   @Test
@@ -84,7 +84,7 @@ public class RepositoryFileIoTest {
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // simulate request for publicDir
     RepositoryFile publicDir =
-        new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build();
+        new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).setFolder( true ).build();
     doReturn( publicDir ).when( repo ).getFile( publicDirPath );
     mp.defineInstance( IUnifiedRepository.class, repo );
 
@@ -121,7 +121,7 @@ public class RepositoryFileIoTest {
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // simulate request for publicDir
     RepositoryFile publicDir =
-        new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build();
+        new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).setFolder( true ).build();
     doReturn( publicDir ).when( repo ).getFile( publicDirPath );
     mp.defineInstance( IUnifiedRepository.class, repo );
 
@@ -163,7 +163,7 @@ public class RepositoryFileIoTest {
   public void testReadDirectoryPath() throws IOException {
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // simulate file exists but is a directory
-    doReturn( new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build() )
+    doReturn( new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).setFolder( true ).build() )
         .when( repo ).getFile( ClientRepositoryPaths.getPublicFolderPath() );
     mp.defineInstance( IUnifiedRepository.class, repo );
 
@@ -175,7 +175,7 @@ public class RepositoryFileIoTest {
   public void testWriteDirectory() throws IOException {
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // simulate file exists but is a directory
-    doReturn( new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build() )
+    doReturn( new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).setFolder( true ).build() )
         .when( repo ).getFile( ClientRepositoryPaths.getPublicFolderPath() );
     mp.defineInstance( IUnifiedRepository.class, repo );
 

@@ -485,7 +485,7 @@ public class RepositoryFileImportFileHandlerTest {
       }
 
       RepositoryFile repoFile = new RepositoryFile.Builder( targetName )
-          .path( path ).folder( this.folder ).build();
+          .setPath( path ).setFolder( this.folder ).build();
       when( mockBundle.isOverwriteInRepository() ).thenReturn( overwriteFileIfExists );
       when( mockBundle.overwriteInRepossitory() ).thenReturn( overwriteFileIfExists );
       when( mockBundle.getFile() ).thenReturn( repoFile );

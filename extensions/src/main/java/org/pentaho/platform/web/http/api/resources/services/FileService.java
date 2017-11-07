@@ -1521,7 +1521,7 @@ public class FileService {
           }
         }
         RepositoryFile updatedFile =
-          new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
+          new RepositoryFile.Builder( movedFile ).setLocalePropertiesMap( localePropertiesMap ).setName( newName ).setTitle(
             newName ).build();
         repository.updateFile( updatedFile, RepositoryFileHelper.getFileData( movedFile ), "Updating the file" );
       }

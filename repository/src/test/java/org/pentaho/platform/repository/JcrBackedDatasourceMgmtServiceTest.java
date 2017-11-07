@@ -99,7 +99,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
     final String parentFolderId = "123";
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // stub out get parent folder
-    doReturn( new RepositoryFile.Builder( parentFolderId, "databases" ).folder( true ).build() ).when( repo ).getFile(
+    doReturn( new RepositoryFile.Builder( parentFolderId, "databases" ).setFolder( true ).build() ).when( repo ).getFile(
         "/etc/pdi/databases" );
     doReturn( reservedChars ).when( repo ).getReservedChars();
 
@@ -121,7 +121,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
     final String dotKdb = ".kdb";
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // stub out get parent folder
-    doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFile(
+    doReturn( new RepositoryFile.Builder( "123", "databases" ).setFolder( true ).build() ).when( repo ).getFile(
         databasesFolderPath );
     doReturn( reservedChars ).when( repo ).getReservedChars();
     // stub out get file to delete
@@ -142,12 +142,12 @@ public class JcrBackedDatasourceMgmtServiceTest {
     final String dotKdb = ".kdb";
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // stub out get parent folder
-    doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFile(
+    doReturn( new RepositoryFile.Builder( "123", "databases" ).setFolder( true ).build() ).when( repo ).getFile(
         databasesFolderPath );
     doReturn( reservedChars ).when( repo ).getReservedChars();
     // stub out get file to update
     RepositoryFile f =
-        new RepositoryFile.Builder( fileId, EXP_DBMETA_NAME + dotKdb ).path(
+        new RepositoryFile.Builder( fileId, EXP_DBMETA_NAME + dotKdb ).setPath(
             databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb ).build();
     doReturn( f ).when( repo ).getFile( databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb );
     // stub out update file which requires a file to be returned
@@ -172,7 +172,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
     final String databasesFolderPath = "/etc/pdi/databases";
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // stub out get parent folder
-    doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFile(
+    doReturn( new RepositoryFile.Builder( "123", "databases" ).setFolder( true ).build() ).when( repo ).getFile(
         databasesFolderPath );
     doReturn( reservedChars ).when( repo ).getReservedChars();
     // stub out get file not found
@@ -190,12 +190,12 @@ public class JcrBackedDatasourceMgmtServiceTest {
     final String dotKdb = ".kdb";
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // stub out get parent folder
-    doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFile(
+    doReturn( new RepositoryFile.Builder( "123", "databases" ).setFolder( true ).build() ).when( repo ).getFile(
         databasesFolderPath );
     doReturn( reservedChars ).when( repo ).getReservedChars();
     // stub out get file to update
     RepositoryFile f =
-        new RepositoryFile.Builder( fileId, EXP_DBMETA_NAME + dotKdb ).path(
+        new RepositoryFile.Builder( fileId, EXP_DBMETA_NAME + dotKdb ).setPath(
             databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb ).build();
     doReturn( f ).when( repo ).getFile( databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb );
 

@@ -120,7 +120,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         RepositoryFileAcl acl = new RepositoryFileAcl.Builder( tenantCreatorId ).entriesInheriting( false ).build();
         RepositoryFile systemTenantFolder =
             repositoryFileDao.createFolder( parentFolder != null ? parentFolder.getId() : null,
-                new RepositoryFile.Builder( tenant.getName() ).folder( true ).build(), acl, "" );
+                new RepositoryFile.Builder( tenant.getName() ).setFolder( true ).build(), acl, "" );
         repositoryFileDao.getFileByAbsolutePath( tenant.getId() );
 
         Map<String, Serializable> fileMeta = repositoryFileDao.getFileMetadata( systemTenantFolder.getId() );
@@ -461,7 +461,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
 
     RepositoryFile publicFolder =
         repositoryFileDao.createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder( ServerRepositoryPaths
-            .getTenantPublicFolderName() ).folder( true ).title(
+            .getTenantPublicFolderName() ).setFolder( true ).setTitle(
             Messages.getInstance().getString( "RepositoryTenantManager.publicFolderDisplayName" ) ).build(),
             new RepositoryFileAcl.Builder( fileOwnerSid ).ace( tenantAdminRoleSid,
                 EnumSet.of( RepositoryFilePermission.ALL ) ).ace( tenantAuthenticatedRoleSid,
@@ -479,7 +479,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
 
     RepositoryFile homeFolder =
         repositoryFileDao.createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder( ServerRepositoryPaths
-            .getTenantHomeFolderName() ).folder( true ).title(
+            .getTenantHomeFolderName() ).setFolder( true ).setTitle(
             Messages.getInstance().getString( "RepositoryTenantManager.usersFolderDisplayName" ) ).build(),
             new RepositoryFileAcl.Builder( fileOwnerSid ).ace( tenantAdminRoleSid,
                 EnumSet.of( RepositoryFilePermission.ALL ) ).ace( tenantAuthenticatedRoleSid,
@@ -498,25 +498,25 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
 
     RepositoryFile etcFolder =
         repositoryFileDao.createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder( ServerRepositoryPaths
-            .getTenantEtcFolderName() ).folder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid )
+            .getTenantEtcFolderName() ).setFolder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid )
               .entriesInheriting( true ).ace( tenantAuthenticatedRoleSid, EnumSet.of( RepositoryFilePermission.READ ) )
               .ace( tenantAdminRoleSid, EnumSet.of( RepositoryFilePermission.ALL ) ).build(), null );
 
     RepositoryFile pdiFolder =
-        repositoryFileDao.createFolder( etcFolder.getId(), new RepositoryFile.Builder( "pdi" ).folder( true ).build(),
+        repositoryFileDao.createFolder( etcFolder.getId(), new RepositoryFile.Builder( "pdi" ).setFolder( true ).build(),
             new RepositoryFileAcl.Builder( fileOwnerSid ).entriesInheriting( true ).build(), null );
     repositoryFileDao.createFolder( pdiFolder.getId(),
-        new RepositoryFile.Builder( "databases" ).folder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid )
+        new RepositoryFile.Builder( "databases" ).setFolder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid )
             .entriesInheriting( true ).build(), null );
-    repositoryFileDao.createFolder( pdiFolder.getId(), new RepositoryFile.Builder( "slaveServers" ).folder( true )
+    repositoryFileDao.createFolder( pdiFolder.getId(), new RepositoryFile.Builder( "slaveServers" ).setFolder( true )
         .build(), new RepositoryFileAcl.Builder( fileOwnerSid ).entriesInheriting( true ).build(), null );
-    repositoryFileDao.createFolder( pdiFolder.getId(), new RepositoryFile.Builder( "clusterSchemas" ).folder( true )
+    repositoryFileDao.createFolder( pdiFolder.getId(), new RepositoryFile.Builder( "clusterSchemas" ).setFolder( true )
         .build(), new RepositoryFileAcl.Builder( fileOwnerSid ).entriesInheriting( true ).build(), null );
-    repositoryFileDao.createFolder( pdiFolder.getId(), new RepositoryFile.Builder( "partitionSchemas" ).folder( true )
+    repositoryFileDao.createFolder( pdiFolder.getId(), new RepositoryFile.Builder( "partitionSchemas" ).setFolder( true )
         .build(), new RepositoryFileAcl.Builder( fileOwnerSid ).entriesInheriting( true ).build(), null );
 
     repositoryFileDao.createFolder( etcFolder.getId(),
-        new RepositoryFile.Builder( "metastore" ).folder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid )
+        new RepositoryFile.Builder( "metastore" ).setFolder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid )
             .entriesInheriting( true ).build(), null );
 
     return etcFolder;

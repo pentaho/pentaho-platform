@@ -110,18 +110,18 @@ public class ZipExportProcessorTest {
     Properties localePropertries = new Properties();
     localePropertries.setProperty( "name1", "value1" );
 
-    final RepositoryFile file0 = new RepositoryFile.Builder( "" ).path( "/" ).id( "/" ).folder( true ).build();
+    final RepositoryFile file0 = new RepositoryFile.Builder( "" ).setPath( "/" ).setId( "/" ).setFolder( true ).build();
     final RepositoryFile file1 =
-        new RepositoryFile.Builder( "home" ).path( "/home/" ).id( "/home/" ).folder( true ).build();
+        new RepositoryFile.Builder( "home" ).setPath( "/home/" ).setId( "/home/" ).setFolder( true ).build();
     final RepositoryFile file2 =
-        new RepositoryFile.Builder( "test user" ).path( "/home/test user/" ).id( "/home/test user/" ).folder( true )
+        new RepositoryFile.Builder( "test user" ).setPath( "/home/test user/" ).setId( "/home/test user/" ).setFolder( true )
             .build();
     final RepositoryFile file3 =
-        new RepositoryFile.Builder( "two words" ).path( "/home/test user/two words/" )
-            .id( "/home/test user/two words/" ).folder( true ).build();
+        new RepositoryFile.Builder( "two words" ).setPath( "/home/test user/two words/" )
+            .setId( "/home/test user/two words/" ).setFolder( true ).build();
     final RepositoryFile fileX =
-        new RepositoryFile.Builder( "eval (+)%.prpt" ).path( "/home/test user/two words/eval (+)%.prpt" ).id(
-            "/home/test user/two words/eval (+)%.prpt" ).folder( false ).build();
+        new RepositoryFile.Builder( "eval (+)%.prpt" ).setPath( "/home/test user/two words/eval (+)%.prpt" ).setId(
+            "/home/test user/two words/eval (+)%.prpt" ).setFolder( false ).build();
     final RepositoryFile[] repoFiles = new RepositoryFile[] { file0, file1, file2, file3, fileX };
     final Map<Serializable, RepositoryFile> repoFilesMap = new HashMap<Serializable, RepositoryFile>();
     for ( RepositoryFile f : repoFiles ) {
@@ -260,11 +260,11 @@ public class ZipExportProcessorTest {
 
     RepositoryFile file = null;
 
-    file = new RepositoryFile.Builder( fileName ).path( filePath ).folder( false ).build();
+    file = new RepositoryFile.Builder( fileName ).setPath( filePath ).setFolder( false ).build();
     assertEquals( simpleZipEntryName, zipNoMF.getFixedZipEntryName( file, basePath ) );
     assertEquals( encodedZipEntryName, zipMF.getFixedZipEntryName( file, basePath ) );
 
-    file = new RepositoryFile.Builder( fileName ).path( filePath ).folder( true ).build();
+    file = new RepositoryFile.Builder( fileName ).setPath( filePath ).setFolder( true ).build();
     assertEquals( simpleZipEntryName + "/", zipNoMF.getFixedZipEntryName( file, basePath ) );
     assertEquals( encodedZipEntryName + "/", zipMF.getFixedZipEntryName( file, basePath ) );
 
@@ -272,11 +272,11 @@ public class ZipExportProcessorTest {
     simpleZipEntryName = "home/test user/two words/eval (+)%.prpt";
     encodedZipEntryName = "home/test+user/two+words/eval+%28%2B%29%25.prpt";
 
-    file = new RepositoryFile.Builder( fileName ).path( filePath ).folder( false ).build();
+    file = new RepositoryFile.Builder( fileName ).setPath( filePath ).setFolder( false ).build();
     assertEquals( simpleZipEntryName, zipNoMF.getFixedZipEntryName( file, basePath ) );
     assertEquals( encodedZipEntryName, zipMF.getFixedZipEntryName( file, basePath ) );
 
-    file = new RepositoryFile.Builder( fileName ).path( filePath ).folder( true ).build();
+    file = new RepositoryFile.Builder( fileName ).setPath( filePath ).setFolder( true ).build();
     assertEquals( simpleZipEntryName + "/", zipNoMF.getFixedZipEntryName( file, basePath ) );
     assertEquals( encodedZipEntryName + "/", zipMF.getFixedZipEntryName( file, basePath ) );
 
@@ -284,11 +284,11 @@ public class ZipExportProcessorTest {
     simpleZipEntryName = "home/test user/two words/eval (+)%.prpt";
     encodedZipEntryName = "home/test+user/two+words/eval+%28%2B%29%25.prpt";
 
-    file = new RepositoryFile.Builder( fileName ).path( filePath ).folder( false ).build();
+    file = new RepositoryFile.Builder( fileName ).setPath( filePath ).setFolder( false ).build();
     assertEquals( simpleZipEntryName, zipNoMF.getFixedZipEntryName( file, basePath ) );
     assertEquals( encodedZipEntryName, zipMF.getFixedZipEntryName( file, basePath ) );
 
-    file = new RepositoryFile.Builder( fileName ).path( filePath ).folder( true ).build();
+    file = new RepositoryFile.Builder( fileName ).setPath( filePath ).setFolder( true ).build();
     assertEquals( simpleZipEntryName + "/", zipNoMF.getFixedZipEntryName( file, basePath ) );
     assertEquals( encodedZipEntryName + "/", zipMF.getFixedZipEntryName( file, basePath ) );
   }

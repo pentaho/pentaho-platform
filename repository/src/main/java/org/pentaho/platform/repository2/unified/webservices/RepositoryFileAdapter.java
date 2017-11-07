@@ -275,16 +275,16 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
           }
         }
 
-        builder.localeProperties( locale, localeProperties );
+        builder.setLocaleProperties( locale, localeProperties );
       }
     }
 
-    return builder.path( v.path ).createdDate( v.createdDate ).creatorId( v.creatorId ).description( v.description )
-      .folder( v.folder ).fileSize( v.fileSize ).lastModificationDate( v.lastModifiedDate ).locale( v.locale )
-      .lockDate( v.lockDate ).locked( v.locked ).lockMessage( v.lockMessage ).lockOwner( v.lockOwner )
-      .title( v.title ).versioned( v.versioned ).versionId( v.versionId ).originalParentFolderPath(
-            v.originalParentFolderPath ).deletedDate( v.deletedDate ).hidden( v.hidden ).schedulable( !v
-                .isNotSchedulable() ).aclNode( v.aclNode ).build();
+    return builder.setPath( v.path ).setCreatedDate( v.createdDate ).setCreatorId( v.creatorId ).setDescription( v.description )
+      .setFolder( v.folder ).setFileSize( v.fileSize ).setLastModificationDate( v.lastModifiedDate ).setLocale( v.locale )
+      .setLockDate( v.lockDate ).setLocked( v.locked ).setLockMessage( v.lockMessage ).setLockOwner( v.lockOwner )
+      .setTitle( v.title ).setVersioned( v.versioned ).setVersionId( v.versionId ).setOriginalParentFolderPath(
+            v.originalParentFolderPath ).setDeletedDate( v.deletedDate ).setHidden( v.hidden ).setSchedulable( !v
+                .isNotSchedulable() ).setAclNode( v.aclNode ).build();
   }
 
   private static DefaultUnifiedRepositoryWebService getRepoWs() {

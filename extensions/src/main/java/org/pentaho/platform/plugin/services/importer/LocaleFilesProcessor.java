@@ -77,7 +77,7 @@ public class LocaleFilesProcessor {
     if ( ImportSession.getSession().getManifest() != null && ImportSession.getSession().getManifest().getManifestInformation().getManifestVersion() != null ) {
       fileName = ExportFileNameEncoder.decodeZipFileName( fileName );
       actualFilePath = ExportFileNameEncoder.decodeZipFileName( actualFilePath );
-      localeRepositoryFile = new RepositoryFile.Builder( localeRepositoryFile ).name(
+      localeRepositoryFile = new RepositoryFile.Builder( localeRepositoryFile ).setName(
           ExportFileNameEncoder.decodeZipFileName( localeRepositoryFile.getName() ) ).build();
     }
     int sourceVersion = 0; // 0 = Not a local file, 1 = 4.8 .properties file, 2= Sugar 5.0 .local file
@@ -159,7 +159,7 @@ public class LocaleFilesProcessor {
     boolean success = false;
     // need to spoof the locales to think this is the actual parent .prpt and not the meta.xml
     RepositoryFile.Builder rf = new RepositoryFile.Builder( name );
-    rf.path( filePath );
+    rf.setPath( filePath );
     if ( !StringUtils.isEmpty( title ) ) {
       name = title;
     }

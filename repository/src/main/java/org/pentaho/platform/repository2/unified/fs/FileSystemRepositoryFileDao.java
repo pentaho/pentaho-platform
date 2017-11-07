@@ -222,10 +222,10 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
         jcrPath = "/";
       }
       file =
-          new RepositoryFile.Builder( f.getAbsolutePath(), f.getName() ).createdDate( new Date( f.lastModified() ) )
-              .lastModificationDate( new Date( f.lastModified() ) ).folder( f.isDirectory() ).versioned( false ).path(
-                  jcrPath ).versionId( f.getName() ).locked( false ).lockDate( null ).lockMessage( null ).lockOwner(
-                  null ).title( f.getName() ).description( f.getName() ).locale( null ).fileSize( f.length() ).build();
+          new RepositoryFile.Builder( f.getAbsolutePath(), f.getName() ).setCreatedDate( new Date( f.lastModified() ) )
+              .setLastModificationDate( new Date( f.lastModified() ) ).setFolder( f.isDirectory() ).setVersioned( false ).setPath(
+                  jcrPath ).setVersionId( f.getName() ).setLocked( false ).setLockDate( null ).setLockMessage( null ).setLockOwner(
+                  null ).setTitle( f.getName() ).setDescription( f.getName() ).setLocale( null ).setFileSize( f.length() ).build();
     }
     return file;
 

@@ -76,8 +76,8 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
 
       RepositoryFile file =
           new RepositoryFile.Builder( RepositoryFilenameUtils.escape( databaseConnection.getName()
-              + RepositoryObjectType.DATABASE.getExtension(), cachedReservedChars ) ).title(
-              RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName() ).versioned( true ).build();
+              + RepositoryObjectType.DATABASE.getExtension(), cachedReservedChars ) ).setTitle(
+              RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName() ).setVersioned( true ).build();
       file =
           repository.createFile( getDatabaseParentFolderId(), file, new NodeRepositoryFileData( databaseHelper
               .databaseConnectionToDataNode( databaseConnection ) ), null );
@@ -289,7 +289,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
 
       if ( file != null ) {
         file =
-            new RepositoryFile.Builder( file ).versionId( file.getVersionId() ).id( file.getId() ).title(
+            new RepositoryFile.Builder( file ).setVersionId( file.getVersionId() ).setId( file.getId() ).setTitle(
                 RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName() ).build();
         file =
             repository.updateFile( file, new NodeRepositoryFileData( databaseHelper
