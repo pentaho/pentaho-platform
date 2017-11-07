@@ -152,7 +152,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     Node folderNode = JcrRepositoryFileUtils.createFolderNode( session, pentahoJcrConstants, parentFolderId, folder );
     // create a temporary folder object with correct path for default acl purposes.
     String path = JcrRepositoryFileUtils.getAbsolutePath( session, pentahoJcrConstants, folderNode );
-    RepositoryFile tmpFolder = new RepositoryFile.Builder( folder ).path( path ).build();
+    RepositoryFile tmpFolder = new RepositoryFile.Builder( folder ).setPath( path ).build();
     // we must create the acl during checkout
     JcrRepositoryFileAclUtils.createAcl( session, pentahoJcrConstants, folderNode.getIdentifier(), acl == null
         ? defaultAclHandler.createDefaultAcl( tmpFolder ) : acl );
@@ -215,7 +215,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
                 .getClass() ) );
         // create a tmp file with correct path for default acl creation purposes.
         String path = JcrRepositoryFileUtils.getAbsolutePath( session, pentahoJcrConstants, fileNode );
-        RepositoryFile tmpFile = new RepositoryFile.Builder( file ).path( path ).build();
+        RepositoryFile tmpFile = new RepositoryFile.Builder( file ).setPath( path ).build();
         // we must create the acl during checkout
         aclDao.createAcl( fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl( tmpFile ) : acl );
         session.save();
@@ -817,7 +817,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
               if ( tmp == null ) {
                 lastParentFolder =
                     internalCreateFolder( session, lastParentFolder.getId(), new RepositoryFile.Builder( segment )
-                        .folder( true ).build(), defaultAclHandler.createDefaultAcl( lastParentFolder ), null );
+                        .setFolder( true ).build(), defaultAclHandler.createDefaultAcl( lastParentFolder ), null );
               } else {
                 lastParentFolder = tmp;
               }

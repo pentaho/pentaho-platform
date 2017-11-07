@@ -75,7 +75,7 @@ public class PentahoMetadataDomainRepositoryConcurrencyTest {
   public void setUp() throws Exception {
     repository = new DomainsStubRepository();
     repository = spy( repository );
-    RepositoryFile metadataDir = new RepositoryFile.Builder( METADATA_DIR_ID, "metadataDir" ).folder( true ).build();
+    RepositoryFile metadataDir = new RepositoryFile.Builder( METADATA_DIR_ID, "metadataDir" ).setFolder( true ).build();
     doReturn( metadataDir ).when( repository ).getFile( PentahoMetadataDomainRepositoryInfo.getMetadataFolderPath() );
 
     aclNodeHelper = mock( IAclNodeHelper.class );

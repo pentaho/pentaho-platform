@@ -76,7 +76,7 @@ public class RepositoryUtils {
         final RepositoryFile parentFolder = getFolder( parentPath, acl, createParents, createParents, versionMessage );
         if ( null != parentFolder ) {
           final String folderName = RepositoryFilenameUtils.getName( path );
-          folder = new RepositoryFile.Builder( folderName ).path( path ).folder( true ).build();
+          folder = new RepositoryFile.Builder( folderName ).setPath( path ).setFolder( true ).build();
           if ( null != acl ) {
             folder = repository.createFolder( parentFolder.getId(), folder, acl, versionMessage );
           } else {
@@ -114,7 +114,7 @@ public class RepositoryUtils {
       final RepositoryFile parentFolder = getFolder( parentFolderName, createParents, createParents, versionMessage );
       if ( null != parentFolder ) {
         final String fileName = RepositoryFilenameUtils.getName( path );
-        file = new RepositoryFile.Builder( fileName ).folder( false ).build();
+        file = new RepositoryFile.Builder( fileName ).setFolder( false ).build();
         file = repository.createFile( parentFolder.getId(), file, data, versionMessage );
       }
     }
@@ -173,7 +173,7 @@ public class RepositoryUtils {
       return null;
     }
 
-    return repository.createFile( parentDir.getId(), new RepositoryFile.Builder( filename ).versioned( versioned )
+    return repository.createFile( parentDir.getId(), new RepositoryFile.Builder( filename ).setVersioned( versioned )
         .build(), data, versionMessage );
   }
 }

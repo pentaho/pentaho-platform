@@ -225,7 +225,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       String decodedFilePath = fileBundle.getPath();
       RepositoryFile decodedFile = fileBundle.getFile();
       if ( manifestVersion != null ) {
-        decodedFile = new RepositoryFile.Builder( decodedFile ).path( decodedFilePath ).name( fileName ).title( fileName ).build();
+        decodedFile = new RepositoryFile.Builder( decodedFile ).setPath( decodedFilePath ).setName( fileName ).setTitle( fileName ).build();
         decodedFilePath = ExportFileNameEncoder.decodeZipFileName( fileBundle.getPath() );
       }
 
@@ -692,7 +692,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           }
           File file = new File( entryName );
           RepositoryFile repoFile =
-            new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
+            new RepositoryFile.Builder( file.getName() ).setFolder( isDir ).setHidden( false ).build();
           String parentDir =
             new File( entryName ).getParent() == null ? RepositoryFile.SEPARATOR : new File( entryName ).getParent()
               + RepositoryFile.SEPARATOR;

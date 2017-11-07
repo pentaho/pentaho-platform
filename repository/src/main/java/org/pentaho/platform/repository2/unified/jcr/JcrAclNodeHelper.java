@@ -197,7 +197,7 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
 
     return unifiedRepository.createFile(
         unifiedRepository.getFile( "/" ).getId(),
-        new RepositoryFile.Builder( UUID.randomUUID().toString() ).aclNode( true ).build(),
+        new RepositoryFile.Builder( UUID.randomUUID().toString() ).setAclNode( true ).build(),
         nodeRepositoryFileData, ""
     );
 

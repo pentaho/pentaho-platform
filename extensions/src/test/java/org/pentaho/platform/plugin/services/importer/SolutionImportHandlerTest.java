@@ -612,7 +612,7 @@ public class SolutionImportHandlerTest {
   @Test
   public void testIsFileHidden() {
     ManifestFile manifestFile = Mockito.mock( ManifestFile.class );
-    RepositoryFile repoFile = new RepositoryFile.Builder( "FILE_NAME" ).hidden( true ).build();
+    RepositoryFile repoFile = new RepositoryFile.Builder( "FILE_NAME" ).setHidden( true ).build();
 
     Mockito.when( manifestFile.isFileHidden() ).thenReturn( true );
     Assert.assertTrue( runIsFileHidden( repoFile, manifestFile, "SOURCE_PATH" ) );
@@ -623,7 +623,7 @@ public class SolutionImportHandlerTest {
     Mockito.when( manifestFile.isFileHidden() ).thenReturn( null );
     Assert.assertTrue( runIsFileHidden( repoFile, manifestFile, "SOURCE_PATH" ) );
 
-    repoFile = new RepositoryFile.Builder( "FILE_NAME" ).hidden( false ).build();
+    repoFile = new RepositoryFile.Builder( "FILE_NAME" ).setHidden( false ).build();
     Assert.assertFalse( runIsFileHidden( repoFile, manifestFile, "SOURCE_PATH" ) );
 
     Mockito.when( solutionHelper.isInHiddenList( "SOURCE_PATH" ) ).thenReturn( true );
@@ -641,7 +641,7 @@ public class SolutionImportHandlerTest {
   @Test
   public void testIsSchedulable() {
     ManifestFile manifestFile = Mockito.mock( ManifestFile.class );
-    RepositoryFile repoFile = new RepositoryFile.Builder( "FILE_NAME" ).schedulable( true ).build();
+    RepositoryFile repoFile = new RepositoryFile.Builder( "FILE_NAME" ).setSchedulable( true ).build();
 
     Mockito.when( manifestFile.isFileSchedulable() ).thenReturn( true );
     Assert.assertTrue( runIsSchedulable( repoFile, manifestFile ) );

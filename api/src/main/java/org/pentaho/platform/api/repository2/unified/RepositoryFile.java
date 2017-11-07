@@ -400,15 +400,15 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     public Builder( final RepositoryFile other ) {
       this( other.getName() );
-      this.id( other.getId() ).path( other.getPath() ).createdDate( other.getCreatedDate() ).creatorId(
-          other.getCreatorId() ).fileSize( other.getFileSize() ).folder( other.isFolder() ).lastModificationDate(
-              other.getLastModifiedDate() ).versioned( other.isVersioned() ).hidden( other.isHidden() ).schedulable(
-                  other.isSchedulable() ).versionId(
-          other.getVersionId() ).locked( other.isLocked() ).lockDate( other.getLockDate() ).lockOwner(
-          other.getLockOwner() ).lockMessage( other.getLockMessage() ).title( other.getTitle() ).description(
-          other.getDescription() ).locale( other.getLocale() ).originalParentFolderPath(
-          other.getOriginalParentFolderPath() ).deletedDate( other.getDeletedDate() ).localePropertiesMap(
-          other.getLocalePropertiesMap() ).aclNode( other.isAclNode() );
+      this.setId( other.getId() ).setPath( other.getPath() ).setCreatedDate( other.getCreatedDate() ).setCreatorId(
+          other.getCreatorId() ).setFileSize( other.getFileSize() ).setFolder( other.isFolder() ).setLastModificationDate(
+              other.getLastModifiedDate() ).setVersioned( other.isVersioned() ).setHidden( other.isHidden() ).setSchedulable(
+                  other.isSchedulable() ).setVersionId(
+          other.getVersionId() ).setLocked( other.isLocked() ).setLockDate( other.getLockDate() ).setLockOwner(
+          other.getLockOwner() ).setLockMessage( other.getLockMessage() ).setTitle( other.getTitle() ).setDescription(
+          other.getDescription() ).setLocale( other.getLocale() ).setOriginalParentFolderPath(
+          other.getOriginalParentFolderPath() ).setDeletedDate( other.getDeletedDate() ).setLocalePropertiesMap(
+          other.getLocalePropertiesMap() ).setAclNode( other.isAclNode() );
     }
 
     public RepositoryFile build() {
@@ -419,17 +419,17 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
           this.creatorId, this.localePropertiesMap, this.aclNode );
     }
 
-    public Builder createdDate( final Date createdDate1 ) {
+    public Builder setCreatedDate(final Date createdDate1 ) {
       this.createdDate = createdDate1;
       return this;
     }
 
-    public Builder creatorId( final String creatorId1 ) {
+    public Builder setCreatorId(final String creatorId1 ) {
       this.creatorId = creatorId1;
       return this;
     }
 
-    public Builder lastModificationDate( final Date lastModifiedDate1 ) {
+    public Builder setLastModificationDate(final Date lastModifiedDate1 ) {
       // defensive copy
       this.lastModifiedDate = lastModifiedDate1;
       return this;
@@ -439,93 +439,93 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
      * @param fileSize1
      * @return
      */
-    public Builder fileSize( long fileSize1 ) {
+    public Builder setFileSize(long fileSize1 ) {
       this.fileSize = fileSize1;
       return this;
     }
 
-    public Builder folder( final boolean folder1 ) {
+    public Builder setFolder(final boolean folder1 ) {
       this.folder = folder1;
       return this;
     }
 
-    public Builder id( final Serializable id1 ) {
+    public Builder setId(final Serializable id1 ) {
       this.id = id1;
       return this;
     }
 
-    public Builder name( final String name1 ) {
+    public Builder setName(final String name1 ) {
       this.name = name1;
       return this;
     }
 
-    public Builder path( final String path1 ) {
+    public Builder setPath(final String path1 ) {
       this.path = path1;
       return this;
     }
 
-    public Builder hidden( final boolean hidden1 ) {
+    public Builder setHidden(final boolean hidden1 ) {
       this.hidden = hidden1;
       return this;
     }
 
-    public Builder schedulable( final boolean schedulable1 ) {
+    public Builder setSchedulable(final boolean schedulable1 ) {
       this.schedulable = schedulable1;
       return this;
     }
 
-    public Builder versioned( final boolean versioned1 ) {
+    public Builder setVersioned(final boolean versioned1 ) {
       this.versioned = versioned1;
       return this;
     }
 
-    public Builder versionId( final Serializable versionId1 ) {
+    public Builder setVersionId(final Serializable versionId1 ) {
       this.versionId = versionId1;
       return this;
     }
 
-    public Builder locked( final boolean locked1 ) {
+    public Builder setLocked(final boolean locked1 ) {
       this.locked = locked1;
       return this;
     }
 
-    public Builder lockOwner( final String lockOwner1 ) {
+    public Builder setLockOwner(final String lockOwner1 ) {
       this.lockOwner = lockOwner1;
       return this;
     }
 
-    public Builder lockMessage( final String lockMessage1 ) {
+    public Builder setLockMessage(final String lockMessage1 ) {
       this.lockMessage = lockMessage1;
       return this;
     }
 
-    public Builder lockDate( final Date lockDate1 ) {
+    public Builder setLockDate(final Date lockDate1 ) {
       // defensive copy
       this.lockDate = lockDate1;
       return this;
     }
 
-    public Builder originalParentFolderPath( final String originalParentFolderPath1 ) {
+    public Builder setOriginalParentFolderPath(final String originalParentFolderPath1 ) {
       this.originalParentFolderPath = originalParentFolderPath1;
       return this;
     }
 
-    public Builder deletedDate( final Date deletedDate1 ) {
+    public Builder setDeletedDate(final Date deletedDate1 ) {
       this.deletedDate = deletedDate1;
       return this;
     }
 
-    public Builder title( final String title1 ) {
+    public Builder setTitle(final String title1 ) {
       this.title = title1;
       return this;
     }
 
-    public Builder description( final String description1 ) {
+    public Builder setDescription(final String description1 ) {
       this.description = description1;
       return this;
     }
 
-    public Builder localePropertiesMap( final Map<String, Properties> localePropertiesMap ) {
+    public Builder setLocalePropertiesMap(final Map<String, Properties> localePropertiesMap ) {
       this.localePropertiesMap = localePropertiesMap;
       if ( this.localePropertiesMap != null && !this.localePropertiesMap.containsKey( DEFAULT_LOCALE ) ) {
         this.localePropertiesMap.put( DEFAULT_LOCALE, new Properties() ); // required
@@ -541,7 +541,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       return this;
     }
 
-    public Builder localeProperties( final String locale, final Properties localeProperties ) {
+    public Builder setLocaleProperties(final String locale, final Properties localeProperties ) {
       initLocalePropertiesMap();
       this.localePropertiesMap.put( locale, localeProperties );
       return this;
@@ -554,7 +554,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       }
     }
 
-    public Builder title( final String localeString, final String title1 ) {
+    public Builder setTitle(final String localeString, final String title1 ) {
       initLocalePropertiesMap();
       Properties properties = this.localePropertiesMap.get( localeString );
       if ( properties == null ) {
@@ -568,7 +568,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       return this;
     }
 
-    public Builder description( final String localeString, final String description1 ) {
+    public Builder setDescription(final String localeString, final String description1 ) {
       initLocalePropertiesMap();
       Properties properties = this.localePropertiesMap.get( localeString );
       if ( properties == null ) {
@@ -582,12 +582,12 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       return this;
     }
 
-    public Builder locale( final String locale1 ) {
+    public Builder setLocale(final String locale1 ) {
       this.locale = locale1;
       return this;
     }
 
-    public Builder aclNode( final boolean aclNode1 ) {
+    public Builder setAclNode(final boolean aclNode1 ) {
       this.aclNode = aclNode1;
       return this;
     }
@@ -665,7 +665,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   @Override
   public RepositoryFile clone() {
     RepositoryFile.Builder builder = new RepositoryFile.Builder( this );
-    builder.localePropertiesMap( localePropertiesMap != null ? new HashMap<String, Properties>( localePropertiesMap )
+    builder.setLocalePropertiesMap( localePropertiesMap != null ? new HashMap<String, Properties>( localePropertiesMap )
         : null );
     return builder.build();
   }

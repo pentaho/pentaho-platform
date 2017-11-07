@@ -71,7 +71,7 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
           fos.close();
         }
         File file = new File( entryName );
-        RepositoryFile repoFile = new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
+        RepositoryFile repoFile = new RepositoryFile.Builder( file.getName() ).setFolder( isDir ).setHidden( false ).build();
         String parentDir = new File( entryName ).getParent() == null ? "/" : new File( entryName ).getParent() + "/";
         org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle repoFileBundle =
             new org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle( repoFile, null, parentDir,

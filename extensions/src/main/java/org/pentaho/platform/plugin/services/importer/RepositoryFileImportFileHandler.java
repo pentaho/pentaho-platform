@@ -142,15 +142,15 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   private RepositoryFile finalAdjustFolder( RepositoryFileImportBundle bundle, Serializable id ) {
-    RepositoryFile.Builder builder = new RepositoryFile.Builder( bundle.getFile() ).hidden( bundle.isHidden() );
+    RepositoryFile.Builder builder = new RepositoryFile.Builder( bundle.getFile() ).setHidden( bundle.isHidden() );
     if ( id != null ) {
-      builder.id( id );
+      builder.setId( id );
     }
     return builder.build();
   }
 
   private RepositoryFile finalAdjustFile( RepositoryFileImportBundle bundle, RepositoryFile file ) {
-    return new RepositoryFile.Builder( file ).hidden( isHiddenBundle( bundle ) ).schedulable( bundle.isSchedulable() )
+    return new RepositoryFile.Builder( file ).setHidden( isHiddenBundle( bundle ) ).setSchedulable( bundle.isSchedulable() )
         .build();
   }
 
@@ -317,10 +317,10 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       final IRepositoryFileData data ) throws PlatformImportException {
     if ( solutionHelper.isInApprovedExtensionList( repositoryPath ) ) {
       final RepositoryFile file =
-          new RepositoryFile.Builder( bundle.getName() ).hidden( isHiddenBundle( bundle ) ).schedulable( bundle
-              .isSchedulable() ).title(
+          new RepositoryFile.Builder( bundle.getName() ).setHidden( isHiddenBundle( bundle ) ).setSchedulable( bundle
+              .isSchedulable() ).setTitle(
               RepositoryFile.DEFAULT_LOCALE,
-              getTitle( bundle.getTitle() != null ? bundle.getTitle() : bundle.getName() ) ).versioned( true ).build();
+              getTitle( bundle.getTitle() != null ? bundle.getTitle() : bundle.getName() ) ).setVersioned( true ).build();
       final Serializable parentId = checkAndCreatePath( repositoryPath, getImportSession().getCurrentManifestKey() );
 
       final RepositoryFileAcl acl = bundle.getAcl();
@@ -437,8 +437,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       isHidden = getImportSession().isFileHidden( manifestKey );
     }
     RepositoryFile.Builder builder =
-        new RepositoryFile.Builder( RepositoryFilenameUtils.getName( folderPath ) ).path(
-            RepositoryFilenameUtils.getPath( folderPath ) ).folder( true ).hidden( isHidden );
+        new RepositoryFile.Builder( RepositoryFilenameUtils.getName( folderPath ) ).setPath(
+            RepositoryFilenameUtils.getPath( folderPath ) ).setFolder( true ).setHidden( isHidden );
     RepositoryFile repoFile = builder.build();
     RepositoryFileAcl repoAcl = getImportSession().processAclForFile( manifestKey );
     if ( repoAcl != null ) {

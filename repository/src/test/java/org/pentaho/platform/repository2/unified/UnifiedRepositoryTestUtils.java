@@ -130,7 +130,7 @@ public class UnifiedRepositoryTestUtils {
     RepositoryFile.Builder b = new RepositoryFile.Builder( fileName );
     // files returned from repo have non-null id and path properties
     if ( fromRepo ) {
-      b.id( makeIdObject( path ) ).path( path );
+      b.setId( makeIdObject( path ) ).setPath( path );
     }
     return b.build();
   }
@@ -147,7 +147,7 @@ public class UnifiedRepositoryTestUtils {
    */
   public static RepositoryFile makeFolderObject( final String path, final boolean fromRepo ) {
     RepositoryFile.Builder b = new RepositoryFile.Builder( makeFileObject( path, fromRepo ) );
-    b.folder( true );
+    b.setFolder( true );
     return b.build();
   }
 
@@ -171,7 +171,7 @@ public class UnifiedRepositoryTestUtils {
   private static void stubGetFile( final IUnifiedRepository repo, final String path, final boolean folder ) {
     final String fileName = StringUtils.substringAfterLast( path, RepositoryFile.SEPARATOR );
     RepositoryFile file =
-        new RepositoryFile.Builder( makeIdObject( path ), fileName ).path( path ).folder( folder ).build();
+        new RepositoryFile.Builder( makeIdObject( path ), fileName ).setPath( path ).setFolder( folder ).build();
     doReturn( file ).when( repo ).getFile( path );
   }
 

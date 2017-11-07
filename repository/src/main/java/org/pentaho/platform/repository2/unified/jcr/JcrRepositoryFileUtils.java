@@ -145,7 +145,7 @@ public class JcrRepositoryFileUtils {
 
   private static RepositoryFile getRootFolder( final Session session ) throws RepositoryException {
     Node node = session.getRootNode();
-    RepositoryFile file = new RepositoryFile.Builder( node.getIdentifier(), "" ).folder( true ).versioned( false ).path( //$NON-NLS-1$
+    RepositoryFile file = new RepositoryFile.Builder( node.getIdentifier(), "" ).setFolder( true ).setVersioned( false ).setPath( //$NON-NLS-1$
         JcrStringHelper.pathDecode( node.getPath() ) ).build();
     return file;
   }
@@ -296,11 +296,11 @@ public class JcrRepositoryFileUtils {
     }
 
     RepositoryFile file =
-        new RepositoryFile.Builder( id, name ).createdDate( created ).creatorId( creatorId ).lastModificationDate(
-            lastModified ).folder( folder ).versioned( versioned ).path( path ).versionId( versionId ).fileSize(
-                fileSize ).locked( locked ).lockDate( lockDate ).hidden( hidden ).schedulable( schedulable )
-            .lockMessage( lockMessage ).lockOwner( lockOwner ).title( title ).description( description ).locale(
-                pentahoLocale.toString() ).localePropertiesMap( localePropertiesMap ).aclNode( aclNode ).build();
+        new RepositoryFile.Builder( id, name ).setCreatedDate( created ).setCreatorId( creatorId ).setLastModificationDate(
+            lastModified ).setFolder( folder ).setVersioned( versioned ).setPath( path ).setVersionId( versionId ).setFileSize(
+                fileSize ).setLocked( locked ).setLockDate( lockDate ).setHidden( hidden ).setSchedulable( schedulable )
+            .setLockMessage( lockMessage ).setLockOwner( lockOwner ).setTitle( title ).setDescription( description ).setLocale(
+                pentahoLocale.toString() ).setLocalePropertiesMap( localePropertiesMap ).setAclNode( aclNode ).build();
 
     return file;
   }

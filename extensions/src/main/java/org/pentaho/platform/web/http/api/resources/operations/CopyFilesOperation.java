@@ -133,7 +133,7 @@ public class CopyFilesOperation {
     if ( destFile == null ) {
       // destFile doesn't exist so we'll create it.
       RepositoryFile duplicateFile =
-        new RepositoryFile.Builder( file.getName() ).hidden( file.isHidden() ).versioned(
+        new RepositoryFile.Builder( file.getName() ).setHidden( file.isHidden() ).setVersioned(
           file.isVersioned() ).build();
       final RepositoryFile repositoryFile =
         getRepository()
@@ -180,9 +180,9 @@ public class CopyFilesOperation {
     } else {
       duplicateFile = new RepositoryFile.
         Builder( repoFile.getName() )
-        .hidden( repoFile.isHidden() )
-        .folder( repoFile.isFolder() )
-        .versioned( repoFile.isVersioned() )
+        .setHidden( repoFile.isHidden() )
+        .setFolder( repoFile.isFolder() )
+        .setVersioned( repoFile.isVersioned() )
         .build();
 
       repositoryFile = getRepository()
@@ -239,11 +239,11 @@ public class CopyFilesOperation {
       // If the title is different than the source file, copy it separately
       if ( !repoFile.getName().equals( repoFile.getTitle() ) ) {
         duplicateFile =
-          new RepositoryFile.Builder( repoFileName ).title( RepositoryFile.DEFAULT_LOCALE,
-            repoFile.getTitle() + copyText ).hidden( repoFile.isHidden() ).versioned(
-            repoFile.isVersioned() ).folder( true ).build();
+          new RepositoryFile.Builder( repoFileName ).setTitle( RepositoryFile.DEFAULT_LOCALE,
+            repoFile.getTitle() + copyText ).setHidden( repoFile.isHidden() ).setVersioned(
+            repoFile.isVersioned() ).setFolder( true ).build();
       } else {
-        duplicateFile = new RepositoryFile.Builder( repoFileName ).hidden( repoFile.isHidden() ).folder( true ).build();
+        duplicateFile = new RepositoryFile.Builder( repoFileName ).setHidden( repoFile.isHidden() ).setFolder( true ).build();
       }
       repositoryFile = getRepository()
         .createFolder( destDir.getId(), duplicateFile, acl, null );
@@ -253,11 +253,11 @@ public class CopyFilesOperation {
       // If the title is different than the source file, copy it separately
       if ( !repoFile.getName().equals( repoFile.getTitle() ) ) {
         duplicateFile =
-          new RepositoryFile.Builder( repoFileName ).title( RepositoryFile.DEFAULT_LOCALE,
-            repoFile.getTitle() + copyText ).hidden( repoFile.isHidden() ).versioned(
+          new RepositoryFile.Builder( repoFileName ).setTitle( RepositoryFile.DEFAULT_LOCALE,
+            repoFile.getTitle() + copyText ).setHidden( repoFile.isHidden() ).setVersioned(
             repoFile.isVersioned() ).build();
       } else {
-        duplicateFile = new RepositoryFile.Builder( repoFileName ).hidden( repoFile.isHidden() ).build();
+        duplicateFile = new RepositoryFile.Builder( repoFileName ).setHidden( repoFile.isHidden() ).build();
       }
 
       repositoryFile =

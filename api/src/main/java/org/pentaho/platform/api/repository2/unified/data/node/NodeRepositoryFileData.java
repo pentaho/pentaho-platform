@@ -23,7 +23,7 @@ public class NodeRepositoryFileData implements IRepositoryFileData {
 
   private static final long serialVersionUID = 3986247263739435232L;
 
-  private DataNode node;
+  private transient DataNode node;
   private long dataSize = 0;
 
   public NodeRepositoryFileData( DataNode node ) {

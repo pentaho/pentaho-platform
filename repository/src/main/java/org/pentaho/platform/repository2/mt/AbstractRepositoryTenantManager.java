@@ -203,11 +203,11 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
       final RepositoryFileSid fileOwnerSid, final RepositoryFileSid authenticatedRoleSid ) throws RepositoryException {
     // We create a tenant's home folder while creating a user
     repositoryFileDao.createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder( ServerRepositoryPaths
-        .getTenantPublicFolderName() ).folder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid ).build(),
+        .getTenantPublicFolderName() ).setFolder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid ).build(),
         null );
     repositoryFileDao
         .createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder( ServerRepositoryPaths
-            .getTenantEtcFolderName() ).folder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid ).build(),
+            .getTenantEtcFolderName() ).setFolder( true ).build(), new RepositoryFileAcl.Builder( fileOwnerSid ).build(),
             null );
   }
 
@@ -317,7 +317,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
             new RepositoryFileAcl.Builder( userSid ).ace( ownerSid, EnumSet.of( RepositoryFilePermission.ALL ) );
         tenantHomeFolder =
             repositoryFileDao.createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder( ServerRepositoryPaths
-                .getTenantHomeFolderName() ).folder( true ).build(), aclsForTenantHomeFolder.build(),
+                .getTenantHomeFolderName() ).setFolder( true ).build(), aclsForTenantHomeFolder.build(),
                 "tenant home folder" );
       } else {
         String ownerId = tenantedUserNameResolver.getPrincipleId( theTenant, username );
@@ -331,7 +331,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
           repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getUserHomeFolderPath( theTenant, username ) );
       if ( userHomeFolder == null ) {
         userHomeFolder =
-            repositoryFileDao.createFolder( tenantHomeFolder.getId(), new RepositoryFile.Builder( username ).folder(
+            repositoryFileDao.createFolder( tenantHomeFolder.getId(), new RepositoryFile.Builder( username ).setFolder(
                 true ).build(), aclsForUserHomeFolder.build(), "user home folder" ); //$NON-NLS-1$
       }
 

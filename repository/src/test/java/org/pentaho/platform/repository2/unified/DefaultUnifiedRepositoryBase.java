@@ -425,7 +425,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
                   new RepositoryFileAcl.Builder( userSid ).ace( ownerSid, EnumSet.of( RepositoryFilePermission.ALL ) );
               tenantHomeFolder =
                   repositoryFileDao.createFolder( tenantRootFolder.getId(), new RepositoryFile.Builder(
-                      ServerRepositoryPaths.getTenantHomeFolderName() ).folder( true ).build(), aclsForTenantHomeFolder
+                      ServerRepositoryPaths.getTenantHomeFolderName() ).setFolder( true ).build(), aclsForTenantHomeFolder
                           .build(), "tenant home folder" );
             } else {
               String ownerId = userNameUtils.getPrincipleId( theTenant, username );
@@ -441,7 +441,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
             if ( userHomeFolder == null ) {
               userHomeFolder =
                   repositoryFileDao.createFolder( tenantHomeFolder.getId(), new RepositoryFile.Builder( username )
-                      .folder( true ).build(), aclsForUserHomeFolder.build(), "user home folder" ); //$NON-NLS-1$
+                      .setFolder( true ).build(), aclsForUserHomeFolder.build(), "user home folder" ); //$NON-NLS-1$
             }
           }
         }
@@ -501,7 +501,7 @@ public class DefaultUnifiedRepositoryBase implements ApplicationContextAware {
     throws Exception {
     RepositoryFile parentFolder = repo.getFile( parentFolderPath );
     final SampleRepositoryFileData content = new SampleRepositoryFileData( sampleString, sampleBoolean, sampleInteger );
-    return repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).versioned( versioned ).build(),
+    return repo.createFile( parentFolder.getId(), new RepositoryFile.Builder( fileName ).setVersioned( versioned ).build(),
         content, null );
   }
 

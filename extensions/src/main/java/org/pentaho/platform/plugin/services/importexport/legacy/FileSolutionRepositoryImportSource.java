@@ -96,7 +96,7 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
     final boolean hidden = false;
     final Date lastModifiedDate = new Date( currentFile.lastModified() );
     final RepositoryFile repoFile =
-        new RepositoryFile.Builder( name ).folder( directory ).hidden( hidden ).lastModificationDate( lastModifiedDate )
+        new RepositoryFile.Builder( name ).setFolder( directory ).setHidden( hidden ).setLastModificationDate( lastModifiedDate )
             .build();
 
     final String repoPath = getRepositoryPath( currentFile );

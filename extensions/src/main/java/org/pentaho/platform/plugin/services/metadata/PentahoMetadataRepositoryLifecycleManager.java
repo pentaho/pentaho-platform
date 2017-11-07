@@ -128,7 +128,7 @@ public class PentahoMetadataRepositoryLifecycleManager extends AbstractBackingRe
           if ( repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant )
               + RepositoryFile.SEPARATOR + FOLDER_METADATA ) == null ) {
             // create the metadata folder
-            internalCreateFolder( tenantEtcFolder.getId(), new RepositoryFile.Builder( FOLDER_METADATA ).folder( true )
+            internalCreateFolder( tenantEtcFolder.getId(), new RepositoryFile.Builder( FOLDER_METADATA ).setFolder( true )
                 .build(), true, repositoryAdminUserSid, Messages.getInstance().getString(
                 "PentahoMetadataRepositoryLifecycleManager.USER_0001_VER_COMMENT_METADATA" ) ); //$NON-NLS-1$
           }

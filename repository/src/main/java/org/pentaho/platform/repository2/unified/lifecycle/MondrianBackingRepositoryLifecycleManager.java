@@ -98,7 +98,7 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
         if ( repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant )
             + RepositoryFile.SEPARATOR + FOLDER_MONDRIAN ) == null ) {
           // mondrian folder
-          internalCreateFolder( tenantEtcFolder.getId(), new RepositoryFile.Builder( FOLDER_MONDRIAN ).folder( true )
+          internalCreateFolder( tenantEtcFolder.getId(), new RepositoryFile.Builder( FOLDER_MONDRIAN ).setFolder( true )
               .build(), true, repositoryAdminUserSid, Messages.getInstance().getString(
               "MondrianRepositoryLifecycleManager.USER_0001_VER_COMMENT_MONDRIAN" ) ); //$NON-NLS-1$
         }

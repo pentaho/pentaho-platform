@@ -824,7 +824,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
             new RepositoryFileAcl.Builder( userSid ).ace( ownerSid, EnumSet.of( RepositoryFilePermission.ALL ) );
         tenantHomeFolder =
             internalCreateFolder( session, tenantRootFolder.getId(), new RepositoryFile.Builder( ServerRepositoryPaths
-                    .getTenantHomeFolderName() ).folder( true ).title(
+                    .getTenantHomeFolderName() ).setFolder( true ).setTitle(
                 Messages.getInstance().getString( "AbstractJcrBackedUserRoleDao.usersFolderDisplayName" ) ).build(),
                 aclsForTenantHomeFolder.build(), "tenant home folder" ); //$NON-NLS-1$
       } else {
@@ -840,7 +840,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
               theTenant, username ), pathConversionHelper, lockHelper, false, null );
       if ( userHomeFolder == null ) {
         userHomeFolder =
-            internalCreateFolder( session, tenantHomeFolder.getId(), new RepositoryFile.Builder( username ).folder(
+            internalCreateFolder( session, tenantHomeFolder.getId(), new RepositoryFile.Builder( username ).setFolder(
                 true ).build(), aclsForUserHomeFolder.build(), "user home folder" ); //$NON-NLS-1$
       }
 
