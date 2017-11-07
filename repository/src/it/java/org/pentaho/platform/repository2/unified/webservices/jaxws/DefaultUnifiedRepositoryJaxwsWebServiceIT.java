@@ -105,7 +105,12 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
 
     String address = "http://localhost:9000/repo";
-    Endpoint.publish( address, new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
+
+    try {
+      Endpoint.publish( address, new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
+    } catch ( Throwable th ) {
+      //ignore
+    }
 
     Service service =
         Service.create( new URL( "http://localhost:9000/repo?wsdl" ), new QName( "http://www.pentaho.org/ws/1.0",
