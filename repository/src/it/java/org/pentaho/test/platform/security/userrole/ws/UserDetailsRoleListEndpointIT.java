@@ -56,11 +56,16 @@ public class UserDetailsRoleListEndpointIT extends UserDetailsRoleListWebService
     // accept cookies to maintain session on server
     ( (BindingProvider) userDetailsRoleListWebService ).getRequestContext().put(
         BindingProvider.SESSION_MAINTAIN_PROPERTY, true );
+
   }
 
   @Before
   public void setUp() throws Exception {
-    Endpoint.publish( "http://localhost:8891/userrolelisttest", new DefaultUserRoleListWebService() ); //$NON-NLS-1$
+    try {
+      Endpoint.publish( "http://localhost:8891/userrolelisttest", new DefaultUserRoleListWebService() ); //$NON-NLS-1$
+    } catch ( Throwable th ) {
+      //ignore
+    }
 
     System.setProperty( "com.sun.xml.ws.monitoring.endpoint", "true" );
     System.setProperty( "com.sun.xml.ws.monitoring.client", "true" );
@@ -71,6 +76,8 @@ public class UserDetailsRoleListEndpointIT extends UserDetailsRoleListWebService
             "http://www.pentaho.org/ws/1.0", "userRoleListService" ) );
     userRoleListWebService = service.getPort( IUserRoleListWebService.class );
   }
+
+
 
   @Override
   public IUserRoleListWebService getUserRoleListWebService() {

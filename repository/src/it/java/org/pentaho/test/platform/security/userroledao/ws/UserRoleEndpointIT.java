@@ -64,8 +64,11 @@ public class UserRoleEndpointIT extends UserRoleWebServiceBase {
 
   @Before
   public void setUp() throws Exception {
-    Endpoint.publish( "http://localhost:9891/test", new UserRoleWebService() ); //$NON-NLS-1$
-
+    try {
+      Endpoint.publish( "http://localhost:9891/test", new UserRoleWebService() ); //$NON-NLS-1$
+    } catch ( Throwable th ) {
+      //ignore
+    }
     System.setProperty( "com.sun.xml.ws.monitoring.endpoint", "true" );
     System.setProperty( "com.sun.xml.ws.monitoring.client", "true" );
     System.setProperty( "com.sun.xml.ws.monitoring.registrationDebug", "FINE" );
