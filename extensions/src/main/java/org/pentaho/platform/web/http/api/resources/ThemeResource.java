@@ -12,18 +12,22 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.enunciate.Facet;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -35,8 +39,6 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.ws.rs.core.MediaType.*;
-
 /**
  * Resource manages themes for the platform
  * 
@@ -45,6 +47,8 @@ import static javax.ws.rs.core.MediaType.*;
 @Facet( name = "Unsupported" )
 @Path( "/theme" )
 public class ThemeResource extends AbstractJaxRSResource {
+
+  protected static final Log logger = LogFactory.getLog( ThemeResource.class );
 
   public ThemeResource() {
   }
@@ -60,7 +64,7 @@ public class ThemeResource extends AbstractJaxRSResource {
    */
   @GET
   @Path( "/list" )
-  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
   @Facet( name = "Unsupported" )
   public List<Theme> getSystemThemes() {
     ArrayList<Theme> themes = new ArrayList<Theme>();
@@ -85,14 +89,25 @@ public class ThemeResource extends AbstractJaxRSResource {
    */
   @POST
   @Path( "/set" )
-  @Consumes( { WILDCARD } )
+  @Consumes( { MediaType.WILDCARD } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully set theme." ),
+    @ResponseCode ( code = 403, condition = "Illegal set operation." ) } )
   @Produces( "text/plain" )
   @Facet ( name = "Unsupported" )
   public Response setTheme( String theme ) {
-    getPentahoSession().setAttribute( "pentaho-user-theme", theme );
-    IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
-    settingsService.setUserSetting( "pentaho-user-theme", theme );
-    return getActiveTheme();
+    IThemeManager themeManager = PentahoSystem.get( IThemeManager.class );
+    List<String> ids = themeManager.getSystemThemeIds();
+    if ( ( ids != null ) && ( ids.indexOf( theme ) >= 0 ) ) {
+      getPentahoSession().setAttribute( "pentaho-user-theme", theme );
+      IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
+      settingsService.setUserSetting( "pentaho-user-theme", theme );
+      return getActiveTheme();
+    } else {
+      String cleanTheme = theme.replace( '\n', ' ' ).replace( '\r', ' ' ); // Prevent log forging/injection
+      logger.error( "Attempt to set invalid theme: " + cleanTheme ); // We do not want to NLS-ize this message
+      return Response.status( Response.Status.FORBIDDEN ).entity( "" ).build();
+    }
   }
 
   /**
