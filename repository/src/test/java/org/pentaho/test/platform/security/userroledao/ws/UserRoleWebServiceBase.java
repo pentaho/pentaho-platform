@@ -832,7 +832,7 @@ public class UserRoleWebServiceBase {
       }
     };
 
-    ProxyPentahoRole proxyPentahoRole = new ProxyPentahoRole();
+    ProxyPentahoRole proxyPentahoRole = new ProxyPentahoRole( "testrole" );
     try {
       userRoleWebService.createRole( proxyPentahoRole );
       Assert.fail();
@@ -855,6 +855,10 @@ public class UserRoleWebServiceBase {
     };
 
     ProxyPentahoUser proxyPentahoUser = new ProxyPentahoUser();
+    proxyPentahoUser.setName( "test" );
+    proxyPentahoUser.setEnabled( true );
+    proxyPentahoUser.setPassword( "test" );
+    proxyPentahoUser.setDescription( "testing" );
     try {
       userRoleWebService.createUser( proxyPentahoUser );
       Assert.fail();
