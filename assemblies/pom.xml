@@ -21,7 +21,7 @@
     <impl.title>Pentaho BI Platform Community Edition</impl.title>
     <pentaho-server.system.directory>${pentaho-server.solutions.directory}/system</pentaho-server.system.directory>
     <pentaho-server.plugins.directory>${pentaho-server.system.directory}</pentaho-server.plugins.directory>
-    <pentaho-server.kettle.plugins.directory>${pentaho-server.system.directory}/kettle/pluggins</pentaho-server.kettle.plugins.directory>
+    <pentaho-server.kettle.plugins.directory>${pentaho-server.system.directory}/kettle/plugins</pentaho-server.kettle.plugins.directory>
     <package.id>pentaho-server</package.id>
     <pentaho-server.directory>${project.build.directory}/${package.id}</pentaho-server.directory>
   </properties>
