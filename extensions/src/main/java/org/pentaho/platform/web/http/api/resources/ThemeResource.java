@@ -19,11 +19,15 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.enunciate.Facet;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -39,6 +43,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 
+
 /**
  * Resource manages themes for the platform
  * 
@@ -47,6 +52,8 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
 @Facet( name = "Unsupported" )
 @Path( "/theme" )
 public class ThemeResource extends AbstractJaxRSResource {
+
+  protected static final Log logger = LogFactory.getLog( ThemeResource.class );
 
   public ThemeResource() {
   }
@@ -88,13 +95,24 @@ public class ThemeResource extends AbstractJaxRSResource {
   @POST
   @Path( "/set" )
   @Consumes( { WILDCARD } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully set theme." ),
+    @ResponseCode ( code = 403, condition = "Illegal set operation." ) } )
   @Produces( "text/plain" )
   @Facet ( name = "Unsupported" )
   public Response setTheme( String theme ) {
-    getPentahoSession().setAttribute( "pentaho-user-theme", theme );
-    IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
-    settingsService.setUserSetting( "pentaho-user-theme", theme );
-    return getActiveTheme();
+    IThemeManager themeManager = PentahoSystem.get( IThemeManager.class );
+    List<String> ids = themeManager.getSystemThemeIds();
+    if ( ( ids != null ) && ( ids.indexOf( theme ) >= 0 ) ) {
+      getPentahoSession().setAttribute( "pentaho-user-theme", theme );
+      IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession() );
+      settingsService.setUserSetting( "pentaho-user-theme", theme );
+      return getActiveTheme();
+    } else {
+      String cleanTheme = theme.replace( '\n', ' ' ).replace( '\r', ' ' ); // Prevent log forging/injection
+      logger.error( "Attempt to set invalid theme: " + cleanTheme ); // We do not want to NLS-ize this message
+      return Response.status( Response.Status.FORBIDDEN ).entity( "" ).build();
+    }
   }
 
   /**
