@@ -46,4 +46,9 @@ public interface IWorkItemLifecycleEventPublisher {
    * IWorkItemLifecycleEvent}s.
    */
   List<IWorkItemLifecycleEventSubscriber> getSubscribers();
+
+  /**
+   * Lifecycle method that will be called when the publisher is shutting down
+   */
+  void destroy();
 }
