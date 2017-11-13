@@ -18,12 +18,13 @@
 
 package org.pentaho.platform.web.http.api.resources.utils;
 
-import java.io.IOException;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.SerializableString;
-import org.codehaus.jackson.io.CharacterEscapes;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 
 public class EscapeUtils {
 
