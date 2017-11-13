@@ -8,7 +8,6 @@
 		<content-type type="xaction" mime-type="text/html">
 			<title>Action Sequence</title>
 			<description></description>
-			<meta-provider>org.pentaho.platform.engine.services.solution.ActionSequenceFileInfo</meta-provider>
 			<icon-url>api/repos/xaction/resources/images/xaction_file_image.png</icon-url>
 			<operations>
 				<operation>

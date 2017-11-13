@@ -346,7 +346,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         String description = XmlDom4JHelper.getNodeText( "description", node, "" ); //$NON-NLS-1$ //$NON-NLS-2$
         String mimeType = node.attributeValue( "mime-type", "" ); //$NON-NLS-1$ //$NON-NLS-2$
         String iconUrl = XmlDom4JHelper.getNodeText( "icon-url", node, "" ); //$NON-NLS-1$ //$NON-NLS-2$
-        String metaProviderClass = XmlDom4JHelper.getNodeText( "meta-provider", node, "" ); //$NON-NLS-1$ //$NON-NLS-2$
 
         ContentInfo contentInfo = new ContentInfo();
         contentInfo.setDescription( description );
@@ -371,9 +370,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         }
 
         plugin.addContentInfo( contentInfo );
-        if ( !StringUtils.isEmpty( metaProviderClass ) ) {
-          plugin.getMetaProviderMap().put( contentInfo.getExtension(), metaProviderClass );
-        }
         PluginMessageLogger.add( Messages.getInstance().getString(
           "PluginManager.USER_CONTENT_TYPE_REGISTERED", extension, title ) ); //$NON-NLS-1$
       } else {
@@ -406,7 +402,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
       if ( className == null ) {
         className = XmlDom4JHelper.getNodeText( "classname", node, null ); //$NON-NLS-1$
       }
-      String fileInfoClassName = XmlDom4JHelper.getNodeText( "fileinfo-classname", node, null ); //$NON-NLS-1$
       String id = node.attributeValue( "id" ); //$NON-NLS-1$
       String type = node.attributeValue( "type" ); //$NON-NLS-1$
       String url = node.attributeValue( "url" ); //$NON-NLS-1$
@@ -421,9 +416,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
           } catch ( Exception e ) {
             PluginMessageLogger.add( Messages.getInstance().getString(
                 "PluginManager.USER_CONTENT_GENERATOR_NOT_REGISTERED", id, folder ) ); //$NON-NLS-1$
-          }
-          if ( !StringUtils.isEmpty( fileInfoClassName ) ) {
-            plugin.getMetaProviderMap().put( type, fileInfoClassName );
           }
         } else {
           PluginMessageLogger.add( Messages.getInstance().getString(
