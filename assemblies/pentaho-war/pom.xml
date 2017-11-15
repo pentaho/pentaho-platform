@@ -32,8 +32,6 @@
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <jackson.version>1.9.13</jackson.version>
     <replacer.version>1.5.2</replacer.version>
-    <dteapi.version>2.2.1</dteapi.version>
-    <dataadapterapi.version>2.2.1</dataadapterapi.version>
     <kafka-clients.version>0.10.2.1</kafka-clients.version>
   </properties>
   <dependencies>
@@ -1020,16 +1018,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.birt</groupId>
-      <artifactId>dataadapterapi</artifactId>
-      <version>${dataadapterapi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.birt</groupId>
-      <artifactId>dteapi</artifactId>
-      <version>${dteapi.version}</version>
     </dependency>
     <dependency>
       <groupId>svgSalamander</groupId>
