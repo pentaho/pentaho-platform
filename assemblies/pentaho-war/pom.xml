@@ -38,8 +38,6 @@
     <xml-apis.version>2.0.2</xml-apis.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <svgSalamander.version>1.0</svgSalamander.version>
-    <dteapi.version>2.2.1</dteapi.version>
-    <dataadapterapi.version>2.2.1</dataadapterapi.version>
     <jackrabbit.version>2.10.0</jackrabbit.version>
     <tika-core.version>1.15</tika-core.version>
   </properties>
@@ -1117,18 +1115,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.birt</groupId>
-      <artifactId>dataadapterapi</artifactId>
-      <version>${dataadapterapi.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.birt</groupId>
-      <artifactId>dteapi</artifactId>
-      <version>${dteapi.version}</version>
     </dependency>
 
     <dependency>
