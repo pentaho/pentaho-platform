@@ -16,12 +16,13 @@
  */
 package org.apache.jackrabbit.core.security.authorization.acl;
 
+
+import org.apache.commons.collections4.map.LRUMap;
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.cache.GrowingLRUMap;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.apache.jackrabbit.core.security.authorization.AccessControlModifications;
-import org.codehaus.jackson.map.util.LRUMap;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -147,7 +148,7 @@ public class CachingPentahoEntryCollector extends PentahoEntryCollector {
       // fetch entries and update the cache
       entries = updateCache( node );
     }
-    return entries instanceof PentahoEntries ? ( PentahoEntries ) entries : new PentahoEntries( entries );
+    return entries instanceof PentahoEntries ? (PentahoEntries) entries : new PentahoEntries( entries );
   }
 
   /**

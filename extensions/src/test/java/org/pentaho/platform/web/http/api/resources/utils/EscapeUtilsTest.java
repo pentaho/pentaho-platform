@@ -16,14 +16,14 @@
  */
 package org.pentaho.platform.web.http.api.resources.utils;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.codehaus.jackson.io.CharacterEscapes;
 import org.eclipse.jetty.util.ajax.JSON;
 import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.web.http.api.resources.utils.EscapeUtils.HTMLCharacterEscapes;
+
+import java.io.IOException;
 
 public class EscapeUtilsTest {
 

@@ -31,6 +31,9 @@
     <svgSalamander.version>1.0</svgSalamander.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <jackson.version>1.9.13</jackson.version>
+    <!-- jackson-databind depends on jackson-core and jackson-annotations
+    so that this artifacts have the same version to prevent compile errors -->
+    <fasterxml.jackson.core.version>2.9.2</fasterxml.jackson.core.version>
     <replacer.version>1.5.2</replacer.version>
     <dteapi.version>2.2.1</dteapi.version>
     <dataadapterapi.version>2.2.1</dataadapterapi.version>
@@ -917,15 +920,38 @@
       <version>${hibernate-ehcache.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>${jackson.version}</version>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${fasterxml.jackson.core.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-core-asl</artifactId>
-      <version>${jackson.version}</version>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${fasterxml.jackson.core.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${fasterxml.jackson.core.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>	
     <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
