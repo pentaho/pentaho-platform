@@ -99,6 +99,8 @@ public class QuartzScheduler implements IScheduler {
 
   public static final String RESERVEDMAPKEY_AUTO_CREATE_UNIQUE_FILENAME = ActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
 
+  public static final String RESERVEDMAPKEY_APPEND_DATE_FORMAT = ActionUtil.QUARTZ_APPEND_DATE_FORMAT;
+
   private static final Log logger = LogFactory.getLog( QuartzScheduler.class );
 
   private SchedulerFactory quartzSchedulerFactory;

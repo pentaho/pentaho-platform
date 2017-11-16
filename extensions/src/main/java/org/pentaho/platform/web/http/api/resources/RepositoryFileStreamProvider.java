@@ -17,6 +17,8 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IStreamingAction;
 import org.pentaho.platform.api.repository2.unified.IStreamListener;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -33,6 +35,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamProvider, IStreamListener {
@@ -40,8 +44,11 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
   // providing a serialVersionUID will help prevent quartz from throwing incompatible class exceptions
   private static final long serialVersionUID = 2812310908328498989L;
 
+  private static final Log logger = LogFactory.getLog( RepositoryFileStreamProvider.class );
+
   public String outputFilePath;
   public String inputFilePath;
+  public String appendDateFormat;
   private IStreamingAction streamingAction;
   private boolean autoCreateUniqueFilename;
 
@@ -50,6 +57,12 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
     this.outputFilePath = outputFilePath;
     this.inputFilePath = inputFilePath;
     this.autoCreateUniqueFilename = autoCreateUniqueFilename;
+  }
+
+  public RepositoryFileStreamProvider( final String inputFilePath, final String outputFilePath,
+      final boolean autoCreateUniqueFilename, final String appendDateFormat ) {
+    this( inputFilePath, outputFilePath, autoCreateUniqueFilename );
+    this.appendDateFormat = appendDateFormat;
   }
 
   public RepositoryFileStreamProvider() {
@@ -86,6 +99,18 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
     String extension = RepositoryFilenameUtils.getExtension( tempOutputFilePath );
     if ( "*".equals( extension ) ) { //$NON-NLS-1$
       tempOutputFilePath = tempOutputFilePath.substring( 0, tempOutputFilePath.lastIndexOf( '.' ) );
+
+      if ( appendDateFormat != null ) {
+        try {
+          LocalDateTime now = LocalDateTime.now();
+          DateTimeFormatter formatter = DateTimeFormatter.ofPattern( appendDateFormat );
+          String formattedDate = now.format( formatter );
+          tempOutputFilePath += formattedDate;
+        } catch ( Exception e ) {
+          logger.warn( "Unable to calculate current date: " + e.getMessage() );
+        }
+      }
+
       if ( streamingAction != null ) {
         String mimeType = streamingAction.getMimeType( null );
         if ( mimeType != null && MimeHelper.getExtension( mimeType ) != null ) {
@@ -127,6 +152,14 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
 
   public void setInputFilePath( String filePath ) {
     this.inputFilePath = filePath;
+  }
+
+  public String getAppendDateFormat() {
+    return appendDateFormat;
+  }
+
+  public void setAppendDateFormat( String appendDateFormat ) {
+    this.appendDateFormat = appendDateFormat;
   }
 
   public InputStream getInputStream() throws Exception {
