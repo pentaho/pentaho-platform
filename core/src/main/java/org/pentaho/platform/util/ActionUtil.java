@@ -53,6 +53,7 @@ public class ActionUtil {
   public static final String QUARTZ_LINEAGE_ID = "lineage-id"; //$NON-NLS-1$
   public static final String QUARTZ_RESTART_FLAG = "ActionAdapterQuartzJob-Restart"; //$NON-NLS-1$
   public static final String QUARTZ_AUTO_CREATE_UNIQUE_FILENAME = "autoCreateUniqueFilename"; //$NON-NLS-1$
+  public static final String QUARTZ_APPEND_DATE_FORMAT = "appendDateFormat"; //$NON-NLS-1$
 
   public static final String INVOKER_ACTIONPARAMS = "actionParams";
   public static final String INVOKER_ACTIONCLASS = "actionClass"; //$NON-NLS-1$

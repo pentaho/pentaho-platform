@@ -158,7 +158,7 @@ public class SchedulerService {
       job =
         getScheduler().createJob( scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
           new RepositoryFileStreamProvider( inputFile, outputFile,
-            getAutoCreateUniqueFilename( scheduleRequest ) )
+            getAutoCreateUniqueFilename( scheduleRequest ), getAppendDateFormat( scheduleRequest ) )
         );
     } else {
       // need to locate actions from plugins if done this way too (but for now, we're just on main)
@@ -509,6 +509,17 @@ public class SchedulerService {
       }
     }
     return true;
+  }
+
+  public String getAppendDateFormat( final JobScheduleRequest scheduleRequest ) {
+    ArrayList<JobScheduleParam> jobParameters = scheduleRequest.getJobParameters();
+    for ( JobScheduleParam jobParameter : jobParameters ) {
+      if ( QuartzScheduler.RESERVEDMAPKEY_APPEND_DATE_FORMAT.equals( jobParameter.getName() ) && "string"
+        .equals( jobParameter.getType() ) ) {
+        return (String) jobParameter.getValue();
+      }
+    }
+    return null;
   }
 
   public List<Job> getJobs() throws SchedulerException {
