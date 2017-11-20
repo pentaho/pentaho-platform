@@ -1,47 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>7.1-SNAPSHOT</version>
+    <version>7.1.0.6-76</version>
   </parent>
-
   <artifactId>pentaho-user-console</artifactId>
-  <packaging>jar</packaging>
-  <version>7.1-SNAPSHOT</version>
-
+  <version>7.1.0.6-76</version>
   <properties>
-
-    <!-- =============== -->
-    <!-- LICENSE HEADERS -->
-    <!-- =============== -->
+    <validation-api.version>1.0.0.GA</validation-api.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
-    <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
-
-    <!-- ====================== -->
-    <!-- 3RD PARTY DEPENDENCIES -->
-    <!-- ====================== -->
-    <gwt.version>2.5.1</gwt.version>
-    <gwt-fx.version>0.5.0</gwt-fx.version>
-    <gwtx.version>1.5.2</gwtx.version>
-    <gwt-incubator.version>2.1.0</gwt-incubator.version>
+    <gwt.outputDirectory>${project.build.directory}/${project.artifactId}-gwt-${project.version}</gwt.outputDirectory>
     <gwt-dnd.version>3.0.1</gwt-dnd.version>
     <org.json.version>3.1.1</org.json.version>
-    <validation-api.version>1.0.0.GA</validation-api.version>
-    <mockito.version>1.8.5</mockito.version>
+    <gwt.version>2.5.1</gwt.version>
     <json-simple.version>1.1</json-simple.version>
+    <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
+    <gwt-incubator.version>2.1.0</gwt-incubator.version>
+    <gwt-fx.version>0.5.0</gwt-fx.version>
     <bsh.version>1.3.0</bsh.version>
-
-    <gwt.outputDirectory>${project.build.directory}/${project.artifactId}-gwt-${project.version}</gwt.outputDirectory>
+    <mockito.version>1.8.5</mockito.version>
+    <gwtx.version>1.5.2</gwtx.version>
   </properties>
-
   <dependencies>
-    <!-- ===================================================== -->
-    <!-- PENTAHO INTERNAL DEPENDENCIES (Use ${project.version})-->
-    <!-- ===================================================== -->
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>common-ui</artifactId>
@@ -49,8 +32,8 @@
       <type>zip</type>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -61,8 +44,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -73,8 +56,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -85,8 +68,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -97,8 +80,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -109,8 +92,8 @@
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -121,8 +104,8 @@
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -133,8 +116,8 @@
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -144,8 +127,8 @@
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -156,8 +139,8 @@
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -167,8 +150,8 @@
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -179,8 +162,8 @@
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -190,8 +173,8 @@
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -202,14 +185,11 @@
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- ===================================================== -->
-    <!-- GWT DEPENDENCIES                                      -->
-    <!-- ===================================================== -->
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-servlet</artifactId>
@@ -217,8 +197,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -228,8 +208,8 @@
       <version>${gwt.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -239,8 +219,8 @@
       <version>${gwt.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -250,8 +230,8 @@
       <version>${gwt.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -261,8 +241,8 @@
       <version>${gwt-fx.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -272,8 +252,8 @@
       <version>${gwtx.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -283,8 +263,8 @@
       <version>${gwt-incubator.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -294,22 +274,19 @@
       <version>${gwt-dnd.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- ===================================================== -->
-    <!-- THIRD PARTY DEPENDENCIES                              -->
-    <!-- ===================================================== -->
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
       <version>${org.json.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -319,8 +296,8 @@
       <version>${validation-api.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -331,8 +308,8 @@
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -352,8 +329,8 @@
       <version>${json-simple.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -363,15 +340,12 @@
       <version>${bsh.version}</version>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
       </plugin>
-
-      <!--  Maven GWT plugin-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
@@ -388,7 +362,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
@@ -405,7 +378,6 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 </project>

@@ -1,37 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <relativePath>../pom.xml</relativePath>
-    <version>7.1-SNAPSHOT</version>
+    <version>7.1.0.6-76</version>
   </parent>
-
   <artifactId>pentaho-platform-build-utils</artifactId>
-  <packaging>jar</packaging>
-
+  <version>7.1.0.6-76</version>
   <properties>
-
-    <!-- =============== -->
-    <!-- LICENSE HEADERS -->
-    <!-- =============== -->
-
-    <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
-    <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
-    
-    <!-- ====================== -->
-    <!-- 3RD PARTY DEPENDENCIES -->
-    <!-- ====================== -->
     <mockito-all.version>1.9.5</mockito-all.version>
-
+    <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
+    <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
   </properties>
-
   <dependencies>
-    
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
@@ -39,12 +22,11 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-server</artifactId>
@@ -52,12 +34,11 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>com.sun.jersey.contribs</groupId>
       <artifactId>wadl-resourcedoc-doclet</artifactId>
@@ -65,12 +46,11 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>sun.jdk</groupId>
       <artifactId>tools</artifactId>
@@ -78,18 +58,12 @@
       <scope>system</scope>
       <systemPath>${java.home}/../lib/tools.jar</systemPath>
     </dependency>
-
-    <!-- ========== -->
-    <!-- TEST SCOPE -->
-    <!-- ========== -->
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
@@ -97,21 +71,18 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
       </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
@@ -132,17 +103,15 @@
           </check>
         </configuration>
       </plugin>
-
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${maven-javadoc-plugin.version}</version>
         <executions>
           <execution>
+            <phase>compile</phase>
             <goals>
               <goal>javadoc</goal>
             </goals>
-            <phase>compile</phase>
             <configuration>
               <encoding>UTF-8</encoding>
               <verbose>false</verbose>
@@ -156,8 +125,6 @@
                   <artifactId>wadl-resourcedoc-doclet</artifactId>
                   <version>${wadl-resourcedoc-doclet.version}</version>
                 </docletArtifact>
-                <!-- Also specify jersey and xerces as doclet artifacts as the ResourceDoclet 
-                    uses classes provided by them to generate the resourcedoc. -->
                 <docletArtifact>
                   <groupId>com.sun.jersey</groupId>
                   <artifactId>jersey-server</artifactId>
@@ -174,8 +141,6 @@
           </execution>
         </executions>
       </plugin>
-  
     </plugins>
   </build>
-  
 </project>

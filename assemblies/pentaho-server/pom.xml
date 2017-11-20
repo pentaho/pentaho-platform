@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
-    <artifactId>pentaho-platform-assemblies</artifactId>
     <groupId>pentaho</groupId>
-    <version>7.1-SNAPSHOT</version>
+    <artifactId>pentaho-platform-assemblies</artifactId>
+    <version>7.1.0.6-76</version>
   </parent>
-
   <artifactId>pentaho-server-ce</artifactId>
+  <version>7.1.0.6-76</version>
   <packaging>pom</packaging>
-
   <properties>
+    <tomcat.directory>${project.build.directory}/apache-tomcat-${tomcat.version}</tomcat.directory>
+    <replacer.version>1.5.2</replacer.version>
+    <tomcat.version>8.0.43</tomcat.version>
     <wkhtmltox.version>0.10.0_rc2</wkhtmltox.version>
     <wkhtmltoimage.version>${wkhtmltox.version}-static</wkhtmltoimage.version>
-
-    <replacer.version>1.5.2</replacer.version>
-
-    <tomcat.version>8.0.43</tomcat.version>
-    <tomcat.directory>${project.build.directory}/apache-tomcat-${tomcat.version}</tomcat.directory>
     <resources.directory>${basedir}/src/main/resources</resources.directory>
   </properties>
-
   <dependencies>
     <dependency>
       <groupId>pentaho</groupId>
@@ -49,8 +43,6 @@
       <version>${project.version}</version>
       <type>zip</type>
     </dependency>
-
-    <!-- datasource libraries -->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -81,8 +73,6 @@
       <artifactId>postgresql</artifactId>
       <version>${postgresql.version}</version>
     </dependency>
-
-    <!-- third party tools wkhtmltoimage -->
     <dependency>
       <groupId>wkhtmltopdf</groupId>
       <artifactId>wkhtmltoimage-amd64</artifactId>
@@ -105,19 +95,17 @@
       <groupId>wkhtmltopdf</groupId>
       <artifactId>wkhtmltox</artifactId>
       <version>${wkhtmltox.version}</version>
-      <classifier>installer</classifier>
       <type>exe</type>
+      <classifier>installer</classifier>
     </dependency>
-
-    <!-- libraries for tomcat server -->
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
       <version>${cglib.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -127,13 +115,12 @@
       <version>${jaxen.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -154,15 +141,12 @@
                   <type>zip</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}</outputDirectory>
-                  <excludes>
-                    **/webapps/docs/**,
+                  <excludes>**/webapps/docs/**,
                     **/webapps/examples/**,
                     **/webapps/host-manager/**,
                     **/webapps/manager/**,
-                    **/webapps/ROOT/**
-                  </excludes>
+                    **/webapps/ROOT/**</excludes>
                 </artifactItem>
-
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>oss-licenses</artifactId>
@@ -172,30 +156,24 @@
                   <outputDirectory>${pentaho-server.directory}/licenses</outputDirectory>
                   <includes>PentahoServer_OSS_Licenses.html</includes>
                 </artifactItem>
-
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-solutions</artifactId>
                   <type>zip</type>
                   <outputDirectory>${project.build.directory}</outputDirectory>
-                  <includes>
-                    **/dialects/hsqldb/applicationContext-spring-security-hibernate.properties,
-                    **/dialects/hsqldb/audit_sql.xml
-                  </includes>
+                  <includes>**/dialects/hsqldb/applicationContext-spring-security-hibernate.properties,
+                    **/dialects/hsqldb/audit_sql.xml</includes>
                 </artifactItem>
-
               </artifactItems>
             </configuration>
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
         <version>${replacer.version}</version>
         <executions>
-          <!-- modify tomcat/conf/server.xml for UTF-8 support -->
           <execution>
             <id>replace-tomcat-tokens-server-xml</id>
             <phase>prepare-package</phase>
@@ -205,12 +183,11 @@
             <configuration>
               <file>${tomcat.directory}/conf/server.xml</file>
               <token>&lt;Connector</token>
-              <value>&lt;Connector URIEncoding=&quot;UTF-8&quot;</value>
+              <value>&lt;Connector URIEncoding="UTF-8"</value>
             </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
-
 </project>

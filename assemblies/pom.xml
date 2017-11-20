@@ -1,41 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>7.1-SNAPSHOT</version>
+    <version>7.1.0.6-76</version>
   </parent>
-
   <artifactId>pentaho-platform-assemblies</artifactId>
+  <version>7.1.0.6-76</version>
   <packaging>pom</packaging>
   <name>Platform assemblies</name>
-
   <properties>
-    <!-- the impl properties are used to create the manifest file -->
-    <impl.title>Pentaho BI Platform Community Edition</impl.title>
-
     <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
-
-    <package.id>pentaho-server</package.id>
-    <pentaho-server.directory>${project.build.directory}/${package.id}</pentaho-server.directory>
-
+    <plugins.directory>plugins</plugins.directory>
     <pentaho-server.solutions.directory>${pentaho-server.directory}/pentaho-solutions</pentaho-server.solutions.directory>
-
+    <impl.title>Pentaho BI Platform Community Edition</impl.title>
     <pentaho-server.system.directory>${pentaho-server.solutions.directory}/system</pentaho-server.system.directory>
     <pentaho-server.plugins.directory>${pentaho-server.system.directory}</pentaho-server.plugins.directory>
     <pentaho-server.kettle.plugins.directory>${pentaho-server.system.directory}/kettle/pluggins</pentaho-server.kettle.plugins.directory>
-
-    <plugins.directory>plugins</plugins.directory>
+    <package.id>pentaho-server</package.id>
+    <pentaho-server.directory>${project.build.directory}/${package.id}</pentaho-server.directory>
   </properties>
-
   <build>
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
           <version>${maven-war-plugin.version}</version>
           <configuration>
@@ -51,7 +41,6 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
     <plugins>
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
@@ -61,37 +50,35 @@
       </plugin>
     </plugins>
   </build>
-  
   <profiles>
     <profile>
-      <activation>
-          <property>
-            <name>!skipDefault</name>
-          </property>
-      </activation>
       <id>platform-user-console</id>
+      <activation>
+        <property>
+          <name>!skipDefault</name>
+        </property>
+      </activation>
       <modules>
         <module>pentaho-user-console</module>
       </modules>
     </profile>
     <profile>
-      <activation>
-          <property>
-            <name>!skipDefault</name>
-          </property>
-      </activation>
       <id>platform-assemble</id>
+      <activation>
+        <property>
+          <name>!skipDefault</name>
+        </property>
+      </activation>
       <modules>
-    <module>pentaho-samples</module>
-    <module>pentaho-plugin-samples</module>
-    <module>pentaho-war</module>
-    <module>pentaho-style</module>
-    <module>pentaho-data</module>
-    <module>pentaho-solutions</module>
-    <module>pentaho-server-manual</module>
-    <module>pentaho-server</module>
+        <module>pentaho-samples</module>
+        <module>pentaho-plugin-samples</module>
+        <module>pentaho-war</module>
+        <module>pentaho-style</module>
+        <module>pentaho-data</module>
+        <module>pentaho-solutions</module>
+        <module>pentaho-server-manual</module>
+        <module>pentaho-server</module>
       </modules>
     </profile>
   </profiles>
-
 </project>
