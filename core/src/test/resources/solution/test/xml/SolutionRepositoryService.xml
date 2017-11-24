@@ -36,11 +36,6 @@
         </file>
         <file description="Tools for the content Repository" isDirectory="true" lastModifiedDate="1260219798000"
               localized-name="Content Repository Admin" name="Content" visible="false"/>
-        <file description="A set of standard reports and charts for monitoring system usage by content, user, and component"
-              isDirectory="false" lastModifiedDate="1260207474000" localized-name="AuditReportList.url"
-              name="AuditReportList.url" url="AuditReportList" visible="true"/>
-        <file description="Create your own audit report" isDirectory="false" lastModifiedDate="1260207474000"
-              localized-name="AuditReports.url" name="AuditReports.url" url="AuditReport" visible="true"/>
         <file description="Removes files from the content repository that are more than 180 days old."
               isDirectory="false" lastModifiedDate="1260207470000" localized-name="Clean Repository"
               name="clean_repository.xaction" visible="true"/>

@@ -213,8 +213,6 @@ CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 \A/getimage.*\Z=Anonymous,Authenticated
 \A/getresource.*\Z=Anonymous,Authenticated
 \A/admin.*\Z=Admin
-\A/auditreport.*\Z=Admin
-\A/auditreportlist.*\Z=Admin
 \A/versioncontrol.*\Z=Admin
 \A/propertieseditor.*\Z=Admin
 \A/propertiespanel.*\Z=Admin
