@@ -471,6 +471,7 @@ a:active, a:hover {
 
 .gwt-CheckBox label {
   margin: 0px 0px 0px 4px;
+  vertical-align: top;
 }
 
 .dialogContentPanel {
