@@ -19,6 +19,8 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.enunciate.Facet;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
@@ -41,7 +43,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 
-protected static final Log logger = LogFactory.getLog( ThemeResource.class );
 
 /**
  * Resource manages themes for the platform
@@ -51,6 +52,8 @@ protected static final Log logger = LogFactory.getLog( ThemeResource.class );
 @Facet( name = "Unsupported" )
 @Path( "/theme" )
 public class ThemeResource extends AbstractJaxRSResource {
+
+  protected static final Log logger = LogFactory.getLog( ThemeResource.class );
 
   public ThemeResource() {
   }
@@ -107,7 +110,7 @@ public class ThemeResource extends AbstractJaxRSResource {
       return getActiveTheme();
     } else {
       String cleanTheme = theme.replace( '\n', ' ' ).replace( '\r', ' ' ); // Prevent log forging/injection
-      Logger.error( "Attempt to set invalid theme: " + cleanTheme ); // We do not want to NLS-ize this message
+      logger.error( "Attempt to set invalid theme: " + cleanTheme ); // We do not want to NLS-ize this message
       return Response.status( Response.Status.FORBIDDEN ).entity( "" ).build();
     }
   }
