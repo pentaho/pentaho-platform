@@ -530,6 +530,9 @@ a:active, a:hover {
 
 .gwt-CheckBox label {
   margin: 0px 0px 0px 4px;
+  font-size: 14px;
+  vertical-align: top;
+  color: #666666;
 }
 
 .dialogContentPanel {
@@ -1056,7 +1059,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 #schedule-name-input {
-  width: 350px;
+  width: 250px;
 }
 
 .schedule-dialog-button-panel {
