@@ -54,6 +54,8 @@ public class MetadataImportHandler implements IPlatformImportHandler {
 
   // The name of the property used to determine if metadata source was a DSW
   private static final String DSW_SOURCE_PROPERTY = "AGILE_BI_GENERATED_SCHEMA";
+  private static final String AGILE_BI_VERSION_PROPERTY = "AGILE_BI_VERSION";
+  private static final String WIZARD_GENERATED_PROPERTY = "WIZARD_GENERATED_SCHEMA";
 
   private List<IMimeType> mimeTypes;
 
@@ -151,7 +153,7 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     return new ByteArrayInputStream( contents );
   }
 
-  private InputStream StripDswFromStream( InputStream inputStream ) throws Exception {
+  InputStream StripDswFromStream( InputStream inputStream ) throws Exception {
     // Check if this is valid xml
     InputStream inputStream2 = null;
     String xmi = null;
@@ -164,30 +166,29 @@ public class MetadataImportHandler implements IPlatformImportHandler {
       Domain domain = xmiParser.parseXmi( new java.io.ByteArrayInputStream( is ) );
 
       boolean changed = false;
-      if ( domain.getLogicalModels().size() > 1 ) {
-        Iterator<LogicalModel> iterator = domain.getLogicalModels().iterator();
-        while ( iterator.hasNext() ) {
-          LogicalModel logicalModel = iterator.next();
-          Object property = logicalModel.getProperty( DSW_SOURCE_PROPERTY ); //$NON-NLS-1$
-          if ( property != null ) {
-            // This metadata file came from a DataSourceWizard, it may have embedded mondrian schema
-            // that would incorrectly inform the system that there is mondrian schema attached. By
-            // definition we only want to import the metadata portion.
-            if ( logicalModel.getProperty( LogicalModel.PROPERTY_OLAP_DIMS ) != null ) {
-              // This logical model is an Olap model that needs to be removed from metadata
-              iterator.remove();
-            } else {
-              // Remove properties that make this a DSW
-              logicalModel.removeChildProperty( DSW_SOURCE_PROPERTY );
-              logicalModel.removeChildProperty( "AGILE_BI_VERSION" );
-            }
-            changed = true;
+      Iterator<LogicalModel> iterator = domain.getLogicalModels().iterator();
+      while ( iterator.hasNext() ) {
+        LogicalModel logicalModel = iterator.next();
+        Object property = logicalModel.getProperty( DSW_SOURCE_PROPERTY ); //$NON-NLS-1$
+        if ( property != null ) {
+          // This metadata file came from a DataSourceWizard, it may have embedded mondrian schema
+          // that would incorrectly inform the system that there is mondrian schema attached. By
+          // definition we only want to import the metadata portion.
+          if ( logicalModel.getProperty( LogicalModel.PROPERTY_OLAP_DIMS ) != null ) {
+            // This logical model is an Olap model that needs to be removed from metadata
+            iterator.remove();
+          } else {
+            // Remove properties that make this a DSW
+            logicalModel.removeChildProperty( DSW_SOURCE_PROPERTY );
+            logicalModel.removeChildProperty( AGILE_BI_VERSION_PROPERTY );
+            logicalModel.removeChildProperty( WIZARD_GENERATED_PROPERTY );
           }
+          changed = true;
         }
-        if ( changed ) {
-          // The model was modified, regenerate the xml
-          xmi = xmiParser.generateXmi( domain );
-        }
+      }
+      if ( changed ) {
+        // The model was modified, regenerate the xml
+        xmi = xmiParser.generateXmi( domain );
       }
 
       // xmi is valid. Create a new inputstream for the actual import action.
