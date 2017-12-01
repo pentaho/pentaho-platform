@@ -38,23 +38,36 @@ import org.quartz.SchedulerException;
  */
 public class BlockingQuartzJob implements Job {
   public void execute( final JobExecutionContext jobExecutionContext ) throws JobExecutionException {
+    String messageType = MessageTypes.INSTANCE_START;
+    long start = System.currentTimeMillis();
+    long end = start;
     try {
       if ( getBlockoutManager().shouldFireNow() || isBlockoutAction( jobExecutionContext ) ) { // We should always let the blockouts fire //$NON-NLS-1$
-        final long start = System.currentTimeMillis();
-        makeAuditRecord( 0, MessageTypes.INSTANCE_START, jobExecutionContext );
+        makeAuditRecord( 0, messageType, jobExecutionContext );
         createUnderlyingJob().execute( jobExecutionContext );
-        final long end = System.currentTimeMillis();
-        makeAuditRecord( ( (float) ( end - start ) / 1000 ), MessageTypes.INSTANCE_END, jobExecutionContext );
+        end = System.currentTimeMillis();
+        messageType = MessageTypes.INSTANCE_END;
       } else {
         getLogger().warn(
             "Job '" + jobExecutionContext.getJobDetail().getName()
                 + "' attempted to run during a blockout period.  This job was not executed" );
       }
+    } catch ( ActionAdapterQuartzJob.LoggingJobExecutionException le ) {
+      // thrown by the execution code - if execution fails, there only thing we do is to write to pro_audit table failing message,
+      // no point in trying to execute the job again
+      end = System.currentTimeMillis();
+      messageType = MessageTypes.INSTANCE_FAILED;
     } catch ( SchedulerException e ) {
+      end = System.currentTimeMillis();
+      messageType = MessageTypes.INSTANCE_FAILED;
       getLogger().warn(
           "Got Exception retrieving the Blockout Manager for job '" + jobExecutionContext.getJobDetail().getName()
               + "'. Executing the underlying job anyway", e );
       createUnderlyingJob().execute( jobExecutionContext );
+      end = System.currentTimeMillis();
+      messageType = MessageTypes.INSTANCE_END;
+    } finally {
+      makeAuditRecord( ( (float) ( end - start ) / 1000 ), messageType, jobExecutionContext );
     }
   }
 

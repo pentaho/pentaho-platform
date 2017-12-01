@@ -335,8 +335,8 @@ public class ActionAdapterQuartzJob implements Job {
           } );
         } else {
           log.warn( "RunOnce already created, skipping" );
-          throw new Exception( t );
         }
+        throw new JobExecutionException( t );
       }
     }
 
