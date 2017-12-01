@@ -364,7 +364,7 @@
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>json</artifactId>
-      <version>${json.version}</version>
+      <version>${pentaho-json.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
