@@ -60,6 +60,8 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
+
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
@@ -82,7 +84,7 @@ public class DefaultDeleteHelperTest {
   @Before
   public void setUp() throws Exception {
     mp = new MicroPlatform( getSolutionPath() );
-    final IPentahoSession pentahoSession = mock( IPentahoSession.class );
+    IPentahoSession pentahoSession = mock( IPentahoSession.class );
     when( pentahoSession.getName() ).thenReturn( "test" );
     PentahoSessionHolder.setSession( pentahoSession );
 
@@ -100,7 +102,7 @@ public class DefaultDeleteHelperTest {
 
     final RepositoryFileProxy repositoryFileProxy = mock( RepositoryFileProxy.class );
     final RepositoryFileProxyFactory repositoryFileProxyFactory = mock( RepositoryFileProxyFactory.class );
-    when( repositoryFileProxyFactory.getProxy( Matchers.<Node> anyObject(), Matchers.<IPentahoLocale> anyObject() ) )
+    when( repositoryFileProxyFactory.getProxy( Matchers.<Node>anyObject(), Matchers.<IPentahoLocale>anyObject() ) )
         .thenReturn( repositoryFileProxy );
     // set file ID to random value to make different files not equal
     when( repositoryFileProxy.getId() ).thenAnswer( new Answer<Object>() {
@@ -178,35 +180,19 @@ public class DefaultDeleteHelperTest {
     when( nodeUserFolder.hasNode( anyString() ) ).thenReturn( true );
     when( nodeUserFolder.getNode( anyString() ) ).thenReturn( nodeTrash );
 
-    final Node nodeDeletedParent = mock( Node.class );
-    when( nodeDeletedParent.getPath() ).thenReturn( "parentPath" );
-
-    final Node nodeToRemove = mock( Node.class );
-    when( nodeToRemove.getPath() ).thenReturn( "nodePath" );
-    when( nodeToRemove.getParent() ).thenReturn( nodeDeletedParent );
-
     when( session.getItem( anyString() ) ).thenReturn( nodeUserFolder );
 
-    try {
-      final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getDeletedFiles( session, pentahoJcrConstants );
-      assertNotNull( deletedFiles );
-      assertEquals( deletedFiles.size(), 2 );
-      assertEquals( deletedFiles.get( 0 ).getOriginalParentFolderPath(), path1 );
-      assertEquals( deletedFiles.get( 1 ).getOriginalParentFolderPath(), path2 );
-      assertEquals( deletedFiles.get( 0 ).getDeletedDate(), date1.getTime() );
-      assertEquals( deletedFiles.get( 1 ).getDeletedDate(), date2.getTime() );
-    } catch ( Exception e ) {
-      e.printStackTrace();
-      fail();
-    }
+    final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getDeletedFiles( session, pentahoJcrConstants );
+    assertNotNull( deletedFiles );
+    assertEquals( 2, deletedFiles.size() );
+    assertEquals( path1, deletedFiles.get( 0 ).getOriginalParentFolderPath() );
+    assertEquals( path2, deletedFiles.get( 1 ).getOriginalParentFolderPath() );
+    assertEquals( date1.getTime(), deletedFiles.get( 0 ).getDeletedDate() );
+    assertEquals( date2.getTime(), deletedFiles.get( 1 ).getDeletedDate() );
   }
 
   private Node createDeletedNode( String origParentFolderPath, Calendar date ) throws RepositoryException {
     final Node deletedNodeContent = mock( Node.class );
-
-    final NodeIterator nodeIterator = mock( NodeIterator.class );
-    when( nodeIterator.hasNext() ).thenReturn( true, false );
-    when( nodeIterator.nextNode() ).thenReturn( deletedNodeContent );
 
     final Property deletedDate = mock( Property.class );
     when( deletedDate.getDate() ).thenReturn( date );
@@ -216,7 +202,14 @@ public class DefaultDeleteHelperTest {
 
     final Node deletedNode = mock( Node.class );
     when( deletedNode.hasProperty( pentahoJcrConstants.getPHO_DELETEDDATE() ) ).thenReturn( true );
-    when( deletedNode.getNodes() ).thenReturn( nodeIterator );
+
+    when( deletedNode.getNodes() ).thenAnswer( invoc -> {
+      final NodeIterator nodeIterator = mock( NodeIterator.class );
+      when( nodeIterator.hasNext() ).thenReturn( true, false );
+      when( nodeIterator.nextNode() ).thenReturn( deletedNodeContent );
+      return nodeIterator;
+    } );
+
     when( deletedNode.hasNodes() ).thenReturn( true );
     when( deletedNode.getIdentifier() ).thenReturn( origParentFolderPath + "_" );
     when( deletedNode.hasProperty( pentahoJcrConstants.getPHO_DELETEDDATE() ) ).thenReturn( true );
@@ -262,8 +255,8 @@ public class DefaultDeleteHelperTest {
     final QueryObjectModel queryObjectModel = mock( QueryObjectModel.class );
 
     final QueryObjectModelFactory qomFactory = mock( QueryObjectModelFactory.class );
-    when( qomFactory.createQuery( Matchers.<Source> any(), Matchers.<Constraint> any(), Matchers.<Ordering[]> any(),
-        Matchers.<Column[]> any() ) ).thenReturn( queryObjectModel );
+    when( qomFactory.createQuery( Matchers.<Source>any(), Matchers.<Constraint>any(), Matchers.<Ordering[]>any(),
+        Matchers.<Column[]>any() ) ).thenReturn( queryObjectModel );
     when( qomFactory.selector( anyString(), anyString() ) ).thenReturn( selector );
 
     final QueryResult queryResult = mock( QueryResult.class );
@@ -284,28 +277,90 @@ public class DefaultDeleteHelperTest {
     when( session.getWorkspace() ).thenReturn( workspace );
     when( session.itemExists( anyString() ) ).thenReturn( true );
 
-    try {
-      final String someFilter = "someFilter";
-      final List<RepositoryFile> deletedFiles =
-          defaultDeleteHelper.getDeletedFiles( session, pentahoJcrConstants, path1, someFilter );
-      assertNotNull( deletedFiles );
-      assertEquals( deletedFiles.size(), 2 );
-      for ( RepositoryFile file : deletedFiles ) {
-        if ( file.getOriginalParentFolderPath().equals( path1 ) ) {
-          assertEquals( file.getDeletedDate(), date1.getTime() );
-        } else if ( file.getOriginalParentFolderPath().equals( path2 ) ) {
-          assertEquals( file.getDeletedDate(), date2.getTime() );
-        } else {
-          fail( "Deleted file doesn't have correct path" );
-        }
+    final String someFilter = "someFilter";
+    final List<RepositoryFile> deletedFiles =
+        defaultDeleteHelper.getDeletedFiles( session, pentahoJcrConstants, path1, someFilter );
+    assertNotNull( deletedFiles );
+    assertEquals( 2, deletedFiles.size() );
+    for ( RepositoryFile file : deletedFiles ) {
+      if ( file.getOriginalParentFolderPath().equals( path1 ) ) {
+        assertEquals( file.getDeletedDate(), date1.getTime() );
+      } else if ( file.getOriginalParentFolderPath().equals( path2 ) ) {
+        assertEquals( file.getDeletedDate(), date2.getTime() );
+      } else {
+        fail( "Deleted file doesn't have correct path" );
       }
-
-      verify( valueFactory ).createValue( someFilter );
-    } catch ( Exception e ) {
-      e.printStackTrace();
-      fail();
     }
+
+    verify( valueFactory ).createValue( someFilter );
   }
+
+
+  @Test
+  public void testGetAllDeletedFiles() throws Exception {
+    final String path1 = "path1";
+    final Calendar date1 = Calendar.getInstance();
+    final Node deletedNode1 = createDeletedNode( path1, date1 );
+
+    final String path2 = "path2";
+    final Calendar date2 = Calendar.getInstance();
+    final Node deletedNode2 = createDeletedNode( path2, date2 );
+
+    final Node nodeTrash = mock( Node.class );
+    when( nodeTrash.getNodes() ).thenAnswer( invoc -> {
+      final NodeIterator nodeIterator = mock( NodeIterator.class );
+      when( nodeIterator.hasNext() ).thenReturn( true, true, false ); // 2 nodes in trash
+      when( nodeIterator.nextNode() ).thenReturn( deletedNode1, deletedNode2 );
+      return nodeIterator;
+    } );
+
+    final Node nodeOtherFolder = mock( Node.class );
+    when( nodeOtherFolder.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeOtherFolder.getNode( anyString() ) ).thenReturn( nodeTrash );
+
+    final String pathUsr = "pathUser";
+    final Calendar dateUsr = Calendar.getInstance();
+    final Node deletedNodeUsr = createDeletedNode( pathUsr, dateUsr );
+    final Node nodeTrashUsr = mock( Node.class );
+
+    when( nodeTrashUsr.getNodes() ).thenAnswer( invoc -> {
+      NodeIterator nodeIteratorUsr = mock( NodeIterator.class );
+      when( nodeIteratorUsr.hasNext() ).thenReturn( true, false );
+      when( nodeIteratorUsr.nextNode() ).thenReturn( deletedNodeUsr );
+      return nodeIteratorUsr;
+    } );
+
+    final Node nodeUserFolder = mock( Node.class );
+    when( nodeUserFolder.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeUserFolder.getNode( anyString() ) ).thenReturn( nodeTrashUsr );
+
+    final boolean[] admin = { false };
+    defaultDeleteHelper = new DefaultDeleteHelper( lockHelper, pathConversionHelper ) {
+      @Override
+      protected boolean isAdmin() {
+        return admin[0];
+      }
+      @Override
+      protected List<String> getUserList() {
+        return Arrays.asList( "test", "other" );
+      }
+    };
+    when( session.getItem( endsWith( "/other" ) ) ).thenReturn( nodeOtherFolder );
+    when( session.getItem( endsWith( "/test" ) ) ).thenReturn( nodeUserFolder );
+
+    // regular user
+    final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
+    assertNotNull( deletedFiles );
+    assertEquals( 1, deletedFiles.size() );
+    assertEquals( pathUsr, deletedFiles.get( 0 ).getOriginalParentFolderPath() );
+
+    // as admin
+    admin[0] = true;
+    final List<RepositoryFile> deletedFilesAdmin = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
+    assertNotNull( deletedFilesAdmin );
+    assertEquals( 3, deletedFilesAdmin.size() );
+  }
+
 
   @Test
   public void testPermanentlyDeleteFile() throws Exception {
@@ -442,9 +497,6 @@ public class DefaultDeleteHelperTest {
       defaultDeleteHelper.undeleteFile( session, pentahoJcrConstants, fileID );
     } catch ( RepositoryFileDaoFileExistsException e1 ) {
       // it's ok
-    } catch ( Exception e ) {
-      e.printStackTrace();
-      fail();
     }
   }
 

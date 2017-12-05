@@ -177,7 +177,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return new RepositoryFileTreeAdapter( repositoryRequest ).marshal( tree );
   }
 
-  private List<RepositoryFileDto> marshalFiles( List<RepositoryFile> files ) {
+  protected List<RepositoryFileDto> marshalFiles( List<RepositoryFile> files ) {
     ArrayList<RepositoryFileDto> fileDtos = new ArrayList<RepositoryFileDto>();
     for ( RepositoryFile file : files ) {
       fileDtos.add( repositoryFileAdapter.marshal( file ) );

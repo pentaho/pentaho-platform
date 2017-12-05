@@ -250,6 +250,14 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getDeletedFiles" ) ); //$NON-NLS-1$
   }
 
+  public List<RepositoryFile> getAllDeletedFiles() {
+    return callLogThrow( new Callable<List<RepositoryFile>>() {
+      public List<RepositoryFile> call() throws Exception {
+        return delegatee.getAllDeletedFiles();
+      }
+    }, Messages.getInstance().getString( "ExceptionLoggingDecorator.getAllDeletedFiles" ) ); //$NON-NLS-1$
+  }
+
   public List<RepositoryFileAce> getEffectiveAces( final Serializable fileId ) {
     return callLogThrow( new Callable<List<RepositoryFileAce>>() {
       public List<RepositoryFileAce> call() throws Exception {

@@ -356,6 +356,13 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  public List<RepositoryFile> getAllDeletedFiles() {
+    return repositoryFileDao.getAllDeletedFiles();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public void undeleteFile( final Serializable fileId, final String versionMessage ) {
     Assert.notNull( fileId );
     repositoryFileDao.undeleteFile( fileId, versionMessage );
