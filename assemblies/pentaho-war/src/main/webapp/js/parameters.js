@@ -194,7 +194,7 @@ function doClearIgnoreFields(form1, form2) {
 	}
 }
 			
-/* this is an almost exact copy of ScheduleParamsWizardPanel.java getParams() in pentaho-gwt-widgets */
+/* this is an almost exact copy of ScheduleParamsWizardPanel.java getParams() in commons-gwt-widgets */
 function getParamEntries(params) {
     var paramEntries = new Array();
     for (var key in params) {
