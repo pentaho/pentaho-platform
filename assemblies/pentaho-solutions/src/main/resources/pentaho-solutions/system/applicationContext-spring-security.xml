@@ -236,8 +236,6 @@
         <sec:intercept-url pattern="\A/getimage.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/getresource.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/admin.*\Z" access="Admin" />
-        <sec:intercept-url pattern="\A/auditreport.*\Z" access="Admin" />
-        <sec:intercept-url pattern="\A/auditreportlist.*\Z" access="Admin" />
         <sec:intercept-url pattern="\A/versioncontrol.*\Z" access="Admin" />
         <sec:intercept-url pattern="\A/propertieseditor.*\Z" access="Admin" />
         <sec:intercept-url pattern="\A/propertiespanel.*\Z" access="Admin" />
