@@ -122,8 +122,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-gwt-widgets</artifactId>
+      <groupId>org.pentaho</groupId>
+      <artifactId>commons-gwt-widgets</artifactId>
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
@@ -133,8 +133,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-gwt-widgets</artifactId>
+      <groupId>org.pentaho</groupId>
+      <artifactId>commons-gwt-widgets</artifactId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <exclusions>
