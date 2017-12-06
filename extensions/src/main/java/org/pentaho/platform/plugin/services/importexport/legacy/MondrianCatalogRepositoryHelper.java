@@ -1,5 +1,5 @@
 /*
- * Copyright 2002 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2002 - 2017 Pentaho Corporation.  All rights reserved.
  *
  * This software was developed by Pentaho Corporation and is provided under the terms
  * of the Mozilla Public License, Version 1.1, or any later version. You may not use
@@ -14,6 +14,8 @@
 package org.pentaho.platform.plugin.services.importexport.legacy;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.repository.RepositoryException;
@@ -64,6 +66,8 @@ public class MondrianCatalogRepositoryHelper {
   public static final String ETC_OLAP_SERVERS_JCR_FOLDER =
       ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
   private boolean isSecured = false;
+
+  private static final Log logger = LogFactory.getLog( MondrianCatalogRepositoryHelper.class );
 
   private IUnifiedRepository repository;
 
@@ -437,6 +441,11 @@ public class MondrianCatalogRepositoryHelper {
 
     RepositoryFile catalogFolder =
         repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
+
+    if ( catalogFolder == null ) {
+      logger.warn( "Catalog " + catalogName + " not found" );
+      throw new RepositoryException( "Catalog " + catalogName + " not found" );
+    }
 
     for ( RepositoryFile repoFile : repository.getChildren( catalogFolder.getId() ) ) {
       RepositoryFileInputStream is;
