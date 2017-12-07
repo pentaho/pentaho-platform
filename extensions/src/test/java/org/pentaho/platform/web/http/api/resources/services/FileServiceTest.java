@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -85,8 +85,12 @@ import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
+import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
@@ -129,6 +133,8 @@ public class FileServiceTest {
   private IAuthorizationPolicy policy;
 
   private ITenantedPrincipleNameResolver resolver;
+
+  private IPlatformImporter platformImporter;
   @Before
   public void setUp() throws ObjectFactoryException {
     fileService = spy( new FileService() );
@@ -144,6 +150,7 @@ public class FileServiceTest {
     doReturn( REAL_USER ).when( resolver ).getPrincipleName( anyString() );
     policy = mock( IAuthorizationPolicy.class );
     pentahoObjectFactory = mock( IPentahoObjectFactory.class );
+    platformImporter = mock( IPlatformImporter.class );
     when( pentahoObjectFactory.objectDefined( anyString() ) ).thenReturn( true );
     when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer(
         new Answer<Object>() {
@@ -155,9 +162,11 @@ public class FileServiceTest {
             if ( invocation.getArguments()[0].equals( ITenantedPrincipleNameResolver.class ) ) {
               return resolver;
             }
+            if ( invocation.getArguments()[0].equals( IPlatformImporter.class ) ) {
+              return platformImporter;
+            }
             return null;
-          }
-        } );
+        } } );
     PentahoSystem.registerObjectFactory( pentahoObjectFactory );
     IPentahoSession session = mock( IPentahoSession.class );
     doReturn( "sampleSession" ).when( session ).getName();
@@ -589,6 +598,50 @@ public class FileServiceTest {
       verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
       verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
     }
+  }
+
+  @Test
+  public void testSystemRestore() throws Exception {
+    InputStream inputStreamMock = mock( InputStream.class );
+    IAuthorizationPolicy authorizationPolicy = mock( IAuthorizationPolicy.class );
+    IRepositoryImportLogger iRepositoryImportLogger = mock( IRepositoryImportLogger.class );
+    doReturn( authorizationPolicy ).when( fileService ).getPolicy();
+
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( true ).when( authorizationPolicy ).isAllowed( AdministerSecurityAction.NAME );
+
+    doReturn( iRepositoryImportLogger ).when( platformImporter ).getRepositoryImportLogger();
+
+    fileService.systemRestore( inputStreamMock, "true", "false", "true" );
+
+    verify( fileService ).doCanAdminister();
+    verify( iRepositoryImportLogger ).startJob( any(), anyString(), any() );
+    verify( iRepositoryImportLogger ).endJob();
+
+    ArgumentCaptor<RepositoryFileImportBundle> argumentCaptor = ArgumentCaptor.forClass( RepositoryFileImportBundle.class );
+    verify( platformImporter ).importFile( argumentCaptor.capture() );
+
+    RepositoryFileImportBundle bundle = argumentCaptor.getValue();
+
+    assertTrue( bundle.getInputStream() == inputStreamMock );
+    assertEquals( "UTF-8", bundle.getCharSet() );
+    assertEquals( RepositoryFile.HIDDEN_BY_DEFAULT, bundle.isHidden() );
+    assertEquals( RepositoryFile.SCHEDULABLE_BY_DEFAULT, bundle.isSchedulable() );
+    assertEquals( "/", bundle.getPath() );
+    assertEquals( true, bundle.overwriteInRepository() );
+    assertEquals( "SystemBackup.zip", bundle.getName() );
+    assertFalse( bundle.isApplyAclSettings() );
+    assertTrue( bundle.isRetainOwnership() );
+    assertTrue( bundle.isOverwriteAclSettings() );
+    assertTrue( bundle.isPreserveDsw() );
+
+    ImportSession session = ImportSession.getSession();
+
+    assertFalse( session.isApplyAclSettings() );
+    assertTrue( session.isRetainOwnership() );
+    assertTrue( session.isOverwriteAclSettings() );
+
   }
 
   @Test

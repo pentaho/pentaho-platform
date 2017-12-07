@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -81,6 +81,7 @@ import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
@@ -147,12 +148,14 @@ public class FileService {
     }
   }
 
-  public void systemRestore( final InputStream fileUpload, String overwriteFile ) throws PlatformImportException, SecurityException {
+  public void systemRestore( final InputStream fileUpload, String overwriteFile,
+                             String applyAclSettings, String overwriteAclSettings ) throws PlatformImportException, SecurityException {
     if ( doCanAdminister() ) {
-      boolean overwriteFileFlag = ( "false".equals( overwriteFile ) ? false : true );
+      boolean overwriteFileFlag = !"false".equals( overwriteFile );
+      boolean applyAclSettingsFlag = !"false".equals( applyAclSettings );
+      boolean overwriteAclSettingsFlag = "true".equals( overwriteAclSettings );
       IRepositoryImportLogger importLogger = null;
       Level level = Level.ERROR;
-      boolean logJobStarted = false;
       ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
       String importDirectory = "/";
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
@@ -163,21 +166,20 @@ public class FileService {
       bundleBuilder.path( importDirectory );
       bundleBuilder.overwriteFile( overwriteFileFlag );
       bundleBuilder.name( "SystemBackup.zip" );
-      bundleBuilder.applyAclSettings( true );
-      bundleBuilder.overwriteAclSettings( false );
+      bundleBuilder.applyAclSettings( applyAclSettingsFlag );
+      bundleBuilder.overwriteAclSettings( overwriteAclSettingsFlag );
       bundleBuilder.retainOwnership( true );
       bundleBuilder.preserveDsw( true );
 
+      ImportSession.getSession().setAclProperties( applyAclSettingsFlag, true, overwriteAclSettingsFlag );
+
       IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
       importLogger = importer.getRepositoryImportLogger();
-      logJobStarted = true;
       importLogger.startJob( importLoggerStream, importDirectory, level );
       try {
         importer.importFile( bundleBuilder.build() );
       } finally {
-        if ( logJobStarted == true ) {
-          importLogger.endJob();
-        }
+        importLogger.endJob();
       }
     } else {
       throw new SecurityException();

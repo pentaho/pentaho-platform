@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importexport;
@@ -146,6 +146,10 @@ public class CommandLineProcessor {
   private static final String INFO_OPTION_ANALYSIS_XMLA_ENABLED_NAME = "xmla-enabled";
   private static final String INFO_OPTION_METADATA_DOMAIN_ID_KEY = "m_id";
   private static final String INFO_OPTION_METADATA_DOMAIN_ID_NAME = "metadata-domain-id";
+  private static final String INFO_OPTION_APPLY_ACL_SETTINGS_KEY = "a_acl";
+  private static final String INFO_OPTION_APPLY_ACL_SETTINGS_NAME = "applyAclSettings";
+  private static final String INFO_OPTION_OVERWRITE_ACL_SETTINGS_KEY = "o_acl";
+  private static final String INFO_OPTION_OVERWRITE_ACL_SETTINGS_NAME = "overwriteAclSettings";
 
   public static enum RequestType {
     HELP, IMPORT, EXPORT, REST, BACKUP, RESTORE
@@ -241,6 +245,12 @@ public class CommandLineProcessor {
 
     options.addOption( INFO_OPTION_METADATA_DOMAIN_ID_KEY, INFO_OPTION_METADATA_DOMAIN_ID_NAME, true, Messages.getInstance()
             .getString( "CommandLineProcessor.INFO_OPTION_METADATA_DOMAIN_ID_DESCRIPTION" ) );
+
+    options.addOption( INFO_OPTION_APPLY_ACL_SETTINGS_KEY, INFO_OPTION_APPLY_ACL_SETTINGS_NAME, true, Messages.getInstance()
+            .getString( "CommandLineProcessor.INFO_OPTION_APPLY_ACL_SETTINGS" ) );
+
+    options.addOption( INFO_OPTION_OVERWRITE_ACL_SETTINGS_KEY, INFO_OPTION_OVERWRITE_ACL_SETTINGS_NAME, true, Messages.getInstance()
+            .getString( "CommandLineProcessor.INFO_OPTION_OVERWRITE_ACL_SETTINGS" ) );
   }
 
   /**
@@ -755,6 +765,10 @@ public class CommandLineProcessor {
 
       String overwrite = getOptionValue( INFO_OPTION_OVERWRITE_NAME, true, false );
       part.field( "overwriteFile", "true".equals( overwrite ) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE );
+      String applyAclSettings = getOptionValue( INFO_OPTION_APPLY_ACL_SETTINGS_NAME, false, true );
+      part.field( "applyAclSettings", !"false".equals( applyAclSettings ) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE );
+      String overwriteAclSettings = getOptionValue( INFO_OPTION_OVERWRITE_ACL_SETTINGS_NAME, false, true );
+      part.field( "overwriteAclSettings", "true".equals( overwriteAclSettings ) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE );
 
       // Response response
       ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
