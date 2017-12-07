@@ -633,7 +633,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>${spring.framework.version}</version>
+      <version>${spring.webmvc.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
