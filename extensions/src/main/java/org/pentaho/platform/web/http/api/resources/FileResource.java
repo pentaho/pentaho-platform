@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -198,9 +198,10 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode( code = 200, condition = "Successfully imported the Pentaho System" ),
     @ResponseCode( code = 403, condition = "User does not have administrative permissions" ),
     @ResponseCode( code = 500, condition = "Failure to complete the import." ) } )
-  public Response systemRestore( @FormDataParam( "fileUpload" ) InputStream fileUpload, @FormDataParam ( "overwriteFile" ) String overwriteFile ) {
+  public Response systemRestore( @FormDataParam( "fileUpload" ) InputStream fileUpload, @FormDataParam ( "overwriteFile" ) String overwriteFile,
+                                 @FormDataParam ( "applyAclSettings" ) String applyAclSettings, @FormDataParam ( "overwriteAclSettings" ) String overwriteAclSettings ) {
     try {
-      fileService.systemRestore( fileUpload, overwriteFile );
+      fileService.systemRestore( fileUpload, overwriteFile, applyAclSettings, overwriteAclSettings );
       return Response.ok().build();
     } catch ( PlatformImportException e ) {
       throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
