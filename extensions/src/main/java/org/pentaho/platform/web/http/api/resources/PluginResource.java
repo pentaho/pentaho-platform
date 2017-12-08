@@ -166,6 +166,8 @@ public class PluginResource {
       isTmp = getCacheBackedStream( pluginId, path, useCache );
     } catch ( FileNotFoundException e ) {
       return Response.status( Status.NOT_FOUND ).build();
+    } catch ( IllegalArgumentException e ) {
+      return Response.status( Status.BAD_REQUEST ).build();
     }
 
     final InputStream is = isTmp;
