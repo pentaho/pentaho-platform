@@ -26,7 +26,6 @@ import java.util.Properties;
 
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
@@ -48,7 +47,7 @@ public interface IRepositoryFileDao {
 
   @Deprecated
   RepositoryFileTree getTree( final String relPath, final int depth, final String filter, final boolean showHidden );
-  
+
   RepositoryFileTree getTree( RepositoryRequest repositoryRequest );
 
   RepositoryFile getFile( final String relPath, final boolean loadLocaleMaps );
@@ -78,7 +77,7 @@ public interface IRepositoryFileDao {
 
   @Deprecated
   List<RepositoryFile> getChildren( final Serializable folderId, final String filter, final Boolean showHiddenFiles );
-  
+
   List<RepositoryFile> getChildren( RepositoryRequest repositoryRequest );
 
   RepositoryFile updateFile( final RepositoryFile file, final IRepositoryFileData data, final String versionMessage );
@@ -94,6 +93,10 @@ public interface IRepositoryFileDao {
   List<RepositoryFile> getDeletedFiles( final String origParentFolderPath, final String filter );
 
   List<RepositoryFile> getDeletedFiles();
+
+  default List<RepositoryFile> getAllDeletedFiles() {
+    return getDeletedFiles();
+  }
 
   boolean canUnlockFile( final Serializable fileId );
 
@@ -137,8 +140,8 @@ public interface IRepositoryFileDao {
 
   void setLocalePropertiesForFileByPath( final String relPath, final String locale, final Properties properties );
 
-  void
-  setLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale, final Properties properties );
+  void setLocalePropertiesForFile(
+      final RepositoryFile repositoryFile, final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale );
 }

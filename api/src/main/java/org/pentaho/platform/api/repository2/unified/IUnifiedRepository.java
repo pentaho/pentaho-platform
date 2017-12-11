@@ -484,6 +484,14 @@ public interface IUnifiedRepository {
    */
   List<RepositoryFile> getDeletedFiles();
 
+  /**
+   * Gets all deleted files. This is the "recycle bin" view.
+   * 
+   * @return list of deleted files
+   */
+  default List<RepositoryFile> getAllDeletedFiles() {
+    return getDeletedFiles();
+  }
   // ~ Lock methods
   // ====================================================================================================
 

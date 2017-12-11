@@ -741,6 +741,18 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     } );
   }
 
+  @Override
+  @SuppressWarnings( "unchecked" )
+  public List<RepositoryFile> getAllDeletedFiles() {
+    return (List<RepositoryFile>) jcrTemplate.execute( new JcrCallback() {
+      @Override
+      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+        return deleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
+      }
+    } );
+  }
+
   /**
    * {@inheritDoc}
    * <p/>

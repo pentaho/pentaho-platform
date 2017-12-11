@@ -80,6 +80,15 @@ public interface IDeleteHelper {
     throws RepositoryException;
 
   /**
+   * Lists deleted files for all users. In this case, the path field of each file is the original path where it was
+   * located prior to deletion. This is the administrator "recycle bin" view.
+   * 
+   * @return list of deleted files for all users
+   */
+  List<RepositoryFile> getAllDeletedFiles( final Session session, final PentahoJcrConstants pentahoJcrConstants )
+    throws RepositoryException;
+
+  /**
    * Returns the absolute path of the original parent folder. Can be used by caller to checkout parent folder
    * before calling {@link #undeleteFile(Session, PentahoJcrConstants, Serializable)}.
    * 
