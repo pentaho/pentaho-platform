@@ -200,4 +200,66 @@ public class PluginResourceLoaderTest {
     }
     assertTrue( "Template not found", found );
   }
+
+  /**
+   * <p>
+   *   Path Traversal Mitigation.
+   * </p>
+   * Given path of an existing resource file, containing upper directories references.
+   * When the file is being requested on this path, an exception should be thrown.
+   */
+  @Test
+  public void shouldFailWhenExistingResourcePathIsReferringUpperDirectories() throws UnsupportedEncodingException {
+    try {
+      resLoader.getResourceAsStream( pluginClass, "resources/../settings.xml" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+    try {
+      resLoader.getResourceAsBytes( pluginClass, "resources/../settings.xml" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+    try {
+      resLoader.getResourceAsString( pluginClass, "resources/../settings.xml" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+  }
+
+  /**
+   * <p>
+   *   Path Traversal Mitigation.
+   * </p>
+   * Given path of an NON-existing resource file, containing upper directories references.
+   * When the file is being requested on this path, null should returned and no exception should be thrown.
+   */
+  @Test
+  public void shouldNotFailWhenNonExistingResourcePathIsReferringUpperDirectories() throws UnsupportedEncodingException {
+    assertNull( resLoader.getResourceAsStream( pluginClass, "resources/../settings.xml-non-existing" ) );
+    assertNull( resLoader.getResourceAsBytes( pluginClass, "resources/../settings.xml-non-existing" ) );
+    assertNull( resLoader.getResourceAsString( pluginClass, "resources/../settings.xml-non-existing" ) );
+  }
+
+  /**
+   * <p>
+   *   Path Traversal Mitigation.
+   * </p>
+   * <p>
+   *   Doing path traversal check, we do not authorize the request to the file,
+   *   we just avoid directory traversal.
+   *   Thus, settings.xml is still available by legal direct link.
+   * </p>
+   * Given path of an existing resource file, NOT containing upper directories references.
+   * When the file is being requested on this path, the requested resource should be returned.
+   */
+  @Test
+  public void shouldNotFailWhenExistingResourcePathIsNotReferringUpperDirectories() throws UnsupportedEncodingException {
+    assertNotNull( resLoader.getResourceAsStream( pluginClass, "settings.xml" ) );
+    assertNotNull( resLoader.getResourceAsBytes( pluginClass, "settings.xml" ) );
+    assertNotNull( resLoader.getResourceAsString( pluginClass, "settings.xml" ) );
+  }
 }

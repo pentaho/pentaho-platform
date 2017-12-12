@@ -33,7 +33,6 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -201,8 +200,9 @@ public class PluginResourceLoader implements IPluginResourceLoader {
       File f = new File( root, resourcePath );
       if ( f.canRead() ) {
         try {
+          checkPathTraversal( resourcePath, f );
           in = new BufferedInputStream( new FileInputStream( f ) );
-        } catch ( FileNotFoundException e ) {
+        } catch ( IOException e ) {
           Logger.debug( this, "Cannot open stream to resource", e ); //$NON-NLS-1$
         }
       } else { //if not in filesystem ask the classloader
@@ -301,6 +301,19 @@ public class PluginResourceLoader implements IPluginResourceLoader {
     }
 
     return PentahoSystem.getSystemSetting( pluginPath + settingsPath, key, defaultVal );
+  }
+
+  /**
+   * Security check. Mitigating path traversal attack.
+   * If requested path is not equal to a found file's path in file system,
+   * we consider the request as malicious.
+   */
+  private void checkPathTraversal( String resourcePath, File f ) throws IOException {
+    // converting to URI as to be system-independent
+    if ( !f.getCanonicalFile().toURI().getPath().endsWith( resourcePath ) ) {
+      Logger.error( this, String.format( "Illegal resource path ( directory traversal attempt? ): %s", resourcePath ) );
+      throw new IllegalArgumentException( "Illegal resource path" );
+    }
   }
 
 }
