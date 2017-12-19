@@ -1458,7 +1458,8 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 .users-roles-selection-list {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
   height: 317px;
 }
 
