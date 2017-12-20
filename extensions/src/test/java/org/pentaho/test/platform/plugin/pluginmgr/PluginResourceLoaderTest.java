@@ -262,4 +262,23 @@ public class PluginResourceLoaderTest {
     assertNotNull( resLoader.getResourceAsBytes( pluginClass, "settings.xml" ) );
     assertNotNull( resLoader.getResourceAsString( pluginClass, "settings.xml" ) );
   }
+
+  /**
+   * <p>
+   *   Path Traversal Mitigation.
+   * </p>
+   * <p>
+   *   Path values are often got from concatenated strings, and might therefore contain double slashes.
+   *   That slashes should be considered as one, and we should not fall here.
+   * </p>
+   * Given path of an existing resource file, NOT containing upper directories references,
+   * but containing double slashes.
+   * When the file is being requested on this path, the requested resource should be returned.
+   */
+  @Test
+  public void shouldNotFailWhenExistingResourcePathIsContainingDoubleSlashes() throws UnsupportedEncodingException {
+    assertNotNull( resLoader.getResourceAsStream( pluginClass, "resources//pluginResourceTest-inresources.properties" ) );
+    assertNotNull( resLoader.getResourceAsBytes( pluginClass, "resources//pluginResourceTest-inresources.properties" ) );
+    assertNotNull( resLoader.getResourceAsString( pluginClass, "resources//pluginResourceTest-inresources.properties" ) );
+  }
 }

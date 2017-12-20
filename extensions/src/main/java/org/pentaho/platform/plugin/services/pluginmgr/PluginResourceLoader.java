@@ -309,8 +309,12 @@ public class PluginResourceLoader implements IPluginResourceLoader {
    * we consider the request as malicious.
    */
   private void checkPathTraversal( String resourcePath, File f ) throws IOException {
+    // we need to support double slashes in path, like most web browsers do.
+    // here we rely on resource paths to be relative (not containing leading double slashes).
+    String path = resourcePath.replaceAll( "//", "/" );
+
     // converting to URI as to be system-independent
-    if ( !f.getCanonicalFile().toURI().getPath().endsWith( resourcePath ) ) {
+    if ( !f.getCanonicalFile().toURI().getPath().endsWith( path ) ) {
       Logger.error( this, String.format( "Illegal resource path ( directory traversal attempt? ): %s", resourcePath ) );
       throw new IllegalArgumentException( "Illegal resource path" );
     }
