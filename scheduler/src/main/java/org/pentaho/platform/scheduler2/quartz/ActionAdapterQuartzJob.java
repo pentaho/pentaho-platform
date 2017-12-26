@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -258,12 +258,23 @@ public class ActionAdapterQuartzJob implements Job {
             }
           }
           sendEmail( actionParams, params, outputFilePath );
+          deleteEmptyFile();
         }
         if ( actionBean instanceof IPostProcessingAction ) {
           closeContentOutputStreams( (IPostProcessingAction) actionBean );
           markContentAsGenerated( (IPostProcessingAction) actionBean );
         }
         return updateJob;
+      }
+
+      private void deleteEmptyFile() {
+        IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
+        RepositoryFile file = repo.getFile( outputFilePath );
+        Long emptyFileSize = new Long( 0 );
+        Long fileSize = file.getFileSize();
+        if ( fileSize.equals( emptyFileSize ) ) {
+          repo.deleteFile( file.getId(), true, null );
+        }
       }
 
       private void closeContentOutputStreams( IPostProcessingAction actionBean ) {
