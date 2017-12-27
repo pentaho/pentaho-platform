@@ -17,21 +17,21 @@
 
 package org.pentaho.platform.plugin.services.connections.mondrian;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Properties;
-
 import mondrian.olap.Util;
 import mondrian.parser.TokenMgrError;
-
 import mondrian.rolap.RolapConnectionProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.olap4j.OlapConnection;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.plugin.services.messages.Messages;
+
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * MDXOlap4jConnection implements IPentahoConenction to support olap4j connections to any olap4j provider. Developers
@@ -107,11 +107,11 @@ public class MDXOlap4jConnection implements IPentahoConnection {
       // Unwrap into OlapConnection.
       connection = sqlConnection.unwrap( org.olap4j.OlapConnection.class );
 
-    } catch ( Exception e ) {
-      log.error( Messages.getInstance().getErrorString( "MDXConnection.ERROR_0002_INVALID_CONNECTION",
-          "driver=" + driver + ";url=" + getLogUrl( url ) ), e );
+    } catch ( PentahoAccessControlException e ) {
+      log.info( Messages.getInstance().getErrorString( "MDXConnection.ERROR_0002_INVALID_CONNECTION",
+              "driver=" + driver + ";url=" + getLogUrl( url ) ), e );
       return false;
-    } catch ( TokenMgrError e ) {
+    } catch ( Exception | TokenMgrError e ) {
       log.error( Messages.getInstance().getErrorString( "MDXConnection.ERROR_0002_INVALID_CONNECTION",
           "driver=" + driver + ";url=" + getLogUrl( url ) ), e );
       return false;
