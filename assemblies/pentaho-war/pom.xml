@@ -25,7 +25,7 @@
     <prepared.war.directory>${pentaho-server.directory}/tomcat/webapps/pentaho</prepared.war.directory>
     <prepared.war.lib.directory>${prepared.war.directory}/WEB-INF/lib</prepared.war.lib.directory>
 
-    <xmlgraphics-commons.version>1.5</xmlgraphics-commons.version>
+    <xmlgraphics-commons.version>2.2</xmlgraphics-commons.version>
     <jackson.version>1.9.13</jackson.version>
     <replacer.version>1.5.2</replacer.version>
     <commons-io.version>2.2</commons-io.version>
