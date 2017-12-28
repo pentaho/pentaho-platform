@@ -258,7 +258,7 @@
   <xmlenc.version>0.52</xmlenc.version>
   <XmlSchema.version>1.4.2</XmlSchema.version>
   <xmlunit.version>1.6</xmlunit.version>
-  <xstream.version>1.4.9</xstream.version>
+  <xstream.version>1.4.10</xstream.version>
 
     <!-- ===================== -->
     <!-- ASSEMBLY DEPENDENCIES -->
