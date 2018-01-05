@@ -41,8 +41,8 @@
                   <outputDirectory>${pentaho-server.samples.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-cdf-dd-solution</artifactId>
+                  <groupId>org.pentaho.ctools</groupId>
+                  <artifactId>pentaho-cdf-dd-samples</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${pentaho-server.samples.directory}</outputDirectory>
