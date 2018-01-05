@@ -12,20 +12,25 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
 
 import junit.framework.Assert;
-
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
+import org.mockito.internal.verification.VerificationModeFactory;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,12 +40,18 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.pentaho.platform.plugin.services.importer.ArchiveLoader.ZIPS_FILTER;
 
 /**
  * Created with IntelliJ IDEA. User: kwalker Date: 6/20/13 Time: 12:37 PM
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(ImportSession.class)
 public class ArchiveLoaderTest {
 
   private static final Date LOAD_STAMP = new Date( 123456789 );
@@ -115,6 +126,23 @@ public class ArchiveLoaderTest {
     final File directory = mock( File.class );
     when( directory.listFiles( ZIPS_FILTER ) ).thenReturn( new File[] {} );
     loader.loadAll( directory, ZIPS_FILTER );
+  }
+
+  @Test
+  public void testLoadAllClearSession() throws Exception {
+    PowerMockito.mockStatic( ImportSession.class );
+    ImportSession importSession = mock( ImportSession.class );
+    when( ImportSession.getSession() ).thenReturn( importSession );
+
+    IPlatformImporter importer = mock( IPlatformImporter.class );
+    ArchiveLoader loader = new ArchiveLoader( importer );
+    File directoryMock = mock( File.class );
+    File file1Mock = mock( File.class );
+    File file2Mock = mock( File.class );
+    when( directoryMock.listFiles( ZIPS_FILTER ) ).thenReturn( new File[] { file1Mock, file2Mock } );
+    loader.loadAll( directoryMock, ArchiveLoader.ZIPS_FILTER );
+    PowerMockito.verifyStatic( VerificationModeFactory.times( 2 ) );
+    ImportSession.clearSession();
   }
 
   private ArchiveLoader createArchiveLoader( final IPlatformImporter importer, final FileInputStream inputStream ) {
