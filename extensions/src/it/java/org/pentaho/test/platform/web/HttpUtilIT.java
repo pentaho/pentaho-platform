@@ -12,13 +12,11 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.test.platform.web;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.params.HttpParams;
 import org.pentaho.platform.util.web.HttpUtil;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.utils.TestResourceLocation;
@@ -49,10 +47,7 @@ public class HttpUtilIT extends BaseTest {
     String url = "http://www.pentaho.org/demo/news.html"; //$NON-NLS-1$
     String queryString =
         "http://www.pentaho.com/pentaho/ViewAction?solution=samples&path=analysis&action=query1.xaction"; //$NON-NLS-1$
-    HttpClient client = HttpUtil.getClient();
     String urlContent = HttpUtil.getURLContent( url );
-    HttpParams params = client.getParams();
-    params.setBooleanParameter( "isDone", true ); //$NON-NLS-1$
 
     System.out.println( "Content of the URL : " + urlContent ); //$NON-NLS-1$
     try {

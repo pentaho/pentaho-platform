@@ -70,9 +70,10 @@ public class HttpUtil {
           httpClient = clientBuilder.build();
         }
 
-        if ( httpClient == null ) {
-          httpClient = getClient();
-        }
+      }
+
+      if ( httpClient == null ) {
+        httpClient = getClient();
       }
 
       HttpGet call = new HttpGet( url );
