@@ -144,6 +144,8 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
    */
   protected boolean callSetAuthenticatedForAnonymousUsers = true;
 
+  private boolean ssoEnabled = false;
+
   // ~ Methods ========================================================================================================
 
   /**
@@ -393,7 +395,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
   /**
    * Sets cookies needed to implement a session expiration dialog.
    * Enabled by default, could be disabled by a session-expired-dialog=false in a pentaho.xml.
-   * Doesn't set the cookie in case CAS is used.
+   * Doesn't set the cookie in case SSO is used, for session expired dialog not to be displayed.
    *
    * The 'session-expiry' is needed to check if the session has expired.
    * The 'server-time' is needed to calculate offset between server and client time.
@@ -424,11 +426,9 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
         return;
       }
 
-      //No session expired dialog when CAS is used
-      for ( AuthenticationProvider provider : authenticationProviders ) {
-        if ( provider.getClass().getSimpleName().startsWith( "CasAuthenticationProvider" ) ) {
-          return;
-        }
+      //No session expired dialog when SSO is used
+      if ( isSsoEnabled() ) {
+        return;
       }
 
       final long serverTime = System.currentTimeMillis();
@@ -479,6 +479,18 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
       anonymousUser = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-user", "anonymousUser" ); //$NON-NLS-1$//$NON-NLS-2$
     }
     return anonymousUser;
+  }
+
+  /**
+   * Serves to identify if the server is using SSO for authentication. If <code>true</code>, it disables the session
+   * expire dialog in PUC. The default value is <code>false</code>.
+   */
+  public boolean isSsoEnabled() {
+    return ssoEnabled;
+  }
+
+  public void setSsoEnabled( boolean ssoEnabled ) {
+    this.ssoEnabled = ssoEnabled;
   }
 
   // ~ Inner Classes ==================================================================================================
