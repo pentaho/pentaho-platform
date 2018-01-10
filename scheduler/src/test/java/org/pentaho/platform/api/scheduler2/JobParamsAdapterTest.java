@@ -19,6 +19,7 @@ package org.pentaho.platform.api.scheduler2;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class JobParamsAdapterTest {
     dataMap.put( "dddd", "[D].[DDD,ddd]" );
     dataMap.put( "eeeee", null );
     dataMap.put( null, "FFFFFF" );
-    JobParams expectedJobParams = createJobParams ( new JobParam[]{
+    JobParams expectedJobParams = createJobParams( new JobParam[]{
       createJobParam( "a", "A" ),
       createJobParam( "bb", "[B]" ),
       createJobParam( "ccc", "[C].[CCC]" ),
@@ -69,7 +70,7 @@ public class JobParamsAdapterTest {
     dataMap.put( "ccc", cValue );
     ArrayList<String> eValue = castAsArrayList( new String[] { null, "FFFFFF" } );
     dataMap.put( "eeeee", eValue );
-    JobParams expectedJobParams = createJobParams ( new JobParam[]{
+    JobParams expectedJobParams = createJobParams( new JobParam[]{
       createJobParam( "a", "A" ),
       createJobParam( "bb", "[B]" ),
       createJobParam( "ccc", "[C].[CCC]" ),
@@ -81,7 +82,38 @@ public class JobParamsAdapterTest {
 
     assertNotNull( resultJobParams );
     assertNotNull( resultJobParams.jobParams );
-    java.util.Arrays.sort( resultJobParams.jobParams, new JobParamWholeComparator() );
+    Arrays.sort( resultJobParams.jobParams, new JobParamWholeComparator() );
+    assertJobParamArrayEquals( "", expectedJobParams.jobParams, resultJobParams.jobParams );
+  }
+
+  @Test
+  public void testMarshalRemovesVariableDuplicate() throws Exception {
+    JobParamsAdapter adapter = new JobParamsAdapter();
+
+    Map<String, Serializable> dataMap = new HashMap<String, Serializable>();
+    HashMap<String, String> variables = new HashMap<>();
+    variables.put( "test1", "val1" );
+    variables.put( "test2", "val2" );
+    HashMap<String, String> parameters = new HashMap<>();
+    parameters.put( "test2", "val2Updated" );
+
+    dataMap.put( "variables", variables );
+    dataMap.put( "parameters", parameters );
+    dataMap.put( "test3", "val3" );
+
+
+    JobParams expectedJobParams = createJobParams( new JobParam[]{
+      createJobParam( "test1", "val1" ),
+      createJobParam( "test2", "val2Updated" ),
+      createJobParam( "test3", "val3" )
+    } );
+
+    final JobParams resultJobParams = adapter.marshal( dataMap );
+
+    assertNotNull( resultJobParams );
+    assertNotNull( resultJobParams.jobParams );
+
+    Arrays.sort( resultJobParams.jobParams, new JobParamWholeComparator() );
     assertJobParamArrayEquals( "", expectedJobParams.jobParams, resultJobParams.jobParams );
   }
 
@@ -107,7 +139,7 @@ public class JobParamsAdapterTest {
     expectedDataMap.put( "bb", "[B]" );
     expectedDataMap.put( "ccc", "[C].[CCC]" );
     expectedDataMap.put( "dddd", "[D].[DDD,ddd]" );
-    JobParams dataJobParams = createJobParams ( new JobParam[]{
+    JobParams dataJobParams = createJobParams( new JobParam[]{
       createJobParam( "a", "A" ),
       createJobParam( "bb", "[B]" ),
       createJobParam( "ccc", "[C].[CCC]" ),
@@ -132,7 +164,7 @@ public class JobParamsAdapterTest {
     expectedDataMap.put( "bb", "[B]" );
     final ArrayList<String> cValue = castAsArrayList( new String[] { "[C].[CCC]", "[D].[DDD,ddd]" } );
     expectedDataMap.put( "ccc", cValue );
-    JobParams dataJobParams = createJobParams ( new JobParam[]{
+    JobParams dataJobParams = createJobParams( new JobParam[]{
       createJobParam( "a", "A" ),
       createJobParam( "bb", "[B]" ),
       createJobParam( "ccc", "[C].[CCC]" ),
@@ -146,13 +178,13 @@ public class JobParamsAdapterTest {
     for ( String key : new String[] { "a", "bb" } ) {
       assertEquals( "resultMap[" + key + "]", expectedDataMap.get( key ), resultMap.get( key ) );
     }
-    {
-      String key = "ccc";
-      assertTrue( "resultMap[" + key + "] is collection", resultMap.get( key ) instanceof Collection );
-      Collection<?> actualCValue = (Collection<?>) resultMap.get( key );
-      assertEquals( "resultMap[" + key + "].size", cValue.size(), actualCValue.size() );
-      assertTrue( "resultMap[" + key + "] all expected values", cValue.containsAll( actualCValue ) );
-    }
+
+    String key = "ccc";
+    assertTrue( "resultMap[" + key + "] is collection", resultMap.get( key ) instanceof Collection );
+    Collection<?> actualCValue = (Collection<?>) resultMap.get( key );
+    assertEquals( "resultMap[" + key + "].size", cValue.size(), actualCValue.size() );
+    assertTrue( "resultMap[" + key + "] all expected values", cValue.containsAll( actualCValue ) );
+
   }
 
   JobParam createJobParam( String n, String v ) {
@@ -173,7 +205,9 @@ public class JobParamsAdapterTest {
     @Override
     public int compare( JobParam arg0, JobParam arg1 ) {
       int r = arg0.name.compareTo( arg1.name );
-      if ( r != 0 ) return r;
+      if ( r != 0 ) {
+        return r;
+      }
       return arg0.value.compareTo( arg1.value );
     }
 
