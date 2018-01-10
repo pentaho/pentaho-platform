@@ -63,6 +63,8 @@ public class PentahoWebContextFilter implements Filter {
 
   public static final String WEB_CONTEXT_JS = "webcontext.js"; //$NON-NLS-1$
 
+  public static final String PARAM_SSO_ENABLED = "ssoEnabled";
+
   private static final String REQUIREJS_LOCATION = "content/common-ui/resources/web/require.js";
   private static final String REQUIREJS_CONFIG_LOCATION = "content/common-ui/resources/web/require-cfg.js";
   private static final String REQUIREJS_INIT_LOCATION = "osgi/requirejs-manager/js/require-init.js";
@@ -91,6 +93,8 @@ public class PentahoWebContextFilter implements Filter {
   private static final String GLOBAL = "global"; //$NON-NLS-1$
   private static final String REQUIRE_JS = "requirejs"; //$NON-NLS-1$
 
+  private String ssoEnabled = null;
+
   // Changed to not do so much work for every request
   private static final ThreadLocal<byte[]> THREAD_LOCAL_REQUIRE_SCRIPT = new ThreadLocal<>();
   protected static ICacheManager cache = PentahoSystem.getCacheManager( null );
@@ -108,7 +112,7 @@ public class PentahoWebContextFilter implements Filter {
         return initializeServicesPath();
       }
     };
-
+    this.setSsoEnabled( filterConfig.getInitParameter( PARAM_SSO_ENABLED ) );
   }
 
   @Override
@@ -155,6 +159,11 @@ public class PentahoWebContextFilter implements Filter {
         printWebContextVar( out, webContextVariables, "active_theme" );
 
         printWebContextVar( out, webContextVariables, "requireCfg", false, false );
+
+        // This var will enable correct redirect in Session Expire Dialog for a SSO scenario
+        if ( getSsoEnabled() != null ) {
+          printWebContextVar( out, webContextVariables, "ssoEnabled", false, false );
+        }
 
         // config for 'pentaho/environment' amd module
         printPentahoEnvironmentConfig( out, webContextVariables );
@@ -281,6 +290,7 @@ public class PentahoWebContextFilter implements Filter {
     HashMap<String, String> map = new HashMap<>();
 
     map.put( "requireCfg", getRequireCfgVar() );                             // Global JS variable
+    map.put( "ssoEnabled", getSsoEnabled() );                                // Global JS variable
 
     map.put( "PENTAHO_CONTEXT_NAME", getContextNameVar( request ) );         // Global JS environment variable
     map.put( "FULL_QUALIFIED_URL", getFullyQualifiedServerUrlVar() );        // Global JS environment variable
@@ -694,6 +704,14 @@ public class PentahoWebContextFilter implements Filter {
     }
 
     return normalizeURL( servicesRoot );
+  }
+
+  public String getSsoEnabled() {
+    return ssoEnabled;
+  }
+
+  public void setSsoEnabled( String ssoEnabled ) {
+    this.ssoEnabled = ssoEnabled;
   }
   // endregion
 }
