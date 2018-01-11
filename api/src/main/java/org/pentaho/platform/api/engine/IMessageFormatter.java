@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.api.engine;
@@ -45,6 +45,16 @@ public interface IMessageFormatter {
   @SuppressWarnings( "rawtypes" )
   void formatFailureMessage( final String mimeType, final IRuntimeContext context, final StringBuffer messageBuffer,
       final List defaultMessages );
+
+  /**
+   * @param showStacktrace if true, exception stacktrace (if it is in messages)
+   *                       will be put into formatted message for debug purposes
+   */
+  default void formatFailureMessage( final String mimeType, final IRuntimeContext context,
+      final StringBuffer messageBuffer, final List defaultMessages, final boolean showStacktrace ) {
+    // do nothing by default.
+    // just making sure no descendant is broken.
+  }
 
   void formatFailureMessage( final String mimeType, final IRuntimeContext context, final StringBuffer messageBuffer );
 

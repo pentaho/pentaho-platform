@@ -13,11 +13,12 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.services;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +35,7 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -132,6 +134,12 @@ public class MessageFormatter implements IMessageFormatter {
 
   public void formatFailureMessage( final String mimeType, final IRuntimeContext context,
       final StringBuffer messageBuffer, final List defaultMessages ) {
+    formatFailureMessage( mimeType, context, messageBuffer, defaultMessages, false );
+  }
+
+  @Override
+  public void formatFailureMessage( final String mimeType, final IRuntimeContext context,
+      final StringBuffer messageBuffer, final List defaultMessages, final boolean showStacktrace ) {
 
     // TODO handle error messages from the runtime context
 
@@ -156,8 +164,9 @@ public class MessageFormatter implements IMessageFormatter {
             break;
           }
         }
-        if ( theFailureException != null ) {
-          formatExceptionMessage( mimeType, theFailureException, messageBuffer );
+
+        if ( theFailureException != null  ) {
+          formatExceptionMessage( mimeType, theFailureException, messageBuffer, showStacktrace );
         } else {
           formatErrorMessage( mimeType, "Failed", theMessages, messageBuffer ); //$NON-NLS-1$
         }
@@ -166,18 +175,13 @@ public class MessageFormatter implements IMessageFormatter {
   }
 
   public void formatExceptionMessage( String mimeType, ActionSequenceException exception, StringBuffer messageBuffer ) {
+    formatExceptionMessage( mimeType, exception, messageBuffer, false );
+  }
+
+  public void formatExceptionMessage( String mimeType, ActionSequenceException exception, StringBuffer messageBuffer,
+      boolean showStacktrace ) {
     if ( "text/html".equals( mimeType ) ) { //$NON-NLS-1$
-      String templateFile = null;
-      String templatePath = "system/ui/templates/viewActionErrorTemplate.html"; //$NON-NLS-1$
-      try {
-        byte[] bytes =
-            IOUtils.toByteArray( ActionSequenceResource.getInputStream( templatePath, LocaleHelper.getLocale() ) );
-        templateFile = new String( bytes, LocaleHelper.getSystemEncoding() );
-      } catch ( IOException e ) {
-        messageBuffer.append( Messages.getInstance().getErrorString(
-            "MessageFormatter.RESPONSE_ERROR_HEADING", templatePath ) ); //$NON-NLS-1$
-        e.printStackTrace();
-      }
+      String templateFile = getTemplate( messageBuffer );
 
       // NOTE: StringUtils.replace is used here instead of String.replaceAll because since the latter uses regex,
       // the
@@ -272,13 +276,16 @@ public class MessageFormatter implements IMessageFormatter {
           .getString( "MessageFormatter.RESPONSE_EXCEPTION_LOOP_INDEX_LABEL" ) ); //$NON-NLS-1$
 
       // %STACK_TRACE%
-      charWriter = new CharArrayWriter();
-      printWriter = new PrintWriter( charWriter );
-      exception.printStackTrace( printWriter );
-      templateFile = StringUtils.replace( templateFile, "%STACK_TRACE%", StringEscapeUtils.escapeHtml( charWriter //$NON-NLS-1$
-          .toString() ) );
-      templateFile = StringUtils.replace( templateFile, "%STACK_TRACE_LABEL%", Messages.getInstance() //$NON-NLS-1$
+      if ( showStacktrace ) {
+        templateFile = StringUtils.replace( templateFile, "%DETAILS_CONTROLS_HIDDEN%", "false" );
+        templateFile =
+          StringUtils.replace( templateFile, "%STACK_TRACE%", StringEscapeUtils.escapeHtml(
+            getStacktrace( exception ) ) );
+        templateFile = StringUtils.replace( templateFile, "%STACK_TRACE_LABEL%", Messages.getInstance() //$NON-NLS-1$
           .getString( "MessageFormatter.RESPONSE_EXCEPTION_STACK_TRACE_LABEL" ) ); //$NON-NLS-1$
+      } else {
+        templateFile = StringUtils.replace( templateFile, "%DETAILS_CONTROLS_HIDDEN%", "true" );
+      }
 
       // %EXCEPTION_MESSAGES%
       Stack<String> causes = new Stack<String>();
@@ -302,6 +309,31 @@ public class MessageFormatter implements IMessageFormatter {
       }
 
       messageBuffer.append( templateFile );
+    }
+  }
+
+  @VisibleForTesting
+  String getTemplate( StringBuffer messageBuffer ) {
+    String templatePath = "system/ui/templates/viewActionErrorTemplate.html"; //$NON-NLS-1$
+    try ( InputStream is = ActionSequenceResource.getInputStream( templatePath, LocaleHelper.getLocale() ) ) {
+      byte[] bytes = IOUtils.toByteArray( is );
+      return new String( bytes, LocaleHelper.getSystemEncoding() );
+    } catch ( IOException e ) {
+      messageBuffer.append( Messages.getInstance().getErrorString(
+          "MessageFormatter.RESPONSE_ERROR_HEADING", templatePath ) ); //$NON-NLS-1$
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  @VisibleForTesting
+  String getStacktrace( ActionSequenceException exception ) {
+    try (
+        CharArrayWriter charWriter = new CharArrayWriter();
+        PrintWriter printWriter = new PrintWriter( charWriter )
+      ) {
+      exception.printStackTrace( printWriter );
+      return charWriter.toString();
     }
   }
 

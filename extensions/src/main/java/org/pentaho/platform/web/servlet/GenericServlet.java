@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IContentGenerator;
-import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -33,12 +32,12 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.MimeHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.platform.web.http.HttpOutputHandler;
+import org.pentaho.platform.web.http.MessageFormatUtils;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 import org.pentaho.platform.web.servlet.messages.Messages;
@@ -313,8 +312,7 @@ public class GenericServlet extends ServletBase {
       List errorList = new ArrayList();
       String msg = e.getMessage();
       errorList.add( msg );
-      PentahoSystem.get( IMessageFormatter.class, PentahoSessionHolder.getSession() ).formatFailureMessage(
-        "text/html", null, buffer, errorList ); //$NON-NLS-1$
+      MessageFormatUtils.formatFailureMessage( "text/html", null, buffer, errorList ); //$NON-NLS-1$
       response.getOutputStream().write( buffer.toString().getBytes( LocaleHelper.getSystemEncoding() ) );
 
     } finally {
