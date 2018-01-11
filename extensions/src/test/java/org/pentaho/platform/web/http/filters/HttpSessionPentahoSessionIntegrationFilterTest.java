@@ -88,7 +88,7 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
   }
 
   @Test
-  public void testSessionCookieCASEnabled() throws ObjectFactoryException {
+  public void testSessionCookieSsoEnabled() throws ObjectFactoryException {
 
     final ISystemSettings systemSettings = PentahoSystem.getSystemSettings();
     try {
@@ -97,8 +97,9 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
       PentahoSystem.setSystemSettingsService( mockSettings );
       final CasAuthenticationProvider mockObj = Mockito.mock( CasAuthenticationProvider.class );
       PentahoSystem.registerObject( mockObj, AuthenticationProvider.class );
-      new HttpSessionPentahoSessionIntegrationFilter()
-        .setSessionExpirationCookies( httpSession, pentahoSession, servletResponse );
+      HttpSessionPentahoSessionIntegrationFilter hspsif = new HttpSessionPentahoSessionIntegrationFilter();
+      hspsif.setSsoEnabled( true );
+      hspsif.setSessionExpirationCookies( httpSession, pentahoSession, servletResponse );
       Mockito.verify( servletResponse, Mockito.never() ).addCookie( Mockito.any() );
     } finally {
       PentahoSystem.setSystemSettingsService( systemSettings );
