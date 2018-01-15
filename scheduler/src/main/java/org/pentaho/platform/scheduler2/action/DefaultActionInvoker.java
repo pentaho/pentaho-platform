@@ -62,6 +62,35 @@ public class DefaultActionInvoker implements IActionInvoker {
   }
 
   /**
+   *
+   * Validates that the conditions required for the {@link IAction} to be invoked are true, throwing an
+   * {@link ActionInvocationException}, if the conditions are not met.
+   *
+   * @param actionBean The {@link IAction} to be invoked
+   * @param actionUser The user invoking the {@link IAction}
+   * @param params     the {@link Map} or parameters needed to invoke the {@link IAction}
+   * @return the {@link IActionInvokeStatus} object containing information about the action invocation
+   * @throws ActionInvocationException when conditions needed to invoke the {@link IAction} are not met
+   */
+  public void validate( final IAction actionBean, final String actionUser,
+                        final Map<String, Serializable> params ) throws ActionInvocationException {
+
+    final String workItemUid = ActionUtil.extractUid( params );
+
+    if ( actionBean == null || params == null ) {
+      final String failureMessage = Messages.getInstance().getCantInvokeNullAction();
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED,  failureMessage );
+      throw new ActionInvocationException( failureMessage );
+    }
+
+    if ( !isSupportedAction( actionBean ) ) {
+      final String failureMessage = Messages.getInstance().getUnsupportedAction( actionBean.getClass().getName() );
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, failureMessage );
+      throw new ActionInvocationException( failureMessage );
+    }
+  }
+
+  /**
    * Invokes the provided {@link IAction} as the provided {@code actionUser}.
    *
    * @param actionBean the {@link IAction} being invoked
@@ -74,6 +103,7 @@ public class DefaultActionInvoker implements IActionInvoker {
   public IActionInvokeStatus invokeAction( final IAction actionBean,
                                            final String actionUser,
                                            final Map<String, Serializable> params ) throws Exception {
+    validate( actionBean, actionUser, params );
     return invokeActionImpl( actionBean, actionUser, params );
   }
 

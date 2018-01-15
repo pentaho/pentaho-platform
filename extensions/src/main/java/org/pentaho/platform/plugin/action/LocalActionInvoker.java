@@ -103,6 +103,6 @@ public class LocalActionInvoker extends DefaultActionInvoker {
     // call getStreamProvider, in addition to creating the provider, this method also adds values to the map that
     // serialize the stream provider and make it possible to deserialize and recreate it for remote execution.
     getStreamProvider( params );
-    return invokeActionImpl( actionBean, actionUser, params );
+    return super.invokeAction( actionBean, actionUser, params );
   }
 }

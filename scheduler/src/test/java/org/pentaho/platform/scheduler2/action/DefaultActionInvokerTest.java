@@ -21,8 +21,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.pentaho.platform.api.action.ActionInvocationException;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.util.bean.TestAction;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
@@ -57,5 +59,23 @@ public class DefaultActionInvokerTest
 
     params.put( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER, Mockito.mock( IBackgroundExecutionStreamProvider.class ) );
     Assert.assertNotNull( Whitebox.invokeMethod( ai,"getStreamProvider", params ) );
+  }
+
+  @Test
+  public void testValidate() throws Exception {
+    final DefaultActionInvoker ai = new DefaultActionInvoker();
+    ai.validate( new TestAction(), "user", new HashMap() );
+  }
+
+  @Test( expected = ActionInvocationException.class )
+  public void testValidateNullAction() throws Exception {
+    final DefaultActionInvoker ai = new DefaultActionInvoker();
+    ai.validate( null, "user", new HashMap() );
+  }
+
+  @Test( expected = ActionInvocationException.class )
+  public void testValidateNullParams() throws Exception {
+    final DefaultActionInvoker ai = new DefaultActionInvoker();
+    ai.validate( new TestAction(), "user", null );
   }
 }

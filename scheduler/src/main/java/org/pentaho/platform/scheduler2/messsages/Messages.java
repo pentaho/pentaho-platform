@@ -41,6 +41,10 @@ public class Messages extends MessagesBase {
       StringUtil.getMapAsPrettyString( params ) );
   }
 
+  public String getUnsupportedAction( final String action ) {
+    return getErrorString( "ActionInvoker.ERROR_0006_ACTION_NULL", action );
+  }
+
   public String getCantInvokeNullAction() {
     return getErrorString( "ActionInvoker.ERROR_0005_ACTION_NULL" );
   }
