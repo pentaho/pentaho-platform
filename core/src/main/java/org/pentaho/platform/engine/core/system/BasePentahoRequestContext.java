@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.system;
@@ -30,7 +30,7 @@ public class BasePentahoRequestContext implements IPentahoRequestContext {
     super();
     if ( contextPath != null ) {
       String draftPath = contextPath + ( contextPath.endsWith( SLASH ) ? EMPTY : SLASH );
-      this.contextPath = draftPath.replaceAll( "(/){2,}", SLASH );
+      this.contextPath = draftPath.replaceAll( "(?<!^http:)(/){2,}", SLASH );
     } else {
       String path = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
       this.contextPath = path + ( path != null && path.endsWith( SLASH ) ? EMPTY : SLASH );
