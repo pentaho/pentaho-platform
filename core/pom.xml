@@ -19,6 +19,12 @@
     <jcommon.version>1.0.14</jcommon.version>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
+    <commons-xul.version>8.1.0.0-SNAPSHOT</commons-xul.version>
+    <pentaho-connections.version>8.1.0.0-SNAPSHOT</pentaho-connections.version>
+    <pentaho-actionsequence-dom.version>8.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
+    <pentaho-metadata.version>8.1.0.0-SNAPSHOT</pentaho-metadata.version>
+    <pentaho-versionchecker.version>8.1.0.0-SNAPSHOT</pentaho-versionchecker.version>
+    <pdi.version>8.1.0.0-SNAPSHOT</pdi.version>
   </properties>
   <dependencies>
     <dependency>
@@ -510,19 +516,19 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-connections</artifactId>
-      <version>${project.version}</version>
+      <version>${pentaho-connections.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-actionsequence-dom</artifactId>
-      <version>${project.version}</version>
+      <version>${pentaho-actionsequence-dom.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-metadata</artifactId>
-      <version>${project.version}</version>
+      <version>${pentaho-metadata.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -542,7 +548,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-versionchecker</artifactId>
-      <version>${project.version}</version>
+      <version>${pentaho-versionchecker.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -552,9 +558,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-xul-core</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.pentaho</groupId>
+      <artifactId>commons-xul-core</artifactId>
+      <version>${commons-xul.version}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -566,7 +572,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-engine</artifactId>
-      <version>${project.version}</version>
+      <version>${pdi.version}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -578,7 +584,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${project.version}</version>
+      <version>${pdi.version}</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
