@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.util;
@@ -71,6 +71,7 @@ public class ActionUtil {
   public static final String INVOKER_SYNC_VALUE = "false";
 
   public static final String WORK_ITEM_UID = "workItemUid"; //$NON-NLS-1$
+  public static final String USE_WORKER_NODES = "useWorkerNodes";
 
   /**
    * Regex representing characters that are allowed in the work item uid (in compliance with chronos job names).
@@ -192,6 +193,27 @@ public class ActionUtil {
 
     return uid;
   }
+
+  /**
+   * Looks up the {@code ActionUtil.USE_WORKER_NODES} within the {@link Map}. If available, the value is returned
+   *
+   *
+   * @param params a {@link Map} that may contain the {@code ActionUtil.USE_WORKER_NODES}
+   * @return {@code ActionUtil.USE_WORKER_NODES} from the {@link Map} false otherwise
+   */
+  public static boolean extractUseWorkerNodes( final Map<String, Serializable> params ) {
+    if ( params == null ) {
+      return false;
+    }
+
+    String useWorkerNodes = (String) params.get( USE_WORKER_NODES );
+    if ( StringUtil.isEmpty( useWorkerNodes ) ) {
+      return false;
+    }
+
+    return Boolean.parseBoolean( useWorkerNodes );
+  }
+
 
   /**
    * @param params a {@link Map} containing action/work item related attributes, in particular {@code inputFile} and

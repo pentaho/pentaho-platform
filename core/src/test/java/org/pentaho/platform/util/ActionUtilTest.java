@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright (c) 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.util;
@@ -172,6 +172,45 @@ public class ActionUtilTest {
 
     assertNull( ActionUtil.extractUid( params ) );
     assertFalse( params.containsKey( ActionUtil.WORK_ITEM_UID ) );
+  }
+
+  @Test
+  public void testExtractUseWorkerNodesWithoutParam() {
+
+    final Map<String, Serializable> params = new HashMap<>();
+
+    //param executeLocally not set at all
+
+    assertNull( params.get( ActionUtil.USE_WORKER_NODES ) );
+    assertFalse( ActionUtil.extractUseWorkerNodes( params ) );
+    assertEquals( 0, params.size() );
+  }
+
+  @Test
+  public void testExtractUseWorkerNodesWithParam() {
+
+    final Map<String, Serializable> params = new HashMap<>();
+
+    //param executeLocally set to empty string
+    params.put( ActionUtil.USE_WORKER_NODES, "" );
+
+    assertTrue( params.containsKey( ActionUtil.USE_WORKER_NODES ) );
+    assertFalse( ActionUtil.extractUseWorkerNodes( params ) );
+    assertEquals( 1, params.size() );
+
+    //param executeLocally set to false
+    params.put( ActionUtil.USE_WORKER_NODES, "false" );
+
+    assertTrue( params.containsKey( ActionUtil.USE_WORKER_NODES ) );
+    assertFalse( ActionUtil.extractUseWorkerNodes( params ) );
+    assertEquals( 1, params.size() );
+
+    //param executeLocally set to true
+    params.put( ActionUtil.USE_WORKER_NODES, "true" );
+
+    assertTrue( params.containsKey( ActionUtil.USE_WORKER_NODES ) );
+    assertTrue( ActionUtil.extractUseWorkerNodes( params ) );
+    assertEquals( 1, params.size() );
   }
 
   /**
