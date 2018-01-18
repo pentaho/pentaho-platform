@@ -84,6 +84,8 @@ public class JobScheduleRequest implements Serializable {
 
   String actionClass;
 
+  String useWorkerNodes;
+
   CronJobTrigger cronJobTrigger;
 
   ComplexJobTriggerProxy complexJobTrigger;
@@ -219,4 +221,11 @@ public class JobScheduleRequest implements Serializable {
     this.jobId = jobId;
   }
 
+  public String getUseWorkerNodes() {
+    return useWorkerNodes;
+  }
+
+  public void setUseWorkerNodes(String useWorkerNodes) {
+    this.useWorkerNodes = useWorkerNodes;
+  }
 }
