@@ -135,8 +135,8 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-cassandra-plugin</artifactId>
+                  <groupId>org.pentaho</groupId>
+                  <artifactId>pentaho-cassandra-plugin-package</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
