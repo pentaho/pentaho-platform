@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -146,6 +146,10 @@ public class SchedulerService {
     }
 
     parameterMap.put( LocaleHelper.USER_LOCALE_PARAM, LocaleHelper.getLocale() );
+
+    if ( scheduleRequest.getUseWorkerNodes() != null && !scheduleRequest.getUseWorkerNodes().trim().isEmpty() ) {
+      parameterMap.put( "useWorkerNodes", scheduleRequest.getUseWorkerNodes().trim() );
+    }
 
     if ( hasInputFile ) {
       SchedulerOutputPathResolver outputPathResolver = getSchedulerOutputPathResolver( scheduleRequest );

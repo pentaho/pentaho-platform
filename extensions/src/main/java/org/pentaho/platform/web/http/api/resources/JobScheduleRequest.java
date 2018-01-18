@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -83,6 +83,8 @@ public class JobScheduleRequest implements Serializable {
   String outputFile;
 
   String actionClass;
+
+  String useWorkerNodes;
 
   CronJobTrigger cronJobTrigger;
 
@@ -219,4 +221,11 @@ public class JobScheduleRequest implements Serializable {
     this.jobId = jobId;
   }
 
+  public String getUseWorkerNodes() {
+    return useWorkerNodes;
+  }
+
+  public void setUseWorkerNodes( String useWorkerNodes ) {
+    this.useWorkerNodes = useWorkerNodes;
+  }
 }
