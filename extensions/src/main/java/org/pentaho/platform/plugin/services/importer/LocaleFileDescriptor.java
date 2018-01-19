@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -24,6 +24,7 @@ import java.io.InputStream;
 public class LocaleFileDescriptor {
 
   private String name;
+  private String extension;
   private String path;
   private String description;
   private RepositoryFile file;
@@ -36,6 +37,12 @@ public class LocaleFileDescriptor {
     this.path = path;
     this.inputStream = inputStream;
     this.file = file;
+  }
+
+  LocaleFileDescriptor( String name, String extension, String description, String path, RepositoryFile file,
+                               InputStream inputStream ) {
+    this ( name, description, path, file, inputStream );
+    this.extension = extension;
   }
 
   public String getName() {
@@ -77,4 +84,13 @@ public class LocaleFileDescriptor {
   public void setFile( RepositoryFile file ) {
     this.file = file;
   }
+
+  public String getExtension() {
+    return extension;
+  }
+
+  public void setExtension( String extension ) {
+    this.extension = extension;
+  }
+
 }

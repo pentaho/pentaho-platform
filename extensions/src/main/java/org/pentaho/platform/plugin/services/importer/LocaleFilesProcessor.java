@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -111,8 +111,19 @@ public class LocaleFilesProcessor {
       if ( !StringUtils.isEmpty( name ) ) {
         String filePath = ( actualFilePath.equals( "/" ) || actualFilePath.equals( "\\" ) ) ? "" : actualFilePath;
         filePath = RepositoryFilenameUtils.concat( parentPath, filePath );
-        LocaleFileDescriptor localeFile =
-            new LocaleFileDescriptor( name, description, filePath, localeRepositoryFile, inputStream );
+        LocaleFileDescriptor localeFile;
+        switch ( sourceVersion ) {
+          case 1:
+            localeFile = new LocaleFileDescriptor( name, PROPERTIES_EXT, description, filePath, localeRepositoryFile,
+              inputStream );
+            break;
+          case 2:
+            localeFile =
+              new LocaleFileDescriptor( name, LOCALE_EXT, description, filePath, localeRepositoryFile, inputStream );
+            break;
+          default:
+            localeFile = new LocaleFileDescriptor( name, description, filePath, localeRepositoryFile, inputStream );
+        }
         localeFiles.add( localeFile );
 
         /**
@@ -165,8 +176,15 @@ public class LocaleFilesProcessor {
     }
 
     if ( !StringUtils.isEmpty( name ) ) {
+      LocaleFileDescriptor localeFile;
+      if ( name.endsWith( PROPERTIES_EXT ) ) {
+        localeFile = new LocaleFileDescriptor( name, PROPERTIES_EXT, description, filePath, rf.build(), is );
+      } else if ( name.endsWith( LOCALE_EXT ) ) {
+        localeFile = new LocaleFileDescriptor( name, LOCALE_EXT, description, filePath, rf.build(), is );
+      } else {
+        localeFile = new LocaleFileDescriptor( name, description, filePath, rf.build(), is );
+      }
 
-      LocaleFileDescriptor localeFile = new LocaleFileDescriptor( name, description, filePath, rf.build(), is );
       localeFiles.add( localeFile );
 
       success = true;
@@ -180,15 +198,36 @@ public class LocaleFilesProcessor {
     IPlatformMimeResolver mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
     String mimeType = mimeResolver.resolveMimeForFileName( FILE_LOCALE_RESOLVER );
 
+    List<LocaleFileDescriptor> localeFilesToProceed = new ArrayList<>();
+
     for ( LocaleFileDescriptor localeFile : localeFiles ) {
-      bundleBuilder.name( localeFile.getName() );
-      bundleBuilder.comment( localeFile.getDescription() );
-      bundleBuilder.path( localeFile.getPath() );
-      bundleBuilder.file( localeFile.getFile() );
-      bundleBuilder.input( localeFile.getInputStream() );
-      bundleBuilder.mime( mimeType );
-      IPlatformImportBundle platformImportBundle = bundleBuilder.build();
-      importer.importFile( platformImportBundle );
+      String extension = localeFile.getExtension();
+      if ( !StringUtils.isEmpty( extension ) && extension.equals( LOCALE_EXT ) ) {
+        localeFilesToProceed.add( localeFile );
+      }
     }
+
+    if ( !localeFilesToProceed.isEmpty() ) {
+      for ( LocaleFileDescriptor localeFile : localeFilesToProceed ) {
+        proceed( importer, bundleBuilder, mimeType, localeFile );
+      }
+    } else {
+      for ( LocaleFileDescriptor localeFile : localeFiles ) {
+        proceed( importer, bundleBuilder, mimeType, localeFile );
+      }
+    }
+
+  }
+
+  private void proceed( IPlatformImporter importer, RepositoryFileImportBundle.Builder bundleBuilder, String mimeType,
+                        LocaleFileDescriptor localeFile ) throws PlatformImportException {
+    bundleBuilder.name( localeFile.getName() );
+    bundleBuilder.comment( localeFile.getDescription() );
+    bundleBuilder.path( localeFile.getPath() );
+    bundleBuilder.file( localeFile.getFile() );
+    bundleBuilder.input( localeFile.getInputStream() );
+    bundleBuilder.mime( mimeType );
+    IPlatformImportBundle platformImportBundle = bundleBuilder.build();
+    importer.importFile( platformImportBundle );
   }
 }
