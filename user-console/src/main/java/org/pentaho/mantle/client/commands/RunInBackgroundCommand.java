@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.commands;
@@ -69,6 +69,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
   private String solutionTitle = null;
   private String outputLocationPath = null;
   private String outputName = null;
+  private String useWorkerNodes = null;
 
   public String getSolutionTitle() {
     return solutionTitle;
@@ -110,6 +111,14 @@ public class RunInBackgroundCommand extends AbstractCommand {
     this.outputName = outputName;
   }
 
+  public String getUseWorkerNodes() {
+    return useWorkerNodes;
+  }
+
+  public void setUseWorkerNodes( String useWorkerNodes ) {
+    this.useWorkerNodes = useWorkerNodes;
+  }
+
   protected void performOperation() {
     final SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
     if ( this.getSolutionPath() != null ) {
@@ -147,9 +156,10 @@ public class RunInBackgroundCommand extends AbstractCommand {
   protected void showDialog( final boolean feedback ) {
     final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( solutionPath ) {
       @Override
-      protected void onSelect( final String name, final String outputLocationPath ) {
+      protected void onSelect( final String name, final String outputLocationPath, final String useWorkerNodes ) {
         setOutputName( name );
         setOutputLocationPath( outputLocationPath );
+        setUseWorkerNodes( useWorkerNodes );
         performOperation( feedback );
       }
     };
@@ -284,6 +294,10 @@ public class RunInBackgroundCommand extends AbstractCommand {
               scheduleRequest.put( "outputFile", JSONNull.getInstance() ); //$NON-NLS-1$
             } else {
               scheduleRequest.put( "outputFile", new JSONString( getOutputLocationPath() ) ); //$NON-NLS-1$
+            }
+
+            if ( !StringUtils.isEmpty( getUseWorkerNodes() ) ) {
+              scheduleRequest.put( "useWorkerNodes", new JSONString( getUseWorkerNodes() ) ); //$NON-NLS-1$
             }
 
             // BISERVER-9321

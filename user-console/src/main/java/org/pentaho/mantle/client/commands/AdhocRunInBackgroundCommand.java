@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.mantle.client.commands;
@@ -93,9 +93,10 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
   protected void showDialog( final boolean feedback ) {
     final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( getSolutionPath() ) {
       @Override
-      protected void onSelect( final String name, final String outputPath ) {
+      protected void onSelect( final String name, final String outputPath, String useWorkerNodes ) {
         setOutputName( name );
         setOutputLocationPath( outputPath );
+        setUseWorkerNodes( useWorkerNodes );
         performOperation( feedback );
       }
 
