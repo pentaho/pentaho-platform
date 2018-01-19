@@ -93,9 +93,10 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
   protected void showDialog( final boolean feedback ) {
     final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( getSolutionPath() ) {
       @Override
-      protected void onSelect( final String name, final String outputPath ) {
+      protected void onSelect( final String name, final String outputPath, String useWorkerNodes ) {
         setOutputName( name );
         setOutputLocationPath( outputPath );
+        setUseWorkerNodes( useWorkerNodes );
         performOperation( feedback );
       }
 
