@@ -33,6 +33,7 @@
     <jackson.version>1.9.13</jackson.version>
     <replacer.version>1.5.2</replacer.version>
     <kafka-clients.version>0.10.2.1</kafka-clients.version>
+    <paho.version>1.2.0</paho.version>
   </properties>
   <dependencies>
     <dependency>
@@ -1058,6 +1059,17 @@
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
       <version>${kafka-clients.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.paho</groupId>
+      <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+      <version>${paho.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
