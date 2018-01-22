@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -118,11 +118,11 @@ public class ActionAdapterQuartzJob implements Job {
       final Map.Entry<String, Serializable> entry = iter.next();
       final String key = entry.getKey();
       final Serializable value = entry.getValue();
-      if (value instanceof MapParamValue ) {
+      if ( value instanceof MapParamValue ) {
         serializableMap.put( key, new HashMap<String, Serializable>( (MapParamValue) value ) );
-      } else if (value instanceof ListParamValue ) {
+      } else if ( value instanceof ListParamValue ) {
         serializableMap.put( key, new ArrayList<Serializable>( (ListParamValue) value ) );
-      } else if (value instanceof StringParamValue ) {
+      } else if ( value instanceof StringParamValue ) {
         serializableMap.put( key, ( (StringParamValue) value ).getStringValue() );
       } else {
         serializableMap.put( key, value );
@@ -152,10 +152,12 @@ public class ActionAdapterQuartzJob implements Job {
 
     WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.SUBMITTED );
 
-    // creates an instance of IActionInvoker, which knows how to invoke this IAction - if the IActionInvoker bean is
-    // not defined through spring, fall back on the default action invoker
-    final IActionInvoker actionInvoker = Optional.ofNullable( PentahoSystem.get( IActionInvoker.class ) ).orElse(
-      getActionInvoker() );
+    // creates an instance of IActionInvoker, which knows how to invoke this IAction
+    // if useWorkerNodes is false, use default action invoker else use IActionInvoker bean if available
+    // or fall back on the default action invoker
+    final IActionInvoker actionInvoker = ActionUtil.extractUseWorkerNodes( params )
+      ? Optional.ofNullable( PentahoSystem.get( IActionInvoker.class ) ).orElse( getActionInvoker() ) :  getActionInvoker();
+
     // Instantiate the requested IAction bean
     final IAction actionBean = (IAction) ActionUtil.createActionBean( actionClassName, actionId );
 
