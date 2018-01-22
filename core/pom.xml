@@ -526,7 +526,7 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
+      <groupId>org.pentaho</groupId>
       <artifactId>pentaho-metadata</artifactId>
       <version>${pentaho-metadata.version}</version>
       <scope>compile</scope>
