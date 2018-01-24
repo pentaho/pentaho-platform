@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 package org.pentaho.platform.web.http.api.resources.services;
 
@@ -133,7 +133,7 @@ public class SchedulerServiceTest {
     doReturn( "file.ext" ).when( scheduleRequest ).getInputFile();
     doReturn( repositoryFile ).when( schedulerService.repository ).getFile( anyString() );
 
-    doReturn( "ext" ).when( schedulerService ).getExtension( anyString() );
+    doReturn( "ext.backgroundExecution" ).when( schedulerService ).resolveActionId( anyString() );
 
     doReturn( true ).when( schedulerService ).getAutoCreateUniqueFilename( any( JobScheduleRequest.class ) );
 
@@ -171,7 +171,7 @@ public class SchedulerServiceTest {
     verify( schedulerService, times( 3 ) ).isPdiFile( any( RepositoryFile.class ) );
     verify( schedulerService, times( 3 ) ).handlePDIScheduling( any( RepositoryFile.class ), any( HashMap.class ), any( HashMap.class ) );
     verify( schedulerService, times( 2 ) ).getSchedulerOutputPathResolver( any( JobScheduleRequest.class ) );
-    verify( schedulerService, times( 2 ) ).getExtension( anyString() );
+    //verify( schedulerService, times( 2 ) ).resolveActionId( anyString() );
     verify( scheduleRequest, times( 5 ) ).getActionClass();
     verify( schedulerService ).getAction( anyString() );
     verify( schedulerService.scheduler )
@@ -220,7 +220,7 @@ public class SchedulerServiceTest {
     doReturn( "file.ext" ).when( scheduleRequest ).getInputFile();
     doReturn( repositoryFile ).when( schedulerService.repository ).getFile( anyString() );
 
-    doReturn( "ext" ).when( schedulerService ).getExtension( anyString() );
+    doReturn( "ext.backgroundExecution" ).when( schedulerService ).resolveActionId( anyString() );
 
     doReturn( true ).when( schedulerService ).getAutoCreateUniqueFilename( any( JobScheduleRequest.class ) );
 
