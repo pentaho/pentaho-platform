@@ -552,6 +552,10 @@ public class SchedulerService {
     return false;
   }
 
+  protected String resolveActionId( final String inputFile ) {
+    return SchedulerResourceUtil.resolveActionId( inputFile );
+  }
+
   protected String getExtension( String filename ) {
     return SchedulerResourceUtil.getExtension( filename );
   }
