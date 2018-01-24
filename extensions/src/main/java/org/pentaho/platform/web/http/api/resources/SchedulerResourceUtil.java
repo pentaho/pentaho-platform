@@ -29,6 +29,7 @@ import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.plugin.services.exporter.ScheduleExportUtil;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
@@ -48,6 +49,7 @@ public class SchedulerResourceUtil {
   private static final Log logger = LogFactory.getLog( SchedulerResourceUtil.class );
 
   public static final String RESERVEDMAPKEY_LINEAGE_ID = "lineage-id";
+  public static final String RESERVED_BACKGROUND_EXECUTION_ACTION_ID = ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
 
   public static IJobTrigger convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest,
                                                                 IScheduler scheduler )
@@ -243,4 +245,16 @@ public class SchedulerResourceUtil {
     return file != null && "kjb".equalsIgnoreCase( FilenameUtils.getExtension( file.getName() ) );
   }
 
+  public static String resolveActionId( final String inputFile ) {
+    // unchanged logic, ported over from its original location ( SchedulerService ) into this SchedulerUtil class
+    if ( !StringUtils.isEmpty( inputFile ) && !StringUtils.isEmpty( getExtension( inputFile ) ) ) {
+      return getExtension( inputFile ) + RESERVED_BACKGROUND_EXECUTION_ACTION_ID;
+    }
+    return null;
+  }
+
+  public static String getExtension( final String filename ) {
+    // unchanged logic, ported over from its original location ( SchedulerService ) into this SchedulerUtil class
+    return RepositoryFilenameUtils.getExtension( filename );
+  }
 }

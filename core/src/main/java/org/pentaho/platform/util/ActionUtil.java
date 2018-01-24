@@ -264,6 +264,22 @@ public class ActionUtil {
    * @throws Exception           when the required parameters are not provided
    */
   static Class<?> resolveActionClass( final String actionClassName, final String beanId ) throws
+          PluginBeanException, ActionInvocationException {
+    return resolveActionClass( actionClassName, beanId, true /* default retryBeanInstantiationIfFailed */ );
+  }
+
+  /**
+   * Returns the {@link Class} that corresponds to the provides {@code actionClassName} and {@code beanId}.
+   *
+   * @param actionClassName the name of the class being resolved
+   * @param beanId          the beanId of the class being resolved
+   * @param retryBeanInstantiationIfFailed re-trigger bean instantiation attempt, should it fail for some reason
+   * @return the {@link Class} that corresponds to the provides {@code actionClassName} and {@code beanId}
+   * @throws PluginBeanException when the plugin required to resolve the bean class from the {@code beanId} cannot be
+   *                             created
+   * @throws Exception           when the required parameters are not provided
+   */
+  static Class<?> resolveActionClass( final String actionClassName, final String beanId, final boolean retryBeanInstantiationIfFailed ) throws
       PluginBeanException, ActionInvocationException {
 
     Class<?> clazz = null;
@@ -273,7 +289,10 @@ public class ActionUtil {
           "ActionUtil.ERROR_0001_REQUIRED_PARAM_MISSING", INVOKER_ACTIONCLASS, INVOKER_ACTIONID ) );
     }
 
-    for ( int i = 0; i < RETRY_COUNT; i++ ) {
+    final long retryCount = ( retryBeanInstantiationIfFailed ? RETRY_COUNT : 1 );
+    final long retrySleepCount = ( retryBeanInstantiationIfFailed ? RETRY_SLEEP_AMOUNT : 1 ); // millis
+
+    for ( int i = 0; i < retryCount; i++ ) {
       try {
         if ( !StringUtils.isEmpty( beanId ) ) {
           IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
@@ -289,7 +308,7 @@ public class ActionUtil {
         }
       } catch ( Throwable t ) {
         try {
-          Thread.sleep( RETRY_SLEEP_AMOUNT );
+          Thread.sleep( retrySleepCount );
         } catch ( InterruptedException ie ) {
           logger.info( ie.getMessage(), ie );
         }
@@ -312,11 +331,24 @@ public class ActionUtil {
    * @throws Exception when the {@link IAction} cannot be created for some reason
    */
   public static IAction createActionBean( final String actionClassName, final String actionId ) throws
+          ActionInvocationException {
+    return createActionBean( actionClassName, actionId, true /* default retryBeanInstantiationIfFailed */ );
+  }
+
+  /**
+   * Returns an instance of {@link IAction} created from the provided parameters.
+   *
+   * @param actionClassName the name of the class being resolved
+   * @param actionId        the is of the action which corresponds to some bean id
+   * @return {@link IAction} created from the provided parameters.
+   * @throws Exception when the {@link IAction} cannot be created for some reason
+   */
+  public static IAction createActionBean( final String actionClassName, final String actionId, final boolean retryBeanInstantiationIfFailed ) throws
       ActionInvocationException {
     Object actionBean = null;
     Class<?> actionClass = null;
     try {
-      actionClass = resolveActionClass( actionClassName, actionId );
+      actionClass = resolveActionClass( actionClassName, actionId, retryBeanInstantiationIfFailed );
       actionBean = actionClass.newInstance();
     } catch ( final Exception e ) {
       throw new ActionInvocationException( Messages.getInstance().getErrorString(

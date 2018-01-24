@@ -39,7 +39,6 @@ import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
@@ -154,9 +153,7 @@ public class SchedulerService {
     if ( hasInputFile ) {
       SchedulerOutputPathResolver outputPathResolver = getSchedulerOutputPathResolver( scheduleRequest );
       String outputFile = outputPathResolver.resolveOutputFilePath();
-      String actionId =
-        getExtension( scheduleRequest.getInputFile() )
-          + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
+      String actionId = SchedulerResourceUtil.resolveActionId( scheduleRequest.getInputFile() );
       final String inputFile = scheduleRequest.getInputFile();
       parameterMap.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE,  inputFile );
       job =
@@ -556,7 +553,7 @@ public class SchedulerService {
   }
 
   protected String getExtension( String filename ) {
-    return RepositoryFilenameUtils.getExtension( filename );
+    return SchedulerResourceUtil.getExtension( filename );
   }
 
   /**
