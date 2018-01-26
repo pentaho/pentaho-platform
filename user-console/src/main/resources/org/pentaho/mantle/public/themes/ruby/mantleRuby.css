@@ -1497,3 +1497,16 @@ hr {
   border: 0 none;
   border-top: 1px solid #e0e0e0;
 }
+
+.section-divider-title {
+  display: block;
+  padding-top: 0;
+  padding-left: 0;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ccc;
+  color: #999;
+  font-family: opensansregular, Helvetica, Arial, Sans serif;
+  font-weight: normal;
+  font-size: 14px;
+}
