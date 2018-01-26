@@ -898,3 +898,10 @@ code {
   border-top: 1px solid #cccccc;
   height: 15px;
 }
+
+.section-divider-title {
+  font-weight: bold;
+  padding-left: 8px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+}
