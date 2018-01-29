@@ -2078,8 +2078,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-actionsequence-dom</artifactId>
+      <groupId>org.pentaho</groupId>
+      <artifactId>actionsequence-dom</artifactId>
       <version>${pentaho-actionsequence-dom.version}</version>
       <scope>compile</scope>
     </dependency>
