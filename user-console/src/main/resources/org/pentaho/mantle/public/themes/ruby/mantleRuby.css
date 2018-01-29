@@ -1500,7 +1500,7 @@ hr {
 
 .section-divider-title {
   display: block;
-  padding-top: 0;
+  padding-top: 15px;
   padding-left: 0;
   padding-bottom: 5px;
   margin-bottom: 15px;
