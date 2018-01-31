@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.ws;
@@ -24,12 +24,16 @@ import javax.jws.WebService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 /**
@@ -42,6 +46,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 public class DefaultSchedulerService implements ISchedulerService {
 
   private static Log logger = LogFactory.getLog( DefaultSchedulerService.class );
+
+  private static final String ADMIN_PERM = "org.pentaho.security.administerSecurity";
 
   private String defaultActionId; // for testing only
 
@@ -99,7 +105,16 @@ public class DefaultSchedulerService implements ISchedulerService {
   /** {@inheritDoc} */
   public Job[] getJobs() throws SchedulerException {
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
-    return scheduler.getJobs( null ).toArray( new Job[0] );
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    String principalName = session.getName();
+    Boolean canAdminister = PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( ADMIN_PERM );
+
+    return scheduler.getJobs( job -> {
+      if ( canAdminister ) {
+        return !IBlockoutManager.BLOCK_OUT_JOB_NAME.equals( job.getJobName() );
+      }
+      return principalName.equals( job.getUserName() );
+    } ).toArray( new Job[0] );
   }
 
   /** {@inheritDoc} */
