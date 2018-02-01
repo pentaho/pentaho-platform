@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.test.platform.plugin.pluginmgr;
@@ -235,13 +235,28 @@ public class PluginResourceLoaderTest {
    *   Path Traversal Mitigation.
    * </p>
    * Given path of an NON-existing resource file, containing upper directories references.
-   * When the file is being requested on this path, null should returned and no exception should be thrown.
+   * When the file is being requested on this path, an exception should be thrown.
    */
   @Test
-  public void shouldNotFailWhenNonExistingResourcePathIsReferringUpperDirectories() throws UnsupportedEncodingException {
-    assertNull( resLoader.getResourceAsStream( pluginClass, "resources/../settings.xml-non-existing" ) );
-    assertNull( resLoader.getResourceAsBytes( pluginClass, "resources/../settings.xml-non-existing" ) );
-    assertNull( resLoader.getResourceAsString( pluginClass, "resources/../settings.xml-non-existing" ) );
+  public void shouldFailWhenNonExistingResourcePathIsReferringUpperDirectories() throws UnsupportedEncodingException {
+    try {
+      resLoader.getResourceAsStream( pluginClass, "resources/../settings.xml-non-existing" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+    try {
+      resLoader.getResourceAsBytes( pluginClass, "resources/../settings.xml-non-existing" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+    try {
+      resLoader.getResourceAsString( pluginClass, "resources/../settings.xml-non-existing" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
   }
 
   /**

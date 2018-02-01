@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr;
@@ -196,20 +196,21 @@ public class PluginResourceLoader implements IPluginResourceLoader {
     File root = getPluginDir( classLoader );
     if ( root != null ) {
 
-      // can we find it on the filesystem?
       File f = new File( root, resourcePath );
-      if ( f.canRead() ) {
-        try {
-          checkPathTraversal( resourcePath, f );
+      try {
+        checkPathTraversal( resourcePath, f );
+
+        // can we find it on the filesystem?
+        if ( f.canRead() ) {
           in = new BufferedInputStream( new FileInputStream( f ) );
-        } catch ( IOException e ) {
-          Logger.debug( this, "Cannot open stream to resource", e ); //$NON-NLS-1$
+        } else { //if not in filesystem ask the classloader
+          in = classLoader.getResourceAsStream( resourcePath );
+          if ( in == null ) {
+            Logger.debug( this, "Cannot find resource defined by path [" + resourcePath + "]" ); //$NON-NLS-1$
+          }
         }
-      } else { //if not in filesystem ask the classloader
-        in = classLoader.getResourceAsStream( resourcePath );
-        if ( in == null ) {
-          Logger.debug( this, "Cannot find resource defined by path [" + resourcePath + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
-        }
+      } catch ( IOException e ) {
+        Logger.debug( this, "Cannot open stream to resource", e ); //$NON-NLS-1$
       }
     }
     return in;
