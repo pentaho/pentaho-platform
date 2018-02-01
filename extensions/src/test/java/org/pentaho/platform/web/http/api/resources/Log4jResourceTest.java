@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -77,6 +77,11 @@ public class Log4jResourceTest {
 
     res = target.updateLogLevel( "ALL", "foo.bar" );
     assertEquals( 304, res.getStatus() );
+
+    res = target.updateLogLevel( "ALL", "<script>alert('XSS')</script>" );
+    assertEquals( 304, res.getStatus() );
+    assertEquals( "[\"Category: '&lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;' not found, log level not modified.\"]",
+            res.getMetadata().values().toArray()[0].toString() );
   }
 
   @Before
