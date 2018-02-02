@@ -1175,7 +1175,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
+      <groupId>org.pentaho</groupId>
       <artifactId>pentaho-report-wizard-core</artifactId>
       <version>${pentaho-report-wizard-core.version}</version>
       <scope>compile</scope>
