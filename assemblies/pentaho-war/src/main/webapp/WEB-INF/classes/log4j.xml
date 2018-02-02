@@ -157,17 +157,7 @@
    
    <category name="RepositoryImportLog">
       <priority value="INFO"/>
-   </category> 
-
-   <!-- ======================= -->
-   <!-- Setup the Root category -->
-   <!-- ======================= -->
-
-   <root>
-      <priority value="ERROR" />
-      <appender-ref ref="PENTAHOCONSOLE"/>
-      <appender-ref ref="PENTAHOFILE"/>
-   </root>
+   </category>
 
   <logger name="org.pentaho.di.trans.Trans" additivity="false">
     <level value="INFO"/>
@@ -178,6 +168,16 @@
     <level value="INFO"/>
     <appender-ref ref="job-appender"/>
   </logger>
+
+   <!-- ======================= -->
+   <!-- Setup the Root category -->
+   <!-- ======================= -->
+
+   <root>
+      <priority value="ERROR" />
+      <appender-ref ref="PENTAHOCONSOLE"/>
+      <appender-ref ref="PENTAHOFILE"/>
+   </root>
 
   <!--  optional logging info for the Mondrian OLAP Engine       -->
    
