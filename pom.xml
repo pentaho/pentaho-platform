@@ -308,7 +308,7 @@
   </build>
   <profiles>
     <profile>
-      <id>platform-base</id>
+      <id>platform-api</id>
       <activation>
         <property>
           <name>!skipDefault</name>
@@ -316,6 +316,16 @@
       </activation>
       <modules>
         <module>api</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>platform-base</id>
+      <activation>
+        <property>
+          <name>!skipDefault</name>
+        </property>
+      </activation>
+      <modules>
         <module>core</module>
         <module>repository</module>
         <module>scheduler</module>
