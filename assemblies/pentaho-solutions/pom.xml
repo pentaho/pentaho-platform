@@ -14,6 +14,7 @@
     <prepared.samples.directory>${project.build.directory}/dependency/plugin-samples</prepared.samples.directory>
     <prepared.plugins.directory>${project.build.directory}/dependency/plugins</prepared.plugins.directory>
     <prepared.kettle.plugins.directory>${project.build.directory}/dependency/pdi-plugins</prepared.kettle.plugins.directory>
+    <pentaho-jpivot-plugin.version>${project.version}</pentaho-jpivot-plugin.version>
   </properties>
   <dependencies>
     <dependency>
@@ -78,9 +79,9 @@
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-jpivot-plugin</artifactId>
-                  <version>${project.version}</version>
+                  <groupId>org.pentaho</groupId>
+                  <artifactId>jpivot-plugin</artifactId>
+                  <version>${pentaho-jpivot-plugin.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
                 </artifactItem>
