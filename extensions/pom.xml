@@ -1797,6 +1797,12 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pdi-dataservice-client-plugin-api</artifactId>
+      <version>${pdi-dataservice-client-plugin.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>net.sf.kosmosfs</groupId>
       <artifactId>kfs</artifactId>
       <version>${kfs.version}</version>
