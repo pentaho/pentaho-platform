@@ -58,7 +58,7 @@
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho</groupId>
+                  <groupId>org.pentaho.ctools</groupId>
                   <artifactId>cgg</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
