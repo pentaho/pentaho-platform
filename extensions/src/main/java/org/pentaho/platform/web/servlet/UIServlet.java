@@ -12,11 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IMessageFormatter;
@@ -27,6 +28,7 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.servlet.messages.Messages;
+import org.springframework.http.MediaType;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +43,11 @@ import java.io.OutputStream;
  *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
  *         Code Templates
  */
+
+/**
+ * @deprecated Due to the PPP-3963
+ */
+@Deprecated
 public class UIServlet extends ServletBase {
 
   /**
@@ -67,21 +74,17 @@ public class UIServlet extends ServletBase {
       IPentahoSession userSession = getPentahoSession( request );
       HttpSession session = request.getSession();
 
-      String type = request.getParameter( "type" ); //$NON-NLS-1$
+      String type = MediaType.valueOf( request.getParameter( "type" ) ).toString(); //$NON-NLS-1$
       if ( type == null ) {
         type = "text/html"; //$NON-NLS-1$
       }
 
       // find out which component is going to fulfill this request
-      String componentName = request.getParameter( "component" ); //$NON-NLS-1$
+      String componentName = StringEscapeUtils.escapeHtml( request.getParameter( "component" ) ); //$NON-NLS-1$
       if ( componentName == null ) {
         response.setContentType( "text/html" ); //$NON-NLS-1$
         StringBuffer buffer = new StringBuffer();
-        PentahoSystem
-            .get( IMessageFormatter.class, userSession )
-            .formatErrorMessage(
-              "text/html", Messages.getInstance().getString( "UIServlet.ACTION_FAILED" ),
-              Messages.getInstance().getErrorString( "UIServlet.ERROR_0001_COMPONENT_NOT_SPECIFIED" ), buffer ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        formatErrorMessage( userSession, buffer, "UIServlet.ERROR_0001_COMPONENT_NOT_SPECIFIED" );
         outputStream.write( buffer.toString().getBytes( LocaleHelper.getSystemEncoding() ) );
         return;
 
@@ -94,11 +97,7 @@ public class UIServlet extends ServletBase {
         if ( component == null ) {
           response.setContentType( "text/html" ); //$NON-NLS-1$
           StringBuffer buffer = new StringBuffer();
-          PentahoSystem
-              .get( IMessageFormatter.class, userSession )
-              .formatErrorMessage(
-                "text/html", Messages.getInstance().getString( "UIServlet.ACTION_FAILED" ),
-                Messages.getInstance().getErrorString( "UIServlet.ERROR_0002_COMPONENT_INVALID" ), buffer ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          formatErrorMessage( userSession, buffer, "UIServlet.ERROR_0002_COMPONENT_INVALID" );
           outputStream.write( buffer.toString().getBytes( LocaleHelper.getSystemEncoding() ) );
           return;
         }
@@ -127,7 +126,7 @@ public class UIServlet extends ServletBase {
     }
   }
 
-  private IUIComponent getComponent( final String componentName ) {
+  IUIComponent getComponent( final String componentName ) {
     return (IUIComponent) PentahoSystem.createObject( componentName, this );
   }
 
@@ -137,6 +136,12 @@ public class UIServlet extends ServletBase {
 
     doGet( request, response );
 
+  }
+
+  void formatErrorMessage( IPentahoSession userSession, StringBuffer buffer, String errorString ) {
+    PentahoSystem.get( IMessageFormatter.class, userSession ).formatErrorMessage( "text/html",
+            Messages.getInstance().getString( "UIServlet.ACTION_FAILED" ),
+            Messages.getInstance().getErrorString( errorString ), buffer );
   }
 
 }
