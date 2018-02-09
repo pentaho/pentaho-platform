@@ -2,6 +2,8 @@ bin/
 .idea/
 *.iml
 .settings
+.metadata/
+.recommenders/
 
 out/
 build-utils/dist/
