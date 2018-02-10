@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -88,6 +88,10 @@ public class BlockingQuartzJobTest {
     try {
       mockery.checking( new Expectations() {
         {
+          oneOf( context ).getJobDetail();
+          will( returnValue( new JobDetail( "somejob", BlockingQuartzJob.class ) ) );
+          oneOf( context ).getJobDetail();
+          will( returnValue( new JobDetail( "somejob", BlockingQuartzJob.class ) ) );
           one( blockoutManager ).shouldFireNow();
           will( returnValue( true ) );
           one( underlyingJob ).execute( with( same( context ) ) );
@@ -104,6 +108,10 @@ public class BlockingQuartzJobTest {
     BlockingQuartzJob blockingJob = createTestBlockingJob( true );
     mockery.checking( new Expectations() {
       {
+        oneOf( context ).getJobDetail();
+        will( returnValue( new JobDetail( "somejob", BlockingQuartzJob.class ) ) );
+        oneOf( context ).getJobDetail();
+        will( returnValue( new JobDetail( "somejob", BlockingQuartzJob.class ) ) );
         one( underlyingJob ).execute( with( same( context ) ) );
         one( context ).getJobDetail();
         will( returnValue( new JobDetail( "somejob", BlockingQuartzJob.class ) ) );
