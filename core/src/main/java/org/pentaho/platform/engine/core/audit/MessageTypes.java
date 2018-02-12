@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.audit;
@@ -35,6 +35,12 @@ public class MessageTypes {
   public static final String INSTANCE_END = "instance_end"; //$NON-NLS-1$
 
   public static final String INSTANCE_FAILED = "instance_failed"; //$NON-NLS-1$
+
+  public static final String RECREATED_INSTANCE_START = "recreated_instance_start"; //$NON-NLS-1$
+
+  public static final String RECREATED_INSTANCE_END = "recreated_instance_end"; //$NON-NLS-1$
+
+  public static final String RECREATED_INSTANCE_FAILED = "recreated_instance_failed"; //$NON-NLS-1$
 
   public static final String INSTANCE_ATTRIBUTE = "instance_attribute"; //$NON-NLS-1$
 
