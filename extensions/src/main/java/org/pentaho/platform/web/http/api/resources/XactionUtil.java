@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -27,7 +27,6 @@ import org.dom4j.io.XMLWriter;
 import org.pentaho.actionsequence.dom.IActionDefinition;
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IActionSequence;
-import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -50,6 +49,7 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileContentItem
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.platform.web.http.HttpOutputHandler;
+import org.pentaho.platform.web.http.MessageFormatUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
@@ -151,13 +151,12 @@ public class XactionUtil {
       final String htmlMimeType = "text/html"; //$NON-NLS-1$
       responseContentItem.setMimeType( htmlMimeType );
       response.setContentType( htmlMimeType );
-      IMessageFormatter formatter = PentahoSystem.get( IMessageFormatter.class, PentahoSessionHolder.getSession() );
 
       if ( printSuccess ) {
-        formatter.formatSuccessMessage( htmlMimeType, runtime, buffer, debugMessages, doWrapper );
+        MessageFormatUtils.formatSuccessMessage( htmlMimeType, runtime, buffer, debugMessages, doWrapper );
       } else {
         response.resetBuffer();
-        formatter.formatFailureMessage( htmlMimeType, runtime, buffer, messages );
+        MessageFormatUtils.formatFailureMessage( htmlMimeType, runtime, buffer, messages );
       }
     }
     // clear files which was generated during action execution 
