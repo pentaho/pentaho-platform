@@ -1421,7 +1421,8 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
 
 .users-roles-list {
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
+  overflow-x:hidden;
 }
 
 .pentaho-tab-panel, #userRolesAdminPanel .pentaho-tab-panel {
@@ -1443,7 +1444,8 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem {
 }
 
 .users-roles-selection-list {
-  overflow: hidden;
+  overflow: auto;
+  overflow-x:hidden;
   height: 317px;
 }
 
