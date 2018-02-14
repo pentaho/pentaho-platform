@@ -13,12 +13,13 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2018 Hitachi Vantara.  All rights reserved.
  */
 package org.pentaho.platform.scheduler2.action;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Assert;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -62,6 +63,9 @@ public class ActionRunnerTest {
     ActionRunner actionRunner = new ActionRunner( actionBeanSpy, "actionUser", paramsMap, null );
     actionRunner.call();
     Mockito.verify( actionBeanSpy ).execute();
+
+    // Verify that, by default the isExecutionSuccessful returns true
+    Assert.assertTrue( actionBeanSpy.isExecutionSuccessful() );
   }
 
 

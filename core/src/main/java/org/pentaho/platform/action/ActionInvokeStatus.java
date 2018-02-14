@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.action;
@@ -23,6 +23,7 @@ public class ActionInvokeStatus implements IActionInvokeStatus {
   private boolean requiresUpdate;
   private Throwable throwable;
   private Object streamProvider;
+  private boolean executionStatus;
 
   public void setRequiresUpdate( final boolean requiresUpdate ) {
     this.requiresUpdate = requiresUpdate;
@@ -46,5 +47,13 @@ public class ActionInvokeStatus implements IActionInvokeStatus {
 
   public Object getStreamProvider() {
     return this.streamProvider;
+  }
+
+  public boolean isExecutionSuccessful() {
+    return executionStatus;
+  }
+
+  public void setExecutionStatus( boolean status ) {
+    executionStatus = status;
   }
 }

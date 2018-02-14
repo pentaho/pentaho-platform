@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -118,11 +118,11 @@ public class ActionAdapterQuartzJob implements Job {
       final Map.Entry<String, Serializable> entry = iter.next();
       final String key = entry.getKey();
       final Serializable value = entry.getValue();
-      if (value instanceof MapParamValue ) {
+      if ( value instanceof MapParamValue ) {
         serializableMap.put( key, new HashMap<String, Serializable>( (MapParamValue) value ) );
-      } else if (value instanceof ListParamValue ) {
+      } else if ( value instanceof ListParamValue ) {
         serializableMap.put( key, new ArrayList<Serializable>( (ListParamValue) value ) );
-      } else if (value instanceof StringParamValue ) {
+      } else if ( value instanceof StringParamValue ) {
         serializableMap.put( key, ( (StringParamValue) value ).getStringValue() );
       } else {
         serializableMap.put( key, value );
@@ -182,6 +182,15 @@ public class ActionAdapterQuartzJob implements Job {
           getActionIdentifier( actionBean, actionClassName, actionId ), StringUtil.getMapAsPrettyString( params ) ) );
       }
       return;
+    }
+
+    // Some of the ktr/kjb execution failures are not thrown as exception as scheduler might try them again.
+    // To resolve this, the errors are flagged. If the execution status returns false, then it throws the
+    // exception
+    if ( !status.isExecutionSuccessful() ) {
+      // throw job exception
+      throw new JobExecutionException( Messages.getInstance().getActionFailedToExecute( actionBean //$NON-NLS-1$
+        .getClass().getName() ) );
     }
 
     final boolean requiresUpdate = status.requiresUpdate();
