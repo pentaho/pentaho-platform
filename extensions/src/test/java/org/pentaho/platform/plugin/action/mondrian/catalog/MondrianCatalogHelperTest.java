@@ -82,6 +82,8 @@ public class MondrianCatalogHelperTest {
         cacheValue = obj1;
       }
     };
+    //todo check test
+
     final ICacheManager cm = cmMock.getMockInstance();
 
     new NonStrictExpectations( PentahoSystem.class ) {
