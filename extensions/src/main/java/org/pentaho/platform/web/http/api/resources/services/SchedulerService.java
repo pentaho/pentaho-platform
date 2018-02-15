@@ -132,6 +132,10 @@ public class SchedulerService {
 
     Job job = null;
 
+    if ( scheduleRequest.getTimeZone() != null ) {
+      SchedulerResourceUtil.updateStartDateForTimeZone( scheduleRequest );
+    }
+
     IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
 
     HashMap<String, Serializable> parameterMap = new HashMap<>();
