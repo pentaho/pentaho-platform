@@ -14,6 +14,23 @@ VersionCheckSystemListener.
 	<bean id="systemListenersList" class="java.util.ArrayList">
 		<constructor-arg>
 			<list>
+				<bean class="org.pentaho.platform.engine.core.system.cache.CacheRegionsInitializer" >
+					<constructor-arg ref="ICacheManager" type="org.pentaho.platform.api.engine.ICacheManager"/>
+					<constructor-arg ref="IPluginManager" type="org.pentaho.platform.api.engine.IPluginManager"/>
+					<!--System regions-->
+					<constructor-arg>
+						<list>
+							<value>file</value><!--GenericServlet region-->
+							<value>org.pentaho.platform.web.servlet.PentahoXmlaServlet</value><!--PentahoXmlaServlet region-->
+						</list>
+					</constructor-arg>
+					<!--Plugin regions-->
+					<constructor-arg>
+						<list>
+
+						</list>
+					</constructor-arg>
+				</bean>
 			</list>
 		</constructor-arg>
 	</bean>

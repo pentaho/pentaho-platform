@@ -21,14 +21,31 @@ package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.engine.IPentahoSystemListener;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.engine.core.system.SimpleMapCacheManager;
+import org.pentaho.platform.engine.core.system.cache.CacheRegionsInitializer;
+import org.pentaho.platform.engine.core.system.cache.SimpleMapCacheManager;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -38,16 +55,63 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityPrincipalProvider.*;
 
+@ActiveProfiles( "test" )
+@RunWith( SpringJUnit4ClassRunner.class )
+@ContextConfiguration( classes = SpringSecurityPrincipalProvider_Caching_Test
+  .SpringSecurityPrincipalProviderConfiguration.class )
+@DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
 public class SpringSecurityPrincipalProvider_Caching_Test {
+
+  @Profile( "test" )
+  @Configuration
+  public static class SpringSecurityPrincipalProviderConfiguration {
+    @Autowired
+    AbstractApplicationContext context;
+
+    @Bean
+    @Scope( ConfigurableBeanFactory.SCOPE_SINGLETON )
+    public IPentahoSystemListener cacheRegionInitializer() {
+      CacheRegionsInitializer cacheRegionsInitializer = new CacheRegionsInitializer();
+      context.getBeanFactory().addBeanPostProcessor( cacheRegionsInitializer );
+      //context.refresh();
+      return cacheRegionsInitializer;
+    }
+
+    @Bean
+    @Primary
+    @Scope( ConfigurableBeanFactory.SCOPE_SINGLETON )
+    public ICacheManager iCacheManager() {
+      return spy( new SimpleMapCacheManager() );
+    }
+
+    @Bean
+    @Primary
+    public SpringSecurityPrincipalProvider springSecurityPrincipalProvider() {
+      SpringSecurityPrincipalProvider provider = new SpringSecurityPrincipalProvider();
+      provider.init( new Properties() );
+      return provider;
+    }
+
+    @Bean
+    @Primary
+    public IPluginManager pluginManager() {
+      return mock( IPluginManager.class );
+    }
+  }
+
   private static final String USER_PRINCIPLE = "user";
   private static final String ROLE_PRINCIPLE = "role";
 
+  @Autowired
   private SpringSecurityPrincipalProvider provider;
   private MicroPlatform mp;
 
   private ITenantedPrincipleNameResolver userResolver;
   private ITenantedPrincipleNameResolver roleResolver;
-  private SimpleMapCacheManager cacheManager;
+  @Autowired
+  private ICacheManager cacheManager;
+  @Autowired
+  private IPentahoSystemListener initializer;
 
   private ITenant userTenant;
   private ITenant roleTenant;
@@ -58,7 +122,6 @@ public class SpringSecurityPrincipalProvider_Caching_Test {
     userResolver = mock( ITenantedPrincipleNameResolver.class );
     roleResolver = mock( ITenantedPrincipleNameResolver.class );
 
-    cacheManager = spy( new SimpleMapCacheManager() );
     doReturn( false ).when( cacheManager ).cacheEnabled( USER_CACHE_REGION );
     doReturn( false ).when( cacheManager ).cacheEnabled( ROLE_CACHE_REGION );
 
@@ -68,14 +131,11 @@ public class SpringSecurityPrincipalProvider_Caching_Test {
     mp = new MicroPlatform( getSolutionPath() );
     mp.defineInstance( "tenantedUserNameUtils", userResolver );
     mp.defineInstance( "tenantedRoleNameUtils", roleResolver );
-    mp.defineInstance( ICacheManager.class, cacheManager );
+    mp.addLifecycleListener( initializer );
     mp.start();
 
-    provider = new SpringSecurityPrincipalProvider();
-    provider.init( new Properties() );
-    provider = spy( provider );
-
     User user = new User( USER_PRINCIPLE, "", true, true, true, true, new ArrayList<GrantedAuthority>() );
+    provider = spy( provider );
     doReturn( user ).when( provider ).internalGetUserDetails( USER_PRINCIPLE );
   }
 
@@ -105,9 +165,9 @@ public class SpringSecurityPrincipalProvider_Caching_Test {
     provider.clearCaches();
 
     assertNull( "Users' cache should be cleared", cacheManager.getFromRegionCache( USER_CACHE_REGION,
-        USER_PRINCIPLE ) );
+      USER_PRINCIPLE ) );
     assertNull( "Roles' cache should be cleared", cacheManager.getFromRegionCache( ROLE_CACHE_REGION,
-        ROLE_PRINCIPLE ) );
+      ROLE_PRINCIPLE ) );
   }
 
   @Test

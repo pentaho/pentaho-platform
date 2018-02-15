@@ -1,13 +1,17 @@
 package org.pentaho.platform.plugin.services.security.userrole;
 
+import org.pentaho.platform.api.cache.ICacheManagerUser;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static org.pentaho.platform.plugin.services.security.userrole.CachingUserRoleListServiceDecorator.REGION;
 
 /**
  * Caching Decorator for an IUserRoleListService. It will use the configured ICacheManager in the PentahoSystem to cache
@@ -15,10 +19,12 @@ import java.util.List;
  * <p/>
  * Created by nbaker on 5/20/14.
  */
-public class CachingUserRoleListServiceDecorator implements IUserRoleListService {
+@CacheRegionRequired( region = REGION )
+public class CachingUserRoleListServiceDecorator implements IUserRoleListService, ICacheManagerUser {
   private IUserRoleListService delegate;
-  private ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-  private static final String REGION = "userRoleListCache";
+  @Autowired
+  private ICacheManager cacheManager;
+  static final String REGION = "userRoleListCache";
   private static final String ALL_USERS = "all users";
   private static final String ALL_ROLES = "all roles";
   private static final String SYSTEM_ROLES = "system roles";
@@ -51,20 +57,18 @@ public class CachingUserRoleListServiceDecorator implements IUserRoleListService
       throw new IllegalArgumentException( "Decorated IUserRoleListService cannot be null" );
     }
     this.delegate = delegate;
-    if ( !this.cacheManager.cacheEnabled( REGION ) ) {
-      this.cacheManager.addCacheRegion( REGION );
-    }
+
   }
 
   @SuppressWarnings( "unchecked" )
   private List<String> performOperation( String cacheEntry, DelegateOperation operation ) {
       List<String> results = null;
-    Object fromRegionCache = cacheManager.getFromRegionCache( REGION, cacheEntry );
+    Object fromRegionCache = getCacheManager().getFromRegionCache( REGION, cacheEntry );
     if (fromRegionCache instanceof List ) {
         results = (List<String>) fromRegionCache;
     }else{
         results = operation.perform();
-        cacheManager.putInRegionCache( REGION, cacheEntry, results );
+      getCacheManager().putInRegionCache( REGION, cacheEntry, results );
     }
     return new ArrayList<String>(results);
   }
@@ -126,5 +130,9 @@ public class CachingUserRoleListServiceDecorator implements IUserRoleListService
   public List<String> getAllUsers() {
 
     return performOperation( ALL_USERS, ALL_USERS_OPERATION );
+  }
+
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
   }
 }

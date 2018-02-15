@@ -40,7 +40,7 @@ public class NonPooledDatasourceService extends BaseDatasourceService {
       if ( databaseConnection != null ) {
         ds = resolveDatabaseConnection( databaseConnection );
         if ( ds != null ) {
-          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
+          getCacheManager().putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
         }
       } else {
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(

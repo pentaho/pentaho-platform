@@ -33,7 +33,7 @@ public class JndiDatasourceService extends BaseDatasourceService implements IJnd
     try {
       ds =  getJndiDataSource( dsName );
       if ( ds != null ) {
-        cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
+        getCacheManager().putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
       }
     } catch ( DBDatasourceServiceException dse ) {
       throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(

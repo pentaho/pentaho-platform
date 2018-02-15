@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.system;
@@ -68,6 +68,7 @@ import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+import org.pentaho.platform.engine.core.system.cache.SimpleMapCacheManager;
 import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.OSGIRuntimeObjectFactory;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -1262,8 +1263,7 @@ public class PentahoSystem {
     try {
       // TODO get the SimpleMapCacheManager into the object map somehow
       // we will try to use a simple map cache manager if one has not been configured
-      ICacheManager cacheManager = aggObjectFactory.get( ICacheManager.class, session );
-      return cacheManager;
+      return aggObjectFactory.get( ICacheManager.class, session );
     } catch ( ObjectFactoryException e ) {
       ICacheManager cacheManager = SimpleMapCacheManager.getInstance();
       Logger.warn( PentahoSystem.class.getName(), "Using default cache manager" ); //$NON-NLS-1$

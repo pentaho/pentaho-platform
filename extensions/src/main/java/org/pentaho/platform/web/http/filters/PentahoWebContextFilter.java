@@ -22,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.owasp.encoder.Encode;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
@@ -35,6 +37,8 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.ConfigurationAdminNonOsgiProxy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -59,7 +63,8 @@ import java.util.Map;
 /**
  * If the request is searching for a webcontext.js, it writes out the content of the webcontext.js
  */
-public class PentahoWebContextFilter implements Filter {
+@CacheRegionRequired( region = ICacheManager.GLOBAL )
+public class PentahoWebContextFilter implements Filter, ICacheManagerUser {
 
   public static final String WEB_CONTEXT_JS = "webcontext.js"; //$NON-NLS-1$
 
@@ -97,7 +102,9 @@ public class PentahoWebContextFilter implements Filter {
 
   // Changed to not do so much work for every request
   private static final ThreadLocal<byte[]> THREAD_LOCAL_REQUIRE_SCRIPT = new ThreadLocal<>();
-  protected static ICacheManager cache = PentahoSystem.getCacheManager( null );
+
+  @Autowired
+  private ICacheManager cacheManager;
 
   private LazyInitializer<String> lazyServicesPath;
   private ConfigurationAdminNonOsgiProxy configurationAdminProxy;
@@ -237,8 +244,8 @@ public class PentahoWebContextFilter implements Filter {
   Integer getRequireWaitTime() {
     Integer waitTime = null;
 
-    if ( cache != null ) {
-      waitTime = (Integer) cache.getFromGlobalCache( PentahoSystem.WAIT_SECONDS );
+    if ( getCacheManager() != null ) {
+      waitTime = (Integer) getCacheManager().getFromGlobalCache( PentahoSystem.WAIT_SECONDS );
     }
 
     if ( waitTime == null ) {
@@ -247,8 +254,8 @@ public class PentahoWebContextFilter implements Filter {
       } catch ( NumberFormatException e ) {
         waitTime = 30;
       }
-      if ( cache != null ) {
-        cache.putInGlobalCache( PentahoSystem.WAIT_SECONDS, waitTime );
+      if ( getCacheManager() != null ) {
+        getCacheManager().putInGlobalCache( PentahoSystem.WAIT_SECONDS, waitTime );
       }
 
     }
@@ -714,4 +721,9 @@ public class PentahoWebContextFilter implements Filter {
     this.ssoEnabled = ssoEnabled;
   }
   // endregion
+
+
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
+  }
 }

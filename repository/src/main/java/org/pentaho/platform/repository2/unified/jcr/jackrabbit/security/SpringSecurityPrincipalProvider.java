@@ -40,6 +40,8 @@ import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalIteratorAdapter;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.ISystemConfig;
@@ -48,6 +50,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.messages.Messages;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,6 +60,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
+
+import static org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityPrincipalProvider
+  .ROLE_CACHE_REGION;
+import static org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityPrincipalProvider
+  .USER_CACHE_REGION;
 
 /**
  * A Jackrabbit {@code PrincipalProvider} that delegates to a Pentaho {@link UserDetailsService}.
@@ -83,11 +91,15 @@ import org.springframework.util.Assert;
  *
  * @author mlowery
  */
-public class SpringSecurityPrincipalProvider implements PrincipalProvider {
+
+@CacheRegionRequired( region = ROLE_CACHE_REGION)
+@CacheRegionRequired( region = USER_CACHE_REGION)
+public class SpringSecurityPrincipalProvider implements PrincipalProvider, ICacheManagerUser {
 
   public static final String ROLE_CACHE_REGION = "principalProviderRoleCache";
   public static final String USER_CACHE_REGION = "principalProviderUserCache";
 
+  @Autowired
   private ICacheManager cacheManager;
 
   // ~ Static fields/initializers
@@ -166,16 +178,6 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       logger.trace( String.format( "using anonymousId [%s]", anonymousId ) ); //$NON-NLS-1$
     }
 
-    cacheManager = PentahoSystem.getCacheManager( null );
-    if ( cacheManager != null ) {
-      if ( !cacheManager.cacheEnabled( USER_CACHE_REGION ) ) {
-        cacheManager.addCacheRegion( USER_CACHE_REGION );
-      }
-      if ( !cacheManager.cacheEnabled( ROLE_CACHE_REGION ) ) {
-        cacheManager.addCacheRegion( ROLE_CACHE_REGION );
-      }
-    }
-
     initSkipUserVerification( options );
 
     initialized.set( true );
@@ -189,9 +191,9 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   }
 
   public synchronized void clearCaches() {
-    if ( cacheManager != null ) {
-      cacheManager.clearRegionCache( ROLE_CACHE_REGION );
-      cacheManager.clearRegionCache( USER_CACHE_REGION );
+    if ( getCacheManager() != null ) {
+      getCacheManager().clearRegionCache( ROLE_CACHE_REGION );
+      getCacheManager().clearRegionCache( USER_CACHE_REGION );
     }
   }
 
@@ -231,8 +233,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
       if ( JcrTenantUtils.isTenantedUser( principalName ) ) {
         // 1. then try the user cache
-        if ( cacheManager != null ) {
-          Principal userFromUserCache = (Principal) cacheManager
+        if ( getCacheManager() != null ) {
+          Principal userFromUserCache = (Principal) getCacheManager()
             .getFromRegionCache( USER_CACHE_REGION, JcrTenantUtils.getTenantedUser( principalName ) );
 
           if ( userFromUserCache != null ) {
@@ -257,8 +259,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         // it may not be necessary to get user's details to emit principal,
         if ( skipUserVerification || internalGetUserDetails( principalName ) != null ) {
           final Principal user = new UserPrincipal( principalName );
-          if ( cacheManager != null ) {
-            cacheManager.putInRegionCache( USER_CACHE_REGION, principalName, user );
+          if ( getCacheManager() != null ) {
+            getCacheManager().putInRegionCache( USER_CACHE_REGION, principalName, user );
           }
           return user;
         }
@@ -266,8 +268,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       } else if ( JcrTenantUtils.isTenatedRole( principalName ) ) {
 
         // 1. first try the role cache
-        if ( cacheManager != null ) {
-          Principal roleFromCache = (Principal) cacheManager
+        if ( getCacheManager() != null ) {
+          Principal roleFromCache = (Principal) getCacheManager()
             .getFromRegionCache( ROLE_CACHE_REGION, JcrTenantUtils.getTenantedRole( principalName ) );
 
           if ( roleFromCache != null ) {
@@ -294,8 +296,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         // SpringSecurityLoginModule.getPrincipal and the login will fail
         final Principal roleToCache = createSpringSecurityRolePrincipal( principalName );
 
-        if ( cacheManager != null ) {
-          cacheManager.putInRegionCache( ROLE_CACHE_REGION, principalName, roleToCache );
+        if ( getCacheManager() != null ) {
+          getCacheManager().putInRegionCache( ROLE_CACHE_REGION, principalName, roleToCache );
         }
         if ( logger.isTraceEnabled() ) {
           logger.trace( "assuming " + principalName + " is a role" ); //$NON-NLS-1$ //$NON-NLS-2$
@@ -338,10 +340,10 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
         final String roleAuthority = role.getAuthority();
         Principal fromCache;
-        if ( cacheManager == null ) {
+        if ( getCacheManager() == null ) {
           fromCache = null;
         } else {
-          fromCache = (Principal) cacheManager.getFromRegionCache( ROLE_CACHE_REGION, roleAuthority );
+          fromCache = (Principal) getCacheManager().getFromRegionCache( ROLE_CACHE_REGION, roleAuthority );
         }
 
         if ( fromCache != null ) {
@@ -409,12 +411,12 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         for ( GrantedAuthority authority : authorities ) {
           String role = authority.getAuthority();
           final String tenatedRoleString = JcrTenantUtils.getTenantedRole( role );
-          if ( cacheManager != null ) {
-            Object rolePrincipal = cacheManager.getFromRegionCache( ROLE_CACHE_REGION, role );
+          if ( getCacheManager() != null ) {
+            Object rolePrincipal = getCacheManager().getFromRegionCache( ROLE_CACHE_REGION, role );
             if ( rolePrincipal == null ) {
               final SpringSecurityRolePrincipal ssRolePrincipal =
                 new SpringSecurityRolePrincipal( tenatedRoleString );
-              cacheManager.putInRegionCache( ROLE_CACHE_REGION, role, ssRolePrincipal );
+              getCacheManager().putInRegionCache( ROLE_CACHE_REGION, role, ssRolePrincipal );
             }
           }
           auths.add( new SimpleGrantedAuthority( tenatedRoleString ) );
@@ -548,4 +550,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     logger.info( "Property '" + SKIP_USER_VERIFICATION_PROP_KEY + "' is '" + skipUserVerification + "'" );
   }
 
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
+  }
 }

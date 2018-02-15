@@ -17,7 +17,7 @@
 
 package org.pentaho.test.platform.plugin.services.metadata;
 
-import org.pentaho.platform.engine.core.system.SimpleMapCacheManager;
+import org.pentaho.platform.engine.core.system.cache.SimpleMapCacheManager;
 
 public class MockDisabledCacheManager extends SimpleMapCacheManager {
   @Override

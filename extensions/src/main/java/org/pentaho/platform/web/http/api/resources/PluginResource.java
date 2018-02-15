@@ -21,12 +21,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.web.MimeHelper;
 import org.pentaho.platform.web.http.messages.Messages;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
@@ -49,6 +53,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import static javax.ws.rs.core.MediaType.WILDCARD;
+import static org.pentaho.platform.web.http.api.resources.PluginResource.CACHE_FILE;
 
 /**
  * Represents the public files available in a plugin.
@@ -57,11 +62,10 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
  * 
  */
 @Path( "/plugins/{pluginId}" )
-public class PluginResource {
+@CacheRegionRequired( region = CACHE_FILE)
+public class PluginResource implements ICacheManagerUser {
 
-  private static final String CACHE_FILE = "file"; //$NON-NLS-1$
-
-  private static ICacheManager cache = PentahoSystem.getCacheManager( null );
+  static final String CACHE_FILE = "file"; //$NON-NLS-1$
 
   protected File systemFolder;
 
@@ -71,11 +75,8 @@ public class PluginResource {
 
   protected IPluginManager pluginMgr = PentahoSystem.get( IPluginManager.class );
 
-  static {
-    if ( cache != null ) {
-      cache.addCacheRegion( CACHE_FILE );
-    }
-  }
+  @Autowired
+  private ICacheManager cacheManager;
 
   @Context
   protected HttpServletResponse httpServletResponse;
@@ -95,7 +96,7 @@ public class PluginResource {
     final String canonicalPath = pluginId + "/" + path; //$NON-NLS-1$
 
     if ( useCache ) {
-      byte[] bytes = (byte[]) cache.getFromRegionCache( CACHE_FILE, canonicalPath );
+      byte[] bytes = (byte[]) getCacheManager().getFromRegionCache( CACHE_FILE, canonicalPath );
       if ( bytes != null ) {
         return new ByteArrayInputStream( bytes );
       }
@@ -117,7 +118,7 @@ public class PluginResource {
         bos = new ByteArrayOutputStream();
         IOUtils.copy( inputStream, bos );
         byte[] bytes = bos.toByteArray();
-        cache.putInRegionCache( CACHE_FILE, canonicalPath, bytes );
+        getCacheManager().putInRegionCache( CACHE_FILE, canonicalPath, bytes );
         // new InputStream for caller since we just read it (can't call reset() as it's a generic InputStream)
         inputStream = new ByteArrayInputStream( bytes );
       } finally {
@@ -193,5 +194,9 @@ public class PluginResource {
     }
 
     return Response.ok( streamingOutput, mediaType ).build();
+  }
+
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
   }
 }

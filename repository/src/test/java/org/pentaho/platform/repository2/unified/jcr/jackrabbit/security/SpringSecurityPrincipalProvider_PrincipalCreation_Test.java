@@ -137,7 +137,6 @@ public class SpringSecurityPrincipalProvider_PrincipalCreation_Test {
     provider = new SpringSecurityPrincipalProvider();
     provider.init( properties );
     // remove caching to avoid its impact
-    provider.setCacheManager( null );
   }
 
   protected Properties createBasicProperties() {
