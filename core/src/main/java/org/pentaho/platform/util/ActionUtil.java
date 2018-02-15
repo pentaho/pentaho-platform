@@ -94,6 +94,9 @@ public class ActionUtil {
     KEY_MAP.put( ActionUtil.QUARTZ_RESTART_FLAG, ActionUtil.INVOKER_RESTART_FLAG );
   }
 
+  public static final String WORK_ITEM_XMS = "JVM_XMS";
+  public static final String WORK_ITEM_XMX = "JVM_XMX";
+
   /**
    * Removes the provided {@code key} from the {@code params} {@link Map} , if it exists, as well as its
    * "equivalent", as defined within the {@code KEY_MAP}. If the provided {@code key} is a key within the {@code
