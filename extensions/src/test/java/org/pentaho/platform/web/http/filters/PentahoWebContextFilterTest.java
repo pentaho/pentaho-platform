@@ -24,7 +24,9 @@ package org.pentaho.platform.web.http.filters;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.pentaho.platform.CacheManagerConfiguration;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
@@ -33,6 +35,15 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -58,6 +69,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ActiveProfiles( "test" )
+@RunWith( SpringJUnit4ClassRunner.class )
+@ContextConfiguration( classes = CacheManagerConfiguration.class )
+@DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
 public class PentahoWebContextFilterTest {
   private String contextRoot;
   private String fullyQualifiedServerURL;
@@ -72,7 +87,12 @@ public class PentahoWebContextFilterTest {
   private HttpServletResponse mockResponse;
   private java.io.ByteArrayOutputStream mockResponseOutputStream;
 
+  @Autowired
   private PentahoWebContextFilter pentahoWebContextFilter;
+  @Autowired
+  private ICacheManager cacheManager;
+  @Autowired
+  private PentahoWebContextFilter filter;
 
   @Before
   public void setup() throws IOException, ServletException {
@@ -90,11 +110,11 @@ public class PentahoWebContextFilterTest {
 
     ServletContext mockServletContext = mock( ServletContext.class );
     ServletRegistration mockServletRegistration = mock( ServletRegistration.class );
-    Collection<String> mappings = new ArrayList<>(1);
+    Collection<String> mappings = new ArrayList<>( 1 );
     mappings.add( PentahoWebContextFilter.DEFAULT_OSGI_BRIDGE );
     when( mockServletRegistration.getMappings() ).thenReturn( mappings );
     when( mockServletContext.getServletRegistration( PentahoWebContextFilter.PLATFORM_OSGI_BRIDGE_ID ) )
-            .thenReturn( mockServletRegistration );
+      .thenReturn( mockServletRegistration );
     when( this.mockRequest.getServletContext() ).thenReturn( mockServletContext );
     when( this.mockRequest.getRequestURI() ).thenReturn( "/somewhere/" + PentahoWebContextFilter.WEB_CONTEXT_JS );
 
@@ -114,7 +134,6 @@ public class PentahoWebContextFilterTest {
     } );
 
     FilterConfig mockFilterConfig = mock( FilterConfig.class );
-    this.pentahoWebContextFilter = spy( new PentahoWebContextFilter() );
 
     IApplicationContext mockApplicationContext = mock( IApplicationContext.class );
     when( mockApplicationContext.getFullyQualifiedServerURL() ).thenReturn( this.fullyQualifiedServerURL );
@@ -130,7 +149,7 @@ public class PentahoWebContextFilterTest {
 
     IUserSettingService mockUserSettingsService = mock( IUserSettingService.class );
     when( mockUserSettingsService.getUserSetting( "pentaho-user-theme", null ) )
-            .thenReturn( mockUserSetting );
+      .thenReturn( mockUserSetting );
     doReturn( mockUserSettingsService ).when( this.pentahoWebContextFilter ).getUserSettingsService();
 
     this.sessionName = "testSession";
@@ -139,15 +158,15 @@ public class PentahoWebContextFilterTest {
     doReturn( mockSession ).when( this.pentahoWebContextFilter ).getSession();
 
     this.reservedChars = new ArrayList<>( 2 );
-    this.reservedChars.add('r');
-    this.reservedChars.add('c');
+    this.reservedChars.add( 'r' );
+    this.reservedChars.add( 'c' );
     doReturn( this.reservedChars ).when( this.pentahoWebContextFilter ).getRepositoryReservedChars();
 
 
     IPluginManager mockPluginManager = mock( IPluginManager.class );
     doReturn( mockPluginManager ).when( this.pentahoWebContextFilter ).getPluginManager();
     doReturn( PentahoWebContextFilter.DEFAULT_SERVICES_ROOT )
-            .when( this.pentahoWebContextFilter ).initializeServicesPath();
+      .when( this.pentahoWebContextFilter ).initializeServicesPath();
 
     this.pentahoWebContextFilter.init( mockFilterConfig );
   }
@@ -155,11 +174,7 @@ public class PentahoWebContextFilterTest {
   @Test
   public void testWebContextCachedWaitSecondVariable() throws Exception {
 
-    ICacheManager cacheManager = Mockito.mock( ICacheManager.class );
     when( cacheManager.getFromGlobalCache( PentahoSystem.WAIT_SECONDS ) ).thenReturn( null ).thenReturn( 30 );
-
-    PentahoWebContextFilter filter = new PentahoWebContextFilter();
-    PentahoWebContextFilter.cache = cacheManager;
 
     filter.getRequireWaitTime();
     filter.getRequireWaitTime();
@@ -200,7 +215,7 @@ public class PentahoWebContextFilterTest {
     final String response = executeWebContextFilter();
 
     String fullyQualifiedServerURL = this.pentahoWebContextFilter
-            .getWebContextVariables( this.mockRequest ).get( "FULL_QUALIFIED_URL" );
+      .getWebContextVariables( this.mockRequest ).get( "FULL_QUALIFIED_URL" );
 
     assertTrue( this.responseSetsContextPathGlobal( response, fullyQualifiedServerURL ) );
     assertTrue( this.requirejsManagerInitIsCalled( response, "true" ) );
@@ -246,7 +261,7 @@ public class PentahoWebContextFilterTest {
     final String response = executeWebContextFilter();
 
     assertTrue( response.contains(
-            getWebContextVarDefinition( "FULL_QUALIFIED_URL", this.fullyQualifiedServerURL ) ) );
+      getWebContextVarDefinition( "FULL_QUALIFIED_URL", this.fullyQualifiedServerURL ) ) );
   }
 
   @Test
@@ -288,9 +303,9 @@ public class PentahoWebContextFilterTest {
     final String response = executeWebContextFilter();
 
     String expected = "// If RequireJs is available, supply a module" +
-            "\nif (typeof(pen) !== 'undefined' && pen.define) {" +
-            "\n  pen.define('Locale', {locale: \"" + sessionLocale + "\" });" +
-            "\n}\n";
+      "\nif (typeof(pen) !== 'undefined' && pen.define) {" +
+      "\n  pen.define('Locale', {locale: \"" + sessionLocale + "\" });" +
+      "\n}\n";
 
     assertTrue( response.contains( expected ) );
   }
@@ -308,7 +323,7 @@ public class PentahoWebContextFilterTest {
     final String response = executeWebContextFilter();
 
     StringBuilder value = new StringBuilder();
-    this.reservedChars.forEach(value::append);
+    this.reservedChars.forEach( value::append );
     String reservedChars = value.toString();
 
     assertTrue( response.contains( getWebContextVarDefinition( "RESERVED_CHARS", reservedChars ) ) );
@@ -323,14 +338,14 @@ public class PentahoWebContextFilterTest {
     String response = executeWebContextFilter();
 
     String expected = "var requireCfg = {" +
-            "\n  waitSeconds: " + waitTime + "," +
-            "\n  paths: {}," +
-            "\n  shim: {}," +
-            "\n  map: { \"*\": {} }," +
-            "\n  bundles: {}," +
-            "\n  config: { \"pentaho/service\": {} }," +
-            "\n  packages: []" +
-            "\n};";
+      "\n  waitSeconds: " + waitTime + "," +
+      "\n  paths: {}," +
+      "\n  shim: {}," +
+      "\n  map: { \"*\": {} }," +
+      "\n  bundles: {}," +
+      "\n  config: { \"pentaho/service\": {} }," +
+      "\n  packages: []" +
+      "\n};";
 
     assertTrue( response.contains( expected ) );
   }
@@ -354,25 +369,25 @@ public class PentahoWebContextFilterTest {
     when( this.mockRequest.getParameter( "locale" ) ).thenReturn( sessionLocale );
 
     StringBuilder value = new StringBuilder();
-    this.reservedChars.forEach(value::append);
+    this.reservedChars.forEach( value::append );
     String reservedChars = value.toString();
 
     final String response = executeWebContextFilter();
 
     String environmentModuleConfig = "requireCfg.config[\"pentaho/environment\"] = {" +
-            "\n  theme: \"" + this.activeTheme + "\"," +
-            "\n  locale: \"" + sessionLocale + "\"," +
-            "\n  user: {" +
-            "\n    id: \"" + this.sessionName + "\"," +
-            "\n    home: " + userHome +
-            "\n  }," +
-            "\n  reservedChars: \"" + reservedChars + "\"," +
-            "\n  server: {" +
-            "\n    root: " + serverRoot + "," +
-            "\n    packages: " + serverPackages + "," +
-            "\n    services: " + serverServices +
-            "\n  }" +
-            "\n};";
+      "\n  theme: \"" + this.activeTheme + "\"," +
+      "\n  locale: \"" + sessionLocale + "\"," +
+      "\n  user: {" +
+      "\n    id: \"" + this.sessionName + "\"," +
+      "\n    home: " + userHome +
+      "\n  }," +
+      "\n  reservedChars: \"" + reservedChars + "\"," +
+      "\n  server: {" +
+      "\n    root: " + serverRoot + "," +
+      "\n    packages: " + serverPackages + "," +
+      "\n    services: " + serverServices +
+      "\n  }" +
+      "\n};";
 
     assertTrue( response.contains( environmentModuleConfig ) );
   }
@@ -406,7 +421,7 @@ public class PentahoWebContextFilterTest {
     String escapedValue = escapeEnvironmentVariable( value );
 
     return "\n/** @deprecated - use 'pentaho/environment' module's variable instead */" +
-            "\nvar " + variable + " = " + escapedValue + ";";
+      "\nvar " + variable + " = " + escapedValue + ";";
   }
 
   private String executeWebContextFilter() throws ServletException, IOException {

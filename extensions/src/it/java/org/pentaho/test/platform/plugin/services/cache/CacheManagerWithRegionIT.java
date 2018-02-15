@@ -54,6 +54,8 @@ public class CacheManagerWithRegionIT extends BaseTest {
   public void testCacheRegion() {
 
     // Make sure we have a cache first...
+    //todo check test
+
     ICacheManager cacheManager = PentahoSystem.getCacheManager( null ); // TODO sbarkdull, need to get real session in
                                                                         // here
     Assert.assertNotNull( cacheManager );

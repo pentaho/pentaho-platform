@@ -27,6 +27,8 @@ import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.util.SecurityHelper;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -34,6 +36,9 @@ import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -41,25 +46,30 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository.CACHE_REGION;
+
+
 /**
  * This is the platform implementation which provides session-based caching for an existing {@link
  * IMetadataDomainRepository}.
  *
  * @author Jordan Ganoff (jganoff@pentaho.com)
  */
+@CacheRegionRequired( region = CACHE_REGION )
 public class SessionCachingMetadataDomainRepository implements IMetadataDomainRepository,
-    org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter, ILogoutListener,
-    IAclAwarePentahoMetadataDomainRepositoryImporter,
-    IModelAnnotationsAwareMetadataDomainRepositoryImporter {
+  org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter, ILogoutListener,
+  IAclAwarePentahoMetadataDomainRepositoryImporter,
+  IModelAnnotationsAwareMetadataDomainRepositoryImporter, ICacheManagerUser {
 
   private static final Log logger = LogFactory.getLog( SessionCachingMetadataDomainRepository.class );
 
   /**
    * Public so others know where we're caching our objects
    */
-  public static String CACHE_REGION = "metadata-domain-repository"; //$NON-NLS-1$
+  public static final String CACHE_REGION = "metadata-domain-repository"; //$NON-NLS-1$
 
-  ICacheManager cacheManager;
+  @Autowired
+  private ICacheManager cacheManager;
   boolean domainIdsCacheEnabled = true;
   private final IMetadataDomainRepository delegate;
   private static final String DOMAIN_CACHE_KEY_PREDICATE = "domain-id-cache-for-session:";
@@ -123,19 +133,6 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
       throw new NullPointerException();
     }
     this.delegate = delegate;
-
-    cacheManager = PentahoSystem.getCacheManager( null ); // cache manager gets loaded just once...
-    if ( cacheManager != null ) {
-      if ( !cacheManager.cacheEnabled( CACHE_REGION ) ) {
-        if ( !cacheManager.addCacheRegion( CACHE_REGION ) ) {
-          cacheManager = null;
-        }
-      }
-    }
-    if ( cacheManager == null ) {
-      throw new IllegalStateException(
-        getClass().getSimpleName() + " (" + CACHE_REGION + ") cannot be initialized" ); //$NON-NLS-1$ //$NON-NLS-2$
-    }
     PentahoSystem.addLogoutListener( this ); // So you can remove a users' region when their session disappears
     ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
     if ( systemConfig != null ) {
@@ -179,12 +176,12 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
    */
   protected void forAllKeys( final CacheIteratorCallback callback ) {
     try {
-      Set<?> cachedObjects = cacheManager.getAllKeysFromRegionCache( CACHE_REGION );
+      Set<?> cachedObjects = getCacheManager().getAllKeysFromRegionCache( CACHE_REGION );
       if ( cachedObjects != null ) {
         for ( Object k : cachedObjects ) {
           if ( k instanceof CacheKey ) {
             CacheKey key = (CacheKey) k;
-            if ( Boolean.FALSE.equals( callback.call( cacheManager, key ) ) ) {
+            if ( Boolean.FALSE.equals( callback.call( getCacheManager(), key ) ) ) {
               break;
             }
           }
@@ -225,12 +222,13 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   public Domain getDomain( final String id ) {
     final IPentahoSession session = PentahoSessionHolder.getSession();
     final CacheKey key = new CacheKey( session.getId(), id );
-    Domain domain = (Domain) cacheManager.getFromRegionCache( CACHE_REGION, key );
+    Domain domain = (Domain) getCacheManager().getFromRegionCache( CACHE_REGION, key );
     if ( domain != null ) {
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Found domain in cache: " + key ); //$NON-NLS-1$
       }
-      if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( id ) ) {
+      if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter &&
+        !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( id ) ) {
 
         if ( logger.isDebugEnabled() ) {
           logger.debug( "User no longer has access to Domain, purging from session cache: " + key );
@@ -253,7 +251,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Caching domain by session: " + key ); //$NON-NLS-1$
       }
-      cacheManager.putInRegionCache( CACHE_REGION, key, domain );
+      getCacheManager().putInRegionCache( CACHE_REGION, key, domain );
     }
     return domain;
   }
@@ -300,13 +298,13 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
    */
   protected void clearDomainIdsFromCache() {
     try {
-      Set<?> cachedObjects = cacheManager.getAllKeysFromRegionCache( CACHE_REGION );
+      Set<?> cachedObjects = getCacheManager().getAllKeysFromRegionCache( CACHE_REGION );
       if ( cachedObjects != null ) {
         for ( Object k : cachedObjects ) {
           if ( k instanceof String ) {
             String key = (String) k;
             if ( key != null && key.startsWith( DOMAIN_CACHE_KEY_PREDICATE ) ) {
-              cacheManager.removeFromRegionCache( CACHE_REGION, key );
+              getCacheManager().removeFromRegionCache( CACHE_REGION, key );
             }
           }
         }
@@ -329,8 +327,8 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
    */
   protected void clearDomainIdsFromCache( IPentahoSession session ) {
     final String key = generateDomainIdCacheKeyForSession( session );
-    if ( cacheManager.getFromRegionCache( CACHE_REGION, key ) != null ) {
-      cacheManager.removeFromRegionCache( CACHE_REGION, key );
+    if ( getCacheManager().getFromRegionCache( CACHE_REGION, key ) != null ) {
+      getCacheManager().removeFromRegionCache( CACHE_REGION, key );
     }
   }
 
@@ -341,15 +339,15 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
    */
   private void removeDomainFromIDCache( String domainId ) {
     try {
-      Set<?> cachedObjects = cacheManager.getAllKeysFromRegionCache( CACHE_REGION );
+      Set<?> cachedObjects = getCacheManager().getAllKeysFromRegionCache( CACHE_REGION );
       if ( cachedObjects != null ) {
         for ( Object k : cachedObjects ) {
           if ( k instanceof String ) {
             String key = (String) k;
             if ( key != null && key.startsWith( DOMAIN_CACHE_KEY_PREDICATE ) ) {
-              Set<String> domainIds = (Set<String>) cacheManager.getFromRegionCache( CACHE_REGION, key );
+              Set<String> domainIds = (Set<String>) getCacheManager().getFromRegionCache( CACHE_REGION, key );
               domainIds.remove( domainId );
-              cacheManager.putInRegionCache( CACHE_REGION, key, domainIds );
+              getCacheManager().putInRegionCache( CACHE_REGION, key, domainIds );
             }
           }
         }
@@ -398,11 +396,12 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     final String domainKey = generateDomainIdCacheKeyForSession( session );
     Set<String> domainIds;
     if ( domainIdsCacheEnabled ) {
-      domainIds = (Set<String>) cacheManager.getFromRegionCache( CACHE_REGION, domainKey );
+      domainIds = (Set<String>) getCacheManager().getFromRegionCache( CACHE_REGION, domainKey );
       if ( domainIds != null ) {
         boolean dirtyCache = false;
         for ( String domain : domainIds ) {
-          if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( domain ) ) {
+          if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter
+            && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( domain ) ) {
             domainIds.remove( domain );
             removeDomainFromIDCache( domain );
             dirtyCache = true;
@@ -410,7 +409,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
         }
 
         if ( dirtyCache ) {
-          cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
+          getCacheManager().putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
         }
         // We've previously cached domainIds available for this session
         return domainIds;
@@ -422,7 +421,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     // session-specific.
     domainIds = delegate.getDomainIds();
     if ( domainIdsCacheEnabled ) {
-      cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
+      getCacheManager().putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
     }
     return domainIds;
   }
@@ -455,7 +454,8 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   public void storeDomain( InputStream inputStream, String domainId, boolean overwrite, RepositoryFileAcl acl )
     throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
     if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter ) {
-      ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).storeDomain( inputStream, domainId, overwrite, acl );
+      ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate )
+        .storeDomain( inputStream, domainId, overwrite, acl );
     }
   }
 
@@ -494,7 +494,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     throws DomainStorageException {
     if ( delegate instanceof IPentahoMetadataDomainRepositoryImporter ) {
       ( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).addLocalizationFile( domainId, locale,
-          inputStream, overwrite );
+        inputStream, overwrite );
     }
   }
 
@@ -509,7 +509,15 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   @Override public void storeAnnotationsXml( String domainId, String annotationsXml ) {
     if ( delegate instanceof IModelAnnotationsAwareMetadataDomainRepositoryImporter ) {
       ( (IModelAnnotationsAwareMetadataDomainRepositoryImporter) delegate )
-          .storeAnnotationsXml( domainId, annotationsXml );
+        .storeAnnotationsXml( domainId, annotationsXml );
     }
+  }
+
+  @Override public ICacheManager getCacheManager() {
+    if ( cacheManager == null ) {
+      throw new IllegalStateException(
+        getClass().getSimpleName() + " (" + CACHE_REGION + ") cannot be initialized" ); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+    return cacheManager;
   }
 }

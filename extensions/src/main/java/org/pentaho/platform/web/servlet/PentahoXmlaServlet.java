@@ -42,6 +42,7 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.tree.DefaultElement;
 import org.olap4j.OlapConnection;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -60,6 +61,7 @@ import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.EntityResolver;
 
 import mondrian.server.DynamicContentFinder;
@@ -84,7 +86,7 @@ import static org.apache.commons.collections.CollectionUtils.*;
  * @author mlowery
  */
 @SuppressWarnings ( "unchecked" )
-public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
+public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet implements ICacheManagerUser {
 
   // ~ Static fields/initializers ======================================================================================
 
@@ -92,7 +94,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
    * A cache of {@link RepositoryContentFinder} implementations.
    * The key is the datasource URL.
    */
-  final ICacheManager cacheMgr = PentahoSystem.getCacheManager( null );
+  final ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
 
   final String CACHE_REGION = "org.pentaho.platform.web.servlet.PentahoXmlaServlet";
 
@@ -108,9 +110,6 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
   public PentahoXmlaServlet() {
     super();
-    if ( !cacheMgr.cacheEnabled( CACHE_REGION ) ) {
-      cacheMgr.addCacheRegion( CACHE_REGION );
-    }
     repo = PentahoSystem.get( IUnifiedRepository.class );
     mondrianCatalogService = (MondrianCatalogHelper) PentahoSystem.get( IMondrianCatalogService.class );
     try {
@@ -132,10 +131,10 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     // BEWARE before making modifications that check security rights or all
     // other kind of stateful things.
     @SuppressWarnings ( "rawtypes" )
-    Set keys = cacheMgr.getAllKeysFromRegionCache( CACHE_REGION );
+    Set keys = getCacheManager().getAllKeysFromRegionCache( CACHE_REGION );
 
     if ( !keys.contains( dataSourcesUrl ) ) {
-      cacheMgr.putInRegionCache(
+      getCacheManager().putInRegionCache(
           CACHE_REGION,
           dataSourcesUrl,
           new DynamicContentFinder( dataSourcesUrl ) {
@@ -195,7 +194,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
       );
     }
     return (RepositoryContentFinder)
-        cacheMgr.getFromRegionCache( CACHE_REGION, dataSourcesUrl );
+      getCacheManager().getFromRegionCache( CACHE_REGION, dataSourcesUrl );
   }
 
   private String generateInMemoryDatasourcesXml() {
@@ -372,9 +371,10 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
   @Override public void init( ServletConfig servletConfig ) throws ServletException {
     super.init( servletConfig );
-
     catalogLocator = makeCatalogLocator( servletConfig );
+  }
 
-
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
   }
 }

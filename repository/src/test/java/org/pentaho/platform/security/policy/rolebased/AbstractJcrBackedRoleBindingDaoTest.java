@@ -17,6 +17,7 @@ public class AbstractJcrBackedRoleBindingDaoTest {
 
   @Test
   public void testDao() throws Exception {
+    //todo check test
     ICacheManager cm = mock( ICacheManager.class );
     PentahoSystem.registerObject( cm, IPentahoRegistrableObjectFactory.Types.INTERFACES );
     when( cm.cacheEnabled( "roleBindingCache" ) ).thenReturn( false );

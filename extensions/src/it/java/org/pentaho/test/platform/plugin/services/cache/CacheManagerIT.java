@@ -37,6 +37,7 @@ public class CacheManagerIT extends BaseTest {
   private static final String ALT_SOLUTION_PATH = TestResourceLocation.TEST_RESOURCES + "/cache-solution";
   private static final String PENTAHO_XML_PATH = "/system/pentahoObjects.spring.xml";
 
+
   @Override
   public String getSolutionPath() {
     File file = new File( SOLUTION_PATH + PENTAHO_XML_PATH );

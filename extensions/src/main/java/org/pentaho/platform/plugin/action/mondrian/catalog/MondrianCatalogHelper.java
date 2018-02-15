@@ -39,6 +39,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.aspectj.lang.annotation.After;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -49,6 +50,8 @@ import org.eigenbase.xom.XOMException;
 import org.eigenbase.xom.XOMUtil;
 import org.olap4j.OlapConnection;
 import org.owasp.encoder.Encode;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -77,11 +80,13 @@ import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import javax.annotation.PostConstruct;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -105,16 +110,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION;
+
 /**
  * Reads in file containing Mondrian data sources and catalogs. (Contains code copied from <code>XmlaServlet</code>.)
  *
  * @author mlowery
  */
-public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
+
+@CacheRegionRequired( region = MONDRIAN_CATALOG_CACHE_REGION, phase = CacheRegionRequired.RegionPhase.SESSION )
+public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService, ICacheManagerUser {
 
   // ~ Static fields/initializers ======================================================================================
 
   private static final Log logger = LogFactory.getLog( MondrianCatalogHelper.class );
+
+  @Autowired
+  private ICacheManager cacheManager;
 
   // ~ Instance fields =================================================================================================
 
@@ -148,7 +160,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   protected List<MondrianCatalog> getCatalogs( IPentahoSession pentahoSession ) {
 
     Map<String, MondrianCatalog> catalogsMap =
-        (Map<String, MondrianCatalog>) PentahoSystem.getCacheManager( pentahoSession ).getFromRegionCache(
+        (Map<String, MondrianCatalog>) getCacheManager( pentahoSession ).getFromRegionCache(
             MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() );
 
     List<MondrianCatalog> catalogs = new ArrayList<MondrianCatalog>();
@@ -212,7 +224,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     // Mondrian
     // roles from the schema, we don't much care which datasource is in play.
     Map<String, MondrianCatalog> catalogs =
-        (Map<String, MondrianCatalog>) PentahoSystem.getCacheManager( pentahoSession ).getFromRegionCache(
+        (Map<String, MondrianCatalog>) getCacheManager( pentahoSession ).getFromRegionCache(
             MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() );
     return catalogs.get( context );
   }
@@ -252,13 +264,14 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     }
   }
 
-  public static String MONDRIAN_CATALOG_CACHE_REGION = "mondrian-catalog-cache"; //$NON-NLS-1$
+  public static final String MONDRIAN_CATALOG_CACHE_REGION = "mondrian-catalog-cache"; //$NON-NLS-1$
 
   // ~ Methods =========================================================================================================
 
   protected synchronized void init( final IPentahoSession pentahoSession ) {
     // First check if the catalogs are initialized for the current locale
-    final ICacheManager cacheMgr = PentahoSystem.getCacheManager( pentahoSession );
+
+    final ICacheManager cacheMgr = getCacheManager( pentahoSession );
     if ( cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION )
         && cacheMgr.getFromRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() ) != null ) {
       return;
@@ -273,7 +286,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   @Override
   public synchronized void reInit( final IPentahoSession pentahoSession ) {
-    final ICacheManager cacheMgr = PentahoSystem.getCacheManager( pentahoSession );
+    final ICacheManager cacheMgr = getCacheManager( pentahoSession );
     if ( cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION ) ) {
       cacheMgr.clearRegionCache( MONDRIAN_CATALOG_CACHE_REGION );
     }
@@ -831,9 +844,9 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       final IPentahoSession pentahoSession ) {
 
     // Create the cache region if necessary.
-    ICacheManager cacheMgr = PentahoSystem.getCacheManager( pentahoSession );
+    ICacheManager cacheMgr = getCacheManager( pentahoSession );
     if ( !cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION ) ) {
-      // Create the region
+      // Create the region for session
       cacheMgr.addCacheRegion( MONDRIAN_CATALOG_CACHE_REGION );
     }
     Map<String, MondrianCatalog> catalogs =
@@ -1226,5 +1239,15 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     DocumentBuilderFactory factory = XMLParserFactoryProducer.createSecureDocBuilderFactory();
     DocumentBuilder builder = factory.newDocumentBuilder();
     return builder.parse( is );
+  }
+
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
+  }
+
+  @Override public ICacheManager getCacheManager( IPentahoSession session ) {
+    //As I understand currently it is the same like system cachemanager
+    // case it has singleton scope but not the session
+    return PentahoSystem.getCacheManager( session );
   }
 }

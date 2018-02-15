@@ -91,6 +91,7 @@ public class MondrianCatalogHelperIT {
   // =================================================================================================
 
   private static MicroPlatform booter;
+  //Todo test check
   private ICacheManager cacheMgr;
 
   private MondrianCatalogHelper helper;

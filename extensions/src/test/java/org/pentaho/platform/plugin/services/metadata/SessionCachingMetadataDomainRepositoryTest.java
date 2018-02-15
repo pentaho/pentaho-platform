@@ -20,11 +20,18 @@ package org.pentaho.platform.plugin.services.metadata;
 
 import org.junit.Test;
 
+import org.junit.runner.RunWith;
 import org.pentaho.metadata.model.Domain;
+import org.pentaho.platform.CacheManagerConfiguration;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.test.platform.plugin.services.metadata.MockSessionAwareMetadataDomainRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,12 +45,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ActiveProfiles( "test" )
+@RunWith( SpringJUnit4ClassRunner.class )
+@ContextConfiguration( classes = CacheManagerConfiguration.class )
+@DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
 public class SessionCachingMetadataDomainRepositoryTest {
+
+  @Autowired
+  private SessionCachingMetadataDomainRepository repo;
+  @Autowired
+  private MockSessionAwareMetadataDomainRepository mockSessionAwareMetadataDomainRepository;
+  @Autowired
+  private ICacheManager manager;
 
   @Test
   public void testStoreAnnotationsXml() throws Exception {
-    MockSessionAwareMetadataDomainRepository mock = spy( new MockSessionAwareMetadataDomainRepository() );
-    SessionCachingMetadataDomainRepository repo = spy( new SessionCachingMetadataDomainRepository( mock ) );
+    repo = spy( repo );
     PentahoMetadataDomainRepository delegate = mock( PentahoMetadataDomainRepository.class );
 
     String domainId = "myDomain";
@@ -59,8 +76,7 @@ public class SessionCachingMetadataDomainRepositoryTest {
 
   @Test
   public void testLoadAnnotationsXml() throws Exception {
-    MockSessionAwareMetadataDomainRepository mock = spy( new MockSessionAwareMetadataDomainRepository() );
-    SessionCachingMetadataDomainRepository repo = spy( new SessionCachingMetadataDomainRepository( mock ) );
+    repo = spy( repo );
     PentahoMetadataDomainRepository delegate = mock( PentahoMetadataDomainRepository.class );
 
     String domainId = "myDomain";
@@ -75,46 +91,39 @@ public class SessionCachingMetadataDomainRepositoryTest {
 
   @Test
   public void shouldNotUseDomainIdsCacheIfDisabled() throws Exception {
-    MockSessionAwareMetadataDomainRepository mock = spy( new MockSessionAwareMetadataDomainRepository() );
     PentahoSessionHolder.setSession( new StandaloneSession( "session", "1" ) );
-    SessionCachingMetadataDomainRepository repo = new SessionCachingMetadataDomainRepository( mock );
     Domain domain = new Domain();
     domain.setId( "id" );
-    mock.setPersistedDomains( domain );
+    mockSessionAwareMetadataDomainRepository.setPersistedDomains( domain );
 
-    ICacheManager manager = mock( ICacheManager.class );
-    repo.cacheManager = manager;
     repo.domainIdsCacheEnabled = false;
 
     Set<String> domainIds = repo.getDomainIds();
 
     assertEquals( 1, domainIds.size() );
     assertTrue( domainIds.contains( "id" ) );
-    verify( mock, times( 1 ) ).getDomainIds();
-    verify( mock, times( 1 ) ).reloadDomains();
+    verify( mockSessionAwareMetadataDomainRepository, times( 1 ) ).getDomainIds();
+    verify( mockSessionAwareMetadataDomainRepository, times( 1 ) ).reloadDomains();
     verify( manager, times( 0 ) ).getFromRegionCache( "metadata-domain-repository", "domain-id-cache-for-session:1" );
     verify( manager, times( 0 ) ).addCacheRegion( "domain-id-cache-for-session:1" );
   }
 
   @Test
   public void shouldUseDomainIdsCacheIfEnabled() throws Exception {
-    MockSessionAwareMetadataDomainRepository mock = spy( new MockSessionAwareMetadataDomainRepository() );
     PentahoSessionHolder.setSession( new StandaloneSession( "session", "1" ) );
-    SessionCachingMetadataDomainRepository repo = new SessionCachingMetadataDomainRepository( mock );
     Domain domain = new Domain();
     domain.setId( "id" );
-    mock.setPersistedDomains( domain );
+    mockSessionAwareMetadataDomainRepository.setPersistedDomains( domain );
 
-    ICacheManager manager = mock( ICacheManager.class );
     Set<String> ids = new HashSet<>( Arrays.asList( "domainId1", "domainId2" ) );
-    when( manager.getFromRegionCache( "metadata-domain-repository", "domain-id-cache-for-session:1" ) ).thenReturn( ids );
+    when( manager.getFromRegionCache( "metadata-domain-repository", "domain-id-cache-for-session:1" ) )
+      .thenReturn( ids );
 
-    repo.cacheManager = manager;
     repo.domainIdsCacheEnabled = true;
 
     Set<String> domainIds = repo.getDomainIds();
     assertEquals( ids, domainIds );
-    verify( mock, times( 0 ) ).reloadDomains();
+    verify( mockSessionAwareMetadataDomainRepository, times( 0 ) ).reloadDomains();
     verify( manager, times( 1 ) ).getFromRegionCache( "metadata-domain-repository", "domain-id-cache-for-session:1" );
   }
 }

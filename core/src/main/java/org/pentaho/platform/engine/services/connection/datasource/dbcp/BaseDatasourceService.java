@@ -19,50 +19,57 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-public abstract class BaseDatasourceService implements IDBDatasourceService {
-  ICacheManager cacheManager;
+@CacheRegionRequired( region = IDBDatasourceService.JDBC_DATASOURCE )
+public abstract class BaseDatasourceService implements IDBDatasourceService, ICacheManagerUser {
+
+  @Autowired
+  private ICacheManager cacheManager;
 
   public BaseDatasourceService() {
-    cacheManager = getCacheManager();
     // if no cache manager implementation is available we'll use the simple one
   }
 
-  /**
-   * This method clears the JNDI DS cache. The need exists because after a JNDI connection edit the old DS must be
-   * removed from the cache.
-   * 
-   */
-  public void clearCache() {
-    cacheManager.removeRegionCache( IDBDatasourceService.JDBC_DATASOURCE );
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
   }
 
   /**
    * This method clears the JNDI DS cache. The need exists because after a JNDI connection edit the old DS must be
    * removed from the cache.
-   * 
+   *
+   */
+  public void clearCache() {
+    getCacheManager().removeRegionCache( IDBDatasourceService.JDBC_DATASOURCE );
+  }
+
+  /**
+   * This method clears the JNDI DS cache. The need exists because after a JNDI connection edit the old DS must be
+   * removed from the cache.
+   *
    */
   public void clearDataSource( String dsName ) {
-    cacheManager.removeFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
+    getCacheManager().removeFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
   }
 
   public DataSource getDataSource( String dsName ) throws DBDatasourceServiceException {
     DataSource dataSource = null;
-    if ( cacheManager != null ) {
-      if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
-        cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
-      }
-      Object foundDs = cacheManager.getFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
+    if ( getCacheManager() != null ) {
+      Object foundDs = getCacheManager().getFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
       if ( foundDs != null ) {
         dataSource = (DataSource) foundDs;
       } else {
@@ -103,7 +110,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
    * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
    * way to look up a datasource. This method is intended to hide all the lookups that may be required to find a
    * jndi name, and return the actual bound name.
-   * 
+   *
    * @param dsName
    *          The Datasource name (like SampleData)
    * @return The bound DS name if it is bound in JNDI (like "jdbc/SampleData")
@@ -167,7 +174,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
    * Since JNDI is supported different ways in different app servers, it's nearly impossible to have a ubiquitous
    * way to look up a datasource. This method is intended to extract just the regular name of a specified JNDI
    * source.
-   * 
+   *
    * @param dsName
    *          The Datasource name (like "jdbc/SampleData")
    * @return The unbound DS name (like "SampleData")
@@ -200,11 +207,6 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
       }
     }
   }
-
-  public ICacheManager getCacheManager( ) {
-    return PentahoSystem.getCacheManager( null );
-  }
-
 
   public IDatasourceMgmtService getDatasourceMgmtService( ) {
     return (IDatasourceMgmtService) PentahoSystem.get( IDatasourceMgmtService.class, PentahoSessionHolder.getSession() );
