@@ -35,6 +35,8 @@ import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.olap4j.OlapConnection;
 import org.olap4j.OlapException;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -55,6 +57,7 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.Olap4jServerInfo;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.io.InputStream;
@@ -76,6 +79,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
+import static org.pentaho.platform.plugin.action.olap.impl.OlapServiceImpl.CATALOG_CACHE_REGION;
+
 /**
  * Implementation of the IOlapService which uses the
  * {@link MondrianCatalogRepositoryHelper} as a backend to
@@ -88,9 +93,10 @@ import java.util.stream.Collectors;
  * <p>This implementation is thread safe. It will use a {@link ReadWriteLock}
  * to manage the access to its metadata.
  */
-public class OlapServiceImpl implements IOlapService {
+@CacheRegionRequired( region = CATALOG_CACHE_REGION, phase = CacheRegionRequired.RegionPhase.SESSION)
+public class OlapServiceImpl implements IOlapService, ICacheManagerUser {
 
-  public static String CATALOG_CACHE_REGION = "iolapservice-catalog-cache"; //$NON-NLS-1$
+  public static final String CATALOG_CACHE_REGION = "iolapservice-catalog-cache"; //$NON-NLS-1$
 
   static final String MONDRIAN_DATASOURCE_FOLDER = "mondrian"; //$NON-NLS-1$
 
@@ -115,6 +121,8 @@ public class OlapServiceImpl implements IOlapService {
   private MondrianServer server = null;
   private final List<IOlapConnectionFilter> filters;
   private Role role;
+  @Autowired
+  private ICacheManager cacheManager;
 
   private static Log getLogger() {
     return LogFactory.getLog( IOlapService.class );
@@ -200,7 +208,7 @@ public class OlapServiceImpl implements IOlapService {
   @SuppressWarnings( "unchecked" )
   protected synchronized List<IOlapService.Catalog> getCache( IPentahoSession session ) {
     // Create the cache region if necessary.
-    final ICacheManager cacheMgr = PentahoSystem.getCacheManager( session );
+    final ICacheManager cacheMgr = getCacheManager( session );
     final Object cacheKey = makeCacheSubRegionKey( getLocale() );
 
 
@@ -214,7 +222,7 @@ public class OlapServiceImpl implements IOlapService {
         cacheMgr.addCacheRegion( CATALOG_CACHE_REGION );
       }
 
-      if ( cacheMgr.getFromRegionCache( CATALOG_CACHE_REGION, cacheKey ) == null ) {
+      if (  cacheMgr.getFromRegionCache( CATALOG_CACHE_REGION, cacheKey ) == null ) {
         // Create the sub-region. This requires write access.
         cacheMgr.putInRegionCache(
           CATALOG_CACHE_REGION,
@@ -237,8 +245,7 @@ public class OlapServiceImpl implements IOlapService {
     final Lock writeLock = cacheLock.writeLock();
     try {
       writeLock.lock();
-      final ICacheManager cacheMgr = PentahoSystem.getCacheManager( session );
-      cacheMgr.clearRegionCache( CATALOG_CACHE_REGION );
+      getCacheManager( session ).clearRegionCache( CATALOG_CACHE_REGION );
     } finally {
       writeLock.unlock();
     }
@@ -888,5 +895,13 @@ public class OlapServiceImpl implements IOlapService {
     } else {
       return Locale.getDefault();
     }
+  }
+
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
+  }
+
+  @Override public ICacheManager getCacheManager( IPentahoSession session ) {
+    return PentahoSystem.getCacheManager( session );
   }
 }

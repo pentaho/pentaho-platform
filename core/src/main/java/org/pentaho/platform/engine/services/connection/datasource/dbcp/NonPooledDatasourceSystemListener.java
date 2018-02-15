@@ -27,6 +27,8 @@ import javax.sql.DataSource;
 
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -40,15 +42,18 @@ import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class NonPooledDatasourceSystemListener implements IPentahoSystemListener {
+@CacheRegionRequired( region = IDBDatasourceService.JDBC_DATASOURCE )
+public class NonPooledDatasourceSystemListener implements IPentahoSystemListener, ICacheManagerUser {
+
+  @Autowired
+  private ICacheManager cacheManager;
 
   public boolean startup( final IPentahoSession session ) {
     try {
 
       Logger.debug( this, "DatasourceSystemListener: called for startup ..." ); //$NON-NLS-1$
-
-      ICacheManager cacheManager = addCacheRegions();
 
       List<IDatabaseConnection> databaseConnections = getListOfDatabaseConnections( session );
 
@@ -74,7 +79,7 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
             continue;
           }
 
-          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
+          getCacheManager().putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
 
           Logger.debug( this, "(Storing datasource under key \"" + IDBDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$
               + dsName + "\")" ); //$NON-NLS-1$
@@ -104,11 +109,9 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
 
   public void shutdown() {
 
-    ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-
     Logger.debug( this, "DatasourceSystemListener: Called for shutdown ..." ); //$NON-NLS-1$
 
-    cacheManager.removeRegionCache( IDBDatasourceService.JDBC_DATASOURCE );
+    getCacheManager().removeRegionCache( IDBDatasourceService.JDBC_DATASOURCE );
 
     Logger.debug( this, "DatasourceSystemListener: Completed shutdown." ); //$NON-NLS-1$
 
@@ -119,15 +122,14 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
   }
 
   protected ICacheManager addCacheRegions() {
-    ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
 
     Logger.debug( this, "Adding caching regions ..." ); //$NON-NLS-1$
 
-    if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
-      cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
+    if ( !getCacheManager().cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
+      getCacheManager().addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
     }
 
-    return cacheManager;
+    return getCacheManager();
   }
 
   @VisibleForTesting
@@ -209,5 +211,9 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
     InetAddress address = null;
     address = InetAddress.getByName( connectionHostName );
     return address;
+  }
+
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
   }
 }

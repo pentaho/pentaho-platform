@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.owasp.encoder.Encode;
+import org.pentaho.platform.api.cache.ICacheManagerUser;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IMimeTypeListener;
@@ -56,21 +57,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GenericServlet extends ServletBase {
+public class GenericServlet extends ServletBase implements ICacheManagerUser {
 
   private static final long serialVersionUID = 6713118348911206464L;
 
   private static final Log logger = LogFactory.getLog( GenericServlet.class );
   private static final String CACHE_FILE = "file"; //$NON-NLS-1$
-  private static ICacheManager cache = PentahoSystem.getCacheManager( null );
+  private ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
 
   private boolean showDeprecationMessage;
-
-  static {
-    if ( cache != null ) {
-      cache.addCacheRegion( CACHE_FILE );
-    }
-  }
 
   @Override
   public Log getLogger() {
@@ -191,7 +186,7 @@ public class GenericServlet extends ServletBase {
         ByteArrayOutputStream byteStream = null;
 
         if ( cacheOn ) {
-          byteStream = (ByteArrayOutputStream) cache.getFromRegionCache( CACHE_FILE, pathInfo );
+          byteStream = (ByteArrayOutputStream) getCacheManager().getFromRegionCache( CACHE_FILE, pathInfo );
         }
 
         if ( byteStream != null ) {
@@ -206,7 +201,7 @@ public class GenericServlet extends ServletBase {
 
             // if cache is enabled, drop file in cache
             if ( cacheOn ) {
-              cache.putInRegionCache( CACHE_FILE, pathInfo, byteStream );
+              getCacheManager().putInRegionCache( CACHE_FILE, pathInfo, byteStream );
             }
 
             // write it out
@@ -336,5 +331,9 @@ public class GenericServlet extends ServletBase {
     OutputStream out = response.getOutputStream();
     HttpOutputHandler handler = new HttpOutputHandler( response, out, allowFeedback );
     return handler;
+  }
+
+  @Override public ICacheManager getCacheManager() {
+    return cacheManager;
   }
 }
