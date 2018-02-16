@@ -135,7 +135,7 @@ public class MessageFormatterTest {
       messageBuffer, true );
     // details controls are not hidden
     // stacktrace is added
-    assertEquals( "<div id=\"controls\" hidden=\"false\">"
+    assertEquals( "<div id=\"controls\">"
         + "<a href=\"#\" id=\"details-show\" class=\"showLink\" onclick=\"showHide('details');return false;\">View "
         + "Details</a>"
         + "<a href=\"#\" id=\"details-hide\" class=\"hideLink\" onclick=\"showHide('details');return false;\">Hide "
@@ -164,7 +164,7 @@ public class MessageFormatterTest {
       messageBuffer, false );
     // details controls are hidden
     // stacktrace is not added
-    assertEquals( "<div id=\"controls\" hidden=\"true\">"
+    assertEquals( "<div id=\"controls\" hidden>"
         + "<a href=\"#\" id=\"details-show\" class=\"showLink\" onclick=\"showHide('details');return false;\">View "
       + "Details</a>"
         + "<a href=\"#\" id=\"details-hide\" class=\"hideLink\" onclick=\"showHide('details');return false;\">Hide "

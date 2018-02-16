@@ -279,14 +279,14 @@ public class MessageFormatter implements IMessageFormatter {
 
       // %STACK_TRACE%
       if ( showStacktrace ) {
-        templateFile = StringUtils.replace( templateFile, "%DETAILS_CONTROLS_HIDDEN%", "false" );
+        templateFile = StringUtils.replace( templateFile, "%DETAILS_CONTROLS_HIDDEN%", "" );
         templateFile =
           StringUtils.replace( templateFile, "%STACK_TRACE%", StringEscapeUtils.escapeHtml(
             getStacktrace( exception ) ) );
         templateFile = StringUtils.replace( templateFile, "%STACK_TRACE_LABEL%", Messages.getInstance() //$NON-NLS-1$
           .getString( "MessageFormatter.RESPONSE_EXCEPTION_STACK_TRACE_LABEL" ) ); //$NON-NLS-1$
       } else {
-        templateFile = StringUtils.replace( templateFile, "%DETAILS_CONTROLS_HIDDEN%", "true" );
+        templateFile = StringUtils.replace( templateFile, "%DETAILS_CONTROLS_HIDDEN%", " hidden" );
       }
 
       // %EXCEPTION_MESSAGES%
