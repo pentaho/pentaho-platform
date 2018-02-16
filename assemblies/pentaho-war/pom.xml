@@ -13,6 +13,7 @@
   <properties>
     <snakeyaml.version>1.13</snakeyaml.version>
     <rdbms>hsqldb</rdbms>
+    <commons-database.version>8.1.0.0-SNAPSHOT</commons-database.version>
     <prepared.war.directory>${pentaho-server.directory}/tomcat/webapps/pentaho</prepared.war.directory>
     <pentaho-hadoop-shims-api.version>8.1.0.0-SNAPSHOT</pentaho-hadoop-shims-api.version>
     <prepared.war.lib.directory>${prepared.war.directory}/WEB-INF/lib</prepared.war.lib.directory>
@@ -110,9 +111,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-database-model</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.pentaho</groupId>
+      <artifactId>commons-database-model</artifactId>
+      <version>${commons-database.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

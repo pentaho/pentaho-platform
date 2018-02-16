@@ -18,7 +18,7 @@
     <pentaho-connections.version>8.1.0.0-SNAPSHOT</pentaho-connections.version>
     <pentaho-actionsequence-dom.version>8.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
     <commons-xul.version>8.1.0.0-SNAPSHOT</commons-xul.version>
-    <pentaho-database-model.version>8.1.0.0-SNAPSHOT</pentaho-database-model.version>
+    <commons-database.version>8.1.0.0-SNAPSHOT</commons-database.version>
     <pentaho-osgi-bundles.version>8.1.0.0-SNAPSHOT</pentaho-osgi-bundles.version>
   </properties>
   <dependencies>
@@ -119,9 +119,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-database-model</artifactId>
-      <version>${pentaho-database-model.version}</version>
+      <groupId>org.pentaho</groupId>
+      <artifactId>commons-database-model</artifactId>
+      <version>${commons-database.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
