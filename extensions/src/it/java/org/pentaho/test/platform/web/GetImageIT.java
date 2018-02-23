@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018  Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.test.platform.web;
@@ -38,7 +38,16 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.matches;
 
 /**
  * Tests for <code>org.pentaho.platform.web.servlet.GetImage</code>.
@@ -104,7 +113,7 @@ public class GetImageIT {
 
     servlet.service( request, response );
 
-    verify( response ).setStatus( HttpServletResponse.SC_NOT_FOUND );
+    verify( response ).sendError( HttpServletResponse.SC_NOT_FOUND );
     verify( servlet ).error( matches( ".*ERROR_0002.*" ) );
   }
 
@@ -114,7 +123,7 @@ public class GetImageIT {
 
     servlet.service( request, response );
 
-    verify( response ).setStatus( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
+    verify( response ).sendError( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
     verify( servlet ).error( matches( ".*ERROR_0001.*" ) );
   }
 
@@ -124,7 +133,7 @@ public class GetImageIT {
 
     servlet.service( request, response );
 
-    verify( response ).setStatus( HttpServletResponse.SC_NOT_FOUND );
+    verify( response ).sendError( HttpServletResponse.SC_NOT_FOUND );
     verify( servlet ).error( matches( ".*ERROR_0002.*" ) );
   }
 
