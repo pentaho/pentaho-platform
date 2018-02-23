@@ -23,7 +23,6 @@ package org.pentaho.platform.plugin.services.webservices.content;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.soap.SOAP12Constants;
 import org.apache.axiom.soap.SOAPFaultCode;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingHelper;
 import org.apache.axis2.context.ConfigurationContext;
@@ -42,12 +41,13 @@ import org.pentaho.platform.plugin.services.webservices.messages.Messages;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
  * The base class for serving GenericServlet, i.e. /content/ requests through to an Axis webservice. This class ensures
  * that the webservices system is properly configured before handing over to a subclass for processing of the request.
- * 
+ *
  * @author jamesdixon
  */
 @SuppressWarnings( "serial" )
@@ -82,7 +82,7 @@ public abstract class AbstractAxisServiceContentGenerator extends SimpleContentG
   /**
    * Creates content for this request. Subclasses of this class implement this method to handle the processing of a web
    * services request.
-   * 
+   *
    * @param axisConfiguration
    *          AxisConfiguration
    * @param context
@@ -96,7 +96,7 @@ public abstract class AbstractAxisServiceContentGenerator extends SimpleContentG
 
   /**
    * Handles processing of Axis exceptions.
-   * 
+   *
    * @param msgContext
    *          The message context that experienced an error
    * @param out
@@ -117,10 +117,24 @@ public abstract class AbstractAxisServiceContentGenerator extends SimpleContentG
       } else {
         // set the status of the HTTP response
         String status = (String) msgContext.getProperty( Constants.HTTP_RESPONSE_STATE );
-        if ( status == null ) {
-          res.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
-        } else {
-          res.setStatus( Integer.parseInt( status ) );
+        try {
+          if ( status == null ) {
+            res.sendError( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
+          } else {
+            int sc = Integer.parseInt( status );
+            if ( sc >= 400 ) {
+              res.sendError( sc );
+            } else {
+              res.setStatus( sc );
+            }
+          }
+        } catch ( IOException e1 ) {
+          if ( status == null ) {
+            res.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
+          } else {
+            int sc = Integer.parseInt( status );
+            res.setStatus( sc );
+          }
         }
 
         AxisBindingOperation axisBindingOperation =
@@ -141,14 +155,14 @@ public abstract class AbstractAxisServiceContentGenerator extends SimpleContentG
     try {
       // now process the fault
       handleFault( msgContext, out, http, e );
-    } catch ( AxisFault axisFault ) {
+    } catch ( IOException axisFault ) {
       String message = Messages.getInstance().getErrorString( "WebServiceContentGenerator.ERROR_0003_PROCESSING_FAULT" ); //$NON-NLS-1$
       getLogger().error( message, axisFault );
     }
   }
 
   protected void handleFault( MessageContext msgContext, OutputStream out,
-                              boolean http, Throwable e ) throws AxisFault {
+                              boolean http, Throwable e ) throws IOException {
 
     msgContext.setProperty( MessageContext.TRANSPORT_OUT, out );
 
@@ -172,7 +186,7 @@ public abstract class AbstractAxisServiceContentGenerator extends SimpleContentG
       if ( valueElement != null ) {
         if ( SOAP12Constants.FAULT_CODE_SENDER.equals( valueElement.getTextAsQName().getLocalPart() )
             && !msgContext.isDoingREST() ) {
-          response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+          response.sendError( HttpServletResponse.SC_BAD_REQUEST );
         }
       }
     }
