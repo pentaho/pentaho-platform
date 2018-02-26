@@ -505,7 +505,7 @@ public class OlapServiceImpl implements IOlapService {
       // Start by flushing the local cache.
       resetCache( session );
 
-      flushHostedCatalogs( session );
+      flushHostedCatalogs();
       flushRemoteCatalogs( session );
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
@@ -517,9 +517,13 @@ public class OlapServiceImpl implements IOlapService {
   /**
    * Flushes all hosted catalogs.
    */
-  private void flushHostedCatalogs( IPentahoSession session ) throws SQLException {
-    // clean cache for all mondrian schemas used by current mondrian server
-    getServer().getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
+  private void flushHostedCatalogs() throws SQLException {
+    // we don't want to create a new MondrianServer instance to clear the cache when server is null
+    // in this case, just clear the cache of the static server
+    if ( server != null ) {
+      // clean cache for all mondrian schemas used by current mondrian server
+      server.getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
+    }
     // clean cache for all mondrian schemas used by mondrian default "static" server
     MondrianServer.forId( null ).getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
   }
