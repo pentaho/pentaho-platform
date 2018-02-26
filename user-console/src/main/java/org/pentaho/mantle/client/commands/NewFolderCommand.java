@@ -149,7 +149,7 @@ public class NewFolderCommand extends AbstractCommand {
 
             @Override
             public void onResponseReceived( Request createFolderRequest, Response createFolderResponse ) {
-              if ( createFolderResponse.getStatusText().equalsIgnoreCase( "OK" ) ) { //$NON-NLS-1$
+              if ( createFolderResponse.getStatusCode() == 200 ) {
                 NewFolderCommand.this.callback.onHandle( solutionPath );
                 new RefreshRepositoryCommand().execute( false );
                 event.setMessage( "Success" );
