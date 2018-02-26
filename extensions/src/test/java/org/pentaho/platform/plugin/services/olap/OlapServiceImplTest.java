@@ -1,5 +1,5 @@
 /*
- * Copyright 2002 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2002 - 2018 Hitachi Vantara.  All rights reserved.
  *
  * This software was developed by Hitachi Vantara and is provided under the terms
  * of the Mozilla Public License, Version 1.1, or any later version. You may not use
@@ -17,6 +17,7 @@ import mondrian.olap.CacheControl;
 import mondrian.olap.MondrianServer;
 import mondrian.rolap.RolapConnection;
 import mondrian.rolap.RolapConnectionProperties;
+import mondrian.rolap.RolapSchema;
 import mondrian.rolap.agg.AggregationManager;
 import mondrian.xmla.XmlaHandler;
 import org.junit.After;
@@ -46,14 +47,35 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeFileObject;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeIdObject;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.pathPropertyPair;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFolder;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetChildren;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFileDoesNotExist;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFolder;
 
 @RunWith ( MockitoJUnitRunner.class )
 public class OlapServiceImplTest {
@@ -115,7 +137,7 @@ public class OlapServiceImplTest {
 
     // Create the olap service. Make sure to override hasAccess with the
     // mock version.
-    olapService = new OlapServiceImpl( repository, server ) {
+    olapService = spy( new OlapServiceImpl( repository, server ) {
       public boolean hasAccess(
         String path,
         EnumSet<RepositoryFilePermission> perms,
@@ -127,7 +149,7 @@ public class OlapServiceImplTest {
       protected XmlaHandler.XmlaExtra getXmlaExtra( final OlapConnection connection ) throws SQLException {
         return mockXmlaExtra;
       }
-    };
+    } );
   }
 
   @After public void tearDown() throws Exception {
@@ -758,6 +780,33 @@ public class OlapServiceImplTest {
               pathPropertyPair( "/server/className", "class-name" ), pathPropertyPair( "/server/URL", "url" ),
               pathPropertyPair( "/server/user", "user" ), pathPropertyPair( "/server/password", "password" ) ) ),
       anyString() );
+  }
+
+  @Test
+  public void flushSingleSchemaCache() throws Exception {
+    OlapConnection connection = mock( OlapConnection.class );
+    doReturn( connection ).when( olapService ).getConnection( "schemaX", session );
+
+    RolapConnection rc = mock( RolapConnection.class );
+    doReturn( rc ).when( connection ).unwrap( RolapConnection.class );
+    doReturn( cacheControl ).when( rc ).getCacheControl( any( PrintWriter.class ) );
+
+    RolapSchema schema = mock( RolapSchema.class );
+    doReturn( schema ).when( rc ).getSchema();
+
+    olapService.flush( session, "schemaX" );
+    verify( cacheControl, times( 1 ) ).flushSchema( schema );
+  }
+
+  @Test
+  public void flushSingleSchemaCacheThrowsException() throws Exception {
+    try {
+      olapService.flush( session, "schemaX" );
+      fail();
+    } catch ( IOlapServiceException e ) {
+      verify( cacheControl, times( 0 ) ).flushSchema( any( RolapSchema.class ) );
+      assertEquals( "MondrianCatalogHelper.ERROR_0019 - Failed to flush schema schemaX", e.getMessage() );
+    }
   }
 
   @Test
