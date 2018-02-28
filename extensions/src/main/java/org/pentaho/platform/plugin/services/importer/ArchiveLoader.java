@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
@@ -66,6 +66,7 @@ public class ArchiveLoader {
         } catch ( Exception e ) {
           Logger.error( this.getClass().getName(), e.getMessage(), e );
         } finally {
+          ImportSession.clearSession();
           file.renameTo( new File( file.getPath() + DATE_FORMAT.format( loadStamp ) ) );
         }
       }
@@ -77,7 +78,7 @@ public class ArchiveLoader {
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
     bundleBuilder.input( createInputStream( file ) );
     bundleBuilder.charSet( "UTF-8" );
-    bundleBuilder.hidden( true ); //
+    bundleBuilder.hidden( true );
     bundleBuilder.schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
     bundleBuilder.path( "/" );
     bundleBuilder.overwriteFile( true );
