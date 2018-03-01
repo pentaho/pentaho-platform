@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr;
@@ -33,7 +33,6 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -197,19 +196,21 @@ public class PluginResourceLoader implements IPluginResourceLoader {
     File root = getPluginDir( classLoader );
     if ( root != null ) {
 
-      // can we find it on the filesystem?
       File f = new File( root, resourcePath );
-      if ( f.canRead() ) {
-        try {
+      try {
+        checkPathTraversal( resourcePath, f );
+
+        // can we find it on the filesystem?
+        if ( f.canRead() ) {
           in = new BufferedInputStream( new FileInputStream( f ) );
-        } catch ( FileNotFoundException e ) {
-          Logger.debug( this, "Cannot open stream to resource", e ); //$NON-NLS-1$
+        } else { //if not in filesystem ask the classloader
+          in = classLoader.getResourceAsStream( resourcePath );
+          if ( in == null ) {
+            Logger.debug( this, "Cannot find resource defined by path [" + resourcePath + "]" ); //$NON-NLS-1$
+          }
         }
-      } else { //if not in filesystem ask the classloader
-        in = classLoader.getResourceAsStream( resourcePath );
-        if ( in == null ) {
-          Logger.debug( this, "Cannot find resource defined by path [" + resourcePath + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
-        }
+      } catch ( IOException e ) {
+        Logger.debug( this, "Cannot open stream to resource", e ); //$NON-NLS-1$
       }
     }
     return in;
@@ -301,6 +302,23 @@ public class PluginResourceLoader implements IPluginResourceLoader {
     }
 
     return PentahoSystem.getSystemSetting( pluginPath + settingsPath, key, defaultVal );
+  }
+
+  /**
+   * Security check. Mitigating path traversal attack.
+   * If requested path is not equal to a found file's path in file system,
+   * we consider the request as malicious.
+   */
+  private void checkPathTraversal( String resourcePath, File f ) throws IOException {
+    // we need to support double slashes in path, like most web browsers do.
+    // here we rely on resource paths to be relative (not containing leading double slashes).
+    String path = resourcePath.replaceAll( "//", "/" );
+
+    // converting to URI as to be system-independent
+    if ( !f.getCanonicalFile().toURI().getPath().endsWith( path ) ) {
+      Logger.error( this, String.format( "Illegal resource path ( directory traversal attempt? ): %s", resourcePath ) );
+      throw new IllegalArgumentException( "Illegal resource path" );
+    }
   }
 
 }
