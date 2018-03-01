@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.test.platform.plugin.pluginmgr;
@@ -199,5 +199,101 @@ public class PluginResourceLoaderTest {
       }
     }
     assertTrue( "Template not found", found );
+  }
+
+  /**
+   * <p>
+   *   Path Traversal Mitigation.
+   * </p>
+   * Given path of an existing resource file, containing upper directories references.
+   * When the file is being requested on this path, an exception should be thrown.
+   */
+  @Test
+  public void shouldFailWhenExistingResourcePathIsReferringUpperDirectories() throws UnsupportedEncodingException {
+    try {
+      resLoader.getResourceAsStream( pluginClass, "resources/../settings.xml" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+    try {
+      resLoader.getResourceAsBytes( pluginClass, "resources/../settings.xml" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+    try {
+      resLoader.getResourceAsString( pluginClass, "resources/../settings.xml" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+  }
+
+  /**
+   * <p>
+   *   Path Traversal Mitigation.
+   * </p>
+   * Given path of an NON-existing resource file, containing upper directories references.
+   * When the file is being requested on this path, an exception should be thrown.
+   */
+  @Test
+  public void shouldFailWhenNonExistingResourcePathIsReferringUpperDirectories() throws UnsupportedEncodingException {
+    try {
+      resLoader.getResourceAsStream( pluginClass, "resources/../settings.xml-non-existing" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+    try {
+      resLoader.getResourceAsBytes( pluginClass, "resources/../settings.xml-non-existing" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+    try {
+      resLoader.getResourceAsString( pluginClass, "resources/../settings.xml-non-existing" );
+      fail();
+    } catch ( IllegalArgumentException e ) {
+      //
+    }
+  }
+
+  /**
+   * <p>
+   *   Path Traversal Mitigation.
+   * </p>
+   * <p>
+   *   Doing path traversal check, we do not authorize the request to the file,
+   *   we just avoid directory traversal.
+   *   Thus, settings.xml is still available by legal direct link.
+   * </p>
+   * Given path of an existing resource file, NOT containing upper directories references.
+   * When the file is being requested on this path, the requested resource should be returned.
+   */
+  @Test
+  public void shouldNotFailWhenExistingResourcePathIsNotReferringUpperDirectories() throws UnsupportedEncodingException {
+    assertNotNull( resLoader.getResourceAsStream( pluginClass, "settings.xml" ) );
+    assertNotNull( resLoader.getResourceAsBytes( pluginClass, "settings.xml" ) );
+    assertNotNull( resLoader.getResourceAsString( pluginClass, "settings.xml" ) );
+  }
+
+  /**
+   * <p>
+   *   Path Traversal Mitigation.
+   * </p>
+   * <p>
+   *   Path values are often got from concatenated strings, and might therefore contain double slashes.
+   *   That slashes should be considered as one, and we should not fall here.
+   * </p>
+   * Given path of an existing resource file, NOT containing upper directories references,
+   * but containing double slashes.
+   * When the file is being requested on this path, the requested resource should be returned.
+   */
+  @Test
+  public void shouldNotFailWhenExistingResourcePathIsContainingDoubleSlashes() throws UnsupportedEncodingException {
+    assertNotNull( resLoader.getResourceAsStream( pluginClass, "resources//pluginResourceTest-inresources.properties" ) );
+    assertNotNull( resLoader.getResourceAsBytes( pluginClass, "resources//pluginResourceTest-inresources.properties" ) );
+    assertNotNull( resLoader.getResourceAsString( pluginClass, "resources//pluginResourceTest-inresources.properties" ) );
   }
 }
