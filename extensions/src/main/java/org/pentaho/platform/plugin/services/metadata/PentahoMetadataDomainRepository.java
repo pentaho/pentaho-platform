@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -452,7 +452,12 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         if ( hasAccessFor( file ) ) {
           SimpleRepositoryFileData data = repository.getDataForRead( file.getId(), SimpleRepositoryFileData.class );
           if ( data != null ) {
-            domain = xmiParser.parseXmi( data.getStream() );
+            InputStream is = data.getStream();
+            try {
+              domain = xmiParser.parseXmi( is );
+            } finally {
+              IOUtils.closeQuietly( is );
+            }
             domain.setId( domainId );
             logger.debug( "loaded domain" );
             // Load any I18N bundles
