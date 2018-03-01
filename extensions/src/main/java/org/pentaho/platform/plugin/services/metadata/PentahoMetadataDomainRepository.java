@@ -454,7 +454,12 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
         if ( hasAccessFor( file ) ) {
           SimpleRepositoryFileData data = repository.getDataForRead( file.getId(), SimpleRepositoryFileData.class );
           if ( data != null ) {
-            domain = xmiParser.parseXmi( data.getStream() );
+            InputStream is = data.getStream();
+            try {
+              domain = xmiParser.parseXmi( is );
+            } finally {
+              IOUtils.closeQuietly( is );
+            }
             domain.setId( domainId );
             logger.debug( "loaded domain" );
             // Load any I18N bundles
