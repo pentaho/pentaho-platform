@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.repository2.unified.fs;
@@ -62,10 +62,10 @@ import org.pentaho.platform.util.RepositoryPathEncoder;
 @SuppressWarnings( "nls" )
 public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   private File rootDir = new File( System.getProperty( "solution.root.dir", System.getProperty( "user.dir" ) ) );
-  private static List<Character> reservedChars = Collections.unmodifiableList( Arrays.asList( new Character[] {
-    '/', '\\', '\t', '\r', '\n' } ) );
-  private static List<Character> reservedCharsWindows = Collections.unmodifiableList( Arrays.asList( new Character[]{
-      '?', '*', ':', '<', '>', '|'} ) );
+  private static List<Character> reservedChars =
+    Collections.unmodifiableList( Arrays.asList( '/', '\\', '\t', '\r', '\n' ) );
+  private static List<Character> reservedCharsWindows =
+    Collections.unmodifiableList( Arrays.asList( '?', '*', ':', '<', '>', '|' ) );
 
   public FileSystemRepositoryFileDao() {
     this( new File( System.getProperty( "solution.root.dir", System.getProperty( "user.dir" ) ) ) );
@@ -150,7 +150,11 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public void deleteFile( Serializable fileId, String versionMessage ) {
     try {
       File f = new File( fileId.toString() );
-      f.delete();
+      if ( f.isDirectory() ) {
+        FileUtils.deleteDirectory( f );
+      } else {
+        f.delete();
+      }
     } catch ( Exception e ) {
       // CHECKSTYLES IGNORE
     }
@@ -171,20 +175,20 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     }
     return children;
   }
-  
+
   @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId ) {
-    return getChildren(folderId, "", false);
+    return getChildren( folderId, "", false );
   }
 
   @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter ) {
-    return getChildren(folderId, filter, false);
+    return getChildren( folderId, filter, false );
   }
-  
+
   @Deprecated
   public List<RepositoryFile> getChildren( Serializable folderId, String filter, Boolean showHiddenFiles ) {
-    return getChildren(new RepositoryRequest(folderId.toString(), showHiddenFiles, -1, filter));
+    return getChildren( new RepositoryRequest( folderId.toString(), showHiddenFiles, -1, filter ) );
   }
 
   @SuppressWarnings( "unchecked" )
@@ -192,13 +196,13 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     File f = new File( fileId.toString() );
     T data = null;
     try {
-      if( SimpleRepositoryFileData.class.getName().equals( dataClass.getName() ) ){
-        data = (T) new SimpleRepositoryFileData ( new FileInputStream( f ), "UTF-8", "text/plain" );
-      
-      } else if( NodeRepositoryFileData.class.getName().equals( dataClass.getName() ) ) {
+      if ( SimpleRepositoryFileData.class.getName().equals( dataClass.getName() ) ) {
+        data = (T) new SimpleRepositoryFileData( new FileInputStream( f ), "UTF-8", "text/plain" );
+
+      } else if ( NodeRepositoryFileData.class.getName().equals( dataClass.getName() ) ) {
         throw new UnsupportedOperationException( "This operation is not support by this repository" );
       }
-      
+
     } catch ( FileNotFoundException e ) {
       throw new UnifiedRepositoryException( e );
     }
@@ -279,52 +283,51 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public RepositoryFile getFileById( Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale ) {
     return getFile( fileId.toString() );
   }
-  
 
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
 
     File root = new File( getPhysicalFileLocation( repositoryRequest.getPath() ) );
-    
+
     //TODO ACL     
-    return getTree( root , repositoryRequest.getDepth().intValue() , 
+    return getTree( root, repositoryRequest.getDepth().intValue(),
         repositoryRequest.getChildNodeFilter(), repositoryRequest.getTypes() );
   }
-  
+
   @Deprecated
   public RepositoryFileTree getTree( String relPath, int depth, String filter, boolean showHidden ) {
-    
+
     File root = new File( getPhysicalFileLocation( relPath ) );
-  
+
     //TODO ACL     
-    return getTree( root , depth , filter , RepositoryRequest.FILES_TYPE_FILTER.FILES_FOLDERS );
+    return getTree( root, depth, filter, RepositoryRequest.FILES_TYPE_FILTER.FILES_FOLDERS );
   }
-  
-  private RepositoryFileTree getTree( final File file, final int depth, final String childNodeFilter, 
+
+  private RepositoryFileTree getTree( final File file, final int depth, final String childNodeFilter,
       RepositoryRequest.FILES_TYPE_FILTER types ) {
 
     RepositoryFile rootFile = internalGetFile( file );
-   
+
     List<RepositoryFileTree> children;
 
     if ( depth != 0 ) {
       children = new ArrayList<RepositoryFileTree>();
-      
+
       if ( file.isDirectory() ) {
-        
+
         File[] childrenArray = file.listFiles();
-        
-        for( File child : childrenArray ){
-          
-          if( child.isFile() ){
-            
-            if( types == RepositoryRequest.FILES_TYPE_FILTER.FILES_FOLDERS || types == RepositoryRequest.FILES_TYPE_FILTER.FILES ){
-              children.add( new RepositoryFileTree( internalGetFile( child ), new ArrayList<RepositoryFileTree>() ) );
+
+        for ( File child : childrenArray ) {
+
+          if ( child.isFile() ) {
+
+            if ( types == RepositoryRequest.FILES_TYPE_FILTER.FILES_FOLDERS || types == RepositoryRequest.FILES_TYPE_FILTER.FILES ) {
+              children.add( new RepositoryFileTree( internalGetFile( child ), new ArrayList<>() ) );
             }
-            
+
             continue;
           }
-          
+
           RepositoryFileTree repositoryChildFileTree = getTree( child, depth - 1, childNodeFilter, types );
           if ( repositoryChildFileTree != null ) {
             children.add( repositoryChildFileTree );
@@ -336,7 +339,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       children = null;
     }
     return new RepositoryFileTree( rootFile, children );
-  }  
+  }
 
   public List<VersionSummary> getVersionSummaries( Serializable fileId ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
@@ -345,7 +348,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public VersionSummary getVersionSummary( Serializable fileId, Serializable versionId ) {
     RepositoryFile file = getFile( fileId, versionId );
     List<String> labels = new ArrayList<String>();
-    return new VersionSummary(fileId, ( versionId != null ? versionId : fileId ) , 
+    return new VersionSummary( fileId, ( versionId != null ? versionId : fileId ),
         false, file.getCreatedDate(), file.getCreatorId(), StringUtils.EMPTY,  labels );
   }
 
@@ -541,13 +544,13 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public RepositoryFile updateFolder( RepositoryFile file, String versionMessage ) {
     throw new UnsupportedOperationException( "This operation is not support by this repository" );
   }
-  
-  private String getPhysicalFileLocation( String relPath ){
-    
-    if( StringUtils.isEmpty( relPath ) ){
+
+  private String getPhysicalFileLocation( String relPath ) {
+
+    if ( StringUtils.isEmpty( relPath ) ) {
       return relPath;
     }
-    
+
     String physicalFileLocation = relPath;
     if ( relPath.equals( "/" ) ) {
       physicalFileLocation = rootDir.getAbsolutePath();
@@ -556,7 +559,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     } else {
       physicalFileLocation = RepositoryFilenameUtils.concat( rootDir.getAbsolutePath(), relPath.substring( RepositoryFilenameUtils.getPrefixLength( relPath ) ) );
     }
-    
-    return physicalFileLocation; 
+
+    return physicalFileLocation;
   }
 }

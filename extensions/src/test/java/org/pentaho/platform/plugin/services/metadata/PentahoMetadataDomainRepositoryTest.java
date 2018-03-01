@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -28,8 +28,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
-import junit.framework.TestCase;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -60,6 +58,11 @@ import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -79,13 +82,13 @@ import static org.mockito.Matchers.eq;
  *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class PentahoMetadataDomainRepositoryTest extends TestCase {
+public class PentahoMetadataDomainRepositoryTest {
   private static final String SAMPLE_DOMAIN_ID = "sample";
   private static final String STEEL_WHEELS = "steel-wheels";
   private static final Properties EMPTY_PROPERTIES = new Properties();
   private static final InputStream EMPTY_INPUT_STREAM = new ByteArrayInputStream( "".getBytes() );
 
-  IUnifiedRepository repository;
+  private IUnifiedRepository repository;
   private PentahoMetadataDomainRepository domainRepository;
   private PentahoMetadataDomainRepository domainRepositorySpy;
   private IAclNodeHelper aclNodeHelper;
@@ -132,14 +135,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     repository = null;
     domainRepository = null;
     domainRepositorySpy = null;
   }
 
   @Test
-  public void testInitialization() throws Exception {
+  public void testInitialization() {
     try {
       createDomainRepository( null );
       fail( "An exception should be thrown" );
@@ -194,6 +197,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       domainRepositorySpy.storeDomain( null, null, true );
       fail( "Null InputStream should throw an exception" );
     } catch ( IllegalArgumentException success ) {
+      //ignored
     }
 
     try {
@@ -256,6 +260,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     try {
       domainRepositorySpy.storeDomain( sample, false ); fail( "A duplicate domain with overwrite=false should fail" );
     } catch ( DomainAlreadyExistsException success ) {
+      //ignored
     }
 
     sample.addLogicalModel( "test" );
@@ -264,8 +269,9 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     MockDomain xmiExtensionSample = new MockDomain( SAMPLE_DOMAIN_ID + ".xmi" );
     try {
-      domainRepositorySpy.storeDomain( sample, false ); fail( "A duplicate domain with overwrite=false should fail" );
+      domainRepositorySpy.storeDomain( xmiExtensionSample, false ); fail( "A duplicate domain with overwrite=false should fail" );
     } catch ( DomainAlreadyExistsException success ) {
+      //ignored
     }
 
     xmiExtensionSample.addLogicalModel( "test1" );
@@ -527,24 +533,28 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       domainRepositorySpy.removeModel( null, null );
       fail( "Should throw exception" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       domainRepositorySpy.removeModel( "", null );
       fail( "Should throw exception" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       domainRepositorySpy.removeModel( "valid", null );
       fail( "Should throw exception" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     try {
       domainRepositorySpy.removeModel( "valid", "" );
       fail( "Should throw exception" );
     } catch ( Exception success ) {
+      //ignored
     }
 
     // Deleting a model from a domain that doesn't exist should not throw exception
@@ -919,10 +929,10 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     private List<LogicalModel> logicalModels;
     private List<LocaleType> locals;
 
-    public MockDomain( final String id ) {
+    MockDomain( final String id ) {
       this.id = id;
-      logicalModels = new ArrayList<LogicalModel>();
-      locals = new ArrayList<LocaleType>();
+      logicalModels = new ArrayList<>();
+      locals = new ArrayList<>();
     }
 
     public String getId() {
@@ -940,7 +950,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     private class MockLogicalModel extends LogicalModel {
       final String modelId;
 
-      public MockLogicalModel( final String modelId ) {
+      MockLogicalModel( final String modelId ) {
         this.modelId = modelId;
       }
 
@@ -990,7 +1000,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
    * @return
    * @throws Exception
    */
-  private static final Domain loadDomain( final String domainId, final String domainFile ) throws Exception {
+  private static Domain loadDomain( final String domainId, final String domainFile ) throws Exception {
     final InputStream in = PentahoMetadataDomainRepositoryTest.class.getResourceAsStream( domainFile );
     final XmiParser parser = new XmiParser();
     final Domain domain = parser.parseXmi( in );
