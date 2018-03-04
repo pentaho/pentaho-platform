@@ -133,6 +133,10 @@ public class SchedulerService {
       }
     }
 
+    if ( scheduleRequest.getTimeZone() != null ) {
+      updateStartDateForTimeZone( scheduleRequest );
+    }
+
     Job job = null;
 
     IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
@@ -380,7 +384,6 @@ public class SchedulerService {
         jobScheduleRequest.getDuration() ) );
       jobScheduleRequest.getJobParameters()
         .add( getJobScheduleParam( IBlockoutManager.TIME_ZONE_PARAM, jobScheduleRequest.getTimeZone() ) );
-      updateStartDateForTimeZone( jobScheduleRequest );
       return createJob( jobScheduleRequest );
     }
     throw new IllegalAccessException();
