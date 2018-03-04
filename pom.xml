@@ -261,6 +261,7 @@
     <quartz.version>1.7.2</quartz.version>
     <hibernate-jpa-2.0-api.version>1.0.1.Final</hibernate-jpa-2.0-api.version>
     <hsqldb.version>2.3.2</hsqldb.version>
+    <apache-log4j-extras>1.2.17</apache-log4j-extras>
   </properties>
   <build>
     <pluginManagement>
