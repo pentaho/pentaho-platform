@@ -111,6 +111,8 @@ public class SchedulerServiceTest {
     doReturn( "jobName" ).when( scheduleRequest ).getJobName();
     doReturn( jobParameters ).when( scheduleRequest ).getJobParameters();
     doNothing().when( scheduleRequest ).setJobName( anyString() );
+    doReturn( "timezone" ).when( scheduleRequest ).getTimeZone();
+    doNothing().when( schedulerService ).updateStartDateForTimeZone( scheduleRequest );
 
     doReturn( true ).when( schedulerService ).isPdiFile( any( RepositoryFile.class ) );
 
@@ -178,6 +180,7 @@ public class SchedulerServiceTest {
     //verify( schedulerService, times( 2 ) ).resolveActionId( anyString() );
     verify( scheduleRequest, times( 5 ) ).getActionClass();
     verify( schedulerService ).getAction( anyString() );
+    verify( schedulerService, times( 3 ) ).updateStartDateForTimeZone( scheduleRequest );
     verify( schedulerService.scheduler )
         .createJob( anyString(), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
   }
@@ -922,7 +925,6 @@ public class SchedulerServiceTest {
     verify( schedulerService ).canAdminister();
     verify( jobScheduleRequest ).setActionClass( anyString() );
     verify( jobScheduleRequest, times( 2 ) ).getJobParameters();
-    verify( schedulerService ).updateStartDateForTimeZone( jobScheduleRequest );
     verify( schedulerService ).createJob( any( JobScheduleRequest.class ) );
   }
 
@@ -978,7 +980,6 @@ public class SchedulerServiceTest {
     verify( schedulerService, times( 3 ) ).canAdminister();
     verify( jobScheduleRequest, times( 2 ) ).setActionClass( anyString() );
     verify( jobScheduleRequest, times( 4 ) ).getJobParameters();
-    verify( schedulerService, times( 2 ) ).updateStartDateForTimeZone( jobScheduleRequest );
     verify( schedulerService, times( 2 ) ).createJob( any( JobScheduleRequest.class ) );
   }
 
