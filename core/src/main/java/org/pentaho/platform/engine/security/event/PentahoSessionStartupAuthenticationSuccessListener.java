@@ -30,7 +30,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.util.Assert;
 
@@ -43,6 +42,7 @@ import org.springframework.util.Assert;
  * 
  * @author mlowery
  */
+@SuppressWarnings( "rawtypes" )
 public class PentahoSessionStartupAuthenticationSuccessListener implements ApplicationListener, Ordered {
 
   // ~ Static fields/initializers
@@ -66,7 +66,7 @@ public class PentahoSessionStartupAuthenticationSuccessListener implements Appli
   // =========================================================================================================
 
   public void onApplicationEvent( final ApplicationEvent event ) {
-    if ( event instanceof InteractiveAuthenticationSuccessEvent || event instanceof AuthenticationSuccessEvent ) {
+    if ( event instanceof InteractiveAuthenticationSuccessEvent ) {
       logger.debug( "received InteractiveAuthenticationSuccessEvent" ); //$NON-NLS-1$
       logger.debug( "calling PentahoSystem.sessionStartup" ); //$NON-NLS-1$
       try {
