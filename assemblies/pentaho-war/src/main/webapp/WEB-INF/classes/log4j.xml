@@ -45,8 +45,8 @@
 
   <appender name="pdi-execution-appender" class="org.apache.log4j.rolling.RollingFileAppender">
     <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
-      <param name="ActiveFileName"  value="logs/pdi.log" />
-      <param name="FileNamePattern" value="logs/pdi.%d{yyyy-MM-dd}.log" />
+      <param name="ActiveFileName"  value="../logs/pdi.log" />
+      <param name="FileNamePattern" value="../logs/pdi.%d{yyyy-MM-dd}.log" />
     </rollingPolicy>
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p &lt;%t&gt; %m%n"/>
