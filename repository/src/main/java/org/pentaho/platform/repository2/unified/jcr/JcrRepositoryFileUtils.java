@@ -35,6 +35,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
@@ -1288,7 +1289,7 @@ public class JcrRepositoryFileUtils {
    * folder should be added). Finally, it returns the foundFiltered boolean to let the caller know if a file was found
    * that satisfied the childNodeFilter.
    */
-  private static void checkNodeForTree( final Node childNode, List<RepositoryFileTree> children, final Session session,
+  static void checkNodeForTree( final Node childNode, List<RepositoryFileTree> children, final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final IPathConversionHelper pathConversionHelper,
       final String childNodeFilter, final ILockHelper lockHelper, final int depth, final boolean showHidden,
       final IRepositoryAccessVoterManager accessVoterManager, RepositoryRequest.FILES_TYPE_FILTER types,
@@ -1296,16 +1297,22 @@ public class JcrRepositoryFileUtils {
       final String rootPath ) throws RepositoryException {
 
     RepositoryFile file = nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode );
-    if ( isSupportedNodeType( pentahoJcrConstants, childNode ) && ( accessVoterManager.hasAccess( file,
-        RepositoryFilePermission.READ, JcrRepositoryFileAclUtils.getAcl( session, pentahoJcrConstants, file.getId() ),
-        PentahoSessionHolder.getSession() ) ) ) {
-      MutableBoolean foundFilteredAtomic = new MutableBoolean( !isPentahoFolder( pentahoJcrConstants, childNode ) );
-      RepositoryFileTree repositoryFileTree =
-          getTreeByNode( session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode, depth - 1,
-              childNodeFilter, showHidden, accessVoterManager, types, foundFilteredAtomic, includeSystemFolders, rootPath );
-      if ( repositoryFileTree != null && ( foundFilteredAtomic.booleanValue() || isRootFiltered ) ) {
-        foundFiltered.setValue( true );
-        children.add( repositoryFileTree );
+    if ( isSupportedNodeType( pentahoJcrConstants, childNode ) ) {
+      RepositoryFileAcl fileAcl;
+      try {
+        fileAcl = JcrRepositoryFileAclUtils.getAcl( session, pentahoJcrConstants, file.getId() );
+      } catch ( AccessDeniedException e ) {
+        return;
+      }
+      if ( accessVoterManager.hasAccess( file, RepositoryFilePermission.READ, fileAcl, PentahoSessionHolder.getSession() ) ) {
+        MutableBoolean foundFilteredAtomic = new MutableBoolean( !isPentahoFolder( pentahoJcrConstants, childNode ) );
+        RepositoryFileTree repositoryFileTree =
+            getTreeByNode( session, pentahoJcrConstants, pathConversionHelper, lockHelper, childNode, depth - 1,
+                childNodeFilter, showHidden, accessVoterManager, types, foundFilteredAtomic, includeSystemFolders, rootPath );
+        if ( repositoryFileTree != null && ( foundFilteredAtomic.booleanValue() || isRootFiltered ) ) {
+          foundFiltered.setValue( true );
+          children.add( repositoryFileTree );
+        }
       }
     }
   }
