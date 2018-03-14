@@ -392,6 +392,7 @@ public class KarafBoot implements IPentahoSystemListener {
         case PAN:
         case KITCHEN:
         case CARTE:
+        case SCALE:
         case OTHER:
           return "/etc-" + clientType.getID().toLowerCase();
       }
