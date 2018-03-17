@@ -277,7 +277,7 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
-                  <artifactId>ms-access-bulk-loader-plugin</artifactId>
+                  <artifactId>ms-access-plugins</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
