@@ -52,7 +52,7 @@
 </script>
 
 <!-- libs -->
-<script type="text/javascript" src="lib/jquery/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="lib/jquery/jquery-3.3.1.js"></script>
 <script type="text/javascript" src="lib/underscore/underscore-min.js"></script>
 <script type="text/javascript" src="lib/backbone/backbone.js"></script>
 
