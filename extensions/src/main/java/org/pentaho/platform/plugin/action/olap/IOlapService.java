@@ -183,6 +183,11 @@ public interface IOlapService {
   public void flushAll( IPentahoSession pentahoSession );
 
   /**
+   * Flushes a single schema from the cache. The schema must be in a hosted catalog.
+   */
+  public void flush( IPentahoSession pentahoSession, String name );
+
+  /**
    * Representation of a catalog. Catalogs have {@link Schema} children.
    */
   public class Catalog {
