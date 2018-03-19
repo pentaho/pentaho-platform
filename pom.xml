@@ -38,7 +38,7 @@
     <sassyreader.version>0.5</sassyreader.version>
     <activation.version>1.1</activation.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
-    <commons-vfs2.version>2.1-20150824</commons-vfs2.version>
+    <commons-vfs2.version>2.2</commons-vfs2.version>
     <pentaho-json.version>8.1.0.0-SNAPSHOT</pentaho-json.version>
     <poi.version>3.17</poi.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
