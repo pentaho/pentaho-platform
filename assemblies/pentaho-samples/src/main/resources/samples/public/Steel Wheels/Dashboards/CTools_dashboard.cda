@@ -38,27 +38,27 @@
          <Jndi>SampleData</Jndi>
       </Connection>
    </DataSources>
-   <DataAccess access="public" cache="true" cacheDuration="3600"
-               connection="yearSelectorQuery"
-               id="yearSelectorQuery"
+   <DataAccess access="public" connection="yearSelectorQuery" id="yearSelectorQuery"
                type="mdx">
+      <Name>yearSelectorQuery</Name>
       <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
       <Columns/>
       <Output indexes="1,0" mode="include"/>
       <Parameters/>
-      <Query>WITH
+      <Query><![CDATA[WITH
     MEMBER [Measures].[Years UniqueName]  AS  [Time].currentmember.UniqueName
     SET  YEAR  AS  UNION( [Time].[All Years] , [Time].[Years].Members )
     
 SELECT
     [Measures].[Years UniqueName]  ON COLUMNS,
     YEAR   ON ROWS
-FROM [SteelWheelsSales]</Query>
+FROM [SteelWheelsSales]]]></Query>
    </DataAccess>
-   <DataAccess access="public" cache="true" cacheDuration="3600" connection="totalSalesValue"
-               id="totalSalesValue"
-               type="mdx">
+   <DataAccess access="public" connection="totalSalesValue" id="totalSalesValue" type="mdx">
+      <Name>totalSalesValue</Name>
       <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
       <Columns/>
       <Parameters>
          <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
@@ -66,19 +66,19 @@ FROM [SteelWheelsSales]</Query>
                     name="selectedLinesParam"
                     type="String"/>
       </Parameters>
-      <Query>WITH
+      <Query><![CDATA[WITH
     MEMBER [Measures].[Total Sales] AS ( [Measures].[Sales] , ${dateParam} )
 
 SELECT
     [Measures].[Total Sales] ON COLUMNS
 FROM [SteelWheelsSales]
-WHERE { ${selectedLinesParam} }</Query>
+WHERE { ${selectedLinesParam} }]]></Query>
    </DataAccess>
-   <DataAccess access="public" cache="true" cacheDuration="3600"
-               connection="quantitySoldValue"
-               id="quantitySoldValue"
+   <DataAccess access="public" connection="quantitySoldValue" id="quantitySoldValue"
                type="mdx">
+      <Name>quantitySoldValue</Name>
       <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
       <Columns/>
       <Parameters>
          <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
@@ -86,19 +86,19 @@ WHERE { ${selectedLinesParam} }</Query>
                     name="selectedLinesParam"
                     type="String"/>
       </Parameters>
-      <Query>WITH
+      <Query><![CDATA[WITH
     MEMBER [Measures].[Quantity Sold] AS ([Measures].[Quantity], ${dateParam})
 
 SELECT
     [Measures].[Quantity Sold] ON COLUMNS
 FROM [SteelWheelsSales]
-WHERE { ${selectedLinesParam} }</Query>
+WHERE { ${selectedLinesParam} }]]></Query>
    </DataAccess>
-   <DataAccess access="public" cache="true" cacheDuration="3600"
-               connection="salesByTerritoryChart"
-               id="salesByTerritoryChart"
+   <DataAccess access="public" connection="salesByTerritoryChart" id="salesByTerritoryChart"
                type="mdx">
+      <Name>salesByTerritoryChart</Name>
       <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
       <Columns/>
       <Parameters>
          <Parameter default="[Time].[All Years]" name="dateParam" type="String"/>
@@ -106,20 +106,21 @@ WHERE { ${selectedLinesParam} }</Query>
                     name="selectedLinesParam"
                     type="String"/>
       </Parameters>
-      <Query>WITH
+      <Query><![CDATA[WITH
     MEMBER [Measures].[Sales in Time] AS ( [Measures].[Sales] , ${dateParam} )
 
 Select
     { [Markets].[APAC] , [Markets].[EMEA] , [Markets].[NA] } on COLUMNS,
     { ${selectedLinesParam} } on ROWS
 FROM [SteelWheelsSales]
-Where [Measures].[Sales in Time]</Query>
+Where [Measures].[Sales in Time]]]></Query>
    </DataAccess>
-   <DataAccess access="public" cache="true" cacheDuration="3600"
-               connection="totalSalesSunburstChart"
+   <DataAccess access="public" connection="totalSalesSunburstChart"
                id="totalSalesSunburstChart"
                type="mdx">
+      <Name>totalSalesSunburstChart</Name>
       <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
       <Columns/>
       <Output indexes="1,0,2" mode="include"/>
       <Parameters>
@@ -128,20 +129,21 @@ Where [Measures].[Sales in Time]</Query>
                     name="selectedLinesParam"
                     type="String"/>
       </Parameters>
-      <Query>WITH
+      <Query><![CDATA[WITH
   MEMBER [Measures].[Line] AS [Product].Parent.Parent.Name
 
 SELECT
   { [Measures].[Line], [Measures].[Sales] } ON COLUMNS,
-  { Filter ( Descendants ( {${selectedLinesParam}}, 2, SELF), [Measures].[Sales] &gt; 0 ) } ON ROWS
+  { Filter ( Descendants ( {${selectedLinesParam}}, 2, SELF), [Measures].[Sales] > 0 ) } ON ROWS
 FROM [SteelWheelsSales]
-WHERE ${dateParam}</Query>
+WHERE ${dateParam}]]></Query>
    </DataAccess>
-   <DataAccess access="public" cache="true" cacheDuration="3600"
-               connection="quantitySoldSunburstChart"
+   <DataAccess access="public" connection="quantitySoldSunburstChart"
                id="quantitySoldSunburstChart"
                type="mdx">
+      <Name>quantitySoldSunburstChart</Name>
       <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
       <Columns/>
       <Output indexes="1,0,2" mode="include"/>
       <Parameters>
@@ -150,18 +152,19 @@ WHERE ${dateParam}</Query>
                     name="selectedLinesParam"
                     type="String"/>
       </Parameters>
-      <Query>WITH
+      <Query><![CDATA[WITH
   MEMBER [Measures].[Line] AS [Product].Parent.Parent.Name
 
 SELECT
   { [Measures].[Line], [Measures].[Quantity] } ON COLUMNS,
-  { Filter ( Descendants ( {${selectedLinesParam}}, 2, SELF), [Measures].[Quantity] &gt; 0 ) } ON ROWS
+  { Filter ( Descendants ( {${selectedLinesParam}}, 2, SELF), [Measures].[Quantity] > 0 ) } ON ROWS
 FROM [SteelWheelsSales]
-WHERE ${dateParam}</Query>
+WHERE ${dateParam}]]></Query>
    </DataAccess>
-   <DataAccess access="public" cache="true" cacheDuration="3600" connection="totalSalesChart"
-               id="totalSalesChart"
+   <DataAccess access="public" connection="totalSalesChart" id="totalSalesChart"
                type="denormalizedMdx">
+      <Name>totalSalesChart</Name>
+      <Cache duration="3600" enabled="true"/>
       <Columns/>
       <Output indexes="1,2,4,6" mode="include"/>
       <Parameters>
@@ -170,15 +173,15 @@ WHERE ${dateParam}</Query>
                     name="selectedLinesParam"
                     type="String"/>
       </Parameters>
-      <Query>SELECT
+      <Query><![CDATA[SELECT
     NON EMPTY CrossJoin( { ${selectedLinesParam} }, {[Measures].[Sales]} ) ON COLUMNS,
     NON EMPTY Except( Descendants(${dateParam}, [Time].[Quarters]) , [Time].[All Years] ) ON ROWS
-FROM [SteelWheelsSales]</Query>
+FROM [SteelWheelsSales]]]></Query>
    </DataAccess>
-   <DataAccess access="public" cache="true" cacheDuration="3600"
-               connection="quantitySoldChart"
-               id="quantitySoldChart"
+   <DataAccess access="public" connection="quantitySoldChart" id="quantitySoldChart"
                type="denormalizedMdx">
+      <Name>quantitySoldChart</Name>
+      <Cache duration="3600" enabled="true"/>
       <Columns/>
       <Output indexes="1,2,4,6" mode="include"/>
       <Parameters>
@@ -187,20 +190,20 @@ FROM [SteelWheelsSales]</Query>
                     name="selectedLinesParam"
                     type="String"/>
       </Parameters>
-      <Query>SELECT
+      <Query><![CDATA[SELECT
     NON EMPTY CrossJoin( { ${selectedLinesParam} }, {[Measures].[Quantity]} ) ON COLUMNS,
     NON EMPTY Except( Descendants(${dateParam}, [Time].[Quarters]) , [Time].[All Years] ) ON ROWS
-FROM [SteelWheelsSales]</Query>
+FROM [SteelWheelsSales]]]></Query>
    </DataAccess>
-   <DataAccess access="public" cache="true" cacheDuration="3600" connection="linesQuery"
-               id="linesQuery"
-               type="denormalizedMdx">
+   <DataAccess access="public" connection="linesQuery" id="linesQuery" type="denormalizedMdx">
+      <Name>linesQuery</Name>
+      <Cache duration="3600" enabled="true"/>
       <Columns/>
       <Output indexes="1" mode="include"/>
       <Parameters/>
-      <Query>SELECT&#xD;
-    [Measures].[Sales] ON COLUMNS,&#xD;
-    { [Product].[Trains], [Product].[Trucks and Buses], [Product].[Motorcycles],  [Product].[Vintage Cars], [Product].[Classic Cars] } ON ROWS&#xD;
-FROM [SteelWheelsSales]</Query>
+      <Query><![CDATA[SELECT
+    [Measures].[Sales] ON COLUMNS,
+    { [Product].[Classic Cars], [Product].[Vintage Cars], [Product].[Motorcycles], [Product].[Trucks and Buses] , [Product].[Trains]} ON ROWS
+FROM [SteelWheelsSales]]]></Query>
    </DataAccess>
 </CDADescriptor>
