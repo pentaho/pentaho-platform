@@ -84,7 +84,7 @@ public class PluginDispatchServlet implements Servlet {
     Servlet pluginServlet = getTargetServlet( request, response );
 
     if ( pluginServlet == null ) {
-      response.setStatus( 404 );
+      response.sendError( 404 );
       // FIXME: log more detail here for debugging
       return;
     }

@@ -62,7 +62,7 @@ public class PentahoBasicPostProcessingFilter implements Filter {
       response.setStatus( 200 );
       return;
     }
-    response.setStatus( 401, "Unauthorized" );
+    response.sendError( 401, "Unauthorized" );
     response.addHeader( "WWW-Authenticate", "basic realm=\"Pentaho Realm\"" );
   }
 }

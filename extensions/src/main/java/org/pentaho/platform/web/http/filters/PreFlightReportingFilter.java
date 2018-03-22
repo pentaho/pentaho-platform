@@ -45,7 +45,7 @@ public class PreFlightReportingFilter implements Filter {
 
     if ( isPreFlight( httpRequest ) ) {
       final HttpServletResponse servletResponse = (HttpServletResponse) response;
-      servletResponse.setStatus( HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+      servletResponse.sendError( HttpServletResponse.SC_METHOD_NOT_ALLOWED );
     } else {
       chain.doFilter( request, response );
     }

@@ -79,7 +79,7 @@ public class PreFlightReportingFilterTest {
     Mockito.when( request.getMethod() ).thenReturn( method );
     new PreFlightReportingFilter().doFilter( request, response, chain );
     Mockito.verify( chain, Mockito.never() ).doFilter( Mockito.any(), Mockito.any() );
-    Mockito.verify( response, Mockito.times( 1 ) ).setStatus( HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+    Mockito.verify( response, Mockito.times( 1 ) ).sendError( HttpServletResponse.SC_METHOD_NOT_ALLOWED );
   }
 
 }
