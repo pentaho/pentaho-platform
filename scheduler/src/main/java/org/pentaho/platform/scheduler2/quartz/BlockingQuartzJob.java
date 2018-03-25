@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -38,7 +38,13 @@ import org.quartz.SchedulerException;
  */
 public class BlockingQuartzJob implements Job {
   public void execute( final JobExecutionContext jobExecutionContext ) throws JobExecutionException {
-    String messageType = MessageTypes.INSTANCE_START;
+    final boolean jobRestarted;
+    if ( jobExecutionContext != null && jobExecutionContext.getJobDetail() != null ) {
+      jobRestarted = jobExecutionContext.getJobDetail().getJobDataMap().getBooleanValue( QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG );
+    } else {
+      jobRestarted = false;
+    }
+    String messageType = jobRestarted ? MessageTypes.RECREATED_INSTANCE_START : MessageTypes.INSTANCE_START;
     long start = System.currentTimeMillis();
     long end = start;
     try {
@@ -46,7 +52,7 @@ public class BlockingQuartzJob implements Job {
         makeAuditRecord( 0, messageType, jobExecutionContext );
         createUnderlyingJob().execute( jobExecutionContext );
         end = System.currentTimeMillis();
-        messageType = MessageTypes.INSTANCE_END;
+        messageType = jobRestarted ? MessageTypes.RECREATED_INSTANCE_END : MessageTypes.INSTANCE_END;
       } else {
         getLogger().warn(
             "Job '" + jobExecutionContext.getJobDetail().getName()
@@ -56,16 +62,16 @@ public class BlockingQuartzJob implements Job {
       // thrown by the execution code - if execution fails, there only thing we do is to write to pro_audit table failing message,
       // no point in trying to execute the job again
       end = System.currentTimeMillis();
-      messageType = MessageTypes.INSTANCE_FAILED;
+      messageType = jobRestarted ? MessageTypes.RECREATED_INSTANCE_FAILED : MessageTypes.INSTANCE_FAILED;
     } catch ( SchedulerException e ) {
       end = System.currentTimeMillis();
-      messageType = MessageTypes.INSTANCE_FAILED;
+      messageType = jobRestarted ? MessageTypes.RECREATED_INSTANCE_FAILED : MessageTypes.INSTANCE_FAILED;
       getLogger().warn(
           "Got Exception retrieving the Blockout Manager for job '" + jobExecutionContext.getJobDetail().getName()
               + "'. Executing the underlying job anyway", e );
       createUnderlyingJob().execute( jobExecutionContext );
       end = System.currentTimeMillis();
-      messageType = MessageTypes.INSTANCE_END;
+      messageType = jobRestarted ? MessageTypes.RECREATED_INSTANCE_END : MessageTypes.INSTANCE_END;
     } finally {
       makeAuditRecord( ( (float) ( end - start ) / 1000 ), messageType, jobExecutionContext );
     }
