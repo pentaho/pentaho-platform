@@ -95,7 +95,7 @@
   <geronimo-stax-api_1.0_spec.version>1.0.1</geronimo-stax-api_1.0_spec.version>
   <grizzly.version>1.9.45</grizzly.version>
 
-  <groovy-all.version>2.4.7</groovy-all.version>
+  <groovy-all.version>2.4.8</groovy-all.version>
 
   <guava.version>17.0</guava.version>
   <gwt-servlet.version>2.5.1</gwt-servlet.version>
