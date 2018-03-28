@@ -228,6 +228,13 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>google-bigquery-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-gpload-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
