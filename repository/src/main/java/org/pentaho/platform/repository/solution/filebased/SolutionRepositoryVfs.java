@@ -25,11 +25,11 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemConfigBuilder;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.provider.FileProvider;
+import org.apache.commons.vfs2.provider.AbstractFileProvider;
 
 import java.util.Collection;
 
-public class SolutionRepositoryVfs implements FileProvider {
+public class SolutionRepositoryVfs extends AbstractFileProvider {
 
   public SolutionRepositoryVfs() {
     super();
