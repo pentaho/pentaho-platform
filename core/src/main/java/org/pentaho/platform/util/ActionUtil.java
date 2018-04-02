@@ -52,6 +52,8 @@ public class ActionUtil {
   public static final String QUARTZ_STREAMPROVIDER = "ActionAdapterQuartzJob-StreamProvider"; //$NON-NLS-1$
   public static final String QUARTZ_STREAMPROVIDER_INPUT_FILE =
     "ActionAdapterQuartzJob-StreamProvider-InputFile"; //$NON-NLS-1$
+  public static final String QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE = "input file ="; //$NON-NLS-1$
+  public static final String QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE = ":output file="; //$NON-NLS-1$
   public static final String QUARTZ_UIPASSPARAM = "uiPassParam"; //$NON-NLS-1$
   public static final String QUARTZ_LINEAGE_ID = "lineage-id"; //$NON-NLS-1$
   public static final String QUARTZ_RESTART_FLAG = "ActionAdapterQuartzJob-Restart"; //$NON-NLS-1$
@@ -210,11 +212,53 @@ public class ActionUtil {
     // corresponding action keys (see KEY_MAP), fall back on the quartz key, if the action key cannot be found
     final String userName = Optional.ofNullable( (String) params.get( INVOKER_ACTIONUSER ) ).orElse( (String) params
       .get( QUARTZ_ACTIONUSER ) );
-    final String inputFilePath = Optional.ofNullable( (String) params.get( INVOKER_STREAMPROVIDER_INPUT_FILE ) )
+    String inputFilePath = Optional.ofNullable( (String) params.get( INVOKER_STREAMPROVIDER_INPUT_FILE ) )
       .orElse( (String) params.get( QUARTZ_STREAMPROVIDER_INPUT_FILE ) );
+
+    // if we still cannot find the inputFile, we have one last attempt: check for inline passing of input and output files,
+    // represented by 'ActionAdapterQuartzJob-StreamProvider -> input file = <path><colon>output file=<path>
+    if ( StringUtil.isEmpty( inputFilePath ) && isInlinePassingOfInputOnStreamProvider( params ) ) {
+      inputFilePath = getInlineInputFileOnStreamProvider( params );
+    }
+
     return generateWorkItemUid( inputFilePath, userName );
   }
 
+  public static boolean isInlinePassingOfInputOnStreamProvider( final Map<String, Serializable> params ) {
+
+    if ( params != null ) {
+
+      String streamProviderContent = ( params.containsKey( QUARTZ_STREAMPROVIDER )
+              ? params.get( QUARTZ_STREAMPROVIDER ) : params.containsKey( INVOKER_STREAMPROVIDER )
+              ? params.get( INVOKER_STREAMPROVIDER ) : StringUtils.EMPTY ).toString().trim();
+
+      return streamProviderContent.contains( QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE );
+    }
+
+    return false;
+  }
+
+  public static String getInlineInputFileOnStreamProvider( final Map<String, Serializable> params ) {
+
+    if ( isInlinePassingOfInputOnStreamProvider( params ) ) {
+
+      try {
+
+        String streamProviderContent = ( params.containsKey( QUARTZ_STREAMPROVIDER )
+                ? params.get( QUARTZ_STREAMPROVIDER ) : params.containsKey( INVOKER_STREAMPROVIDER )
+                ? params.get( INVOKER_STREAMPROVIDER ) : StringUtils.EMPTY ).toString().trim();
+
+        int startIdx = streamProviderContent.indexOf( QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE ) + QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE.length();
+        int endIdx = streamProviderContent.indexOf( QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE );
+        return streamProviderContent.substring( startIdx, endIdx ).trim();
+
+      } catch ( Throwable t ) {
+        logger.error( t );
+      }
+    }
+
+    return null;
+  }
 
   /**
    * Returns a unique id for a work item which includes the input file name (derived from {@code inputFilePath}),
