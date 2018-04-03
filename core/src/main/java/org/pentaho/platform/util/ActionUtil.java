@@ -225,39 +225,33 @@ public class ActionUtil {
   }
 
   public static boolean isInlinePassingOfInputOnStreamProvider( final Map<String, Serializable> params ) {
-
-    if ( params != null ) {
-
-      String streamProviderContent = ( params.containsKey( QUARTZ_STREAMPROVIDER )
-              ? params.get( QUARTZ_STREAMPROVIDER ) : params.containsKey( INVOKER_STREAMPROVIDER )
-              ? params.get( INVOKER_STREAMPROVIDER ) : StringUtils.EMPTY ).toString().trim();
-
-      return streamProviderContent.contains( QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE );
-    }
-
-    return false;
+    return params != null && getStreamProviderContent( params ).contains( QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE );
   }
 
   public static String getInlineInputFileOnStreamProvider( final Map<String, Serializable> params ) {
 
-    if ( isInlinePassingOfInputOnStreamProvider( params ) ) {
+    try {
 
-      try {
+      String streamProviderContent = getStreamProviderContent( params );
 
-        String streamProviderContent = ( params.containsKey( QUARTZ_STREAMPROVIDER )
-                ? params.get( QUARTZ_STREAMPROVIDER ) : params.containsKey( INVOKER_STREAMPROVIDER )
-                ? params.get( INVOKER_STREAMPROVIDER ) : StringUtils.EMPTY ).toString().trim();
+      int startIdx = streamProviderContent.indexOf( QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE ) + QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE.length();
+      int endIdx = streamProviderContent.indexOf( QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE );
 
-        int startIdx = streamProviderContent.indexOf( QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE ) + QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE.length();
-        int endIdx = streamProviderContent.indexOf( QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE );
+      if ( startIdx >= 0 && endIdx >= 0 && endIdx > startIdx ) {
         return streamProviderContent.substring( startIdx, endIdx ).trim();
-
-      } catch ( Throwable t ) {
-        logger.error( t );
       }
+
+    } catch ( Throwable t ) {
+      logger.error( t );
     }
 
     return null;
+  }
+
+  public static String getStreamProviderContent( final Map<String, Serializable> params ) {
+    return ( params.containsKey( QUARTZ_STREAMPROVIDER )
+            ? params.get( QUARTZ_STREAMPROVIDER ) : params.containsKey( INVOKER_STREAMPROVIDER )
+            ? params.get( INVOKER_STREAMPROVIDER ) : StringUtils.EMPTY ).toString().trim();
   }
 
   /**
