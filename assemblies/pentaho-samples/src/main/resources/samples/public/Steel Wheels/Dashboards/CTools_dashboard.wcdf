@@ -1,2 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cdf><title>CTools_dashboard</title><description>CTools Dashboard</description><author></author><style>CleanRequire</style><rendererType>bootstrap</rendererType><require>true</require><widget>false</widget><widgetName></widgetName><widgetParameters></widgetParameters></cdf>
+<cdf>
+    <title>CTools Dashboard</title>
+    <description>CTools Dashboard</description>
+    <author>Hitachi Vantara</author>
+    <style>CleanRequire</style>
+    <rendererType>bootstrap</rendererType>
+    <require>true</require>
+    <widget>false</widget>
+</cdf>
