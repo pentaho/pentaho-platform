@@ -23,6 +23,7 @@ package org.pentaho.platform.web.http.api.resources;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -48,6 +50,8 @@ import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRol
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class UserRoleDaoResourceTest {
   private UserRoleDaoResource userRoleResource;
@@ -528,6 +532,28 @@ public class UserRoleDaoResourceTest {
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }
+  }
+
+  @Test
+  public void testUpdateRolesForCurrentSession() {
+    RoleListWrapper roleListWrapper = mock( RoleListWrapper.class );
+    doReturn( roleListWrapper ).when( userRoleService ).getRolesForUser( anyString() );
+    doReturn( new ArrayList<String>() {{
+        add( "Administrator" );
+        add( "Power User" );
+      }} ).when( roleListWrapper ).getRoles();
+    userRoleResource = spy( userRoleResource );
+    IPentahoSession session = mock( IPentahoSession.class );
+    doReturn( session ).when( userRoleResource ).getSession();
+    doNothing().when( session ).setAttribute( anyString(), anyCollection() );
+
+    List<GrantedAuthority> expectedAuthorities = new ArrayList<GrantedAuthority>() {{
+        add( new SimpleGrantedAuthority( "Administrator" ) );
+        add( new SimpleGrantedAuthority( "Power User" ) );
+      }};
+
+    userRoleResource.updateRolesForCurrentSession();
+    verify( session ).setAttribute( IPentahoSession.SESSION_ROLES, expectedAuthorities );
   }
 
 }
