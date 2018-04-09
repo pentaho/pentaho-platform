@@ -8232,7 +8232,7 @@
       }
     ]
   },
-  "filename": "/public/Steel+Wheels/CTools_dashboard_master.cdfde",
+  "filename": "/public/Steel+Wheels/Dashboards/CTools_dashboard.cdfde",
   "layout": {
     "rows": [
       {
@@ -8242,7 +8242,7 @@
           {
             "name": "name",
             "type": "Id",
-            "value": "steelwheels_require"
+            "value": "steelwheels"
           },
           {
             "name": "resourceFile",
