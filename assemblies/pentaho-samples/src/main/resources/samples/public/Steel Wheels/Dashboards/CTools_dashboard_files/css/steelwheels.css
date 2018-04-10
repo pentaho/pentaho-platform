@@ -11,11 +11,21 @@
   font-weight: 300;
   src:  local('Open Sans Light'), 
         local('OpenSans-Light'),
+        /* EE */
+        url('../../../../system/common-ui/resources/themes/crystal/opensans-light.eot') format('embedded-opentype'),
+        url('../../../../system/common-ui/resources/themes/crystal/opensans-light.woff') format('woff'),
+        url('../../../../system/common-ui/resources/themes/crystal/opensans-light.ttf') format('truetype'),
+        url('../../../../system/common-ui/resources/themes/crystal/opensans-light.svg#OpenSansLight') format('svg'),
         /* CE */
         url('../../../../../system/common-ui/resources/themes/crystal/opensans-light.eot') format('embedded-opentype'),
         url('../../../../../system/common-ui/resources/themes/crystal/opensans-light.woff') format('woff'),
         url('../../../../../system/common-ui/resources/themes/crystal/opensans-light.ttf') format('truetype'),
-        url('../../../../../system/common-ui/resources/themes/crystal/opensans-light.svg#OpenSansLight') format('svg');
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-light.svg#OpenSansLight') format('svg'),
+        /* Internal git */
+        url('../../../system/common-ui/resources/themes/crystal/opensans-light.eot') format('embedded-opentype'),
+        url('/../../../system/common-ui/resources/themes/crystal/opensans-light.woff') format('woff'),
+        url('../../../system/common-ui/resources/themes/crystal/opensans-light.ttf') format('truetype'),
+        url('../../../system/common-ui/resources/themes/crystal/opensans-light.svg#OpenSansLight') format('svg');
 }
 @font-face {
   font-family: 'Open Sans';
@@ -23,11 +33,21 @@
   font-weight: 400;
   src:  local('Open Sans'), 
         local('OpenSans'),
+        /* EE */
+        url('../../../../system/common-ui/resources/themes/crystal/opensans-regular.eot') format('embedded-opentype'),
+        url('../../../../system/common-ui/resources/themes/crystal/opensans-regular.woff') format('woff'),
+        url('../../../../system/common-ui/resources/themes/crystal/opensans-regular.ttf') format('truetype'),
+        url('../../../../system/common-ui/resources/themes/crystal/opensans-regular.svg#OpenSansRegular') format('svg'),
         /* CE */
         url('../../../../../system/common-ui/resources/themes/crystal/opensans-regular.eot') format('embedded-opentype'),
         url('../../../../../system/common-ui/resources/themes/crystal/opensans-regular.woff') format('woff'),
         url('../../../../../system/common-ui/resources/themes/crystal/opensans-regular.ttf') format('truetype'),
-        url('../../../../../system/common-ui/resources/themes/crystal/opensans-regular.svg#OpenSansRegular') format('svg');
+        url('../../../../../system/common-ui/resources/themes/crystal/opensans-regular.svg#OpenSansRegular') format('svg'),
+        /*  Internal git */
+        url('../../../system/common-ui/resources/themes/crystal/opensans-regular.eot') format('embedded-opentype'),
+        url('../../../system/common-ui/resources/themes/crystal/opensans-regular.woff') format('woff'),
+        url('../../../system/common-ui/resources/themes/crystal/opensans-regular.ttf') format('truetype'),
+        url('../../../system/common-ui/resources/themes/crystal/opensans-regular.svg#OpenSansRegular') format('svg');
 }
 
 
@@ -36,93 +56,145 @@
 html {
     overflow-y: scroll;
     height: 100%;
+    box-sizing: border-box;
 }
 
-body {
-    font-family: 'Open Sans', Arial, sans-serif;
+body{
+    position: relative;
+    margin: 0;
+    padding-bottom: 50px;
+    min-height: 100%;
+}
+
+html{
+    box-sizing: border-box;
+}
+
+body .container {
+    font-family: 'Open Sans', Arial, sans-serif !important;
     font-weight: 300;
     font-size: 12px;
-    background: #FFFFFF;
+    background: #ffffff;
     position: relative;
-    min-height: 100%;
-    padding-bottom: 45px;
-    color: #343E47;
+    color: #424242;
+    letter-spacing: 0.02em;
 }
 
 .container {
     width: 1130px;
 }
 
+.blockUI.blockOverlay{
+    display: none !important;
+}
+
 
 /* ================ HEADER ================ */
 
-/* full width div to decorate header background */
-.headerBackground {
-    width: 100%;
-    min-width: 1130px;
-    height: 100px;
+/* full width background */
+
+body:before{
+    content: "";
     position: absolute;
+    height: 56px;
     left: 0;
-    top: 0;
-    z-index: 0;
-    background: url('../img/header-bg.png') repeat-x left top;  
-    margin: 0;
+    right: 0;
+    background: #414141;
+    z-index: 1;
+}
+
+body .container{
+    min-width: 1140px;
 }
 
 .headerRow {
-    height: 100px;
+    height: 56px;
+    background: #414141;
+    position: relative;
+    z-index: 10;
 }
 
-.headerRow .pentahoLogo a {
-    height: 42px;
-    margin-top: 29px;
-    width: 157px;
-    display: inline-block;
-    background: url('../img/pentaho-logo.svg') repeat-x left center;    
+.headerRow .tinyWheelsLogo {
+    height: 56px;
+    background: url(../img/tinywheels.svg) no-repeat center left;
 }
 
-.no-svg .headerRow .pentahoLogo a {
-    background: url('../img/pentaho-logo.png') repeat-x left center; /* ie8 fix - use png instead of svg */
+.no-svg .headerRow .tinyWheelsLogo {
+    background: url(../img/tinywheels.png) no-repeat center left;
 }
 
-.welcomeMsg p {
-    margin: 40px 0;
-    padding: 0;
-    line-height: 20px;
-    font-size: 14px;
-    border-left: 1px solid #C6C6C6;
-    padding-left: 20px;
+.headerRow .tinyWheelsLogo span{
+    line-height: 56px;
+    font-size: 12px;
+    color: #ffffff;
+    text-transform: uppercase;
+    padding-left: 160px;
+    letter-spacing: 0.09em;
 }
 
-.welcomeMsg p .username {
-    color: #005CA7;
+.headerRow .tinyWheelsLogo span:before{
+    content: "";
+    position: absolute;
+    background: #ffffff;
+    width: 1px;
+    height: 14px;
+    margin-left: -8px;
+    margin-top: 20px;
+}
+
+.loggedUserLabel .loggedUser {
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 300;
+    line-height: 56px;
+    letter-spacing: 0.07em;
+    padding-right: 30px;
+}
+
+.loggedUserLabel .loggedUser:after{
+    content: "";
+    position: absolute;
+    top: 12px;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    background: url('../img/userico.svg') no-repeat center center;
+}
+
+.no-svg .loggedUserLabel .loggedUser:after{
+    background: url('../img/userico.png') no-repeat center center;
+}
+
+.loggedUserLabel .loggedUser b {
+    font-weight: 600;
 }
 
 
 /* ================ FOOTER ================ */
 
 .footer {
-    width: 100%;
-    min-width: 1130px;
-    height: 45px;
     position: absolute;
-    bottom: 0;
     left: 0;
-    z-index: 0;
-    background: url('../img/footer-bg.png') repeat-x left top;
-    margin: 0;
+    right: 0;
+    bottom: 0;
+    height: 55px;
+    z-index: 11;
+}
+
+.footer .foot-note {
+    max-width: 1120px;
+    margin: 0 auto;
+    line-height: 55px;
+    font-size: 12px;
+    font-weight: 400;
 }
 
 /* ================ DASHBOARD ================ */
 
 /* dashboard title */
-.titleObj {
-    font-size: 16px;
-    margin-top: 25px;
-    padding-bottom: 7px;
-    line-height: 24px;
-    font-weight: 400;
-    border-bottom: 1px solid #E6E6E6;
+.titleRow span {
+    display: block;
+    float: left;
 }
 
 /* sections sub-titles */
@@ -131,24 +203,57 @@ body {
     color: #666666;
     border-bottom: 1px solid #E6E6E6;
     line-height: 18px;
+    
+    
+    display: none;
+}
+
+.periodSelectorBlock{
+    height: 125px;
+}
+
+.periodSelectorBlock .title span{
+    line-height: 125px;
+    font-size: 32px;
 }
 
 /* kpi column */
 .kpiContainer {
     padding-bottom: 20px;
+    padding-left: 30px;
 }
 
 .kpiColumn {
-    border-bottom: 1px solid #E6E6E6;
-    padding-bottom: 10px;
+    padding-bottom: 0;
+    margin-bottom: 45px;
+    padding-left: 5px;
+    cursor: pointer;
+    
+    display: block;
+    float: left;
+    width: 100%;
+    opacity: 0.2;
+
+    -webkit-transition: opacity .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -msie-transition: opacity .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -moz-transition: opacity .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -o-transition: opacity .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    transition: opacity .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+
+}
+
+.kpiColumn.active,
+.kpiColumn:hover{
+    opacity: 1;
 }
 
 .radioButtonObj {
-    padding: 5px 0;
+    padding-bottom: 5px;
 }
 
 .radioButtonObj button {
-    padding-left: 20px;
+    font-size: 14px;
+    font-weight: 400;
     background: none;
     border: none;
     outline: 0;
@@ -157,50 +262,37 @@ body {
     position: relative;
 }
 
-.radioButtonObj button:before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    margin-top: -6px;
-    width: 12px;
-    height: 12px;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    border-radius: 50%;
-    border: 1px solid #CCCCCC;
-    
-    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+.radioButtonObj button.buttonComponent span{
+    padding: 0;
 }
 
 .radioButtonObj button:after {
     content: '';
     position: absolute;
-    left: 4px;
-    top: 50%;
+    left: 270px;
+    top: 0;
     margin-top: -2px;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    background: #343E47;
-    
+    width: 1px;
+    height: 220px;
+    border-radius: 2px;
+    background: #9b9b9b;
     -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    
+    z-index: 10;
 }
-.opacity .radioButtonObj button:after {
-    opacity: 0;
+
+#salesByTerritoryRow .radioButtonObj button:after{
+    height: 190px;
 }
-.no-opacity .radioButtonObj button:after {
-    display: none; /* ie8 fix */
+
+.radioButtonObj button.active:after{
+    left: -35px;
+    width: 4px;
+    background: #424242;
 }
 
 .radioButtonObj button.active {
@@ -228,7 +320,7 @@ body {
 }
 
 .kpiValueObj {
-    font-size: 24px;
+    font-size: 32px;
     height: 34px;
 }
 
@@ -238,11 +330,18 @@ body {
 
 .centerRow {
     display: none;
-    margin: 50px 0;
 }
 
 
 /* ================ LEGEND ================ */
+
+.legendColumn{
+    display: block;
+    float: left;
+    position: absolute;
+    top: 165px;
+    right: 0;
+}
 
 .legendObj table.dataTable thead {
     display: none;
@@ -250,33 +349,65 @@ body {
 
 .legendObj table.dataTable {
     border: none;    
-    margin-top: 6px;
+    margin-top: -12px;
 }
 
 .legendObj table.dataTable > tbody > tr > td {
     border: none;
     background: none;
-    text-align: right;
-    font-size: 12px;
-    padding: 6px 32px 6px 0;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 45px;
+    color: #424242;
+    padding: 0 0 0 45px;
     height: 32px;
     position: relative;
     -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     cursor: pointer;
+}
+
+.legendObj table.dataTable > tbody > tr.disabled > td{
+    color: #9b9b9b;
 }
 
 .legendObj table.dataTable > tbody > tr > td:after {
     height: 20px;
-    width: 20px;
+    width: 34px;
     position: absolute;
     content: '';
-    right: 0;
+    left: 0;
     top: 50%;
+    border-radius: 20px;
     margin-top: -10px;
-    background: url('../img/check.svg') no-repeat center center;
+}
+
+.legendObj table.dataTable > tbody > tr > td:before{
+    position: absolute;
+    content: '';
+    height: 14px;
+    width: 14px;
+    border-radius: 10px;
+    left: 17px;
+    top: 16px;
+    z-index: 1;
+    background: white;
+}
+
+.legendObj table.dataTable > tbody > tr > td:after,
+.legendObj table.dataTable > tbody > tr > td:before{
+    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+
+.legendObj table.dataTable > tbody > tr.disabled > td:before{
+    left: 3px;
 }
 
 .no-svg .legendObj table.dataTable > tbody > tr > td:after {
@@ -290,69 +421,90 @@ body {
 
 /* Use classes created on legendTable's "Draw Function" to style checkboxes' background color */
 .legendObj table.dataTable > tbody > tr.row0 > td:after {
-    background-color: #22B573 ;
+    background-color: #785ef0;
 }
 .legendObj table.dataTable > tbody > tr.row1 > td:after {
-    background-color: #66C2A5;
+    background-color: #648fff;
 }
 .legendObj table.dataTable > tbody > tr.row2 > td:after {
-    background-color: #5C9FBC;
+    background-color: #ffc941;
 }
 .legendObj table.dataTable > tbody > tr.row3 > td:after {
-    background-color: #3E83B7;
+    background-color: #fe6101;
 }
 .legendObj table.dataTable > tbody > tr.row4 > td:after {
-    background-color: #005CA7;
+    background-color: #ff32be;
 }
 
+
+.legendObj table.dataTable > tbody > tr.disabled.disabled > td:after{
+    background: #9b9b9b;
+}
 
 /* ================ DATE RANGE ================ */
 
 .dateObj {
-    margin-top: 40px;
+    display: block;
+    float: left;
+    margin-left: 5px;
+    margin-top: 33px;
 }
 
-.dateObj .chzn-container {
-    width: 100px !important;
+.dateObj .chzn-container.chzn-container.chzn-container {
+    width: auto !important;
+    height: 60px;
     font-size: 12px;
     display: block;
     float: right;
 }
 
 .dateObj .chzn-container-single .chzn-single {
+    height: 100%;
+    width: 100%;
+    margin-right: 20px;
+    font-size: 32px;
+    line-height: 48px;
     background: none;
-    border: none;
+    border: 1px solid transparent;
+    border-radius: 2px;
     box-shadow: none;
-    padding-left: 36px;
+    padding: 5px 15px;
     background: none;
     filter: none;
-    color: #666;
-    border-radius: 0;
-    
-    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    color: #424242;
+    -webkit-transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -msie-transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -moz-transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -o-transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
 }
 
 .dateObj .chzn-container-single .chzn-single:before {
-    width: 23px;
-    height: 20px;
-    left: 3px;
-    top: 50%;
-    margin-top: -11px;
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid #424242;
+    border-bottom: 2px solid #424242;
+    right: 15px;
+    top: 25px;
+    margin-top: -1px;
     position: absolute;
     content: '';
-    background: url('../img/calendar.svg') no-repeat center center;
     z-index: 1;
     
-    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -ms-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
 }
+
+
+.dateObj .chzn-container-single .chzn-single.chzn-single-with-drop:before{
+    -ms-transform: rotate(-135deg); /* IE 9 */
+    -webkit-transform: rotate(-135deg); /* Safari 3-8 */
+    transform: rotate(-135deg);
+    
+}
+
+
 .no-svg .dateObj .chzn-container-single .chzn-single:before {
     background: url('../img/calendar.png') no-repeat center center; /* ie8 fix - use png instead of svg */
 }
@@ -362,68 +514,49 @@ body {
     content: ' ';
 }
 
-.opacity .dateObj .chzn-container-single .chzn-single:hover:before,
-.opacity .dateObj .chzn-container-single .chzn-single-with-drop:before {
-    opacity: 0;
-}
-
-.dateObj .chzn-container-single .chzn-single:after {
-    width: 23px;
-    height: 20px;
-    left: 3px;
-    top: 50%;
-    margin-top: -11px;
-    position: absolute;
-    content: '';
-    background: url('../img/calendar-hover.svg') no-repeat center center;
-    z-index: 2;
-    
-    -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-}
-.opacity .dateObj .chzn-container-single .chzn-single:after {
-    opacity: 0;
-}
-.no-svg .dateObj .chzn-container-single .chzn-single:after {
-    background: url('../img/calendar-hover.png') no-repeat center center; /* ie8 fix - use png instead of svg */
-}
-.no-opacity .dateObj .chzn-container-single .chzn-single:after {
-    display: none; /* ie8 fix */
-}
-
-.no-opacity .dateObj .chzn-container-single .chzn-single:hover:after,
-.no-opacity .dateObj .chzn-container-single .chzn-single-with-drop:after {
-    display: block; /* ie8 fix */
-}
-
-.opacity .dateObj .chzn-container-single .chzn-single:hover:after,
-.opacity .dateObj .chzn-container-single .chzn-single-with-drop:after {
-    opacity: 1;
-}
-
 .dateObj .chzn-container-single .chzn-single:hover,
 .dateObj .chzn-container-single .chzn-single.chzn-single-with-drop {
-    background: #005CA7;
-    color: #FFF;
+    border: 1px solid #424242;
 }
 
 .dateObj .chzn-container-single .chzn-single span {
-    color: #666;
+    position: relative;
+    color: #424242;
     margin-right: 10px;
     
+    -webkit-transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      -msie-transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+       -moz-transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+         -o-transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+            transition: all .2s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+
+
+.dateObj .chzn-container-single .chzn-single span:before{
+    content: "";
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 100%;
+    opacity: 1;
+    height: 1px;
+    background: #424242;
+    
     -webkit-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-      -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-       -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-         -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-            transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -msie-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -moz-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    -o-transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    transition: all .5s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+
+.dateObj .chzn-container-single .chzn-single.chzn-single-with-drop span:before,
+.dateObj .chzn-container-single .chzn-single:hover span:before{
+    opacity: 0;
 }
 
 .dateObj .chzn-container-single .chzn-single:hover span,
 .dateObj .chzn-container-single .chzn-single-with-drop span {
-    color: #FFF;
+    
 }
 
 .dateObj .chzn-container-single .chzn-single:focus {
@@ -433,20 +566,36 @@ body {
 .dateObj .chzn-container-single .chzn-drop {
     width: 100% !important;
     background: #FFF;
-    border: 1px solid #D1D7DA;
-    padding: 15px;
+    border: 1px solid #424242;
+    padding: 0;
     text-align: left;
     border-radius: 0;
-    margin-top: 1px;
+    margin-top: -1px;
+    box-shadow: none;
 }
 
 .dateObj .chzn-container .chzn-results {
     padding: 0;
     margin: 0;
+    max-height: 400px;
+    color: #424242;
 }
 
-.dateObj .chzn-container .chzn-results .highlighted {
-    background: #005CA7;
+.chzn-container .chzn-results .active-result{
+    font-size: 32px;
+    line-height: 50px;
+    white-space: nowrap;
+    padding: 7px 15px 8px;
+}
+
+.dateObj .chzn-container .chzn-results .highlighted.result-selected{
+    background: #fff;
+    color: #424242;
+}
+
+.dateObj .chzn-container .chzn-results .active-result:hover{
+    background: #e4e4e4;
+    color: #424242;
 }
 
 .dateObj .chzn-container-single .chzn-single div {
@@ -461,30 +610,44 @@ body {
 
 /* ================ CHART TOOLTIP ================ */
 
-.tipsy-inner {
-    background: #FFFFFF;
+.tipsy .tipsy-inner {
+    background: #f9f9f9;
     font-family: 'Open Sans', Arial, sans-serif;
-    border: 1px solid #E6E6E6;
-    -webkit-box-shadow: 1px 1px 2px rgba(0,0,0,.2);
-      -msie-box-shadow: 1px 1px 2px rgba(0,0,0,.2);
-       -moz-box-shadow: 1px 1px 2px rgba(0,0,0,.2);
-         -o-box-shadow: 1px 1px 2px rgba(0,0,0,.2);
-            box-shadow: 1px 1px 2px rgba(0,0,0,.2);
+    border: 1px solid #b3b3b3;
+    border-radius: 2px;
+    box-shadow: 0;
     padding: 10px 15px 11px;
     color: #4D4D4D;
+    max-width: 220px;
 }
 
 .tooltipContainer .tooltipTitle {
-    color: #666666;
+    color: #424242;
     display: block;
-    text-align: center;
-    font-size: 12px;
+    text-align: left;
+    font-size: 14px;
     line-height: 1;
-    margin-bottom: 3px;
+    margin-bottom: 12px;
     line-height: 16px;
 }
 
+.tooltipContainer .tooltipValue:after{
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -15px;
+    right: -15px;
+    height: 1px;
+    background: #b3b3b3;
+}
+
+.tooltipContainer .tooltipSubtitle:before{
+    content: "On ";
+}
+
 .tooltipContainer .tooltipSubtitle {
+    position: absolute;
+    bottom: 15px;
     color: #666666;
     display: block;
     text-align: center;
@@ -494,14 +657,21 @@ body {
 }
 
 .tooltipContainer .tooltipValue {
+    position: relative;
     display: block;
-    text-align: center;
+    text-align: left;
     font-weight: 300;
-    line-height: 1;    
+    line-height: 40px;
     font-size: 24px;
-    color: #343E47;
+    color: #424242;
 }
 
+.tooltipContainer .tooltipSubtitle + .tooltipValue{
+    padding-bottom: 20px;
+}
+
+/*allows to give the chart tooltip value the same text color as the series*/
+/* 
 .tooltipContainer .tooltipValue.classic {
     color: #005CA7;
 }
@@ -517,3 +687,4 @@ body {
 .tooltipContainer .tooltipValue.trains {
     color: #22B573;
 }
+*/
