@@ -8247,7 +8247,7 @@
           {
             "name": "resourceFile",
             "type": "ResourceFile",
-            "value": "${solution:CTools_dashboard_files/js/steelwheels.require.js}"
+            "value": "${solution:CTools_dashboard_files/js/steelwheels.js}"
           },
           {
             "name": "resourceType",
