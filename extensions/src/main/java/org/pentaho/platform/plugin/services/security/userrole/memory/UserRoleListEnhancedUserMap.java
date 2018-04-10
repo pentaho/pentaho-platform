@@ -74,7 +74,7 @@ public class UserRoleListEnhancedUserMap {
     for ( GrantedAuthority role : authoritiesSet ) {
       roles.add( role.getAuthority() );
     }
-    return (String[]) roles.toArray();
+    return roles.toArray( new String[0] );
   }
 
   public String[] getAllUsers() {

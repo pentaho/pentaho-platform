@@ -912,13 +912,10 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   protected void updateRolesForCurrentSession() {
     List<String> userRoles = userRoleDaoService.getRolesForUser( getSession().getName() ).getRoles();
-    GrantedAuthority[] authoritys = new GrantedAuthority[ userRoles.size() ];
+    List<GrantedAuthority> authorities = new ArrayList<>();
+    userRoles.forEach( role -> authorities.add( new SimpleGrantedAuthority( role ) ) );
 
-    for ( int i = 0; i < authoritys.length; i++ ) {
-      authoritys[ i ] = new SimpleGrantedAuthority( userRoles.get( i ) );
-    }
-
-    getSession().setAttribute( IPentahoSession.SESSION_ROLES, authoritys );
+    getSession().setAttribute( IPentahoSession.SESSION_ROLES, authorities );
   }
 
   protected IPentahoSession getSession() {
