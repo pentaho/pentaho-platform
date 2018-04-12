@@ -20,6 +20,16 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,16 +38,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
-
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
-import org.pentaho.platform.plugin.services.importexport.ImportSession;
-import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 /**
  * this class is used to handle .properties files that are XACTION or URL files that contain the metadata used for
@@ -201,29 +201,42 @@ public class LocaleFilesProcessor {
     IPlatformMimeResolver mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
     String mimeType = mimeResolver.resolveMimeForFileName( FILE_LOCALE_RESOLVER );
 
-    List<LocaleFileDescriptor> localeFilesToProceed = new ArrayList<>();
+    List<String> filesWithLocaleFiles = new ArrayList<>();
 
+    //if there is a .locale file in a folder, we should not import the .properties file on that same folder
     for ( LocaleFileDescriptor localeFile : localeFiles ) {
       String extension = localeFile.getExtension();
       if ( !StringUtils.isEmpty( extension ) && extension.equals( LOCALE_EXT ) ) {
-        localeFilesToProceed.add( localeFile );
+        //substringing the actual name for the dot char, make sure that things like <filename.xaction.locale> get converted
+        //to <filename>, since it can exist a <filename.properties> file which we don't want to import
+        String actualFileName = localeFile.getFile().getName().indexOf( "." ) != -1
+          ?
+          localeFile.getFile().getName().substring( 0, localeFile.getFile().getName().indexOf( "." ) )
+          :
+          localeFile.getFile().getName();
+        filesWithLocaleFiles.add( localeFile.getPath() +  actualFileName );
       }
     }
 
-    if ( !localeFilesToProceed.isEmpty() ) {
-      for ( LocaleFileDescriptor localeFile : localeFilesToProceed ) {
-        proceed( importer, bundleBuilder, mimeType, localeFile );
+    for ( LocaleFileDescriptor localeFile : localeFiles ) {
+      String extension = localeFile.getExtension();
+      if ( !StringUtils.isEmpty( extension ) && extension.equals( PROPERTIES_EXT ) ) {
+        //.properties files are only added if there is no .locale file for the file
+        String actualFileName = localeFile.getFile().getName().indexOf( "." ) != -1
+          ?
+          localeFile.getFile().getName().substring( 0, localeFile.getFile().getName().indexOf( "." ) )
+          :
+          localeFile.getFile().getName();
+        if ( filesWithLocaleFiles.contains( localeFile.getPath() + actualFileName ) ) {
+          continue;
+        }
       }
-    } else {
-      for ( LocaleFileDescriptor localeFile : localeFiles ) {
-        proceed( importer, bundleBuilder, mimeType, localeFile );
-      }
+      proceed( importer, bundleBuilder, mimeType, localeFile );
     }
-
   }
 
-  private void proceed( IPlatformImporter importer, RepositoryFileImportBundle.Builder bundleBuilder, String mimeType,
-                        LocaleFileDescriptor localeFile ) throws PlatformImportException {
+  protected void proceed( IPlatformImporter importer, RepositoryFileImportBundle.Builder bundleBuilder, String mimeType,
+                          LocaleFileDescriptor localeFile ) throws PlatformImportException {
     bundleBuilder.name( localeFile.getName() );
     bundleBuilder.comment( localeFile.getDescription() );
     bundleBuilder.path( localeFile.getPath() );
