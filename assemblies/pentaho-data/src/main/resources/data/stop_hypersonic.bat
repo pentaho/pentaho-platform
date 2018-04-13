@@ -15,7 +15,7 @@ REM without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTIC
 REM See the GNU General Public License for more details.
 REM
 REM
-REM Copyright 2011 - 2017 Hitachi Vantara.  All rights reserved.
+REM Copyright 2011 - 2018 Hitachi Vantara.  All rights reserved.
 REM *******************************************************************************************
 
 setlocal 
