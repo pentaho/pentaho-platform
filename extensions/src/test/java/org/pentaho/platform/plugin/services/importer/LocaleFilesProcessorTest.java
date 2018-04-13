@@ -36,6 +36,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +61,62 @@ public class LocaleFilesProcessorTest {
   public void setUp() throws Exception {
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
     PentahoSystem.registerObject( nameResolver );
+  }
+
+  @Test
+  public void testProcessLocaleFilesIgnoreProperties() throws Exception {
+    IRepositoryContentConverterHandler converterHandler = new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
+    List<IMimeType> localeMimeList = new ArrayList<IMimeType>();
+    localeMimeList.add( new MimeType( "text/locale", "locale" ) );
+    List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
+    LocaleImportHandler localeImportHandler = new LocaleImportHandler( localeMimeList, null );
+    LocaleImportHandler localeImportHandlerSpy = spy( localeImportHandler );
+    handlers.add( localeImportHandlerSpy );
+    importer = new PentahoPlatformImporter( handlers, converterHandler );
+    importer.setRepositoryImportLogger( new Log4JRepositoryImportLogger() );
+
+    ByteArrayInputStream localePropertiesContent = new ByteArrayInputStream(
+      ("description=This runs a simple Kettle transformation filtering records from the Quandrant_Actuals sample data "
+        + "table, and sending a Hello message to each position.\nname=1. Hello ETL")
+        .getBytes() );
+
+    ByteArrayInputStream localeContent =
+      new ByteArrayInputStream( "file.title=fileTitle\ntitle=SampleTransformation\nfile.description=".getBytes() );
+
+    localeFilesProcessor = spy( new LocaleFilesProcessor() );
+    localeFilesProcessor.createLocaleEntry( "/", "file1.properties", null, "description", null, localePropertiesContent, 0 );
+    localeFilesProcessor.createLocaleEntry( "/", "file1.locale", null, "description", null, localeContent, 0 );
+    localeFilesProcessor.processLocaleFiles( importer );
+
+    Mockito.verify( localeFilesProcessor, times( 1 ) )
+      .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), anyString(),
+        any( LocaleFileDescriptor.class ) );
+  }
+
+  @Test
+  public void testProcessLocaleFilesDontIgnoreProperties() throws Exception {
+    IRepositoryContentConverterHandler converterHandler = new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
+    List<IMimeType> localeMimeList = new ArrayList<IMimeType>();
+    localeMimeList.add( new MimeType( "text/locale", "locale" ) );
+    List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
+    LocaleImportHandler localeImportHandler = new LocaleImportHandler( localeMimeList, null );
+    LocaleImportHandler localeImportHandlerSpy = spy( localeImportHandler );
+    handlers.add( localeImportHandlerSpy );
+    importer = new PentahoPlatformImporter( handlers, converterHandler );
+    importer.setRepositoryImportLogger( new Log4JRepositoryImportLogger() );
+
+    ByteArrayInputStream localePropertiesContent = new ByteArrayInputStream(
+      ("description=This runs a simple Kettle transformation filtering records from the Quandrant_Actuals sample data "
+        + "table, and sending a Hello message to each position.\nname=1. Hello ETL")
+        .getBytes() );
+
+    localeFilesProcessor = spy( new LocaleFilesProcessor() );
+    localeFilesProcessor.createLocaleEntry( "/", "file1.properties", null, "description", null, localePropertiesContent, 0 );
+    localeFilesProcessor.processLocaleFiles( importer );
+
+    Mockito.verify( localeFilesProcessor, times( 1 ) )
+      .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), anyString(),
+        any( LocaleFileDescriptor.class ) );
   }
 
   @Test
