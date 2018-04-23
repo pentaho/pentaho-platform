@@ -64,6 +64,7 @@ public class ActionUtil {
   public static final String INVOKER_ACTIONCLASS = "actionClass"; //$NON-NLS-1$
   public static final String INVOKER_ACTIONUSER = "actionUser"; //$NON-NLS-1$
   public static final String INVOKER_ACTIONID = "actionId"; //$NON-NLS-1$
+  public static final String INVOKER_UUID = "UUID"; //$NON-NLS-1$
   public static final String INVOKER_STREAMPROVIDER = "streamProvider"; //$NON-NLS-1$
   public static final String INVOKER_STREAMPROVIDER_INPUT_FILE = "inputFile"; //$NON-NLS-
   public static final String INVOKER_STREAMPROVIDER_OUTPUT_FILE_PATTERN = "outputFilePattern"; //$
