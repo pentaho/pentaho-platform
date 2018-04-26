@@ -29,7 +29,8 @@ public class PentahoHomeCommand implements Command {
   }
 
   public void execute() {
-    Window.open( "http://www.pentaho.com", "_blank", "" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    Window.open( "https://www.hitachivantara.com/go/pentaho.html?source=pentaho-puc", "_blank", "" );
+    //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   }
 
 }
