@@ -57,6 +57,22 @@
     </layout>
   </appender>
 
+  <!-- ======================= -->
+  <!-- Setup the appender for test goal -->
+  <!-- ======================= --> 
+  <appender name="PENTAHOCONSOLEDEBUG" class="org.apache.log4j.ConsoleAppender">
+    <param name="Target" value="System.out"/>
+    <param name="Threshold" value="DEBUG"/>
+
+    <layout class="org.apache.log4j.PatternLayout">
+      <!-- The default pattern: Date Priority [Category] Message\n -->
+      <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
+    </layout>
+  </appender>
+  <!-- ======================= -->
+  <!-- End the appender for test goal -->
+  <!-- ======================= -->
+  
   <!-- ================ -->
   <!-- Limit categories -->
   <!-- ================ -->
@@ -102,13 +118,30 @@
   </category>
 
   <!-- ======================= -->
+  <!-- Setup the category for test goal -->
+  <!-- ======================= --> 
+  <category name="org.pentaho.platform.engine.security.event">
+    <priority value="DEBUG"/>
+    <appender-ref ref="PENTAHOCONSOLEDEBUG"/>
+  </category>
+  
+  <category name="org.pentaho.platform.util.logging.Logger">
+    <priority value="DEBUG"/>
+    <appender-ref ref="PENTAHOCONSOLEDEBUG"/>
+  </category>
+  
+  <!-- ======================= -->
+  <!-- End the category for test goal -->
+  <!-- ======================= -->
+
+  <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->
 
   <root>
     <priority value="WARN"/>
-    <!-- <appender-ref ref="PENTAHOCONSOLE"/> -->
-    <appender-ref ref="PENTAHOFILE"/>
+    <appender-ref ref="PENTAHOCONSOLE"/>
+    <!-- <appender-ref ref="PENTAHOFILE"/> -->
   </root>
 
 </log4j:configuration>
