@@ -13,22 +13,33 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.system;
 
 import org.dom4j.Node;
 import org.junit.After;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.engine.IConfiguration;
+import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISessionStartupAction;
+import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ISystemSettings;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.util.logging.Logger;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
@@ -36,38 +47,92 @@ import java.util.Properties;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class PentahoSystemTest {
   private final String testSystemPropertyName = "testSystemPropertyName";
   private final String testXMLValue = "testXMLValue";
   private final String testPropertyValue = "testPropertyValue";
 
+  private IPentahoSession session;
+
+  private IPentahoObjectFactory pentahoObjectFactory;
+
+  private ByteArrayOutputStream baos;
+  private PrintStream oldOut;
+
+  @Before
+  public void setUp() {
+    baos = new ByteArrayOutputStream();
+    oldOut = System.out;
+    System.setOut( new PrintStream( baos ) );
+
+    session = mock( IPentahoSession.class );
+    PentahoSessionHolder.setSession( session );
+  }
+
   @After
-  public void after() {
+  public void tearDown() {
+    System.setOut( oldOut );
+    PentahoSystem.deregisterObjectFactory( pentahoObjectFactory );
+    PentahoSystem.setSessionStartupActions( null );
     PentahoSystem.shutdown();
     System.clearProperty( testSystemPropertyName );
   }
 
+  @Test
+  public void testSessionStartup() throws ObjectFactoryException {
+    int oldLogLevel = Logger.getLogLevel();
+    Logger.setLogLevel( ILogger.TRACE );
+
+    final ISolutionEngine engine = mock( ISolutionEngine.class );
+    pentahoObjectFactory = mock( IPentahoObjectFactory.class );
+    when( pentahoObjectFactory.objectDefined( anyString() ) ).thenReturn( true );
+    when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer( new Answer<Object>() {
+      @Override
+      public ISolutionEngine answer( InvocationOnMock invocation ) throws Throwable {
+        return engine;
+      }
+    } );
+    PentahoSystem.registerObjectFactory( pentahoObjectFactory );
+
+    ISessionStartupAction action = mock( ISessionStartupAction.class );
+    when( action.getActionOutputScope() ).thenReturn( PentahoSystem.SCOPE_SESSION );
+    when( action.getSessionType() ).thenReturn( session.getClass().getName() );
+
+    when( session.isAuthenticated() ).thenReturn( true );
+
+    PentahoSystem.setSessionStartupActions( Arrays.asList( action ) );
+    PentahoSystem.sessionStartup( session, null );
+
+    System.out.flush();
+
+    assertNotNull( baos );
+    assertTrue( baos.toString().contains( "Process session startup actions" ) );
+
+    Logger.setLogLevel( oldLogLevel );
+  }
   /**
    * When there are settings in pentaho.xml, we should use it overwriting properties file
    */
   @Test
-  public void initXMLFactoriesXMLTest() throws Exception {
+  public void testInitXMLFactoriesXMLTest() throws Exception {
     initXMLFactories( true );
-
-    Assert.assertEquals( testXMLValue, System.getProperty( testSystemPropertyName ) );
+    assertEquals( testXMLValue, System.getProperty( testSystemPropertyName ) );
   }
 
   /**
    * Use properties file when no settings in pentaho.xml
    */
   @Test
-  public void initXMLFactoriesPropertiesTest() throws Exception {
+  public void testInitXMLFactoriesPropertiesTest() throws Exception {
     initXMLFactories( false );
-
-    Assert.assertEquals( testPropertyValue, System.getProperty( testSystemPropertyName ) );
+    assertEquals( testPropertyValue, System.getProperty( testSystemPropertyName ) );
   }
 
   private void initXMLFactories( boolean factoriesInPentahoXML ) throws Exception {
@@ -111,5 +176,17 @@ public class PentahoSystemTest {
     PentahoSystem.registerObjectFactory( objectFactory );
 
     PentahoSystem.init();
+  }
+
+  private Class<?> anyClass() {
+    return argThat( new AnyClassMatcher() );
+  }
+
+  private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
+    @Override
+    public boolean matches( final Object arg ) {
+      // We return true, because we want to acknowledge all class types
+      return true;
+    }
   }
 }
