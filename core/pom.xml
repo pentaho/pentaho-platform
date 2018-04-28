@@ -536,10 +536,6 @@
           <groupId>org.owasp.esapi</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>xalan</artifactId>
-          <groupId>xalan</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>commons-httpclient</artifactId>
           <groupId>commons-httpclient</groupId>
         </exclusion>
