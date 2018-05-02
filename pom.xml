@@ -28,7 +28,6 @@
     <aopalliance.version>1.0</aopalliance.version>
     <spring-binding.version>2.4.4.RELEASE</spring-binding.version>
     <jmock.version>2.5.1</jmock.version>
-    <xalan.version>2.7.1</xalan.version>
     <ftp4che.version>0.7.1</ftp4che.version>
     <mvel2.version>2.0.10</mvel2.version>
     <xbean-spring.version>2.7</xbean-spring.version>
