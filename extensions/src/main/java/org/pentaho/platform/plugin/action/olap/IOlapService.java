@@ -1,5 +1,5 @@
 /*
- * Copyright 2002 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2002 - 2018 Hitachi Vantara.  All rights reserved.
  *
  * This software was developed by Hitachi Vantara and is provided under the terms
  * of the Mozilla Public License, Version 1.1, or any later version. You may not use
@@ -174,6 +174,11 @@ public interface IOlapService {
    * Flushes all schema caches.
    */
   public void flushAll( IPentahoSession pentahoSession );
+
+  /**
+   * Flushes a single schema from the cache. The schema must be in a hosted catalog.
+   */
+  public void flush( IPentahoSession pentahoSession, String name );
 
   /**
    * Representation of a catalog. Catalogs have {@link Schema} children.
