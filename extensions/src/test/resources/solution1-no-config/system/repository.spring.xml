@@ -40,7 +40,7 @@
 
   <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton"/>
 
-  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService"
+  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository.JcrBackedDatasourceMgmtService"
         scope="singleton">
     <constructor-arg ref="unifiedRepository"/>
     <constructor-arg ref="IDatabaseDialectService"/>

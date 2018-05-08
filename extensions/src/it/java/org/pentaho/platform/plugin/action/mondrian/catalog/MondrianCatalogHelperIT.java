@@ -40,7 +40,8 @@ import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.database.service.IDatabaseDialectService;
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
@@ -57,6 +58,8 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.SystemSettings;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.cache.CacheManager;
+import org.pentaho.platform.plugin.services.cache.PlatformCacheImpl;
+import org.pentaho.platform.plugin.services.cache.PlatformCacheSystemListener;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils;
@@ -94,7 +97,7 @@ public class MondrianCatalogHelperIT {
   // =================================================================================================
 
   private static MicroPlatform booter;
-  private ICacheManager cacheMgr;
+  private IPlatformCache cacheMgr;
 
   private MondrianCatalogHelper helper;
 
@@ -128,8 +131,9 @@ public class MondrianCatalogHelperIT {
     booter.define( IDatabaseConnection.class, DatabaseConnection.class, Scope.GLOBAL );
     booter.define( IDatabaseDialectService.class, DatabaseDialectService.class, Scope.GLOBAL );
     booter.define( IAclAwareMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL );
-    booter.define( ICacheManager.class, CacheManager.class, Scope.GLOBAL );
     booter.define( IUserRoleListService.class, TestUserRoleListService.class, Scope.GLOBAL );
+    booter.define( IPlatformCache.class, PlatformCacheImpl.class, Scope.GLOBAL);
+    booter.addLifecycleListener( new PlatformCacheSystemListener() );
     booter.defineInstance( IUnifiedRepository.class, repo );
     booter.defineInstance( IOlapService.class, olapService );
     booter.defineInstance(
@@ -144,7 +148,7 @@ public class MondrianCatalogHelperIT {
     booter.setSettingsProvider( new SystemSettings() );
     booter.start();
 
-    cacheMgr = PentahoSystem.getCacheManager( null );
+    cacheMgr = PentahoSystem.get( IPlatformCache.class );
     helper = (MondrianCatalogHelper) PentahoSystem.get( IAclAwareMondrianCatalogService.class );
   }
 
@@ -155,7 +159,7 @@ public class MondrianCatalogHelperIT {
   @After
   public void tearDown() throws Exception {
     reset( repo );
-    cacheMgr.clearRegionCache( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION );
+    cacheMgr.clear( CacheScope.forRegion( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION ) );
     booter.stop();
   }
 
@@ -164,8 +168,10 @@ public class MondrianCatalogHelperIT {
   }
 
   private void initMondrianCatalogsCache( Map<String, MondrianCatalog> map ) {
-    cacheMgr.addCacheRegion( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION );
-    cacheMgr.putInRegionCache( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION, LocaleHelper.getLocale().toString(), map );
+    cacheMgr.put(
+      CacheScope.forRegion( MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION ),
+      LocaleHelper.getLocale().toString(),
+      map );
   }
 
 

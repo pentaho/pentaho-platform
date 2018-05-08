@@ -93,23 +93,9 @@ public class CacheManagerWithRegionIT extends BaseTest {
     StringBuffer globalStringBuffer = new StringBuffer();
     globalStringBuffer.append( "This is a really long string to stick in a string buffer" ); //$NON-NLS-1$
 
-    cacheManager.putInRegionCache( userSession1.getId(), "StringObject", user1StringObject );
-    cacheManager.putInRegionCache( userSession1.getId(), "repoDoc", user1Document ); //$NON-NLS-1$
-    cacheManager.putInRegionCache( userSession2.getId(), "StringObject", user2StringObject ); //$NON-NLS-1$
-    cacheManager.putInRegionCache( userSession2.getId(), "repoDoc", user2Document ); // $NON-N
-
-    // Get them back out
-    Object user1CachedStringObject = cacheManager.getFromRegionCache( userSession1.getId(), "StringObject" ); //$NON-NLS-1$
-    Assert.assertNull( user1CachedStringObject );
-    Object user1CachedDocument = cacheManager.getFromRegionCache( userSession1.getId(), "repoDoc" ); //$NON-NLS-1$
-    Assert.assertNull( user1CachedDocument );
-    Object user2CachedStringObject = cacheManager.getFromRegionCache( userSession2.getId(), "StringObject" ); //$NON-NLS-1$
-    Assert.assertNull( user2CachedStringObject );
-    Object user2CachedDocument = cacheManager.getFromRegionCache( userSession2.getId(), "repoDoc" ); //$NON-NLS-1$
-    Assert.assertNull( user2CachedDocument );
-
     cacheManager.addCacheRegion( userSession1.getId() );
     cacheManager.addCacheRegion( userSession2.getId() );
+
     // Ok - we now have some stuff to jam into the cache.
     cacheManager.putInRegionCache( userSession1.getId(), "StringObject", user1StringObject );
     cacheManager.putInRegionCache( userSession1.getId(), "repoDoc", user1Document ); //$NON-NLS-1$

@@ -26,7 +26,8 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import mockit.Mock;
@@ -66,37 +67,32 @@ public class MondrianCatalogHelperTest {
 
     ds.catalogs.catalogs[0] = ct;
 
-    MockUp<ICacheManager> cmMock = new MockUp<ICacheManager>() {
+    MockUp<IPlatformCache> pcMock = new MockUp<IPlatformCache>() {
 
       Object cacheValue;
 
       @Mock
-      public boolean cacheEnabled( String s ) {
-        return true;
-      }
-
-      @Mock
-      public Object getFromRegionCache( String s, Object obj ) {
+      public Object get( CacheScope scope, Object key ) {
         return cacheValue;
       }
 
       @Mock
-      public void putInRegionCache( String s, Object obj, Object obj1 ) {
-        cacheValue = obj1;
+      public void put( CacheScope scope, Object key, Object value ) {
+        cacheValue = value;
       }
     };
-    final ICacheManager cm = cmMock.getMockInstance();
+    final IPlatformCache pc = pcMock.getMockInstance();
 
     new NonStrictExpectations( PentahoSystem.class ) {
       {
-        PentahoSystem.getCacheManager( null );
-        result = cm;
+        PentahoSystem.get( IPlatformCache.class );
+        result = pc;
       }
     };
 
     mch.loadCatalogsIntoCache( dsList, null );
 
-    Object cacheValue = cm.getFromRegionCache( null, null );
+    Object cacheValue = pc.get( null, null );
     Assert.assertTrue( Map.class.isInstance( cacheValue ) );
     Map<?, ?> map = (Map<?, ?>) cacheValue;
 

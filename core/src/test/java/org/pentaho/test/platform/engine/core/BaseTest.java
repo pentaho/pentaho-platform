@@ -105,6 +105,7 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
 
     if ( PentahoSystem.getApplicationContext() == null ) {
       StandaloneApplicationContext applicationContext = new StandaloneApplicationContext( getSolutionPath(), "" ); //$NON-NLS-1$
+      PentahoSystem.setApplicationContext( applicationContext );
       // set the base url assuming there is a running server on port 8080
       applicationContext.setFullyQualifiedServerURL( getFullyQualifiedServerURL() );
       String inContainer = System.getProperty( "incontainer", "false" ); //$NON-NLS-1$ //$NON-NLS-2$

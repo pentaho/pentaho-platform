@@ -150,16 +150,6 @@ public class CacheManagerIT extends BaseTest {
     Object cachedGlobalStringBuffer = cacheManager.getFromGlobalCache( "globalStringBufferKey" ); //$NON-NLS-1$
     Assert.assertEquals( globalStringBuffer, cachedGlobalStringBuffer );
 
-    // Test clear all session-based keys. This should leave the global stuff
-    // alone.
-    cacheManager.killSessionCaches();
-    notThere = cacheManager.getFromSessionCache( userSession2, "StringObject" ); //$NON-NLS-1$
-    Assert.assertNull( notThere );
-    notThere = cacheManager.getFromSessionCache( userSession2, "repoDoc" ); //$NON-NLS-1$
-    Assert.assertNull( notThere );
-    shouldBeThere = cacheManager.getFromGlobalCache( "globalIntegerKey" ); //$NON-NLS-1$
-    Assert.assertNotNull( shouldBeThere );
-
     // Totally clear out the cache.
     cacheManager.clearCache();
     notThere = cacheManager.getFromGlobalCache( "globalIntegerKey" ); //$NON-NLS-1$

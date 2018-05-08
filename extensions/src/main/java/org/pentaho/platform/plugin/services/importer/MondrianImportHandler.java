@@ -117,9 +117,11 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       }
     } catch ( MondrianCatalogServiceException mse ) {
       int statusCode = convertExceptionToStatus( mse );
-      throw new PlatformImportException( mse.getMessage(), statusCode );
+      throw new PlatformImportException(
+        mse.getMessage(), statusCode, mse );
     } catch ( Exception e ) {
-      throw new PlatformImportException( e.getMessage(), PlatformImportException.PUBLISH_GENERAL_ERROR );
+      throw new PlatformImportException(
+        e.getMessage(), PlatformImportException.PUBLISH_GENERAL_ERROR, e );
     }
   }
 

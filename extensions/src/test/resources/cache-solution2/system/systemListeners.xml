@@ -14,6 +14,7 @@ VersionCheckSystemListener.
 	<bean id="systemListenersList" class="java.util.ArrayList">
 		<constructor-arg>
 			<list>
+				<bean class="org.pentaho.platform.plugin.services.cache.PlatformCacheSystemListener"/>
 			</list>
 		</constructor-arg>
 	</bean>

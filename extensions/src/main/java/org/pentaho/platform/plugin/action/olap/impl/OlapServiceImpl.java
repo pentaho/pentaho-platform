@@ -39,7 +39,9 @@ import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.olap4j.OlapConnection;
 import org.olap4j.OlapException;
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
@@ -92,6 +94,7 @@ import java.util.stream.Collectors;
  * <p>This implementation is thread safe. It will use a {@link ReadWriteLock}
  * to manage the access to its metadata.
  */
+@CacheRegionRequired( region = "iolapservice-catalog-cache" )
 public class OlapServiceImpl implements IOlapService {
 
   public static String CATALOG_CACHE_REGION = "iolapservice-catalog-cache"; //$NON-NLS-1$
@@ -120,6 +123,8 @@ public class OlapServiceImpl implements IOlapService {
   private final List<IOlapConnectionFilter> filters;
   private Role role;
 
+  private IPlatformCache cache;
+
   private static Log getLogger() {
     return LogFactory.getLog( IOlapService.class );
   }
@@ -130,14 +135,15 @@ public class OlapServiceImpl implements IOlapService {
    * at runtime.
    */
   public OlapServiceImpl() {
-    this( null, null );
+    this( null, null, null );
   }
 
   /**
    * Constructor for testing purposes. Takes a repository as a parameter.
    */
-  public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server ) {
+  public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server, IPlatformCache cache ) {
     this.repository = repo;
+    this.cache = cache;
     this.filters = new CopyOnWriteArrayList<IOlapConnectionFilter>();
     this.server = server;
 
@@ -173,6 +179,13 @@ public class OlapServiceImpl implements IOlapService {
     return isSec;
   }
 
+  synchronized IPlatformCache getCache() {
+    if ( cache == null ) {
+      cache = PentahoSystem.get( IPlatformCache.class );
+    }
+    return cache;
+  }
+
   synchronized IUnifiedRepository getRepository() {
     if ( repository == null ) {
       repository = PentahoSystem.get( IUnifiedRepository.class );
@@ -203,8 +216,7 @@ public class OlapServiceImpl implements IOlapService {
    */
   @SuppressWarnings( "unchecked" )
   protected synchronized List<IOlapService.Catalog> getCache( IPentahoSession session ) {
-    // Create the cache region if necessary.
-    final ICacheManager cacheMgr = PentahoSystem.getCacheManager( session );
+
     final Object cacheKey = makeCacheSubRegionKey( getLocale() );
 
 
@@ -213,21 +225,16 @@ public class OlapServiceImpl implements IOlapService {
 
       writeLock.lock();
 
-      if ( !cacheMgr.cacheEnabled( CATALOG_CACHE_REGION ) ) {
-        // Create the region. This requires write access.
-        cacheMgr.addCacheRegion( CATALOG_CACHE_REGION );
-      }
-
-      if ( cacheMgr.getFromRegionCache( CATALOG_CACHE_REGION, cacheKey ) == null ) {
+      if ( getCache().get( CacheScope.forRegion( CATALOG_CACHE_REGION ), cacheKey ) == null ) {
         // Create the sub-region. This requires write access.
-        cacheMgr.putInRegionCache(
-          CATALOG_CACHE_REGION,
+        getCache().put(
+          CacheScope.forRegion( CATALOG_CACHE_REGION ),
           cacheKey,
           new ArrayList<IOlapService.Catalog>() );
       }
 
       return (List<IOlapService.Catalog>)
-        cacheMgr.getFromRegionCache( CATALOG_CACHE_REGION, cacheKey );
+          getCache().get( CacheScope.forRegion( CATALOG_CACHE_REGION ), cacheKey );
 
     } finally {
       writeLock.unlock();
@@ -241,8 +248,7 @@ public class OlapServiceImpl implements IOlapService {
     final Lock writeLock = cacheLock.writeLock();
     try {
       writeLock.lock();
-      final ICacheManager cacheMgr = PentahoSystem.getCacheManager( session );
-      cacheMgr.clearRegionCache( CATALOG_CACHE_REGION );
+      getCache().clear( CacheScope.forRegion( CATALOG_CACHE_REGION ) );
     } finally {
       writeLock.unlock();
     }

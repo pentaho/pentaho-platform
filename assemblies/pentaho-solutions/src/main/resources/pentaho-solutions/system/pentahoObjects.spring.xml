@@ -50,6 +50,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   <bean id="IAclVoter" class="org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter" scope="singleton"/>
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton"/>
   <bean id="ICacheManager" class="org.pentaho.platform.plugin.services.cache.CacheManager" scope="singleton"/>
+  <bean id="IPlatformCache" class="org.pentaho.platform.plugin.services.cache.PlatformCacheImpl" scope="singleton" />
   <bean id="IScheduler2" class="org.pentaho.platform.scheduler2.quartz.QuartzScheduler" scope="singleton">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
