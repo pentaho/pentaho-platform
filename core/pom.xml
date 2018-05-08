@@ -549,10 +549,6 @@
 					<groupId>org.owasp.esapi</groupId>
 					<artifactId>esapi</artifactId>
 				</exclusion>
-				<exclusion>
-					<groupId>xalan</groupId>
-					<artifactId>xalan</artifactId>
-				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
