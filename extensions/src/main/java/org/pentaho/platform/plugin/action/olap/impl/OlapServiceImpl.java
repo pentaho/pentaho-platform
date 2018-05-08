@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2002-2018 Pentaho Corporation.  All rights reserved.
  *
 */
 package org.pentaho.platform.plugin.action.olap.impl;
@@ -41,6 +41,7 @@ import com.google.common.collect.Collections2;
 import mondrian.olap.MondrianServer;
 import mondrian.olap.Role;
 import mondrian.olap.Util;
+import mondrian.rolap.RolapConnection;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.server.DynamicContentFinder;
 import mondrian.server.MondrianServerRegistry;
@@ -493,6 +494,26 @@ public class OlapServiceImpl implements IOlapService {
 
     // This could be a remote connection
     getHelper().deleteCatalog( name );
+  }
+
+  /**
+   * Flushes a single schema from the cache.
+   */
+  public void flush( IPentahoSession session, String name ) {
+    final Lock writeLock = cacheLock.writeLock();
+    writeLock.lock();
+
+    try ( OlapConnection connection = getConnection( name, session ) ) {
+      final RolapConnection rc = connection.unwrap( RolapConnection.class );
+      rc.getCacheControl( null ).flushSchema( rc.getSchema() );
+    } catch ( Exception e ) {
+      LOG.warn( Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
+
+      throw new IOlapServiceException(
+        Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ) );
+    } finally {
+      writeLock.unlock();
+    }
   }
 
   public void flushAll( IPentahoSession session ) {
