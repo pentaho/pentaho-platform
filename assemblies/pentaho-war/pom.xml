@@ -960,28 +960,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>serializer</artifactId>
-      <version>${xalan.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-      <version>${xalan.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>xmlgraphics-commons</artifactId>
       <version>${xmlgraphics-commons.version}</version>
