@@ -12,28 +12,24 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Pentaho Corporation..  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
 import org.codehaus.enunciate.Facet;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -117,7 +113,24 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
     } else {
       return Response.status( UNAUTHORIZED ).build();
     }
+  }
 
+  @GET
+  @Path( "/mondrianSingleSchemaCache" )
+  @Produces( { MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON } )
+  @Facet( name = "Unsupported" )
+  public Response flushMondrianSchemaCache( @QueryParam( "name" ) String name ) {
+    if ( canAdminister() ) {
+      IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
+      if ( canAdminister() ) {
+        IOlapService olapService =
+          PentahoSystem.get( IOlapService.class, "IOlapService", pentahoSession ); //$NON-NLS-1$
+        olapService.flush( pentahoSession, name );
+      }
+      return Response.ok().type( MediaType.TEXT_PLAIN ).build();
+    } else {
+      return Response.status( UNAUTHORIZED ).build();
+    }
   }
 
   /**
