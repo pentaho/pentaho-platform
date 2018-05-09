@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2018 Hitachi Vantara.  All rights reserved.
+ * Copyright (c) 2002-2017 Hitachi Vantara.  All rights reserved.
  *
 */
 package org.pentaho.platform.plugin.action.olap.impl;
@@ -22,7 +22,6 @@ import com.google.common.collect.Collections2;
 import mondrian.olap.MondrianServer;
 import mondrian.olap.Role;
 import mondrian.olap.Util;
-import mondrian.rolap.RolapConnection;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.server.DynamicContentFinder;
 import mondrian.server.MondrianServerRegistry;
@@ -495,26 +494,6 @@ public class OlapServiceImpl implements IOlapService {
     getHelper().deleteCatalog( name );
   }
 
-  /**
-   * Flushes a single schema from the cache.
-   */
-  public void flush( IPentahoSession session, String name ) {
-    final Lock writeLock = cacheLock.writeLock();
-    writeLock.lock();
-
-    try ( OlapConnection connection = getConnection( name, session ) ) {
-      final RolapConnection rc = connection.unwrap( RolapConnection.class );
-      rc.getCacheControl( null ).flushSchema( rc.getSchema() );
-    } catch ( Exception e ) {
-      LOG.warn( Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ), e );
-
-      throw new IOlapServiceException(
-        Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH", name ) );
-    } finally {
-      writeLock.unlock();
-    }
-  }
-
   public void flushAll( IPentahoSession session ) {
     final Lock writeLock = cacheLock.writeLock();
     try {
@@ -523,7 +502,7 @@ public class OlapServiceImpl implements IOlapService {
       // Start by flushing the local cache.
       resetCache( session );
 
-      flushHostedCatalogs();
+      flushHostedCatalogs( session );
       flushRemoteCatalogs( session );
     } catch ( Exception e ) {
       throw new IOlapServiceException( e );
@@ -535,13 +514,9 @@ public class OlapServiceImpl implements IOlapService {
   /**
    * Flushes all hosted catalogs.
    */
-  private void flushHostedCatalogs() throws SQLException {
-    // we don't want to create a new MondrianServer instance to clear the cache when server is null
-    // in this case, just clear the cache of the static server
-    if ( server != null ) {
-      // clean cache for all mondrian schemas used by current mondrian server
-      server.getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
-    }
+  private void flushHostedCatalogs( IPentahoSession session ) throws SQLException {
+    // clean cache for all mondrian schemas used by current mondrian server
+    getServer().getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
     // clean cache for all mondrian schemas used by mondrian default "static" server
     MondrianServer.forId( null ).getAggregationManager().getCacheControl( null, null ).flushSchemaCache();
   }
