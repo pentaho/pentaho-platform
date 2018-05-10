@@ -20,7 +20,8 @@
 
 package org.pentaho.platform.web.http.session;
 
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
@@ -38,14 +39,12 @@ public class PentahoCacheSessionListener implements HttpSessionListener {
     HttpSession session = event.getSession();
     Object obj = session.getAttribute( PentahoSystem.PENTAHO_SESSION_KEY ); //$NON-NLS-1$
     if ( obj != null ) {
-      IPentahoSession userSession = (IPentahoSession) obj;
-      ICacheManager cacheManager = PentahoSystem.getCacheManager( userSession );
+      IPlatformCache cacheManager = PentahoSystem.get( IPlatformCache.class );
       if ( null != cacheManager ) {
         IPentahoSession pentahoSession = (IPentahoSession) obj;
         if ( pentahoSession != null ) {
-          cacheManager.removeRegionCache( pentahoSession.getId() );
+          cacheManager.clear( CacheScope.forSession( pentahoSession ) );
         }
-
       }
     }
   }

@@ -21,16 +21,17 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 
 import javax.sql.DataSource;
 
+@CacheRegionRequired( region = "DataSource" )
 public class NonPooledDatasourceService extends BaseDatasourceService {
 
   @Override
@@ -42,7 +43,7 @@ public class NonPooledDatasourceService extends BaseDatasourceService {
       if ( databaseConnection != null ) {
         ds = resolveDatabaseConnection( databaseConnection );
         if ( ds != null ) {
-          cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
+          cacheManager.put( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), dsName, ds );
         }
       } else {
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(

@@ -24,6 +24,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
@@ -32,6 +34,7 @@ import org.pentaho.platform.engine.services.messages.Messages;
 
 import javax.sql.DataSource;
 
+@CacheRegionRequired( region = "DataSource" )
 public class NonPooledOrJndiDatasourceService extends BaseDatasourceService {
 
   private static final Log log = LogFactory.getLog( NonPooledOrJndiDatasourceService.class );
@@ -62,7 +65,7 @@ public class NonPooledOrJndiDatasourceService extends BaseDatasourceService {
       }
       // if the resulting datasource is not null then store it in the cache
       if ( ds != null ) {
-        cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
+        cacheManager.put( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), dsName, ds );
       }
     } catch ( DatasourceMgmtServiceException daoe ) {
       log.debug( Messages.getInstance().getErrorString(

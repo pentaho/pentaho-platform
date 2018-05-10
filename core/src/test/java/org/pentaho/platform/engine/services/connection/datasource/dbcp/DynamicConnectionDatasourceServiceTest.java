@@ -30,6 +30,7 @@ import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+import org.pentaho.platform.cache.MockPlatformCache;
 
 import javax.sql.DataSource;
 
@@ -74,6 +75,7 @@ public class DynamicConnectionDatasourceServiceTest {
     DynamicallyPooledOrJndiDatasourceService dynamic = new DynamicallyPooledOrJndiDatasourceService();
     dynamic.setNonPooledDatasourceService( nonPooledSpyService );
     dynamic.setPooledDatasourceService( pooledSpyService );
+    dynamic.setCacheManager( new MockPlatformCache() );
     spyService = spy(dynamic );
 
     try {

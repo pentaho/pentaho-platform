@@ -20,7 +20,7 @@
 
 package org.pentaho.platform.web.http.context;
 
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.IPlatformCache;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.servlet.ServletContextEvent;
@@ -33,14 +33,9 @@ public class PentahoCacheContextListener implements ServletContextListener {
   }
 
   public void contextDestroyed( final ServletContextEvent event ) {
-    // NOTE: if the cacheManager has been configured to have session creation scope
-    // getCacheManager will return null, which is fine, since PentahoCacheSessionListener
-    // should have cleaned up the session scoped caches. If the cacheManager
-    // has been created with global scope, getCacheManager will return a non-null instance.
-    ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-    if ( cacheManager != null ) {
-      cacheManager.cacheStop();
+    IPlatformCache cache = PentahoSystem.get( IPlatformCache.class );
+    if ( cache != null ) {
+      cache.stop();
     }
   }
-
 }

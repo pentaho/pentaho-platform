@@ -22,7 +22,9 @@ package org.pentaho.platform.web.html.themes;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.ui.IThemeResolver;
 import org.pentaho.platform.api.ui.ModuleThemeInfo;
@@ -42,18 +44,15 @@ import java.util.Set;
  * 
  * User: nbaker Date: 5/15/11
  */
+@CacheRegionRequired( region = "Themes" )
 public class DefaultThemeManager implements IThemeManager {
 
   private static final String THEME_CACHE_REGION = "Themes";
   private static final String SYSTEM_THEMES = "System_Themes";
   private static final String MODULE_THEMES = "Local_Themes";
 
-  private static ICacheManager cache = PentahoSystem.getCacheManager( null );
+  private static IPlatformCache cache = PentahoSystem.get( IPlatformCache.class );
   private static final Log logger = LogFactory.getLog( DefaultThemeManager.class );
-
-  static {
-    cache.addCacheRegion( THEME_CACHE_REGION );
-  }
 
   private List<IThemeResolver> resolvers = new ArrayList<IThemeResolver>();
   {
@@ -65,7 +64,7 @@ public class DefaultThemeManager implements IThemeManager {
     List<String> allThemes = new ArrayList<String>();
 
     boolean themesFoundInCache = false;
-    Set<String> regionKeys = cache.getAllKeysFromRegionCache( THEME_CACHE_REGION );
+    Set<String> regionKeys = cache.keySet( CacheScope.forRegion( THEME_CACHE_REGION ) );
     if ( regionKeys != null && !regionKeys.isEmpty() ) {
       for ( String key : regionKeys ) {
         if ( key.startsWith( SYSTEM_THEMES ) ) {
@@ -84,7 +83,7 @@ public class DefaultThemeManager implements IThemeManager {
   }
 
   public Theme getSystemTheme( String themeId ) {
-    Theme theme = (Theme) cache.getFromRegionCache( THEME_CACHE_REGION, SYSTEM_THEMES + "-" + themeId );
+    Theme theme = (Theme) cache.get( CacheScope.forRegion( THEME_CACHE_REGION ), SYSTEM_THEMES + "-" + themeId );
     if ( theme == null ) { // may have been flushed, try to fetch it
       theme = collectAllSystemThemes().get( themeId );
       if ( theme == null ) {
@@ -100,7 +99,7 @@ public class DefaultThemeManager implements IThemeManager {
     }
     Theme theme = null;
     ModuleThemeInfo moduleThemeInfo =
-        (ModuleThemeInfo) cache.getFromRegionCache( THEME_CACHE_REGION, MODULE_THEMES + "-" + moduleName );
+        (ModuleThemeInfo) cache.get( CacheScope.forRegion( THEME_CACHE_REGION ), MODULE_THEMES + "-" + moduleName );
     if ( moduleThemeInfo == null ) { // may have been flushed, try to fetch it
       moduleThemeInfo = collectAllModuleThemes().get( moduleName );
       if ( moduleThemeInfo == null ) {
@@ -124,7 +123,7 @@ public class DefaultThemeManager implements IThemeManager {
 
   public ModuleThemeInfo getModuleThemeInfo( String moduleName ) {
     ModuleThemeInfo moduleThemeInfo =
-        (ModuleThemeInfo) cache.getFromRegionCache( THEME_CACHE_REGION, MODULE_THEMES + "-" + moduleName );
+        (ModuleThemeInfo) cache.get( CacheScope.forRegion( THEME_CACHE_REGION ), MODULE_THEMES + "-" + moduleName );
     if ( moduleThemeInfo == null ) { // may have been flushed, try to fetch it
       moduleThemeInfo = collectAllModuleThemes().get( moduleName );
       if ( moduleThemeInfo == null ) {
@@ -142,7 +141,7 @@ public class DefaultThemeManager implements IThemeManager {
       Map<String, ModuleThemeInfo> moduleInfo = resolver.getModuleThemes();
       for ( String moduleName : moduleInfo.keySet() ) {
         // populate the cache
-        cache.putInRegionCache( THEME_CACHE_REGION, MODULE_THEMES + "-" + moduleName, moduleInfo.get( moduleName ) );
+        cache.put( CacheScope.forRegion( THEME_CACHE_REGION ), MODULE_THEMES + "-" + moduleName, moduleInfo.get( moduleName ) );
       }
       moduleThemes.putAll( moduleInfo );
     }
@@ -155,7 +154,7 @@ public class DefaultThemeManager implements IThemeManager {
       Map<String, Theme> themes = resolver.getSystemThemes();
       for ( String themeId : themes.keySet() ) {
         // populate the cache
-        cache.putInRegionCache( THEME_CACHE_REGION, SYSTEM_THEMES + "-" + themeId, themes.get( themeId ) );
+        cache.put( CacheScope.forRegion( THEME_CACHE_REGION ), SYSTEM_THEMES + "-" + themeId, themes.get( themeId ) );
       }
       systemThemes.putAll( themes );
     }
@@ -163,7 +162,7 @@ public class DefaultThemeManager implements IThemeManager {
   }
 
   public void refresh() {
-    cache.clearRegionCache( THEME_CACHE_REGION );
+    cache.clear( CacheScope.forRegion( THEME_CACHE_REGION ) );
     collectAllSystemThemes();
     collectAllModuleThemes();
   }

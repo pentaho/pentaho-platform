@@ -21,7 +21,8 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import org.codehaus.enunciate.Facet;
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -146,9 +147,9 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
   @Facet( name = "Unsupported" )
   public Response purgeReportingDataCache() {
     if ( canAdminister() ) {
-      ICacheManager cacheManager = PentahoSystem.get( ICacheManager.class );
-      cacheManager.clearRegionCache( "report-dataset-cache" );
-      cacheManager.clearRegionCache( "report-output-handlers" );
+      IPlatformCache cacheManager = PentahoSystem.get( IPlatformCache.class );
+      cacheManager.clear( CacheScope.forRegion( "report-dataset-cache" ) );
+      cacheManager.clear( CacheScope.forRegion( "report-output-handlers" ) );
 
       Runnable clearCacheAction =
         PentahoSystem.get( Runnable.class, "_ClearCacheAction", PentahoSessionHolder.getSession() );

@@ -23,6 +23,7 @@ package org.pentaho.test.platform.plugin.pluginmgr;
 import com.mockrunner.mock.web.MockServletContext;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.cache.IPlatformCache;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -40,6 +41,8 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
+import org.pentaho.platform.plugin.services.cache.PlatformCacheImpl;
+import org.pentaho.platform.plugin.services.cache.PlatformCacheSystemListener;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceManager;
@@ -80,6 +83,8 @@ public class AxisWebServiceManagerIT {
     microPlatform.define( IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL );
     microPlatform.define( IPluginProvider.class, TstPluginProvider.class );
     microPlatform.define( IThemeManager.class, DefaultThemeManager.class );
+    microPlatform.define( IPlatformCache.class, PlatformCacheImpl.class, Scope.GLOBAL );
+    microPlatform.addLifecycleListener( new PlatformCacheSystemListener() );
 
     IServiceTypeManager axisManager = new AxisWebServiceManager();
     DefaultServiceManager sm = (DefaultServiceManager) PentahoSystem.get( IServiceManager.class );

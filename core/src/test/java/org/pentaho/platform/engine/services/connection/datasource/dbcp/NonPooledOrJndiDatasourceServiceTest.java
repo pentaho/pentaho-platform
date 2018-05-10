@@ -24,9 +24,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 
 import javax.sql.DataSource;
@@ -46,7 +47,7 @@ public class NonPooledOrJndiDatasourceServiceTest {
   NonPooledOrJndiDatasourceService service;
   IDatasourceMgmtService mgmtService;
   IDatabaseConnection connection;
-  ICacheManager cacheManager;
+  IPlatformCache cacheManager;
   DataSource jndiDataSource;
   DataSource databaseConnectionDataSource;
 
@@ -55,7 +56,7 @@ public class NonPooledOrJndiDatasourceServiceTest {
   public void init() {
     mgmtService = mock( IDatasourceMgmtService.class );
     connection = mock( IDatabaseConnection.class );
-    cacheManager = mock( ICacheManager.class );
+    cacheManager = mock( IPlatformCache.class );
     jndiDataSource = mock( DataSource.class );
     databaseConnectionDataSource = mock( DataSource.class );
     service = spy( getPreparedService( mgmtService, cacheManager, jndiDataSource, databaseConnectionDataSource ) );
@@ -67,7 +68,7 @@ public class NonPooledOrJndiDatasourceServiceTest {
     when( connection.getAccessType() ).thenReturn( DatabaseAccessType.JNDI );
     service.retrieve( testName );
     verify( service ).getJndiDataSource( testName );
-    verify( cacheManager ).putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, testName, jndiDataSource );
+    verify( cacheManager ).put( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), testName, jndiDataSource );
   }
 
   @Test
@@ -75,7 +76,7 @@ public class NonPooledOrJndiDatasourceServiceTest {
     when( mgmtService.getDatasourceByName( testName ) ).thenReturn( null );
     service.retrieve( testName );
     verify( service ).getJndiDataSource( testName );
-    verify( cacheManager ).putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, testName, jndiDataSource );
+    verify( cacheManager ).put( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), testName, jndiDataSource );
   }
 
   @Test
@@ -85,7 +86,7 @@ public class NonPooledOrJndiDatasourceServiceTest {
     when( connection.getAccessType() ).thenReturn( DatabaseAccessType.JNDI );
     service.retrieve( testName );
     verify( service, times( 2 ) ).getJndiDataSource( anyString() );
-    verify( cacheManager, never() ).putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, testName, jndiDataSource );
+    verify( cacheManager, never() ).put( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), testName, jndiDataSource );
   }
 
   @Test
@@ -96,7 +97,7 @@ public class NonPooledOrJndiDatasourceServiceTest {
     when( connection.getAccessType() ).thenReturn( DatabaseAccessType.JNDI );
     service.retrieve( testName );
     verify( service, times( 2 ) ).getJndiDataSource( anyString() );
-    verify( cacheManager, never() ).putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, testName, jndiDataSource );
+    verify( cacheManager, never() ).put( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), testName, jndiDataSource );
   }
 
   @Test
@@ -105,10 +106,10 @@ public class NonPooledOrJndiDatasourceServiceTest {
     when( connection.getAccessType() ).thenReturn( DatabaseAccessType.ODBC );
     service.retrieve( testName );
     verify( service ).resolveDatabaseConnection( connection );
-    verify( cacheManager ).putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, testName, databaseConnectionDataSource );
+    verify( cacheManager ).put( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), testName, databaseConnectionDataSource );
   }
 
-  private NonPooledOrJndiDatasourceService getPreparedService( IDatasourceMgmtService mgmtService, ICacheManager iCacheManager,
+  private NonPooledOrJndiDatasourceService getPreparedService( IDatasourceMgmtService mgmtService, IPlatformCache iCacheManager,
                                                                DataSource jndiDataSource, DataSource databaseConnectionDataSource ) {
     return new NonPooledOrJndiDatasourceService() {
       @Override
@@ -117,7 +118,7 @@ public class NonPooledOrJndiDatasourceServiceTest {
       }
 
       @Override
-      public ICacheManager getCacheManager() {
+      public IPlatformCache getCacheManager() {
         return iCacheManager;
       }
 

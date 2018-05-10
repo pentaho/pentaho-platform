@@ -26,7 +26,6 @@ import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.engine.IApplicationContext;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -100,7 +99,6 @@ public class PentahoWebContextFilter implements Filter {
 
   // Changed to not do so much work for every request
   private static final ThreadLocal<byte[]> THREAD_LOCAL_REQUIRE_SCRIPT = new ThreadLocal<>();
-  protected static ICacheManager cache = PentahoSystem.getCacheManager( null );
 
   private LazyInitializer<String> lazyServicesPath;
   private ConfigurationAdminNonOsgiProxy configurationAdminProxy;
@@ -238,25 +236,8 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   Integer getRequireWaitTime() {
-    Integer waitTime = null;
-
-    if ( cache != null ) {
-      waitTime = (Integer) cache.getFromGlobalCache( PentahoSystem.WAIT_SECONDS );
-    }
-
-    if ( waitTime == null ) {
-      try {
-        waitTime = Integer.valueOf( PentahoSystem.getSystemSetting( PentahoSystem.WAIT_SECONDS, "30" ) );
-      } catch ( NumberFormatException e ) {
-        waitTime = 30;
-      }
-      if ( cache != null ) {
-        cache.putInGlobalCache( PentahoSystem.WAIT_SECONDS, waitTime );
-      }
-
-    }
-
-    return waitTime;
+    return Integer.parseInt(
+      PentahoSystem.getSystemSetting( PentahoSystem.WAIT_SECONDS, "30" ) );
   }
 
   // region get Environment Variables

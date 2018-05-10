@@ -30,6 +30,7 @@ import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+import org.pentaho.platform.cache.MockPlatformCache;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -71,7 +72,7 @@ public class PentahoConnectionDatasourceServiceTest {
     DataSource mockDs = mock(DataSource.class);
     IDatasourceMgmtService mockMgmtService = mock(IDatasourceMgmtService.class);
 
-    spyService = spy(service );
+    spyService = spy( service );
 
     try {
       when( mockMgmtService.getDatasourceByName( dsName ) ).thenReturn( mockConnection );
@@ -93,6 +94,7 @@ public class PentahoConnectionDatasourceServiceTest {
 
   public PentahoConnectionDatasourceServiceTest( BaseDatasourceService service, String name ){
     this.service = service;
+    this.service.setCacheManager( new MockPlatformCache() );
     this.dsName = name;
   }
 

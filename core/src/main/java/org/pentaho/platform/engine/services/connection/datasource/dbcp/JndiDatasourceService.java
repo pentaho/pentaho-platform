@@ -20,6 +20,8 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.data.IJndiDatasourceService;
@@ -27,6 +29,7 @@ import org.pentaho.platform.engine.services.messages.Messages;
 
 import javax.sql.DataSource;
 
+@CacheRegionRequired( region = "DataSource" )
 public class JndiDatasourceService extends BaseDatasourceService implements IJndiDatasourceService {
 
   @Override
@@ -35,7 +38,7 @@ public class JndiDatasourceService extends BaseDatasourceService implements IJnd
     try {
       ds =  getJndiDataSource( dsName );
       if ( ds != null ) {
-        cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName, ds );
+        cacheManager.put( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), dsName, ds );
       }
     } catch ( DBDatasourceServiceException dse ) {
       throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(

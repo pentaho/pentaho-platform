@@ -26,12 +26,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.IPlatformCache;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.servlet.ServletContextEvent;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -44,7 +43,7 @@ public class PentahoCacheContextListenerTest {
   PentahoCacheContextListener pentahoCacheContextListener;
 
   @Mock ServletContextEvent contextEvent;
-  @Mock ICacheManager cacheManager;
+  @Mock IPlatformCache cacheManager;
 
   @Before
   public void setUp() throws Exception {
@@ -66,13 +65,13 @@ public class PentahoCacheContextListenerTest {
   public void testContextDestroyed() throws Exception {
     PentahoSystem.registerObject( cacheManager );
     pentahoCacheContextListener.contextDestroyed( contextEvent );
-    verify( cacheManager ).cacheStop();
+    verify( cacheManager ).stop();
   }
 
   @Test
   public void testContextDestroyed_noCachManager() throws Exception {
     pentahoCacheContextListener.contextDestroyed( contextEvent );
-    verify( cacheManager, never() ).cacheStop();
+    verify( cacheManager, never() ).stop();
   }
 
 }

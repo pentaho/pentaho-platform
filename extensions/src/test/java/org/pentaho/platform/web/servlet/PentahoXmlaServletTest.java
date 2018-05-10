@@ -20,17 +20,31 @@
 
 package org.pentaho.platform.web.servlet;
 
-import junit.framework.TestCase;
-import mondrian.olap.Connection;
-import mondrian.olap.DriverManager;
-import mondrian.olap.MondrianException;
-import mondrian.rolap.RolapConnection;
-import mondrian.xmla.XmlaHandler;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Properties;
+import java.util.concurrent.Callable;
+
+import javax.servlet.ServletConfig;
+
 import org.dom4j.Document;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.ISecurityHelper;
+import org.pentaho.platform.cache.MockPlatformCache;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
@@ -43,18 +57,10 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.servlet.ServletConfig;
-import java.util.Properties;
-import java.util.concurrent.Callable;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import mondrian.olap.DriverManager;
+import mondrian.olap.MondrianException;
+import mondrian.rolap.RolapConnection;
+import mondrian.xmla.XmlaHandler;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DriverManager.class)
@@ -111,7 +117,7 @@ public class PentahoXmlaServletTest  {
 
     Document content =
         XmlDom4JHelper.getDocFromString(
-            new PentahoXmlaServlet().makeContentFinder( "fakeurl" ).getContent(),
+            new PentahoXmlaServlet( new MockPlatformCache() ).makeContentFinder( "fakeurl" ).getContent(),
             new PentahoEntityResolver() );
 
     assertEquals( 2,
@@ -150,7 +156,7 @@ public class PentahoXmlaServletTest  {
 
     try {
       // should throw
-      new PentahoXmlaServlet().makeContentFinder( "fakeurl" ).getContent();
+      new PentahoXmlaServlet( new MockPlatformCache() ).makeContentFinder( "fakeurl" ).getContent();
     } catch ( MondrianException e ) {
       assertTrue( e.getCause().getCause().getMessage().contains(
           "DataSourceInfo not defined for SampleData" ) );
@@ -178,7 +184,7 @@ public class PentahoXmlaServletTest  {
 
     PentahoSystem.registerObject( catalogService );
 
-    PentahoXmlaServlet xmlaServlet = spy( new PentahoXmlaServlet() );
+    PentahoXmlaServlet xmlaServlet = spy( new PentahoXmlaServlet( new MockPlatformCache() ) );
 
     XmlaHandler.ConnectionFactory connectionFactory =
         xmlaServlet.createConnectionFactory( mock( ServletConfig.class ) );

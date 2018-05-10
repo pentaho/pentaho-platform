@@ -25,7 +25,8 @@ import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
@@ -75,8 +76,8 @@ public class SessionCachingMetadataDomainRepositoryIT extends BaseTest {
 
   public void tearDown() {
     // Clean the cache
-    ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-    cacheManager.clearRegionCache( CACHE_NAME );
+    IPlatformCache cacheManager = PentahoSystem.get( IPlatformCache.class );
+    cacheManager.clear( CacheScope.forRegion( CACHE_NAME ) );
 
     super.tearDown();
   }

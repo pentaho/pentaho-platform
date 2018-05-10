@@ -38,11 +38,13 @@ import org.mockito.MockitoAnnotations;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
+import org.pentaho.platform.cache.MockPlatformCache;
 
 /**
  * NonPooledDatasourceSystemListener tests
@@ -52,14 +54,13 @@ import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceExcep
  */
 public class NonPooledDatasourceSystemListenerTest {
 
-  @Mock
-  NonPooledDatasourceSystemListener nonPooledDatasourceSystemListenerSpy;
-  @Mock
-  ICacheManager ICacheManagerMock;
+  @Mock NonPooledDatasourceSystemListener nonPooledDatasourceSystemListenerSpy;
+  @Mock IPlatformCache mockCache;
 
   @Before
   public void init() {
     MockitoAnnotations.initMocks( this );
+    when( nonPooledDatasourceSystemListenerSpy.getCache() ).thenReturn( mockCache );
   }
 
   @Test
@@ -68,8 +69,6 @@ public class NonPooledDatasourceSystemListenerTest {
 
     stubGetListOfDatabaseConnectionsMethod( DatabaseAccessType.NATIVE );
     stubIsPortUsedByServerMethod( false );
-    // to avoid NullPointerException
-    stubAddCacheRegionsMethod();
 
     // call real methods
     callRealSetupDataSourceForConnection();
@@ -89,8 +88,6 @@ public class NonPooledDatasourceSystemListenerTest {
 
     stubGetListOfDatabaseConnectionsMethod( DatabaseAccessType.JNDI );
     stubIsPortUsedByServerMethod( false );
-    // to avoid NullPointerException
-    stubAddCacheRegionsMethod();
 
     // call real methods
     callRealSetupDataSourceForConnection();
@@ -109,8 +106,6 @@ public class NonPooledDatasourceSystemListenerTest {
 
     stubGetListOfDatabaseConnectionsMethod( DatabaseAccessType.NATIVE );
     stubIsPortUsedByServerMethod( true );
-    // to avoid NullPointerException
-    stubAddCacheRegionsMethod();
 
     // call real methods
     callRealSetupDataSourceForConnection();
@@ -129,8 +124,6 @@ public class NonPooledDatasourceSystemListenerTest {
 
     stubGetListOfDatabaseConnectionsMethod( DatabaseAccessType.NATIVE, DatabaseAccessType.JNDI );
     stubIsPortUsedByServerMethod( false );
-    // to avoid NullPointerException
-    stubAddCacheRegionsMethod();
 
     // call real methods
     callRealSetupDataSourceForConnection();
@@ -152,10 +145,6 @@ public class NonPooledDatasourceSystemListenerTest {
   private void stubIsPortUsedByServerMethod( boolean returnedValue ) {
     when( nonPooledDatasourceSystemListenerSpy.isPortUsedByServer( any( IDatabaseConnection.class ) ) ).thenReturn(
         returnedValue );
-  }
-
-  private void stubAddCacheRegionsMethod() {
-    when( nonPooledDatasourceSystemListenerSpy.addCacheRegions() ).thenReturn( ICacheManagerMock );
   }
 
   private void stubGetListOfDatabaseConnectionsMethod( DatabaseAccessType... databaseAccessTypes )
@@ -203,7 +192,7 @@ public class NonPooledDatasourceSystemListenerTest {
   }
 
   private void putInRegionCacheWasCalled( int wishedTimes ) {
-    verify( ICacheManagerMock, times( wishedTimes ) ).putInRegionCache( eq( IDBDatasourceService.JDBC_DATASOURCE ), anyString(),
+    verify( mockCache, times( wishedTimes ) ).put( eq( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ) ), anyString(),
         anyObject() );
   }
 
