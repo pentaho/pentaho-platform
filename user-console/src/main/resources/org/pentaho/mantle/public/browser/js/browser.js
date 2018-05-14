@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 define([
   "./browser.fileButtons",
@@ -22,7 +22,7 @@ define([
   "./browser.utils",
   "./browser.multiSelectButtons",
   "./dialogs/browser.dialog.rename",
-  "common-ui/util/spin.min",
+  "common-ui/util/spin",
   "common-ui/util/PentahoSpinner",
   "./browser.templates",
   "common-ui/util/URLEncoder",
@@ -174,7 +174,7 @@ define([
 		};
 		_lastClick = this.fileBrowserModel.getLastClick();
 	}
-	//if we have not new parameter, than save previous 
+	//if we have not new parameter, than save previous
 	if ( _showDescriptions == undefined ) {
 		_showDescriptions = myself.showDescriptions;
 	}
@@ -196,7 +196,7 @@ define([
       model: myself.fileBrowserModel,
       el: myself.$container
     });
-    
+
     //BISERVER-10586 - need to run listener after fileBrowserModel listener
     myself.fileBrowserModel.on("change:clickedFolder", myself.fileBrowserModel.updateFileList, myself.fileBrowserModel);
 
@@ -256,13 +256,13 @@ define([
           spinner2 = new Spinner(config);
       var _clickedFolder = undefined;
 	  var _clickedFile = undefined;
-	  if ( foldersTreeModel ) { 
+	  if ( foldersTreeModel ) {
 		 _clickedFolder = {
 			obj: foldersTreeModel.get("clickedFolder"),
 			time: (new Date()).getTime()
 			}
 	  }
-      if ( fileListModel ) { 
+      if ( fileListModel ) {
 		_clickedFile = {
 			obj: fileListModel.get("clickedFile"),
 			time: (new Date()).getTime()
@@ -318,22 +318,22 @@ define([
       var folderPath = clickedFolder.obj.attr("path");
       if (folderPath == ".trash") {
         this.updateTrashLastClick();
-      } 
+      }
       this.set("clickedFolder", clickedFolder);
       this.updateFolderButtons(folderPath);
     },
-	
+
 	updateFolderButtons: function( _folderPath) {
 		var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
 		var model = FileBrowser.fileBrowserModel; // trap model
 		var folderPath = Encoder.encodeRepositoryPath( _folderPath);
-		
+
 		folderButtons.canDownload(this.get("canDownload"));
         folderButtons.canPublish(this.get("canPublish"));
         //Leaving this here...if UX decides they want the hiddenFileLabel style preserved when switching folders
         //model.get('browserUtils').applyCutItemsStyle();
 
-        /* 
+        /*
          * BACKLOG-7846: a non-admin user will be granted upload/download permissions when:
          * 1) is located in his home folder
          * 2) has 'Read Content' permission
@@ -341,7 +341,7 @@ define([
          */
         var inHomeFolder = ( folderPath == userHomePath ) || folderPath.indexOf( userHomePath ) > -1;
         var canUploadAndDownload = this.get("canDownload") && this.get("canPublish");
-        
+
         if( !canUploadAndDownload && inHomeFolder ) {
           var hasReadPermission = this.get("canRead");
           var hasCreatePermission = this.get("canCreate")
@@ -385,7 +385,7 @@ define([
       var filePath = clickedFile.obj.attr("path");
       filePath = Encoder.encodeRepositoryPath(filePath);
 
-      /* 
+      /*
        * BACKLOG-7846: a non-admin user will be granted upload/download permissions when:
        * 1) is located in his home folder
        * 2) has 'Read Content' permission
@@ -455,7 +455,7 @@ define([
       var myself = this;
       //trigger file list update. Force event in case path was not changed
       myself.get("fileListModel").set("path", myself.get("clickedFolder").obj.attr("path"), {silent:true});
-      myself.get("fileListModel").trigger('change:path');    
+      myself.get("fileListModel").trigger('change:path');
     },
 
     updateDescriptions: function () {
@@ -1060,7 +1060,7 @@ define([
       myself.$el.children().each(function () {
         $(this).addClass("first");
       });
- 
+
 	  //open last clicked folder or home folder
 	  var $folder = $("[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']");
 	  if ( FileBrowser.fileBrowserModel.getFolderClicked() != undefined ) {
@@ -1068,8 +1068,8 @@ define([
 		if ( $("div[path=\"" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "\"]").length != 0 ) {
 			$folder = $("[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']");
 		}
-	  } 
-	  
+	  }
+
 	  var $parentFolder = $folder.parent(".folders");
       while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
         $parentFolder.show();
@@ -1081,7 +1081,7 @@ define([
 						time: (new Date()).getTime()
 					});
 	  $clickedFile = FileBrowser.fileBrowserModel.getFileClicked();
-	  if ( $clickedFile != undefined && FileBrowser.fileBrowserModel.getLastClick() == "file" )	{		
+	  if ( $clickedFile != undefined && FileBrowser.fileBrowserModel.getLastClick() == "file" )	{
 			FileBrowser.fileBrowserModel.get("fileListModel").set("clickedFile", {
 				obj: FileBrowser.fileBrowserModel.getFileClicked(),
 				time: (new Date()).getTime()
@@ -1361,8 +1361,8 @@ define([
 					FileBrowser.fileBrowserModel.set("lastClick", "folder");
 					$(".file.selected").removeClass("selected");
 					$(".folder.secondarySelected").addClass("selected");
-					$(".folder.secondarySelected").removeClass("secondarySelected");			
-					FileBrowser.FileBrowserView.updateButtonsHeader();					
+					$(".folder.secondarySelected").removeClass("secondarySelected");
+					FileBrowser.FileBrowserView.updateButtonsHeader();
 				}
 			}
       this.model.set("desel", 0);
