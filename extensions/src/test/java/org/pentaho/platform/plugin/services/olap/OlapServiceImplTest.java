@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.olap4j.OlapConnection;
+import org.pentaho.platform.api.cache.IPlatformCache;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -94,6 +95,7 @@ public class OlapServiceImplTest {
 
   @Mock IUnifiedRepository repository;
   @Mock private MondrianServer server;
+  @Mock private IPlatformCache cache;
   @Mock private XmlaHandler.XmlaExtra mockXmlaExtra;
   @Mock AggregationManager aggManager;
   @Mock CacheControl cacheControl;
@@ -144,7 +146,7 @@ public class OlapServiceImplTest {
 
     // Create the olap service. Make sure to override hasAccess with the
     // mock version.
-    olapService = spy( new OlapServiceImpl( repository, server ) {
+    olapService = spy( new OlapServiceImpl( repository, server, cache ) {
       public boolean hasAccess(
         String path,
         EnumSet<RepositoryFilePermission> perms,

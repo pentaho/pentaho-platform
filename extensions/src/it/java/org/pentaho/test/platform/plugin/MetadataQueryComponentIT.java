@@ -41,6 +41,7 @@ import org.pentaho.metadata.model.concept.types.LocalizedString;
 import org.pentaho.metadata.model.concept.types.TargetTableType;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.repository.InMemoryMetadataDomainRepository;
+import org.pentaho.platform.api.cache.IPlatformCache;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.ISolutionEngine;
@@ -49,6 +50,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.action.pentahometadata.MetadataQueryComponent;
+import org.pentaho.platform.plugin.services.cache.PlatformCacheImpl;
+import org.pentaho.platform.plugin.services.cache.PlatformCacheSystemListener;
 import org.pentaho.platform.plugin.services.connections.sql.SQLConnection;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -73,6 +76,8 @@ public class MetadataQueryComponentIT {
     microPlatform.define( IMetadataDomainRepository.class, InMemoryMetadataDomainRepository.class, Scope.GLOBAL );
     microPlatform.define( "connection-SQL", SQLConnection.class );
     microPlatform.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL );
+    microPlatform.define( IPlatformCache.class, PlatformCacheImpl.class, Scope.GLOBAL );
+    microPlatform.addLifecycleListener( new PlatformCacheSystemListener() );
     FileSystemBackedUnifiedRepository repos = (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
     repos.setRootDir( new File( TestResourceLocation.TEST_RESOURCES + "/solution" ) );
 

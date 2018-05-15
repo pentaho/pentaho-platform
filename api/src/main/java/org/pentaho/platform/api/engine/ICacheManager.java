@@ -24,6 +24,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+/**
+ *  * <p><b>DEPRECATED</b>
+ *
+ * <p>This interface was deprecated in favor of IPlatformCache.
+ */
+@Deprecated
 public interface ICacheManager extends ILogoutListener {
   public static final String SESSION = "SESSION"; //$NON-NLS-1$
   public static final String GLOBAL = "GLOBAL"; //$NON-NLS-1$

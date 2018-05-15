@@ -20,13 +20,14 @@
 
 package org.pentaho.platform.plugin.services.security.userrole;
 
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,9 +36,10 @@ import java.util.List;
  * <p/>
  * Created by nbaker on 5/20/14.
  */
+@CacheRegionRequired( region = "userRoleListCache" )
 public class CachingUserRoleListServiceDecorator implements IUserRoleListService {
   private IUserRoleListService delegate;
-  private ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
+  private IPlatformCache cacheManager;
   private static final String REGION = "userRoleListCache";
   private static final String ALL_USERS = "all users";
   private static final String ALL_ROLES = "all roles";
@@ -65,28 +67,29 @@ public class CachingUserRoleListServiceDecorator implements IUserRoleListService
     }
   };
 
-
   public CachingUserRoleListServiceDecorator( IUserRoleListService delegate ) {
+    this( delegate, PentahoSystem.get( IPlatformCache.class ) );
+  }
+
+  public CachingUserRoleListServiceDecorator( IUserRoleListService delegate, IPlatformCache cache ) {
+    this.cacheManager = cache;
     if ( delegate == null ) {
       throw new IllegalArgumentException( "Decorated IUserRoleListService cannot be null" );
     }
     this.delegate = delegate;
-    if ( !this.cacheManager.cacheEnabled( REGION ) ) {
-      this.cacheManager.addCacheRegion( REGION );
-    }
   }
 
   @SuppressWarnings( "unchecked" )
   private List<String> performOperation( String cacheEntry, DelegateOperation operation ) {
-      List<String> results = null;
-    Object fromRegionCache = cacheManager.getFromRegionCache( REGION, cacheEntry );
-    if (fromRegionCache instanceof List ) {
-        results = (List<String>) fromRegionCache;
-    }else{
-        results = operation.perform();
-        cacheManager.putInRegionCache( REGION, cacheEntry, results );
+    List<String> results = null;
+    Object fromRegionCache = cacheManager.get( CacheScope.forRegion( REGION ), cacheEntry );
+    if ( fromRegionCache instanceof List ) {
+      results = (List<String>) fromRegionCache;
+    } else {
+      results = operation.perform();
+      cacheManager.put( CacheScope.forRegion( REGION ), cacheEntry, results );
     }
-    return new ArrayList<String>(results);
+    return new ArrayList<String>( results );
   }
 
 

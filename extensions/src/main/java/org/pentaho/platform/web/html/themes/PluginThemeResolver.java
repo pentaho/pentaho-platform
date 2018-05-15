@@ -67,6 +67,9 @@ public class PluginThemeResolver implements IThemeResolver {
   }
 
   public Map<String, ModuleThemeInfo> getModuleThemes() {
+    for ( String pluginId : pluginManager.getRegisteredPlugins() ) {
+      findPluginThemes( pluginId );
+    }
     return moduleThemes;
   }
 

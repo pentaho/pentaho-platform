@@ -70,6 +70,8 @@ public class ThemeManagerIT extends BaseTest {
 
     IThemeManager themeManager = PentahoSystem.get( IThemeManager.class );
 
+    themeManager.refresh();
+
     assertTrue( themeManager.getSystemThemeIds().contains( "core" ) );
     assertNotNull( themeManager.getModuleThemeInfo( "themeplugin" ) );
     assertEquals( 1, themeManager.getModuleThemeInfo( "themeplugin" ).getSystemThemes().size() );

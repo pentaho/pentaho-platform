@@ -79,6 +79,7 @@ public abstract class BaseTestCase extends TestCase {
     PentahoSystem.setSystemSettingsService( new PathBasedSystemSettings() );
     applicationContext = new StandaloneApplicationContext( solnPath, "" ); //$NON-NLS-1$
     applicationContext.setFullyQualifiedServerURL( getFullyQualifiedServerURL() );
+    PentahoSystem.setApplicationContext( applicationContext );
     String inContainer = System.getProperty( "incontainer", "false" ); //$NON-NLS-1$ //$NON-NLS-2$
     if ( inContainer.equalsIgnoreCase( "false" ) ) { //$NON-NLS-1$
       // Setup simple-jndi for datasources

@@ -21,9 +21,11 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -32,8 +34,9 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+@CacheRegionRequired( region = "DataSource" )
 public abstract class BaseDatasourceService implements IDBDatasourceService {
-  ICacheManager cacheManager;
+  IPlatformCache cacheManager;
 
   public BaseDatasourceService() {
     cacheManager = getCacheManager();
@@ -46,7 +49,7 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
    * 
    */
   public void clearCache() {
-    cacheManager.removeRegionCache( IDBDatasourceService.JDBC_DATASOURCE );
+    cacheManager.clear( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), true );
   }
 
   /**
@@ -55,16 +58,13 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
    * 
    */
   public void clearDataSource( String dsName ) {
-    cacheManager.removeFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
+    cacheManager.remove( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), dsName );
   }
 
   public DataSource getDataSource( String dsName ) throws DBDatasourceServiceException {
     DataSource dataSource = null;
     if ( cacheManager != null ) {
-      if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_DATASOURCE ) ) {
-        cacheManager.addCacheRegion( IDBDatasourceService.JDBC_DATASOURCE );
-      }
-      Object foundDs = cacheManager.getFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, dsName );
+      Object foundDs = cacheManager.get( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), dsName );
       if ( foundDs != null ) {
         dataSource = (DataSource) foundDs;
       } else {
@@ -203,10 +203,13 @@ public abstract class BaseDatasourceService implements IDBDatasourceService {
     }
   }
 
-  public ICacheManager getCacheManager( ) {
-    return PentahoSystem.getCacheManager( null );
+  public IPlatformCache getCacheManager( ) {
+    return PentahoSystem.get( IPlatformCache.class );
   }
 
+  void setCacheManager( IPlatformCache cache ) {
+    this.cacheManager = cache;
+  }
 
   public IDatasourceMgmtService getDatasourceMgmtService( ) {
     return (IDatasourceMgmtService) PentahoSystem.get( IDatasourceMgmtService.class, PentahoSessionHolder.getSession() );

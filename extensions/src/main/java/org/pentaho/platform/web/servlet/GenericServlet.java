@@ -25,7 +25,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.owasp.encoder.Encode;
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IOutputHandler;
@@ -59,21 +61,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CacheRegionRequired( region = "file" )
 public class GenericServlet extends ServletBase {
 
   private static final long serialVersionUID = 6713118348911206464L;
 
   private static final Log logger = LogFactory.getLog( GenericServlet.class );
   private static final String CACHE_FILE = "file"; //$NON-NLS-1$
-  private static ICacheManager cache = PentahoSystem.getCacheManager( null );
+  private IPlatformCache cache;
 
   private boolean showDeprecationMessage;
-
-  static {
-    if ( cache != null ) {
-      cache.addCacheRegion( CACHE_FILE );
-    }
-  }
 
   @Override
   public Log getLogger() {
@@ -86,6 +83,7 @@ public class GenericServlet extends ServletBase {
     super.init();
     String value = getServletConfig().getInitParameter( "showDeprecationMessage" );
     showDeprecationMessage = Boolean.parseBoolean( value );
+    cache = PentahoSystem.get( IPlatformCache.class );
   }
 
   @Override
@@ -193,8 +191,8 @@ public class GenericServlet extends ServletBase {
         // do we have this resource cached?
         ByteArrayOutputStream byteStream = null;
 
-        if ( cacheOn ) {
-          byteStream = (ByteArrayOutputStream) cache.getFromRegionCache( CACHE_FILE, pathInfo );
+        if ( cacheOn && cache != null ) {
+          byteStream = (ByteArrayOutputStream) cache.get( CacheScope.forRegion( CACHE_FILE ), pathInfo );
         }
 
         if ( byteStream != null ) {
@@ -208,8 +206,8 @@ public class GenericServlet extends ServletBase {
             IOUtils.copy( resourceStream, byteStream );
 
             // if cache is enabled, drop file in cache
-            if ( cacheOn ) {
-              cache.putInRegionCache( CACHE_FILE, pathInfo, byteStream );
+            if ( cacheOn && cache != null ) {
+              cache.put( CacheScope.forRegion( CACHE_FILE ), pathInfo, byteStream );
             }
 
             // write it out

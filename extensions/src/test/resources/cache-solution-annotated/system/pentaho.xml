@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pentaho-system>
+
+	<log-file>server.log</log-file>
+	<log-level>DEBUG</log-level>
+
+	<!--
+		The configuration of publishers, system listeners, and session actions has been moved to
+		the systemListeners.xml, adminPlugins.xml, and sessionStartupActions.xml files which 
+		can be found in the "system" folder within your configured pentaho solution directory.
+	
+		If you're looking for the objects node, this functionality
+		has been moved to the file pentahoObjects.spring.xml in the
+		system solution.
+		
+		When everything is completed, this file will go away, and
+		not be at all required by the bi-platform-engine classes.
+		Rather, the wiring of the components/engines/system will
+		be able to be implemented by many different wiring schemes.
+		As a bare minimum, we'll have examples of system wiring using
+			Spring injection
+			Hand coded wiring
+			properties-file wiring
+		
+		This new system will allow for optimized wiring without requiring
+		the PentahoSystem, SystemSettings, or any components to parse
+		or interpret an XML document.
+	-->
+
+        <cache-provider>
+          <class>net.sf.ehcache.hibernate.SingletonEhCacheProvider</class>
+          <region>pentahoCache</region>
+          <!--
+          Uncomment this block to specify some parameters for your cache provider. EHCache has no parameters 
+          other than what are provided in the ehcache.xml.
+          <properties>
+              <property name="someProperty">someValue</property>
+          </properties>
+          -->
+        </cache-provider>
+        <acl-publisher>
+					<!-- 
+						These acls are used when publishing from the file system. Every folder
+						gets these ACLS. Authenticated is a "default" role that everyone
+						gets when they're authenticated (be sure to setup your bean xml properly
+						for this to work).
+					-->
+					<default-acls>
+						<acl-entry role="Admin" acl="FULL_CONTROL" />				<!-- Admin users get all authorities -->
+						<acl-entry role="cto" acl="FULL_CONTROL" />				<!-- CTO gets everything -->
+						<acl-entry role="dev" acl="EXECUTE_SUBSCRIBE" />		<!-- Dev gets execute/subscribe -->
+						<acl-entry role="Authenticated" acl="EXECUTE" />		<!-- Authenticated users get execute only -->
+					</default-acls>
+					
+					<!--
+						These acls are overrides to specific file/folders.  The above default-acls will
+						be applied and then these overrides.  This allows for specific access controls to
+						be loaded when the repository if first populated.  Futher changes to acls can be
+						made in the platform GUI tool.  Uncomment these and change add or delete to your hearts desire -->					
+
+					<overrides>
+						<file path="/pentaho-solutions/admin">
+							<acl-entry role="Admin" acl="FULL_CONTROL" />
+						</file>
+					</overrides>
+
+					<!--
+					<overrides>
+						<file path="/pentaho-solutions/samples/bursting">
+							<acl-entry role="Admin" acl="FULL_CONTROL" />
+							<acl-entry role="cto" acl="SUBSCRIBE_ADMINISTRATION" />
+							<acl-entry role="dev" acl="EXECUTE_SUBSCRIBE" />
+							<acl-entry role="Authenticated" acl="NOTHING" />
+						</file>
+						<file path="/pentaho-solutions/samples/datasources/MDX_Datasource.xaction">
+							<acl-entry role="Admin" acl="FULL_CONTROL" />			
+							<acl-entry role="cto" acl="FULL_CONTROL" />			
+							<acl-entry role="dev" acl="EXECUTE_SUBSCRIBE" />	
+							<acl-entry role="Authenticated" acl="EXECUTE" />	
+						</file>
+					</overrides>
+					-->					
+				</acl-publisher>
+				<acl-voter>
+					<!-- What role must someone be in to be an ADMIN of Pentaho -->
+					<admin-role>Admin</admin-role>
+				</acl-voter>
+				<!-- 
+				  acl-files tag was added in support of PPP-130 
+				  
+				  * Allow specification of ACLs on .url files
+				  
+				  * Allow specification of files acl-able to be
+					in the configuration
+					
+				  Usage: List the file extensions of files allowed to have
+				  acls. This is a performance tuning exercise since any file
+				  with an extension in this list can have ACLs applied.
+				-->
+                
+				<acl-files>xaction,url</acl-files>
+
+				<anonymous-authentication>
+				  <anonymous-user>anonymous</anonymous-user>
+				  <anonymous-role>Anonymous</anonymous-role>
+                                </anonymous-authentication>
+	<!-- Insert additional pentaho-system -->
+	
+	<connections>
+		<SQL scope="local">org.pentaho.platform.plugin.services.connections.sql.SQLConnection</SQL>
+		<MDX scope="local">org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection</MDX>
+		<XML scope="local">org.pentaho.platform.plugin.services.connections.xquery.XQConnection</XML>
+		<HQL scope="local">org.pentaho.platform.plugin.services.connections.hql.HQLConnection</HQL>
+	</connections>
+	
+    <audit>
+      <auditLogFile>/PentahoAuditLog.log</auditLogFile>
+      <id_separator><![CDATA[\t]]></id_separator>
+      <auditDateFormat>yyyy/MM/dd k:mm:ss</auditDateFormat>
+    </audit>
+
+	<solution-repository>
+		<!-- Insert solution-repository -->
+		<cache-size>0</cache-size>
+	</solution-repository>
+
+    <default-parameter-xsl>DefaultParameterForm.xsl</default-parameter-xsl>
+
+    <!-- The following tag turns on/off solution file caching for the filebased
+         solution repository.  Leave commented out if developing xactions so you
+         won't have to do an Admin->Refresh solution repository to see changes to
+         .xactions.  Uncomment if in production for better performance.
+    -->
+    <!-- 
+        <filebased-solution-cache>true</filebased-solution-cache>
+     -->
+
+<!-- Un-comment and fill in license key for using flash charting - http://www.maani.us/
+    <FlashChart>
+        <ChartLicense>XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</ChartLicense>
+        <GaugeLicense>XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</GaugeLicense>
+    </FlashChart>
+-->
+	<!--
+	This element, and any of its child elements are optional. These elements are used to explicitly identify
+	the xml transformer, sax parser, and dom parser implementations used by the platform. If any of these
+	elements are missing, default implementations will be supplied. For more information, see: 
+	http://xml.apache.org/xalan-j/usagepatterns.html#plug
+	-->
+		<!--
+	<xml-factories>
+		<factory-impl name="javax.xml.parsers.SAXParserFactory" implementation="org.apache.xerces.jaxp.SAXParserFactoryImpl"/>
+		<factory-impl name="javax.xml.transform.TransformerFactory" implementation="org.apache.xalan.processor.TransformerFactoryImpl"/>
+		<factory-impl name="javax.xml.parsers.DocumentBuilderFactory" implementation="org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"/>
+	</xml-factories>
+		-->
+		
+  <report-config>
+    <entry name="org.pentaho.web.ContentHandler" value="getImage?image={0}"/>
+    <entry name="org.jfree.base.LogLevel" value="Warn"/>
+    <entry name="org.jfree.base.LogTarget" value="org.jfree.logger.log4j.Log4JLogTarget"/>
+    <entry name="org.jfree.report.NoPrinterAvailable" value="true"/>
+    <entry name="org.jfree.report.modules.output.table.html.EmptyCellsUseCSS" value="true"/>
+  </report-config>
+  <hibernate>
+	  <hibernateConfigPath>system/hibernate/hsql.hibernate.cfg.xml</hibernateConfigPath>
+	  <!--
+	  *
+	  * hibernateManaged should be set to true if running the BI Platform
+	  * in a managed environment (like JBoss, Orion, etc). In this configuration,
+	  * you should specify another location for the hibernate.cfg.xml (see below)
+	  * instead of simply using the default one provided. This setting essentially
+	  * tells the HibernateUtil class to use JNDI to locate the factory class for
+	  * getting sessions. This allows the platform to use Hibernate across boundaries
+	  * in message beans (for example).
+	  *-->	  
+	  <hibernateManaged>false</hibernateManaged>
+  </hibernate>
+  <dbcp-defaults>
+  	  <max-act-conn>10</max-act-conn>
+  	  <num-idle-conn>5</num-idle-conn>
+  	  <valid-query>select * from orders</valid-query>
+  	  <when-exhausted-action>1</when-exhausted-action>
+  	  <wait>100</wait>
+  </dbcp-defaults>
+</pentaho-system>

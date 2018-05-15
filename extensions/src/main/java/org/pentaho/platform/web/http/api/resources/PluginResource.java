@@ -24,7 +24,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
-import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -59,12 +61,13 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
  * @author aaron
  * 
  */
+@CacheRegionRequired( region = "file" )
 @Path( "/plugins/{pluginId}" )
 public class PluginResource {
 
   private static final String CACHE_FILE = "file"; //$NON-NLS-1$
 
-  private static ICacheManager cache = PentahoSystem.getCacheManager( null );
+  private static IPlatformCache cache = PentahoSystem.get( IPlatformCache.class );
 
   protected File systemFolder;
 
@@ -73,12 +76,6 @@ public class PluginResource {
   private static final Log logger = LogFactory.getLog( PluginResource.class );
 
   protected IPluginManager pluginMgr = PentahoSystem.get( IPluginManager.class );
-
-  static {
-    if ( cache != null ) {
-      cache.addCacheRegion( CACHE_FILE );
-    }
-  }
 
   @Context
   protected HttpServletResponse httpServletResponse;
@@ -98,7 +95,7 @@ public class PluginResource {
     final String canonicalPath = pluginId + "/" + path; //$NON-NLS-1$
 
     if ( useCache ) {
-      byte[] bytes = (byte[]) cache.getFromRegionCache( CACHE_FILE, canonicalPath );
+      byte[] bytes = (byte[]) cache.get( CacheScope.forRegion( CACHE_FILE ), canonicalPath );
       if ( bytes != null ) {
         return new ByteArrayInputStream( bytes );
       }
@@ -120,7 +117,7 @@ public class PluginResource {
         bos = new ByteArrayOutputStream();
         IOUtils.copy( inputStream, bos );
         byte[] bytes = bos.toByteArray();
-        cache.putInRegionCache( CACHE_FILE, canonicalPath, bytes );
+        cache.put( CacheScope.forRegion( CACHE_FILE ), canonicalPath, bytes );
         // new InputStream for caller since we just read it (can't call reset() as it's a generic InputStream)
         inputStream = new ByteArrayInputStream( bytes );
       } finally {

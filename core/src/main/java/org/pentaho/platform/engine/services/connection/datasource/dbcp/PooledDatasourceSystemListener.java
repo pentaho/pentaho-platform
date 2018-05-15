@@ -23,9 +23,11 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 import org.apache.commons.pool.ObjectPool;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
@@ -33,6 +35,8 @@ import org.pentaho.platform.util.logging.Logger;
 import javax.sql.DataSource;
 import java.util.List;
 
+@CacheRegionRequired( region = "JDBC_POOL" )
+@CacheRegionRequired( region = "DataSource" )
 public class PooledDatasourceSystemListener extends NonPooledDatasourceSystemListener {
 
   @Override
@@ -40,8 +44,8 @@ public class PooledDatasourceSystemListener extends NonPooledDatasourceSystemLis
 
     DataSource ds = null;
     try {
-      if (!connection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
-      ds =  PooledDatasourceHelper.setupPooledDataSource( connection );
+      if ( !connection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
+        ds =  PooledDatasourceHelper.setupPooledDataSource( connection );
       } else {
         ds = PooledDatasourceHelper.getJndiDataSource( connection.getDatabaseName() );
       }
@@ -56,25 +60,13 @@ public class PooledDatasourceSystemListener extends NonPooledDatasourceSystemLis
 
   }
 
-  @Override
-  protected ICacheManager addCacheRegions( ) {
-
-    ICacheManager cacheManager = super.addCacheRegions();
-
-    if ( !cacheManager.cacheEnabled( IDBDatasourceService.JDBC_POOL ) ) {
-      cacheManager.addCacheRegion( IDBDatasourceService.JDBC_POOL );
-    }
-
-    return cacheManager;
-  }
-
   @SuppressWarnings( "unchecked" )
   public void shutdown() {
 
-    ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
+    IPlatformCache cacheManager = PentahoSystem.get( IPlatformCache.class );
 
     List<ObjectPool> objectPools = null;
-    objectPools = (List<ObjectPool>) cacheManager.getAllValuesFromRegionCache( IDBDatasourceService.JDBC_POOL );
+    objectPools = (List<ObjectPool>) cacheManager.values( CacheScope.forRegion( IDBDatasourceService.JDBC_POOL ) );
 
     Logger.debug( this, "DatasourceSystemListener: Called for shutdown ..." ); //$NON-NLS-1$
 
@@ -92,8 +84,8 @@ public class PooledDatasourceSystemListener extends NonPooledDatasourceSystemLis
 
     }
 
-    cacheManager.removeRegionCache( IDBDatasourceService.JDBC_POOL );
-    cacheManager.removeRegionCache( IDBDatasourceService.JDBC_DATASOURCE );
+    cacheManager.clear( CacheScope.forRegion( IDBDatasourceService.JDBC_POOL ), true );
+    cacheManager.clear( CacheScope.forRegion( IDBDatasourceService.JDBC_DATASOURCE ), true );
 
     Logger.debug( this, "DatasourceSystemListener: Completed shutdown." ); //$NON-NLS-1$
   }

@@ -52,9 +52,11 @@ import org.eigenbase.xom.XOMException;
 import org.eigenbase.xom.XOMUtil;
 import org.olap4j.OlapConnection;
 import org.owasp.encoder.Encode;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
@@ -113,6 +115,7 @@ import java.util.Map;
  *
  * @author mlowery
  */
+@CacheRegionRequired( region = "mondrian-catalog-cache" )
 public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   // ~ Static fields/initializers ======================================================================================
@@ -151,8 +154,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   protected List<MondrianCatalog> getCatalogs( IPentahoSession pentahoSession ) {
 
     Map<String, MondrianCatalog> catalogsMap =
-        (Map<String, MondrianCatalog>) PentahoSystem.getCacheManager( pentahoSession ).getFromRegionCache(
-            MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() );
+        (Map<String, MondrianCatalog>) PentahoSystem.get( IPlatformCache.class ).get(
+          CacheScope.forRegion( MONDRIAN_CATALOG_CACHE_REGION ), getLocale().toString() );
 
     List<MondrianCatalog> catalogs = new ArrayList<MondrianCatalog>();
     // Analyzer cache is also placed in the MONDRIAN_CATALOG_CACHE_REGION
@@ -215,8 +218,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     // Mondrian
     // roles from the schema, we don't much care which datasource is in play.
     Map<String, MondrianCatalog> catalogs =
-        (Map<String, MondrianCatalog>) PentahoSystem.getCacheManager( pentahoSession ).getFromRegionCache(
-            MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() );
+      (Map<String, MondrianCatalog>) PentahoSystem.get( IPlatformCache.class ).get(
+        CacheScope.forRegion( MONDRIAN_CATALOG_CACHE_REGION ), getLocale().toString() );
     return catalogs.get( context );
   }
 
@@ -261,11 +264,12 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   protected synchronized void init( final IPentahoSession pentahoSession ) {
     // First check if the catalogs are initialized for the current locale
-    final ICacheManager cacheMgr = PentahoSystem.getCacheManager( pentahoSession );
-    if ( cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION )
-        && cacheMgr.getFromRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() ) != null ) {
+    if ( PentahoSystem.get( IPlatformCache.class )
+      .keySet( CacheScope.forRegion( MONDRIAN_CATALOG_CACHE_REGION ) )
+        .contains( getLocale().toString() ) ) {
       return;
     }
+
     if ( MondrianCatalogHelper.logger.isDebugEnabled() ) {
       MondrianCatalogHelper.logger.debug( "init" ); //$NON-NLS-1$
     }
@@ -276,10 +280,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   @Override
   public synchronized void reInit( final IPentahoSession pentahoSession ) {
-    final ICacheManager cacheMgr = PentahoSystem.getCacheManager( pentahoSession );
-    if ( cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION ) ) {
-      cacheMgr.clearRegionCache( MONDRIAN_CATALOG_CACHE_REGION );
-    }
+    PentahoSystem.get( IPlatformCache.class ).clear(
+      CacheScope.forRegion( MONDRIAN_CATALOG_CACHE_REGION ) );
     init( pentahoSession );
   }
 
@@ -833,15 +835,12 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   protected void loadCatalogsIntoCache( final DataSourcesConfig.DataSources dataSources,
       final IPentahoSession pentahoSession ) {
 
-    // Create the cache region if necessary.
-    ICacheManager cacheMgr = PentahoSystem.getCacheManager( pentahoSession );
-    if ( !cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION ) ) {
-      // Create the region
-      cacheMgr.addCacheRegion( MONDRIAN_CATALOG_CACHE_REGION );
-    }
+    IPlatformCache cacheMgr = PentahoSystem.get( IPlatformCache.class );
+
     Map<String, MondrianCatalog> catalogs =
-        (Map<String, MondrianCatalog>) cacheMgr.getFromRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale()
-            .toString() );
+        (Map<String, MondrianCatalog>) cacheMgr.get(
+          CacheScope.forRegion( MONDRIAN_CATALOG_CACHE_REGION ),
+          getLocale().toString() );
     if ( catalogs == null ) {
       catalogs = new HashMap<String, MondrianCatalog>();
     } else {
@@ -889,7 +888,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       }
     }
 
-    cacheMgr.putInRegionCache( MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString(), catalogs );
+    cacheMgr.put( CacheScope.forRegion( MONDRIAN_CATALOG_CACHE_REGION ), getLocale().toString(), catalogs );
   }
 
   protected String applyDSP( IPentahoSession ps, String catalogDsInfo, String catalogDefinition ) throws Exception {

@@ -23,15 +23,12 @@ package org.pentaho.platform.web.http.filters;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IApplicationContext;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -48,13 +45,9 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PentahoWebContextFilterTest {
@@ -149,22 +142,6 @@ public class PentahoWebContextFilterTest {
             .when( this.pentahoWebContextFilter ).initializeServicesPath();
 
     this.pentahoWebContextFilter.init( mockFilterConfig );
-  }
-
-  @Test
-  public void testWebContextCachedWaitSecondVariable() throws Exception {
-
-    ICacheManager cacheManager = Mockito.mock( ICacheManager.class );
-    when( cacheManager.getFromGlobalCache( PentahoSystem.WAIT_SECONDS ) ).thenReturn( null ).thenReturn( 30 );
-
-    PentahoWebContextFilter filter = new PentahoWebContextFilter();
-    PentahoWebContextFilter.cache = cacheManager;
-
-    filter.getRequireWaitTime();
-    filter.getRequireWaitTime();
-
-    verify( cacheManager, times( 2 ) ).getFromGlobalCache( eq( PentahoSystem.WAIT_SECONDS ) );
-    verify( cacheManager, times( 1 ) ).putInGlobalCache( eq( PentahoSystem.WAIT_SECONDS ), anyObject() );
   }
 
   @Test

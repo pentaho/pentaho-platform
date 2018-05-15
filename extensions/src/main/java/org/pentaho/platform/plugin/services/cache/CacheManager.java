@@ -20,29 +20,26 @@
 
 package org.pentaho.platform.plugin.services.cache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Element;
-import org.hibernate.cache.Cache;
-import org.hibernate.cache.CacheException;
-import org.hibernate.cache.CacheProvider;
-import org.pentaho.platform.api.cache.ICacheExpirationRegistry;
-import org.pentaho.platform.api.engine.ICacheManager;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISystemSettings;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.services.messages.Messages;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
+import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.springframework.beans.factory.InitializingBean;
+
 /**
+ * <p><b>DEPRECATED</b>
+ *
+ * <p>This interface was deprecated in favor of {@link IPlatformCache}.
+ *
+ * <hr/>
+ *
  * This class provides an access point for pluggable caching mechanisms. Right now, it only supports the caching
  * mechanisms implemented in <code>org.hibernate.cache</code>.
  * <p>
@@ -111,446 +108,125 @@ import java.util.Set;
  * @author mbatchel
  * 
  */
-public class CacheManager implements ICacheManager {
+@Deprecated
+public class CacheManager implements ICacheManager, InitializingBean {
 
-  protected static final Log logger = LogFactory.getLog( CacheManager.class );
-  // ~ Instance Fields ======================================================
-  private CacheProvider cacheProvider;
+  private IPlatformCache delegate;
 
-  private Map<String, Cache> regionCache;
-
-  private String cacheProviderClassName;
-
-  private boolean cacheEnabled;
-
-  private final Properties cacheProperties = new Properties();
-
-  private ICacheExpirationRegistry cacheExpirationRegistry;
-
-  // ~ Constructors =========================================================
-
-  /**
-   * The constructor performs the following tasks:
-   * <p>
-   * <ul>
-   * <li>Gets the Hitachi Vantara System Settings</li>
-   * <li>Reads the <code>cache-provider/class</code> element.</li>
-   * <li>Reads the <code>cache-provider/region</code> element.</li>
-   * <li>Reads in any properties under <code>cache-provider/properties/*</li>
-   * <li>Attempts to instance the cache provider classes specified</li>
-   * <li>Starts the cache (see the <code>org.hibernate.cache.CacheProvider</code> interface)</li>
-   * <li>Calls the buildCache method (see the <code>org.hibernate.cache.CacheProvider</code> interface)</li>
-   * </ul>
-   * <p>
-   * 
-   */
   public CacheManager() {
-    ISystemSettings settings = PentahoSystem.getSystemSettings();
-    String s = System.getProperty( "java.io.tmpdir" ); //$NON-NLS-1$
-    char c = s.charAt( s.length() - 1 );
-    if ( ( c != '/' ) && ( c != '\\' ) ) {
-      System.setProperty( "java.io.tmpdir", s + "/" ); //$NON-NLS-1$//$NON-NLS-2$
-    }
-    if ( settings != null ) {
-      cacheProviderClassName = settings.getSystemSetting( "cache-provider/class", null ); //$NON-NLS-1$
-      if ( cacheProviderClassName != null ) {
-        Properties cacheProperties = getCacheProperties( settings );
-        setupCacheProvider( cacheProperties );
-        this.cacheEnabled = true;
-      }
-    }
-
-    PentahoSystem.addLogoutListener( this );
+    // no op.
+    delegate = PentahoSystem.get( IPlatformCache.class );
   }
 
-  protected void setupCacheProvider( Properties cacheProperties ) {
-    Object obj = PentahoSystem.createObject( cacheProviderClassName );
-    cacheExpirationRegistry = PentahoSystem.get( ICacheExpirationRegistry.class, null );
+  public void afterPropertiesSet() throws Exception {
 
-    if ( null != obj ) {
-      if ( obj instanceof CacheProvider ) {
-        this.cacheProvider = (CacheProvider) obj;
-        cacheProvider.start( cacheProperties );
-        regionCache = new HashMap<String, Cache>();
-        Cache cache = buildCache( SESSION, cacheProperties );
-        if ( cache == null ) {
-          CacheManager.logger
-              .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
-        } else {
-          regionCache.put( SESSION, cache );
-        }
-        cache = buildCache( GLOBAL, cacheProperties );
-        if ( cache == null ) {
-          CacheManager.logger
-              .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
-        } else {
-          regionCache.put( GLOBAL, cache );
-        }
-      } else {
-        CacheManager.logger.error( Messages.getInstance().getString(
-            "CacheManager.ERROR_0002_NOT_INSTANCE_OF_CACHE_PROVIDER" ) ); //$NON-NLS-1$
-      }
-    }
   }
 
   public void cacheStop() {
-    if ( cacheEnabled ) {
-      regionCache.clear();
-      cacheProvider.stop();
-    }
+    delegate.stop();
   }
 
-  /**
-   * Returns the underlying cache provider (implements <code>org.hibernate.cache.CacheProvider</code>
-   * 
-   * @return cacheProvider.
-   */
-  protected CacheProvider getCacheProvider() {
-    return cacheProvider;
+  public void killSessionCache( IPentahoSession session ) {
+    delegate.clear( CacheScope.forSession( session ) );
   }
 
-  /**
-   * Populates the properties object from the pentaho.xml
-   * 
-   * @param settings
-   *          The Pentaho ISystemSettings object
-   */
-  private Properties getCacheProperties( final ISystemSettings settings ) {
-    Properties cacheProperties = new Properties();
-    List propertySettings = settings.getSystemSettings( "cache-provider/properties/*" ); //$NON-NLS-1$
-    for ( int i = 0; i < propertySettings.size(); i++ ) {
-      Object obj = propertySettings.get( i );
-      Element someProperty = (Element) obj;
-      String propertyName = XmlDom4JHelper.getNodeText( "@name", someProperty, null ); //$NON-NLS-1$
-      if ( propertyName != null ) {
-        String propertyValue = someProperty.getTextTrim();
-        if ( propertyValue != null ) {
-          cacheProperties.put( propertyName, propertyValue );
-        }
-      }
-    }
-    return cacheProperties;
+  public void killSessionCaches() {
+    // This is now a no-no.
+  }
+
+  public void putInSessionCache( IPentahoSession session, String key, Object value ) {
+    delegate.put( CacheScope.forSession( session ), key, value );
+  }
+
+  public void clearCache() {
+    delegate.clear();
+  }
+
+  public void removeFromSessionCache( IPentahoSession session, String key ) {
+    delegate.remove( CacheScope.forSession( session ), key );
+  }
+
+  public Object getFromSessionCache( IPentahoSession session, String key ) {
+    return delegate.get( CacheScope.forSession( session ), key );
+  }
+
+  public boolean cacheEnabled() {
+    return delegate.isEnabled();
+  }
+
+  public void putInGlobalCache( Object key, Object value ) {
+    delegate.put( CacheScope.global(), key, value );
+  }
+
+  public Object getFromGlobalCache( Object key ) {
+    return delegate.get( CacheScope.global(), key );
+  }
+
+  public void removeFromGlobalCache( Object key ) {
+    delegate.remove( CacheScope.global(), key );
   }
 
   public boolean cacheEnabled( String region ) {
-    Cache cache = regionCache.get( region );
-    if ( cache == null ) {
-      return false;
-    }
+    // All regions are loaded on the fly now.
+    // For preloaded caches, use annotations.
     return true;
   }
 
-  public void onLogout( final IPentahoSession session ) {
-    removeRegionCache( session.getName() );
-  }
-
-  public boolean addCacheRegion( String region, Properties cacheProperties ) {
-    boolean returnValue = false;
-    if ( cacheEnabled ) {
-      if ( !cacheEnabled( region ) ) {
-        Cache cache = buildCache( region, cacheProperties );
-        if ( cache == null ) {
-          CacheManager.logger
-              .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
-        } else {
-          regionCache.put( region, cache );
-          returnValue = true;
-        }
-      } else {
-        CacheManager.logger.warn( Messages.getInstance().getString(
-            "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) ); //$NON-NLS-1$
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
-    return returnValue;
+  public void onLogout( IPentahoSession session ) {
+    // The delegate will get his own message.
   }
 
   public boolean addCacheRegion( String region ) {
-    boolean returnValue = false;
-    if ( cacheEnabled ) {
-      if ( !cacheEnabled( region ) ) {
-        Cache cache = buildCache( region, null );
-        if ( cache == null ) {
-          CacheManager.logger
-              .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
-        } else {
-          regionCache.put( region, cache );
-          returnValue = true;
-        }
-      } else {
-        CacheManager.logger.warn( Messages.getInstance().getString(
-            "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) ); //$NON-NLS-1$
-        returnValue = true;
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
-    return returnValue;
+    // No need to do that anymore.
+    return true;
   }
 
-  public boolean addCacheRegion( String region, Cache cache ) {
-    if ( cacheEnabled ) {
-      if ( !cacheEnabled( region ) ) {
-        regionCache.put( region, cache );
-      } else {
-        CacheManager.logger.warn( Messages.getInstance().getString(
-          "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) );
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) );
-      return false;
-    }
+  public boolean addCacheRegion( String region, Properties cacheProperties ) {
+    // No need to do that anymore.
     return true;
   }
 
   public void clearRegionCache( String region ) {
-    if ( cacheEnabled ) {
-      Cache cache = regionCache.get( region );
-      if ( cache != null ) {
-        try {
-          cache.clear();
-        } catch ( CacheException e ) {
-          CacheManager.logger.error( Messages.getInstance().getString(
-            "CacheManager.ERROR_0006_CACHE_EXCEPTION", e.getLocalizedMessage() ) ); //$NON-NLS-1$
-        }
-      } else {
-        CacheManager.logger.info( Messages.getInstance().getString(
-            "CacheManager.INFO_0001_CACHE_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
+    delegate.clear( CacheScope.forRegion( region ) );
   }
 
   public void removeRegionCache( String region ) {
-    if ( cacheEnabled ) {
-      if ( cacheEnabled( region ) ) {
-        clearRegionCache( region );
-      } else {
-        CacheManager.logger.info( Messages.getInstance().getString(
-            "CacheManager.INFO_0001_CACHE_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
+    delegate.clear( CacheScope.forRegion( region ), true );
   }
 
   public void putInRegionCache( String region, Object key, Object value ) {
-    if ( cacheEnabled ) {
-      if ( cacheEnabled( region ) ) {
-        Cache cache = regionCache.get( region );
-        cache.put( key, value );
-      } else {
-        CacheManager.logger.warn( Messages.getInstance().getString(
-            "CacheManager.WARN_0003_REGION_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
+    delegate.put( CacheScope.forRegion( region ), key, value );
   }
 
   public Object getFromRegionCache( String region, Object key ) {
-    Object returnValue = null;
-    if ( cacheEnabled ) {
-      Cache cache = regionCache.get( region );
-      if ( cacheEnabled( region ) ) {
-        returnValue = cache.get( key );
-      } else {
-        CacheManager.logger.warn( Messages.getInstance().getString(
-            "CacheManager.WARN_0003_REGION_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
-
-    return returnValue;
-  }
-
-  public List getAllValuesFromRegionCache( String region ) {
-    List list = new ArrayList<Object>();
-    if ( cacheEnabled ) {
-      Cache cache = regionCache.get( region );
-      if ( cacheEnabled( region ) ) {
-        Map cacheMap = cache.toMap();
-        if ( cacheMap != null ) {
-          Iterator it = cacheMap.entrySet().iterator();
-          while ( it.hasNext() ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            list.add( entry.getValue() );
-          }
-        }
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
-    return list;
-  }
-
-  public Set getAllKeysFromRegionCache( String region ) {
-    Set set = null;
-    if ( cacheEnabled ) {
-      Cache cache = regionCache.get( region );
-      if ( cacheEnabled( region ) ) {
-        Map cacheMap = cache.toMap();
-        if ( cacheMap != null ) {
-          set = cacheMap.keySet();
-        }
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
-    return set;
+    return delegate.get( CacheScope.forRegion( region ), key );
   }
 
   public Set getAllEntriesFromRegionCache( String region ) {
-    Set set = null;
-    if ( cacheEnabled ) {
-      Cache cache = regionCache.get( region );
-      if ( cacheEnabled( region ) ) {
-        Map cacheMap = cache.toMap();
-        if ( cacheMap != null ) {
-          set = cacheMap.entrySet();
-        }
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
-    return set;
+    return delegate.entrySet( CacheScope.forRegion( region ) );
+  }
+
+  public Set getAllKeysFromRegionCache( String region ) {
+    return delegate.keySet( CacheScope.forRegion( region ) );
+  }
+
+  public List getAllValuesFromRegionCache( String region ) {
+    return new ArrayList<>( delegate.values( CacheScope.forRegion( region ) ) );
   }
 
   public void removeFromRegionCache( String region, Object key ) {
-    if ( cacheEnabled ) {
-      Cache cache = regionCache.get( region );
-      if ( cacheEnabled( region ) ) {
-        cache.remove( key );
-      } else {
-        CacheManager.logger.warn( Messages.getInstance().getString(
-            "CacheManager.WARN_0003_REGION_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
-      }
-    } else {
-      CacheManager.logger.warn( Messages.getInstance().getString( "CacheManager.WARN_0001_CACHE_NOT_ENABLED" ) ); //$NON-NLS-1$
-    }
+    delegate.remove( CacheScope.forRegion( region ), key );
   }
 
-  public boolean cacheEnabled() {
-    return cacheEnabled;
-  }
-
-  public void clearCache() {
-    if ( cacheEnabled ) {
-      Iterator it = regionCache.entrySet().iterator();
-      while ( it.hasNext() ) {
-        Map.Entry entry = (Map.Entry) it.next();
-        String key = ( entry.getKey() != null ) ? entry.getKey().toString() : ""; //$NON-NLS-1$
-        if ( key != null ) {
-          Cache cache = regionCache.get( key );
-          cache.clear();
-        }
-      }
-    }
-  }
-
-  public Object getFromGlobalCache( Object key ) {
-    return getFromRegionCache( GLOBAL, key );
-  }
-
-  public Object getFromSessionCache( IPentahoSession session, String key ) {
-    return getFromRegionCache( SESSION, getCorrectedKey( session, key ) );
-  }
-
-  public void killSessionCache( IPentahoSession session ) {
-    if ( cacheEnabled ) {
-      Cache cache = regionCache.get( SESSION );
-      if ( cache != null ) {
-        Map cacheMap = cache.toMap();
-        if ( cacheMap != null ) {
-          Set set = cacheMap.keySet();
-          Iterator it = set.iterator();
-          while ( it.hasNext() ) {
-            String key = (String) it.next();
-            if ( key.indexOf( session.getId() ) >= 0 ) {
-              cache.remove( key );
-            }
-          }
-        }
-      }
-    }
-  }
-
-  public void killSessionCaches() {
-    removeRegionCache( SESSION );
-  }
-
-  public void putInGlobalCache( Object key, Object value ) {
-    putInRegionCache( GLOBAL, key, value );
-  }
-
-  public void putInSessionCache( IPentahoSession session, String key, Object value ) {
-    putInRegionCache( SESSION, getCorrectedKey( session, key ), value );
-  }
-
-  public void removeFromGlobalCache( Object key ) {
-    removeFromRegionCache( GLOBAL, key );
-  }
-
-  public void removeFromSessionCache( IPentahoSession session, String key ) {
-    removeFromRegionCache( SESSION, getCorrectedKey( session, key ) );
-  }
-
-  private String getCorrectedKey( final IPentahoSession session, final String key ) {
-    String sessionId = session.getId();
-    if ( sessionId != null ) {
-      String newKey = sessionId + "\t" + key; //$NON-NLS-1$
-      return newKey;
-    } else {
-      throw new CacheException( Messages.getInstance().getErrorString( "CacheManager.ERROR_0001_NOSESSION" ) ); //$NON-NLS-1$
-    }
-  }
-
-  private LastModifiedCache buildCache( String key, Properties cacheProperties ) {
-    if ( getCacheProvider() != null ) {
-      Cache cache = getCacheProvider().buildCache( key, cacheProperties );
-      LastModifiedCache lmCache = new LastModifiedCache( cache );
-      if ( cacheExpirationRegistry != null ) {
-        cacheExpirationRegistry.register( lmCache );
-      } else {
-        logger.warn( Messages.getInstance().getErrorString( "CacheManager.WARN_0003_NO_CACHE_EXPIRATION_REGISTRY" ) );
-      }
-      return lmCache;
-    } else {
-      logger.error( Messages.getInstance().getErrorString( "CacheManager.ERROR_0004_CACHE_PROVIDER_NOT_AVAILABLE" ) );
-      return null;
-    }
-  }
-
-  @Override
   public long getElementCountInRegionCache( String region ) {
-    if ( cacheEnabled ) {
-      Cache cache = regionCache.get( region );
-      if ( cache != null ) {
-        try {
-          long memCnt = cache.getElementCountInMemory();
-          long discCnt = cache.getElementCountOnDisk();
-          return memCnt + discCnt;
-        } catch ( Exception ignored ) {
-          return -1;
-        }
-      } else {
-        return -1;
-      }
-    } else {
-      return -1;
-    }
+    return delegate.size( CacheScope.forRegion( region ) );
   }
 
-  @Override
   public long getElementCountInSessionCache() {
-    return getElementCountInRegionCache( SESSION );
+    return delegate.size( CacheScope.forSession( PentahoSessionHolder.getSession() ) );
   }
 
-  @Override
   public long getElementCountInGlobalCache() {
-    return getElementCountInRegionCache( GLOBAL );
+    return delegate.size( CacheScope.global() );
   }
 }

@@ -16,7 +16,7 @@
         <bean id="pluginSystemListener" class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" />
         <bean class="org.pentaho.platform.plugin.services.security.userrole.SecuritySystemListener"/>
         <bean id="backingRepositoryLifecycleManagerSystemListener" class="org.pentaho.platform.repository2.unified.BackingRepositoryLifecycleManagerSystemListener"/>
-
+        <bean id="platformCacheSystemListener" class="org.pentaho.platform.plugin.services.cache.PlatformCacheSystemListener" />
         <bean id="jfreeReportSystemListener" class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener" />
         <bean id="mondrianSystemListener" class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener" />
         <!--<bean id="pooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener" />-->

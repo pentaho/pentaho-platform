@@ -23,6 +23,7 @@ package org.pentaho.platform.plugin.services.security.userrole;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.cache.MockPlatformCache;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +40,8 @@ public class CachingUserRoleListServiceDecoratorTest {
     when( mockService.getAllRoles() ).thenReturn( Arrays.asList( "foo", "bar" ) );
 
 
-    CachingUserRoleListServiceDecorator decorator = new CachingUserRoleListServiceDecorator( mockService );
+    CachingUserRoleListServiceDecorator decorator =
+      new CachingUserRoleListServiceDecorator( mockService, new MockPlatformCache() );
     List<String> allRoles = decorator.getAllRoles();
     assertArrayEquals( "does not match", new String[] { "foo", "bar" }, allRoles.toArray() );
 
@@ -56,7 +58,8 @@ public class CachingUserRoleListServiceDecoratorTest {
     when( mockService.getSystemRoles() ).thenReturn( Arrays.asList( "foo", "bar" ) );
 
 
-    CachingUserRoleListServiceDecorator decorator = new CachingUserRoleListServiceDecorator( mockService );
+    CachingUserRoleListServiceDecorator decorator =
+      new CachingUserRoleListServiceDecorator( mockService, new MockPlatformCache() );
     List<String> allRoles = decorator.getSystemRoles();
     assertArrayEquals( "does not match", new String[] { "foo", "bar" }, allRoles.toArray() );
 
@@ -79,7 +82,8 @@ public class CachingUserRoleListServiceDecoratorTest {
     when( mockService.getRolesForUser( tenant, "admin" ) ).thenReturn( Arrays.asList( "foo", "bar" ) );
 
 
-    CachingUserRoleListServiceDecorator decorator = new CachingUserRoleListServiceDecorator( mockService );
+    CachingUserRoleListServiceDecorator decorator =
+      new CachingUserRoleListServiceDecorator( mockService, new MockPlatformCache() );
     List<String> allRoles = decorator.getRolesForUser( tenant, "joe" );
     assertArrayEquals( "does not match", new String[] { "foo", "bar" }, allRoles.toArray() );
 
@@ -102,7 +106,8 @@ public class CachingUserRoleListServiceDecoratorTest {
     when( mockService.getAllUsers() ).thenReturn( Arrays.asList( "foo", "bar" ) );
 
 
-    CachingUserRoleListServiceDecorator decorator = new CachingUserRoleListServiceDecorator( mockService );
+    CachingUserRoleListServiceDecorator decorator =
+      new CachingUserRoleListServiceDecorator( mockService, new MockPlatformCache() );
     List<String> allRoles = decorator.getAllUsers();
     assertArrayEquals( "does not match", new String[] { "foo", "bar" }, allRoles.toArray() );
 
@@ -120,7 +125,8 @@ public class CachingUserRoleListServiceDecoratorTest {
     when( mockService.getAllRoles( tenant ) ).thenReturn( Arrays.asList( "foo", "bar" ) );
 
 
-    CachingUserRoleListServiceDecorator decorator = new CachingUserRoleListServiceDecorator( mockService );
+    CachingUserRoleListServiceDecorator decorator =
+      new CachingUserRoleListServiceDecorator( mockService, new MockPlatformCache() );
     List<String> allRoles = decorator.getAllRoles( tenant );
     assertArrayEquals( "does not match", new String[] { "foo", "bar" }, allRoles.toArray() );
 
@@ -138,7 +144,8 @@ public class CachingUserRoleListServiceDecoratorTest {
     when( mockService.getUsersInRole( tenant, "ceo" ) ).thenReturn( Arrays.asList( "foo", "bar" ) );
 
 
-    CachingUserRoleListServiceDecorator decorator = new CachingUserRoleListServiceDecorator( mockService );
+    CachingUserRoleListServiceDecorator decorator =
+      new CachingUserRoleListServiceDecorator( mockService, new MockPlatformCache() );
     List<String> allRoles = decorator.getUsersInRole( tenant, "ceo" );
     assertArrayEquals( "does not match", new String[] { "foo", "bar" }, allRoles.toArray() );
 
@@ -156,7 +163,8 @@ public class CachingUserRoleListServiceDecoratorTest {
     when( mockService.getAllUsers( tenant ) ).thenReturn( Arrays.asList( "foo", "bar" ) );
 
 
-    CachingUserRoleListServiceDecorator decorator = new CachingUserRoleListServiceDecorator( mockService );
+    CachingUserRoleListServiceDecorator decorator =
+      new CachingUserRoleListServiceDecorator( mockService, new MockPlatformCache() );
     List<String> allRoles = decorator.getAllUsers( tenant );
     assertArrayEquals( "does not match", new String[] { "foo", "bar" }, allRoles.toArray() );
 

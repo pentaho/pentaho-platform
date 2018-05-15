@@ -39,9 +39,11 @@ import org.pentaho.database.dialect.GenericDatabaseDialect;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
+import org.pentaho.platform.api.cache.CacheRegionRequired;
+import org.pentaho.platform.api.cache.IPlatformCache;
+import org.pentaho.platform.api.cache.IPlatformCache.CacheScope;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -59,6 +61,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
+@CacheRegionRequired( region = "JDBC_POOL" )
 public class PooledDatasourceHelper {
 
   public static PoolingDataSource setupPooledDataSource( IDatabaseConnection databaseConnection )
@@ -72,7 +75,7 @@ public class PooledDatasourceHelper {
             "PooledDatasourceHelper.ERROR_0008_UNABLE_TO_POOL_DATASOURCE_IT_IS_JNDI",
             databaseConnection.getName() ) );
       }
-      ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
+      IPlatformCache cacheManager = PentahoSystem.get( IPlatformCache.class );
       IDatabaseDialectService databaseDialectService = PentahoSystem.get( IDatabaseDialectService.class );
       if ( databaseDialectService == null ) {
         throw new DBDatasourceServiceException( Messages.getInstance().getErrorString(
@@ -315,7 +318,7 @@ public class PooledDatasourceHelper {
       }
 
       // store the pool, so we can get to it later
-      cacheManager.putInRegionCache( IDBDatasourceService.JDBC_POOL, databaseConnection.getName(), pool );
+      cacheManager.put( CacheScope.forRegion( IDBDatasourceService.JDBC_POOL ), databaseConnection.getName(), pool );
       return ( poolingDataSource );
     } catch ( Exception e ) {
       throw new DBDatasourceServiceException( e );
