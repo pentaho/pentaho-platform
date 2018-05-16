@@ -22,6 +22,7 @@ package org.pentaho.platform.web.http.api.resources.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -34,6 +35,7 @@ import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -43,6 +45,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -68,6 +71,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
@@ -114,7 +118,11 @@ import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( FileUtils.class )
 public class FileServiceTest {
 
   private static FileService fileService;
@@ -2175,6 +2183,68 @@ public class FileServiceTest {
       assertEquals( e.getMessage(), "negativetest" );
     }
   }
+
+  @Test
+  public void testValidFolderName() throws FileService.InvalidNameException {
+    FileService fs = mock( FileService.class );
+    doCallRealMethod().when( fs ).doCreateDirSafe( anyString() );
+    doCallRealMethod().when( fs ).decode( anyString() );
+    doReturn( "New Folder" ).when( fs ).idToPath( anyString() );
+    doReturn( true ).when( fs ).doCreateDirFor( "New Folder" );
+
+    StringBuffer sb = new StringBuffer( "!" );
+    doReturn( sb ).when( fs ).doGetReservedChars();
+
+    mockStatic( FileUtils.class );
+    when( FileUtils.containsReservedCharacter( anyString(), any() ) ).thenReturn( false );
+
+    assertTrue( fs.doCreateDirSafe( "New Folder" ) );
+  }
+
+  @Test
+  public void testInvalidValidFolderNameWithDot() throws FileService.InvalidNameException {
+    FileService fs = mock( FileService.class );
+    doCallRealMethod().when( fs ).doCreateDirSafe( anyString() );
+    doCallRealMethod().when( fs ).decode( anyString() );
+    doReturn( "." ).when( fs ).idToPath( anyString() );
+    doReturn( true ).when( fs ).doCreateDirFor( "." );
+
+    StringBuffer sb = new StringBuffer( "!" );
+    doReturn( sb ).when( fs ).doGetReservedChars();
+
+    mockStatic( FileUtils.class );
+    when( FileUtils.containsReservedCharacter( anyString(), any() ) ).thenReturn( false );
+
+    try {
+      fs.doCreateDirSafe( "." );
+      fail();
+    } catch ( FileService.InvalidNameException e ) {
+      assertNotNull( e );
+    }
+  }
+
+  @Test
+  public void testInvalidValidFolderNameWithEncodedDot() throws FileService.InvalidNameException {
+    FileService fs = mock( FileService.class );
+    doCallRealMethod().when( fs ).doCreateDirSafe( anyString() );
+    doCallRealMethod().when( fs ).decode( anyString() );
+    doReturn( "%2E" ).when( fs ).idToPath( anyString() );
+    doReturn( true ).when( fs ).doCreateDirFor( "%2E" );
+
+    StringBuffer sb = new StringBuffer( "!" );
+    doReturn( sb ).when( fs ).doGetReservedChars();
+
+    mockStatic( FileUtils.class );
+    when( FileUtils.containsReservedCharacter( anyString(), any() ) ).thenReturn( false );
+
+    try {
+      fs.doCreateDirSafe( "%2E" );
+      fail();
+    } catch ( FileService.InvalidNameException e ) {
+      assertNotNull( e );
+    }
+  }
+
   private Class<?> anyClass() {
     return argThat( new AnyClassMatcher() );
   }
