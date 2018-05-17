@@ -79,7 +79,6 @@ public class RunInBackgroundCommand extends AbstractCommand {
   private String solutionTitle = null;
   private String outputLocationPath = null;
   private String outputName = null;
-  private String useWorkerNodes = null;
   private String overwriteFile;
   private String dateFormat;
 
@@ -121,14 +120,6 @@ public class RunInBackgroundCommand extends AbstractCommand {
 
   public void setOutputName( String outputName ) {
     this.outputName = outputName;
-  }
-
-  public String getUseWorkerNodes() {
-    return useWorkerNodes;
-  }
-
-  public void setUseWorkerNodes( String useWorkerNodes ) {
-    this.useWorkerNodes = useWorkerNodes;
   }
 
   /**
@@ -204,10 +195,9 @@ public class RunInBackgroundCommand extends AbstractCommand {
   protected void showDialog( final boolean feedback ) {
     final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( solutionPath ) {
       @Override
-      protected void onSelect( final String name, final String outputLocationPath, final String useWorkerNodes, final boolean overwriteFile, final String dateFormat ) {
+      protected void onSelect( final String name, final String outputLocationPath, final boolean overwriteFile, final String dateFormat ) {
         setOutputName( name );
         setOutputLocationPath( outputLocationPath );
-        setUseWorkerNodes( useWorkerNodes );
         setOverwriteFile( String.valueOf( overwriteFile ) );
         setDateFormat( dateFormat );
         performOperation( feedback );
@@ -358,10 +348,6 @@ public class RunInBackgroundCommand extends AbstractCommand {
               scheduleRequest.put( "outputFile", JSONNull.getInstance() ); //$NON-NLS-1$
             } else {
               scheduleRequest.put( "outputFile", new JSONString( getOutputLocationPath() ) ); //$NON-NLS-1$
-            }
-
-            if ( !StringUtils.isEmpty( getUseWorkerNodes() ) ) {
-              scheduleRequest.put( "useWorkerNodes", new JSONString( getUseWorkerNodes() ) ); //$NON-NLS-1$
             }
 
             // BISERVER-9321
