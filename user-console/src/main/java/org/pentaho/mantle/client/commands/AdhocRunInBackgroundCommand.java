@@ -96,10 +96,9 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
   protected void showDialog( final boolean feedback ) {
     final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( getSolutionPath() ) {
       @Override
-      protected void onSelect( final String name, final String outputPath, String useWorkerNodes, final boolean overwriteFile, final String dateFormat ) {
+      protected void onSelect( final String name, final String outputPath, final boolean overwriteFile, final String dateFormat ) {
         setOutputName( name );
         setOutputLocationPath( outputPath );
-        setUseWorkerNodes( useWorkerNodes );
         setOverwriteFile( String.valueOf( overwriteFile ) );
         setDateFormat( dateFormat );
         performOperation( feedback );

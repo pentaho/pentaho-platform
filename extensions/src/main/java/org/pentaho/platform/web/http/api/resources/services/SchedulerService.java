@@ -153,10 +153,6 @@ public class SchedulerService {
 
     parameterMap.put( LocaleHelper.USER_LOCALE_PARAM, LocaleHelper.getLocale() );
 
-    if ( scheduleRequest.getUseWorkerNodes() != null && !scheduleRequest.getUseWorkerNodes().trim().isEmpty() ) {
-      parameterMap.put( "useWorkerNodes", scheduleRequest.getUseWorkerNodes().trim() );
-    }
-
     if ( hasInputFile ) {
       SchedulerOutputPathResolver outputPathResolver = getSchedulerOutputPathResolver( scheduleRequest );
       String outputFile = outputPathResolver.resolveOutputFilePath();
