@@ -35,7 +35,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.Messages;
 import org.pentaho.platform.util.web.MimeHelper;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
