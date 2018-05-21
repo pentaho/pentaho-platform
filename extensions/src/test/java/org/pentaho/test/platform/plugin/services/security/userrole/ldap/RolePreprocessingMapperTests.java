@@ -1,4 +1,5 @@
 /*!
+ *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,7 +13,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ *
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ *
  */
 
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
@@ -25,12 +28,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for <code>RolePreprocessingMapper</code>. Essentially mimics the steps taken by
@@ -57,8 +60,7 @@ public class RolePreprocessingMapperTests extends AbstractPentahoLdapIntegration
         new SpringSecurityLdapTemplate( getContextSource() ).searchForSingleAttributeValues(
             "ou=roles", "roleoccupant={0}", new String[] { "uid=suzy,ou=users,dc=pentaho,dc=org", "suzy" }, "cn" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
-    List<GrantedAuthority> authorities = Arrays.asList( new GrantedAuthority[extraRoles.size()] );
-    int i = 0;
+    List<GrantedAuthority> authorities = new ArrayList<>();
     for ( String extraRole : extraRoles ) {
       authorities.add( new SimpleGrantedAuthority( extraRole ) );
     }
@@ -68,12 +70,14 @@ public class RolePreprocessingMapperTests extends AbstractPentahoLdapIntegration
     System.out.println( userDetails );
 
     // this asserts the ordering too; not strictly necessary
-    Collection<? extends GrantedAuthority> expectedAuthorities = Arrays.asList( new GrantedAuthority[] { new SimpleGrantedAuthority( "A" ),
-      new SimpleGrantedAuthority( "cto" ), new SimpleGrantedAuthority( "is" ), new SimpleGrantedAuthority( "Authenticated" ) } );
+    Collection<? extends GrantedAuthority> expectedAuthorities = new ArrayList<GrantedAuthority>() {{
+        add( new SimpleGrantedAuthority( "A" ) );
+        add( new SimpleGrantedAuthority( "Authenticated" ) );
+        add( new SimpleGrantedAuthority( "is" ) );
+        add( new SimpleGrantedAuthority( "cto" ) ); }};
 
     Collection<? extends GrantedAuthority> unexpectedAuthorities = userDetails.getAuthorities();
-    unexpectedAuthorities.removeAll( expectedAuthorities );
 
-    assertTrue( unexpectedAuthorities.isEmpty() );
+    assertEquals( expectedAuthorities, unexpectedAuthorities );
   }
 }

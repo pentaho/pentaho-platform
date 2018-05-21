@@ -1,4 +1,5 @@
 /*!
+ *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,7 +13,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ *
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ *
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -34,11 +37,19 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 
 public class UserRoleDaoResource_RolesUpdatedTest {
   private UserRoleDaoResource resource;
@@ -78,13 +89,11 @@ public class UserRoleDaoResource_RolesUpdatedTest {
   public void sessionAttributeIsSetCorrectly_WhenRolesAreUpdated() {
     resource.updateRolesForCurrentSession();
 
-    GrantedAuthority[] authoritys = new GrantedAuthority[ allRoles.size() ];
-    for ( int i = 0; i < allRoles.size(); i++ ) {
-      authoritys[ i ] = new SimpleGrantedAuthority( allRoles.get( i ) );
-    }
+    List<GrantedAuthority> authorities = new ArrayList<>();
+    allRoles.forEach( role -> authorities.add( new SimpleGrantedAuthority( role ) ) );
 
-    GrantedAuthority[] seessionAuthoritys = (GrantedAuthority[]) session.getAttribute( IPentahoSession.SESSION_ROLES );
-    assertTrue( Arrays.equals( authoritys, seessionAuthoritys ) );
+    Collection<? extends GrantedAuthority> seessionAuthoritys = (Collection) session.getAttribute( IPentahoSession.SESSION_ROLES );
+    assertEquals( authorities, seessionAuthoritys );
   }
 
   @Test
