@@ -1,4 +1,5 @@
 /*!
+ *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,7 +13,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2015 Pentaho Corporation..  All rights reserved.
+ *
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ *
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -37,8 +40,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
+import java.util.Optional;
+import java.util.Properties;
 
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
@@ -141,6 +149,36 @@ public class RepositoryPublishResource {
                                             @FormDataParam( "fileUpload" ) InputStream fileContents,
                                             @FormDataParam( "overwriteFile" ) Boolean overwriteFile,
                                             @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo ) {
+    Optional<Properties> fileProperties = Optional.of( new Properties() );
+    fileProperties.get().setProperty( "overwriteFile", String.valueOf( overwriteFile ) );
+    return writeFile( pathId, fileContents, fileInfo, fileProperties );
+  }
+
+  @POST
+  @Path ( "/fileWithOptions" )
+  @Consumes ( { MediaType.MULTIPART_FORM_DATA } )
+  @Produces ( MediaType.TEXT_PLAIN )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Successfully publish the file." ),
+    @ResponseCode ( code = 403, condition = "Failure to publish the file due to permissions." ),
+    @ResponseCode ( code = 422, condition = "Failure to publish the file due to failed validation." ),
+    @ResponseCode ( code = 500, condition = "Failure to publish the file due to a server error." ), } )
+  @Facet( name = "Unsupported" )
+  public Response writeFileWithEncodedNameWithOptions( @FormDataParam( "properties" ) String properties,
+                                                       @FormDataParam( "importPath" ) String pathId,
+                                                       @FormDataParam( "fileUpload" ) InputStream fileContents,
+                                                       @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo ) {
+    try ( ByteArrayInputStream bios = new ByteArrayInputStream( properties.getBytes() ) ) {
+      Optional<Properties> fileProperties = Optional.of( new Properties() );
+      fileProperties.get().loadFromXML( bios );
+      return writeFile( pathId, fileContents, fileInfo, fileProperties );
+    } catch ( IOException e ) {
+      logger.error( e );
+      return buildServerErrorResponse( PlatformImportException.PUBLISH_GENERAL_ERROR );
+    }
+  }
+
+  private Response writeFile( String pathId, InputStream fileContents, FormDataContentDisposition fileInfo, Optional<Properties> fileProperties ) {
     try {
       String decodedPath = URLDecoder.decode( pathId, "UTF-8" );
       if ( invalidPath( decodedPath ) ) {
@@ -150,7 +188,7 @@ public class RepositoryPublishResource {
           .entity( "Cannot publish [" + decodedPath + "] because it contains reserved character(s)" )
           .build();
       }
-      repositoryPublishService.publishFile( decodedPath, fileContents, overwriteFile );
+      repositoryPublishService.publishFile( decodedPath, fileContents, fileProperties );
     } catch ( PentahoAccessControlException e ) {
       return buildStatusResponse( UNAUTHORIZED, PlatformImportException.PUBLISH_USERNAME_PASSWORD_FAIL );
     } catch ( PlatformImportException e ) {
@@ -168,7 +206,6 @@ public class RepositoryPublishResource {
     char[] chars = new FileService().doGetReservedChars().toString().toCharArray();
     return FileUtils.containsReservedCharacter( path, chars );
   }
-
 
   protected Response buildPlainTextOkResponse( String msg ) {
     return Response.ok( msg ).type( MediaType.TEXT_PLAIN_TYPE ).build();

@@ -1,24 +1,29 @@
-/*
+/*!
+ *
  * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License, version 2 as published by the Free Software
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
  *
- * You should have received a copy of the GNU General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  * or from the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
+ * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ *
  */
+
 package org.pentaho.platform.web.http.api.resources.services;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Optional;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -78,20 +83,32 @@ public class RepositoryPublishService {
   }
 
   /**
+   * We need to keep the additional options for file will use {@link #publishFile(String, InputStream, Boolean, String)}
+   * We keep the method for backward compatibility
+   *
+   * @since pentaho 8.1
+   */
+  @Deprecated
+  public void publishFile( String pathId, InputStream fileContents, Boolean overwriteFile ) throws PlatformImportException, PentahoAccessControlException {
+    Optional<Properties> fileProperties = Optional.of( new Properties() );
+    fileProperties.get().setProperty( "overwriteFile", String.valueOf( overwriteFile ) );
+    publishFile( pathId, fileContents,  fileProperties );
+  }
+
+  /**
    * Publishes the file to the provided path in the repository via registered importers. The file will be overwritten if
    * the {@code overwrite} is {@code true}
    *
    * @param pathId        slash-separated path for the repository file <pre function="syntax.xml"> /path/to/file/id
    *                      </pre>
-   * @param fileContents  input stream containing the data
-   * @param overwriteFile flag to determine whether to overwrite the existing file in the repository or not <pre
-   *                      function="syntax.xml"> true </pre>
+   * @param  fileContents  input stream containing the data
+   * @param  options any options which can be applied to the file
    * @throws PentahoAccessControlException if current user is not allowed to publish files
    * @throws PlatformImportException rethrows any exception raised in the importer
    * @throws RuntimeException rethrows any exception raised in the importer
    */
-  public void publishFile( String pathId, InputStream fileContents, Boolean overwriteFile )
-    throws PlatformImportException, PentahoAccessControlException {
+  public void publishFile( String pathId, InputStream fileContents, Optional<Properties> fileProperties )
+      throws PlatformImportException, PentahoAccessControlException {
     try {
       validateAccess();
     } catch ( PentahoAccessControlException e ) {
@@ -99,7 +116,7 @@ public class RepositoryPublishService {
       throw e;
     }
 
-    IPlatformImportBundle bundle = prepareBundle( pathId, fileContents, overwriteFile );
+    IPlatformImportBundle bundle = prepareBundle( pathId, fileContents, fileProperties );
     try {
       getPlatformImporter().importFile( bundle );
     } catch ( PlatformImportException e ) {
@@ -139,22 +156,29 @@ public class RepositoryPublishService {
   @Deprecated
   protected IPlatformImportBundle buildBundle( String pathId, InputStream fileContents, Boolean overwriteFile ) {
     File file = new File( pathId );
-    RepositoryFileImportBundle.Builder bundleBuilder =
-        new RepositoryFileImportBundle.Builder().input( fileContents ).charSet( "UTF-8" ).hidden(
-            RepositoryFile.HIDDEN_BY_DEFAULT ).schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT ).mime(
-        "text/xml" ).path( file.getParent() ).name( file.getName() ).overwriteFile( overwriteFile );
+    RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder()
+        .input( fileContents )
+        .charSet( "UTF-8" )
+        .hidden( RepositoryFile.HIDDEN_BY_DEFAULT )
+        .schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT )
+        .mime( "text/xml" )
+        .path( file.getParent() )
+        .name( file.getName() )
+        .overwriteFile( overwriteFile );
     return bundleBuilder.build();
   }
 
-  protected IPlatformImportBundle prepareBundle( String fullPath, InputStream fileContents, Boolean overwriteFile ) {
+  protected IPlatformImportBundle prepareBundle( String fullPath, InputStream fileContents, Optional<Properties> fileProperties ) {
     return new RepositoryFileImportBundle.Builder()
       .input( fileContents )
       .charSet( "UTF-8" )
-        .hidden( RepositoryFile.HIDDEN_BY_DEFAULT ).schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT )
+      .hidden( RepositoryFile.HIDDEN_BY_DEFAULT )
+      .schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT )
       .mime( "text/xml" )
       .path( "/" + FilenameUtils.getPathNoEndSeparator( fullPath ) )
       .name( FilenameUtils.getName( fullPath ) )
-      .overwriteFile( overwriteFile )
+      .overwriteFile( Boolean.valueOf( fileProperties.orElseGet( () -> new Properties() ).getProperty( "overwriteFile", "true" ) ) )
+      .title( fileProperties.orElseGet( () -> new Properties() ).getProperty( "reportTitle" ) )
       .build();
   }
 }
