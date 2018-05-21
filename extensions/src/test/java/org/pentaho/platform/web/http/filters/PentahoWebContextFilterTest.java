@@ -352,6 +352,9 @@ public class PentahoWebContextFilterTest {
     String sessionLocale = "fo_BA";
     when( this.mockRequest.getParameter( "locale" ) ).thenReturn( sessionLocale );
 
+    String application = "pentaho-test";
+    when( this.mockRequest.getParameter( "application" ) ).thenReturn( application );
+
     StringBuilder value = new StringBuilder();
     this.reservedChars.forEach(value::append);
     String reservedChars = value.toString();
@@ -359,6 +362,7 @@ public class PentahoWebContextFilterTest {
     final String response = executeWebContextFilter();
 
     String environmentModuleConfig = "requireCfg.config[\"pentaho/environment\"] = {" +
+            "\n  application: \"" + application + "\"," +
             "\n  theme: \"" + this.activeTheme + "\"," +
             "\n  locale: \"" + sessionLocale + "\"," +
             "\n  user: {" +
