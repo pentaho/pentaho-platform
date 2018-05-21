@@ -73,13 +73,13 @@ public class ActionRunner implements Callable<Boolean> {
   }
 
   public Boolean call() throws ActionInvocationException {
-    final String workItemUid = ActionUtil.extractUid( params );
+    final String workItemName = ActionUtil.extractName( params );
     try {
       final ExecutionResult result = callImpl();
       if ( result.isSuccess() ) {
-        WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.SUCCEEDED );
+        WorkItemLifecycleEventUtil.publish( workItemName, params, WorkItemLifecyclePhase.SUCCEEDED );
       } else {
-        WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED );
+        WorkItemLifecycleEventUtil.publish( workItemName, params, WorkItemLifecyclePhase.FAILED );
       }
       return result.updateRequired();
     } catch ( final Throwable t ) {
@@ -87,7 +87,7 @@ public class ActionRunner implements Callable<Boolean> {
       synchronized ( lock ) {
         lock.notifyAll();
       }
-      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, t.toString() );
+      WorkItemLifecycleEventUtil.publish( workItemName, params, WorkItemLifecyclePhase.FAILED, t.toString() );
       // We should not distinguish between checked and unchecked exceptions here. All job execution failures
       // should result in a rethrow of the exception
       throw new ActionInvocationException( Messages.getInstance().getActionFailedToExecute( actionBean //$NON-NLS-1$
