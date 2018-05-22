@@ -1,4 +1,5 @@
 /*!
+ *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,7 +13,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ *
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ *
  */
 
 package org.pentaho.test.platform.plugin.services.security.userrole.memory;
@@ -26,7 +29,6 @@ import org.springframework.util.Assert;
 import java.io.ByteArrayInputStream;
 import java.util.Properties;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class UserRoleListEnhancedUserMapFactoryBeanTests extends AbstractUserMapFactoryBeanTestBase {
@@ -47,10 +49,22 @@ public class UserRoleListEnhancedUserMapFactoryBeanTests extends AbstractUserMap
     /* assertNotNull( map.getUser( "admin" ) ); //$NON-NLS-1$ TODO */
     // Next assert is unnecessary by interface contract
     // assertTrue(map.getUser("admin") instanceof UserDetails); //$NON-NLS-1$
-    assertTrue( isRolePresent( map.getAllAuthorities(), "ROLE_CEO" ) ); //$NON-NLS-1$
-    assertTrue( isUserPresent( map.getUserNamesInRole( "ROLE_CEO" ), "admin" ) ); //$NON-NLS-1$//$NON-NLS-2$
+    assertTrue( isRolePresent( map.getAllAuthorities(), "ROLE_REPORT_AUTHOR" ) ); //$NON-NLS-1$
+    assertTrue( isRolePresent( map.getAllAuthorities(), "ROLE_AUTHENTICATED" ) ); //$NON-NLS-1$
+    assertTrue( isRolePresent( map.getAllAuthorities(), "ROLE_ADMINISTRATOR" ) ); //$NON-NLS-1$
+    assertTrue( isRolePresent( map.getAllAuthorities(), "ROLE_BUSINESS_ANALYST" ) ); //$NON-NLS-1$
+    assertTrue( isUserPresent( map.getUserNamesInRole( "ROLE_REPORT_AUTHOR" ), "tiffany" ) ); //$NON-NLS-1$//$NON-NLS-2$
+    assertTrue( isUserPresent( map.getUserNamesInRole( "ROLE_AUTHENTICATED" ), "admin" ) ); //$NON-NLS-1$//$NON-NLS-2$
+    assertTrue( isUserPresent( map.getUserNamesInRole( "ROLE_AUTHENTICATED" ), "pat" ) ); //$NON-NLS-1$//$NON-NLS-2$
+    assertTrue( isUserPresent( map.getUserNamesInRole( "ROLE_AUTHENTICATED" ), "suzy" ) ); //$NON-NLS-1$//$NON-NLS-2$
+    assertTrue( isUserPresent( map.getUserNamesInRole( "ROLE_AUTHENTICATED" ), "tiffany" ) ); //$NON-NLS-1$//$NON-NLS-2$
+    assertTrue( isUserPresent( map.getUserNamesInRole( "ROLE_ADMINISTRATOR" ), "admin" ) ); //$NON-NLS-1$//$NON-NLS-2$
+    assertTrue( isUserPresent( map.getUserNamesInRole( "ROLE_BUSINESS_ANALYST" ), "pat" ) ); //$NON-NLS-1$//$NON-NLS-2$
     // System.out.println(StringUtils.arrayToCommaDelimitedString(map.getAllUsers()));
+    assertTrue( isUserPresent( map.getAllUsers(), "pat" ) ); //$NON-NLS-1$
     assertTrue( isUserPresent( map.getAllUsers(), "suzy" ) ); //$NON-NLS-1$
+    assertTrue( isUserPresent( map.getAllUsers(), "admin" ) ); //$NON-NLS-1$
+    assertTrue( isUserPresent( map.getAllUsers(), "tiffany" ) ); //$NON-NLS-1$
     // System.out.println(map.getUser("admin"));
   }
 

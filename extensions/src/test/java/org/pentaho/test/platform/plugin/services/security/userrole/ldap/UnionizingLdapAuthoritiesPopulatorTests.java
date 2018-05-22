@@ -1,4 +1,5 @@
 /*!
+ *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,7 +13,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ *
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ *
  */
 
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
@@ -25,10 +28,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
@@ -68,11 +69,10 @@ public class UnionizingLdapAuthoritiesPopulatorTests extends AbstractPentahoLdap
 
     assertTrue( null != auths && auths.size() > 0 );
 
-    List authsList = Arrays.asList( auths );
-    assertTrue( authsList.contains( new SimpleGrantedAuthority( "ROLE_POWER_USER" ) ) ); //$NON-NLS-1$
-    assertTrue( authsList.contains( new SimpleGrantedAuthority( "ROLE_MARKETING" ) ) ); //$NON-NLS-1$
-
-    System.out.println( authsList );
+    assertTrue( auths.contains( new SimpleGrantedAuthority( "ROLE_CTO" ) ) ); //$NON-NLS-1$
+    assertTrue( auths.contains( new SimpleGrantedAuthority( "ROLE_AUTHENTICATED" ) ) ); //$NON-NLS-1$
+    assertTrue( auths.contains( new SimpleGrantedAuthority( "ROLE_MARKETING" ) ) ); //$NON-NLS-1$
+    assertTrue( auths.contains( new SimpleGrantedAuthority( "ROLE_IS" ) ) ); //$NON-NLS-1$
   }
 
 }

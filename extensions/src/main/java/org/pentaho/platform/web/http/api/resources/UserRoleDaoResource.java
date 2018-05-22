@@ -1,4 +1,5 @@
 /*!
+ *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -12,7 +13,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ *
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ *
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -900,13 +903,10 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
 
   protected void updateRolesForCurrentSession() {
     List<String> userRoles = userRoleDaoService.getRolesForUser( getSession().getName() ).getRoles();
-    GrantedAuthority[] authoritys = new GrantedAuthority[ userRoles.size() ];
+    List<GrantedAuthority> authorities = new ArrayList<>();
+    userRoles.forEach( role -> authorities.add( new SimpleGrantedAuthority( role ) ) );
 
-    for ( int i = 0; i < authoritys.length; i++ ) {
-      authoritys[ i ] = new SimpleGrantedAuthority( userRoles.get( i ) );
-    }
-
-    getSession().setAttribute( IPentahoSession.SESSION_ROLES, authoritys );
+    getSession().setAttribute( IPentahoSession.SESSION_ROLES, authorities );
   }
 
   protected IPentahoSession getSession() {
