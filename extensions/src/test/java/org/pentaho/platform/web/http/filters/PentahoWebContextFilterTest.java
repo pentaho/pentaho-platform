@@ -325,9 +325,9 @@ public class PentahoWebContextFilterTest {
             "\n  waitSeconds: " + waitTime + "," +
             "\n  paths: {}," +
             "\n  shim: {}," +
-            "\n  map: { \"*\": {} }," +
+            "\n  map: {\"*\": {}}," +
             "\n  bundles: {}," +
-            "\n  config: { \"pentaho/service\": {} }," +
+            "\n  config: {\"pentaho/modules\": {}}," +
             "\n  packages: []" +
             "\n};";
 
