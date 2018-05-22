@@ -421,9 +421,9 @@ public class PentahoWebContextFilter implements Filter {
             .append( "\n  waitSeconds: " ).append( getRequireWaitTime() ).append( "," )
             .append( "\n  paths: {}," )
             .append( "\n  shim: {}," )
-            .append( "\n  map: { \"*\": {} }," )
+            .append( "\n  map: {\"*\": {}}," )
             .append( "\n  bundles: {}," )
-            .append( "\n  config: { \"pentaho/service\": {} }," )
+            .append( "\n  config: {\"pentaho/modules\": {}}," )
             .append( "\n  packages: []" )
             .append( "\n}" );
 
