@@ -1247,7 +1247,7 @@
           {
             "name": "clearSelectionMode",
             "type": "cccClearSelectionModeCustom",
-            "value": "emptySpaceClick"
+            "value": "manual"
           },
           {
             "name": "clickable",
@@ -2696,7 +2696,7 @@
           {
             "name": "clearSelectionMode",
             "type": "cccClearSelectionModeCustom",
-            "value": "emptySpaceClick"
+            "value": "manual"
           },
           {
             "name": "clickable",
@@ -4145,7 +4145,7 @@
           {
             "name": "clearSelectionMode",
             "type": "cccClearSelectionModeCustom",
-            "value": "emptySpaceClick"
+            "value": "manual"
           },
           {
             "name": "clickable",
