@@ -23,21 +23,27 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import java.util.Properties;
 
+import org.apache.commons.dbcp.ConnectionFactory;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.pentaho.database.DatabaseDialectException;
 import org.pentaho.database.IDatabaseDialect;
@@ -74,6 +80,8 @@ public class PooledDatasourceHelperTest {
 
   private final String nativeDriverName = "some.native.driver";
   private final String jdbcUrl          = "jdbc:some://server:port";
+  private final String user             = "us&r!";
+  private final String password         = "pass&word&!&amp;";
 
   @Before
   public void before() throws DatabaseDialectException {
@@ -298,6 +306,45 @@ public class PooledDatasourceHelperTest {
     when( dialectService.getDialect( connection ) ).thenReturn( driverLocatorDialect );
     when( ( (IDriverLocator) driverLocatorDialect ).initialize( nativeDriverName ) ).thenReturn( false );
     PooledDatasourceHelper.convert( connection, () -> dialectService );
+  }
+
+  @Test
+  public void testConnectionFactory_MySQL() {
+    IDatabaseConnection connection = mock( IDatabaseConnection.class );
+    doReturn( StringEscapeUtils.escapeHtml( user ) ).when( connection ).getUsername();
+    doReturn( StringEscapeUtils.escapeHtml( password ) ).when( connection ).getPassword();
+
+    ConnectionFactory factory = PooledDatasourceHelper.getConnectionFactory( connection, "jdbc:mysql://localhost" );
+
+    Properties props = (Properties) Whitebox.getInternalState( factory, "_props" );
+    assertEquals( user, props.getProperty( "user" ) );
+    assertEquals( password, props.getProperty( "password" ) );
+  }
+
+  @Test
+  public void testConnectionFactory_MariaDB() {
+    IDatabaseConnection connection = mock( IDatabaseConnection.class );
+    doReturn( StringEscapeUtils.escapeHtml( user ) ).when( connection ).getUsername();
+    doReturn( StringEscapeUtils.escapeHtml( password ) ).when( connection ).getPassword();
+
+    ConnectionFactory factory = PooledDatasourceHelper.getConnectionFactory( connection, "jdbc:mariadb://localhost" );
+
+    Properties props = (Properties) Whitebox.getInternalState( factory, "_props" );
+    assertEquals( user, props.getProperty( "user" ) );
+    assertEquals( password, props.getProperty( "password" ) );
+  }
+
+  @Test
+  public void testConnectionFactory_MicrosoftSQL() {
+    IDatabaseConnection connection = mock( IDatabaseConnection.class );
+    doReturn( StringEscapeUtils.escapeHtml( user ) ).when( connection ).getUsername();
+    doReturn( StringEscapeUtils.escapeHtml( password ) ).when( connection ).getPassword();
+
+    ConnectionFactory factory = PooledDatasourceHelper.getConnectionFactory( connection, "jdbc:microsoft:sqlserver://localhost" );
+
+    Properties props = (Properties) Whitebox.getInternalState( factory, "_props" );
+    assertEquals( user, props.getProperty( "user" ) );
+    assertEquals( password, props.getProperty( "password" ) );
   }
 
   @After
