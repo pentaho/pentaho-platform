@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.security;
@@ -59,7 +59,7 @@ public class PentahoBasicPostProcessingFilter implements Filter {
       response.setStatus( 200 );
       return;
     }
-    response.setStatus( 401, "Unauthorized" );
+    response.sendError( 401, "Unauthorized" );
     response.addHeader( "WWW-Authenticate", "basic realm=\"Pentaho Realm\"" );
   }
 }

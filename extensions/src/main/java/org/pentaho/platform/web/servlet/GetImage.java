@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -64,7 +64,7 @@ public class GetImage extends ServletBase {
         }
       } else {
         error( Messages.getInstance().getErrorString( "IMAGE.ERROR_0001_IMAGE_PARAMETER_EMPTY" ) ); //$NON-NLS-1$
-        response.setStatus( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
+        response.sendError( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
         return;
       }
 
@@ -73,7 +73,7 @@ public class GetImage extends ServletBase {
         error( Messages.getInstance().getErrorString( "IMAGE.ERROR_0002_FILE_NOT_FOUND", image ) ); //$NON-NLS-1$
         // we don't give hints that we check the parameter. Just return not
         // found.
-        response.setStatus( HttpServletResponse.SC_NOT_FOUND );
+        response.sendError( HttpServletResponse.SC_NOT_FOUND );
         return;
       }
 
@@ -108,7 +108,7 @@ public class GetImage extends ServletBase {
 
       if ( !tmpFile.exists() ) {
         error( Messages.getInstance().getErrorString( "IMAGE.ERROR_0002_FILE_NOT_FOUND", image ) ); //$NON-NLS-1$
-        response.setStatus( HttpServletResponse.SC_NOT_FOUND );
+        response.sendError( HttpServletResponse.SC_NOT_FOUND );
         return;
       }
 
