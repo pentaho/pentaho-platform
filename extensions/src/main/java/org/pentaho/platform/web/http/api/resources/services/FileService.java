@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2018 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -1551,7 +1551,7 @@ public class FileService {
     return doCreateDirFor( path );
   }
 
-  private boolean doCreateDirFor( String pathWithSlashes ) {
+  protected boolean doCreateDirFor( String pathWithSlashes ) {
     String[] folders = pathWithSlashes.split( "[" + FileUtils.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
     RepositoryFileDto parentDir = getRepoWs().getFile( FileUtils.PATH_SEPARATOR );
     boolean dirCreated = false;
@@ -1607,7 +1607,7 @@ public class FileService {
       return false;
     }
 
-    String folderName = FilenameUtils.getName( path );
+    String folderName = decode( FilenameUtils.getName( path ) );
     return !".".equals( folderName ) && !"..".equals( folderName );
   }
 
