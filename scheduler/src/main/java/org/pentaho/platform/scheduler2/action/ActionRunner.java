@@ -134,6 +134,11 @@ public class ActionRunner implements Callable<Boolean> {
       SchedulerOutputPathResolver resolver =
         new SchedulerOutputPathResolver( streamProvider.getOutputPath(), actionUser );
       String outputPath = resolver.resolveOutputFilePath();
+
+      if ( outputPath == null ) {
+        return new ExecutionResult( true, false );
+      }
+
       actionParams.put( "useJcr", Boolean.TRUE );
       actionParams.put( "jcrOutputPath", outputPath.substring( 0, outputPath.lastIndexOf( "/" ) ) );
 
