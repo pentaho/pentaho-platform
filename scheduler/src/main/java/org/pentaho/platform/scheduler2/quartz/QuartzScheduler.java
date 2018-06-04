@@ -240,10 +240,11 @@ public class QuartzScheduler implements IScheduler {
     } else {
       throw new SchedulerException( Messages.getInstance().getString( "QuartzScheduler.ERROR_0002_TRIGGER_WRONG_TYPE" ) ); //$NON-NLS-1$
     }
+    quartzTrigger.setMisfireInstruction( SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW );
     if ( quartzTrigger instanceof SimpleTrigger ) {
-      quartzTrigger.setMisfireInstruction( SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT );
-    } else {
-      quartzTrigger.setMisfireInstruction( SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW );
+      if ( ( (SimpleTrigger) quartzTrigger ).getRepeatCount() != 0 ) {
+        quartzTrigger.setMisfireInstruction( SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT );
+      }
     }
     return quartzTrigger;
   }
@@ -278,6 +279,7 @@ public class QuartzScheduler implements IScheduler {
     }
 
     QuartzJobKey jobId = new QuartzJobKey( jobName, curUser );
+    logger.debug( " QuartzScheduler has received a request to createJob with jobId " + jobId  );
 
     Trigger quartzTrigger = createQuartzTrigger( trigger, jobId );
 
@@ -314,6 +316,8 @@ public class QuartzScheduler implements IScheduler {
               .format(
                   "Scheduling job {0} with trigger {1} and job parameters [ {2} ]", jobId.toString(), trigger, prettyPrintMap( jobParams ) ) ); //$NON-NLS-1$
       scheduler.scheduleJob( jobDetail, quartzTrigger );
+
+      logger.debug( MessageFormat.format("Scheduled job {0} successfully", jobId.toString() ) ); //$NON-NLS-1$
     } catch ( org.quartz.SchedulerException e ) {
       throw new SchedulerException( Messages.getInstance().getString(
           "QuartzScheduler.ERROR_0001_FAILED_TO_SCHEDULE_JOB", jobName ), e ); //$NON-NLS-1$
