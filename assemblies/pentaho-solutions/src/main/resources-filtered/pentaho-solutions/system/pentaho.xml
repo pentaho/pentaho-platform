@@ -172,4 +172,5 @@
    </file-upload-defaults>
   <default-theme>ruby</default-theme>
   <session-expired-dialog>true</session-expired-dialog>
+  <set-empty-entity-rest-services>false</set-empty-entity-rest-services>
 </pentaho-system>
