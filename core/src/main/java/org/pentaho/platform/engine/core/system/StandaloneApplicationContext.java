@@ -90,7 +90,9 @@ public class StandaloneApplicationContext implements IApplicationContext {
     if ( trackFile ) {
       fileDeleter = (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );
     }
-    String name = session.getName();
+    // name without invalid characters
+    String name = session.getName().replaceAll( "[^a-zA-Z0-9\\.\\-]", "_" );
+
     final String newPrefix =
         new StringBuilder().append( prefix ).append( name.substring( 0, name.length() > 10 ? 10 : name.length() ) )
             .append( '-' ).toString();
