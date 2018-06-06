@@ -24,6 +24,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.web.http.messages.Messages;
 
@@ -93,26 +94,39 @@ public class FileUtils {
   }
 
   public static String getParentPath( final String path ) {
-    if ( path == null ) {
+    if ( path == null || path.length() == 0 || path.indexOf( '/' ) == -1 ) {
       throw new IllegalArgumentException();
-    } else if ( PATH_SEPARATOR.equals( path ) ) {
+    } else if ( path.equals( PATH_SEPARATOR ) ) {
       return null;
     }
-    int lastSlashIndex = path.lastIndexOf( PATH_SEPARATOR );
-    if ( lastSlashIndex == 0 ) {
-      return PATH_SEPARATOR;
-    } else if ( lastSlashIndex > 0 ) {
-      return path.substring( 0, lastSlashIndex );
-    } else {
-      throw new IllegalArgumentException();
-    }
-  }
 
-  public static boolean isRootPath( final String path ) {
-    return PATH_SEPARATOR.equals( path );
+    int index = trimTrailingSlash( path ).lastIndexOf( PATH_SEPARATOR );
+
+    if(index == -1) {
+      return null;
+    } else if(index == 0) {
+      return PATH_SEPARATOR;
+    } else {
+      return path.substring( 0, index );
+    }
   }
 
   public static boolean isRootLevelPath( final String path ) {
-    return ( path != null ) && !isRootPath( path ) && path.startsWith( PATH_SEPARATOR ) && isRootPath( getParentPath( path ) );
+    if ( path == null || path.length() == 0 || !path.startsWith( PATH_SEPARATOR ) ) {
+      // the path must be an absolute path like stated in the documentation for the REST API
+      throw new IllegalArgumentException();
+    } else if ( path.equals( PATH_SEPARATOR ) ) {
+      return true;
+    } else if ( trimTrailingSlash( path ).startsWith( ClientRepositoryPaths.getPublicFolderPath() + PATH_SEPARATOR )
+      || trimTrailingSlash( path ).startsWith( ClientRepositoryPaths.getHomeFolderPath() + PATH_SEPARATOR )
+      || trimTrailingSlash( path ).startsWith( ClientRepositoryPaths.getEtcFolderPath() + PATH_SEPARATOR ) ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private static String trimTrailingSlash( String path ) {
+    return path.endsWith( PATH_SEPARATOR ) ? path.substring( 0, path.length() - 2 ) : path;
   }
 }
