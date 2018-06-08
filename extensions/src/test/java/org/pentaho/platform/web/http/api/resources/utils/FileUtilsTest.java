@@ -21,15 +21,19 @@
 package org.pentaho.platform.web.http.api.resources.utils;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 import static org.pentaho.platform.web.http.api.resources.utils.FileUtils.containsReservedCharacter;
 
 /**
@@ -45,17 +49,17 @@ public class FileUtilsTest {
     try {
       newFile.createNewFile();
       FileInputStream fileInputStream = new FileInputStream( newFile );
-      fileInputStream = Mockito.spy( fileInputStream );
-      Mockito.doThrow( new IOException() ).when( fileInputStream ).close();
-      Assert.assertFalse( FileUtils.closeQuietly( fileInputStream ) );
-      Assert.assertTrue( FileUtils.closeQuietly( new FileInputStream( newFile ) ) );
-      Mockito.doCallRealMethod().when( fileInputStream ).close();
+      fileInputStream = spy( fileInputStream );
+      doThrow( new IOException() ).when( fileInputStream ).close();
+      assertFalse( FileUtils.closeQuietly( fileInputStream ) );
+      assertTrue( FileUtils.closeQuietly( new FileInputStream( newFile ) ) );
+      doCallRealMethod().when( fileInputStream ).close();
       fileInputStream.close();
-      Assert.assertTrue( newFile.delete() );
+      assertTrue( newFile.delete() );
     } catch ( IOException e ) {
-      Assert.fail();
+      fail();
     }
-    Assert.assertFalse( FileUtils.closeQuietly( null ) );
+    assertFalse( FileUtils.closeQuietly( null ) );
   }
 
   @Test
@@ -129,65 +133,73 @@ public class FileUtilsTest {
   public void getParentPath_Ok() {
     assertEquals( null, FileUtils.getParentPath( "/" ) );
     assertEquals( "/", FileUtils.getParentPath( "/asdf" ) );
-    assertEquals( "/asdf", FileUtils.getParentPath( "/asdf/" ) );
+    assertEquals( "/", FileUtils.getParentPath( "/asdf/" ) );
     assertEquals( "/asdf", FileUtils.getParentPath( "/asdf/ghjk" ) );
+    assertEquals( "/asdf", FileUtils.getParentPath( "/asdf/ghjk/" ) );
     assertEquals( "/asdf/ghjk", FileUtils.getParentPath( "/asdf/ghjk/zxcv" ) );
     assertEquals( "/as~!@#$%df/gh^&*()jk/zx_+ ,.cv", FileUtils.getParentPath( "/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
 
-    assertEquals( "asdf", FileUtils.getParentPath( "asdf/" ) );
+    assertEquals( null, FileUtils.getParentPath( "asdf/" ) );
     assertEquals( "asdf", FileUtils.getParentPath( "asdf/ghjk" ) );
     assertEquals( "as~!@#$%df/gh^&*()jk/zx_+ ,.cv", FileUtils.getParentPath( "as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
   }
 
   @Test( expected = IllegalArgumentException.class )
-  public void getParentPath_IAE_0() {
-    FileUtils.getParentPath( null );
+  public void isRootLevelPath_Null() {
+    FileUtils.isRootLevelPath( null );
   }
 
   @Test( expected = IllegalArgumentException.class )
-  public void getParentPath_IAE_1() {
-    FileUtils.getParentPath( "" );
+  public void isRootLevelPath_Empty() {
+    FileUtils.isRootLevelPath( "" );
   }
 
   @Test( expected = IllegalArgumentException.class )
-  public void getParentPath_IAE_2() {
-    FileUtils.getParentPath( "asdf" );
+  public void isRootLevelPath_NotAbsolute() {
+    FileUtils.isRootLevelPath( "test" );
   }
 
   @Test
-  public void isRootPath_Ok() {
-    assertEquals( false, FileUtils.isRootPath( null ) );
-    assertEquals( true, FileUtils.isRootPath( "/" ) );
-    assertEquals( false, FileUtils.isRootPath( "/asdf" ) );
-    assertEquals( false, FileUtils.isRootPath( "/asdf/ghjk" ) );
-    assertEquals( false, FileUtils.isRootPath( "/asdf/" ) );
-    assertEquals( false, FileUtils.isRootPath( "/asdf/ghjk/zxcv" ) );
-    assertEquals( false, FileUtils.isRootPath( "/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
-
-    assertEquals( false, FileUtils.isRootPath( "asdf/" ) );
-    assertEquals( false, FileUtils.isRootPath( "asdf/ghjk" ) );
-    assertEquals( false, FileUtils.isRootPath( "as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
-
-    assertEquals( false, FileUtils.isRootPath( "" ) );
-    assertEquals( false, FileUtils.isRootPath( "asdf" ) );
-  }
-
-  @Test
-  public void isRootLevelPath_Ok() {
-    assertEquals( false, FileUtils.isRootLevelPath( null ) );
-    assertEquals( false, FileUtils.isRootLevelPath( "/" ) );
+  public void isRootLevelPath_True() {
+    assertEquals( true, FileUtils.isRootLevelPath( "/" ) );
     assertEquals( true, FileUtils.isRootLevelPath( "/asdf" ) );
-    assertEquals( false, FileUtils.isRootLevelPath( "/asdf/" ) );
-    assertEquals( false, FileUtils.isRootLevelPath( "/asdf/ghjk" ) );
-    assertEquals( false, FileUtils.isRootLevelPath( "/asdf/ghjk/zxcv" ) );
-    assertEquals( false, FileUtils.isRootLevelPath( "/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/asdf/" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/asdf/ghjk" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/asdf/ghjk/zxcv" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
 
-    assertEquals( false, FileUtils.isRootLevelPath( "asdf/" ) );
-    assertEquals( false, FileUtils.isRootLevelPath( "asdf/ghjk" ) );
-    assertEquals( false, FileUtils.isRootLevelPath( "as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
-
-    assertEquals( false, FileUtils.isRootLevelPath( "" ) );
-    assertEquals( false, FileUtils.isRootLevelPath( "asdf" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/home6" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/home6/" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/public7" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/public7/" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/etc8" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/etc8/" ) );
   }
 
+  @Test
+  public void isRootLevelPath_Public() {
+    assertEquals( true, FileUtils.isRootLevelPath( "/public" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/public/" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/public/ghjk" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/public/ghjk/zxcv" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/public/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+  }
+
+  @Test
+  public void isRootLevelPath_Home() {
+    assertEquals( true, FileUtils.isRootLevelPath( "/home" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/home/" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/home/ghjk" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/home/ghjk/zxcv" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/home/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+  }
+
+  @Test
+  public void isRootLevelPath_Etc() {
+    assertEquals( true, FileUtils.isRootLevelPath( "/etc" ) );
+    assertEquals( true, FileUtils.isRootLevelPath( "/etc/" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/etc/ghjk" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/etc/ghjk/zxcv" ) );
+    assertEquals( false, FileUtils.isRootLevelPath( "/etc/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+  }
 }
