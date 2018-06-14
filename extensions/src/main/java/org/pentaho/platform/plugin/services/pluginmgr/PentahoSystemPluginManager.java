@@ -30,6 +30,7 @@ import org.dom4j.Element;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IContentGeneratorInfo;
+import org.pentaho.platform.api.engine.IContentGeneratorInvoker;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IObjectCreator;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -165,6 +166,16 @@ public class PentahoSystemPluginManager implements IPluginManager {
   @Override
   public IContentGenerator getContentGeneratorForType( String type, IPentahoSession session )
       throws ObjectFactoryException {
+
+    // first we check: is there any IContentGeneratorInvoker implementation on the bean registry? If so: use it;
+    final IContentGeneratorInvoker cgInvoker = PentahoSystem.get( IContentGeneratorInvoker.class );
+    if ( cgInvoker != null && cgInvoker.isSupportedContent( type ) ) {
+      logger.info( "Located IContentGeneratorInvoker that supports content of type '" + type + "':" + cgInvoker.getClass().getName() );
+      return cgInvoker.getContentGenerator();
+    }
+
+    // otherwise, gracefully fallback to PentahoSystemPluginManager's internal IContentGenerator discovery logic;
+
     return PentahoSystem.get( IContentGenerator.class, session, Collections.singletonMap( CONTENT_TYPE, type ) );
   }
 
@@ -814,6 +825,16 @@ public class PentahoSystemPluginManager implements IPluginManager {
     } else {
       beanId = type + "." + perspectiveName;
     }
+
+    // first we check: is there any IContentGeneratorInvoker implementation on the bean registry? If so: use it;
+    final IContentGeneratorInvoker cgInvoker = PentahoSystem.get( IContentGeneratorInvoker.class );
+    if ( cgInvoker != null && cgInvoker.isSupportedContent( beanId ) ) {
+      logger.info( "Located IContentGeneratorInvoker that supports content of type '" + beanId + "':" + cgInvoker.getClass().getName() );
+      return cgInvoker.getContentGenerator();
+    }
+
+    // otherwise, gracefully fallback to PentahoSystemPluginManager's internal IContentGenerator discovery logic;
+
     IContentGenerator contentGenerator = PentahoSystem
         .get( IContentGenerator.class, PentahoSessionHolder.getSession(),
             Collections.singletonMap( CONTENT_TYPE, beanId ) );
