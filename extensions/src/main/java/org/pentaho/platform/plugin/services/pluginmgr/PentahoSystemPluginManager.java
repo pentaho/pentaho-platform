@@ -170,7 +170,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
     // first we check: is there any IContentGeneratorInvoker implementation on the bean registry? If so: use it;
     final IContentGeneratorInvoker cgInvoker = PentahoSystem.get( IContentGeneratorInvoker.class );
     if ( cgInvoker != null && cgInvoker.isSupportedContent( type ) ) {
-      logger.info( "Located IContentGeneratorInvoker that supports content of tyoe '" + type + "':" + cgInvoker.getClass().getName() );
+      logger.info( "Located IContentGeneratorInvoker that supports content of type '" + type + "':" + cgInvoker.getClass().getName() );
       return cgInvoker.getContentGenerator();
     }
 
@@ -829,7 +829,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
     // first we check: is there any IContentGeneratorInvoker implementation on the bean registry? If so: use it;
     final IContentGeneratorInvoker cgInvoker = PentahoSystem.get( IContentGeneratorInvoker.class );
     if ( cgInvoker != null && cgInvoker.isSupportedContent( beanId ) ) {
-      logger.info( "Located IContentGeneratorInvoker that supports content of tyoe '" + beanId + "':" + cgInvoker.getClass().getName() );
+      logger.info( "Located IContentGeneratorInvoker that supports content of type '" + beanId + "':" + cgInvoker.getClass().getName() );
       return cgInvoker.getContentGenerator();
     }
 
