@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 public class DirectoryResourceTest {
-  private static final String PATH = "/parentDir/dirName";
+  private static final String PATH = "/home/dirName";
   private static final String ROOTLEVEL_PATH = "/dirName";
 
   private DirectoryResource directoryResource;
