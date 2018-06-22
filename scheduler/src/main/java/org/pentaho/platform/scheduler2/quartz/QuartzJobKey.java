@@ -36,7 +36,8 @@ import org.pentaho.platform.scheduler2.messsages.Messages;
 public class QuartzJobKey {
   private String userName;
   private String jobName;
-  private long timeInMillis;
+  // BACKLOG-22942, changing timInMillis from long to randomUUID
+  private String randomUuid;
 
   /**
    * Use this constructor when you wish to create a new unique job key.
@@ -56,7 +57,7 @@ public class QuartzJobKey {
     }
     userName = username;
     this.jobName = jobName;
-    timeInMillis = System.currentTimeMillis();
+    randomUuid = java.util.UUID.randomUUID().toString();
   }
 
   private QuartzJobKey() {
@@ -80,12 +81,8 @@ public class QuartzJobKey {
     QuartzJobKey key = new QuartzJobKey();
     key.userName = elements[0];
     key.jobName = elements[1];
-    try {
-      key.timeInMillis = Long.parseLong( elements[2] );
-    } catch ( NumberFormatException ex ) {
-      throw new SchedulerException( MessageFormat.format( Messages.getInstance().getErrorString(
-          "QuartzJobKey.ERROR_0002" ), jobId ) ); //$NON-NLS-1$
-    }
+    key.randomUuid = elements[2];
+
     return key;
   }
 
@@ -99,6 +96,6 @@ public class QuartzJobKey {
 
   @Override
   public String toString() {
-    return userName + "\t" + jobName + "\t" + timeInMillis; //$NON-NLS-1$ //$NON-NLS-2$
+    return userName + "\t" + jobName + "\t" + randomUuid; //$NON-NLS-1$ //$NON-NLS-2$
   }
 }
