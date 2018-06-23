@@ -129,6 +129,9 @@ public class WorkItemLifecycleEventUtil {
     if ( detailsMap.containsKey( ActionUtil.INVOKER_UUID ) ) {
       sb.append( ActionUtil.INVOKER_UUID ).append( " " ).append( detailsMap.get( ActionUtil.INVOKER_UUID ).toString() );
     }
+    if ( detailsMap.containsKey( ActionUtil.INVOKER_STATUS ) ) {
+      sb.append( detailsMap.get( ActionUtil.INVOKER_STATUS ).toString() );
+    }
 
     return sb.toString();
   }
