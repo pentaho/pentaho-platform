@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -35,11 +35,13 @@ import org.pentaho.platform.api.repository.IClientRepositoryPathsStrategy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.scheduler2.messsages.Messages;
 
 /**
  * @author Rowell Belen
@@ -114,11 +116,17 @@ public class SchedulerOutputPathResolver {
     return null;
   }
 
-  private boolean isValidOutputPath( String path ) {
+  private boolean isValidOutputPath( String path ) throws SchedulerException {
     try {
       RepositoryFile repoFile = getRepository().getFile( path );
-      if ( repoFile != null && repoFile.isFolder() && isScheduleAllowed( repoFile.getId() ) ) {
-        return true;
+      if ( repoFile != null && repoFile.isFolder() ) {
+        boolean scheduleAllowed = isScheduleAllowed( repoFile.getId() );
+        if ( scheduleAllowed ) {
+          return true;
+        } else {
+          throw new SchedulerException( Messages.getInstance().getString(
+            "QuartzScheduler.ERROR_0009_SCHEDULING_IS_NOT_ALLOWED_AFTER_CHANGE", this.jobName, this.actionUser ) );
+        }
       }
     } catch ( Exception e ) {
       logger.warn( e.getMessage(), e );
