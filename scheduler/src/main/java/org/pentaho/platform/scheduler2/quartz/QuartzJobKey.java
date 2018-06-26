@@ -25,6 +25,7 @@ import java.text.MessageFormat;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.scheduler2.messsages.Messages;
+import org.pentaho.platform.util.UUIDUtil;
 
 /**
  * This class is the key by which we identify a quartz job. It provides the means to create a new key or derive a key
@@ -57,7 +58,7 @@ public class QuartzJobKey {
     }
     userName = username;
     this.jobName = jobName;
-    randomUuid = java.util.UUID.randomUUID().toString();
+    randomUuid = UUIDUtil.getUUIDAsString();
   }
 
   private QuartzJobKey() {
