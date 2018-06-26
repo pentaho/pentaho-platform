@@ -35,7 +35,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.Messages;
 import org.pentaho.platform.util.web.MimeHelper;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,6 +63,7 @@ public class ActionUtil {
   public static final String INVOKER_ACTIONCLASS = "actionClass"; //$NON-NLS-1$
   public static final String INVOKER_ACTIONUSER = "actionUser"; //$NON-NLS-1$
   public static final String INVOKER_ACTIONID = "actionId"; //$NON-NLS-1$
+  public static final String INVOKER_UUID = "UUID"; //$NON-NLS-1$
   public static final String INVOKER_STREAMPROVIDER = "streamProvider"; //$NON-NLS-1$
   public static final String INVOKER_STREAMPROVIDER_INPUT_FILE = "inputFile"; //$NON-NLS-
   public static final String INVOKER_STREAMPROVIDER_OUTPUT_FILE_PATTERN = "outputFilePattern"; //$
@@ -76,13 +76,14 @@ public class ActionUtil {
   public static final String INVOKER_SYNC_VALUE = "false";
 
   public static final String WORK_ITEM_UID = "workItemUid"; //$NON-NLS-1$
+  public static final String WORK_ITEM_NAME = "workItemName"; //$NON-NLS-1$
 
   /**
    * Regex representing characters that are allowed in the work item uid (in compliance with chronos job names).
    */
   private static final String WORK_ITEM_UID_INVALID_CHARS = "[^\\w\\\\-]+";
 
-  private static final int WORK_ITEM_UID_LENGTH_LIMIT = 1000;
+  private static final int WORK_ITEM_LENGTH_LIMIT = 1000;
 
   private static final Map<String, String> KEY_MAP;
 
@@ -167,18 +168,16 @@ public class ActionUtil {
   }
 
   /**
-   * Looks up the {@code ActionUtil.WORK_ITEM_UID} within the {@link Map}. If available, the value is returned,
-   * otherwise a new uid is generated and placed within the {@link Map}. This is done ONLY if the
-   * {@link IWorkItemLifecycleEventPublisher} bean is defined, if the bean is not defined, {@code null} is returned.
-   * It is the caller's responsibility to handle this case gracefully.
+   * Looks up the work item name within the {@link Map}. If available, the value is returned,
+   * otherwise a new name is generated and returned.
    *
-   * @param params a {@link Map} that may contain the {@code ActionUtil.WORK_ITEM_UID}
-   * @return {@code ActionUtil.WORK_ITEM_UID} from the {@link Map} or a new uid, or {@code null} in the absence of
+   * @param params a {@link Map} that may contain the name
+   * @return work item name from the {@link Map} or a new one, or {@code null} in the absence of
    * the {@link IWorkItemLifecycleEventPublisher} bean
    */
-  public static String extractUid( final Map<String, Serializable> params ) {
+  public static String extractName( final Map<String, Serializable> params ) {
     final IWorkItemLifecycleEventPublisher publisher = PentahoSystem.get( IWorkItemLifecycleEventPublisher.class );
-    // if the published bean is null, we do not want to generate the work item UID, as this is a worker nodes
+    // if the published bean is null, we do not want to generate the work item name, as this is a worker nodes
     // concept, and we do not want any worker nodes related information in the logs. Given that
     // IWorkItemLifecycleEventPublisher only exists when worker nodes are enabled, we can use the existence of this
     // bean to determine whether to generate the work item UID or not
@@ -186,27 +185,27 @@ public class ActionUtil {
       return null;
     }
     if ( params == null ) {
-      return generateWorkItemUid( params );
+      return generateWorkItemName( params );
     }
 
-    String uid = (String) params.get( WORK_ITEM_UID );
-    if ( uid == null ) {
-      uid = generateWorkItemUid( params );
-      params.put( WORK_ITEM_UID, uid );
+    String name = (String) params.get( WORK_ITEM_NAME );
+    if ( name == null ) {
+      name = generateWorkItemName( params );
+      params.put( WORK_ITEM_NAME, name );
     }
 
-    return uid;
+    return name;
   }
 
   /**
    * @param params a {@link Map} containing action/work item related attributes, in particular {@code inputFile} and
    *               {@code actionUser}, which are both used for the purpose of generating the uid.
-   * @return a unique id for the work item
-   * @see {@link #generateWorkItemUid(String, String)}
+   * @return a name for the work item
+   * @see {@link #generateWorkItemName(String, String)}
    */
-  public static String generateWorkItemUid( final Map<String, Serializable> params ) {
+  public static String generateWorkItemName( final Map<String, Serializable> params ) {
     if ( params == null ) {
-      return generateWorkItemUid( null, null );
+      return generateWorkItemName( null, null );
     }
     // at the time this method is called, the quartz specific map keys may not have been mapped to their
     // corresponding action keys (see KEY_MAP), fall back on the quartz key, if the action key cannot be found
@@ -221,7 +220,7 @@ public class ActionUtil {
       inputFilePath = getInlineInputFileOnStreamProvider( params );
     }
 
-    return generateWorkItemUid( inputFilePath, userName );
+    return generateWorkItemName( inputFilePath, userName );
   }
 
   public static boolean isInlinePassingOfInputOnStreamProvider( final Map<String, Serializable> params ) {
@@ -255,40 +254,35 @@ public class ActionUtil {
   }
 
   /**
-   * Returns a unique id for a work item which includes the input file name (derived from {@code inputFilePath}),
-   * {@code user} and {@code date}, in the following format: WI-%input file name%-%user%-%date%, stripping any
+   * Returns a name for a work item which includes the input file name (derived from {@code inputFilePath}) and
+   * {@code user} that executed it, in the following format: %input file name%-%user%, stripping any
    * invalid characters.
+   *
+   * This workItemName will be used for logging only
    *
    * @param inputFilePath the path of the input file of the action being invoked - optional
    * @param userName      the user executing the action
-   * @return a unique id for the work item
+   * @return a name for the work item
    */
-  public static String generateWorkItemUid( final String inputFilePath,
+  public static String generateWorkItemName( final String inputFilePath,
                                             final String userName ) {
 
     if ( StringUtil.isEmpty( inputFilePath ) ) {
-      logger.info( "Input file path is not provided and will not be part of the work item uid." );
+      logger.info( "Input file path is not provided." );
     }
     if ( StringUtil.isEmpty( userName ) ) {
-      logger.info( "User name is not provided and will not be part of the work item uid." );
+      logger.info( "User name is not provided." );
     }
-    // we only care about the file name, not the full path, which may be long and not very helpful
-    String inputFileName =  ( new File(  inputFilePath == null ? "" : inputFilePath ) ).getName();
 
-    // sanitize inputFileName and user name by removing invalid characters
-    final String sanitizedInputFileName = inputFileName.replaceAll( WORK_ITEM_UID_INVALID_CHARS, "_" );
-    final String sanitizedUserName = ( userName == null ? "" : userName ).replaceAll( WORK_ITEM_UID_INVALID_CHARS, "_" );
+    String workItemName = String.format( "%s[%s]",
+            Optional.ofNullable( inputFilePath ).orElse( StringUtils.EMPTY ),
+            Optional.ofNullable( userName ).orElse( StringUtils.EMPTY ) );
 
-    String workItemUid = String.format( "WI-%s-%s-%s", sanitizedInputFileName, sanitizedUserName,
-      System.currentTimeMillis() );
-    // remove any double dash, in case user name or inputFileName is missing
-    workItemUid = workItemUid.replaceAll( "[-]+", "-" );
-
-    if ( workItemUid.length() > WORK_ITEM_UID_LENGTH_LIMIT ) {
-      logger.info( String.format( "Work item uid exceeds max character limit of %d: %d", WORK_ITEM_UID_LENGTH_LIMIT,
-        workItemUid.length() ) );
+    if ( workItemName.length() > WORK_ITEM_LENGTH_LIMIT ) {
+      logger.info( String.format( "Work item name exceeds max character limit of %d: %d", WORK_ITEM_LENGTH_LIMIT,
+              workItemName.length() ) );
     }
-    return workItemUid;
+    return workItemName;
   }
 
   private static final long RETRY_COUNT = 6;
