@@ -14,162 +14,228 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002 - 2018 Hitachi Vantara. All rights reserved.
  *
  */
-
 package org.pentaho.platform.web.http.api.resources.utils;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.jetty.util.ajax.JSON;
-import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.web.http.api.resources.utils.EscapeUtils.HTMLCharacterEscapes;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 public class EscapeUtilsTest {
 
-  @Test
-  public void testEscapeJsonOrRaw0() {
-    final String src = "1";
-    final String expect = "1";
-    //Check test data
-    Assert.assertEquals( "data", src, StringEscapeUtils.unescapeJava( expect ) );
+  private static final String JSON_OBJECT_INVALID = "{\"foo\": \"value's\",";
+  private static final String JSON_OBJECT_INVALID_RAW_ESCAPE = "{\\u0022foo\\u0022: \\u0022value\\u0027s\\u0022,";
 
-    String actual = EscapeUtils.escapeJsonOrRaw( src );
-    Assert.assertEquals( expect, actual );
+  private static final String JSON_OBJECT = "{" +
+    "\"foo\": \"value's\", " +
+    "\"bar\": \"<x&x>\", " +
+    "\"baz\": [123, \"\", \"> \\\\ <\"]" +
+    "}";
+  private static final String JSON_OBJECT_RAW_ESCAPE = "{" +
+    "\\u0022foo\\u0022: \\u0022value\\u0027s\\u0022, " +
+    "\\u0022bar\\u0022: \\u0022\\u003Cx\\u0026x\\u003E\\u0022, " +
+    "\\u0022baz\\u0022: [123, \\u0022\\u0022, \\u0022\\u003E \\\\\\\\ \\u003C\\u0022]" +
+    "}";
+  private static final String JSON_OBJECT_JSON_ESCAPE = "{" +
+    "\n  \"foo\" : \"value\\u0027s\"," +
+    "\n  \"bar\" : \"\\u003Cx\\u0026x\\u003E\"," +
+    "\n  \"baz\" : [ 123, \"\", \"\\u003E \\\\ \\u003C\" ]" +
+    "\n}";
+
+  private static final String JSON_ARRAY = "[\"asdf\", \"as<>df\", \"<html>\", \"f&g\", null, false, 123]";
+  private static final String JSON_ARRAY_RAW_ESCAPE = "[" +
+    "\\u0022asdf\\u0022, \\u0022as\\u003C\\u003Edf\\u0022, \\u0022\\u003Chtml\\u003E\\u0022, " +
+    "\\u0022f\\u0026g\\u0022, null, false, 123" +
+    "]";
+  private static final String JSON_ARRAY_JSON_ESCAPE = "[ " +
+    "\"asdf\", \"as\\u003C\\u003Edf\", \"\\u003Chtml\\u003E\", \"f\\u0026g\", null, false, 123 " +
+    "]";
+
+  @Test
+  public void testIsIndentationEnabled() {
+    assertTrue( EscapeUtils.isIndentationEnabled() );
+  }
+
+  // region escapeJson
+  @Test( expected = JsonParseException.class )
+  public void testEscapeJson_invalidJsonValue() throws Exception {
+    EscapeUtils.escapeJson( JSON_OBJECT_INVALID );
   }
 
   @Test
-  public void testEscapeJsonOrRaw1() {
-    final String src = "[\"as<>df\",\"<xxx>\"]";
-    final String expect = "[\"as\\u003C\\u003Edf\",\"\\u003Cxxx\\u003E\"]";
-    //Check test data
-    Assert.assertEquals( "data", JSON.toString( JSON.parse( src ) ), JSON.toString( JSON.parse( expect ) ) );
-
-    String actual = EscapeUtils.escapeJsonOrRaw( src );
-    Assert.assertEquals( expect, actual );
+  public void testEscapeJson_null() throws Exception {
+    assertNull( EscapeUtils.escapeJson( null ) );
   }
 
   @Test
-  public void testEscapeJsonOrRaw2() {
-    final String src = "[\"asdf\",123,\"<html>\", \"f&g\"]";
-    final String expect = "[\"asdf\",123,\"\\u003Chtml\\u003E\",\"f\\u0026g\"]";
-    //Check test data
-    Assert.assertEquals( "data", JSON.toString( JSON.parse( src ) ), JSON.toString( JSON.parse( expect ) ) );
+  public void testEscapeJson_simpleValue() throws Exception {
+    final String text = "\"text\"";
+    final String expected = "\"text\"";
 
-    String actual = EscapeUtils.escapeJsonOrRaw( src );
-    Assert.assertEquals( expect, actual );
+    assertTestData( expected, text );
+
+    String actual = EscapeUtils.escapeJson( text );
+
+    assertEquals( expected, actual );
   }
 
   @Test
-  public void testEscapeJsonOrRaw3() {
-    final String src = "{\"as&df\":\"<xxx>\", \"AS\" : \"zz\", \"X\":null}";
-    final String expect = "{\"as\\u0026df\":\"\\u003Cxxx\\u003E\",\"AS\":\"zz\",\"X\":null}";
-    //Check test data
-    Assert.assertEquals( "data", JSON.toString( JSON.parse( src ) ), JSON.toString( JSON.parse( expect ) ) );
+  public void testEscapeJson_jsonArray() throws Exception {
+    assertTestData( JSON_ARRAY_JSON_ESCAPE, JSON_ARRAY );
 
-    String actual = EscapeUtils.escapeJsonOrRaw( src );
-    Assert.assertEquals( expect, actual );
+    String actual = EscapeUtils.escapeJson( JSON_ARRAY );
+
+    assertEquals( JSON_ARRAY_JSON_ESCAPE, actual );
+
   }
 
   @Test
-  public void testEscapeJsonOrRaw4() {
-    final String src = "{\"as&df\":\"<xxx>\", \"A\\\"S\" : \"z\\\"z\", \"X\":[123,\"\",\">\\\\<\"]}";
-    final String expect =
-        "{\"as\\u0026df\":\"\\u003Cxxx\\u003E\",\"A\\u0022S\":\"z\\u0022z\",\"X\":[123,\"\",\"\\u003E\\\\\\u003C\"]}";
-    //Check test data
-    Assert.assertEquals( "data", JSON.toString( JSON.parse( src ) ), JSON.toString( JSON.parse( expect ) ) );
+  public void testEscapeJson_jsonObject() throws Exception {
+    assertTestData( JSON_OBJECT_JSON_ESCAPE, JSON_OBJECT );
 
-    String actual = EscapeUtils.escapeJsonOrRaw( src );
-    Assert.assertEquals( expect, actual );
+    String actual = EscapeUtils.escapeJson( JSON_OBJECT );
+
+    assertEquals( JSON_OBJECT_JSON_ESCAPE, actual );
+  }
+  // endregion
+
+  // region escapeRaw
+  @Test
+  public void testEscapeRaw_invalidJsonValue() {
+    assertRawTestData( JSON_OBJECT_INVALID_RAW_ESCAPE, JSON_OBJECT_INVALID );
+
+    String actual = EscapeUtils.escapeRaw( JSON_OBJECT_INVALID );
+
+    assertEquals( JSON_OBJECT_INVALID_RAW_ESCAPE, actual );
   }
 
   @Test
-  public void testEscapeJsonOrRaw5() {
-    final String src = "{as&df<html>\"\\123";
-    final String expect = "{as\\u0026df\\u003Chtml\\u003E\\u0022\\\\123";
-    //Check test data
-    Assert.assertEquals( "data", src, StringEscapeUtils.unescapeJava( expect ) );
-
-    String actual = EscapeUtils.escapeJsonOrRaw( src );
-    Assert.assertEquals( expect, actual );
+  public void testEscapeRaw_null() {
+    assertNull( EscapeUtils.escapeRaw( null ) );
   }
 
   @Test
-  public void testEscapeJson1() {
-    final String src = "[\"as<>df\",\"<xxx>\"]";
-    final String expect = "[\"as\\u003C\\u003Edf\",\"\\u003Cxxx\\u003E\"]";
-    //Check test data
-    Assert.assertEquals( "data", JSON.toString( JSON.parse( src ) ), JSON.toString( JSON.parse( expect ) ) );
+  public void testEscapeRaw_simpleValue() {
+    final String text = "\"text\"";
+    final String expected = "\\u0022text\\u0022";
 
-    String actual = null;
-    try {
-      actual = EscapeUtils.escapeJson( src );
-    } catch ( IOException e ) {
-      e.printStackTrace();
-      Assert.fail( "Exception is not expected: " + e.getClass().getName() + " " + e.getMessage() );
-    }
-    Assert.assertEquals( expect, actual );
+    assertRawTestData( expected, text );
+
+    String actual = EscapeUtils.escapeRaw( text );
+
+    assertEquals( expected, actual );
   }
 
   @Test
-  public void testEscapeRaw1() {
-    final String src = "[\"as<>df\",\"<xxx>\"]";
-    final String expect = "[\\u0022as\\u003C\\u003Edf\\u0022,\\u0022\\u003Cxxx\\u003E\\u0022]";
-    //Check test data
-    Assert.assertEquals( "data", src, StringEscapeUtils.unescapeJava( expect ) );
+  public void testEscapeRaw_jsonArray() {
+    assertRawTestData( JSON_ARRAY_RAW_ESCAPE, JSON_ARRAY );
 
-    String actual = EscapeUtils.escapeRaw( src );
-    Assert.assertEquals( expect, actual );
+    String actual = EscapeUtils.escapeRaw( JSON_ARRAY );
+
+    assertEquals( JSON_ARRAY_RAW_ESCAPE, actual );
   }
 
   @Test
-  public void testEscapeJson5() {
-    final String src = "{as&df<html>\"\\123";
-    final String expect = "{as\\u0026df\\u003Chtml\\u003E\\u0022\\\\123";
-    //Check test data
-    Assert.assertEquals( "data", src, StringEscapeUtils.unescapeJava( expect ) );
+  public void testEscapeRaw_jsonObject() {
+    assertRawTestData( JSON_OBJECT_RAW_ESCAPE, JSON_OBJECT );
 
-    try {
-      String actual = EscapeUtils.escapeJson( src );
-      Assert.fail( "Exception expected. actual=" + actual );
-    } catch ( Exception e ) {
-      //expected
-    }
+    String actual = EscapeUtils.escapeRaw( JSON_OBJECT );
+
+    assertEquals( JSON_OBJECT_RAW_ESCAPE, actual );
+  }
+  // endregion
+
+  // region escapeJsonOrRaw
+  @Test
+  public void testEscapeJsonOrRaw_invalidJsonValue() {
+    assertRawTestData( JSON_OBJECT_INVALID_RAW_ESCAPE, JSON_OBJECT_INVALID );
+
+    String actual = EscapeUtils.escapeRaw( JSON_OBJECT_INVALID );
+
+    assertEquals( JSON_OBJECT_INVALID_RAW_ESCAPE, actual );
   }
 
   @Test
-  public void testEscapeRaw5() {
-    final String src = "{as&df<html>\"\\123";
-    final String expect = "{as\\u0026df\\u003Chtml\\u003E\\u0022\\\\123";
-    //Check test data
-    Assert.assertEquals( "data", src, StringEscapeUtils.unescapeJava( expect ) );
-
-    String actual = EscapeUtils.escapeRaw( src );
-    Assert.assertEquals( expect, actual );
+  public void testEscapeJsonOrRaw_null() {
+    assertNull( EscapeUtils.escapeJsonOrRaw( null ) );
   }
+
+  @Test
+  public void testEscapeJsonOrRaw_simpleValue() {
+    final String text = "\"text\"";
+    final String expected = "\"text\"";
+
+    assertTestData( expected, text );
+
+    String actual = EscapeUtils.escapeJsonOrRaw( text );
+
+    assertEquals( expected, actual );
+  }
+
+  @Test
+  public void testEscapeJsonOrRaw_jsonArray() {
+    assertTestData( JSON_ARRAY_JSON_ESCAPE, JSON_ARRAY );
+
+    String actual = EscapeUtils.escapeJsonOrRaw( JSON_ARRAY );
+
+    assertEquals( JSON_ARRAY_JSON_ESCAPE, actual );
+
+  }
+
+  @Test
+  public void testEscapeJsonOrRaw_jsonObject() {
+    assertTestData( JSON_OBJECT_JSON_ESCAPE, JSON_OBJECT );
+
+    String actual = EscapeUtils.escapeJsonOrRaw( JSON_OBJECT );
+
+    assertEquals( JSON_OBJECT_JSON_ESCAPE, actual );
+  }
+  // endregion
 
   @Test
   public void testHTMLCharacterEscapes() {
     HTMLCharacterEscapes ce = new EscapeUtils.HTMLCharacterEscapes();
+
     int[] actualEscapes = ce.getEscapeCodesForAscii();
-    Assert.assertEquals( "<", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '<'] );
-    Assert.assertEquals( ">", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '>'] );
-    Assert.assertEquals( "&", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '&'] );
-    Assert.assertEquals( "\'", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '\''] );
-    Assert.assertEquals( "\"", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '\"'] );
+    assertEquals( "<", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '<'] );
+    assertEquals( ">", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '>'] );
+    assertEquals( "&", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '&'] );
+    assertEquals( "\'", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '\''] );
+    assertEquals( "\"", CharacterEscapes.ESCAPE_STANDARD, actualEscapes[(int) '\"'] );
 
     int[] standardEscapes = CharacterEscapes.standardAsciiEscapesForJSON();
     for ( int i = 0; i < standardEscapes.length; i++ ) {
       if ( "<>&\'\"".indexOf( (char) i ) < 0 ) {
-        Assert.assertEquals( "(char)" + i, standardEscapes[i], actualEscapes[i] );
+        assertEquals( "(char)" + i, standardEscapes[i], actualEscapes[i] );
       }
     }
-    Assert.assertNull( ce.getEscapeSequence( 1 ) );
-    Assert.assertNull( ce.getEscapeSequence( (int) '%' ) );
+
+    assertNull( ce.getEscapeSequence( 1 ) );
+    assertNull( ce.getEscapeSequence( (int) '%' ) );
   }
 
+  // region aux methods
+  private void assertTestData( String testData, String actual ) {
+    final String expected = JSON.toString( JSON.parse( testData ) );
+    final String parsedActual = JSON.toString( JSON.parse( actual ) );
+
+    assertEquals( expected, parsedActual );
+  }
+
+  private void assertRawTestData( String testData, String actual ) {
+    final String expected = StringEscapeUtils.unescapeJava( testData );
+
+    assertEquals( expected, actual );
+  }
+  // endregion
 }
