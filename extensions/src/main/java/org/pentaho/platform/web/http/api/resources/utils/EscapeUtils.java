@@ -14,10 +14,9 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002 - 2018 Hitachi Vantara. All rights reserved.
  *
  */
-
 package org.pentaho.platform.web.http.api.resources.utils;
 
 import java.io.IOException;
@@ -26,6 +25,7 @@ import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class EscapeUtils {
 
@@ -35,20 +35,26 @@ public class EscapeUtils {
     public HTMLCharacterEscapes() {
       // start with set of characters known to require escaping (double-quote, backslash etc)
       int[] esc = CharacterEscapes.standardAsciiEscapesForJSON();
+
       // and force escaping of a few others:
       esc['<'] = CharacterEscapes.ESCAPE_STANDARD;
       esc['>'] = CharacterEscapes.ESCAPE_STANDARD;
       esc['&'] = CharacterEscapes.ESCAPE_STANDARD;
       esc['\''] = CharacterEscapes.ESCAPE_STANDARD;
       esc['\"'] = CharacterEscapes.ESCAPE_STANDARD;
+
       asciiEscapes = esc;
     }
+
     // this method gets called for character codes 0 - 127
-    @Override public int[] getEscapeCodesForAscii() {
+    @Override
+    public int[] getEscapeCodesForAscii() {
       return asciiEscapes;
     }
+
     // and this for others; we don't need anything special here
-    @Override public SerializableString getEscapeSequence( int ch ) {
+    @Override
+    public SerializableString getEscapeSequence( int ch ) {
       // no further escaping (beyond ASCII chars) needed:
       return null;
     }
@@ -64,12 +70,10 @@ public class EscapeUtils {
     if ( text == null ) {
       return null;
     }
-    ObjectMapper escapingMapper = new ObjectMapper();
-    escapingMapper.getJsonFactory().setCharacterEscapes( new HTMLCharacterEscapes() );
 
     JsonNode parsedJson = ( new ObjectMapper() ).readTree( text );
-    String result = escapingMapper.writeValueAsString( parsedJson );
-    return result;
+
+    return getObjectMapper().writeValueAsString( parsedJson );
   }
 
   /**
@@ -81,28 +85,42 @@ public class EscapeUtils {
     if ( text == null ) {
       return null;
     }
-    ObjectMapper escapingMapper = new ObjectMapper();
-    escapingMapper.getJsonFactory().setCharacterEscapes( new HTMLCharacterEscapes() );
 
     String result = null;
     try {
-      result = escapingMapper.writeValueAsString( text );
+      String escapedValue = getObjectMapper().writeValueAsString( text );
+
+      result = escapedValue.substring( 1, escapedValue.length() - 1 ); // unquote
     } catch ( Exception e ) {
       e.printStackTrace();
     }
-    return result.substring( 1, result.length() - 1 ); //unquote
+
+    return result;
   }
 
   public static String escapeJsonOrRaw( String text ) {
     if ( text == null ) {
       return null;
     }
+
     try {
       return escapeJson( text );
     } catch ( Exception e ) {
-      //logger.debug ?
+      // logger.debug ?
       return escapeRaw( text );
     }
   }
 
+  public static boolean isIndentationEnabled() {
+    return getObjectMapper().isEnabled( SerializationFeature.INDENT_OUTPUT );
+  }
+
+  static ObjectMapper getObjectMapper() {
+    ObjectMapper jsonMapper = new ObjectMapper();
+
+    jsonMapper.getFactory().setCharacterEscapes( new HTMLCharacterEscapes() );
+    jsonMapper.enable( SerializationFeature.INDENT_OUTPUT );
+
+    return jsonMapper;
+  }
 }
