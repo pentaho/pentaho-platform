@@ -21,13 +21,11 @@ package org.pentaho.platform.web.http.api.resources.utils;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.jetty.util.ajax.JSON;
 import org.junit.Test;
 import org.pentaho.platform.web.http.api.resources.utils.EscapeUtils.HTMLCharacterEscapes;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -39,32 +37,27 @@ public class EscapeUtilsTest {
   private static final String JSON_OBJECT = "{" +
     "\"foo\": \"value's\", " +
     "\"bar\": \"<x&x>\", " +
-    "\"baz\": [123, \"\", \"> \\\\ <\"]" +
+    "\"baz\": [123, \"\", \">\\\\<\"]" +
     "}";
   private static final String JSON_OBJECT_RAW_ESCAPE = "{" +
     "\\u0022foo\\u0022: \\u0022value\\u0027s\\u0022, " +
     "\\u0022bar\\u0022: \\u0022\\u003Cx\\u0026x\\u003E\\u0022, " +
-    "\\u0022baz\\u0022: [123, \\u0022\\u0022, \\u0022\\u003E \\\\\\\\ \\u003C\\u0022]" +
+    "\\u0022baz\\u0022: [123, \\u0022\\u0022, \\u0022\\u003E\\\\\\\\\\u003C\\u0022]" +
     "}";
   private static final String JSON_OBJECT_JSON_ESCAPE = "{" +
-    "\n  \"foo\" : \"value\\u0027s\"," +
-    "\n  \"bar\" : \"\\u003Cx\\u0026x\\u003E\"," +
-    "\n  \"baz\" : [ 123, \"\", \"\\u003E \\\\ \\u003C\" ]" +
-    "\n}";
+    "\"foo\":\"value\\u0027s\"," +
+    "\"bar\":\"\\u003Cx\\u0026x\\u003E\"," +
+    "\"baz\":[123,\"\",\"\\u003E\\\\\\u003C\"]" +
+    "}";
 
   private static final String JSON_ARRAY = "[\"asdf\", \"as<>df\", \"<html>\", \"f&g\", null, false, 123]";
   private static final String JSON_ARRAY_RAW_ESCAPE = "[" +
     "\\u0022asdf\\u0022, \\u0022as\\u003C\\u003Edf\\u0022, \\u0022\\u003Chtml\\u003E\\u0022, " +
     "\\u0022f\\u0026g\\u0022, null, false, 123" +
     "]";
-  private static final String JSON_ARRAY_JSON_ESCAPE = "[ " +
-    "\"asdf\", \"as\\u003C\\u003Edf\", \"\\u003Chtml\\u003E\", \"f\\u0026g\", null, false, 123 " +
+  private static final String JSON_ARRAY_JSON_ESCAPE = "[" +
+    "\"asdf\",\"as\\u003C\\u003Edf\",\"\\u003Chtml\\u003E\",\"f\\u0026g\",null,false,123" +
     "]";
-
-  @Test
-  public void testIsIndentationEnabled() {
-    assertTrue( EscapeUtils.isIndentationEnabled() );
-  }
 
   // region escapeJson
   @Test( expected = JsonParseException.class )

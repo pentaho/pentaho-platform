@@ -23,9 +23,10 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class EscapeUtils {
 
@@ -67,13 +68,17 @@ public class EscapeUtils {
    * @throws IOException if failed (when text is not not JSON)
    */
   public static String escapeJson( String text ) throws IOException {
+    return escapeJson( text, null );
+  }
+
+  public static String escapeJson( String text, DefaultPrettyPrinter prettyPrinter ) throws IOException {
     if ( text == null ) {
       return null;
     }
 
     JsonNode parsedJson = ( new ObjectMapper() ).readTree( text );
 
-    return getObjectMapper().writeValueAsString( parsedJson );
+    return getObjectWriter( prettyPrinter ).writeValueAsString( parsedJson );
   }
 
   /**
@@ -82,13 +87,17 @@ public class EscapeUtils {
    * @return
    */
   public static String escapeRaw( String text ) {
+    return escapeRaw( text, null );
+  }
+
+  public static String escapeRaw( String text, DefaultPrettyPrinter prettyPrinter ) {
     if ( text == null ) {
       return null;
     }
 
     String result = null;
     try {
-      String escapedValue = getObjectMapper().writeValueAsString( text );
+      String escapedValue = getObjectWriter( prettyPrinter ).writeValueAsString( text );
 
       result = escapedValue.substring( 1, escapedValue.length() - 1 ); // unquote
     } catch ( Exception e ) {
@@ -99,28 +108,27 @@ public class EscapeUtils {
   }
 
   public static String escapeJsonOrRaw( String text ) {
+    return escapeJsonOrRaw( text, null );
+  }
+
+  public static String escapeJsonOrRaw( String text, DefaultPrettyPrinter prettyPrinter ) {
     if ( text == null ) {
       return null;
     }
 
     try {
-      return escapeJson( text );
+      return escapeJson( text, prettyPrinter );
     } catch ( Exception e ) {
       // logger.debug ?
-      return escapeRaw( text );
+      return escapeRaw( text, prettyPrinter );
     }
   }
 
-  public static boolean isIndentationEnabled() {
-    return getObjectMapper().isEnabled( SerializationFeature.INDENT_OUTPUT );
-  }
+  private static ObjectWriter getObjectWriter( DefaultPrettyPrinter prettyPrinter ) {
+    ObjectMapper mapper = new ObjectMapper();
 
-  static ObjectMapper getObjectMapper() {
-    ObjectMapper jsonMapper = new ObjectMapper();
+    mapper.getFactory().setCharacterEscapes( new HTMLCharacterEscapes() );
 
-    jsonMapper.getFactory().setCharacterEscapes( new HTMLCharacterEscapes() );
-    jsonMapper.enable( SerializationFeature.INDENT_OUTPUT );
-
-    return jsonMapper;
+    return mapper.writer( prettyPrinter );
   }
 }
