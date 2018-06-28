@@ -93,6 +93,7 @@ public class PentahoWebContextFilter implements Filter {
   private static final String JS = ".js"; //$NON-NLS-1$
   private static final String CSS = ".css"; //$NON-NLS-1$
   private static final String CONTEXT = "context"; //$NON-NLS-1$
+  private static final String APPLICATION = "application"; //$NON-NLS-1$
   private static final String GLOBAL = "global"; //$NON-NLS-1$
   private static final String REQUIRE_JS = "requirejs"; //$NON-NLS-1$
 
@@ -295,6 +296,7 @@ public class PentahoWebContextFilter implements Filter {
     map.put( "requireCfg", getRequireCfgVar() );                             // Global JS variable
     map.put( "ssoEnabled", getSsoEnabled() );                                // Global JS variable
 
+    map.put( "application", getApplicationVar( request ) );                  // Internal variable
     map.put( "PENTAHO_CONTEXT_NAME", getContextNameVar( request ) );         // Global JS environment variable
     map.put( "FULL_QUALIFIED_URL", getFullyQualifiedServerUrlVar() );        // Global JS environment variable
     map.put( "CONTEXT_PATH", getContextPathVar( request ) );                 // Global JS environment variable
@@ -375,6 +377,10 @@ public class PentahoWebContextFilter implements Filter {
     return request.getParameter( CONTEXT );
   }
 
+  private String getApplicationVar( HttpServletRequest request ) {
+    return request.getParameter( APPLICATION );
+  }
+
   private String getFullyQualifiedServerUrlVar() {
     // split out a fully qualified url, guaranteed to have a trailing slash
     String fullyQualifiedServerURL = getApplicationContext().getFullyQualifiedServerURL();
@@ -415,9 +421,9 @@ public class PentahoWebContextFilter implements Filter {
             .append( "\n  waitSeconds: " ).append( getRequireWaitTime() ).append( "," )
             .append( "\n  paths: {}," )
             .append( "\n  shim: {}," )
-            .append( "\n  map: { \"*\": {} }," )
+            .append( "\n  map: {\"*\": {}}," )
             .append( "\n  bundles: {}," )
-            .append( "\n  config: { \"pentaho/service\": {} }," )
+            .append( "\n  config: {\"pentaho/modules\": {}}," )
             .append( "\n  packages: []" )
             .append( "\n}" );
 
@@ -517,6 +523,7 @@ public class PentahoWebContextFilter implements Filter {
 
   private void printPentahoEnvironmentConfig( OutputStream out, HashMap<String, String> webContextVariables )
           throws IOException {
+    String application = escapeEnvironmentVar( webContextVariables.get( "application" ) );
     String theme = escapeEnvironmentVar( webContextVariables.get( "active_theme" ) );
     String locale = escapeEnvironmentVar( webContextVariables.get( "SESSION_LOCALE" ) );
     String userID = escapeEnvironmentVar( webContextVariables.get( "SESSION_NAME" ) );
@@ -531,7 +538,7 @@ public class PentahoWebContextFilter implements Filter {
     StringBuilder environmentModule = new StringBuilder( "\n// configuration for 'pentaho/environment' amd module" );
     environmentModule
             .append( "\nrequireCfg.config[\"pentaho/environment\"] = {" )
-
+            .append( "\n  application: " ).append( application ).append( "," )
             .append( "\n  theme: " ).append( theme ).append( "," )
             .append( "\n  locale: " ).append( locale ).append( "," )
 
