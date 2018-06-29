@@ -31,9 +31,6 @@
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <svgSalamander.version>1.0</svgSalamander.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
-    <!-- jackson-databind depends on jackson-core and jackson-annotations
-    so that this artifacts have the same version to prevent compile errors -->
-    <fasterxml.jackson.core.version>2.9.4</fasterxml.jackson.core.version>
     <replacer.version>1.5.2</replacer.version>
     <kafka-clients.version>0.10.2.1</kafka-clients.version>
     <paho.version>1.2.0</paho.version>
@@ -897,39 +894,6 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-ehcache</artifactId>
       <version>${hibernate-ehcache.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>${fasterxml.jackson.core.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>${fasterxml.jackson.core.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${fasterxml.jackson.core.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.yaml</groupId>
