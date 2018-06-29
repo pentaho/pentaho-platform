@@ -68,7 +68,7 @@ public class EscapeUtils {
     escapingMapper.getJsonFactory().setCharacterEscapes( new HTMLCharacterEscapes() );
 
     JsonNode parsedJson = ( new ObjectMapper() ).readTree( text );
-    String result = escapingMapper.writeValueAsString( parsedJson );
+    String result = escapingMapper.writerWithDefaultPrettyPrinter().writeValueAsString( parsedJson );
     return result;
   }
 
