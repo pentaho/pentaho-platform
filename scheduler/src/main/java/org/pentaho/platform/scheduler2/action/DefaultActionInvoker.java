@@ -78,17 +78,17 @@ public class DefaultActionInvoker implements IActionInvoker {
   public void validate( final IAction actionBean, final String actionUser,
                         final Map<String, Serializable> params ) throws ActionInvocationException {
 
-    final String workItemName = ActionUtil.extractName( params );
+    final String workItemUid = ActionUtil.extractUid( params );
 
     if ( actionBean == null || params == null ) {
       final String failureMessage = Messages.getInstance().getCantInvokeNullAction();
-      WorkItemLifecycleEventUtil.publish( workItemName, params, WorkItemLifecyclePhase.FAILED,  failureMessage );
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED,  failureMessage );
       throw new ActionInvocationException( failureMessage );
     }
 
     if ( !isSupportedAction( actionBean ) ) {
       final String failureMessage = Messages.getInstance().getUnsupportedAction( actionBean.getClass().getName() );
-      WorkItemLifecycleEventUtil.publish( workItemName, params, WorkItemLifecyclePhase.FAILED, failureMessage );
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, failureMessage );
       throw new ActionInvocationException( failureMessage );
     }
   }
@@ -123,15 +123,15 @@ public class DefaultActionInvoker implements IActionInvoker {
                                            final String actionUser,
                                            final Map<String, Serializable> params ) throws Exception {
 
-    final String workItemName = ActionUtil.extractName( params );
+    final String workItemUid = ActionUtil.extractUid( params );
 
     if ( actionBean == null || params == null ) {
       final String failureMessage = Messages.getInstance().getCantInvokeNullAction();
-      WorkItemLifecycleEventUtil.publish( workItemName, params, WorkItemLifecyclePhase.FAILED, failureMessage );
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, failureMessage );
       throw new ActionInvocationException( failureMessage );
     }
 
-    WorkItemLifecycleEventUtil.publish( workItemName, params, WorkItemLifecyclePhase.IN_PROGRESS );
+    WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.IN_PROGRESS );
 
     if ( logger.isDebugEnabled() ) {
       logger.debug( Messages.getInstance().getRunningInBackgroundLocally( actionBean.getClass().getName(), params ) );
@@ -166,7 +166,7 @@ public class DefaultActionInvoker implements IActionInvoker {
         requiresUpdate = SecurityHelper.getInstance().runAsUser( actionUser, actionBeanRunner );
       }
     } catch ( final Throwable t ) {
-      WorkItemLifecycleEventUtil.publish( workItemName, params, WorkItemLifecyclePhase.FAILED, t.toString() );
+      WorkItemLifecycleEventUtil.publish( workItemUid, params, WorkItemLifecyclePhase.FAILED, t.toString() );
       status.setThrowable( t );
     }
     status.setRequiresUpdate( requiresUpdate );
