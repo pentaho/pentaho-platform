@@ -93,10 +93,17 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @GET
   @Path( "{setting : .+}" )
   @Facet ( name = "Unsupported" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Response getUserSetting( @PathParam( "setting" ) String setting ) {
     IUserSettingService settingsService = getUserSettingService();
     IUserSetting userSetting = settingsService.getUserSetting( setting, null );
-    return Response.ok( userSetting != null ? userSetting.getSettingValue() : null ).build();
+
+    if ( userSetting != null && userSetting.getSettingValue() != null ) {
+      return Response.ok( userSetting.getSettingValue() ).build();
+    } else {
+      // this returns a 204 http status which will not trigger the jQuery JSON parser while still returning a success status
+      return Response.noContent().build();
+    }
   }
 
   /**
@@ -110,6 +117,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @POST
   @Path( "{setting : .+}" )
   @Facet ( name = "Unsupported" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   public Response setUserSetting( @PathParam( "setting" ) String setting, String settingValue ) {
     IUserSettingService settingsService = getUserSettingService();
 
