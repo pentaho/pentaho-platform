@@ -112,8 +112,7 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
   public void remove( T pickListItem ) {
     if ( pickListItem instanceof FavoritePickItem ) {
       reloadFavorites( pickListItem, FILE_PICK_REMOVE );
-    }
-    else if ( pickListItem instanceof RecentPickItem ) {
+    } else if ( pickListItem instanceof RecentPickItem ) {
       reloadRecents( pickListItem, FILE_PICK_REMOVE );
     }
   }
@@ -214,6 +213,7 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 
     RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
     try {
+      builder.setHeader( "accept", "application/json" );
       builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       builder.sendRequest( toJson().toString(), new RequestCallback() {
 
@@ -246,9 +246,12 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          if ( response.getStatusCode() == Response.SC_OK ) {
+          if ( response.getStatusCode() == Response.SC_NO_CONTENT && FILE_PICK_ADD.equals( command ) ) {
+            filePickList = new ArrayList<T>();
+            add( filePickList.size(), pickListItem );
+          } else if ( response.getStatusCode() == Response.SC_OK ) {
             try {
-              JSONArray jsonArr = ( JSONArray ) JSONParser.parse( response.getText() );
+              JSONArray jsonArr = (JSONArray) JSONParser.parse( response.getText() );
               filePickList = new ArrayList<T>();
               T filePickItem;
               for ( int i = 0; i < jsonArr.size(); i++ ) {
@@ -257,17 +260,14 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
               }
               if ( FILE_PICK_ADD.equals( command ) ) {
                 add( filePickList.size(), pickListItem );
-              }
-              else if ( FILE_PICK_REMOVE.equals( command ) ) {
+              } else if ( FILE_PICK_REMOVE.equals( command ) ) {
                 filePickList.remove( pickListItem );
                 fireItemsChangedEvent();
               }
-            }
-            catch( Exception e ) {
+            } catch ( Exception e ) {
               if ( FILE_PICK_ADD.equals( command ) ) {
                 add( filePickList.size(), pickListItem );
-              }
-              else if ( FILE_PICK_REMOVE.equals( command ) ) {
+              } else if ( FILE_PICK_REMOVE.equals( command ) ) {
                 filePickList.remove( pickListItem );
                 fireItemsChangedEvent();
               }
@@ -295,7 +295,7 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == Response.SC_OK ) {
             try {
-              JSONArray jsonArr = ( JSONArray ) JSONParser.parse( response.getText() );
+              JSONArray jsonArr = (JSONArray) JSONParser.parse( response.getText() );
               filePickList = new ArrayList<T>();
               T filePickItem;
               for ( int i = 0; i < jsonArr.size(); i++ ) {
@@ -306,8 +306,7 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
                 filePickList.remove( pickListItem );
                 fireItemsChangedEvent();
               }
-            }
-            catch( Exception e ) {
+            } catch ( Exception e ) {
               if ( FILE_PICK_REMOVE.equals( command ) ) {
                 filePickList.remove( pickListItem );
                 fireItemsChangedEvent();

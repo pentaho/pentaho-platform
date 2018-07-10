@@ -131,8 +131,8 @@ define(["common-ui/util/PentahoSpinner", "common-ui/util/spin.min"], function (s
       $.ajax({
         url: that.getUrlBase() + that.serviceUrl + "?ts=" + now.getTime(),
 
-        success: function (result) {
-          callback(result)
+        success: function (result, status) {
+          callback(status == "nocontent" ? [] : result);
           if (that._contentRefreshed) {
             that._contentRefreshed();
           }
@@ -196,7 +196,7 @@ define(["common-ui/util/PentahoSpinner", "common-ui/util/spin.min"], function (s
       var template = Handlebars.compile(this.template.html);
       if (items.length > 0) {
         try {
-          context[this.name] = JSON.parse(items);
+          context[this.name] = items;
           context.isEmpty = context[this.name].length == 0;
           this.currentItems = context[this.name];
           if (context.isEmpty) {
