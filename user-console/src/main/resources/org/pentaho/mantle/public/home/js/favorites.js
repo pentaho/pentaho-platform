@@ -131,8 +131,8 @@ define(["common-ui/util/PentahoSpinner", "common-ui/util/spin"], function (spinn
       $.ajax({
         url: that.getUrlBase() + that.serviceUrl + "?ts=" + now.getTime(),
 
-        success: function (result) {
-          callback(result)
+        success: function (result, status) {
+          callback(status == "nocontent" ? [] : result);
           if (that._contentRefreshed) {
             that._contentRefreshed();
           }
