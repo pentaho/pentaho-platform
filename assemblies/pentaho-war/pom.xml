@@ -1,97 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>7.1-SNAPSHOT</version>
+    <version>7.1.0.14-149</version>
   </parent>
-
   <artifactId>pentaho-war</artifactId>
+  <version>7.1.0.14-149</version>
   <packaging>war</packaging>
-
   <properties>
-    <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
-
-    <!-- Default database for open assembly is hsqldb -->
+    <snakeyaml.version>1.13</snakeyaml.version>
     <rdbms>hsqldb</rdbms>
-
-    <datasource.resources.directory>${basedir}/src/main/resources/datasources</datasource.resources.directory>
-    <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
-
     <prepared.war.directory>${pentaho-server.directory}/tomcat/webapps/pentaho</prepared.war.directory>
     <prepared.war.lib.directory>${prepared.war.directory}/WEB-INF/lib</prepared.war.lib.directory>
-
-    <xmlgraphics-commons.version>2.2</xmlgraphics-commons.version>
-    <jackson.version>1.9.13</jackson.version>
-    <replacer.version>1.5.2</replacer.version>
-    <commons-io.version>2.2</commons-io.version>
-    <hibernate-ehcache.version>3.6.9.Final</hibernate-ehcache.version>
     <jettison.version>1.3.3</jettison.version>
-    <slf4j.version>1.7.7</slf4j.version>
-    <snakeyaml.version>1.13</snakeyaml.version>
+    <datasource.resources.directory>${basedir}/src/main/resources/datasources</datasource.resources.directory>
     <hibernate-ehcache.version>3.6.9.Final</hibernate-ehcache.version>
+    <commons-io.version>2.2</commons-io.version>
+    <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
+    <tika-core.version>1.15</tika-core.version>
+    <xmlgraphics-commons.version>2.2</xmlgraphics-commons.version>
     <c3p0.version>0.9.1.2</c3p0.version>
     <xml-apis.version>2.0.2</xml-apis.version>
+    <slf4j.version>1.7.7</slf4j.version>
+    <jackrabbit.version>2.10.0</jackrabbit.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <svgSalamander.version>1.0</svgSalamander.version>
-    <jackrabbit.version>2.10.0</jackrabbit.version>
-    <tika-core.version>1.15</tika-core.version>
+    <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
+    <jackson.version>1.9.13</jackson.version>
+    <replacer.version>1.5.2</replacer.version>
   </properties>
-
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>prepare-webapp</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <!-- unpack user console zip -->
-                <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-user-console-package</artifactId>
-                  <version>${project.version}</version>
-                  <type>zip</type>
-                  <overWrite>false</overWrite>
-                  <outputDirectory>${prepared.war.directory}</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- creating pentaho war -->
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <webResources>
-            <resource>
-              <directory>${datasource.resources.directory}/${rdbms}</directory>
-              <include>**/context.xml</include>
-              <targetPath>META-INF</targetPath>
-            </resource>
-          </webResources>
-          <webXml>${package.resources.directory}/WEB-INF/web.xml</webXml>
-          <webappDirectory>${prepared.war.directory}</webappDirectory>
-          <outputDirectory>${project.build.directory}</outputDirectory>
-          <packagingExcludes>WEB-INF/default-object.xml,WEB-INF/jboss-app.xml,**/datasources/**</packagingExcludes>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
   <dependencies>
-    <!-- Pentaho -->
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
@@ -99,70 +40,67 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>org.apache.xbean</groupId>
           <artifactId>xbean</artifactId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
-          <groupId>javax.servlet</groupId>
           <artifactId>servlet-api</artifactId>
-        </exclusion>
-        <exclusion>
           <groupId>javax.servlet</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>javax.servlet-api</artifactId>
+          <groupId>javax.servlet</groupId>
         </exclusion>
         <exclusion>
-          <groupId>org.safehaus.jug</groupId>
           <artifactId>jug-lgpl</artifactId>
+          <groupId>org.safehaus.jug</groupId>
         </exclusion>
         <exclusion>
-          <groupId>jcifs</groupId>
           <artifactId>jcifs</artifactId>
+          <groupId>jcifs</groupId>
         </exclusion>
         <exclusion>
-          <groupId>concurrent</groupId>
           <artifactId>concurrent</artifactId>
+          <groupId>concurrent</groupId>
         </exclusion>
         <exclusion>
-          <groupId>org.apache.xmlgraphics</groupId>
           <artifactId>batik-js</artifactId>
+          <groupId>org.apache.xmlgraphics</groupId>
         </exclusion>
         <exclusion>
-          <groupId>org.osgi</groupId>
           <artifactId>org.osgi.core</artifactId>
+          <groupId>org.osgi</groupId>
         </exclusion>
         <exclusion>
-          <groupId>org.glassfish</groupId>
           <artifactId>javax.servlet</artifactId>
+          <groupId>org.glassfish</groupId>
         </exclusion>
         <exclusion>
-          <groupId>xml-apis</groupId>
           <artifactId>xml-apis</artifactId>
+          <groupId>xml-apis</groupId>
         </exclusion>
         <exclusion>
-          <groupId>org.apache.ant</groupId>
           <artifactId>ant</artifactId>
+          <groupId>org.apache.ant</groupId>
         </exclusion>
-        <!-- CM-241 -->
         <exclusion>
-          <groupId>cglib</groupId>
           <artifactId>cglib</artifactId>
+          <groupId>cglib</groupId>
         </exclusion>
         <exclusion>
-          <groupId>javax.validation</groupId>
           <artifactId>validation-api</artifactId>
-        </exclusion>
-        <exclusion>
           <groupId>javax.validation</groupId>
-          <artifactId>validation-api</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.hsqldb</groupId>
+          <artifactId>validation-api</artifactId>
+          <groupId>javax.validation</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>hsqldb</artifactId>
+          <groupId>org.hsqldb</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
-    <!-- Pentaho commons -->
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-database-model</artifactId>
@@ -170,15 +108,11 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
-    <!--  Reporting -->
-    <!-- NOTE: this reporting plugin jar will be removed once the reporting plugin is 3.5 plugin compliant -->
-
     <dependency>
       <groupId>org.pentaho.reporting.plugin</groupId>
       <artifactId>classic-core-platform-plugin</artifactId>
@@ -186,12 +120,11 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.pentaho.reporting.engine</groupId>
       <artifactId>classic-core</artifactId>
@@ -211,13 +144,11 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
-    <!-- Miscellaneous -->
     <dependency>
       <groupId>org.owasp.encoder</groupId>
       <artifactId>encoder</artifactId>
@@ -225,8 +156,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -243,8 +174,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -255,8 +186,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -296,8 +227,6 @@
       <version>${commons-logging.version}</version>
       <scope>compile</scope>
     </dependency>
-
-    <!-- Metro -->
     <dependency>
       <groupId>org.glassfish.metro</groupId>
       <artifactId>webservices-api</artifactId>
@@ -305,8 +234,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -317,13 +246,11 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
-    <!-- Commons -->
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
@@ -331,8 +258,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -343,8 +270,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -355,8 +282,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -367,8 +294,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -379,8 +306,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -409,8 +336,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -421,8 +348,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -432,9 +359,6 @@
       <version>${slf4j.version}</version>
       <scope>compile</scope>
     </dependency>
-
-
-    <!-- Saxon -->
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon-jdom</artifactId>
@@ -502,8 +426,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -513,8 +437,6 @@
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
-
-    <!-- Karaf dependencies -->
     <dependency>
       <groupId>org.apache.karaf</groupId>
       <artifactId>org.apache.karaf.main</artifactId>
@@ -522,8 +444,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -534,8 +456,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -546,8 +468,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -558,8 +480,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -570,8 +492,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -582,8 +504,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -594,8 +516,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -606,8 +528,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -618,8 +540,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -629,8 +551,8 @@
       <version>${org.apache.felix.utils.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>org.osgi</groupId>
           <artifactId>org.osgi.core</artifactId>
+          <groupId>org.osgi</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -641,8 +563,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -653,8 +575,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -665,8 +587,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -677,8 +599,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -695,21 +617,19 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
-    <!-- Tomcat dependencies -->
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
       <version>${cglib.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -719,8 +639,8 @@
       <version>${jaxen.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -730,8 +650,8 @@
       <version>${barcode4j.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -741,8 +661,8 @@
       <version>${saaj.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -752,8 +672,8 @@
       <version>${saaj.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -763,8 +683,8 @@
       <version>${sjsxp.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -774,8 +694,8 @@
       <version>${snappy-java.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -785,8 +705,8 @@
       <version>${wsdl4j-qname.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -796,8 +716,8 @@
       <version>${sassyreader.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -807,8 +727,8 @@
       <version>${avalon.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -818,8 +738,8 @@
       <version>${mstor.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -829,8 +749,8 @@
       <version>${jsendnsca.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -840,8 +760,8 @@
       <version>${batik.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -851,8 +771,8 @@
       <version>${bcmail.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -862,8 +782,8 @@
       <version>${barbecue.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -873,8 +793,8 @@
       <version>${commands.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -884,8 +804,8 @@
       <version>${itext.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -895,8 +815,8 @@
       <version>${jsr181-api.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -906,8 +826,8 @@
       <version>${stax-ex.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -917,8 +837,8 @@
       <version>${sac.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -928,8 +848,8 @@
       <version>${resolver.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -939,8 +859,8 @@
       <version>${rsyntaxtextarea.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -965,12 +885,11 @@
       <version>${xmlgraphics-commons.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.codehaus.jettison</groupId>
       <artifactId>jettison</artifactId>
@@ -1001,13 +920,11 @@
       <artifactId>snakeyaml</artifactId>
       <version>${snakeyaml.version}</version>
     </dependency>
-
     <dependency>
       <groupId>asm</groupId>
       <artifactId>asm-attrs</artifactId>
       <version>${asm-attrs.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
@@ -1023,7 +940,6 @@
       <artifactId>commons-httpclient</artifactId>
       <version>${commons-httpclient.version}</version>
     </dependency>
-
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
@@ -1039,7 +955,6 @@
       <artifactId>jackcess</artifactId>
       <version>${jackcess.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
@@ -1055,7 +970,6 @@
       <artifactId>log4j</artifactId>
       <version>${log4j.version}</version>
     </dependency>
-
     <dependency>
       <groupId>monetdb</groupId>
       <artifactId>monetdb-jdbc</artifactId>
@@ -1066,7 +980,6 @@
       <artifactId>nekohtml</artifactId>
       <version>${nekohtml.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-expression</artifactId>
@@ -1082,37 +995,31 @@
       <artifactId>stax-api</artifactId>
       <version>${stax-api.version}</version>
     </dependency>
-
     <dependency>
       <groupId>c3p0</groupId>
       <artifactId>c3p0</artifactId>
       <version>${c3p0.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
-
     <dependency>
       <groupId>svgSalamander</groupId>
       <artifactId>svgSalamander</artifactId>
       <version>${svgSalamander.version}</version>
     </dependency>
-
     <dependency>
       <groupId>jcommon</groupId>
       <artifactId>jcommon-xml</artifactId>
       <version>${jcommon-xml.version}</version>
     </dependency>
-
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
       <version>${xml-apis.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-commons</artifactId>
@@ -1133,7 +1040,49 @@
       <artifactId>tika-core</artifactId>
       <version>${tika-core.version}</version>
     </dependency>
-
   </dependencies>
-
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>prepare-webapp</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>pentaho</groupId>
+                  <artifactId>pentaho-user-console-package</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${prepared.war.directory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>${datasource.resources.directory}/${rdbms}</directory>
+              <include>**/context.xml</include>
+              <targetPath>META-INF</targetPath>
+            </resource>
+          </webResources>
+          <webXml>${package.resources.directory}/WEB-INF/web.xml</webXml>
+          <webappDirectory>${prepared.war.directory}</webappDirectory>
+          <outputDirectory>${project.build.directory}</outputDirectory>
+          <packagingExcludes>WEB-INF/default-object.xml,WEB-INF/jboss-app.xml,**/datasources/**</packagingExcludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

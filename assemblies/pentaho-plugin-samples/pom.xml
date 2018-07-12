@@ -1,27 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>7.1-SNAPSHOT</version>
+    <version>7.1.0.14-149</version>
   </parent>
-
   <artifactId>pentaho-plugin-samples</artifactId>
+  <version>7.1.0.14-149</version>
   <packaging>pom</packaging>
-
   <properties>
     <pentaho-server.samples.directory>${pentaho-server.solutions.directory}/plugin-samples</pentaho-server.samples.directory>
   </properties>
-
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <inherited>false</inherited>
         <executions>
           <execution>
             <id>unpack-plugin-samples</id>
@@ -31,7 +26,6 @@
             </goals>
             <configuration>
               <artifactItems>
-              <!-- unpack pentaho-samples into /pentaho-solutions/plugin-samples -->
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-cdf-samples</artifactId>
@@ -53,15 +47,14 @@
                   <type>zip</type>
                   <outputDirectory>${pentaho-server.samples.directory}</outputDirectory>
                 </artifactItem>
-
               </artifactItems>
               <overWriteReleases>false</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
           </execution>
         </executions>
+        <inherited>false</inherited>
       </plugin>
     </plugins>
   </build>
-
 </project>

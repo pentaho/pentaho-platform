@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>7.1-SNAPSHOT</version>
+    <version>7.1.0.14-149</version>
   </parent>
-
   <artifactId>pentaho-solutions</artifactId>
+  <version>7.1.0.14-149</version>
   <packaging>pom</packaging>
-
   <properties>
     <prepared.samples.directory>${project.build.directory}/dependency/plugin-samples</prepared.samples.directory>
     <prepared.plugins.directory>${project.build.directory}/dependency/plugins</prepared.plugins.directory>
     <prepared.kettle.plugins.directory>${project.build.directory}/dependency/pdi-plugins</prepared.kettle.plugins.directory>
   </properties>
-
   <dependencies>
     <dependency>
       <groupId>pentaho</groupId>
@@ -32,24 +29,19 @@
       <type>zip</type>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
-
           <execution>
             <id>unpack-plugins</id>
             <phase>process-sources</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
-
             <configuration>
               <artifactItems>
-
-                <!-- [START] unpack platform-plugins into /pentaho-solutions/system -->
                 <artifactItem>
                   <groupId>pentaho-kettle</groupId>
                   <artifactId>pdi-pur-plugin</artifactId>
@@ -135,9 +127,6 @@
                   <type>zip</type>
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
                 </artifactItem>
-                <!-- [END] unpack platform-plugins into /pentaho-solutions/system -->
-
-                <!-- [START] unpack kettle-plugins into /pentaho-solutions/system/kettle/plugins -->
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-big-data-plugin</artifactId>
@@ -306,9 +295,6 @@
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
-                <!-- [END] unpack kettle-plugins into /pentaho-solutions/system/kettle/plugins -->
-
-                <!-- [START] unpack pentaho-samples into /pentaho-solutions/plugin-samples -->
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-plugin-samples</artifactId>
@@ -321,10 +307,8 @@
               <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
           </execution>
-
         </executions>
       </plugin>
     </plugins>
   </build>
-
 </project>

@@ -5,289 +5,260 @@
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>7.1-SNAPSHOT</version>
+    <version>7.1.0.14-149</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-ce-parent</artifactId>
-  <version>7.1-SNAPSHOT</version>
+  <version>7.1.0.14-149</version>
   <packaging>pom</packaging>
   <name>Pentaho BI Platform Community Edition</name>
   <description>Parent pom for pentaho-platform projects</description>
   <url>http://www.pentaho.com</url>
-
   <scm>
     <connection>scm:git:git@github.com:pentaho/pentaho-platform.git</connection>
     <developerConnection>scm:git:git@github.com:pentaho/pentaho-platform.git</developerConnection>
     <url>https://github.com/pentaho/pentaho-platform</url>
   </scm>
   <properties>
-
-    <!-- =============== -->
-    <!-- LICENSE HEADERS -->
-    <!-- =============== -->
-
-    <license.inception.year>2002</license.inception.year>
+    <urlrewrite.version>3.2.0</urlrewrite.version>
+    <commons-fileupload.version>1.3.2</commons-fileupload.version>
+    <jsr305.version>1.3.9</jsr305.version>
+    <aopalliance.version>1.0</aopalliance.version>
+    <spring-binding.version>2.4.4.RELEASE</spring-binding.version>
+    <jmock.version>2.5.1</jmock.version>
+    <xalan.version>2.7.1</xalan.version>
+    <ftp4che.version>0.7.1</ftp4che.version>
+    <mvel2.version>2.0.10</mvel2.version>
+    <xbean-spring.version>2.7</xbean-spring.version>
+    <jaxrpc-api.version>1.1</jaxrpc-api.version>
+    <axiom.version>1.2.8</axiom.version>
+    <infobright-core.version>3.4</infobright-core.version>
+    <sassyreader.version>0.5</sassyreader.version>
+    <activation.version>1.1</activation.version>
+    <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
+    <commons-vfs2.version>2.1-20150824</commons-vfs2.version>
+    <json.version>7.1.0.14-149</json.version>
+    <poi.version>3.17</poi.version>
+    <slf4j-api.version>1.7.7</slf4j-api.version>
+    <bsh.version>1.3.0</bsh.version>
+    <groovy-all.version>2.4.8</groovy-all.version>
+    <commons-beanutils.version>1.9.3</commons-beanutils.version>
     <license.current.year>2016</license.current.year>
-    <license-maven-plugin.version>3.0</license-maven-plugin.version>
-    <!-- set to true when we reach a point where all classes have properly applied licenses -->
+    <jboss-modules.version>1.4.3.Final</jboss-modules.version>
+    <jsf-api.version>1.1</jsf-api.version>
+    <xercesImpl.version>2.9.1</xercesImpl.version>
+    <jsp-api.version>2.1</jsp-api.version>
+    <castor.version>1.0.5</castor.version>
+    <kfs.version>0.3</kfs.version>
+    <jersey.version>1.19.1</jersey.version>
+    <LucidDbClient-minimal.version>0.9.4</LucidDbClient-minimal.version>
+    <jaxen.version>1.1.1</jaxen.version>
+    <knowledge-api.version>6.4.0.Final</knowledge-api.version>
+    <wsdl4j.version>1.6.2</wsdl4j.version>
+    <asm-attrs.version>2.2.3</asm-attrs.version>
+    <mstor.version>0.9.13</mstor.version>
+    <hibernate-commons-annotations.version>3.2.0.Final</hibernate-commons-annotations.version>
+    <mina-core.version>2.0.0-M6</mina-core.version>
+    <jettison.version>1.2</jettison.version>
+    <hamcrest-all.version>1.3</hamcrest-all.version>
+    <javax.inject.version>1</javax.inject.version>
+    <pentaho-vfs.version>1.0</pentaho-vfs.version>
+    <js.version>1.7R3</js.version>
+    <wstx-asl.version>3.2.4</wstx-asl.version>
+    <icu4j.version>54.1.1</icu4j.version>
+    <org.apache.karaf.main.version>3.0.3</org.apache.karaf.main.version>
+    <commons-dbcp.version>1.4</commons-dbcp.version>
+    <gdata-analytics-meta.version>2.1</gdata-analytics-meta.version>
+    <syslog4j.version>0.9.46</syslog4j.version>
+    <janino.version>2.5.16</janino.version>
+    <postgresql.version>9.3-1102-jdbc4</postgresql.version>
+    <bean-matchers.version>0.9</bean-matchers.version>
+    <json-simple.version>1.1</json-simple.version>
+    <axis2.version>1.5</axis2.version>
+    <mimepull.version>1.9.3</mimepull.version>
+    <shared.version>0.9.15</shared.version>
+    <modelVersion>4.0.0</modelVersion>
+    <barcode4j.version>2.0</barcode4j.version>
+    <snakeyaml.version>1.7</snakeyaml.version>
+    <commons-validator.version>1.3.1</commons-validator.version>
+    <nekohtml.version>1.9.15</nekohtml.version>
+    <aspectjweaver.version>1.7.2</aspectjweaver.version>
+    <jmockit.version>1.8</jmockit.version>
+    <ognl.version>2.6.9</ognl.version>
+    <oro.version>2.0.8</oro.version>
+    <mockrunner-servlet.version>0.3.7</mockrunner-servlet.version>
+    <feed4j.version>1.0</feed4j.version>
+    <jackcess.version>1.2.6</jackcess.version>
+    <portlet-api.version>2.0</portlet-api.version>
+    <commands.version>3.3.0-I20070605-0010</commands.version>
+    <jaxb-api.version>2.2.2</jaxb-api.version>
+    <stax-api.version>1.0-2</stax-api.version>
+    <jai_core.version>1.1.2</jai_core.version>
+    <simple-jndi.version>1.0.0</simple-jndi.version>
+    <commons-logging.version>1.1.3</commons-logging.version>
+    <mdrjdbc.version>1.4.2</mdrjdbc.version>
+    <hamcrest-core.version>1.3</hamcrest-core.version>
+    <servlet-api.version>2.5</servlet-api.version>
+    <joda-time.version>1.6</joda-time.version>
+    <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
+    <hibernate-ehcache.version>3.6.0.Final</hibernate-ehcache.version>
+    <jaybird.version>2.1.6</jaybird.version>
+    <resolver.version>20050927</resolver.version>
+    <commons-collections.version>3.2.2</commons-collections.version>
+    <commons-io.version>2.1</commons-io.version>
+    <commons-jxpath.version>1.2</commons-jxpath.version>
+    <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
+    <mysql-connector-java.version>5.1.17</mysql-connector-java.version>
+    <sapdbc.version>7.4.4</sapdbc.version>
+    <jcr.version>2.0</jcr.version>
+    <aspectjrt.version>1.6.6</aspectjrt.version>
+    <bsf.version>2.4.0</bsf.version>
+    <lucene-core.version>3.6.0</lucene-core.version>
+    <georss-rome.version>0.9.8</georss-rome.version>
+    <jmock-junit4.version>2.5.1</jmock-junit4.version>
+    <commons-codec.version>1.9</commons-codec.version>
+    <commons-lang.version>2.6</commons-lang.version>
+    <xml-apis.version>1.3.04</xml-apis.version>
+    <jetty-webapp.version>8.1.15.v20140411</jetty-webapp.version>
+    <jmi.version>200507110943</jmi.version>
+    <pentaho-concurrent.version>1.0.0</pentaho-concurrent.version>
+    <xmlunit.version>1.6</xmlunit.version>
+    <se-jcr.version>0.9</se-jcr.version>
+    <secondstring.version>20060615</secondstring.version>
+    <pentaho-cwm.version>1.5.4</pentaho-cwm.version>
+    <trilead-ssh2.version>build213</trilead-ssh2.version>
+    <spring-ldap-core.version>2.1.0.RELEASE</spring-ldap-core.version>
+    <xmlbeans.version>2.6.0</xmlbeans.version>
+    <org.apache.felix.utils.version>1.8.0</org.apache.felix.utils.version>
+    <saaj.version>1.3</saaj.version>
+    <jcl-over-slf4j.version>1.7.7</jcl-over-slf4j.version>
+    <fontbox.version>0.1.0</fontbox.version>
+    <ldapjdk.version>20000524</ldapjdk.version>
+    <weka.version>3.8.0.1</weka.version>
+    <annogen.version>0.1.0</annogen.version>
+    <org.apache.felix.main.version>4.2.1</org.apache.felix.main.version>
+    <jcifs.version>1.3.3</jcifs.version>
+    <org.osgi.compendium.version>5.0.0</org.osgi.compendium.version>
+    <persistence-api.version>1.0</persistence-api.version>
+    <validation-api.version>1.0.0.GA</validation-api.version>
+    <avalon.version>4.1.5</avalon.version>
+    <spring-security-core-tests.version>2.0.5.RELEASE</spring-security-core-tests.version>
+    <jta.version>1.1</jta.version>
+    <jdom.version>1.0</jdom.version>
+    <xstream.version>1.4.10</xstream.version>
+    <slf4j-log4j12.version>1.7.7</slf4j-log4j12.version>
+    <jxl.version>2.6.12</jxl.version>
+    <soap.version>2.3</soap.version>
+    <jakarta-regexp.version>1.2</jakarta-regexp.version>
+    <geronimo-stax-api_1.0_spec.version>1.0.1</geronimo-stax-api_1.0_spec.version>
+    <XmlSchema.version>1.4.2</XmlSchema.version>
+    <mail.version>1.4.7</mail.version>
+    <sjsxp.version>1.0</sjsxp.version>
+    <mdrapi.version>200507110943</mdrapi.version>
+    <stax-ex.version>1.0</stax-ex.version>
+    <jsr311-api.version>1.1.1</jsr311-api.version>
+    <rsyntaxtextarea.version>1.3.2</rsyntaxtextarea.version>
     <license.fail.if.missing>false</license.fail.if.missing>
-
-    <!-- ============================= -->
-    <!-- COMMON 3RD PARTY DEPENDENCIES -->
-    <!-- ============================= -->
-
-  <activation.version>1.1</activation.version>
-  <annogen.version>0.1.0</annogen.version>
-  <antlr-complete.version>3.5.2</antlr-complete.version>
-  <aopalliance.version>1.0</aopalliance.version>
-  <apacheds.version>1.5.5</apacheds.version>
-  <ascsapjco3wrp.version>20100529</ascsapjco3wrp.version>
-  <asm-attrs.version>2.2.3</asm-attrs.version>
-  <asm.version>3.1</asm.version>
-  <aspectjrt.version>1.6.6</aspectjrt.version>
-  <aspectjweaver.version>1.7.2</aspectjweaver.version>
-  <avalon.version>4.1.5</avalon.version>
-  <axiom.version>1.2.8</axiom.version>
-  <axis2.version>1.5</axis2.version>
-  <barbecue.version>1.5-beta1</barbecue.version>
-  <barcode4j.version>2.0</barcode4j.version>
-  <batik.version>1.9.1</batik.version>
-  <bcprov-jdk14.version>138</bcprov-jdk14.version>
-  <bcmail.version>138</bcmail.version>
-  <bean-matchers.version>0.9</bean-matchers.version>
-  <castor.version>1.0.5</castor.version>
-  <cglib.version>2.2</cglib.version>
-  <commands.version>3.3.0-I20070605-0010</commands.version>
-  <commons-beanutils.version>1.9.3</commons-beanutils.version>
-  <commons-cli.version>1.2</commons-cli.version>
-  <commons-codec.version>1.9</commons-codec.version>
-  <commons-collections.version>3.2.2</commons-collections.version>
-  <commons-dbcp.version>1.4</commons-dbcp.version>
-  <commons-fileupload.version>1.3.2</commons-fileupload.version>
-  <commons-httpclient.version>3.1</commons-httpclient.version>
-  <commons-io.version>2.1</commons-io.version>
-  <commons-lang.version>2.6</commons-lang.version>
-  <commons-lang3.version>3.0</commons-lang3.version>
-  <commons-logging.version>1.1.3</commons-logging.version>
-  <commons-pool.version>1.5.7</commons-pool.version>
-  <commons-validator.version>1.3.1</commons-validator.version>
-  <commons-vfs2.version>2.1-20150824</commons-vfs2.version>
-
-  <derby.version>10.5.3.0_1</derby.version>
-  <dom4j.version>1.6.1</dom4j.version>
-  <drools.version>6.4.0.Final</drools.version>
-  <dumbster.version>1.6.0</dumbster.version>
-  <edtftpj.version>2.1.0</edtftpj.version>
-  <ehcache-core.version>2.5.1</ehcache-core.version>
-  <elasticsearch.version>0.16.3</elasticsearch.version>
-  <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
-  <owasp.encoder.version>1.2</owasp.encoder.version>
-  <feed4j.version>1.0</feed4j.version>
-
-  <fontbox.version>0.1.0</fontbox.version>
-  <ftp4che.version>0.7.1</ftp4che.version>
-  <gdata-analytics-meta.version>2.1</gdata-analytics-meta.version>
-  <gdata-analytics.version>2.1</gdata-analytics.version>
-  <gdata-client-meta.version>1.0</gdata-client-meta.version>
-  <gdata-client.version>1.41.4</gdata-client.version>
-  <gdata-core.version>1.41.4</gdata-core.version>
-  <georss-rome.version>0.9.8</georss-rome.version>
-  <geronimo-stax-api_1.0_spec.version>1.0.1</geronimo-stax-api_1.0_spec.version>
-  <grizzly.version>1.9.45</grizzly.version>
-
-  <groovy-all.version>2.4.8</groovy-all.version>
-
-  <guava.version>17.0</guava.version>
-  <gwt-servlet.version>2.5.1</gwt-servlet.version>
-  <h2.version>1.2.131</h2.version>
-  <hamcrest-all.version>1.3</hamcrest-all.version>
-  <hamcrest-core.version>1.3</hamcrest-core.version>
-  <hamcrest-library.version>1.3</hamcrest-library.version>
-  <hibernate-c3p0.version>3.6.9.Final</hibernate-c3p0.version>
-  <hibernate-commons-annotations.version>3.2.0.Final</hibernate-commons-annotations.version>
-  <hibernate-core.version>3.6.9.Final</hibernate-core.version>
-  <hibernate-ehcache.version>3.6.0.Final</hibernate-ehcache.version>
-  <hibernate-jpa-2.0-api.version>1.0.1.Final</hibernate-jpa-2.0-api.version>
-  <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
-  <hsqldb.version>2.3.2</hsqldb.version>
-  <httpcore.version>4.0-beta3</httpcore.version>
-  <infobright-core.version>3.4</infobright-core.version>
-  <ini4j.version>0.5.1</ini4j.version>
-  <itext.version>2.1.7</itext.version>
-  <jackcess.version>1.2.6</jackcess.version>
-  <jackrabbit.version>2.10.0</jackrabbit.version>
-  <jackson.version>1.9.3</jackson.version>
-  <jai_codec.version>1.1.2</jai_codec.version>
-  <jai_core.version>1.1.2</jai_core.version>
-  <janino.version>2.5.16</janino.version>
-  <javadbf.version>20081125</javadbf.version>
-  <javassist.version>3.20.0-GA</javassist.version>
-  <javatar.version>2.5</javatar.version>
-  <javax.inject.version>1</javax.inject.version>
-  <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-  <jaxb-api.version>2.2.2</jaxb-api.version>
-  <jaxen.version>1.1.1</jaxen.version>
-
-  <jaxws-spring.version>1.8</jaxws-spring.version>
-  <jaybird.version>2.1.6</jaybird.version>
-  <jboss-modules.version>1.4.3.Final</jboss-modules.version>
-  <jcifs.version>1.3.3</jcifs.version>
-  <jcl-over-slf4j.version>1.7.7</jcl-over-slf4j.version>
-  <jcommon.version>1.0.16</jcommon.version>
-  <jcr.version>2.0</jcr.version>
-  <jdom.version>1.0</jdom.version>
-  <jempbox.version>0.2.0</jempbox.version>
-  <jersey.version>1.19.1</jersey.version>
-  <jettison.version>1.2</jettison.version>
-  <jetty-webapp.version>8.1.15.v20140411</jetty-webapp.version>
-  <jfreechart.version>1.0.13</jfreechart.version>
-  <jmi.version>200507110943</jmi.version>
-  <jmock.version>2.5.1</jmock.version>
-  <jmockit.version>1.8</jmockit.version>
-  <jmock-junit4.version>2.5.1</jmock-junit4.version>
-  <js.version>1.7R3</js.version>
-  <jsch.version>0.1.54</jsch.version>
-  <jsf-api.version>1.1</jsf-api.version>
-  <jsendnsca.version>2.0.1</jsendnsca.version>
-  <json.version>7.1-SNAPSHOT</json.version>
-  <json-path.version>0.8.1</json-path.version>
-  <json-simple.version>1.1</json-simple.version>
-  <json-unit.version>1.5.5</json-unit.version>
-  <jsonpath.version>1.0</jsonpath.version>
-  <jsp-api.version>2.1</jsp-api.version>
-  <jsr305.version>1.3.9</jsr305.version>
-  <jsr181-api.version>1.0-MR1</jsr181-api.version>
-  <jsr311-api.version>1.1.1</jsr311-api.version>
-  <jstl.version>1.2</jstl.version>
-  <jt400.version>6.1</jt400.version>
-  <jta.version>1.1</jta.version>
-  <junit.version>4.12</junit.version>
-  <jxl.version>2.6.12</jxl.version>
-  <jzlib.version>1.0.7</jzlib.version>
-
-  <kfs.version>0.3</kfs.version>
-  <knowledge-api.version>6.4.0.Final</knowledge-api.version>
-  <ldapjdk.version>20000524</ldapjdk.version>
-
-  <log4j.version>1.2.17</log4j.version>
-  <lucene-core.version>3.6.0</lucene-core.version>
-  <LucidDbClient-minimal.version>0.9.4</LucidDbClient-minimal.version>
-  <mail.version>1.4.7</mail.version>
-  <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
-  <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
-  <mdrapi.version>200507110943</mdrapi.version>
-  <mimepull.version>1.9.3</mimepull.version>
-  <mina-core.version>2.0.0-M6</mina-core.version>
-  <mockito-all.version>1.10.19</mockito-all.version>
-  <mockito-core.version>1.10.19</mockito-core.version>
-  <mockrunner-servlet.version>0.3.7</mockrunner-servlet.version>
-  <mockrunner.version>0.3.1</mockrunner.version>
-  <modelVersion>4.0.0</modelVersion>
-  <mondrian.version>3.14-SNAPSHOT</mondrian.version>
-  <monetdb-jdbc.version>2.8</monetdb-jdbc.version>
-  <mstor.version>0.9.13</mstor.version>
-  <mvel2.version>2.0.10</mvel2.version>
-  <neethi.version>2.0.1</neethi.version>
-  <nekohtml.version>1.9.15</nekohtml.version>
-  <odfdom-java.version>0.8.6</odfdom-java.version>
-  <org.apache.felix.http.version>2.3.0</org.apache.felix.http.version>
-  <org.apache.felix.main.version>4.2.1</org.apache.felix.main.version>
-  <org.apache.felix.utils.version>1.8.0</org.apache.felix.utils.version>
-  <org.apache.karaf.jaas.version>2.4.2</org.apache.karaf.jaas.version>
-  <org.apache.karaf.main.version>3.0.3</org.apache.karaf.main.version>
-  <oro.version>2.0.8</oro.version>
-  <pentaho-concurrent.version>1.0.0</pentaho-concurrent.version>
-  <pentaho-cwm.version>1.5.4</pentaho-cwm.version>
-  <pentaho-vfs.version>1.0</pentaho-vfs.version>
-
-  <persistence-api.version>1.0</persistence-api.version>
-  <poi.version>3.17</poi.version>
-  <commons-collections4.version>4.1</commons-collections4.version>
-  <portlet-api.version>2.0</portlet-api.version>
-  <postgresql.version>9.3-1102-jdbc4</postgresql.version>
-  <powermock.version>1.6.3</powermock.version>
-  <quartz.version>1.7.2</quartz.version>
-  <rome.version>1.0</rome.version>
-  <resolver.version>20050927</resolver.version>
-  <rsyntaxtextarea.version>1.3.2</rsyntaxtextarea.version>
-  <sac.version>1.3</sac.version>
-  <saaj.version>1.3</saaj.version>
-  <sapdbc.version>7.4.4</sapdbc.version>
-  <sassyreader.version>0.5</sassyreader.version>
-  <saxon.version>9.1.0.8</saxon.version>
-  <scannotation.version>1.0.2</scannotation.version>
-  <se-jcr.version>0.9</se-jcr.version>
-  <secondstring.version>20060615</secondstring.version>
-  <servlet-api.version>2.5</servlet-api.version>
-
-  <shared.version>0.9.15</shared.version>
-
-  <simple-jndi.version>1.0.0</simple-jndi.version>
-  <sjsxp.version>1.0</sjsxp.version>
-  <slf4j-api.version>1.7.7</slf4j-api.version>
-  <slf4j-log4j12.version>1.7.7</slf4j-log4j12.version>
-  <snakeyaml.version>1.7</snakeyaml.version>
-  <snappy-java.version>1.1.0</snappy-java.version>
-  <snmp4j.version>1.9.3d</snmp4j.version>
-  <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
-  <spring.security.version>4.1.3.RELEASE</spring.security.version>
-  <spring-binding.version>2.4.4.RELEASE</spring-binding.version>
-  <spring-ldap-core.version>2.1.0.RELEASE</spring-ldap-core.version>
-  <spring-mock.version>2.0.8</spring-mock.version>
-  <spring-security-core-tests.version>2.0.5.RELEASE</spring-security-core-tests.version>
-  <sqlite-jdbc.version>3.7.2</sqlite-jdbc.version>
-
-  <stax-api.version>1.0-2</stax-api.version>
-  <stax-ex.version>1.0</stax-ex.version>
-  <syslog4j.version>0.9.46</syslog4j.version>
-  <taglibs-standard-impl.version>1.2.5</taglibs-standard-impl.version>
-  <testng.version>6.5.2</testng.version>
-  <trilead-ssh2.version>build213</trilead-ssh2.version>
-  <urlrewrite.version>3.2.0</urlrewrite.version>
-  <validation-api.version>1.0.0.GA</validation-api.version>
-
-  <wadl-resourcedoc-doclet.version>1.19.1</wadl-resourcedoc-doclet.version>
-  <wsdl4j.version>1.6.2</wsdl4j.version>
-  <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
-  <wstx-asl.version>3.2.4</wstx-asl.version>
-  <xbean-spring.version>2.7</xbean-spring.version>
-  <xercesImpl.version>2.9.1</xercesImpl.version>
-  <xml-apis.version>1.3.04</xml-apis.version>
-  <xmlbeans.version>2.6.0</xmlbeans.version>
-  <xmlenc.version>0.52</xmlenc.version>
-  <XmlSchema.version>1.4.2</XmlSchema.version>
-  <xmlunit.version>1.6</xmlunit.version>
-  <xstream.version>1.4.10</xstream.version>
-
-    <!-- ===================== -->
-    <!-- ASSEMBLY DEPENDENCIES -->
-    <!-- ===================== -->
-  <axis.version>1.4</axis.version>
-  <bsf.version>2.4.0</bsf.version>
-  <bsh.version>1.3.0</bsh.version>
-  <commons-digester.version>1.8</commons-digester.version>
-  <commons-discovery.version>0.4</commons-discovery.version>
-  <commons-jxpath.version>1.2</commons-jxpath.version>
-  <commons-math.version>1.1</commons-math.version>
-  <icu4j.version>54.1.1</icu4j.version>
-  <jakarta-regexp.version>1.2</jakarta-regexp.version>
-  <jaxrpc-api.version>1.1</jaxrpc-api.version>
-  <jcommon-logging-log4jlog.version>1.0.2</jcommon-logging-log4jlog.version>
-  <joda-time.version>1.6</joda-time.version>
-  <mdrjdbc.version>1.4.2</mdrjdbc.version>
-  <mysql-connector-java.version>5.1.17</mysql-connector-java.version>
-  <ognl.version>2.6.9</ognl.version>
-  <org.apache.felix.fileinstall.version>3.4.2</org.apache.felix.fileinstall.version>
-  <org.apache.felix.framework.version>4.4.1</org.apache.felix.framework.version>
-  <org.apache.karaf.management.boot.version>3.0.3</org.apache.karaf.management.boot.version>
-  <org.osgi.compendium.version>5.0.0</org.osgi.compendium.version>
-  <quartz-oracle.version>1.7.2</quartz-oracle.version>
-  <soap.version>2.3</soap.version>
-  <webservices.version>2.3.1</webservices.version>
-  <weka.version>3.8.0.1</weka.version>
-  <xalan.version>2.7.1</xalan.version>
+    <webservices.version>2.3.1</webservices.version>
+    <wadl-resourcedoc-doclet.version>1.19.1</wadl-resourcedoc-doclet.version>
+    <gwt-servlet.version>2.5.1</gwt-servlet.version>
+    <asm.version>3.1</asm.version>
+    <quartz-oracle.version>1.7.2</quartz-oracle.version>
+    <edtftpj.version>2.1.0</edtftpj.version>
+    <jzlib.version>1.0.7</jzlib.version>
+    <org.apache.karaf.management.boot.version>3.0.3</org.apache.karaf.management.boot.version>
+    <spring.security.version>4.1.3.RELEASE</spring.security.version>
+    <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
+    <junit.version>4.12</junit.version>
+    <jempbox.version>0.2.0</jempbox.version>
+    <mockrunner.version>0.3.1</mockrunner.version>
+    <json-unit.version>1.5.5</json-unit.version>
+    <ini4j.version>0.5.1</ini4j.version>
+    <scannotation.version>1.0.2</scannotation.version>
+    <javadbf.version>20081125</javadbf.version>
+    <gdata-client-meta.version>1.0</gdata-client-meta.version>
+    <owasp.encoder.version>1.2</owasp.encoder.version>
+    <powermock.version>1.6.3</powermock.version>
+    <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
+    <commons-httpclient.version>3.1</commons-httpclient.version>
+    <derby.version>10.5.3.0_1</derby.version>
+    <ehcache-core.version>2.5.1</ehcache-core.version>
+    <mockito-core.version>1.10.19</mockito-core.version>
+    <apacheds.version>1.5.5</apacheds.version>
+    <jcommon.version>1.0.16</jcommon.version>
+    <org.apache.felix.http.version>2.3.0</org.apache.felix.http.version>
+    <drools.version>6.4.0.Final</drools.version>
+    <snmp4j.version>1.9.3d</snmp4j.version>
+    <batik.version>1.9.1</batik.version>
+    <itext.version>2.1.7</itext.version>
+    <mondrian.version>3.14.0.14-149</mondrian.version>
+    <mockito-all.version>1.10.19</mockito-all.version>
+    <org.apache.karaf.jaas.version>2.4.2</org.apache.karaf.jaas.version>
+    <log4j.version>1.2.17</log4j.version>
+    <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
+    <rome.version>1.0</rome.version>
+    <javatar.version>2.5</javatar.version>
+    <elasticsearch.version>0.16.3</elasticsearch.version>
+    <httpcore.version>4.0-beta3</httpcore.version>
+    <jfreechart.version>1.0.13</jfreechart.version>
+    <monetdb-jdbc.version>2.8</monetdb-jdbc.version>
+    <taglibs-standard-impl.version>1.2.5</taglibs-standard-impl.version>
+    <sqlite-jdbc.version>3.7.2</sqlite-jdbc.version>
+    <commons-collections4.version>4.1</commons-collections4.version>
+    <gdata-client.version>1.41.4</gdata-client.version>
+    <jsonpath.version>1.0</jsonpath.version>
+    <odfdom-java.version>0.8.6</odfdom-java.version>
+    <commons-math.version>1.1</commons-math.version>
+    <dom4j.version>1.6.1</dom4j.version>
+    <hibernate-c3p0.version>3.6.9.Final</hibernate-c3p0.version>
+    <gdata-analytics.version>2.1</gdata-analytics.version>
+    <spring-mock.version>2.0.8</spring-mock.version>
+    <gdata-core.version>1.41.4</gdata-core.version>
+    <javassist.version>3.20.0-GA</javassist.version>
+    <grizzly.version>1.9.45</grizzly.version>
+    <jai_codec.version>1.1.2</jai_codec.version>
+    <org.apache.felix.framework.version>4.4.1</org.apache.felix.framework.version>
+    <json-path.version>0.8.1</json-path.version>
+    <saxon.version>9.1.0.8</saxon.version>
+    <guava.version>17.0</guava.version>
+    <dumbster.version>1.6.0</dumbster.version>
+    <bcprov-jdk14.version>138</bcprov-jdk14.version>
+    <commons-pool.version>1.5.7</commons-pool.version>
+    <org.apache.felix.fileinstall.version>3.4.2</org.apache.felix.fileinstall.version>
+    <jstl.version>1.2</jstl.version>
+    <jsch.version>0.1.54</jsch.version>
+    <jcommon-logging-log4jlog.version>1.0.2</jcommon-logging-log4jlog.version>
+    <h2.version>1.2.131</h2.version>
+    <commons-cli.version>1.2</commons-cli.version>
+    <license-maven-plugin.version>3.0</license-maven-plugin.version>
+    <commons-discovery.version>0.4</commons-discovery.version>
+    <commons-digester.version>1.8</commons-digester.version>
+    <hamcrest-library.version>1.3</hamcrest-library.version>
+    <axis.version>1.4</axis.version>
+    <xmlenc.version>0.52</xmlenc.version>
+    <jsendnsca.version>2.0.1</jsendnsca.version>
+    <neethi.version>2.0.1</neethi.version>
+    <bcmail.version>138</bcmail.version>
+    <jackson.version>1.9.3</jackson.version>
+    <barbecue.version>1.5-beta1</barbecue.version>
+    <jaxws-spring.version>1.8</jaxws-spring.version>
+    <jackrabbit.version>2.10.0</jackrabbit.version>
+    <snappy-java.version>1.1.0</snappy-java.version>
+    <antlr-complete.version>3.5.2</antlr-complete.version>
+    <hibernate-core.version>3.6.9.Final</hibernate-core.version>
+    <license.inception.year>2002</license.inception.year>
+    <commons-lang3.version>3.0</commons-lang3.version>
+    <jsr181-api.version>1.0-MR1</jsr181-api.version>
+    <ascsapjco3wrp.version>20100529</ascsapjco3wrp.version>
+    <testng.version>6.5.2</testng.version>
+    <cglib.version>2.2</cglib.version>
+    <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
+    <jt400.version>6.1</jt400.version>
+    <sac.version>1.3</sac.version>
+    <quartz.version>1.7.2</quartz.version>
+    <hibernate-jpa-2.0-api.version>1.0.1.Final</hibernate-jpa-2.0-api.version>
+    <hsqldb.version>2.3.2</hsqldb.version>
   </properties>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -331,17 +302,15 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
   </build>
-
   <profiles>
     <profile>
-      <activation>
-          <property>
-            <name>!skipDefault</name>
-          </property>
-      </activation>
       <id>platform-base</id>
+      <activation>
+        <property>
+          <name>!skipDefault</name>
+        </property>
+      </activation>
       <modules>
         <module>api</module>
         <module>core</module>
@@ -352,87 +321,87 @@
       </modules>
     </profile>
     <profile>
-      <activation>
-          <property>
-            <name>!skipDefault</name>
-          </property>
-      </activation>
       <id>platform-user-console</id>
+      <activation>
+        <property>
+          <name>!skipDefault</name>
+        </property>
+      </activation>
       <modules>
         <module>user-console</module>
         <module>assemblies</module>
       </modules>
     </profile>
     <profile>
-      <activation>
-          <property>
-            <name>!skipDefault</name>
-          </property>
-      </activation>
       <id>platform-assemble</id>
+      <activation>
+        <property>
+          <name>!skipDefault</name>
+        </property>
+      </activation>
       <modules>
         <module>assemblies</module>
       </modules>
     </profile>
-      <profile>
-        <id>aggregate-reporting</id>
-        <activation>
-          <property>
-            <name>!skipTests</name>
-          </property>
-        </activation>
-        <reporting>
-          <plugins>
-            <plugin>
-              <artifactId>maven-jxr-plugin</artifactId>
-              <reportSets>
-                <reportSet>
-                  <id>aggregate-jxr</id>
-                  <reports>
-                    <report>aggregate</report>
-                  </reports>
-                  <inherited>false</inherited>
-                </reportSet>
-              </reportSets>
-              <configuration>
-                <linkJavadoc>true</linkJavadoc>
-              </configuration>
-            </plugin>
-            <plugin>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <reportSets>
-                <reportSet>
-                  <id>aggregate-javadoc</id>
-                  <reports>
-                    <report>aggregate</report>
-                  </reports>
-                  <inherited>false</inherited>
-                </reportSet>
-              </reportSets>
-              <configuration>
-                <failOnError>false</failOnError>
-              </configuration>
-            </plugin>
-            <plugin>
-              <artifactId>maven-checkstyle-plugin</artifactId>
-              <reportSets>
-                <reportSet>
-                  <id>aggregate-checkstyle</id>
-                  <reports>
-                    <report>checkstyle-aggregate</report>
-                  </reports>
-                  <inherited>false</inherited>
-                </reportSet>
-              </reportSets>
-              <configuration>
-                <configLocation>${checkstyle-config-url}</configLocation>
-                <propertiesLocation>${checkstyle-properties-url}</propertiesLocation>
-                <linkXRef>true</linkXRef>
-                <cacheFile />
-              </configuration>
-            </plugin>
-          </plugins>
-        </reporting>
-      </profile>
+    <profile>
+      <id>aggregate-reporting</id>
+      <activation>
+        <property>
+          <name>!skipTests</name>
+        </property>
+      </activation>
+      <reporting>
+        <plugins>
+          <plugin>
+            <artifactId>maven-jxr-plugin</artifactId>
+            <reportSets>
+              <reportSet>
+                <id>aggregate-jxr</id>
+                <reports>
+                  <report>aggregate</report>
+                </reports>
+                <inherited>false</inherited>
+              </reportSet>
+            </reportSets>
+            <configuration>
+              <linkJavadoc>true</linkJavadoc>
+            </configuration>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <reportSets>
+              <reportSet>
+                <id>aggregate-javadoc</id>
+                <reports>
+                  <report>aggregate</report>
+                </reports>
+                <inherited>false</inherited>
+              </reportSet>
+            </reportSets>
+            <configuration>
+              <failOnError>false</failOnError>
+            </configuration>
+          </plugin>
+          <plugin>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <reportSets>
+              <reportSet>
+                <id>aggregate-checkstyle</id>
+                <reports>
+                  <report>checkstyle-aggregate</report>
+                </reports>
+                <inherited>false</inherited>
+              </reportSet>
+            </reportSets>
+            <configuration>
+              <configLocation>${checkstyle-config-url}</configLocation>
+              <propertiesLocation>${checkstyle-properties-url}</propertiesLocation>
+              <linkXRef>true</linkXRef>
+              <cacheFile />
+            </configuration>
+          </plugin>
+        </plugins>
+      </reporting>
+    </profile>
   </profiles>
- </project>
+</project>
