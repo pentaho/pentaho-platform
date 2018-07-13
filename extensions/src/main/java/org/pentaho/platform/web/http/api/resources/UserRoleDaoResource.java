@@ -150,7 +150,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       // PRECONDITION_FAILED
       throw new WebApplicationException( Response.Status.PRECONDITION_FAILED );
     }
-    return Response.ok().build();
+    return Response.noContent().build();
   }
 
   /**
@@ -175,7 +175,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public Response deleteUsers( @QueryParam( "userNames" ) String userNames ) {
     try {
       userRoleDaoService.deleteUsers( userNames );
-      return Response.ok().build();
+      return Response.noContent().build();
     } catch ( org.pentaho.platform.api.engine.security.userroledao.NotFoundException e ) {
       throw new WebApplicationException( Response.Status.NOT_FOUND );
     } catch ( UncategorizedUserRoleDaoException e ) {
@@ -232,7 +232,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       // PRECONDITION_FAILED
       throw new WebApplicationException( Response.Status.PRECONDITION_FAILED );
     }
-    return Response.ok().build();
+    return Response.noContent().build();
   }
 
   /**
@@ -329,7 +329,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       if ( userName.equals( getSession().getName() ) ) {
         updateRolesForCurrentSession();
       }
-      return Response.ok().build();
+      return Response.noContent().build();
     } catch ( org.pentaho.platform.api.engine.security.userroledao.NotFoundException e ) {
       throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
     } catch ( UncategorizedUserRoleDaoException e ) {
@@ -367,7 +367,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       if ( userName.equals( getSession().getName() ) ) {
         updateRolesForCurrentSession();
       }
-      return Response.ok().build();
+      return Response.noContent().build();
     } catch ( org.pentaho.platform.api.engine.security.userroledao.NotFoundException e ) {
       throw new WebApplicationException( Response.status( Response.Status.NOT_FOUND ).entity( e.getLocalizedMessage() ).build() );
     } catch ( UncategorizedUserRoleDaoException e ) {
@@ -411,7 +411,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       // PRECONDITION_FAILED
       throw new WebApplicationException( Response.Status.PRECONDITION_FAILED );
     }
-    return Response.ok().build();
+    return Response.noContent().build();
   }
 
   /**
@@ -436,7 +436,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     try {
       userRoleDaoService.deleteRoles( roleNames );
       updateRolesForCurrentSession();
-      return Response.ok().build();
+      return Response.noContent().build();
     } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
     } catch ( UncategorizedUserRoleDaoException e ) {
@@ -541,7 +541,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public Response setLogicalRoles( LogicalRoleAssignments roleAssignments ) {
     try {
       userRoleDaoService.setLogicalRoles( roleAssignments );
-      return Response.ok().build();
+      return Response.noContent().build();
     } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
     }
@@ -657,7 +657,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       updateRolesForCurrentSession();
     }
 
-    return Response.ok().build();
+    return Response.noContent().build();
   }
 
   /**
@@ -682,7 +682,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
           updateRolesForCurrentSession();
         }
 
-        return Response.ok().build();
+        return Response.noContent().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
@@ -722,7 +722,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
           updateRolesForCurrentSession();
         }
 
-        return Response.ok().build();
+        return Response.noContent().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
@@ -760,7 +760,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         if ( assignedUserNames.contains( getSession().getName() ) ) {
           updateRolesForCurrentSession();
         }
-        return Response.ok().build();
+        return Response.noContent().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
@@ -793,7 +793,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       updateRolesForCurrentSession();
     }
 
-    return Response.ok().build();
+    return Response.noContent().build();
   }
 
   /**
@@ -814,7 +814,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
         IUserRoleDao roleDao = getUserRoleDao();
         roleDao.setRoleMembers( getTenant( tenantPath ), roleName, new String[0] );
         updateRolesForCurrentSession();
-        return Response.ok().build();
+        return Response.noContent().build();
       } catch ( Throwable th ) {
         return processErrorResponse( th.getLocalizedMessage() );
       }
@@ -868,7 +868,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     try {
       userRoleDaoService.updatePassword( user, user.getAdministratorPassword() );
 
-      return Response.ok().build();
+      return Response.noContent().build();
     } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
     }

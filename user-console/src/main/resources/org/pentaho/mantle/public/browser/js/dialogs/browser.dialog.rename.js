@@ -48,7 +48,7 @@ define([
 
       // Set default for showOverrideDialog
       BrowserUtils._makeAjaxCall("GET", "text", this.buildsessionVariableUrl("showOverrideDialog"), true, function (result) {
-        me.set("showOverrideDialog", result.length == 0 || result === "true");
+        me.set("showOverrideDialog", result == undefined || result.length == 0 || result === "true");
       });
     },
 
