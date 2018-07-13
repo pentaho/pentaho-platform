@@ -127,7 +127,7 @@ public class UserRoleDaoResourceTest {
     doNothing().when( userRoleResource ).updateRolesForCurrentSession();
 
     Response response = userRoleResource.assignRolesToUser( user, roles );
-    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+    assertEquals( Response.Status.NO_CONTENT.getStatusCode(), response.getStatus() );
   }
 
   @Test
@@ -185,7 +185,7 @@ public class UserRoleDaoResourceTest {
     doNothing().when( userRoleResource ).updateRolesForCurrentSession();
 
     Response response = userRoleResource.removeRolesFromUser( user, roles );
-    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+    assertEquals( Response.Status.NO_CONTENT.getStatusCode(), response.getStatus() );
   }
 
   @Test
@@ -241,7 +241,7 @@ public class UserRoleDaoResourceTest {
     String users = "user1\tuser2\tuser3\t";
 
     Response response = userRoleResource.deleteUsers( users );
-    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+    assertEquals( Response.Status.NO_CONTENT.getStatusCode(), response.getStatus() );
   }
 
   @Test
@@ -326,7 +326,7 @@ public class UserRoleDaoResourceTest {
     String roleList = "role1\trole2";
     userRoleResource = spy( userRoleResource );
     doNothing().when( userRoleResource ).updateRolesForCurrentSession();
-    assertEquals( Response.Status.OK.getStatusCode(), userRoleResource.deleteRoles( roleList ).getStatus() );
+    assertEquals( Response.Status.NO_CONTENT.getStatusCode(), userRoleResource.deleteRoles( roleList ).getStatus() );
   }
 
   @Test
@@ -398,7 +398,7 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testCreateUser() throws Exception {
     Response response = userRoleResource.createUser( new User( "name", "password" ) );
-    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+    assertEquals( Response.Status.NO_CONTENT.getStatusCode(), response.getStatus() );
   }
 
   @Test
@@ -456,7 +456,7 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testChangePasswordSuccess() throws Exception {
     Response response = userRoleResource.changeUserPassword( new ChangePasswordUser( "name", "newPass", "oldPass" ) );
-    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+    assertEquals( Response.Status.NO_CONTENT.getStatusCode(), response.getStatus() );
   }
 
   @Test
@@ -486,7 +486,7 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testCreateRole() throws Exception {
     Response response = userRoleResource.createRole( "newRole" );
-    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+    assertEquals( Response.Status.NO_CONTENT.getStatusCode(), response.getStatus() );
   }
 
   @Test
@@ -518,7 +518,7 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testUpdatePassword() throws Exception {
     Response response = userRoleResource.updatePassword( new UserChangePasswordDTO( "name", "newPassword", "bogusPassword" ) );
-    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+    assertEquals( Response.Status.NO_CONTENT.getStatusCode(), response.getStatus() );
   }
 
   @Test
