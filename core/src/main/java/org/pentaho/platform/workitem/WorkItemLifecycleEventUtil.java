@@ -86,6 +86,25 @@ public class WorkItemLifecycleEventUtil {
     publish( workItemLifecycleEvent );
   }
 
+  /**
+   * A convenience method for publishing changes to the work item's lifecycles that creates an instance of {@link
+   * WorkItemLifecycleEvent} and calls the {@link #publish(IWorkItemLifecycleEvent)} method
+   *
+   * @param workItemUid            a {@link String} containing unique identifier for the {@link
+   *                               IWorkItemLifecycleEvent}
+   * @param details                a {@link String} containing details of the {@link IWorkItemLifecycleEvent}
+   * @param workItemLifecyclePhase a {@link WorkItemLifecyclePhase} representing the lifecycle event
+   * @param lifecycleDetails       a {@link String} containing lifecycle of the {@link IWorkItemLifecycleEvent}
+   */
+  public static void publish( final String workItemUid,
+                              final String details,
+                              final WorkItemLifecyclePhase workItemLifecyclePhase,
+                              final String lifecycleDetails ) {
+    final IWorkItemLifecycleEvent workItemLifecycleEvent = createEvent( workItemUid, details,
+      workItemLifecyclePhase, lifecycleDetails, null );
+    publish( workItemLifecycleEvent );
+  }
+
   protected static IWorkItemLifecycleEvent createEvent( final String workItemUid,
                                                         final String workItemDetails,
                                                         final WorkItemLifecyclePhase workItemLifecyclePhase,

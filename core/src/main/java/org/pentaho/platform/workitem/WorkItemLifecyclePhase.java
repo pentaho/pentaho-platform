@@ -47,6 +47,14 @@ public enum WorkItemLifecyclePhase implements IWorkItemLifecyclePhase {
    */
   IN_PROGRESS,
   /**
+   * The work item execution is in progress
+   */
+  COMPLETED,
+  /**
+   * The work item execution is in progress
+   */
+  COMPLETED_WITH_ERRORS,
+  /**
    * The work item execution has succeeded
    */
   SUCCEEDED,
