@@ -573,7 +573,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    */
   @GET
   @Path ( "/canSchedule" )
-  @Produces ( TEXT_PLAIN )
+  @Produces ( APPLICATION_JSON )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successful retrieved the scheduling permission." ),
       @ResponseCode ( code = 500, condition = "Unable to retrieve the scheduling permission." )
