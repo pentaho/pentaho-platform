@@ -276,8 +276,7 @@ public class SchedulerService {
   }
 
   public String doGetCanSchedule() {
-    Boolean isAllowed = getPolicy().isAllowed( SchedulerAction.NAME );
-    return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    return String.valueOf( getPolicy().isAllowed( SchedulerAction.NAME ) );
   }
 
   public String getState() throws SchedulerException {

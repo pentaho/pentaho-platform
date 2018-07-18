@@ -68,7 +68,7 @@ public class SchedulesPerspectivePanel extends SimplePanel {
           try {
             final String url2 = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule"; //$NON-NLS-1$
             RequestBuilder requestBuilder2 = new RequestBuilder( RequestBuilder.GET, url2 );
-            requestBuilder2.setHeader( "accept", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
+            requestBuilder2.setHeader( "accept", "application/json" ); //$NON-NLS-1$ //$NON-NLS-2$
             requestBuilder2.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
             requestBuilder2.sendRequest( null, new RequestCallback() {
 

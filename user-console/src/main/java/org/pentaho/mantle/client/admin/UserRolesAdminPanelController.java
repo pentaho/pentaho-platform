@@ -224,6 +224,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/updatePassword";
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, serviceUrl );
     try {
+      executableTypesRequestBuilder.setHeader( "accept", "application/json" );
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
       String json =
