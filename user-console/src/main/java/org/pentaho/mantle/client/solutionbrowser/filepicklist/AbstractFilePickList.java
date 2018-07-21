@@ -214,6 +214,7 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 
     RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
     try {
+      builder.setHeader( "accept", "application/json" );
       builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       builder.sendRequest( toJson().toString(), new RequestCallback() {
 
@@ -246,7 +247,10 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          if ( response.getStatusCode() == Response.SC_OK ) {
+          if( response.getStatusCode() == Response.SC_NO_CONTENT && FILE_PICK_ADD.equals( command ) ) {
+            filePickList = new ArrayList<T>();
+            add( filePickList.size(), pickListItem );
+          } else if ( response.getStatusCode() == Response.SC_OK ) {
             try {
               JSONArray jsonArr = ( JSONArray ) JSONParser.parse( response.getText() );
               filePickList = new ArrayList<T>();
