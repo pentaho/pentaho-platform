@@ -21,8 +21,8 @@
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
 import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 
 import javax.jws.WebService;
 import java.util.List;

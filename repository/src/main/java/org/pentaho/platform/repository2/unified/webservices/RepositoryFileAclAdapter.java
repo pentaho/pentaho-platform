@@ -23,6 +23,8 @@ package org.pentaho.platform.repository2.unified.webservices;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.io.Serializable;
@@ -34,13 +36,15 @@ public class RepositoryFileAclAdapter extends XmlAdapter<RepositoryFileAclDto, R
   @Override
   public RepositoryFileAclDto marshal( final RepositoryFileAcl v ) {
     RepositoryFileAclDto aclDto = new RepositoryFileAclDto();
-    aclDto.id = v.getId() != null ? v.getId().toString() : null;
-    if ( v.getOwner() != null ) {
-      aclDto.owner = v.getOwner().getName();
-      aclDto.ownerType = v.getOwner().getType() != null ? v.getOwner().getType().ordinal() : -1;
+    Serializable id = v.getId();
+    aclDto.setId( id != null ? id.toString() : null );
+    RepositoryFileSid owner = v.getOwner();
+    if ( owner != null ) {
+      aclDto.setOwner( owner.getName() );
+      aclDto.setOwnerType( owner.getType() != null ? owner.getType().ordinal() : -1 );
     }
-    aclDto.entriesInheriting = v.isEntriesInheriting();
-    aclDto.aces = toAcesDto( v.getAces() );
+    aclDto.setEntriesInheriting( v.isEntriesInheriting() );
+    aclDto.setAces( toAcesDto( v.getAces() ) );
     return aclDto;
   }
 
@@ -55,17 +59,17 @@ public class RepositoryFileAclAdapter extends XmlAdapter<RepositoryFileAclDto, R
   @Override
   public RepositoryFileAcl unmarshal( final RepositoryFileAclDto v ) {
     RepositoryFileAcl.Builder builder = null;
-    if ( v.ownerType != -1 ) {
-      if ( v.id != null ) {
-        builder = new RepositoryFileAcl.Builder( v.id, v.owner, RepositoryFileSid.Type.values()[v.ownerType] );
+    if ( v.getOwnerType() != -1 ) {
+      if ( v.getId() != null ) {
+        builder = new RepositoryFileAcl.Builder( v.getId(), v.getOwner(), RepositoryFileSid.Type.values()[v.getOwnerType()] );
       } else {
-        builder = new RepositoryFileAcl.Builder( v.tenantPath, v.owner, RepositoryFileSid.Type.values()[v.ownerType] );
+        builder = new RepositoryFileAcl.Builder( v.getTenantPath(), v.getOwner(), RepositoryFileSid.Type.values()[v.getOwnerType()] );
       }
     } else {
-      builder = new RepositoryFileAcl.Builder( (Serializable) v.id, null );
+      builder = new RepositoryFileAcl.Builder( (Serializable) v.getId(), null );
     }
-    builder.entriesInheriting( v.entriesInheriting );
-    for ( RepositoryFileAclAceDto fileAclAceDto : v.aces ) {
+    builder.entriesInheriting( v.isEntriesInheriting() );
+    for ( RepositoryFileAclAceDto fileAclAceDto : v.getAces() ) {
       builder.ace( RepositoryFileAclAceAdapter.toAce( fileAclAceDto ) );
     }
     return builder.build();

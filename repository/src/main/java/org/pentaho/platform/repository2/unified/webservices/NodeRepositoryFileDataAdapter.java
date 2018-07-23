@@ -25,6 +25,9 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPrope
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.webservices.DataNodeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.DataPropertyDto;
+import org.pentaho.platform.api.repository2.unified.webservices.NodeRepositoryFileDataDto;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
@@ -37,73 +40,76 @@ public class NodeRepositoryFileDataAdapter extends XmlAdapter<NodeRepositoryFile
   public NodeRepositoryFileDataDto marshal( final NodeRepositoryFileData v ) {
     NodeRepositoryFileDataDto d = new NodeRepositoryFileDataDto();
     DataNodeDto node = new DataNodeDto();
-    d.node = node;
+    d.setNode( node );
     toDataNodeDto( node, v.getNode() );
     return d;
   }
 
   protected void toDataNodeDto( final DataNodeDto nodeDto, final DataNode node ) {
-    nodeDto.name = node.getName();
+    nodeDto.setName( node.getName() );
     if ( node.getId() != null ) {
-      nodeDto.id = node.getId().toString();
+      nodeDto.setId( node.getId().toString() );
     }
     List<DataPropertyDto> dtoProps = new ArrayList<DataPropertyDto>();
     for ( DataProperty prop : node.getProperties() ) {
       DataPropertyDto dtoProp = new DataPropertyDto();
-      dtoProp.name = prop.getName();
+      dtoProp.setName( prop.getName() );
       if ( ( prop.getType() == DataPropertyType.BOOLEAN ) || ( prop.getType() == DataPropertyType.DOUBLE )
           || ( prop.getType() == DataPropertyType.LONG ) || ( prop.getType() == DataPropertyType.STRING )
           || ( prop.getType() == DataPropertyType.REF ) ) {
-        dtoProp.value = prop.getString();
+        dtoProp.setValue( prop.getString() );
       } else if ( prop.getType() == DataPropertyType.DATE ) {
         Date dateProp = prop.getDate();
-        dtoProp.value = dateProp != null ? String.valueOf( dateProp.getTime() ) : null;
+        dtoProp.setValue( dateProp != null ? String.valueOf( dateProp.getTime() ) : null );
       } else {
         throw new IllegalArgumentException();
       }
-      dtoProp.type = prop.getType() != null ? prop.getType().ordinal() : -1;
+      dtoProp.setType( prop.getType() != null ? prop.getType().ordinal() : -1 );
       dtoProps.add( dtoProp );
     }
-    nodeDto.childProperties = dtoProps;
+    nodeDto.setChildProperties( dtoProps );
     List<DataNodeDto> nodeDtos = new ArrayList<DataNodeDto>();
     for ( DataNode childNode : node.getNodes() ) {
       DataNodeDto child = new DataNodeDto();
       nodeDtos.add( child );
       toDataNodeDto( child, childNode );
     }
-    nodeDto.childNodes = nodeDtos;
+    nodeDto.setChildNodes( nodeDtos );
   }
 
   @Override
   public NodeRepositoryFileData unmarshal( final NodeRepositoryFileDataDto v ) {
-    DataNode node = toDataNode( v.node );
+    DataNode node = toDataNode( v.getNode() );
     NodeRepositoryFileData data = new NodeRepositoryFileData( node );
     return data;
   }
 
   protected DataNode toDataNode( final DataNodeDto nodeDto ) {
-    DataNode node = new DataNode( nodeDto.name );
-    node.setId( nodeDto.id );
+    DataNode node = new DataNode( nodeDto.getName() );
+    node.setId( nodeDto.getId() );
 
-    for ( DataPropertyDto dtoProp : nodeDto.childProperties ) {
-      if ( dtoProp.type == DataPropertyType.BOOLEAN.ordinal() ) {
-        node.setProperty( dtoProp.name, Boolean.parseBoolean( dtoProp.value ) );
-      } else if ( dtoProp.type == DataPropertyType.DATE.ordinal() ) {
-        node.setProperty( dtoProp.name, new Date( Long.parseLong( dtoProp.value ) ) );
-      } else if ( dtoProp.type == DataPropertyType.DOUBLE.ordinal() ) {
-        node.setProperty( dtoProp.name, Double.parseDouble( dtoProp.value ) );
-      } else if ( dtoProp.type == DataPropertyType.LONG.ordinal() ) {
-        node.setProperty( dtoProp.name, Long.parseLong( dtoProp.value ) );
-      } else if ( dtoProp.type == DataPropertyType.STRING.ordinal() ) {
-        node.setProperty( dtoProp.name, dtoProp.value );
-      } else if ( dtoProp.type == DataPropertyType.REF.ordinal() ) {
-        node.setProperty( dtoProp.name, new DataNodeRef( dtoProp.value ) );
+    for ( DataPropertyDto dtoProp : nodeDto.getChildProperties() ) {
+      int type = dtoProp.getType();
+      String name = dtoProp.getName();
+      String value = dtoProp.getValue();
+      if ( type == DataPropertyType.BOOLEAN.ordinal() ) {
+        node.setProperty( name, Boolean.parseBoolean( value ) );
+      } else if ( type == DataPropertyType.DATE.ordinal() ) {
+        node.setProperty( name, new Date( Long.parseLong( value ) ) );
+      } else if ( type == DataPropertyType.DOUBLE.ordinal() ) {
+        node.setProperty( name, Double.parseDouble( value ) );
+      } else if ( type == DataPropertyType.LONG.ordinal() ) {
+        node.setProperty( name, Long.parseLong( value ) );
+      } else if ( type == DataPropertyType.STRING.ordinal() ) {
+        node.setProperty( name, value );
+      } else if ( type == DataPropertyType.REF.ordinal() ) {
+        node.setProperty( name, new DataNodeRef( value ) );
       } else {
         throw new IllegalArgumentException();
       }
     }
 
-    for ( DataNodeDto childNodeDto : nodeDto.childNodes ) {
+    for ( DataNodeDto childNodeDto : nodeDto.getChildNodes() ) {
       node.addNode( toDataNode( childNodeDto ) );
     }
 

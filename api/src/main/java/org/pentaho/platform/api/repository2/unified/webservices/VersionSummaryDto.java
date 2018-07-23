@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.repository2.unified.webservices;
+package org.pentaho.platform.api.repository2.unified.webservices;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
@@ -26,23 +26,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@XmlRootElement(name="versionSummaryDto")
+@XmlRootElement( name = "versionSummaryDto" )
 public class VersionSummaryDto implements Serializable {
   private static final long serialVersionUID = -8333387280720917305L;
 
-  String message;
+  private String message;
 
-  Date date;
+  private Date date;
 
-  String author;
+  private String author;
 
-  String id;
+  private String id;
 
-  String versionedFileId;
+  private String versionedFileId;
 
-  boolean aclOnlyChange;
+  private boolean aclOnlyChange;
 
-  List<String> labels = new ArrayList<String>( 0 );
+  private List<String> labels = new ArrayList<String>( 0 );
 
   public VersionSummaryDto() {
     super();
@@ -104,11 +104,11 @@ public class VersionSummaryDto implements Serializable {
         + date + ", labels=" + labels + ", message=" + message + "]";
   }
 
-  private boolean isAclOnlyChange() {
+  public boolean isAclOnlyChange() {
     return aclOnlyChange;
   }
 
-  private void setAclOnlyChange( boolean aclOnlyChange ) {
+  public void setAclOnlyChange( boolean aclOnlyChange ) {
     this.aclOnlyChange = aclOnlyChange;
   }
 

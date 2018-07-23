@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.repository2.unified.webservices;
+package org.pentaho.platform.api.repository2.unified.webservices;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
@@ -29,20 +29,20 @@ import java.util.List;
 public class RepositoryFileAclDto implements Serializable {
   private static final long serialVersionUID = -3534878030681136321L;
 
-  List<RepositoryFileAclAceDto> aces = new ArrayList<RepositoryFileAclAceDto>( 0 );
+  private List<RepositoryFileAclAceDto> aces = new ArrayList<RepositoryFileAclAceDto>( 0 );
 
-  String id;
+  private String id;
 
-  String owner;
+  private String owner;
 
-  String tenantPath;
+  private String tenantPath;
 
   /**
    * RepositoryFileSid.Type enum.
    */
-  int ownerType = -1;
+  private int ownerType = -1;
 
-  boolean entriesInheriting = true;
+  private boolean entriesInheriting = true;
 
   public RepositoryFileAclDto() {
     super();

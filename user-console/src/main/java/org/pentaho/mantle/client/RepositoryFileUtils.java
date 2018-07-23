@@ -22,8 +22,9 @@ package org.pentaho.mantle.client;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,15 +45,15 @@ public class RepositoryFileUtils {
 
   public static RepositoryFile convertToRepositoryFile( RepositoryFileDto file ) {
     RepositoryFile repositoryFile = new RepositoryFile();
-    repositoryFile.setCreatedDate( file.getCreatedDate() );
-    repositoryFile.setDeletedDate( file.getDeletedDate() );
+    repositoryFile.setCreatedDate( RepositoryFileAdapter.unmarshalDate( file.getCreatedDate() ) );
+    repositoryFile.setDeletedDate( RepositoryFileAdapter.unmarshalDate( file.getDeletedDate() ) );
     repositoryFile.setDescription( file.getDescription() );
     repositoryFile.setFolder( file.isFolder() );
     repositoryFile.setHidden( file.isHidden() );
     repositoryFile.setId( file.getId() );
-    repositoryFile.setLastModifiedDate( file.getLastModifiedDate() );
+    repositoryFile.setLastModifiedDate( RepositoryFileAdapter.unmarshalDate( file.getLastModifiedDate() ) );
     repositoryFile.setLocale( file.getLocale() );
-    repositoryFile.setLockDate( file.getLockDate() );
+    repositoryFile.setLockDate( RepositoryFileAdapter.unmarshalDate( file.getLockDate() ) );
     repositoryFile.setLocked( file.isLocked() );
     repositoryFile.setLockMessage( file.getLockMessage() );
     repositoryFile.setLockOwner( file.getLockOwner() );
@@ -80,16 +81,16 @@ public class RepositoryFileUtils {
 
   public static RepositoryFileDto convertFromRepositoryFile( RepositoryFile file ) {
     RepositoryFileDto repositoryFile = new RepositoryFileDto();
-    repositoryFile.setCreatedDate( file.getCreatedDate() );
-    repositoryFile.setDeletedDate( file.getDeletedDate() );
+    repositoryFile.setCreatedDate( RepositoryFileAdapter.marshalDate( file.getCreatedDate() ) );
+    repositoryFile.setDeletedDate( RepositoryFileAdapter.marshalDate( file.getDeletedDate() ) );
     repositoryFile.setDescription( file.getDescription() );
     repositoryFile.setFolder( file.isFolder() );
     repositoryFile.setHidden( file.isHidden() );
     repositoryFile.setAclNode( false );
     repositoryFile.setId( file.getId() );
-    repositoryFile.setLastModifiedDate( file.getLastModifiedDate() );
+    repositoryFile.setLastModifiedDate( RepositoryFileAdapter.marshalDate( file.getLastModifiedDate() ) );
     repositoryFile.setLocale( file.getLocale() );
-    repositoryFile.setLockDate( file.getLockDate() );
+    repositoryFile.setLockDate( RepositoryFileAdapter.marshalDate( file.getLockDate() ) );
     repositoryFile.setLocked( file.isLocked() );
     repositoryFile.setLockMessage( file.getLockMessage() );
     repositoryFile.setLockOwner( file.getLockOwner() );

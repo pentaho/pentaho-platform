@@ -40,7 +40,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -66,7 +66,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static javax.ws.rs.core.MediaType.*;
+import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
@@ -623,9 +626,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
       executableTypes.add( executableFileType );
     }
 
-    final GenericEntity<List<ExecutableFileTypeDto>> entity =
-        new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) {
-        };
+    final GenericEntity<List<ExecutableFileTypeDto>> entity = new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) { };
     return Response.ok( entity ).build();
   }
 

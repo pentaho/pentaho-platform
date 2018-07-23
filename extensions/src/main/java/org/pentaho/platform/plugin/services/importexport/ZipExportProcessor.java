@@ -55,7 +55,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
+import org.pentaho.platform.api.repository2.unified.webservices.LocaleMapDto;
 
 import java.io.File;
 import java.io.FileInputStream;

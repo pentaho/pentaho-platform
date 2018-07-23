@@ -23,6 +23,7 @@ package org.pentaho.platform.repository2.unified.webservices;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
@@ -38,9 +39,10 @@ public class RepositoryFileAclAceAdapter extends XmlAdapter<RepositoryFileAclAce
 
   public static RepositoryFileAclAceDto toAceDto( RepositoryFileAce v ) {
     RepositoryFileAclAceDto aceDto = new RepositoryFileAclAceDto();
-    aceDto.recipient = v.getSid().getName();
-    aceDto.recipientType = v.getSid().getType().ordinal();
-    aceDto.permissions = toIntPerms( v.getPermissions() );
+    RepositoryFileSid sid = v.getSid();
+    aceDto.setRecipient( sid.getName() );
+    aceDto.setRecipientType( sid.getType().ordinal() );
+    aceDto.setPermissions( toIntPerms( v.getPermissions() ) );
     return aceDto;
   }
 
@@ -51,8 +53,8 @@ public class RepositoryFileAclAceAdapter extends XmlAdapter<RepositoryFileAclAce
 
   public static RepositoryFileAce toAce( RepositoryFileAclAceDto v ) {
     return new RepositoryFileAce(
-        new RepositoryFileSid( v.recipient, RepositoryFileSid.Type.values()[v.recipientType] ),
-      toPerms( v.permissions ) );
+        new RepositoryFileSid( v.getRecipient(), RepositoryFileSid.Type.values()[v.getRecipientType()] ),
+      toPerms( v.getPermissions() ) );
   }
 
   public static List<Integer> toIntPerms( EnumSet<RepositoryFilePermission> perms ) {
