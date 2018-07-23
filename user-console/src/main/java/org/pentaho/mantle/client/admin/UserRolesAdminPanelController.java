@@ -236,7 +236,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          if ( response.getStatusCode() != Response.SC_OK ) {
+          if ( response.getStatusCode() != Response.SC_NO_CONTENT ) {
             showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
             callback.serviceResult( false );
           } else {
