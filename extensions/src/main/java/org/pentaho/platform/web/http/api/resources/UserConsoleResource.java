@@ -332,7 +332,13 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   public Response getSessionVariable( @QueryParam ( "key" ) String key ) {
     if ( getSessionVarWhiteList.contains( key ) ) {
-      return Response.ok( UserConsoleService.getPentahoSession().getAttribute( key ) ).build();
+      Object value = UserConsoleService.getPentahoSession().getAttribute( key );
+
+      if ( value != null ) {
+        return Response.ok( value ).build();
+      } else {
+        return Response.noContent().build();
+      }
     }
     return Response.status( FORBIDDEN ).build();
   }
