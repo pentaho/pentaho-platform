@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.email;
@@ -64,22 +64,22 @@ public class Emailer {
   }
 
   public void setTo( String to ) {
-    to = to.replaceAll( ";", "," );
     if ( to != null && !"".equals( to ) ) {
+      to = to.replaceAll( ";", "," );
       props.put( "to", to );
     }
   }
 
   public void setCc( String cc ) {
-    cc = cc.replaceAll( ";", "," );
     if ( cc != null && !"".equals( cc ) ) {
+      cc = cc.replaceAll( ";", "," );
       props.put( "cc", cc );
     }
   }
 
   public void setBcc( String bcc ) {
-    bcc = bcc.replaceAll( ";", "," );
     if ( bcc != null && !"".equals( bcc ) ) {
+      bcc = bcc.replaceAll( ";", "," );
       props.put( "bcc", bcc );
     }
   }
@@ -154,6 +154,10 @@ public class Emailer {
 
   public void setBody( String body ) {
     props.put( "body", body );
+  }
+
+  public Properties getProperties() {
+    return props;
   }
 
   public boolean setup() {
