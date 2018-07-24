@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2016 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.email;
@@ -119,6 +119,60 @@ public class EmailerTest {
     final String bodyPartContent = (String) bodyPart.getContent();
     assertTrue( bodyPartContent.contains( "Shiny test string" ) );
     assertTrue( bodyPartContent.contains( body ) );
+  }
+
+  @Test
+  public void setTo_NullTest() {
+    emailer.setTo( null );
+    assertNull( emailer.getProperties().getProperty( "to" ) );
+  }
+
+  @Test
+  public void setTo_ValidTest() {
+    emailer.setTo( "to@domain.com" );
+    assertEquals( "to@domain.com", emailer.getProperties().getProperty( "to" ) );
+  }
+
+  @Test
+  public void setTo_ReplaceToCommaTest() {
+    emailer.setTo( "to@domain.com; another_to@domain.com" );
+    assertEquals( "to@domain.com, another_to@domain.com", emailer.getProperties().getProperty( "to" ) );
+  }
+
+  @Test
+  public void setCc_NullTest() {
+    emailer.setCc( null );
+    assertNull( emailer.getProperties().getProperty( "cc" ) );
+  }
+
+  @Test
+  public void setCc_Test() {
+    emailer.setCc( "cc@domain.com" );
+    assertEquals( "cc@domain.com", emailer.getProperties().getProperty( "cc" ) );
+  }
+
+  @Test
+  public void setCc_ReplaceToCommaTest() {
+    emailer.setCc( "cc@domain.com; another_cc@domain.com" );
+    assertEquals( "cc@domain.com, another_cc@domain.com", emailer.getProperties().getProperty( "cc" ) );
+  }
+
+  @Test
+  public void setBcc_NullTest() {
+    emailer.setBcc( null );
+    assertNull( emailer.getProperties().getProperty( "bcc" ) );
+  }
+
+  @Test
+  public void setBcc_ValidTest() {
+    emailer.setBcc( "bcc@domain.com" );
+    assertEquals( "bcc@domain.com", emailer.getProperties().getProperty( "bcc" ) );
+  }
+
+  @Test
+  public void setBcc_ReplaceToCommaTest() {
+    emailer.setBcc( "bcc@domain.com; another_bcc@domain.com" );
+    assertEquals( "bcc@domain.com, another_bcc@domain.com", emailer.getProperties().getProperty( "bcc" ) );
   }
 
 }
