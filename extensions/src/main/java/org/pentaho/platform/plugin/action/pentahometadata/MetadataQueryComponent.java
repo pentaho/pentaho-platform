@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.action.pentahometadata;
@@ -232,7 +232,7 @@ public class MetadataQueryComponent {
 
         Object value = null;
         if ( inputs != null ) {
-          value = inputs.get( param.getName() );
+          value = getParameterValue( param );
         }
 
         executor.setParameter( param, value );
@@ -266,6 +266,16 @@ public class MetadataQueryComponent {
       throw new RuntimeException( e.getLocalizedMessage(), e );
     }
 
+  }
+
+  protected Object getParameterValue( Parameter parameter ) {
+
+    //This is the inverse logic of DashboardRenderer.generateParameterMap
+    if ( inputs.get( parameter.getName() ) instanceof String[] ) {
+      return ( (String[]) inputs.get( parameter.getName() ) ).length == 0 ? null : inputs.get( parameter.getName() );
+    } else {
+      return ( (String) inputs.get( parameter.getName() ) ).length() == 0 ? null : inputs.get( parameter.getName() );
+    }
   }
 
   public boolean validate() {
