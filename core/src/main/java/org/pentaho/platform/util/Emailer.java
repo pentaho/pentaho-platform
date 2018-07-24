@@ -66,22 +66,22 @@ public class Emailer {
   }
 
   public void setTo( String to ) {
-    to = to.replaceAll( ";", "," );
     if ( to != null && !"".equals( to ) ) {
+      to = to.replaceAll( ";", "," );
       props.put( "to", to );
     }
   }
 
   public void setCc( String cc ) {
-    cc = cc.replaceAll( ";", "," );
     if ( cc != null && !"".equals( cc ) ) {
+      cc = cc.replaceAll( ";", "," );
       props.put( "cc", cc );
     }
   }
 
   public void setBcc( String bcc ) {
-    bcc = bcc.replaceAll( ";", "," );
     if ( bcc != null && !"".equals( bcc ) ) {
+      bcc = bcc.replaceAll( ";", "," );
       props.put( "bcc", bcc );
     }
   }
@@ -160,6 +160,10 @@ public class Emailer {
 
   public String getEmailFromName() {
     return Messages.getInstance().getString( "emailFromName" ); //$NON-NLS-1$
+  }
+
+  public Properties getProperties() {
+    return props;
   }
 
   public boolean setup() {
