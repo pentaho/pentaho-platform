@@ -286,9 +286,11 @@
     }
   }
 
+  // With the fix BACKLOG-23730, server-side and client-side code uses centralized logic to check if user
+  // can download/upload content
   function checkDownload() {
     $.ajax({
-      url: CONTEXT_PATH + "api/authorization/action/isauthorized?authAction=org.pentaho.security.administerSecurity",
+      url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=",
       type: "GET",
       async: true,
       success: function (response) {
@@ -328,9 +330,11 @@
     });
   }
 
+  // With the fix BACKLOG-23730, server-side and client-side code uses centralized logic to check if user
+  // can download/upload content
   function checkPublish(canDownload, showHiddenFiles, showDescriptions) {
     $.ajax({
-      url: CONTEXT_PATH + "api/authorization/action/isauthorized?authAction=org.pentaho.security.administerSecurity",
+      url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=",
       type: "GET",
       async: true,
       success: function (response) {
