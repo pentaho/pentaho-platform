@@ -1295,7 +1295,9 @@ public class PentahoSystem {
     return PentahoSystem.UnmodifiableACLFileExtensionList;
   }
 
-  public static List getDownloadRolesList() { return PentahoSystem.UnmodifiableDownloadRolesList; }
+  public static List getDownloadRolesList() {
+    return PentahoSystem.UnmodifiableDownloadRolesList;
+  }
 
   // Stuff for the logout listener subsystem
   public static void addLogoutListener( final ILogoutListener listener ) {

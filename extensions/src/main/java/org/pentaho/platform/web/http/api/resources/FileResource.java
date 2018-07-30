@@ -2116,7 +2116,7 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Returns a boolean response." )
   } )
-  public Response canDownload( @QueryParam ( "dirPath" ) String dirPath ) {
+  public Response canDownload( @QueryParam ( "dirPath" ) @DefaultValue( "" ) String dirPath ) {
     return Response.ok( ( String.valueOf( SystemUtils.canDownload( dirPath ) ) ) ).build();
   }
 
@@ -2142,7 +2142,7 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Returns a boolean response." )
   } )
-  public Response canUpload( @QueryParam ( "dirPath" ) String dirPath ) {
+  public Response canUpload( @QueryParam ( "dirPath" ) @DefaultValue( "" ) String dirPath ) {
     return Response.ok( ( String.valueOf( SystemUtils.canUpload( dirPath ) ) ) ).build();
   }
 

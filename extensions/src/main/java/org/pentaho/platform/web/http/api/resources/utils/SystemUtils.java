@@ -21,6 +21,7 @@
 package org.pentaho.platform.web.http.api.resources.utils;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -55,11 +56,11 @@ public class SystemUtils {
       && ( policy.isAllowed( AdministerSecurityAction.NAME ) || policy.isAllowed( PublishAction.NAME ) );
 
     //the user does not have admin or publish permission, so we will check if the user imports to their home folder
-    if ( !isAdmin ) {
+    if ( !isAdmin && !StringUtils.isEmpty( uploadDir ) ) {
       return validateAccessToHomeFolder( uploadDir );
     }
 
-    return true;
+    return isAdmin;
   }
 
   public static boolean canDownload( String downloadDir ) {
@@ -76,11 +77,11 @@ public class SystemUtils {
       || !Collections.disjoint( tenantedUserRoles, PentahoSystem.getDownloadRolesList() ) );
 
     //the user does not have admin or download-roles assigned, so we will check if the user downloads from their home folder
-    if ( !isAdminOrHaveDownloadActionRole ) {
+    if ( !isAdminOrHaveDownloadActionRole && !StringUtils.isEmpty( downloadDir ) ) {
       return validateAccessToHomeFolder( downloadDir );
     }
 
-    return true;
+    return isAdminOrHaveDownloadActionRole;
   }
 
   public static boolean validateAccessToHomeFolder( String dir ) {
