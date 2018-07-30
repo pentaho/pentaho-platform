@@ -190,6 +190,11 @@ public class PentahoSystem {
   private static final List UnmodifiableACLFileExtensionList = UnmodifiableList
       .decorate( PentahoSystem.ACLFileExtensionList );
 
+  private static final List DownloadRolesList = new ArrayList();
+
+  private static final List UnmodifiableDownloadRolesList = UnmodifiableList
+    .decorate( PentahoSystem.DownloadRolesList );
+
   private static final List logoutListeners = Collections.synchronizedList( new ArrayList() );
 
   private static final IServerStatusProvider serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
@@ -291,6 +296,19 @@ public class PentahoSystem {
           extn = "." + extn; //$NON-NLS-1$
         }
         PentahoSystem.ACLFileExtensionList.add( extn );
+      }
+
+      if ( debug ) {
+        Logger.debug( PentahoSystem.class, "Reading Download Roles from pentaho.xml" ); //$NON-NLS-1$
+      }
+      // Set up Download Roles by reading pentaho.xml for download-roles
+      //
+      // Read the roles that are permitted to download content from repository
+      //
+      String downloadRoles = PentahoSystem.getSystemSetting( "download-roles", "Administrator" ); //$NON-NLS-1$ //$NON-NLS-2$
+      st = new StringTokenizer( downloadRoles, "," ); //$NON-NLS-1$
+      while ( st.hasMoreElements() ) {
+        PentahoSystem.DownloadRolesList.add( st.nextToken() );
       }
     }
 
@@ -1276,6 +1294,8 @@ public class PentahoSystem {
   public static List getACLFileExtensionList() {
     return PentahoSystem.UnmodifiableACLFileExtensionList;
   }
+
+  public static List getDownloadRolesList() { return PentahoSystem.UnmodifiableDownloadRolesList; }
 
   // Stuff for the logout listener subsystem
   public static void addLogoutListener( final ILogoutListener listener ) {

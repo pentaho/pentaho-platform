@@ -56,6 +56,7 @@ import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
 @Path ( "/repo/files/import" )
 public class RepositoryImportResource {
@@ -185,7 +186,7 @@ public class RepositoryImportResource {
     }
 
     try {
-      validateAccess( importDir );
+      validateImportAccess( importDir );
 
       boolean overwriteFileFlag = ( "false".equals( overwriteFile ) ? false : true );
       boolean overwriteAclSettingsFlag = ( "true".equals( overwriteAclPermissions ) ? true : false );
@@ -267,28 +268,9 @@ public class RepositoryImportResource {
     return Response.ok( responseBody, MediaType.TEXT_HTML ).build();
   }
 
-  protected void validateAccess( String importDir ) throws PentahoAccessControlException {
-    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-    //check if we are admin or have publish permisson
-    boolean isAdmin = policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
-                    && ( policy.isAllowed( AdministerSecurityAction.NAME ) || policy.isAllowed( PublishAction.NAME ) );
-    if ( !isAdmin ) {
-      //the user does not have admin or publish permisson, so we will check if the user imports to their home folder
-      boolean importingToHomeFolder = false;
-      String tenatedUserName = PentahoSessionHolder.getSession().getName();
-      //get user home home folder path
-      String userHomeFolderPath = ServerRepositoryPaths.getUserHomeFolderPath(
-          JcrTenantUtils.getUserNameUtils().getTenant( tenatedUserName ),
-            JcrTenantUtils.getUserNameUtils().getPrincipleName( tenatedUserName ) );
-      if ( userHomeFolderPath != null && userHomeFolderPath.length() > 0 ) {
-        //we pass the relative path so add serverside root folder for every home folder
-        importingToHomeFolder = ( ServerRepositoryPaths.getTenantRootFolderPath() + importDir )
-            .contains( userHomeFolderPath );
-      }
-      if ( !( importingToHomeFolder && policy.isAllowed( RepositoryCreateAction.NAME )
-          && policy.isAllowed( RepositoryReadAction.NAME ) ) ) {
-        throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
-      }
+  protected void validateImportAccess( String importDir ) throws PentahoAccessControlException {
+    boolean canUpload = SystemUtils.canUpload( importDir );
+    if ( !canUpload ) {
+      throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
     }
-  }
-}
+   }}

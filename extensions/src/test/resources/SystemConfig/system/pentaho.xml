@@ -19,6 +19,13 @@
   -->
   <login-show-sample-users-hint>true</login-show-sample-users-hint>
 
+	<!--
+	The download-roles defines user/roles that have download action permissions. It accepts a comma-separated list of roles.
+	System admins must change what are the users/roles that have permissions for download action. If not defined here,
+	the default value is set to 'Administrator'.
+	-->
+	<download-roles>Administrator</download-roles>
+
     <!--
 	This is the URL to the user guide
     -->

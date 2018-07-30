@@ -79,6 +79,7 @@ import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.mt.ITenant;
@@ -179,6 +180,10 @@ public class FileServiceTest {
             return null;
         } } );
     PentahoSystem.registerObjectFactory( pentahoObjectFactory );
+
+    IUserRoleListService userRoleListService = mock( IUserRoleListService.class );
+    PentahoSystem.registerObject( userRoleListService );
+
     IPentahoSession session = mock( IPentahoSession.class );
     doReturn( "sampleSession" ).when( session ).getName();
     PentahoSessionHolder.setSession( session );
@@ -1099,6 +1104,9 @@ public class FileServiceTest {
 
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
 
+    /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
+    PentahoSystem.registerObject( mockAuthPolicy );
+
     when( mockAuthPolicy.isAllowed( anyString() ) ).thenReturn( true );
 
     BaseExportProcessor mockExportProcessor = mock( BaseExportProcessor.class );
@@ -1142,6 +1150,9 @@ public class FileServiceTest {
     doReturn( false ).when( mockAuthPolicy ).isAllowed( AdministerSecurityAction.NAME );
 
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
+
+    /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
+    PentahoSystem.registerObject( mockAuthPolicy );
 
     // Test 1: in the home-folder
     try {
@@ -1196,6 +1207,9 @@ public class FileServiceTest {
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
     doReturn( false ).when( mockAuthPolicy ).isAllowed( anyString() );
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
+
+    /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
+    PentahoSystem.registerObject( mockAuthPolicy );
 
     try {
       fileService.doGetFileOrDirAsDownload( "", "mock:path:fileName", "true" );

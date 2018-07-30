@@ -67,6 +67,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -2091,6 +2092,58 @@ public class FileResource extends AbstractJaxRSResource {
     return new FileVersioningConfiguration(
       repositoryVersionManager.isVersioningEnabled( path ),
       repositoryVersionManager.isVersionCommentEnabled( path ) );
+  }
+
+  /**
+   * Validates if a current user is authorized to download content from the given dir.
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/repo/files/canDownload
+   * </p>
+   *
+   * @param dirPath  to be validated for download action for the current user.
+   *
+   * @return A boolean response based on the current user being authorized to download within the system.
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   *     false
+   * </pre>
+   */
+  @GET
+  @Path ( "/canDownload" )
+  @Produces ( { MediaType.TEXT_PLAIN } )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Returns a boolean response." )
+  } )
+  public Response canDownload( @QueryParam ( "dirPath" ) String dirPath ) {
+    return Response.ok( ( String.valueOf( SystemUtils.canDownload( dirPath ) ) ) ).build();
+  }
+
+  /**
+   * Validates if a current user is authorized to upload content to the given dir
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/repo/files/canUpload
+   * </p>
+   *
+   * @param dirPath  to be validated for upload action for the current user.
+   *
+   * @return A boolean response based on the current user being authorized to upload to given dir
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   *     false
+   * </pre>
+   */
+  @GET
+  @Path ( "/canUpload" )
+  @Produces ( { MediaType.TEXT_PLAIN } )
+  @StatusCodes ( {
+    @ResponseCode ( code = 200, condition = "Returns a boolean response." )
+  } )
+  public Response canUpload( @QueryParam ( "dirPath" ) String dirPath ) {
+    return Response.ok( ( String.valueOf( SystemUtils.canUpload( dirPath ) ) ) ).build();
   }
 
   protected boolean isPathValid( String path ) {
