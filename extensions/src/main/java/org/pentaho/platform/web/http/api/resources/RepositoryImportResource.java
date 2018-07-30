@@ -266,4 +266,4 @@ public class RepositoryImportResource {
     if ( !canUpload ) {
       throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
     }
-   }}
+  } }
