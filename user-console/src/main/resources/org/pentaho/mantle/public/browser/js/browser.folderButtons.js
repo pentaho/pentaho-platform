@@ -102,35 +102,23 @@ define([
     canPublish: function (canPublish) {
       if (canPublish) {
         $('#uploadButton').show();
+        $('#optional-separator').show();
       }
       else {
         $('#uploadButton').hide();
+        $('#optional-separator').hide();
       }
-      if ((  $('#uploadButton').css('display') == "none" ) &&
-          (  $('#downloadButton').css('display') == "none" )) {
-        $('#optional-separator').hide()
-      }
-      else {
-        $('#optional-separator').show()
-      }
-
     },
 
     canDownload: function (canDownload) {
       if (canDownload) {
         $('#downloadButton').show();
+        $('#optional-separator').show();
       }
       else {
         $('#downloadButton').hide();
+        $('#optional-separator').hide();
       }
-      if ((  $('#uploadButton').css('display') == "none" ) &&
-          (  $('#downloadButton').css('display') == "none" )) {
-        $('#optional-separator').hide()
-      }
-      else {
-        $('#optional-separator').show()
-      }
-
     },
 
     updateFolderPermissionButtons: function (permissions, multiSelectItems, renameAllowed) {
