@@ -87,10 +87,8 @@ import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
-import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
@@ -111,6 +109,7 @@ import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.web.http.api.resources.operations.CopyFilesOperation;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.api.resources.utils.RepositoryFileHelper;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 
 public class FileService {
@@ -566,7 +565,7 @@ public class FileService {
     throws Throwable {
     // change file id to path
     String path = idToPath( pathId );
-    validateAccess( path );
+    validateDownloadAccess( path );
     IAuthorizationPolicy  policy = getPolicy();
 
     String originalFileName, encodedFileName = null;
@@ -1824,30 +1823,10 @@ public class FileService {
   }
 
 
-  protected void validateAccess( String importDir ) throws PentahoAccessControlException {
-    IAuthorizationPolicy policy = getPolicy();
-    //check if we are admin or have publish permission
-    boolean isAdminOrPublish = policy.isAllowed( RepositoryReadAction.NAME )
-        && policy.isAllowed( RepositoryCreateAction.NAME )
-        && ( policy.isAllowed( AdministerSecurityAction.NAME )
-        || policy.isAllowed( PublishAction.NAME ) );
-    if ( !isAdminOrPublish ) {
-      //the user does not have admin or publish permission, so we will check if the user imports to their home folder
-      boolean usingHomeFolder = false;
-      String tenatedUserName = PentahoSessionHolder.getSession().getName();
-      //get user home home folder path
-      String userHomeFolderPath = ServerRepositoryPaths
-          .getUserHomeFolderPath( JcrTenantUtils.getUserNameUtils().getTenant( tenatedUserName ),
-              JcrTenantUtils.getUserNameUtils().getPrincipleName( tenatedUserName ) );
-      if ( userHomeFolderPath != null && userHomeFolderPath.length() > 0 ) {
-        //we pass the relative path so add serverside root folder for every home folder
-        usingHomeFolder = ( ServerRepositoryPaths.getTenantRootFolderPath() + importDir )
-            .contains( userHomeFolderPath );
-      }
-      if ( !( usingHomeFolder && policy.isAllowed( RepositoryCreateAction.NAME )
-          && policy.isAllowed( RepositoryReadAction.NAME ) ) ) {
-        throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
-      }
+  protected void validateDownloadAccess( String importDir ) throws PentahoAccessControlException {
+    boolean canDownload = SystemUtils.canDownload( importDir );
+    if ( !canDownload ) {
+      throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
     }
   }
 }
