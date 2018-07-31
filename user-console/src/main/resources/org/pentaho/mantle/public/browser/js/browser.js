@@ -328,7 +328,7 @@ define([
 		var model = FileBrowser.fileBrowserModel; // trap model
 		var folderPath = Encoder.encodeRepositoryPath( _folderPath);
 
-    // With the fix BACKLOG-23730, server-side and client-side code uses centralized logic to check if user
+    // With the fix for BACKLOG-23730, server-side and client-side code uses centralized logic to check if user
     // can download/upload content
     // Ajax request to check if user can download/upload(publish)
     $.ajax({
@@ -377,25 +377,6 @@ define([
       //TODO handle file button press
       var filePath = clickedFile.obj.attr("path");
       filePath = Encoder.encodeRepositoryPath(filePath);
-
-      /*
-       * BACKLOG-7846: a non-admin user will be granted upload/download permissions when:
-       * 1) is located in his home folder
-       * 2) has 'Read Content' permission
-       * 3) has 'Create Content' permission
-       */
-      var userHomePath = Encoder.encodeRepositoryPath( window.parent.HOME_FOLDER );
-      var inHomeFolder = filePath.indexOf( userHomePath ) > -1;
-      var canDownload = this.get("canDownload");
-
-      if( !canDownload && inHomeFolder ) {
-        var hasReadPermission = this.get("canRead");
-        var hasCreatePermission = this.get("canCreate")
-
-        if( hasReadPermission && hasCreatePermission ) {
-          fileButtons.canDownload(true); // enable download button
-        }
-      }
 
       //Ajax request to check write permissions for file
       $.ajax({
