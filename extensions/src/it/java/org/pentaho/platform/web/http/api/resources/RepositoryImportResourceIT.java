@@ -132,7 +132,7 @@ public class RepositoryImportResourceIT {
     } );
 
     RepositoryImportResource resource = new RepositoryImportResource();
-    resource.validateAccess( IMPORT_DIR );
+    resource.validateImportAccess( IMPORT_DIR );
 
     ArgumentCaptor<String> captor = ArgumentCaptor.forClass( String.class );
     verify( policy, atLeastOnce() ).isAllowed( captor.capture() );
