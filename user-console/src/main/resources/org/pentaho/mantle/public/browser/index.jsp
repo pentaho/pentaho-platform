@@ -334,7 +334,7 @@
   // can download/upload content
   function checkPublish(canDownload, showHiddenFiles, showDescriptions) {
     $.ajax({
-      url: CONTEXT_PATH + "api/repo/files/canDownload",
+      url: CONTEXT_PATH + "api/repo/files/canUpload",
       type: "GET",
       async: true,
       success: function (response) {
