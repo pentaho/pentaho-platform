@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
 import java.io.ByteArrayInputStream;

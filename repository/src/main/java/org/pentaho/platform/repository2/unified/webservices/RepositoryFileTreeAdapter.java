@@ -28,6 +28,8 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
 
 /**
  * Converts {@code RepositoryFileTree} into JAXB-safe object and vice-versa.
@@ -84,19 +86,22 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
   @Override
   public RepositoryFileTree unmarshal( final RepositoryFileTreeDto v ) {
     List<RepositoryFileTree> children = null;
-    if ( v.children != null ) {
+    List<RepositoryFileTreeDto> childrenDTO = v.getChildren();
+    if ( childrenDTO != null ) {
       children = new ArrayList<RepositoryFileTree>();
-      for ( RepositoryFileTreeDto child : v.children ) {
+      for ( RepositoryFileTreeDto child : childrenDTO ) {
         children.add( unmarshal( child ) );
       }
     }
 
-    RepositoryFileTree repositoryFileTree = new RepositoryFileTree( RepositoryFileAdapter.toFile( v.file ), children );
-    if ( v.file.getVersioningEnabled() != null ) {
-      repositoryFileTree.setVersioningEnabled( v.file.getVersioningEnabled() );
+    RepositoryFileTree repositoryFileTree = new RepositoryFileTree( RepositoryFileAdapter.toFile( v.getFile() ), children );
+    Boolean versioningEnable = v.getFile().getVersioningEnabled();
+    Boolean versionCommentEnabled = v.getFile().getVersionCommentEnabled();
+    if ( versioningEnable != null ) {
+      repositoryFileTree.setVersioningEnabled( versioningEnable );
     }
-    if ( v.file.getVersionCommentEnabled() != null ) {
-      repositoryFileTree.setVersionCommentEnabled( v.file.getVersionCommentEnabled() );
+    if ( versionCommentEnabled != null ) {
+      repositoryFileTree.setVersionCommentEnabled( versionCommentEnabled );
     }
     return repositoryFileTree;
   }

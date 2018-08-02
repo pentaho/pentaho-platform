@@ -54,7 +54,7 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 import org.pentaho.platform.web.http.messages.Messages;

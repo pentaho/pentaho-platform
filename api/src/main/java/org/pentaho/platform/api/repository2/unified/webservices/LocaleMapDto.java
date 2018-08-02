@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.repository2.unified.webservices;
+package org.pentaho.platform.api.repository2.unified.webservices;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;

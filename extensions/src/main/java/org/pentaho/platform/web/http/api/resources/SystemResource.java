@@ -36,7 +36,7 @@ import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;

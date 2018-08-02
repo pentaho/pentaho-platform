@@ -21,6 +21,13 @@
 package org.pentaho.platform.repository2.unified.webservices;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.pentaho.platform.api.repository2.unified.webservices.NodeRepositoryFileDataDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.VersionSummaryDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 
 import java.util.List;
 
@@ -31,10 +38,10 @@ public interface IUnifiedRepositoryWebServiceAsync {
   void copyFile( String string, String destAbsPath, String versionMessage, AsyncCallback<Void> arg4 );
 
   void createFile( String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data,
-      String versionMessage, AsyncCallback<RepositoryFileDto> arg5 );
+                  String versionMessage, AsyncCallback<RepositoryFileDto> arg5 );
 
   void createFileWithAcl( String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data,
-      RepositoryFileAclDto acl, String versionMessage, AsyncCallback<RepositoryFileDto> arg6 );
+                         RepositoryFileAclDto acl, String versionMessage, AsyncCallback<RepositoryFileDto> arg6 );
 
   void createFolder( String parentFolderId, RepositoryFileDto file, String versionMessage,
       AsyncCallback<RepositoryFileDto> arg4 );
@@ -65,8 +72,8 @@ public interface IUnifiedRepositoryWebServiceAsync {
 
   void getDeletedFilesInFolder( String folderPath, AsyncCallback<List<RepositoryFileDto>> arg2 );
 
-  void
-  getDeletedFilesInFolderWithFilter( String folderPath, String filter, AsyncCallback<List<RepositoryFileDto>> arg3 );
+  void getDeletedFilesInFolderWithFilter( String folderPath, String filter,
+                                          AsyncCallback<List<RepositoryFileDto>> arg3 );
 
   void getEffectiveAces( String fileId, AsyncCallback<List<RepositoryFileAclAceDto>> arg2 );
 

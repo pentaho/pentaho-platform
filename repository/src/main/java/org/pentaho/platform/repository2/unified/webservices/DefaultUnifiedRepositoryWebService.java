@@ -38,6 +38,13 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.NodeRepositoryFileDataDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.api.repository2.unified.webservices.VersionSummaryDto;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -158,7 +165,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileTreeDto getTree( final String path, final int depth, final String filter,
-      final boolean showHidden ) {
+                                       final boolean showHidden ) {
 
     RepositoryRequest repositoryRequest = new RepositoryRequest( path, showHidden, depth, filter );
     return getTreeFromRequest( repositoryRequest );
@@ -211,7 +218,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileDto createFolderWithAcl( String parentFolderId, RepositoryFileDto file,
-      RepositoryFileAclDto acl, String versionMessage ) {
+                                               RepositoryFileAclDto acl, String versionMessage ) {
     RepositoryFile newFile =
         repo.createFolder( parentFolderId, repositoryFileAdapter.unmarshal( file ), repositoryFileAclAdapter
             .unmarshal( acl ), versionMessage );

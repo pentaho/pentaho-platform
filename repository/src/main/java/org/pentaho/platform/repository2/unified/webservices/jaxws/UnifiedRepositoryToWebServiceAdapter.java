@@ -43,18 +43,17 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.NodeRepositoryFileDataAdapter;
-import org.pentaho.platform.repository2.unified.webservices.NodeRepositoryFileDataDto;
+import org.pentaho.platform.api.repository2.unified.webservices.NodeRepositoryFileDataDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceAdapter;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeAdapter;
-import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.repository2.unified.webservices.VersionSummaryAdapter;
-import org.pentaho.platform.repository2.unified.webservices.VersionSummaryDto;
+import org.pentaho.platform.api.repository2.unified.webservices.VersionSummaryDto;
 import org.springframework.util.Assert;
 
 /**

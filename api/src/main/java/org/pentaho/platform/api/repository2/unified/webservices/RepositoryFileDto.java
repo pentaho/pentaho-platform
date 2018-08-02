@@ -18,16 +18,14 @@
  *
  */
 
-package org.pentaho.platform.repository2.unified.webservices;
+package org.pentaho.platform.api.repository2.unified.webservices;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /*!
  * This program is free software; you can redistribute it and/or modify it under the
@@ -50,77 +48,75 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * JAXB-safe version of {@code RepositoryFile}. ({@code RepositoryFile} has no zero-arg constructor and no public
  * mutators.)
  * 
- * @see RepositoryFileAdapter
- * 
  * @author mlowery
  */
 @XmlRootElement
 public class RepositoryFileDto implements Serializable {
   private static final long serialVersionUID = 3578911355440278525L;
 
-  String name;
+  private String name;
 
-  String id;
+  private String id;
 
-  Date createdDate;
+  private String createdDate;
 
-  String creatorId;
+  private String creatorId;
 
-  Date lastModifiedDate;
+  private String lastModifiedDate;
 
-  long fileSize;
+  private long fileSize;
 
-  boolean folder;
+  private boolean folder;
 
-  String path;
+  private String path;
 
-  boolean hidden = RepositoryFile.HIDDEN_BY_DEFAULT;
+  private boolean hidden = RepositoryFile.HIDDEN_BY_DEFAULT;
 
-  boolean notSchedulable = !RepositoryFile.SCHEDULABLE_BY_DEFAULT;
+  private boolean notSchedulable = !RepositoryFile.SCHEDULABLE_BY_DEFAULT;
 
-  boolean aclNode;
+  private boolean aclNode;
 
   //This is the versioned property stored in the repo
-  boolean versioned;
+  private boolean versioned;
 
-  String versionId;
+  private String versionId;
 
-  boolean locked;
+  private boolean locked;
 
-  String lockOwner;
+  private String lockOwner;
 
-  String lockMessage;
+  private String lockMessage;
 
-  Date lockDate;
+  private String lockDate;
 
-  String owner;
+  private String owner;
 
-  String ownerTenantPath;
+  private String ownerTenantPath;
 
   // If versioning currently enabled for this file (Will be null if not loaded)
-  Boolean versioningEnabled;
+  private Boolean versioningEnabled;
 
   // If version Comments are enabled for this file (Will be null if not loaded)
-  Boolean versionCommentEnabled;
+  private Boolean versionCommentEnabled;
 
   /**
    * RepositoryFileSid.Type enum.
    */
-  int ownerType = -1;
+  private int ownerType = -1;
 
-  String title;
+  private String title;
 
-  String description;
+  private String description;
 
-  String locale;
+  private String locale;
 
-  String originalParentFolderPath;
+  private String originalParentFolderPath;
 
-  Date deletedDate;
+  private String deletedDate;
 
-  List<LocaleMapDto> localePropertiesMapEntries;
+  private List<LocaleMapDto> localePropertiesMapEntries;
 
-  RepositoryFileAclDto repositoryFileAclDto;
+  private RepositoryFileAclDto repositoryFileAclDto;
 
   public RepositoryFileDto() {
     super();
@@ -151,12 +147,11 @@ public class RepositoryFileDto implements Serializable {
     this.id = id;
   }
 
-  @XmlJavaTypeAdapter( value = DateAdapter.class )
-  public Date getCreatedDate() {
+  public String getCreatedDate() {
     return createdDate;
   }
 
-  public void setCreatedDate( Date createdDate ) {
+  public void setCreatedDate( String createdDate ) {
     this.createdDate = createdDate;
   }
 
@@ -168,12 +163,11 @@ public class RepositoryFileDto implements Serializable {
     this.creatorId = creatorId;
   }
 
-  @XmlJavaTypeAdapter( value = DateAdapter.class )
-  public Date getLastModifiedDate() {
+  public String getLastModifiedDate() {
     return lastModifiedDate;
   }
 
-  public void setLastModifiedDate( Date lastModifiedDate ) {
+  public void setLastModifiedDate( String lastModifiedDate ) {
     this.lastModifiedDate = lastModifiedDate;
   }
 
@@ -265,12 +259,11 @@ public class RepositoryFileDto implements Serializable {
     this.lockMessage = lockMessage;
   }
 
-  @XmlJavaTypeAdapter( value = DateAdapter.class )
-  public Date getLockDate() {
+  public String getLockDate() {
     return lockDate;
   }
 
-  public void setLockDate( Date lockDate ) {
+  public void setLockDate( String lockDate ) {
     this.lockDate = lockDate;
   }
 
@@ -322,12 +315,11 @@ public class RepositoryFileDto implements Serializable {
     this.originalParentFolderPath = originalParentFolderPath;
   }
 
-  @XmlJavaTypeAdapter( value = DateAdapter.class )
-  public Date getDeletedDate() {
+  public String getDeletedDate() {
     return deletedDate;
   }
 
-  public void setDeletedDate( Date deletedDate ) {
+  public void setDeletedDate( String deletedDate ) {
     this.deletedDate = deletedDate;
   }
 

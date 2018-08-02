@@ -42,7 +42,7 @@ import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;

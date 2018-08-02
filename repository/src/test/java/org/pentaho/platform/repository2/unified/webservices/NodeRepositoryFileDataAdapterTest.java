@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.webservices.NodeRepositoryFileDataDto;
 
 import java.util.Date;
 import java.util.Locale;

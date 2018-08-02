@@ -24,6 +24,13 @@ import java.util.List;
 import java.util.Properties;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.webservices.NodeRepositoryFileDataDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.api.repository2.unified.webservices.VersionSummaryDto;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 
 /**
@@ -51,7 +58,7 @@ public interface IUnifiedRepositoryWebService {
       final NodeRepositoryFileDataDto data, final String versionMessage );
 
   RepositoryFileDto createFileWithAcl( final String parentFolderId, final RepositoryFileDto file,
-      final NodeRepositoryFileDataDto data, final RepositoryFileAclDto acl, final String versionMessage );
+                                      final NodeRepositoryFileDataDto data, final RepositoryFileAclDto acl, final String versionMessage );
 
   RepositoryFileDto
     createFolder( final String parentFolderId, final RepositoryFileDto file, final String versionMessage );
