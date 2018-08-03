@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--+
+	| Application context containing JDBC AuthenticationProvider 
+	| implementation.
+	+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+
+	<bean id="authenticationProvider"
+		class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<property name="userDetailsService">
+			<pen:bean class="org.springframework.security.core.userdetails.UserDetailsService"/>
+		</property>
+		<property name="passwordEncoder">
+			<ref bean="jdbcPasswordEncoder" />
+		</property>
+	<pen:publish as-type="org.springframework.security.authentication.AuthenticationProvider">
+	      <pen:attributes>
+	        <pen:attr key="providerName" value="jdbc"/>
+	      </pen:attributes>
+	    </pen:publish>
+	</bean>
+
+	<bean id="jdbcUserDetailsService"
+		class="org.pentaho.platform.engine.security.DefaultRoleJdbcDaoImpl">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="authoritiesByUsernameQuery">
+			<value>
+				<![CDATA[SELECT username, authority FROM GRANTED_AUTHORITIES WHERE username = ? ORDER BY authority]]>
+			</value>
+		</property>
+		<property name="usersByUsernameQuery">
+			<value>
+				<![CDATA[SELECT username, password, enabled FROM USERS WHERE username = ? ORDER BY username]]>
+			</value>
+		</property>
+    <property name="rolePrefix" value="" />
+    <property name="defaultRole" ref="defaultRole" />
+    <property name="roleMapper" ref="jdbcRoleMapper" />
+    <constructor-arg ref="tenantedUserNameUtils"/>		
+	<pen:publish as-type="INTERFACES">
+	      <pen:attributes>
+	        <pen:attr key="providerName" value="jdbc"/>
+	      </pen:attributes>
+	    </pen:publish>
+	</bean>
+  
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${datasource.driver.classname}" />
+		<property name="url" value="${datasource.url}" />
+		<property name="username" value="${datasource.username}" />
+		<property name="password" value="${datasource.password}" />
+		<!-- the following are optional -->
+		<property name="validationQuery" value="${datasource.validation.query}" />
+		<property name="maxWait" value="${datasource.pool.max.wait}" />
+		<property name="maxActive" value="${datasource.pool.max.active}" />
+		<property name="maxIdle" value="${datasource.max.idle}" />
+		<property name="minIdle" value="${datasource.min.idle}" />
+	</bean>
+	
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="applicationContext-spring-security-jdbc.properties" />
+	</bean>
+	
+  <bean id="jdbcPasswordEncoder"
+    class="org.springframework.security.authentication.encoding.PlaintextPasswordEncoder" />
+ 
+
+</beans>

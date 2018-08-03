@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--+
+  | Application context containing Getting Started Database Information
+  +-->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" default-lazy-init="false">
+   <!-- #[]-style property values are pulled in by PropertyPlaceholderConfigurer -->
+	 <bean id="org.h2.tools.Server"
+	   class="org.h2.tools.Server"
+	   scope="singleton"
+	   factory-method="createTcpServer"
+	   init-method="start"
+	   destroy-method="stop">
+	   <constructor-arg value="-tcp,-baseDir,#[base.dir],-tcpAllowOthers,-tcpPort,#[tcp.port]" />
+	 </bean>
+   <bean id="gettingStartedPropertiesConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+     <property name="location" value="GettingStartedDB.properties" />
+     <property name="placeholderPrefix" value="#[" />
+     <property name="placeholderSuffix" value="]" />
+   </bean>
+</beans>

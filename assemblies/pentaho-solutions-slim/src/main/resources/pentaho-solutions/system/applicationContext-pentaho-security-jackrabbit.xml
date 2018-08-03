@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--+
+	| Application context containing JDBC UserRoleListService 
+	| implementation.
+	+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+
+  <bean id="userRoleListService0" class="org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService">
+    <constructor-arg>
+    	<pen:bean class="org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao"/>
+    </constructor-arg>
+    <constructor-arg>
+			<pen:bean class="org.springframework.security.core.userdetails.UserDetailsService"/>
+    </constructor-arg>
+    <constructor-arg ref="tenantedUserNameUtils" />
+	<constructor-arg ref="singleTenantSystemAuthorities" />
+    <constructor-arg ref="extraRoles" />
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>		
+  </bean>
+
+  <bean id="userRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">
+    <property name="userRoleListService" ref="userRoleListService0" />
+    <property name="extraRoles" ref="extraRoles" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="jackrabbit"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+</beans>
