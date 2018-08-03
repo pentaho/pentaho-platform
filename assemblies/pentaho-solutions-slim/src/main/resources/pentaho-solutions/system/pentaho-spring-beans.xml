@@ -46,21 +46,12 @@ http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/penta
   <import resource="systemListeners.xml" />
   <import resource="repository.spring.xml" />
   <import resource="applicationContext-spring-security.xml" />
-  <import resource="applicationContext-spring-security-superuser.xml" />
-  <import resource="applicationContext-pentaho-security-superuser.xml" />
+
   
   <import resource="applicationContext-common-authorization.xml" />
+
   <import resource="applicationContext-spring-security-memory.xml" />
-
   <import resource="applicationContext-pentaho-security-memory.xml" />
-  <import resource="applicationContext-spring-security-ldap.xml" />
-  <import resource="applicationContext-pentaho-security-ldap.xml" />
-
-  <import resource="applicationContext-pentaho-security-jackrabbit.xml" />
-  <import resource="applicationContext-spring-security-jackrabbit.xml" />
-  <import resource="applicationContext-pentaho-security-jdbc.xml" />
-  <import resource="applicationContext-spring-security-jdbc.xml" />
-
   
   <import resource="pentahoObjects.spring.xml" />
   <import resource="GettingStartedDB-spring.xml" /> <!-- Remove this line to unhook the Getting Started DB -->

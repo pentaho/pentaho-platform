@@ -11,38 +11,8 @@
   <bean id="systemListenersList" class="java.util.ArrayList">
     <constructor-arg>
       <list>
-        <bean id="osgiListener" class="org.pentaho.platform.osgi.OSGIBoot"/>
-        <bean id="kettleSystemListener" class="org.pentaho.platform.plugin.action.kettle.KettleSystemListener" />
         <bean id="pluginSystemListener" class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" />
-        <bean class="org.pentaho.platform.plugin.services.security.userrole.SecuritySystemListener"/>
-        <bean id="backingRepositoryLifecycleManagerSystemListener" class="org.pentaho.platform.repository2.unified.BackingRepositoryLifecycleManagerSystemListener"/>
-
-        <bean id="jfreeReportSystemListener" class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener" />
-        <bean id="mondrianSystemListener" class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener" />
-        <!--<bean id="pooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener" />-->
-        <!--
-          <bean id="nonPooledDataSourceSystemListener"
-          class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceSystemListener"/>
-        -->
-        <bean id="dynamicallyPooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledDatasourceSystemListener" />
-        <bean id="chartingSystemListener" class="org.pentaho.platform.plugin.action.chartbeans.ChartBeansSystemListener" />
-        <bean id="loadDriversListener" class="org.pentaho.commons.system.LoadDriversListener" />
-        <bean id = "olap4jSystemListener" class="org.pentaho.platform.plugin.action.olap.Olap4jSystemListener">
-          <property name="olap4jConnectionList" ref="olap4jConnectionList"/>
-          <property name="olap4jConnectionRemoveList" ref="olap4jConnectionRemoveList"/>
-        </bean>
-        <bean id="quartzSystemListener" class="org.pentaho.platform.scheduler2.quartz.EmbeddedQuartzSystemListener" />
-        <bean id="versionCheckerSystemListener" class="org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener">
-          <property name="repeatIntervalSeconds">
-            <value>86400</value>
-          </property>
-          <property name="requestedReleases" value="Minor, GA" />
-          <property name="disableVersionCheck">
-            <value>false</value>
-          </property>
-        </bean>
-        <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
-
+        
         <!-- Insert system-listeners -->
       </list>
     </constructor-arg>
