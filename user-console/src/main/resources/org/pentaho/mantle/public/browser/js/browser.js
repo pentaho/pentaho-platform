@@ -328,19 +328,30 @@ define([
 		var model = FileBrowser.fileBrowserModel; // trap model
 		var folderPath = Encoder.encodeRepositoryPath( _folderPath);
 
-    // With the fix for BACKLOG-23730, server-side and client-side code uses centralized logic to check if user
-    // can download/upload content
-    // Ajax request to check if user can download/upload(publish)
+    // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
+    //
+    // Ajax request to check if user can download
     $.ajax({
       url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + _folderPath,
       type: "GET",
       async: true,
       success: function (response) {
         folderButtons.canDownload(response == "true");
-        folderButtons.canPublish(response == "true");
       },
       error: function (response) {
         folderButtons.canDownload(false);
+      }
+    });
+
+    // Ajax request to check if user can upload (a.k.a. publish)
+    $.ajax({
+      url: CONTEXT_PATH + "api/repo/files/canUpload?dirPath=" + _folderPath,
+      type: "GET",
+      async: true,
+      success: function (response) {
+        folderButtons.canPublish(response == "true");
+      },
+      error: function (response) {
         folderButtons.canPublish(false);
       }
     });
