@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>Quartz</jndi-name>
+    <connection-url>jdbc:mysql://localhost:3306/quartz</connection-url>
+    <driver-class>com.mysql.jdbc.Driver</driver-class>
+    <user-name>pentaho_user</user-name>
+    <password>password</password>
+    <check-valid-connection-sql>select 1 from dual</check-valid-connection-sql>
+  </local-tx-datasource>
+</datasources>
