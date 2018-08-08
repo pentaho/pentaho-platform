@@ -42,6 +42,7 @@ import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
+import javax.jcr.ItemNotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -60,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.ANNOTATIONS_XML;
 import static org.pentaho.platform.repository.solution.filebased.MondrianVfs.ANNOTATOR_KEY;
@@ -77,6 +79,8 @@ public class MondrianCatalogRepositoryHelper {
   private static final Log logger = LogFactory.getLog( MondrianCatalogRepositoryHelper.class );
 
   private IUnifiedRepository repository;
+  private final ReentrantReadWriteLock lock;
+
 
   public MondrianCatalogRepositoryHelper( final IUnifiedRepository repository ) {
     if ( repository == null ) {
@@ -91,6 +95,8 @@ public class MondrianCatalogRepositoryHelper {
       // That's ok. The API throws an exception and there is no method to check
       // if security is on or off.
     }
+
+    this.lock = new ReentrantReadWriteLock();
     initOlapServersFolder();
   }
 
@@ -100,39 +106,44 @@ public class MondrianCatalogRepositoryHelper {
   }
 
   public void addHostedCatalog( InputStream mondrianFile, String catalogName, String datasourceInfo ) throws Exception {
-    RepositoryFile catalog = createCatalog( catalogName, datasourceInfo );
+    lock.writeLock().lock();
+    try {
+      RepositoryFile catalog = createCatalog( catalogName, datasourceInfo );
 
-    File tempFile = File.createTempFile( "tempFile", null );
-    tempFile.deleteOnExit();
-    FileOutputStream outputStream = new FileOutputStream( tempFile );
-    IOUtils.copy( mondrianFile, outputStream );
+      File tempFile = File.createTempFile( "tempFile", null );
+      tempFile.deleteOnExit();
+      FileOutputStream outputStream = new FileOutputStream( tempFile );
+      IOUtils.copy( mondrianFile, outputStream );
 
-    RepositoryFile repoFile = new RepositoryFile.Builder( "schema.xml" ).build();
-    org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle repoFileBundle =
+      RepositoryFile repoFile = new RepositoryFile.Builder( "schema.xml" ).build();
+      org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle repoFileBundle =
         new org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle( repoFile, null,
-            ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR, tempFile,
-            "UTF-8", "text/xml" );
+          ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR, tempFile,
+          "UTF-8", "text/xml" );
 
-    RepositoryFile schema =
+      RepositoryFile schema =
         repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR
-            + "schema.xml" );
-    IRepositoryFileData data =
+          + "schema.xml" );
+      IRepositoryFileData data =
         new StreamConverter().convert(
-            repoFileBundle.getInputStream(), repoFileBundle.getCharset(), repoFileBundle.getMimeType() );
-    if ( schema == null ) {
-      RepositoryFile schemaFile = repository.createFile( catalog.getId(), repoFileBundle.getFile(), data, null );
-      if ( schemaFile != null ) {
-        // make sure the folder is not set to hidden if the schema is not hidden
-        RepositoryFile catalogFolder =
-          repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
-        if ( catalogFolder.isHidden() != schemaFile.isHidden() ) {
-          RepositoryFile unhiddenFolder =
-            ( new RepositoryFile.Builder( catalogFolder ) ).hidden( schemaFile.isHidden() ).build();
-          repository.updateFolder( unhiddenFolder, "" );
+          repoFileBundle.getInputStream(), repoFileBundle.getCharset(), repoFileBundle.getMimeType() );
+      if ( schema == null ) {
+        RepositoryFile schemaFile = repository.createFile( catalog.getId(), repoFileBundle.getFile(), data, null );
+        if ( schemaFile != null ) {
+          // make sure the folder is not set to hidden if the schema is not hidden
+          RepositoryFile catalogFolder =
+            repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
+          if ( catalogFolder.isHidden() != schemaFile.isHidden() ) {
+            RepositoryFile unhiddenFolder =
+              ( new RepositoryFile.Builder( catalogFolder ) ).hidden( schemaFile.isHidden() ).build();
+            repository.updateFolder( unhiddenFolder, "" );
+          }
         }
+      } else {
+        repository.updateFile( schema, data, null );
       }
-    } else {
-      repository.updateFile( schema, data, null );
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
@@ -142,50 +153,60 @@ public class MondrianCatalogRepositoryHelper {
   }
 
   public void deleteHostedCatalog( String catalogName ) {
+    lock.writeLock().lock();
 
-    final RepositoryFile catalogNode =
+    try {
+      final RepositoryFile catalogNode =
         repository.getFile(
-            ETC_MONDRIAN_JCR_FOLDER
-                + RepositoryFile.SEPARATOR
-                + catalogName
-      );
+          ETC_MONDRIAN_JCR_FOLDER
+            + RepositoryFile.SEPARATOR
+            + catalogName
+        );
 
-    if ( catalogNode != null ) {
-      repository.deleteFile(
+      if ( catalogNode != null ) {
+        repository.deleteFile(
           catalogNode.getId(), true,
           "Deleting hosted catalog: "
-              + catalogName
-      );
+            + catalogName
+        );
+      }
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
   private void initOlapServersFolder() {
-    final RepositoryFile etcOlapServers =
+    lock.writeLock().lock();
+    try {
+      final RepositoryFile etcOlapServers =
         repository.getFile( ETC_OLAP_SERVERS_JCR_FOLDER );
-    if ( etcOlapServers == null ) {
-      final Callable<Void> callable = new Callable<Void>() {
-        public Void call() throws Exception {
-          repository.createFolder(
+      if ( etcOlapServers == null ) {
+        final Callable<Void> callable = new Callable<Void>() {
+          public Void call() throws Exception {
+            repository.createFolder(
               repository.getFile( RepositoryFile.SEPARATOR + "etc" ).getId(),
               new RepositoryFile.Builder( "olap-servers" )
-                  .folder( true )
-                  .build(),
+                .folder( true )
+                .build(),
               "Creating olap-servers directory in /etc"
-          );
-          return null;
-        }
-      };
-      try {
-        if ( isSecured ) {
-          SecurityHelper.getInstance().runAsSystem( callable );
-        } else {
-          callable.call();
-        }
-      } catch ( Exception e ) {
-        throw new RuntimeException(
+            );
+            return null;
+          }
+        };
+        try {
+          if ( isSecured ) {
+            SecurityHelper.getInstance().runAsSystem( callable );
+          } else {
+            callable.call();
+          }
+        } catch ( Exception e ) {
+          throw new RuntimeException(
             "Failed to create folder /etc/olap-servers in the repository.",
             e );
+        }
       }
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
@@ -197,102 +218,112 @@ public class MondrianCatalogRepositoryHelper {
       String password,
       Properties props ) {
 
-    final RepositoryFile etcOlapServers =
+    lock.writeLock().lock();
+    try {
+      final RepositoryFile etcOlapServers =
         repository.getFile( ETC_OLAP_SERVERS_JCR_FOLDER );
 
-    RepositoryFile entry =
+      RepositoryFile entry =
         repository.getFile(
-            ETC_OLAP_SERVERS_JCR_FOLDER
-                + RepositoryFile.SEPARATOR
-                + name
-      );
-
-    if ( entry == null ) {
-      entry =
-          repository.createFolder(
-              etcOlapServers.getId(),
-              new RepositoryFile.Builder( name )
-                  .folder( true )
-                  .build(),
-              "Creating entry for olap server: "
-                  + name
-                  + " into folder "
-                  + ETC_OLAP_SERVERS_JCR_FOLDER
-        );
-    }
-
-    final String path =
-        ETC_OLAP_SERVERS_JCR_FOLDER
+          ETC_OLAP_SERVERS_JCR_FOLDER
             + RepositoryFile.SEPARATOR
             + name
-            + RepositoryFile.SEPARATOR
-            + "metadata";
+        );
 
-    // Convert the properties to a serializable XML format.
-    final String xmlProperties;
-    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-    try {
-      props.storeToXML(
+      if ( entry == null ) {
+        entry =
+          repository.createFolder(
+            etcOlapServers.getId(),
+            new RepositoryFile.Builder( name )
+              .folder( true )
+              .build(),
+            "Creating entry for olap server: "
+              + name
+              + " into folder "
+              + ETC_OLAP_SERVERS_JCR_FOLDER
+          );
+      }
+
+      final String path =
+        ETC_OLAP_SERVERS_JCR_FOLDER
+          + RepositoryFile.SEPARATOR
+          + name
+          + RepositoryFile.SEPARATOR
+          + "metadata";
+
+      // Convert the properties to a serializable XML format.
+      final String xmlProperties;
+      final ByteArrayOutputStream os = new ByteArrayOutputStream();
+      try {
+        props.storeToXML(
           os,
           "Connection properties for server: " + name,
           "UTF-8" );
-      xmlProperties =
+        xmlProperties =
           os.toString( "UTF-8" );
-    } catch ( IOException e ) {
-      // Very bad. Just throw.
-      throw new RuntimeException( e );
-    } finally {
-      try {
-        os.close();
       } catch ( IOException e ) {
-        // Don't care. Just cleaning up.
+        // Very bad. Just throw.
+        throw new RuntimeException( e );
+      } finally {
+        try {
+          os.close();
+        } catch ( IOException e ) {
+          // Don't care. Just cleaning up.
+        }
       }
-    }
 
-    final DataNode node = new DataNode( "server" );
-    node.setProperty( "name", name );
-    node.setProperty( "className", className );
-    node.setProperty( "URL", URL );
-    node.setProperty( "user", user );
-    node.setProperty( "password", password );
-    node.setProperty( "properties", xmlProperties );
-    NodeRepositoryFileData data = new NodeRepositoryFileData( node );
+      final DataNode node = new DataNode( "server" );
+      node.setProperty( "name", name );
+      node.setProperty( "className", className );
+      node.setProperty( "URL", URL );
+      node.setProperty( "user", user );
+      node.setProperty( "password", password );
+      node.setProperty( "properties", xmlProperties );
+      NodeRepositoryFileData data = new NodeRepositoryFileData( node );
 
-    final RepositoryFile metadata = repository.getFile( path );
+      final RepositoryFile metadata = repository.getFile( path );
 
-    if ( metadata == null ) {
-      repository.createFile(
+      if ( metadata == null ) {
+        repository.createFile(
           entry.getId(),
           new RepositoryFile.Builder( "metadata" ).build(),
           data,
           "Creating olap-server metadata for server "
-              + name
-      );
-    } else {
-      repository.updateFile(
+            + name
+        );
+      } else {
+        repository.updateFile(
           metadata,
           data,
           "Updating olap-server metadata for server "
-              + name
-      );
+            + name
+        );
+      }
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
   public void deleteOlap4jServer( String name ) {
-    // Get the /etc/olap-servers/[name] folder.
-    final RepositoryFile serverNode =
+    lock.writeLock().lock();
+    try {
+      // Get the /etc/olap-servers/[name] folder.
+      final RepositoryFile serverNode =
         repository.getFile(
-            ETC_OLAP_SERVERS_JCR_FOLDER
-                + RepositoryFile.SEPARATOR
-                + name
-      );
+          ETC_OLAP_SERVERS_JCR_FOLDER
+            + RepositoryFile.SEPARATOR
+            + name
+        );
 
-    if ( serverNode != null ) {
-      repository.deleteFile(
+      if ( serverNode != null ) {
+        repository.deleteFile(
           serverNode.getId(), true,
           "Deleting olap server: "
-              + name
-      );
+            + name
+        );
+      }
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
@@ -301,38 +332,48 @@ public class MondrianCatalogRepositoryHelper {
    * (generic olap4j connections)
    */
   public List<String> getOlap4jServers() {
-    final RepositoryFile hostedFolder =
+    lock.readLock().lock();
+    try {
+      final RepositoryFile hostedFolder =
         repository.getFile( ETC_OLAP_SERVERS_JCR_FOLDER );
 
-    if ( hostedFolder == null ) {
-      // This can happen on old systems when this code first kicks in.
-      // The folder gets created in addOlap4jServer
-      return Collections.emptyList();
+      if ( hostedFolder == null ) {
+        // This can happen on old systems when this code first kicks in.
+        // The folder gets created in addOlap4jServer
+        return Collections.emptyList();
+      }
+
+      final List<String> names = new ArrayList<String>();
+
+      for ( RepositoryFile repoFile : repository.getChildren( hostedFolder.getId() ) ) {
+        names.add( repoFile.getName() );
+      }
+
+      return names;
+    } finally {
+      lock.readLock().unlock();
     }
-
-    final List<String> names = new ArrayList<String>();
-
-    for ( RepositoryFile repoFile : repository.getChildren( hostedFolder.getId() ) ) {
-      names.add( repoFile.getName() );
-    }
-
-    return names;
   }
 
   public Olap4jServerInfo getOlap4jServerInfo( String name ) {
-    final RepositoryFile serverNode =
+    lock.readLock().lock();
+    try {
+      final RepositoryFile serverNode =
         repository.getFile(
-            ETC_OLAP_SERVERS_JCR_FOLDER
-                + RepositoryFile.SEPARATOR
-                + name
-                + RepositoryFile.SEPARATOR
-                + "metadata"
-      );
+          ETC_OLAP_SERVERS_JCR_FOLDER
+            + RepositoryFile.SEPARATOR
+            + name
+            + RepositoryFile.SEPARATOR
+            + "metadata"
+        );
 
-    if ( serverNode != null ) {
-      return new Olap4jServerInfo( serverNode );
-    } else {
-      return null;
+      if ( serverNode != null ) {
+        return new Olap4jServerInfo( serverNode );
+      } else {
+        return null;
+      }
+    } finally {
+      lock.readLock().unlock();
     }
   }
 
@@ -340,33 +381,51 @@ public class MondrianCatalogRepositoryHelper {
    * Provides a list of the catalog names hosted locally on this server.
    */
   public List<String> getHostedCatalogs() {
-    final List<String> names = new ArrayList<String>();
+    lock.readLock().lock();
+    try {
+      final List<String> names = new ArrayList<String>();
 
-    final RepositoryFile serversFolder =
+      final RepositoryFile serversFolder =
         repository.getFile( ETC_MONDRIAN_JCR_FOLDER );
 
-    if ( serversFolder != null ) {
-      for ( RepositoryFile repoFile : repository.getChildren( serversFolder.getId() ) ) {
-        names.add( repoFile.getName() );
+      if ( serversFolder != null ) {
+        List<RepositoryFile> childrenList = null;
+
+        try{
+          childrenList = repository.getChildren( serversFolder.getId() );
+        } catch (Throwable e){
+          return names;
+        }
+
+        for ( RepositoryFile repoFile : childrenList ) {
+          names.add( repoFile.getName() );
+        }
       }
+      return names;
+    } finally {
+      lock.readLock().unlock();
     }
-    return names;
   }
 
   public HostedCatalogInfo getHostedCatalogInfo( String name ) {
-    final RepositoryFile catalogNode =
+    lock.readLock().lock();
+    try {
+      final RepositoryFile catalogNode =
         repository.getFile(
-            ETC_MONDRIAN_JCR_FOLDER
-                + RepositoryFile.SEPARATOR
-                + name
-                + RepositoryFile.SEPARATOR
-                + "metadata"
-      );
+          ETC_MONDRIAN_JCR_FOLDER
+            + RepositoryFile.SEPARATOR
+            + name
+            + RepositoryFile.SEPARATOR
+            + "metadata"
+        );
 
-    if ( catalogNode != null ) {
-      return new HostedCatalogInfo( name, catalogNode );
-    } else {
-      return null;
+      if ( catalogNode != null ) {
+        return new HostedCatalogInfo( name, catalogNode );
+      } else {
+        return null;
+      }
+    } finally {
+      lock.readLock().unlock();
     }
   }
 
@@ -444,32 +503,37 @@ public class MondrianCatalogRepositoryHelper {
   }
 
   public Map<String, InputStream> getModrianSchemaFiles( String catalogName ) {
-    Map<String, InputStream> values = new HashMap<String, InputStream>();
+    lock.readLock().lock();
+    try {
+      Map<String, InputStream> values = new HashMap<String, InputStream>();
 
-    RepositoryFile catalogFolder =
+      RepositoryFile catalogFolder =
         repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
 
-    if ( catalogFolder == null ) {
-      logger.warn( "Catalog " + catalogName + " not found" );
-      throw new RepositoryException( "Catalog " + catalogName + " not found" );
-    }
+      if ( catalogFolder == null ) {
+        logger.warn( "Catalog " + catalogName + " not found" );
+        throw new RepositoryException( "Catalog " + catalogName + " not found" );
+      }
 
-    for ( RepositoryFile repoFile : repository.getChildren( catalogFolder.getId() ) ) {
-      RepositoryFileInputStream is;
-      if ( repoFile.getName().equals( "metadata" ) ) {
-        continue;
+      for ( RepositoryFile repoFile : repository.getChildren( catalogFolder.getId() ) ) {
+        RepositoryFileInputStream is;
+        if ( repoFile.getName().equals( "metadata" ) ) {
+          continue;
+        }
+        try {
+          is = new RepositoryFileInputStream( repoFile, repository );
+        } catch ( FileNotFoundException e ) {
+          throw new RepositoryException( e );
+        }
+        values.put( repoFile.getName(), is );
       }
-      try {
-        is = new RepositoryFileInputStream( repoFile, repository );
-      } catch ( FileNotFoundException e ) {
-        throw new RepositoryException( e );
+      if ( values.containsKey( ANNOTATIONS_XML ) && values.containsKey( SCHEMA_XML ) ) {
+        return includeAnnotatedSchema( values );
       }
-      values.put( repoFile.getName(), is );
+      return values;
+    } finally {
+      lock.readLock().unlock();
     }
-    if ( values.containsKey( ANNOTATIONS_XML ) && values.containsKey( SCHEMA_XML ) ) {
-      return includeAnnotatedSchema( values );
-    }
-    return values;
   }
 
   private Map<String, InputStream> includeAnnotatedSchema( final Map<String, InputStream> values ) {
@@ -499,42 +563,50 @@ public class MondrianCatalogRepositoryHelper {
    * Creates "/etc/mondrian/<catalog>"
    */
   private RepositoryFile createCatalog( String catalogName, String datasourceInfo ) {
+    lock.writeLock().lock();
+    try {
+      /*
+       * This is the default implementation. Use Schema name as defined in the mondrian.xml schema. Pending create
+       * alternate implementation. Use catalog name.
+       */
 
-    /*
-     * This is the default implementation. Use Schema name as defined in the mondrian.xml schema. Pending create
-     * alternate implementation. Use catalog name.
-     */
-
-    RepositoryFile catalog = getMondrianCatalogFile( catalogName );
-    if ( catalog == null ) {
-      RepositoryFile etcMondrian = repository.getFile( ETC_MONDRIAN_JCR_FOLDER );
-      catalog =
+      RepositoryFile catalog = getMondrianCatalogFile( catalogName );
+      if ( catalog == null ) {
+        RepositoryFile etcMondrian = repository.getFile( ETC_MONDRIAN_JCR_FOLDER );
+        catalog =
           repository.createFolder( etcMondrian.getId(), new RepositoryFile.Builder( catalogName ).folder( true )
-              .build(), "" );
+            .build(), "" );
+      }
+      createDatasourceMetadata( catalog, datasourceInfo );
+      return catalog;
+    } finally {
+      lock.writeLock().unlock();
     }
-    createDatasourceMetadata( catalog, datasourceInfo );
-    return catalog;
   }
 
   /*
    * Creates "/etc/mondrian/<catalog>/metadata" and the connection nodes
    */
   private void createDatasourceMetadata( RepositoryFile catalog, String datasourceInfo ) {
-
-    final String path =
+    lock.writeLock().lock();
+    try {
+      final String path =
         ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalog.getName() + RepositoryFile.SEPARATOR + "metadata";
-    RepositoryFile metadata = repository.getFile( path );
+      RepositoryFile metadata = repository.getFile( path );
 
-    String definition = "mondrian:/" + catalog.getName();
-    DataNode node = new DataNode( "catalog" );
-    node.setProperty( "definition", encodeUrl( definition ) );
-    node.setProperty( "datasourceInfo", datasourceInfo );
-    NodeRepositoryFileData data = new NodeRepositoryFileData( node );
+      String definition = "mondrian:/" + catalog.getName();
+      DataNode node = new DataNode( "catalog" );
+      node.setProperty( "definition", encodeUrl( definition ) );
+      node.setProperty( "datasourceInfo", datasourceInfo );
+      NodeRepositoryFileData data = new NodeRepositoryFileData( node );
 
-    if ( metadata == null ) {
-      repository.createFile( catalog.getId(), new RepositoryFile.Builder( "metadata" ).build(), data, null );
-    } else {
-      repository.updateFile( metadata, data, null );
+      if ( metadata == null ) {
+        repository.createFile( catalog.getId(), new RepositoryFile.Builder( "metadata" ).build(), data, null );
+      } else {
+        repository.updateFile( metadata, data, null );
+      }
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
@@ -593,6 +665,7 @@ public class MondrianCatalogRepositoryHelper {
 
     final IPentahoSession origSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession( session );
+    lock.readLock().lock();
     try {
       return repository.hasAccess(
           path,
@@ -601,6 +674,7 @@ public class MondrianCatalogRepositoryHelper {
       throw new IOlapServiceException( e );
     } finally {
       PentahoSessionHolder.setSession( origSession );
+      lock.readLock().unlock();
     }
   }
 

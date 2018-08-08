@@ -351,19 +351,24 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       throw new DomainStorageException( byteArrayOutputStream.toString(), ex );
     }
 
-    final SimpleRepositoryFileData data =
-      new SimpleRepositoryFileData( inputStream2, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
-    final RepositoryFile newDomainFile;
-    if ( domainFile == null ) {
-      newDomainFile = createUniqueFile( domainId, null, data );
-    } else {
-      newDomainFile = repository.updateFile( domainFile, data, null );
+    lock.writeLock().lock();
+    try {
+      final SimpleRepositoryFileData data =
+        new SimpleRepositoryFileData( inputStream2, DEFAULT_ENCODING, DOMAIN_MIME_TYPE );
+      final RepositoryFile newDomainFile;
+      if ( domainFile == null ) {
+        newDomainFile = createUniqueFile( domainId, null, data );
+      } else {
+        newDomainFile = repository.updateFile( domainFile, data, null );
+      }
+
+      // This invalidates any caching
+      flushDomains();
+
+      getAclHelper().setAclFor( newDomainFile, acl );
+    } finally {
+      lock.writeLock().unlock();
     }
-
-    // This invalidates any caching
-    flushDomains();
-
-    getAclHelper().setAclFor( newDomainFile, acl );
   }
 
   protected synchronized IAclNodeHelper getAclHelper() {
@@ -452,7 +457,15 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       final RepositoryFile file = getMetadataRepositoryFile( domainId );
       if ( file != null ) {
         if ( hasAccessFor( file ) ) {
-          SimpleRepositoryFileData data = repository.getDataForRead( file.getId(), SimpleRepositoryFileData.class );
+          SimpleRepositoryFileData data = null;
+
+          lock.readLock().lock();
+          try {
+            data = repository.getDataForRead( file.getId(), SimpleRepositoryFileData.class );
+          } finally {
+            lock.readLock().unlock();
+          }
+
           if ( data != null ) {
             InputStream is = data.getStream();
             try {
@@ -536,25 +549,25 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       domainFiles = metadataMapping.getFiles( domainId );
       domainFile = metadataMapping.getDomainFile( domainId );
       metadataMapping.deleteDomain( domainId );
+
+      if ( domainFile != null ) {
+        // it no node exists, nothing would happen
+        getAclHelper().removeAclFor( domainFile );
+      }
+
+      for ( final RepositoryFile file : domainFiles ) {
+        if ( logger.isTraceEnabled() ) {
+          logger.trace( "Deleting repository file " + toString( file ) );
+        }
+        repository.deleteFile( file.getId(), true, null );
+      }
+
+      // This invalidates any caching
+      if ( !domainFiles.isEmpty() ) {
+        flushDomains();
+      }
     } finally {
       lock.writeLock().unlock();
-    }
-
-    if ( domainFile != null ) {
-      // it no node exists, nothing would happen
-      getAclHelper().removeAclFor( domainFile );
-    }
-
-    for ( final RepositoryFile file : domainFiles ) {
-      if ( logger.isTraceEnabled() ) {
-        logger.trace( "Deleting repository file " + toString( file ) );
-      }
-      repository.deleteFile( file.getId(), true, null );
-    }
-
-    // This invalidates any caching
-    if ( !domainFiles.isEmpty() ) {
-      flushDomains();
     }
   }
 
@@ -764,6 +777,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   }
 
   protected Properties loadProperties( final RepositoryFile bundle ) {
+    lock.readLock().lock();
     try {
       Properties properties = null;
       final SimpleRepositoryFileData bundleData =
@@ -780,6 +794,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     } catch ( IOException e ) {
       throw new UnifiedRepositoryException( messages.getErrorString(
         "PentahoMetadataDomainRepository.ERROR_0008_ERROR_IN_REPOSITORY", e.getLocalizedMessage() ), e );
+    } finally {
+      lock.readLock().unlock();
     }
   }
 
@@ -793,28 +809,33 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    */
   protected RepositoryFile createUniqueFile( final String domainId, final String locale,
                                              final SimpleRepositoryFileData data ) {
-    // Generate a "unique" filename
-    final String filename = UUID.randomUUID().toString();
+    lock.writeLock().lock();
+    try {
+      // Generate a "unique" filename
+      final String filename = UUID.randomUUID().toString();
 
-    // Create the new file
-    final RepositoryFile file =
-      repository.createFile( getMetadataDir().getId(), new RepositoryFile.Builder( filename ).build(), data, null );
+      // Create the new file
+      final RepositoryFile file =
+        repository.createFile( getMetadataDir().getId(), new RepositoryFile.Builder( filename ).build(), data, null );
 
-    // Add metadata to the file
-    final Map<String, Serializable> metadataMap = new HashMap<String, Serializable>();
-    metadataMap.put( PROPERTY_NAME_DOMAIN_ID, domainId );
-    if ( StringUtils.isEmpty( locale ) ) {
-      // This is a domain file
-      metadataMap.put( PROPERTY_NAME_TYPE, TYPE_DOMAIN );
-    } else {
-      // This is a locale property file
-      metadataMap.put( PROPERTY_NAME_TYPE, TYPE_LOCALE );
-      metadataMap.put( PROPERTY_NAME_LOCALE, locale );
+      // Add metadata to the file
+      final Map<String, Serializable> metadataMap = new HashMap<String, Serializable>();
+      metadataMap.put( PROPERTY_NAME_DOMAIN_ID, domainId );
+      if ( StringUtils.isEmpty( locale ) ) {
+        // This is a domain file
+        metadataMap.put( PROPERTY_NAME_TYPE, TYPE_DOMAIN );
+      } else {
+        // This is a locale property file
+        metadataMap.put( PROPERTY_NAME_TYPE, TYPE_LOCALE );
+        metadataMap.put( PROPERTY_NAME_LOCALE, locale );
+      }
+
+      // Update the metadata
+      repository.setFileMetadata( file.getId(), metadataMap );
+      return file;
+    } finally {
+      lock.writeLock().unlock();
     }
-
-    // Update the metadata
-    repository.setFileMetadata( file.getId(), metadataMap );
-    return file;
   }
 
   protected IUnifiedRepository getRepository() {

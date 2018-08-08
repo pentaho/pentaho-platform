@@ -350,7 +350,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
           if ( k instanceof String ) {
             String key = (String) k;
             if ( key != null && key.startsWith( DOMAIN_CACHE_KEY_PREDICATE ) ) {
-              Set<String> domainIds = (Set<String>) cacheManager.getFromRegionCache( CACHE_REGION, key );
+              Set<String> domainIds = new HashSet<String>((Set<String>) cacheManager.getFromRegionCache( CACHE_REGION, key ));
               domainIds.remove( domainId );
               cacheManager.putInRegionCache( CACHE_REGION, key, domainIds );
             }
@@ -403,20 +403,22 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     if ( domainIdsCacheEnabled ) {
       domainIds = (Set<String>) cacheManager.getFromRegionCache( CACHE_REGION, domainKey );
       if ( domainIds != null ) {
+        Set<String> domainIdsToEdit = new HashSet<String>( domainIds );
+
         boolean dirtyCache = false;
         for ( String domain : domainIds ) {
           if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( domain ) ) {
-            domainIds.remove( domain );
+            domainIdsToEdit.remove( domain );
             removeDomainFromIDCache( domain );
             dirtyCache = true;
           }
         }
 
         if ( dirtyCache ) {
-          cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
+          cacheManager.putInRegionCache( CACHE_REGION, domainKey, domainIdsToEdit);
         }
         // We've previously cached domainIds available for this session
-        return domainIds;
+        return domainIdsToEdit;
       }
     } else {
       delegate.reloadDomains();
