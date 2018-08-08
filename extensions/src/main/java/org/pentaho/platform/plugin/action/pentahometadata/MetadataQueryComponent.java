@@ -235,7 +235,7 @@ public class MetadataQueryComponent {
 
         Object value = null;
         if ( inputs != null ) {
-          value = getParameterValue( param );
+          value = inputs.get( param.getName() );
         }
 
         executor.setParameter( param, value );
@@ -269,16 +269,6 @@ public class MetadataQueryComponent {
       throw new RuntimeException( e.getLocalizedMessage(), e );
     }
 
-  }
-
-  protected Object getParameterValue( Parameter parameter ) {
-
-    //This is the inverse logic of DashboardRenderer.generateParameterMap
-    if ( inputs.get( parameter.getName() ) instanceof String[] ) {
-      return ( (String[]) inputs.get( parameter.getName() ) ).length == 0 ? null : inputs.get( parameter.getName() );
-    } else {
-      return ( (String) inputs.get( parameter.getName() ) ).length() == 0 ? null : inputs.get( parameter.getName() );
-    }
   }
 
   public boolean validate() {
