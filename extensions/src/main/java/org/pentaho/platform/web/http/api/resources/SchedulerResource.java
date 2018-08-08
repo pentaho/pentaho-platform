@@ -36,7 +36,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -862,7 +861,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
    *  REMOVED
    * </pre>
    */
-  @Deprecated
   @DELETE
   @Path ( "/removeJob" )
   @Produces ( "text/plain" )
@@ -872,41 +870,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 500, condition = "Invalid jobId." )
     } )
   public Response removeJob( JobRequest jobRequest ) {
-    return deleteJob( jobRequest );
-  }
-
-  /**
-   * Delete the specified scheduled job from the platform.
-   *
-   * <p><b>Example Request:</b><br />
-   *    PUT pentaho/api/scheduler/removeJob
-   * </p>
-   * <br /><b>PUT data:</b>
-   *  <pre function="syntax.xml">
-   *    &lt;jobRequest&gt;
-   *    &lt;jobId&gt;admin  BlockoutAction 1410786491503&lt;/jobId&gt;
-   *    &lt;/jobRequest&gt;
-   *  </pre>
-   * </p>
-   *
-   * @param jobRequest A JobRequest object containing the jobId.
-   *
-   * @return A jax-rs Response object containing the status of the scheduled job.
-   *
-   * <p><b>Example Response:</b></p>
-   * <pre function="syntax.xml">
-   *  REMOVED
-   * </pre>
-   */
-  @PUT
-  @Path ( "/removeJob" )
-  @Produces ( "text/plain" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully removed the job." ),
-    @ResponseCode ( code = 500, condition = "Invalid jobId." )
-  } )
-  public Response deleteJob( JobRequest jobRequest ) {
     try {
       if ( schedulerService.removeJob( jobRequest.getJobId() ) ) {
         return buildPlainTextOkResponse( "REMOVED" );
