@@ -57,7 +57,7 @@ public class RepositoryFileAclDto implements Serializable {
     entriesInheriting = inheriting;
     this.aces = aces;
   }
-
+  @Deprecated
   public void setAces( List<RepositoryFileAclAceDto> aces ) {
     setAces( aces, false );
   }
