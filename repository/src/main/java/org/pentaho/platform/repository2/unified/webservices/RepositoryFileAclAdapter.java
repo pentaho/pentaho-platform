@@ -43,8 +43,7 @@ public class RepositoryFileAclAdapter extends XmlAdapter<RepositoryFileAclDto, R
       aclDto.setOwner( owner.getName() );
       aclDto.setOwnerType( owner.getType() != null ? owner.getType().ordinal() : -1 );
     }
-    aclDto.setEntriesInheriting( v.isEntriesInheriting() );
-    aclDto.setAces( toAcesDto( v.getAces() ) );
+    aclDto.setAces( toAcesDto( v.getAces() ), v.isEntriesInheriting() );
     return aclDto;
   }
 
