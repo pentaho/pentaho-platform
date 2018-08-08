@@ -381,10 +381,20 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
               + "metadata" ); //$NON-NLS-1$
 
       if ( metadata != null ) {
-        DataNode metadataNode =
+        DataNode metadataNode = null;
+        String datasourceInfo = null;
+        String definition = null;
+
+        try {
+          metadataNode =
             unifiedRepository.getDataForRead( metadata.getId(), NodeRepositoryFileData.class ).getNode();
-        String datasourceInfo = metadataNode.getProperty( "datasourceInfo" ).getString(); //$NON-NLS-1$
-        String definition = metadataNode.getProperty( "definition" ).getString(); //$NON-NLS-1$
+          datasourceInfo = metadataNode.getProperty( "datasourceInfo" ).getString(); //$NON-NLS-1$
+          definition = metadataNode.getProperty( "definition" ).getString(); //$NON-NLS-1$
+        } catch(Exception e){
+          logger
+            .warn( Messages.getInstance().getString( "MondrianCatalogHelper.WARN_META_DATA_IS_NULL" ) );
+          continue;
+        }
 
         datasourcesXML
             .append( "<Catalog name=\"" + Encode.forXml( catalogName ) + "\">\n" ); //$NON-NLS-1$ //$NON-NLS-2$
@@ -861,8 +871,10 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
           // try catch here so the whole thing doesn't blow up if one datasource is configured incorrectly.
           MondrianSchema schema = null;
           try {
-            schema = makeSchema( getCatalogAsString( pentahoSession, catalog ) );
-
+            String catalogStr = getCatalogAsString( pentahoSession, catalog );
+            if(catalogStr != null){
+              schema = makeSchema(catalogStr);
+            }
           } catch ( Exception e ) {
             MondrianCatalogHelper.logger.error( Messages.getInstance().getErrorString(
                 "MondrianCatalogHelper.ERROR_0013_FAILED_TO_LOAD_SCHEMA", catalog.definition ), e ); //$NON-NLS-1$
@@ -992,7 +1004,10 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       FileObject mondrianDS = fsManager.resolveFile( urlStr );
 
       in = mondrianDS.getContent().getInputStream();
-      res = schemaProcessor.filter( null, localeInfo, in );
+
+      if(localeInfo != null && in != null) {
+        res = schemaProcessor.filter( null, localeInfo, in );
+      }
     } catch ( FileNotFoundException fnfe ) {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0007_FILE_NOT_FOUND" ), fnfe ); //$NON-NLS-1$
@@ -1212,9 +1227,20 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       throw new MondrianCatalogServiceException( Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION" ), Reason.ACCESS_DENIED ); //$NON-NLS-1$
     }
-    flushCacheForCatalog( catalog.getName(), pentahoSession );
 
-    getAclHelper().removeAclFor( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( catalog.getName() ) );
+    try {
+      flushCacheForCatalog( catalog.getName(), pentahoSession );
+    } catch (Throwable e) {
+      Logger.warn( "MondrianCatalogHelper",
+        Messages.getInstance().getErrorString( "MondrianCatalogPublisher.ERROR_0019_FAILED_TO_FLUSH", catalog.getSchema() ));
+    }
+
+    try {
+      getAclHelper().removeAclFor( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( catalog.getName() ) );
+    } catch (Throwable e) {
+      Logger.warn( "MondrianCatalogHelper",
+        Messages.getInstance().getErrorString( "MondrianCatalogPublisher.ERROR_0007_FILE_NOT_FOUND" ));
+    }
 
     IUnifiedRepository solutionRepository = getRepository();
     RepositoryFile deletingFile = solutionRepository.getFile( RepositoryFile.SEPARATOR + "etc" //$NON-NLS-1$

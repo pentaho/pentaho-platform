@@ -876,11 +876,14 @@ public class OlapServiceImpl implements IOlapService {
     for ( String name : getHelper().getHostedCatalogs() ) {
       final HostedCatalogInfo hostedServerInfo =
         getHelper().getHostedCatalogInfo( name );
-      addCatalogXml(
-        datasourcesXML,
-        hostedServerInfo.name,
-        hostedServerInfo.dataSourceInfo,
-        hostedServerInfo.definition );
+
+      if(hostedServerInfo != null) {
+        addCatalogXml(
+          datasourcesXML,
+          hostedServerInfo.name,
+          hostedServerInfo.dataSourceInfo,
+          hostedServerInfo.definition );
+      }
     }
 
     // Don't add the olap4j catalogs. This doesn't work for now.

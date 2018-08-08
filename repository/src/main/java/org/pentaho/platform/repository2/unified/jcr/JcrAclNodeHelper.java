@@ -68,6 +68,9 @@ public class JcrAclNodeHelper implements IAclNodeHelper {
       return SecurityHelper.getInstance().runAsSystem( new Callable<RepositoryFile>() {
         @Override public RepositoryFile call() throws Exception {
 
+          if(file == null || unifiedRepository == null)
+            return null;
+
           List<RepositoryFile> referrers = unifiedRepository.getReferrers( file.getId() );
 
           // Loop through nodes referring to the target file, return the first one designated as an ACL node
