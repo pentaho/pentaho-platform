@@ -309,6 +309,15 @@
                         WEB-INF/lib/xmlpull-*.jar,
                         WEB-INF/lib/xpp3_min-*.jar,
                         WEB-INF/lib/xstream-*.jar,
+                        mantle/**,
+                        openflashchart/**,
+                        ping/**,
+                        welcome/**,
+                        docs/**,
+                        WEB-INF/classes/docs/**,
+                        WEB-INF/classes/kettle-lifecycle-listeners.xml,
+                        WEB-INF/classes/kettle-registry-extensions.xml,
+                        WEB-INF/classes/mondrian.properties
                     </packagingExcludes>
                 </configuration>
             </plugin>
