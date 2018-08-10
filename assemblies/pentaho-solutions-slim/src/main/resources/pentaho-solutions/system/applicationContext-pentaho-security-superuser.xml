@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--+
+	| Application context containing "super" AuthenticationProvider
+	| implementation.
+	+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"  default-lazy-init="true">
+  
+  <bean id="superUserRoleListService" class="org.pentaho.platform.security.userroledao.superuser.SuperUserRoleListService">
+	<constructor-arg ref="singleTenantAdminAuthorityName" />
+	<constructor-arg ref="singleTenantAdminUserName" />
+	<constructor-arg ref="singleTenantSystemAuthorities" />
+  </bean> 
+
+  <bean class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">
+    <property name="userRoleListService" ref="superUserRoleListService" />
+    <property name="extraRoles" ref="extraRoles" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="super"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+</beans>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+       default-lazy-init="true">
+  <bean id="olap4jConnectionList" class="org.pentaho.platform.util.beans.PropertyListFactoryBean">
+    <property name="location" value="olap4j.properties"/>
+  </bean>
+  <bean id="olap4jConnectionRemoveList" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+        <!--uncomment the value below and change the text to remove existing olap4j connections-->
+        <!--<value>mongoFoodmart</value>-->
+      </list>
+    </constructor-arg>
+  </bean>
+</beans>
