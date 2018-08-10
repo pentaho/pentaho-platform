@@ -280,7 +280,11 @@ public class GeneratorStreamingOutput {
     pathParams.setParameter( "httprequest", httpServletRequest ); //$NON-NLS-1$
     pathParams.setParameter( "remoteaddr", httpServletRequest.getRemoteAddr() ); //$NON-NLS-1$
     if ( file != null ) {
-      pathParams.setParameter( "path", URLEncoder.encode( file.getPath(), "UTF-8" ) ); //$NON-NLS-1$
+      if ( this.httpServletRequest.getParameter(  "filePath" )  != null ) {
+        pathParams.setParameter( "path", this.httpServletRequest.getParameter(  "filePath" ) );
+      } else {
+        pathParams.setParameter( "path", URLEncoder.encode( file.getPath(), "UTF-8" ) );
+      }
       pathParams.setParameter( "file", file ); //$NON-NLS-1$
     }
     if ( command != null ) {
