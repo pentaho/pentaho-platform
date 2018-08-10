@@ -102,22 +102,32 @@ define([
     canPublish: function (canPublish) {
       if (canPublish) {
         $('#uploadButton').show();
-        $('#optional-separator').show();
       }
       else {
         $('#uploadButton').hide();
-        $('#optional-separator').hide();
+      }
+      if ( ( $('#downloadButton').css('display') == "inline-block" ) ||
+          ( $('#uploadButton').css('display') == "inline-block" ) ) {
+        $('#optional-separator').show()
+      }
+      else {
+        $('#optional-separator').hide()
       }
     },
 
     canDownload: function (canDownload) {
       if (canDownload) {
         $('#downloadButton').show();
-        $('#optional-separator').show();
       }
       else {
         $('#downloadButton').hide();
-        $('#optional-separator').hide();
+      }
+      if ( ( $('#downloadButton').css('display') == "inline-block" ) ||
+          ( $('#uploadButton').css('display') == "inline-block" ) ) {
+        $('#optional-separator').show()
+      }
+      else {
+        $('#optional-separator').hide()
       }
     },
 
