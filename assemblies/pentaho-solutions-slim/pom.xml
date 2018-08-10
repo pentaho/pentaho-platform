@@ -52,10 +52,10 @@
                 </artifactItem>-->
                 <artifactItem>
                   <groupId>pentaho</groupId>
-                  <artifactId>pentaho-cdf</artifactId>
+                  <artifactId>pentaho-cdf-rca</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
-                  <outputDirectory>${prepared.plugins.directory}</outputDirectory>
+                  <outputDirectory>${prepared.plugins.directory}/pentaho-cdf</outputDirectory>
                 </artifactItem>
                 <!--<artifactItem>
                   <groupId>org.pentaho.ctools</groupId>
@@ -73,10 +73,10 @@
                 </artifactItem>-->
                 <artifactItem>
                   <groupId>org.pentaho.ctools</groupId>
-                  <artifactId>pentaho-cdf-dd</artifactId>
+                  <artifactId>pentaho-cdf-dd-rca</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
-                  <outputDirectory>${prepared.plugins.directory}</outputDirectory>
+                  <outputDirectory>${prepared.plugins.directory}/pentaho-cdf-dd</outputDirectory>
                 </artifactItem>
                 <!--<artifactItem>
                   <groupId>org.pentaho</groupId>
