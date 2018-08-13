@@ -63,14 +63,14 @@
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
-                </artifactItem>
+                </artifactItem>-->
                 <artifactItem>
                   <groupId>pentaho</groupId>
-                  <artifactId>cda</artifactId>
+                  <artifactId>cda-proxy-ass</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
-                </artifactItem>-->
+                </artifactItem>
                 <artifactItem>
                   <groupId>org.pentaho.ctools</groupId>
                   <artifactId>pentaho-cdf-dd-rca</artifactId>
