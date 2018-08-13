@@ -193,8 +193,17 @@
             </goals>
             <configuration>
               <file>${tomcat.directory}/conf/server.xml</file>
-              <token>&lt;Connector</token>
-              <value>&lt;Connector URIEncoding="UTF-8"</value>
+              <replacements>
+                <replacement>
+                  <token>&lt;Connector</token>
+                  <value>&lt;Connector URIEncoding="UTF-8"</value>
+                </replacement>
+                <!-- move network ports -->
+                <replacement> <token>8005</token><value>8010</value> </replacement>
+                <replacement> <token>8080</token><value>8085</value> </replacement>
+                <replacement> <token>8443</token><value>8448</value> </replacement>
+                <replacement> <token>8009</token><value>8014</value> </replacement>
+              </replacements>
             </configuration>
           </execution>
         </executions>
