@@ -189,6 +189,10 @@ public class RepositoryResource extends AbstractJaxRSResource {
       }
     }
 
+    if ( this.httpServletRequest.getParameter(  "filePath" )  != null ) {
+      contextId = this.httpServletRequest.getParameter(  "filePath" );
+    }
+
     return doService( contextId, resourceId );
   }
 
@@ -647,12 +651,18 @@ public class RepositoryResource extends AbstractJaxRSResource {
       PluginBeanException, IOException, URISyntaxException {
 
     ctxt( "Is [{0}] a repository file id?", contextId ); //$NON-NLS-1$
-    if ( contextId.startsWith( ":" ) || contextId.matches( "^[A-z]\t:.*" ) ) { //$NON-NLS-1$
+    if ( contextId.startsWith( ":" ) || contextId.matches( "^[A-z]\t:.*" ) || contextId.startsWith( "/" ) ) { //$NON-NLS-1$
       //
       // The context is a repository file (A)
       //
 
-      final RepositoryFile file = repository.getFile( FileResource.idToPath( contextId ) );
+      RepositoryFile file = null;
+      if ( contextId.startsWith( "/" ) ) {
+        file = repository.getFile( contextId );
+      } else {
+        file = repository.getFile( FileResource.idToPath( contextId ) );
+      }
+
       if ( file == null ) {
         logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
         return Response.serverError().build();
