@@ -33,7 +33,9 @@ set CATALINA_HOME=%~dp0tomcat
 SET BITS=64
 SET DI_HOME="%~dp0pentaho-solutions\system\kettle"
 
-set CATALINA_OPTS=-Xms32m -Xmx128m -Dfile.encoding=utf8 -DDI_HOME=%DI_HOME%
+REM Temporary credentials, replace with correct values
+set CREDENTIALS=-Drepos.url=http://localhost:8080/pentaho -Drepos.user=admin -Drepos.password=password -Dcda.hostname=localhost -Dcda.port=8080
+set CATALINA_OPTS=-Xms32m -Xmx128m -Dfile.encoding=utf8 -DDI_HOME=%DI_HOME% %CREDENTIALS%
 
 rem Make sure we set the appropriate variable so Tomcat can start (e.g. JAVA_HOME iff. _PENTAHO_JAVA_HOME points to a JDK)
 if not exist "%_PENTAHO_JAVA_HOME%\bin\jdb.exe" goto noJdk

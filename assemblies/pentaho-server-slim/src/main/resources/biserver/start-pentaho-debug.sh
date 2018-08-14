@@ -46,7 +46,9 @@ if [ -f "$DIR/promptuser.sh" ]; then
 fi
 if [ "$?" = 0 ]; then
   cd "$DIR/tomcat/bin"
-  CATALINA_OPTS="-Xms32m -Xmx128m  -XX:MaxPermSize=256m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -DDI_HOME=\"$DI_HOME\""
+  ## Temporary credentials, replace with correct values
+  CREDENTIALS=-Drepos.url=http://localhost:8080/pentaho -Drepos.user=admin -Drepos.password=password -Dcda.hostname=localhost -Dcda.port=8080
+  CATALINA_OPTS="-Xms32m -Xmx128m  -XX:MaxPermSize=256m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -DDI_HOME=\"$DI_HOME\" $CREDENTIALS"
   export CATALINA_OPTS
   JAVA_HOME=$_PENTAHO_JAVA_HOME
   sh startup.sh
