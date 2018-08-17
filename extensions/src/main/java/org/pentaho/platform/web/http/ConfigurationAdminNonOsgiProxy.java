@@ -23,7 +23,6 @@ package org.pentaho.platform.web.http;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Dictionary;
 
@@ -61,7 +60,7 @@ public class ConfigurationAdminNonOsgiProxy {
       Method getProperties = configuration.getClass().getMethod( "getProperties" );
 
       return (Dictionary<String, Object>) getProperties.invoke( configuration );
-    } catch ( NoSuchMethodException | InvocationTargetException | IllegalAccessException e ) {
+    } catch ( Exception e ) {
       return null;
     }
 
@@ -79,7 +78,7 @@ public class ConfigurationAdminNonOsgiProxy {
       Method getConfiguration = this.configurationAdmin.getClass().getMethod( "getConfiguration", String.class );
 
       return getConfiguration.invoke( this.configurationAdmin, persistenceID );
-    } catch ( NoSuchMethodException | InvocationTargetException | IllegalAccessException e ) {
+    } catch ( Exception e ) {
       return null;
     }
 

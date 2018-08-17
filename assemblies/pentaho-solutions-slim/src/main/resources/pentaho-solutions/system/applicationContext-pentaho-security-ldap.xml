@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--+
+	| Application context containing LDAP UserRoleListService
+	| implementation.
+	+-->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+
+  <!-- be sure to escape ampersands -->
+  <bean id="allUsernamesSearch"
+        class="org.pentaho.platform.plugin.services.security.userrole.ldap.search.GenericLdapSearch">
+    <constructor-arg index="0" ref="contextSource" />
+    <constructor-arg index="1">
+      <bean
+          class="org.pentaho.platform.plugin.services.security.userrole.ldap.search.LdapSearchParamsFactoryImpl">
+        <constructor-arg index="0" value="${ldap.allUsernamesSearch.searchBase}" />
+        <constructor-arg index="1" value="${ldap.allUsernamesSearch.searchFilter}" />
+      </bean>
+    </constructor-arg>
+    <constructor-arg index="2">
+      <bean
+          class="org.pentaho.platform.plugin.services.security.userrole.ldap.transform.SearchResultToAttrValueList">
+        <constructor-arg index="0" value="${ldap.allUsernamesSearch.usernameAttribute}" />
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <!-- be sure to escape ampersands -->
+  <bean id="allAuthoritiesSearch"
+        class="org.pentaho.platform.plugin.services.security.userrole.ldap.search.GenericLdapSearch">
+    <constructor-arg index="0" ref="contextSource" />
+    <constructor-arg index="1">
+      <bean
+          class="org.pentaho.platform.plugin.services.security.userrole.ldap.search.LdapSearchParamsFactoryImpl">
+        <constructor-arg index="0" value="${ldap.allAuthoritiesSearch.searchBase}" />
+        <constructor-arg index="1"
+                         value="${ldap.allAuthoritiesSearch.searchFilter}" />
+      </bean>
+    </constructor-arg>
+    <constructor-arg index="2">
+      <bean
+          class="org.apache.commons.collections.functors.ChainedTransformer">
+        <constructor-arg index="0">
+          <list>
+            <bean
+                class="org.pentaho.platform.plugin.services.security.userrole.ldap.transform.SearchResultToAttrValueList">
+              <constructor-arg index="0" value="${ldap.allAuthoritiesSearch.roleAttribute}" />
+            </bean>
+            <bean
+                class="org.pentaho.platform.plugin.services.security.userrole.ldap.transform.StringToGrantedAuthority">
+              <property name="rolePrefix" value="${ldap.populator.rolePrefix}" />
+              <property name="convertToUpperCase" value="${ldap.populator.convertToUpperCase}" />
+            </bean>
+          </list>
+        </constructor-arg>
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <!-- not currently used -->
+  <bean id="usernamesInRoleSearch"
+        class="org.pentaho.platform.plugin.services.security.userrole.ldap.search.NoOpLdapSearch">
+  </bean>
+
+
+  <bean id="ldapUserRoleListService"
+        class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserRoleListService">
+    <constructor-arg index="0" >
+      <bean class="org.pentaho.platform.engine.security.DefaultUsernameComparator" />
+    </constructor-arg>
+    <constructor-arg index="1" >
+      <bean class="org.pentaho.platform.engine.security.DefaultRoleComparator" />
+    </constructor-arg>
+    <constructor-arg index="2">
+      <ref bean="ldapRoleMapper" />
+    </constructor-arg>
+    <property name="allAuthoritiesSearch">
+      <ref bean="allAuthoritiesSearch" />
+    </property>
+    <property name="allUsernamesSearch">
+      <ref bean="allUsernamesSearch" />
+    </property>
+    <property name="userDetailsService">
+    	<pen:bean class="org.springframework.security.core.userdetails.UserDetailsService"/>
+    </property>
+    <property name="usernamesInRoleSearch">
+      <ref bean="usernamesInRoleSearch" />
+    </property>
+    <property name="roleNameUtils" >
+      <ref bean="tenantedRoleNameUtils" />
+    </property>
+    <property name="userNameUtils">
+      <ref bean="tenantedUserNameUtils" />
+    </property>
+    <property name="systemRoles" >
+      <ref bean="singleTenantSystemAuthorities" />
+    </property>
+    <property name="extraRoles" ref="extraRoles" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="ldap"/>
+      </pen:attributes>
+    </pen:publish>    
+  </bean>
+</beans>

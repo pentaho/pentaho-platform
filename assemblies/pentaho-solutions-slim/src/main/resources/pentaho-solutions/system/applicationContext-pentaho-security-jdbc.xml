@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--+
+	| Application context containing JDBC UserRoleListService 
+	| implementation.
+	+-->
+
+<beans  xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+  xmlns:util="http://www.springframework.org/schema/util"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd"
+default-lazy-init="true"
+>
+
+    <!-- map ldap role to pentaho security role -->
+    <util:map id="jdbcRoleMap">
+        <entry key="Admin" value="Administrator"/>
+    </util:map>
+
+    <bean id="jdbcRoleMapper"
+          class="org.pentaho.platform.engine.security.DefaultJdbcRoleMapper">
+        <constructor-arg>
+            <ref bean="jdbcRoleMap"/>
+        </constructor-arg>
+    </bean>
+
+	<bean id="jdbcUserRoleListService"
+		class="org.pentaho.platform.plugin.services.security.userrole.jdbc.JdbcUserRoleListService">
+		<constructor-arg index="0" ref="jdbcUserDetailsService" />
+		<constructor-arg index="1" ref="singleTenantSystemAuthorities" />
+		<property name="allAuthoritiesQuery">
+			<value>
+				<![CDATA[SELECT distinct(authority) as authority FROM AUTHORITIES ORDER BY authority]]>
+			</value>
+		</property>
+		<property name="allUsernamesInRoleQuery">
+			<value>
+				<![CDATA[SELECT distinct(username) as username FROM GRANTED_AUTHORITIES where authority = ? ORDER BY username]]>
+			</value>
+		</property>
+		<property name="allUsernamesQuery">
+			<value>
+				<![CDATA[SELECT distinct(username) as username FROM USERS ORDER BY username]]>
+			</value>
+		</property>
+		<property name="dataSource" ref="dataSource" />
+        <property name="roleMapper" ref="jdbcRoleMapper" />
+    <property name="rolePrefix" value="" />
+	</bean>
+
+  <bean id="extraRoleJdbcUserRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">
+    <property name="userRoleListService" ref="jdbcUserRoleListService" />
+    <property name="extraRoles" ref="extraRoles" />
+  </bean>
+  <bean class="org.pentaho.platform.plugin.services.security.userrole.CachingUserRoleListServiceDecorator">
+    <constructor-arg ref="extraRoleJdbcUserRoleListService" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="jdbc"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  
+</beans>

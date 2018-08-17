@@ -132,6 +132,7 @@
   <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request">
     <property name="whitelist"><ref bean="RepositoryDownloadWhitelist"/></property>
   </bean>
+  <bean class="org.pentaho.platform.web.http.api.resources.FileResourceGeneratedContentForSchedule" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.EmailResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SchedulerResource" scope="request"/>

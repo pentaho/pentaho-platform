@@ -68,6 +68,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     Collections.unmodifiableList( Arrays.asList( new Character[] { '/', '\\', '\t', '\r', '\n' } ) );
   private static List<Character> reservedCharsWindows =
     Collections.unmodifiableList( Arrays.asList( new Character[]{ '?', '*', ':', '<', '>', '|'} ) );
+  private boolean IS_WINDOWS;
 
   public FileSystemRepositoryFileDao() {
     this( new File( System.getProperty( "solution.root.dir", System.getProperty( "user.dir" ) ) ) );
@@ -80,7 +81,9 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public FileSystemRepositoryFileDao( File baseDir ) {
     // Detect OS
     final String os = System.getProperty( "os.name" ).toLowerCase();
-    if ( os.contains( "win" ) && baseDir.getPath().equals( "\\" ) ) {
+    IS_WINDOWS = os.contains( "win" );
+
+    if ( IS_WINDOWS && baseDir.getPath().equals( "\\" ) ) {
       baseDir = new File( "C:\\" );
     }
     assert ( baseDir.exists() && baseDir.isDirectory() );
@@ -98,7 +101,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   private byte[] inputStreamToBytes( InputStream in ) throws IOException {
 
     ByteArrayOutputStream out = new ByteArrayOutputStream( 4096 );
-    byte[] buffer = new byte[4096];
+    byte[] buffer = new byte[ 4096 ];
     int len;
 
     while ( ( len = in.read( buffer ) ) >= 0 ) {
@@ -225,7 +228,10 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       String jcrPath = f.getAbsolutePath().substring( rootDir.getAbsolutePath().length() );
       if ( jcrPath.length() == 0 ) {
         jcrPath = "/";
+      } else if ( IS_WINDOWS ) {
+        jcrPath = jcrPath.replaceAll( "\\\\", "/" );
       }
+
       file =
           new RepositoryFile.Builder( f.getAbsolutePath(), f.getName() ).createdDate( new Date( f.lastModified() ) )
               .lastModificationDate( new Date( f.lastModified() ) ).folder( f.isDirectory() ).versioned( false ).path(

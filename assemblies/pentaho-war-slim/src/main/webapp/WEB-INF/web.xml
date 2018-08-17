@@ -1,0 +1,328 @@
+<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC
+    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+  <context-param>
+    <param-name>solution-path</param-name>
+    <param-value></param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>contextClass</param-name>
+    <param-value>org.pentaho.platform.web.http.context.PentahoSolutionSpringApplicationContext</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <!-- This file is relative to the "system" folder within your pentaho solutions folder. -->
+    <!-- Instead of adding files here, add them as imports to pentaho-spring-beans.xml. -->
+    <param-value>pentaho-spring-beans.xml</param-value>
+  </context-param>
+
+  <!-- insert additional context-params -->
+
+  <filter> <!-- This must be the first filter listed in the web.xml -->
+    <filter-name>Set Character Encoding Filter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.PentahoAwareCharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>ignore</param-name>
+      <param-value>yes</param-value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>Pentaho Path Decoding Filter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.PentahoPathDecodingFilter</filter-class>
+  </filter>
+
+  <!-- Pentaho Request Context Filter is use to extract the Context Path from Servlet Request and store it in the PentahoRequestContextHolder.
+  This is needed to get the relative path to the server for online content generation and requesting of resources.
+   -->
+
+	<filter>
+    <filter-name>Pentaho Request Context Filter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.PentahoRequestContextFilter</filter-class>
+  </filter>
+
+  <filter>
+    <filter-name>WEBAPP_ROOT URL rewrite filter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.WebappRootForwardingFilter</filter-class>
+  </filter>
+
+  <filter>
+    <filter-name>Spring Security Filter Chain Proxy</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    <init-param>
+      <param-name>targetBeanName</param-name>
+      <param-value>filterChainProxy</param-value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>SystemStatusFilter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.SystemStatusFilter</filter-class>
+    <init-param>
+      <param-name>initFailurePage</param-name>
+      <param-value>InitFailure</param-value>
+      <description>This page is displayed if the PentahoSystem fails to
+        properly initialize.</description>
+    </init-param>
+  </filter>
+
+  <!--  Pentaho Web Context Filter checks to see if webcontext.js is being requested. It writes the content of webcontext.js
+        webcontext.js contains value for CONTEXT_PATH and FULLY_QUALIFIED_SERVER_URL
+    -->
+  <filter>
+    <filter-name>Pentaho Web Context Filter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.PentahoWebContextFilter</filter-class>
+  </filter>
+
+  <!-- insert additional filters -->
+
+  <filter-mapping>
+    <filter-name>Pentaho Path Decoding Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+	<filter-mapping>
+    <filter-name>WEBAPP_ROOT URL rewrite filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>Set Character Encoding Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>SystemStatusFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!--
+    Filter mapping for security. Note that all objects are locked down. We
+    could change this here as desired.
+  -->
+  <filter-mapping>
+    <filter-name>Spring Security Filter Chain Proxy</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>Pentaho Request Context Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>Pentaho Web Context Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <!-- insert additional filter-mappings -->
+
+
+  <!-- sets System properties used by the Spring context -->
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.context.SpringEnvironmentSetupListener</listener-class>
+  </listener>
+
+  <!--   enables session and request scoped object creation in Spring -->
+  <listener>
+    <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.session.PentahoHttpSessionListener</listener-class>
+  </listener>
+
+  <!-- NEXT TWO LISTENERS ARE ORDER DEPENDENT -->
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.context.SolutionContextListener</listener-class>
+  </listener>
+  <!-- END OF ORDER DEPENDENCE -->
+
+  <listener>
+    <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.context.PentahoCacheContextListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.session.PentahoCacheSessionListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+  </listener>
+
+  <!-- insert additional listeners -->
+
+  <!-- Last listener: PentahoSystemReadyListener, performs notification to plugins that the system
+	   has been started and is ready, spring has been initialized and all plugins have been loaded -->
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.context.PentahoSystemReadyListener</listener-class>
+  </listener>
+
+  <servlet>
+    <servlet-name>GenericServlet</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.GenericServlet</servlet-class>
+    <init-param>
+      <param-name>showDeprecationMessage</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet>
+    <servlet-name>PluginDispatchServlet</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.PluginDispatchServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>InitFailure</servlet-name>
+    <jsp-file>/jsp/InitFailure.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+    <servlet-name>LocalizationServlet</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.LocalizationServlet</servlet-class>
+  </servlet>
+
+  <!-- ================================= merged servlets =================================== -->
+  <servlet>
+    <servlet-name>Login</servlet-name>
+    <jsp-file>/jsp/PUCLogin.jsp</jsp-file>
+    <init-param>
+      <param-name>send401List</param-name>
+      <param-value>ServiceActionService,gwtrpc,ws/gwt,mantle/images/spacer.gif</param-value>
+      <description>List of things to throw a 401 to when seen in the login</description>
+    </init-param>
+  </servlet>
+  <servlet>
+    <servlet-name>GetResource</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.GetResource</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>jaxrsEndpoint-spring</servlet-name>
+    <description>JAX-RS endpoint</description>
+    <servlet-class>org.pentaho.platform.web.servlet.JAXRSServlet</servlet-class>
+    <init-param>
+      <param-name>com.sun.jersey.config.property.WadlGeneratorConfig</param-name>
+      <param-value>org.pentaho.platform.web.servlet.PentahoWadlGeneratorConfig</param-value>
+    </init-param>
+  </servlet>
+
+  <!-- insert additional servlets -->
+
+  <servlet-mapping>
+    <servlet-name>jaxrsEndpoint-spring</servlet-name>
+    <url-pattern>/api/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>GenericServlet</servlet-name>
+    <url-pattern>/content/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>PluginDispatchServlet</servlet-name>
+    <url-pattern>/plugin/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- Pentaho Servlets -->
+
+  <servlet-mapping>
+    <servlet-name>InitFailure</servlet-name>
+    <url-pattern>/InitFailure</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>LocalizationServlet</servlet-name>
+    <url-pattern>/i18n</url-pattern>
+  </servlet-mapping>
+
+
+  <!-- =============================== merged servlet-mappings ============================= -->
+
+  <servlet-mapping>
+    <servlet-name>Login</servlet-name>
+    <url-pattern>/Login</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>GetResource</servlet-name>
+    <url-pattern>/GetResource</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>GetResource</servlet-name>
+    <url-pattern>/content/GetResource</url-pattern>
+  </servlet-mapping>
+
+  <!-- insert additional servlet mappings -->
+  <session-config>
+    <tracking-mode>COOKIE</tracking-mode>
+    <session-timeout>120</session-timeout>
+  </session-config>
+
+  <mime-mapping>
+    <extension>properties</extension>
+    <mime-type>text/plain</mime-type>
+  </mime-mapping>
+
+  <mime-mapping>
+    <extension>js</extension>
+    <mime-type>text/javascript</mime-type>
+  </mime-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+  <!-- insert additional tag libs -->
+
+
+  <!-- insert additional resource-refs -->
+
+  <security-constraint>
+    <display-name>Default JSP Security Constraints</display-name>
+    <web-resource-collection>
+      <web-resource-name>Portlet Directory</web-resource-name>
+      <url-pattern>/jsp/*</url-pattern>
+      <http-method>GET</http-method>
+      <http-method>POST</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>PENTAHO_ADMIN</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>NONE</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+
+  <security-role>
+		<description>Non-Existent Role - this prevents direct access to JSPs</description>
+		<role-name>PENTAHO_ADMIN</role-name>
+	</security-role>
+<!--
+	<error-page>
+		<error-code>404</error-code>
+		<location>/unavailable.html</location>
+	</error-page>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/unavailable.html</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/unavailable.html</location>
+	</error-page>
+-->
+</web-app>

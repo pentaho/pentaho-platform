@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>Hibernate</jndi-name>
+    <connection-url>jdbc:oracle:thin:@localhost:1521:pentaho</connection-url>
+    <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
+    <user-name>hibuser</user-name>
+    <password>password</password>
+    <check-valid-connection-sql>select 1 from dual</check-valid-connection-sql>
+  </local-tx-datasource>
+</datasources>

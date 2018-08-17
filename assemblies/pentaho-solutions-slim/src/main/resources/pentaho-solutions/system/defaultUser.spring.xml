@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
+       default-lazy-init="true">
+
+	  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+	    <constructor-arg value="defaultUser"/>
+	    <constructor-arg value="defaultUser.spring.properties"/>
+	    <pen:publish as-type="INTERFACES"/>
+	  </bean>
+	<!-- NOTE:  THIS FILE IS FOR INITIAL SERVER STARTUP CONFIG OF DEFAULTS.  
+		 THIS FILE IS NOT INTENDED FOR ONGOING MANAGEMENT OF USERS AND ROLES.   -->
+
+	<util:list id="powerUser">
+		            <value>org.pentaho.scheduler.manage</value>
+                <value>org.pentaho.repository.read</value>
+                <value>org.pentaho.repository.create</value>
+                <value>org.pentaho.security.publish</value>
+	</util:list>
+
+	<util:list id="reportAuthor">
+		<value>org.pentaho.security.publish</value>
+		<value>org.pentaho.scheduler.manage</value>
+	</util:list>
+
+	<util:list id="businessAnalyst">
+		<value>org.pentaho.security.publish</value>
+	</util:list>
+
+	<util:map id="role-mappings">
+		<entry key="Power User" value-ref="powerUser" />
+		<entry key="Report Author" value-ref="reportAuthor" />
+		<entry key="Business Analyst" value-ref="businessAnalyst" />
+	</util:map>
+
+	<bean id="defaultAdminUserPassword" class="java.lang.String">
+		<constructor-arg value="${defaultUser.defaultAdminUserPassword}" />
+	</bean>
+
+	<bean id="defaultNonAdminUserPassword" class="java.lang.String">
+		<constructor-arg value="${defaultUser.defaultNonAdminUserPassword}" />
+	</bean>
+
+	<util:map id="defaultUserRoleMappings">
+		<entry key="suzy">
+			<util:list>
+				<ref bean="singleTenantAuthenticatedAuthorityName"/>
+				<value>Power User</value>
+			</util:list>
+		</entry>
+
+		<entry key="pat">
+			<util:list>
+				<ref bean="singleTenantAuthenticatedAuthorityName"/>
+				<value>Business Analyst</value>
+			</util:list>
+		</entry>
+
+		<entry key="tiffany">
+			<util:list>
+				<ref bean="singleTenantAuthenticatedAuthorityName"/>
+				<value>Report Author</value>
+			</util:list>
+		</entry>
+        <entry key-ref="singleTenantAdminUserName">
+			<util:list>
+				<ref bean="singleTenantAuthenticatedAuthorityName"/>
+				<ref bean="singleTenantAdminAuthorityName"/>
+			</util:list>
+		</entry>
+	</util:map>	
+	
+</beans>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--+
+	| Application context containing "in memory" AuthenticationProvider
+	| implementation.
+	+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+
+	<bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<property name="userDetailsService">
+			<pen:bean class="org.springframework.security.core.userdetails.UserDetailsService"/>
+		</property>
+		<property name="passwordEncoder">
+			<ref bean="memoryPasswordEncoder" />
+		</property>
+		<pen:publish as-type="org.springframework.security.authentication.AuthenticationProvider">
+	      <pen:attributes>
+	        <pen:attr key="providerName" value="memory"/>
+	      </pen:attributes>
+	    </pen:publish>
+	</bean>
+
+	<bean id="memoryUserDetailsService" class="org.pentaho.platform.plugin.services.security.userrole.memory.DefaultInMemoryUserDetailsService">
+		<constructor-arg ref="tenantedUserNameUtils"/>	
+		<constructor-arg ref="users"/>	
+		<pen:publish as-type="INTERFACES">
+	      <pen:attributes>
+	        <pen:attr key="providerName" value="memory"/>
+	      </pen:attributes>
+	    </pen:publish>
+	</bean>
+
+
+	<bean id="users" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+	  <property name="properties">
+	    <props>
+	      <prop key="admin">password,Administrator,Authenticated</prop>
+	      <prop key="suzy">password,Power User,Authenticated</prop>
+	      <prop key="pat">password,Business Analyst,Authenticated</prop>
+	      <prop key="tiffany">password,Report Author,Authenticated</prop>
+	      <prop key="joe">password,Report Author,Administrator,Authenticated</prop>
+	    </props>
+	  </property>
+	</bean>
+
+	<bean id="memoryPasswordEncoder" class="org.springframework.security.authentication.encoding.PlaintextPasswordEncoder" />
+
+</beans>

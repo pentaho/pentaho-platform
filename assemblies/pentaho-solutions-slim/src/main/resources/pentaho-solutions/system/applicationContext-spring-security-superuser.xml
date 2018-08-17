@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--+
+	| Application context containing "super" AuthenticationProvider
+	| implementation.
+	+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
+       default-lazy-init="true">
+
+    <bean id="superAuthenticationProvider"
+          class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+        <property name="userDetailsService">
+            <ref bean="superUserDetailsService"/>
+        </property>
+        <property name="passwordEncoder">
+            <ref bean="superPasswordEncoder"/>
+        </property>
+        <pen:publish as-type="org.springframework.security.authentication.AuthenticationProvider">
+            <pen:attributes>
+                <pen:attr key="providerName" value="super"/>
+            </pen:attributes>
+        </pen:publish>
+    </bean>
+
+    <bean id="superUserDetailsService"
+          class="org.pentaho.platform.plugin.services.security.userrole.memory.DefaultInMemoryUserDetailsService">
+        <constructor-arg ref="tenantedUserNameUtils"/>
+        <constructor-arg ref="superuser"/>
+
+        <pen:publish as-type="INTERFACES">
+            <pen:attributes>
+                <pen:attr key="providerName" value="super"/>
+            </pen:attributes>
+        </pen:publish>
+    </bean>
+    <bean id="superuser" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <prop key="SystemAdmin">5f4dcc3b5aa765d61d8327deb882cf99,Super,Administrator,Authenticated</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="superPasswordEncoder"
+          class="org.springframework.security.authentication.encoding.Md5PasswordEncoder"/>
+
+</beans>

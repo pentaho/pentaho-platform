@@ -1,0 +1,45 @@
+<taglib
+   xmlns="http://java.sun.com/xml/ns/j2ee"
+   xmlns:xsi="http://www.w3c.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+   version="2.0">
+   <tlib-version>1.0</tlib-version>
+   <jsp-version>2.0</jsp-version>
+   <short-name></short-name>
+   <uri>http://www.jboss.org/portal</uri>
+   <tag>
+      <name>region</name>
+      <tag-class>org.jboss.portal.theme.tag.RegionTagHandler</tag-class>
+      <body-content>empty</body-content>
+      <attribute>
+         <name>orientation</name>
+      </attribute>
+      <attribute>
+         <name>regionName</name>
+      </attribute>
+      <attribute>
+         <name>regionID</name>
+      </attribute>
+   </tag>
+   <tag>
+      <name>portlet</name>
+      <tag-class>org.jboss.portal.theme.tag.PortletTagHandler</tag-class>
+      <body-content>empty</body-content>
+      <attribute>
+         <name>windowName</name>
+      </attribute>
+   </tag>
+   <tag>
+      <name>theme</name>
+      <tag-class>org.jboss.portal.theme.tag.ThemeTagHandler</tag-class>
+      <body-content>empty</body-content>
+      <attribute>
+         <name>themeName</name>
+      </attribute>
+   </tag>
+   <tag>
+      <name>headerContent</name>
+      <tag-class>org.jboss.portal.theme.tag.HeaderContentTagHandler</tag-class>
+      <body-content>empty</body-content>
+   </tag>
+</taglib>

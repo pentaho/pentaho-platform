@@ -1,0 +1,3 @@
+<jboss-web>
+    <context-root>/pentaho-portal-layout</context-root>
+</jboss-web>

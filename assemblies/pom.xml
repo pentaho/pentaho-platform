@@ -87,5 +87,19 @@
         <module>pentaho-server</module>
       </modules>
     </profile>
+
+    <profile>
+      <id>platform-assemble-slim</id>
+      <activation>
+        <property>
+          <name>!skipDefault</name>
+        </property>
+      </activation>
+      <modules>
+        <module>pentaho-war-slim</module>
+        <module>pentaho-solutions-slim</module>
+        <module>pentaho-server-slim</module>
+      </modules>
+    </profile>
   </profiles>
 </project>

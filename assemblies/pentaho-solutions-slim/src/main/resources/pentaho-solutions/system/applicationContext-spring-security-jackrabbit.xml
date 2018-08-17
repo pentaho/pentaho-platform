@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--+
+| Application context containing Jackrabbit AuthenticationProvider
+| implementation.
++-->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd 
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+
+  <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+    <property name="userDetailsService">
+      <pen:bean class="org.springframework.security.core.userdetails.UserDetailsService"/>
+    </property>
+    <property name="passwordEncoder">
+      <ref bean="jackrabbitPasswordEncoder" />
+    </property>
+    <pen:publish as-type="org.springframework.security.authentication.AuthenticationProvider">
+      <pen:attributes>
+        <pen:attr key="providerName" value="jackrabbit"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <!-- UserDetailsService that delegates to an IUserRoleDao -->
+  <bean id="userDetailsService" class="org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService">
+    <property name="userRoleDao">
+      <ref bean="userRoleDaoTxn" />
+    </property>
+    <property name="rolePrefix" value="" />
+    <property name="defaultRole" ref="defaultRole" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="jackrabbit"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <!-- not a plaintext password encoder -->
+  <bean id="jackrabbitPasswordEncoder" class="org.pentaho.platform.repository2.userroledao.jackrabbit.security.DefaultPentahoPasswordEncoder" />
+
+</beans>

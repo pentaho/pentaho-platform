@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ws="http://jax-ws.dev.java.net/spring/core"
+       xmlns:wss="http://jax-ws.dev.java.net/spring/servlet"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+                           http://jax-ws.dev.java.net/spring/core http://jax-ws.dev.java.net/spring/core.xsd
+                           http://jax-ws.dev.java.net/spring/servlet http://jax-ws.dev.java.net/spring/servlet.xsd
+                           http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd">
+
+  <context:annotation-config/>
+
+  <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer" scope="singleton"/>
+
+  <!-- Jersey JAXB Context Resolver (fixes 1-element array) -->
+  <bean class="org.pentaho.platform.web.http.api.resources.JAXBContextResolver" scope="singleton"/>
+
+  <!-- JAX-RS beans -->
+  <bean class="org.pentaho.platform.web.http.api.resources.RootResource" scope="request"/>
+
+
+  <bean class="org.pentaho.platform.web.http.api.resources.DirectoryResource" scope="request"/>
+
+  <bean id="RepositoryDownloadWhitelist" class="org.pentaho.platform.repository.RepositoryDownloadWhitelist">
+    <property name="extensions" value="gif,jpg,jpeg,png,bmp,tiff,csv,xls,xlsx,pdf,txt,css,htm,html,js,xml,doc,ppt" />
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request">
+    <property name="whitelist"><ref bean="RepositoryDownloadWhitelist"/></property>
+  </bean>
+
+  <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request">
+    <property name="whitelist"><ref bean="RepositoryDownloadWhitelist"/></property>
+  </bean>
+
+  <bean class="org.pentaho.platform.web.http.api.resources.PluginResource" scope="request"/>
+
+  <bean class="org.pentaho.platform.web.http.api.resources.SystemResource" scope="request">
+    <constructor-arg>
+      <pen:bean class="org.pentaho.platform.api.engine.ISystemConfig"/>
+    </constructor-arg>
+  </bean>
+
+  <bean class="org.pentaho.platform.web.http.api.resources.GeneratorStreamingOutputProvider" scope="singleton"/>
+
+</beans>

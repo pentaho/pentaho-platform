@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+	<cache>false</cache>
+	<cache-messages>true</cache-messages>
+	<max-age>2628001</max-age>
+        <resources>
+            <downloadable-formats>css,js,html,htm,png,jpg,jpeg,gif,swf,otf,woff,ico,zip,xml,properties</downloadable-formats>
+        </resources>
+
+
+    <!--
+        hibernate-available: flag indicating if the Hibernate database is available (not available in AGILE-BI and cause issues).
+        this flag allows agile-bi to override the default setting of true
+
+        valid values are: true | false
+     -->
+    <hibernate-available>false</hibernate-available>
+    
+    
+    <!--
+        legacy-dashboard-context: flag indicating if Dashboard.context should assume the legacy 
+        structure, including deprecated attributes such as: solution, path, file, fullPath, isAdmin
+
+        accepted values are: true | false
+     -->
+    <legacy-dashboard-context>false</legacy-dashboard-context>
+
+
+    <!--
+        allow-cross-domain-resources: Flag indicating cross-origin resource sharing
+
+        accepted values are: true | false
+     -->
+    <allow-cross-domain-resources>false</allow-cross-domain-resources>
+
+    <!-- A comma separated list of allowed domains for a cross-origin resource sharing-->
+    <cross-domain-resources-whitelist><!--intentionally left blank --></cross-domain-resources-whitelist>
+    
+</settings>

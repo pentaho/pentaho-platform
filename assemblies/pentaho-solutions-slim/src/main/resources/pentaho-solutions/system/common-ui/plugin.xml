@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin loader="OVERRIDING" title="common-ui">
+
+  <!-- uncomment these menu items to access the test pages via the User Console menu -->
+  <!-- menu-items>
+     <menu-item id="test-index" anchor="tools-submenu" label="Common UI Tests" command="content/common-ui/resources/web/test/testindex.html" type="MENU_ITEM" how="LAST_CHILD"/>
+ </menu-items -->
+
+  <static-paths>
+    <!-- this translates to /pentaho/content/common-ui/resources/* -->
+    <static-path url="/common-ui/resources" localFolder="resources"/>
+  </static-paths>
+
+  <content-generator scope="session" id="reposvc" type="reposvc">
+    <classname>org.pentaho.common.ui.services.SolutionUrlContentGenerator</classname>
+    <title>RepositoryService</title>
+  </content-generator>
+
+  <content-generator scope="session" id="MetadataModelsSvc" type="MetadataModelsSvc">
+    <classname>org.pentaho.common.ui.metadata.service.MetadataModelsContentGenerator</classname>
+    <title>MetadataModelsService</title>
+  </content-generator>
+
+  <content-generator scope="session" id="ChartSeriesColorSvc" type="ChartSeriesColorSvc">
+    <classname>org.pentaho.common.ui.services.ChartSeriesColorContentGenerator</classname>
+    <title>ChartSeriesColorService</title>
+  </content-generator>
+
+  <webservice
+      id="RepositoryClientService"
+      type="xml"
+      class="org.pentaho.common.ui.services.SolutionRepoService"/>
+
+  <webservice
+      id="UserSettingService"
+      type="xml"
+      class="org.pentaho.common.ui.services.UserSettingService"/>
+
+  <webservice
+          id="metadataService"
+          type="xml"
+          class="org.pentaho.common.ui.metadata.service.MetadataService"/>
+  <!--
+  <webservice
+      id="metadataService"
+      type="xml,gwt"
+      class="org.pentaho.common.ui.metadata.service.MetadataService"/>
+  -->
+  <!-- Commented out per PPP-3679
+  <webservice
+      id="metadataService2"
+      type="xml,gwt"
+      class="org.pentaho.common.ui.metadata.service.MetadataService2"/>
+  -->
+
+  <external-resources>
+    <file context="global">content/common-ui/resources/web/angular-directives/angular-directives.css</file>
+
+    <file context="global">content/common-ui/resources/web/dojo/djConfig.js</file>
+    <file context="global">content/common-ui/resources/web/cache/cache-service.js</file>
+    <file context="global">content/common-ui/resources/themes/jquery.js</file>
+    <file context="global">content/common-ui/resources/themes/themeUtils.js</file>
+    <file context="global">content/common-ui/resources/web/util/URLEncoder.js</file>
+    <file context="global">content/common-ui/resources/web/util/SessionExpiryCheckStartingPoint.js</file>
+
+    <file context="requirejs">content/common-ui/resources/web/common-ui-require-js-cfg.js</file>
+
+    <!-- Example Visualization Plugin. Un-comment to test -->
+    <!--file context="analyzer">content/common-ui/resources/web/vizapi/ccc/sample/sampleVisualization.js</file-->
+    <!--file context="analyzer">content/common-ui/resources/web/vizapi/ccc/sample/sampleVisualization_analyzer_plugin.js</file-->
+    <!-- Example Visualization Plugin. Un-comment to test -->
+
+    <!-- Example Prompting Sample Plugin. Used in prompting/sample.html -->
+    <file context="prompting-sample">content/common-ui/resources/web/prompting/pentaho-prompting-sample-component.js</file>
+  </external-resources>
+</plugin>
