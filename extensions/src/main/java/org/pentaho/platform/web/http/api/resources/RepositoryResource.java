@@ -126,6 +126,11 @@ public class RepositoryResource extends AbstractJaxRSResource {
     StringBuffer buffer = null;
     String url = null;
     String path = FileResource.idToPath( pathId );
+
+    if ( FileResource.getRepository().getFile( path ) == null ) {
+      return Response.status( Status.NOT_FOUND ).build();
+    }
+
     String extension = path.substring( path.lastIndexOf( '.' ) + 1 );
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
     IContentInfo info = pluginManager.getContentTypeInfo( extension );
