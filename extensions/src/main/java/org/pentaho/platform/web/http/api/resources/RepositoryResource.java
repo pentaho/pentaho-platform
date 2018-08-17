@@ -66,7 +66,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static javax.ws.rs.core.MediaType.*;
+import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
@@ -123,6 +126,11 @@ public class RepositoryResource extends AbstractJaxRSResource {
     StringBuffer buffer = null;
     String url = null;
     String path = FileResource.idToPath( pathId );
+
+    if ( FileResource.getRepository().getFile( path ) == null ) {
+      return Response.status( Status.NOT_FOUND ).build();
+    }
+
     String extension = path.substring( path.lastIndexOf( '.' ) + 1 );
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
     IContentInfo info = pluginManager.getContentTypeInfo( extension );
@@ -170,8 +178,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @Consumes ( APPLICATION_FORM_URLENCODED )
   @Produces ( { WILDCARD } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully get the resource." ),
-      @ResponseCode ( code = 404, condition = "Failed to find the resource." )
+    @ResponseCode ( code = 200, condition = "Successfully get the resource." ),
+    @ResponseCode ( code = 404, condition = "Failed to find the resource." )
   } )
   public Response doFormPost( @PathParam ( "contextId" ) String contextId, @PathParam ( "resourceId" ) String resourceId,
                               final MultivaluedMap<String, String> formParams )
@@ -586,8 +594,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @GET
   @Produces ( { WILDCARD } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully get the resource." ),
-      @ResponseCode ( code = 404, condition = "Failed to find the resource." )
+    @ResponseCode ( code = 200, condition = "Successfully get the resource." ),
+    @ResponseCode ( code = 404, condition = "Failed to find the resource." )
   } )
   public Response doGet( @PathParam ( "contextId" ) String contextId, @PathParam ( "resourceId" ) String resourceId )
     throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
@@ -624,8 +632,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
 
     final GenericEntity<List<ExecutableFileTypeDto>> entity =
-        new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) {
-        };
+      new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) {
+    };
     return Response.ok( entity ).build();
   }
 
