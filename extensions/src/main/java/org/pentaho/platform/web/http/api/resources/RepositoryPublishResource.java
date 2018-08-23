@@ -59,7 +59,7 @@ import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 @Path ( "/repo/publish" )
 public class RepositoryPublishResource {
 
-  private static final Log logger = LogFactory.getLog( FileResource.class );
+  private static final Log logger = LogFactory.getLog( RepositoryPublishResource.class );
 
   protected RepositoryPublishService repositoryPublishService;
 
