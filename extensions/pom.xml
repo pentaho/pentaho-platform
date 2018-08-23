@@ -2927,6 +2927,12 @@
       <version>${tika-parser.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>javax.websocket</groupId>
+      <artifactId>javax.websocket-api</artifactId>
+      <version>${websocket-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
