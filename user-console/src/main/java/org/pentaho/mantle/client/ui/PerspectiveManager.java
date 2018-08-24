@@ -95,6 +95,8 @@ public class PerspectiveManager extends SimplePanel {
 
   private boolean loaded = false;
 
+  private boolean canSchedule;
+
   public static PerspectiveManager getInstance() {
     return instance;
   }
@@ -102,7 +104,34 @@ public class PerspectiveManager extends SimplePanel {
   private PerspectiveManager() {
     getElement().setId( "mantle-perspective-switcher" );
     setStyleName( "mantle-perspective-switcher" );
+    init();
+  }
 
+  private void init() {
+    final String url = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule/?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
+    RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
+    builder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
+    builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+    canSchedule = true;
+    try {
+      builder.sendRequest( null, new RequestCallback() {
+        @Override
+        public void onError( Request request, Throwable throwable ) {
+          setupPerspectiveManager();
+        }
+        @Override
+        public void onResponseReceived( Request request, Response response ) {
+          if ( response.getStatusCode() == 200 ) {
+            canSchedule = "true".equals( response.getText() );
+          }
+          setupPerspectiveManager();
+        }
+      } );
+    } catch ( Exception e ) {
+    }
+  }
+
+  private void setupPerspectiveManager() {
     final String url = GWT.getHostPageBaseURL() + "api/plugin-manager/perspectives?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
     builder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
@@ -122,6 +151,10 @@ public class PerspectiveManager extends SimplePanel {
           ArrayList<IPluginPerspective> perspectives = new ArrayList<IPluginPerspective>();
           for ( int i = 0; i < jsperspectives.length(); i++ ) {
             JsPerspective jsperspective = jsperspectives.get( i );
+            // Don't include schedules if user doesn't have schedule permissions
+            if ( "${schedules}".equals( jsperspective.getTitle() ) && !canSchedule ) {
+              continue;
+            }
             DefaultPluginPerspective perspective = new DefaultPluginPerspective();
             perspective.setContentUrl( jsperspective.getContentUrl() );
             perspective.setId( jsperspective.getId() );
