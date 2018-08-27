@@ -20,8 +20,6 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
@@ -42,8 +40,6 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
 @Path ( "/repo/dirs/" )
 public class DirectoryResource extends AbstractJaxRSResource {
   protected FileService fileService;
-
-  private static final Log logger = LogFactory.getLog( FileResource.class );
 
   public DirectoryResource() {
     super();

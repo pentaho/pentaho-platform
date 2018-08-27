@@ -73,7 +73,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 @Facet( name = "Unsupported" )
 public class SystemResource extends AbstractJaxRSResource {
 
-  private static final Log logger = LogFactory.getLog( FileResource.class );
+  private static final Log logger = LogFactory.getLog( SystemResource.class );
   private ISystemConfig systemConfig;
   private IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
 
