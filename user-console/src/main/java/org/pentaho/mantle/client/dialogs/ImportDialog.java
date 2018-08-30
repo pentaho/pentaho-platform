@@ -45,6 +45,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
@@ -59,6 +60,8 @@ import org.pentaho.mantle.client.messages.Messages;
  */
 @SuppressWarnings( "deprecation" )
 public class ImportDialog extends PromptDialogBox {
+
+  private static final String UPLOAD_ACCESS_DENIED_SNIPPET = "UnifiedRepositoryAccessDeniedException"; // $NON-NLS-1$
 
   private FormPanel form;
   private final CustomListBox retainOwnershipDropDown = new CustomListBox();
@@ -93,6 +96,10 @@ public class ImportDialog extends PromptDialogBox {
           HTML messageTextBox = null;
           if ( result.contains( "INVALID_MIME_TYPE" ) == true ) {
             messageTextBox = new HTML( Messages.getString( "uploadInvalidFileTypeQuestion", result ) );
+          } else if ( result.contains( UPLOAD_ACCESS_DENIED_SNIPPET ) ) {
+            final MessageDialogBox messageDialogBox = new MessageDialogBox( Messages.getString( "uploadUnsuccessful" ),
+                Messages.getString( "uploadFolderAccessDenied" ), true, true, true, Messages.getString( "ok" ) );
+            messageDialogBox.center();
           } else {
             logWindow( result, Messages.getString( "importLogWindowTitle" ) );
           }
