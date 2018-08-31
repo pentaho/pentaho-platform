@@ -53,7 +53,6 @@
     <kfs.version>0.3</kfs.version>
     <jersey.version>1.19.1</jersey.version>
     <LucidDbClient-minimal.version>0.9.4</LucidDbClient-minimal.version>
-    <jaxen.version>1.1.1</jaxen.version>
     <knowledge-api.version>6.4.0.Final</knowledge-api.version>
     <wsdl4j.version>1.6.2</wsdl4j.version>
     <asm-attrs.version>2.2.3</asm-attrs.version>
@@ -210,7 +209,6 @@
     <jsonpath.version>1.0</jsonpath.version>
     <odfdom-java.version>0.8.6</odfdom-java.version>
     <commons-math.version>1.1</commons-math.version>
-    <dom4j.version>1.6.1</dom4j.version>
     <hibernate-c3p0.version>3.6.9.Final</hibernate-c3p0.version>
     <gdata-analytics.version>2.1</gdata-analytics.version>
     <spring-mock.version>2.0.8</spring-mock.version>
