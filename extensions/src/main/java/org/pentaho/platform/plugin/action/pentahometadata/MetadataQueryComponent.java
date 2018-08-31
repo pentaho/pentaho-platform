@@ -270,6 +270,10 @@ public class MetadataQueryComponent {
 
   protected Object getParameterValue( Parameter parameter ) {
 
+    if ( inputs.get( parameter.getName() ) == null ) {
+      return null;
+    }
+
     //This is the inverse logic of DashboardRenderer.generateParameterMap
     if ( inputs.get( parameter.getName() ) instanceof String[] ) {
       return ( (String[]) inputs.get( parameter.getName() ) ).length == 0 ? null : inputs.get( parameter.getName() );
