@@ -845,15 +845,8 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>dom4j</groupId>
-			<artifactId>dom4j</artifactId>
-			<version>${dom4j.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.pentaho</groupId>
