@@ -445,7 +445,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>${spring.security.version}</version>
+      <version>${spring-security.version}</version> <!-- see maven-parent-pom -->
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -457,7 +457,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>${spring.security.version}</version>
+      <version>${spring-security.version}</version>  <!-- see maven-parent-pom -->
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -469,12 +469,12 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>${spring.security.version}</version>
+      <version>${spring-security.version}</version>  <!-- see maven-parent-pom -->
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>${spring.security.version}</version>
+      <version>${spring-security.version}</version>  <!-- see maven-parent-pom -->
       <scope>compile</scope>
       <exclusions>
         <exclusion>
