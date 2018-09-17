@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginManagerListener;
-import org.pentaho.platform.api.websocket.IWebsocketEndpoint;
 import org.pentaho.platform.api.websocket.IWebsocketEndpointConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -272,7 +271,7 @@ public class PluginDispatchServlet implements Servlet {
       //Get specific endpoint configuration
       IWebsocketEndpointConfig websocketEndpointConfig = beanEntry.getValue();
       Predicate<String> isOriginAllowedPredicate = websocketEndpointConfig.getIsOriginAllowedPredicate();
-      Class<? extends IWebsocketEndpoint> pluginEndpointClass = websocketEndpointConfig.getEndpointImpl();
+      Class<?> pluginEndpointClass = websocketEndpointConfig.getEndpointImpl();
       List<String> subProtocols = websocketEndpointConfig.getSubProtocolAccepted();
       String endpointConfigPath = websocketEndpointConfig.getUrlSufix();
       String context = "/" + pluginId + "/" + WEBSOCKET_PLUGIN_PATH_PREFIX + "/" + endpointConfigPath;

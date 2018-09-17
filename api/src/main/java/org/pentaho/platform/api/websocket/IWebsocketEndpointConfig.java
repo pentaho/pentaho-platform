@@ -36,7 +36,7 @@ public interface IWebsocketEndpointConfig {
    * A new instance of this class is going to be created for each new websocket connection.
    * @return A {@link Class} instance with a websocket implementation.
    */
-  Class<? extends IWebsocketEndpoint> getEndpointImpl();
+  Class<?> getEndpointImpl();
 
   /**
    * Gets the list of sub protocols that this web socket will accept. Empty if it accepts all sub protocols.

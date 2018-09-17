@@ -22,11 +22,9 @@ package org.pentaho.platform.web.websocket;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.api.websocket.IWebsocketEndpoint;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
@@ -38,8 +36,8 @@ public class WebsocketEndpointConfigTest {
   private WebsocketEndpointConfig websocketEndpointConfig;
 
   private String urlSufix;
-  private IWebsocketEndpoint websocketEndpoint;
-  private Class<? extends IWebsocketEndpoint> endpointImpl;
+  private Object websocketEndpoint;
+  private Class endpointImpl;
   private List<String> subProtocolAccepted;
   private Predicate<String> isOriginAllowedPredicate;
   private int maxMessageBytesLength;
@@ -47,23 +45,7 @@ public class WebsocketEndpointConfigTest {
   @Before
   public void setupEndpointConfig() {
     urlSufix = "urlSufixValue";
-    websocketEndpoint = new IWebsocketEndpoint() {
-      @Override public void onOpen( Consumer<String> outboundMessageConsumer ) {
-
-      }
-
-      @Override public void onMessage( String message, Consumer<String> outboundMessageConsumer ) {
-
-      }
-
-      @Override public void onClose() {
-
-      }
-
-      @Override public List<String> getSubProtocols() {
-        return null;
-      }
-    };
+    websocketEndpoint = new Object();
     endpointImpl = websocketEndpoint.getClass();
     subProtocolAccepted = Arrays.asList( "protocol_1", "protocol_2" );
     isOriginAllowedPredicate = new Predicate<String>() {
