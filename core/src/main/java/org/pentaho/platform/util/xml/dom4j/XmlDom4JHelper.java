@@ -361,7 +361,7 @@ public class XmlDom4JHelper {
     try {
       dom4jDoc = getDocFromString( theXML, null );
     } catch ( XmlParseException e ) {
-      new TransformerFactoryConfigurationError( e );
+      throw new TransformerFactoryConfigurationError( e );
     }
     return dom4jDoc;
   }
