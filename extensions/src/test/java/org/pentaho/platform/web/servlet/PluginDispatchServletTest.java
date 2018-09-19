@@ -22,7 +22,6 @@ package org.pentaho.platform.web.servlet;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.api.websocket.IWebsocketEndpoint;
 import org.pentaho.platform.api.websocket.IWebsocketEndpointConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.context.WebApplicationContext;
@@ -41,8 +40,11 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
+
 
 public class PluginDispatchServletTest {
 
@@ -82,7 +84,7 @@ public class PluginDispatchServletTest {
     when( servletContext.getAttribute( ServerContainer.class.getName() ) ).thenReturn( serverContainer );
 
     IWebsocketEndpointConfig websocketEndpointConfig = new WebsocketEndpointConfig( "urlSufix",
-      IWebsocketEndpoint.class,
+      Object.class,
       subProtocolAccepted,
       isOriginAllowedPredicate,
       maxMessageBytesLength );

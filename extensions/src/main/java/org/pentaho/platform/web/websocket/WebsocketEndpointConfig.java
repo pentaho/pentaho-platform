@@ -20,7 +20,6 @@
 
 package org.pentaho.platform.web.websocket;
 
-import org.pentaho.platform.api.websocket.IWebsocketEndpoint;
 import org.pentaho.platform.api.websocket.IWebsocketEndpointConfig;
 
 import java.util.List;
@@ -59,7 +58,7 @@ import java.util.function.Predicate;
  */
 public class WebsocketEndpointConfig implements IWebsocketEndpointConfig {
   private String urlSufix;
-  private Class<? extends IWebsocketEndpoint> endpointImpl;
+  private Class<?> endpointImpl;
   private List<String> subProtocolAccepted;
   private Predicate<String> isOriginAllowedPredicate;
   private int maxMessageBytesLength = 8192; //8192 is Tomcat default
@@ -69,7 +68,7 @@ public class WebsocketEndpointConfig implements IWebsocketEndpointConfig {
   private String MAX_MESSAGE_LENGTH = this.getClass().getName() + ":maximumMessageLength";
 
   public WebsocketEndpointConfig( String urlSufix,
-                                  Class<? extends IWebsocketEndpoint> endpointImpl,
+                                  Class<?> endpointImpl,
                                   List<String> subProtocolAccepted,
                                   Predicate<String> isOriginAllowedPredicate,
                                   int maxMessageBytesLength ) {
@@ -92,7 +91,7 @@ public class WebsocketEndpointConfig implements IWebsocketEndpointConfig {
    * The class that implements this websocket endpoint.
    * @return A {@link Class} instance with a websocket implementation.
    */
-  public Class<? extends IWebsocketEndpoint> getEndpointImpl() {
+  public Class<?> getEndpointImpl() {
     return endpointImpl;
   }
 
