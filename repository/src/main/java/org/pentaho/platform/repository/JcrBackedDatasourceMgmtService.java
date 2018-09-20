@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.repository;
@@ -113,7 +113,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
           Messages
               .getInstance()
               .getErrorString(
-                  "DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", fileToDelete.getName(), ure.getLocalizedMessage() ), ure ); //$NON-NLS-1$
+                  "DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", fileToDelete != null ? fileToDelete.getName() : name, ure.getLocalizedMessage() ), ure ); //$NON-NLS-1$
     }
     deleteDatasource( fileToDelete );
   }
@@ -127,7 +127,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
           Messages
               .getInstance()
               .getErrorString(
-                  "DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", fileToDelete.getName(), ure.getLocalizedMessage() ), ure ); //$NON-NLS-1$
+                  "DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", fileToDelete != null ? fileToDelete.getName() : id, ure.getLocalizedMessage() ), ure ); //$NON-NLS-1$
     }
     deleteDatasource( fileToDelete );
   }
@@ -170,7 +170,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
       file = repository.getFileById( id );
     } catch ( UnifiedRepositoryException ure ) {
       throw new DatasourceMgmtServiceException( Messages.getInstance().getErrorString(
-          "DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", file.getName() ), ure ); //$NON-NLS-1$
+          "DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", file != null ? file.getName() : id ), ure ); //$NON-NLS-1$
     }
     if ( file != null ) {
       return getDatasource( file );

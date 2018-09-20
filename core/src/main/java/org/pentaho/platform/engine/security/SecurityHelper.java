@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.engine.security;
@@ -244,6 +244,7 @@ public class SecurityHelper implements ISecurityHelper {
 
     if ( policy == null ) {
       SecurityHelper.logger.warn( "No IAuthorizationPolicy set in PentahoSystem" );
+      return false;
     }
 
     // TODO externalize action names
