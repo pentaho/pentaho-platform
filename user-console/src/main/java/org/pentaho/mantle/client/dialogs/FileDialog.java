@@ -66,14 +66,12 @@ public class FileDialog {
     final FileChooserDialog dialog =
         new FileChooserDialog( FileChooserMode.OPEN, pathToShow, repositoryFileTree, false, true, title, okText,
             solutionBrowserPerspective.getSolutionTree().isShowHiddenFiles() ) {
-
-          @Override
-          public void hide() {
-            super.hide();
-            GlassPane.getInstance().hide();
-          }
-
-        };
+      @Override
+      public void hide() {
+        super.hide();
+        GlassPane.getInstance().hide();
+      }
+    };
     dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
     dialog.addFileChooserListener( new FileChooserListener() {
 
@@ -117,7 +115,7 @@ public class FileDialog {
   }
 
   public void addFileChooserListener( FileChooserListener listener ) {
-    if ( !listeners.contains( listeners ) ) {
+    if ( !listeners.contains( listener ) ) {
       listeners.add( listener );
     }
   }
