@@ -246,6 +246,7 @@ public class SecurityHelper implements ISecurityHelper {
 
     if ( policy == null ) {
       SecurityHelper.logger.warn( "No IAuthorizationPolicy set in PentahoSystem" );
+      return false;
     }
 
     // TODO externalize action names
