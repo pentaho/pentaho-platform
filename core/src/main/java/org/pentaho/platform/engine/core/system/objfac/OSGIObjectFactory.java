@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 Pentaho Corporation. All rights reserved.
+ * Copyright 2013-2018 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.engine.core.system.objfac;
@@ -255,9 +255,10 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
         @Override public int compare( ServiceReference o1, ServiceReference o2 ) {
           Object oRank1 = o1.getProperty( Constants.SERVICE_RANKING );
           Object oRank2 = o2.getProperty( Constants.SERVICE_RANKING );
-          Integer rank1 = ( oRank1 != null ) ? Integer.valueOf( oRank1.toString() ) : 0;
-          Integer rank2 = ( oRank2 != null ) ? Integer.valueOf( oRank2.toString() ) : 0;
-          return Integer.compare( rank1 == null ? 0 : rank1, rank2 == null ? 0 : rank2 );
+          // if the property is not supplied or of incorrect type, use the default
+          int rank1 = ( oRank1 != null && oRank1 instanceof Integer ) ? ( (Integer) oRank1 ).intValue() : 0;
+          int rank2 = ( oRank2 != null && oRank2 instanceof Integer ) ? ( (Integer) oRank2 ).intValue() : 0;
+          return rank1 - rank2;
         }
       } );
       ServiceReference<T> serviceReference = serviceReferences[ 0 ];
