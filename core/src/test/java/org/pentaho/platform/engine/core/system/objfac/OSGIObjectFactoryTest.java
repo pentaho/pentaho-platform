@@ -62,13 +62,13 @@ public class OSGIObjectFactoryTest {
   private OSGIObjectFactory factory;
 
   @Before
-  public void setup(){
+  public void setup() {
     session = new StandaloneSession();
     mockContext = Mockito.mock( BundleContext.class );
 
     mockBundle = Mockito.mock( Bundle.class );
 
-    when(mockBundle.getState()).thenReturn( Bundle.ACTIVE );
+    when( mockBundle.getState() ).thenReturn( Bundle.ACTIVE );
     when( mockContext.getBundle() ).thenReturn( mockBundle );
     factory = new OSGIObjectFactory( mockContext );
   }
@@ -141,7 +141,7 @@ public class OSGIObjectFactoryTest {
     when( mockContext.getServiceReference( String.class.getName() ) ).thenReturn( ref2 );
     IPentahoObjectReference mockIPentahoObjectReference = Mockito.mock( IPentahoObjectReference.class );
     when( mockIPentahoObjectReference.getObject() ).thenReturn( ref );
-    
+
     List<ServiceReference<String>> mockServiceList = new ArrayList<ServiceReference<String>>();
     mockServiceList.add( ref2 );
     when( mockContext.getServiceReferences( String.class, null ) ).thenReturn( mockServiceList );
