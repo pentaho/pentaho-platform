@@ -76,21 +76,21 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> T get( Class<T> interfaceClass, IPentahoSession session, Map<String, String> properties )
-      throws ObjectFactoryException {
+    throws ObjectFactoryException {
     if ( isBundleContextValid() == false ) {
       return null;
     }
 
     try {
-      Map<String, String> props = new HashMap<String, String>( );
-      if( properties != null ){
-        props.putAll( properties);
+      Map<String, String> props = new HashMap<String, String>();
+      if ( properties != null ) {
+        props.putAll( properties );
       }
       props.put( REFERENCE_CLASS, interfaceClass.getName() );
       Collection<ServiceReference<IPentahoObjectReference>> serviceReferences = this.context
-          .getServiceReferences( IPentahoObjectReference.class, OSGIUtils.createFilter( props ) );
+        .getServiceReferences( IPentahoObjectReference.class, OSGIUtils.createFilter( props ) );
 
-      if( serviceReferences != null && serviceReferences.size() > 0 ){
+      if ( serviceReferences != null && serviceReferences.size() > 0 ) {
         IPentahoObjectReference<T> obj = context.getService( serviceReferences.iterator().next() );
         return obj.getObject();
       }
@@ -145,7 +145,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
     try {
       return getObjectReference( clazz, null ) != null;
-    } catch (ObjectFactoryException e) {
+    } catch ( ObjectFactoryException e ) {
       return false;
     }
   }
@@ -167,7 +167,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<T> getAll( Class<T> interfaceClass, IPentahoSession session, Map<String, String> properties )
-      throws ObjectFactoryException {
+    throws ObjectFactoryException {
 
     if ( isBundleContextValid() == false ) {
       return null;
@@ -176,22 +176,22 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     List<T> returnList = new ArrayList<T>();
 
     // make sure we check by reference first
-    if( properties == null || !properties.containsKey(REFERENCE_CLASS) ) {
+    if ( properties == null || !properties.containsKey( REFERENCE_CLASS ) ) {
       Map<String, String> props = new HashMap<String, String>();
-      if (properties != null) {
-        props.putAll(properties);
+      if ( properties != null ) {
+        props.putAll( properties );
       }
-      props.put(REFERENCE_CLASS, interfaceClass.getName());
-      List<IPentahoObjectReference> all = getAll(IPentahoObjectReference.class, session, props);
-      if( all != null ){
-        for (IPentahoObjectReference iPentahoObjectReference : all) {
-          returnList.add((T) iPentahoObjectReference.getObject());
+      props.put( REFERENCE_CLASS, interfaceClass.getName() );
+      List<IPentahoObjectReference> all = getAll( IPentahoObjectReference.class, session, props );
+      if ( all != null ) {
+        for ( IPentahoObjectReference iPentahoObjectReference : all ) {
+          returnList.add( (T) iPentahoObjectReference.getObject() );
         }
       }
     }
 
 
-    String filter = OSGIUtils.createFilter(properties);
+    String filter = OSGIUtils.createFilter( properties );
 
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
@@ -217,14 +217,14 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession )
-      throws ObjectFactoryException {
-    return getObjectReference(interfaceClass, curSession, Collections.<String, String>emptyMap());
+    throws ObjectFactoryException {
+    return getObjectReference( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
 
   @Override
   public <T> IPentahoObjectReference<T> getObjectReference( Class<T> interfaceClass, IPentahoSession curSession,
                                                             Map<String, String> properties )
-      throws ObjectFactoryException {
+    throws ObjectFactoryException {
 
     if ( isBundleContextValid() == false ) {
       return null;
@@ -232,14 +232,15 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
 
     // make sure we check by reference first
-    if( properties == null || !properties.containsKey(REFERENCE_CLASS) ) {
+    if ( properties == null || !properties.containsKey( REFERENCE_CLASS ) ) {
       Map<String, String> props = new HashMap<String, String>();
-      if (properties != null) {
-        props.putAll(properties);
+      if ( properties != null ) {
+        props.putAll( properties );
       }
-      props.put(REFERENCE_CLASS, interfaceClass.getName());
-      IPentahoObjectReference<IPentahoObjectReference> objectReference = getObjectReference(IPentahoObjectReference.class, curSession, props);
-      if( objectReference != null ){
+      props.put( REFERENCE_CLASS, interfaceClass.getName() );
+      IPentahoObjectReference<IPentahoObjectReference> objectReference =
+        getObjectReference( IPentahoObjectReference.class, curSession, props );
+      if ( objectReference != null ) {
         return objectReference.getObject();
       }
     }
@@ -257,9 +258,10 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
         @Override public int compare( ServiceReference o1, ServiceReference o2 ) {
           Object oRank1 = o1.getProperty( Constants.SERVICE_RANKING );
           Object oRank2 = o2.getProperty( Constants.SERVICE_RANKING );
-          Integer rank1 = (oRank1 != null ) ? Integer.valueOf( oRank1.toString() ) : 0;
-          Integer rank2 = (oRank2 != null ) ? Integer.valueOf( oRank2.toString() ) : 0;
-          return Integer.compare( rank1 == null ? 0 : rank1, rank2 == null ? 0 : rank2 );
+          // if the property is not supplied or of incorrect type, use the default
+          int rank1 = ( oRank1 != null && oRank1 instanceof Integer ) ? ( (Integer) oRank1 ).intValue() : 0;
+          int rank2 = ( oRank2 != null && oRank2 instanceof Integer ) ? ( (Integer) oRank2 ).intValue() : 0;
+          return rank1 - rank2;
         }
       } );
       ServiceReference<T> serviceReference = serviceReferences[ 0 ];
@@ -273,7 +275,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
 
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession )
-      throws ObjectFactoryException {
+    throws ObjectFactoryException {
 
     return getObjectReferences( interfaceClass, curSession, Collections.<String, String>emptyMap() );
   }
@@ -281,7 +283,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
   @Override
   public <T> List<IPentahoObjectReference<T>> getObjectReferences( Class<T> interfaceClass, IPentahoSession curSession,
                                                                    Map<String, String> properties )
-      throws ObjectFactoryException {
+    throws ObjectFactoryException {
 
     if ( isBundleContextValid() == false ) {
       return Collections.emptyList();
@@ -290,19 +292,20 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     List<IPentahoObjectReference<T>> returnRefs = new ArrayList<IPentahoObjectReference<T>>();
 
     // make sure we check by reference first
-    if( properties == null || !properties.containsKey(REFERENCE_CLASS) ) {
+    if ( properties == null || !properties.containsKey( REFERENCE_CLASS ) ) {
       Map<String, String> props = new HashMap<>();
-      if (properties != null) {
-        props.putAll(properties);
+      if ( properties != null ) {
+        props.putAll( properties );
       }
-      props.put(REFERENCE_CLASS, interfaceClass.getName());
-      List<IPentahoObjectReference<IPentahoObjectReference>> objectReferences = getObjectReferences(IPentahoObjectReference.class, curSession, props);
-      for (IPentahoObjectReference<IPentahoObjectReference> objectReference : objectReferences) {
-        returnRefs.add(objectReference.getObject());
+      props.put( REFERENCE_CLASS, interfaceClass.getName() );
+      List<IPentahoObjectReference<IPentahoObjectReference>> objectReferences =
+        getObjectReferences( IPentahoObjectReference.class, curSession, props );
+      for ( IPentahoObjectReference<IPentahoObjectReference> objectReference : objectReferences ) {
+        returnRefs.add( objectReference.getObject() );
       }
     }
 
-    String filter = OSGIUtils.createFilter(properties);
+    String filter = OSGIUtils.createFilter( properties );
     try {
       Collection<ServiceReference<T>> refs = context.getServiceReferences( interfaceClass, filter );
       if ( refs == null || refs.size() == 0 ) {
@@ -336,7 +339,7 @@ public class OSGIObjectFactory implements IPentahoObjectFactory {
     try {
       // This works in Equinox, but Felix throws an IllegalStateException trying to get the Bundle
       int state = context.getBundle().getState();
-      switch( state ) {
+      switch ( state ) {
         case Bundle.ACTIVE:
           return true;
         default:
