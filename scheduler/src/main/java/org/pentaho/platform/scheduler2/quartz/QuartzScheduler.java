@@ -51,6 +51,7 @@ import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifi
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
 import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
 import org.quartz.Calendar;
+import org.quartz.CronExpression;
 import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -70,6 +71,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -305,6 +307,14 @@ public class QuartzScheduler implements IScheduler {
           .debug( MessageFormat
               .format(
                   "Scheduling job {0} with trigger {1} and job parameters [ {2} ]", jobId.toString(), trigger, prettyPrintMap( jobParams ) ) ); //$NON-NLS-1$
+
+      if ( quartzTrigger instanceof CronTrigger ) {
+        Serializable timezone = jobParams.get( "timezone" );
+        if ( timezone != null ) {
+          setTimezone( (CronTrigger) quartzTrigger, timezone.toString() );
+        }
+      }
+
       scheduler.scheduleJob( jobDetail, quartzTrigger );
 
       logger.debug( MessageFormat.format( "Scheduled job {0} successfully", jobId.toString() ) ); //$NON-NLS-1$
@@ -793,6 +803,23 @@ public class QuartzScheduler implements IScheduler {
           "ComplexJobTrigger.ERROR_0001_InvalidCronExpression" ) ); //$NON-NLS-1$
     }
     return timeRecurrence;
+  }
+
+  /**
+   * Update cronTrigger's timezone based on the info from caller
+   *
+   * @param cronTrigger the cron trigger to update
+   * @param timezone the timezone to set
+   */
+  void setTimezone( CronTrigger cronTrigger, String timezone ) throws SchedulerException {
+    try {
+      CronExpression cronEx = new CronExpression( cronTrigger.getCronExpression() );
+      cronEx.setTimeZone( TimeZone.getTimeZone( timezone ) );
+      cronTrigger.setCronExpression( cronEx );
+    } catch ( ParseException e ) {
+      throw new SchedulerException( Messages.getInstance().getString(
+              "ComplexJobTrigger.ERROR_0001_InvalidCronExpression" ), e ); //$NON-NLS-1$
+    }
   }
 
   /** {@inheritDoc} */
