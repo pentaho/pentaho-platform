@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr.servicemgr;
@@ -27,7 +27,6 @@ import org.pentaho.platform.api.engine.IServiceConfig;
 import org.pentaho.platform.api.engine.ServiceInitializationException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.webservices.AbstractAxisConfigurator;
-import org.pentaho.platform.plugin.services.webservices.AxisUtil;
 import org.pentaho.platform.plugin.services.webservices.SystemSolutionAxisConfigurator;
 
 public class AxisWebServiceManager extends AbstractServiceTypeManager {
@@ -36,12 +35,22 @@ public class AxisWebServiceManager extends AbstractServiceTypeManager {
 
   public static AxisConfiguration currentAxisConfiguration;
 
+  /**
+   * This method will throw an {@link UnsupportedOperationException} if called.
+   * @param executeServiceId
+   */
+  @Deprecated
   public void setExecuteServiceId( String executeServiceId ) {
-    AxisUtil.WS_EXECUTE_SERVICE_ID = executeServiceId;
+    throw new UnsupportedOperationException();
   }
 
+  /**
+   * This method will throw an {@link UnsupportedOperationException} if called.
+   * @param wsdlServiceId
+   */
+  @Deprecated
   public void setWsdlServiceId( String wsdlServiceId ) {
-    AxisUtil.WSDL_SERVICE_ID = wsdlServiceId;
+    throw new UnsupportedOperationException();
   }
 
   private SystemSolutionAxisConfigurator configurator = new SystemSolutionAxisConfigurator();
