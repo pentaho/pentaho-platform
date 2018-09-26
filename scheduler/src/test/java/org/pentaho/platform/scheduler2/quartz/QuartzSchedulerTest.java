@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 
@@ -28,8 +28,15 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.quartz.CronExpression;
+import org.quartz.CronTrigger;
 
+import java.text.ParseException;
 import java.util.Collections;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class QuartzSchedulerTest {
 
@@ -120,5 +127,16 @@ public class QuartzSchedulerTest {
         "input = /home/admin/allowed.ktr : output = /home/admin/allowed." ) );
   }
 
+  @Test
+  public void testSetTimezone() throws Exception {
 
+    CronTrigger cronTrigger = new CronTrigger();
+    cronTrigger.setCronExpression( new CronExpression( "0 15 10 ? * 6L 2002-2018" ) );
+    String currentTimezoneId = TimeZone.getDefault().getID();
+
+    new QuartzScheduler().setTimezone( cronTrigger, currentTimezoneId );
+
+    assertNotNull( cronTrigger.getTimeZone() );
+    assertEquals( currentTimezoneId, cronTrigger.getTimeZone().getID() );
+  }
 }
