@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013-2017 Pentaho Corporation. All rights reserved.
+ * Copyright 2013-2018 Hitachi Vantara. All rights reserved.
  */
 package org.pentaho.platform.engine.core.system.objfac;
 
@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -38,6 +40,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.pentaho.platform.api.engine.IPentahoInitializer;
@@ -58,13 +61,13 @@ public class OSGIObjectFactoryTest {
   private OSGIObjectFactory factory;
 
   @Before
-  public void setup(){
+  public void setup() {
     session = new StandaloneSession();
     mockContext = Mockito.mock( BundleContext.class );
 
     mockBundle = Mockito.mock( Bundle.class );
 
-    when(mockBundle.getState()).thenReturn( Bundle.ACTIVE );
+    when( mockBundle.getState() ).thenReturn( Bundle.ACTIVE );
     when( mockContext.getBundle() ).thenReturn( mockBundle );
     factory = new OSGIObjectFactory( mockContext );
   }
@@ -137,7 +140,7 @@ public class OSGIObjectFactoryTest {
     when( mockContext.getServiceReference( String.class.getName() ) ).thenReturn( ref2 );
     IPentahoObjectReference mockIPentahoObjectReference = Mockito.mock( IPentahoObjectReference.class );
     when( mockIPentahoObjectReference.getObject() ).thenReturn( ref );
-    
+
     List<ServiceReference<String>> mockServiceList = new ArrayList<ServiceReference<String>>();
     mockServiceList.add( ref2 );
     when( mockContext.getServiceReferences( String.class, null ) ).thenReturn( mockServiceList );
@@ -206,6 +209,7 @@ public class OSGIObjectFactoryTest {
 
   }
 
+  /* The following methods do not test the Array Sort Comparator */
   @Test
   public void testGetObjectReference() throws Exception {
 
@@ -400,6 +404,58 @@ public class OSGIObjectFactoryTest {
 
     verify( mockContext ).getServiceReferences( String.class, "(name=foo)" );
 
+
+  }
+
+  /*The purpose for the next methods "...includingArraySortComparator..." is to test the Array Sort Comparator*/
+  @Test
+  public void testGetObjectReference_includingArraySortComparator_differentValues() throws Exception {
+
+    ServiceReference<String> ref1 = Mockito.mock( ServiceReference.class );
+    ServiceReference<String> ref2 = Mockito.mock( ServiceReference.class );
+    ServiceReference<String> ref3 = Mockito.mock( ServiceReference.class );
+
+    ArrayList<ServiceReference<String>> refs = Stream.of( ref1, ref2, ref3 )
+      .collect( Collectors.toCollection( ArrayList::new ) );
+
+    when( mockContext.getServiceReferences( String.class, null ) ).thenReturn( refs );
+    when( mockContext.getService( ref1 ) ).thenReturn( "ref1" );
+    when( mockContext.getService( ref2 ) ).thenReturn( "ref2" );
+    when( mockContext.getService( ref3 ) ).thenReturn( "ref3" );
+
+    //props - all with different values
+    when( ref1.getProperty( Constants.SERVICE_RANKING ) ).thenReturn( new Integer( 3 ) );
+    when( ref2.getProperty( Constants.SERVICE_RANKING ) ).thenReturn( new Integer( 2 ) );
+    when( ref3.getProperty( Constants.SERVICE_RANKING ) ).thenReturn( new Integer( 1 ) );
+
+    IPentahoObjectReference<String> objectReference = factory.getObjectReference( String.class, session );
+
+    assertEquals( "ref3", objectReference.getObject() );
+  }
+
+  @Test
+  public void testGetObjectReference_includingArraySortComparator_sameValues() throws Exception {
+
+    ServiceReference<String> ref1 = Mockito.mock( ServiceReference.class );
+    ServiceReference<String> ref2 = Mockito.mock( ServiceReference.class );
+    ServiceReference<String> ref3 = Mockito.mock( ServiceReference.class );
+
+    ArrayList<ServiceReference<String>> refs = Stream.of( ref1, ref2, ref3 )
+      .collect( Collectors.toCollection( ArrayList::new ) );
+
+    when( mockContext.getServiceReferences( String.class, null ) ).thenReturn( refs );
+    when( mockContext.getService( ref1 ) ).thenReturn( "ref1" );
+    when( mockContext.getService( ref2 ) ).thenReturn( "ref2" );
+    when( mockContext.getService( ref3 ) ).thenReturn( "ref3" );
+
+    //props - some with the same value
+    when( ref1.getProperty( Constants.SERVICE_RANKING ) ).thenReturn( new Integer( 2 ) );
+    when( ref2.getProperty( Constants.SERVICE_RANKING ) ).thenReturn( new Integer( 1 ) );
+    when( ref3.getProperty( Constants.SERVICE_RANKING ) ).thenReturn( new Integer( 1 ) );
+
+    IPentahoObjectReference<String> objectReference = factory.getObjectReference( String.class, session );
+
+    assertEquals( "ref2", objectReference.getObject() );
 
   }
 
