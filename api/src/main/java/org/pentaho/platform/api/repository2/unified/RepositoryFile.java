@@ -403,15 +403,18 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     public Builder( final RepositoryFile other ) {
       this( other.getName() );
-      this.id( other.getId() ).path( other.getPath() ).createdDate( other.getCreatedDate() ).creatorId(
+
+      synchronized ( other ) {
+        this.id( other.getId() ).path( other.getPath() ).createdDate( other.getCreatedDate() ).creatorId(
           other.getCreatorId() ).fileSize( other.getFileSize() ).folder( other.isFolder() ).lastModificationDate(
-              other.getLastModifiedDate() ).versioned( other.isVersioned() ).hidden( other.isHidden() ).schedulable(
-                  other.isSchedulable() ).versionId(
+          other.getLastModifiedDate() ).versioned( other.isVersioned() ).hidden( other.isHidden() ).schedulable(
+          other.isSchedulable() ).versionId(
           other.getVersionId() ).locked( other.isLocked() ).lockDate( other.getLockDate() ).lockOwner(
           other.getLockOwner() ).lockMessage( other.getLockMessage() ).title( other.getTitle() ).description(
           other.getDescription() ).locale( other.getLocale() ).originalParentFolderPath(
           other.getOriginalParentFolderPath() ).deletedDate( other.getDeletedDate() ).localePropertiesMap(
           other.getLocalePropertiesMap() ).aclNode( other.isAclNode() );
+      }
     }
 
     public RepositoryFile build() {
