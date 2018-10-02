@@ -307,10 +307,10 @@
       url: CONTEXT_PATH + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
       type: "GET",
       async: true,
-      success: function (response) {
-        checkShowDescriptions(canDownload, response == "true");
+      success: function (response, status, xhr) {
+        checkShowDescriptions(canDownload, xhr.status == 200 && response);
       },
-      error: function (response) {
+      error: function () {
         checkShowDescriptions(canDownload, false);
       }
     });
@@ -321,10 +321,10 @@
       url: CONTEXT_PATH + "api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS",
       type: "GET",
       async: true,
-      success: function (response) {
-        checkPublish(canDownload, showHiddenFiles, (response == "true"));
+      success: function (response, status, xhr) {
+        checkPublish(canDownload, showHiddenFiles, xhr.status == 200 && response);
       },
-      error: function (response) {
+      error: function () {
         checkPublish(canDownload, showHiddenFiles, false);
       }
     });
