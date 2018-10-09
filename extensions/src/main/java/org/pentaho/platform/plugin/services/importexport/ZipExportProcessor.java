@@ -20,27 +20,6 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-/*
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * Copyright 2013 - 2017 Hitachi Vantara.  All rights reserved.
- *
- * User: pminutillo
- * Date: 1/16/13
- * Time: 4:41 PM
- */
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -75,9 +54,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
-/**
- *
- */
 public class ZipExportProcessor extends BaseExportProcessor {
   private static final Log log = LogFactory.getLog( ZipExportProcessor.class );
 
@@ -104,7 +80,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
     setUnifiedRepository( repository );
 
-    this.exportHandlerList = new ArrayList<ExportHandler>();
+    this.exportHandlerList = new ArrayList<>();
 
     this.exportManifest = new ExportManifest();
 
@@ -149,43 +125,40 @@ public class ZipExportProcessor extends BaseExportProcessor {
       throw new FileNotFoundException( "JCR file not found: " + this.path );
     }
 
-    ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( exportFile ) );
+    try ( ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( exportFile ) ) ) {
+      if ( exportRepositoryFile.isFolder() ) { // Handle recursive export
+        exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
 
-    if ( exportRepositoryFile.isFolder() ) { // Handle recursive export
-      exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
+        // don't zip root folder without name
+        if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
+          zos.putNextEntry( new ZipEntry( getFixedZipEntryName( exportRepositoryFile, filePath ) ) );
+        }
+        exportDirectory( exportRepositoryFile, zos, filePath );
 
-      // don't zip root folder without name
-      if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
-        zos.putNextEntry( new ZipEntry( getFixedZipEntryName( exportRepositoryFile, filePath ) ) );
-      }
-      exportDirectory( exportRepositoryFile, zos, filePath );
-
-    } else {
-      exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
-      exportFile( exportRepositoryFile, zos, filePath );
-    }
-
-    if ( this.withManifest ) {
-      // write manifest to zip output stream
-      ZipEntry entry = new ZipEntry( EXPORT_MANIFEST_FILENAME );
-      zos.putNextEntry( entry );
-
-      // pass output stream to manifest class for writing
-      try {
-        exportManifest.toXml( zos );
-      } catch ( Exception e ) {
-        // todo: add to messages.properties
-        log.error( "Error generating export XML" );
+      } else {
+        exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
+        exportFile( exportRepositoryFile, zos, filePath );
       }
 
-      zos.closeEntry();
-    }
+      if ( this.withManifest ) {
+        // write manifest to zip output stream
+        ZipEntry entry = new ZipEntry( EXPORT_MANIFEST_FILENAME );
+        zos.putNextEntry( entry );
 
-    zos.close();
+        // pass output stream to manifest class for writing
+        try {
+          exportManifest.toXml( zos );
+        } catch ( Exception e ) {
+          // todo: add to messages.properties
+          log.error( "Error generating export XML" );
+        }
+
+        zos.closeEntry();
+      }
+    }
 
     // clean up
     exportManifest = null;
-    zos = null;
 
     return exportFile;
   }
@@ -193,6 +166,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   /**
    * @param repositoryFile
    * @param outputStream
+   * @param filePath
    * @throws ExportManifestFormatException
    */
   public void exportFile( RepositoryFile repositoryFile, OutputStream outputStream, String filePath ) throws
@@ -203,19 +177,17 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
     // iterate through handlers to perform export
     for ( ExportHandler exportHandler : exportHandlerList ) {
-
-      InputStream is = exportHandler.doExport( repositoryFile, filePath );
-
-      // if we don't get a valid input stream back, skip it
-      if ( is != null ) {
-        addToManifest( repositoryFile );
-        String zipEntryName = getFixedZipEntryName( repositoryFile, filePath );
-        ZipEntry entry = new ZipEntry( zipEntryName );
-        zos.putNextEntry( entry );
-        IOUtils.copy( is, outputStream );
-        zos.closeEntry();
-        is.close();
-        createLocales( repositoryFile, filePath, repositoryFile.isFolder(), outputStream );
+      try ( InputStream is = exportHandler.doExport( repositoryFile, filePath ) ) {
+        // if we don't get a valid input stream back, skip it
+        if ( is != null ) {
+          addToManifest( repositoryFile );
+          String zipEntryName = getFixedZipEntryName( repositoryFile, filePath );
+          ZipEntry entry = new ZipEntry( zipEntryName );
+          zos.putNextEntry( entry );
+          IOUtils.copy( is, outputStream );
+          zos.closeEntry();
+          createLocales( repositoryFile, filePath, repositoryFile.isFolder(), outputStream );
+        }
       }
     }
   }
@@ -315,19 +287,20 @@ public class ZipExportProcessor extends BaseExportProcessor {
   /**
    * for each locale stored in in Jcr create a .locale file with the stored node properties
    *
-   * @param zos
    * @param repositoryFile
    * @param filePath
+   * @param isFolder
+   * @param outputStream
    * @throws IOException
    */
   protected void createLocales( RepositoryFile repositoryFile, String filePath, boolean isFolder,
-                              OutputStream outputStrean ) throws IOException {
+                              OutputStream outputStream ) throws IOException {
     ZipEntry entry;
     String zipEntryName;
     String name;
     String localeName;
     Properties properties;
-    ZipOutputStream zos = (ZipOutputStream) outputStrean;
+    ZipOutputStream zos = (ZipOutputStream) outputStream;
     // only process files and folders that we know will have locale settings
     if ( supportedLocaleFileExt( repositoryFile ) ) {
       List<LocaleMapDto> locales = getAvailableLocales( repositoryFile.getId() );
@@ -343,13 +316,14 @@ public class ZipExportProcessor extends BaseExportProcessor {
         properties = getUnifiedRepository().getLocalePropertiesForFileById( repositoryFile.getId(), locale.getLocale() );
         if ( properties != null ) {
           properties.remove( "jcr:primaryType" ); // Pentaho Type
-          InputStream is = createLocaleFile( name + localeName, properties, locale.getLocale() );
-          if ( is != null ) {
-            entry = new ZipEntry( zipEntryName + localeName + LOCALE_EXT );
-            zos.putNextEntry( entry );
-            IOUtils.copy( is, outputStrean );
-            zos.closeEntry();
-            is.close();
+
+          try ( InputStream is = createLocaleFile( name + localeName, properties, locale.getLocale() ) ) {
+            if ( is != null ) {
+              entry = new ZipEntry( zipEntryName + localeName + LOCALE_EXT );
+              zos.putNextEntry( entry );
+              IOUtils.copy( is, outputStream );
+              zos.closeEntry();
+            }
           }
         }
       }
@@ -407,17 +381,16 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @returns inputStream pointer to created file or null
    */
   private InputStream createLocaleFile( String name, Properties properties, String locale ) throws IOException {
-    InputStream is = null;
     if ( properties != null ) {
       File localeFile = File.createTempFile( ExportFileNameEncoder.encodeZipFileName( name ), LOCALE_EXT );
       localeFile.deleteOnExit();
-      FileOutputStream fileOut = new FileOutputStream( localeFile );
-      properties.store( fileOut, "Locale = " + locale );
-      fileOut.close();
-      is = new FileInputStream( localeFile );
 
+      try ( FileOutputStream fileOut = new FileOutputStream( localeFile ) ) {
+        properties.store( fileOut, "Locale = " + locale );
+      }
+      return new FileInputStream( localeFile );
     }
-    return is;
+    return null;
   }
 
   /**
