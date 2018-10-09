@@ -70,7 +70,6 @@ public class PluginDispatchServlet implements Servlet {
   private static final String WEBSOCKET_PLUGIN_PATH_PREFIX = "websocket";
 
   public PluginDispatchServlet() {
-    super();
   }
 
   public void destroy() {
