@@ -179,15 +179,15 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
         // If we're here, then tables need creating
         String quartzInitializationScriptPath =
             PentahoSystem.getApplicationContext()
-                .getSolutionPath( "system/quartz/h2-quartz-schema-updated.sql" ).replace( '\\', '/' ); //$NON-NLS-1$
+                .getSolutionPath( "system/quartz/h2-quartz-schema-updated.sql" ).replace( '\\', '/' );
         File f = new File( quartzInitializationScriptPath );
         if ( f.exists() ) {
-          Statement stmt = conn.createStatement();
-          // We know now that there's an initialization script
-          stmt.executeUpdate( "RUNSCRIPT FROM '" + quartzInitializationScriptPath + "'" ); //$NON-NLS-1$ //$NON-NLS-2$
-          // Tables should now exist.
-          quartzIsConfigured = true;
-          stmt.close();
+          try ( Statement stmt = conn.createStatement() ) {
+            // We know now that there's an initialization script
+            stmt.executeUpdate( "RUNSCRIPT FROM '" + quartzInitializationScriptPath + "'" );
+            // Tables should now exist.
+            quartzIsConfigured = true;
+          }
         }
       }
     } finally {
