@@ -38,7 +38,6 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -48,9 +47,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.encryption.Encr;
-import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.encryption.KettleTwoWayPasswordEncoder;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -312,7 +309,7 @@ public class CommandLineProcessor {
    * 
    * @throws ParseException
    */
-  private void performREST() throws ParseException, InitializationException, KettleException {
+  private void performREST() throws ParseException, InitializationException {
 
     String contextURL = getOptionValue( INFO_OPTION_URL_NAME, true, false );
     String path = getOptionValue( INFO_OPTION_PATH_NAME, true, false );
@@ -352,30 +349,21 @@ public class CommandLineProcessor {
     }
   }
 
-  @VisibleForTesting
-  String getUsername() throws ParseException {
-    return getOptionValue( INFO_OPTION_USERNAME_NAME, true, false );
-  }
-
-  @VisibleForTesting
-  String getPassword() throws ParseException, KettleException {
-    if ( !KettleClientEnvironment.isInitialized() ) {
-      KettleClientEnvironment.init();
-    }
-
-    return Encr.decryptPasswordOptionallyEncrypted( getOptionValue( INFO_OPTION_PASSWORD_NAME, true, false ) );
-  }
-
   /**
    * Used only for REST Jersey calls
    * 
    * @throws ParseException
    */
-  private void initRestService() throws ParseException, InitializationException, KettleException {
+  private void initRestService() throws ParseException, InitializationException {
+    // get information about the remote connection
+    String username = getOptionValue( INFO_OPTION_USERNAME_NAME, true, false );
+    String password = getOptionValue( INFO_OPTION_PASSWORD_NAME, true, false );
+    password = KettleTwoWayPasswordEncoder.decryptPasswordOptionallyEncrypted( password );
     ClientConfig clientConfig = new DefaultClientConfig();
     clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
     client = Client.create( clientConfig );
-    client.addFilter( new HTTPBasicAuthFilter( getUsername(), getPassword() ) );
+    client.addFilter( new HTTPBasicAuthFilter( username, password ) );
+
   }
 
   /**
@@ -708,7 +696,7 @@ public class CommandLineProcessor {
    *           --logfile=c:/temp/steel-wheels.log --file-path=c:/temp/backup.zip
    * @throws java.io.IOException
    */
-  private void performBackup() throws ParseException, InitializationException, IOException, KettleException {
+  private void performBackup() throws ParseException, InitializationException, IOException {
     String contextURL = getOptionValue( INFO_OPTION_URL_NAME, true, false );
     String logFile = getOptionValue( INFO_OPTION_LOGFILE_NAME, false, true );
     String backupURL = contextURL + "/api/repo/files/backup";
@@ -816,7 +804,7 @@ public class CommandLineProcessor {
    *           --logfile=c:/temp/steel-wheels.log --withManifest=true
    * @throws java.io.IOException
    */
-  private void performExport() throws ParseException, IOException, InitializationException, KettleException {
+  private void performExport() throws ParseException, IOException, InitializationException {
     String contextURL = getOptionValue( INFO_OPTION_URL_NAME, true, false );
     String path = getOptionValue( INFO_OPTION_PATH_NAME, true, false );
     String withManifest = getOptionValue( INFO_OPTION_WITH_MANIFEST_NAME, false, true );
@@ -948,7 +936,7 @@ public class CommandLineProcessor {
    * <li>User must specify path to Jackrabbit files (i.e. system/jackrabbit).</li>
    * </ul>
    */
-  protected synchronized IUnifiedRepository getRepository() throws ParseException, KettleException {
+  protected synchronized IUnifiedRepository getRepository() throws ParseException {
     if ( repository != null ) {
       return repository;
     }
@@ -972,8 +960,10 @@ public class CommandLineProcessor {
     Service service = Service.create( url, new QName( NAMESPACE_URI, SERVICE_NAME ) );
     IUnifiedRepositoryJaxwsWebService port = service.getPort( IUnifiedRepositoryJaxwsWebService.class );
     // http basic authentication
-    ( (BindingProvider) port ).getRequestContext().put( BindingProvider.USERNAME_PROPERTY, getUsername() );
-    ( (BindingProvider) port ).getRequestContext().put( BindingProvider.PASSWORD_PROPERTY, getPassword() );
+    ( (BindingProvider) port ).getRequestContext().put( BindingProvider.USERNAME_PROPERTY,
+        getOptionValue( INFO_OPTION_USERNAME_NAME, true, false ) );
+    ( (BindingProvider) port ).getRequestContext().put( BindingProvider.PASSWORD_PROPERTY,
+        getOptionValue( INFO_OPTION_PASSWORD_NAME, true, true ) );
     // accept cookies to maintain session on server
     ( (BindingProvider) port ).getRequestContext().put( BindingProvider.SESSION_MAINTAIN_PROPERTY, true );
     // support streaming binary data
