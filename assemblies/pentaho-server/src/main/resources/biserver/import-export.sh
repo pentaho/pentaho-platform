@@ -26,13 +26,6 @@ DIR=`pwd`
 . "$DIR/set-pentaho-env.sh"
 setPentahoEnv
 
-### =========================================================== ###
-## Set a variable for DI_HOME (to be used as a system property)  ##
-## The plugin loading system for kettle needs this set to know   ##
-## where to load the plugins from                                ##
-### =========================================================== ###
-DI_HOME="$DIR"/pentaho-solutions/system/kettle
-
 # uses Java 6 classpath wildcards
 # quotes required around classpath to prevent shell expansion
-"$_PENTAHO_JAVA" -Xmx2048m -XX:MaxPermSize=256m -Dfile.encoding=utf8 -DDI_HOME="$DI_HOME" -classpath "$DIR/tomcat/webapps/pentaho/WEB-INF/lib/*" org.pentaho.platform.plugin.services.importexport.CommandLineProcessor ${1+"$@"}
+"$_PENTAHO_JAVA" -Xmx2048m -XX:MaxPermSize=256m -Dfile.encoding=utf8 -classpath "$DIR/tomcat/webapps/pentaho/WEB-INF/lib/*" org.pentaho.platform.plugin.services.importexport.CommandLineProcessor ${1+"$@"}
