@@ -45,9 +45,9 @@ import java.util.HashMap;
 
 public class AxisUtil {
 
-  public static final String WS_EXECUTE_SERVICE_ID = "ws-run"; //$NON-NLS-1$
+  public static String WS_EXECUTE_SERVICE_ID = "ws-run"; //$NON-NLS-1$
 
-  public static final String WSDL_SERVICE_ID = "ws-wsdl"; //$NON-NLS-1$
+  public static String WSDL_SERVICE_ID = "ws-wsdl"; //$NON-NLS-1$
 
   public static Definition getWsdlDefinition( AxisConfiguration axisConfig, IServiceConfig webservice )
     throws Exception {
