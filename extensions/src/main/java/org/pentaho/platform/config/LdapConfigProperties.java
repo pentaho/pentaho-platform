@@ -48,9 +48,9 @@ public class LdapConfigProperties implements ILdapConfig {
 
   public LdapConfigProperties( File propertiesFile ) throws IOException {
     Properties props = new Properties();
-    InputStream in = new FileInputStream( propertiesFile );
-    props.load( in );
-    in.close();
+    try ( InputStream in = new FileInputStream( propertiesFile ) ) {
+      props.load( in );
+    }
     properties = props;
   }
 
