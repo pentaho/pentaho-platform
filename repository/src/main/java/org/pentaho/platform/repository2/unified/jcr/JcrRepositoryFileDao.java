@@ -657,15 +657,16 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl( fileToBeDeleted.getId() );
           // Invoke accessVoterManager to see if we have access to perform this operation
           if ( !accessVoterManager.hasAccess( fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl,
-              PentahoSessionHolder.getSession() ) ) {
+                  PentahoSessionHolder.getSession() ) ) {
             return null;
           }
-        }
-        List<RepositoryFilePermission> perms = new ArrayList<RepositoryFilePermission>();
-        perms.add( RepositoryFilePermission.DELETE );
-        if ( !aclDao.hasAccess( fileToBeDeleted.getPath(), EnumSet.copyOf( perms ) ) ) {
-          throw new AccessDeniedException( Messages.getInstance().getString(
-              "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_DELETE", fileId ) );
+
+          List<RepositoryFilePermission> perms = new ArrayList<RepositoryFilePermission>();
+          perms.add( RepositoryFilePermission.DELETE );
+          if ( !aclDao.hasAccess( fileToBeDeleted.getPath(), EnumSet.copyOf( perms ) ) ) {
+            throw new AccessDeniedException( Messages.getInstance().getString(
+                    "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_DELETE", fileId ) );
+          }
         }
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
         Serializable parentFolderId = JcrRepositoryFileUtils.getParentId( session, fileId );
