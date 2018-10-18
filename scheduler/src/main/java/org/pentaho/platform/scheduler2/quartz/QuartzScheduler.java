@@ -388,6 +388,14 @@ public class QuartzScheduler implements IScheduler {
         scheduler.addCalendar( jobId.toString(), triggerCalendar, true, true );
         quartzTrigger.setCalendarName( jobId.toString() );
       }
+
+      if ( quartzTrigger instanceof CronTrigger ) {
+        Serializable timezone = jobParams.get( "timezone" );
+        if ( timezone != null ) {
+          setTimezone( (CronTrigger) quartzTrigger, timezone.toString() );
+        }
+      }
+
       scheduler.rescheduleJob( jobId, jobKey.getUserName(), quartzTrigger );
       // if (triggerState != Trigger.STATE_PAUSED) {
       // scheduler.resumeTrigger(jobId, jobKey.getUserName());
