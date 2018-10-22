@@ -21,6 +21,8 @@
 package org.pentaho.platform.engine.security;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -44,6 +46,7 @@ import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
@@ -299,6 +302,28 @@ public class SecurityHelperTest {
       }
     } );
     assertSame( SecurityContextHolder.getContext().getAuthentication(), token );
+  }
+
+  @Test
+  public void isPentahoAdministratorValidPolicyTest() {
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( emptySecurityHelper.getAuthorizationPolicy() ).thenReturn( policy );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    assertTrue( emptySecurityHelper.isPentahoAdministrator( any() ) );
+  }
+
+  @Test
+  public void isPentahoAdministratorInvalidPolicyTest() {
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( emptySecurityHelper.getAuthorizationPolicy() ).thenReturn( policy );
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+    assertFalse( emptySecurityHelper.isPentahoAdministrator( any() ) );
+  }
+
+  @Test
+  public void isPentahoAdministratorNullPolicyTest() {
+    when( emptySecurityHelper.getAuthorizationPolicy() ).thenReturn( null );
+    assertFalse( emptySecurityHelper.isPentahoAdministrator( any() ) );
   }
 
   private static void setSystemSettingsService( ISystemSettings service ) {
