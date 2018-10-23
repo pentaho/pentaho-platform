@@ -332,7 +332,7 @@ define([
     //
     // Ajax request to check if user can download
     $.ajax({
-      url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + _folderPath,
+      url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent( _folderPath ),
       type: "GET",
       async: true,
       success: function (response) {
@@ -345,7 +345,7 @@ define([
 
     // Ajax request to check if user can upload (a.k.a. publish)
     $.ajax({
-      url: CONTEXT_PATH + "api/repo/files/canUpload?dirPath=" + _folderPath,
+      url: CONTEXT_PATH + "api/repo/files/canUpload?dirPath=" + encodeURIComponent( _folderPath ),
       type: "GET",
       async: true,
       success: function (response) {
