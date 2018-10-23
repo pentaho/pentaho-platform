@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2013 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2018 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.repository;
@@ -24,15 +24,19 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.model.IDatabaseType;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.di.core.KettleEnvironment;
+import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 
@@ -40,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -55,6 +60,8 @@ public class JcrBackedDatasourceMgmtServiceTest {
 
   // ~ Static fields/initializers
   // ======================================================================================
+
+  private static final String EXP_FILE_ID = "456";
 
   private static final String EXP_DBMETA_NAME = "haha";
 
@@ -114,25 +121,118 @@ public class JcrBackedDatasourceMgmtServiceTest {
         argThat( hasData( pathPropertyPair( "/databaseMeta/HOST_NAME", EXP_DBMETA_HOSTNAME ) ) ), anyString() );
   }
 
+  @Rule
+  public ExpectedException datasourceException = ExpectedException.none();
+
   @Test
   public void testDeleteDatasourceWithName() throws Exception {
+    testDeleteDatasourceWithName(false );
+  }
+
+  @Test
+  public void testDeleteDatasourceWithNameExceptionNullFile() throws Exception {
+    testDeleteDatasourceWithName(true );
+  }
+
+  private void testDeleteDatasourceWithName( boolean throwException) throws Exception {
     final String fileId = "456";
     final String databasesFolderPath = "/etc/pdi/databases";
     final String dotKdb = ".kdb";
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // stub out get parent folder
     doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFile(
-        databasesFolderPath );
+            databasesFolderPath );
     doReturn( reservedChars ).when( repo ).getReservedChars();
     // stub out get file to delete
     doReturn( new RepositoryFile.Builder( fileId, EXP_DBMETA_NAME + dotKdb ).build() ).when( repo ).getFile(
-        databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb );
+            databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb );
     IDatasourceMgmtService datasourceMgmtService =
-        new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
-
+            new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
+    if( throwException ) {
+      deleteDatasourceWithNameThrowException( repo );
+    }
     datasourceMgmtService.deleteDatasourceByName( EXP_DBMETA_NAME );
-
     verify( repo ).deleteFile( eq( fileId ), eq( true ), anyString() );
+  }
+
+  @Test
+  public void testDeleteDatasourceWithId() throws Exception {
+    testDeleteDatasourceWithId( false );
+  }
+
+  @Test
+  public void testDeleteDatasourceWithIdNullFile() throws Exception {
+    testDeleteDatasourceWithId( true );
+  }
+
+  private void testDeleteDatasourceWithId( boolean throwException ) throws Exception {
+    final String dotKdb = ".kdb";
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    // stub out get parent folder
+    doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFileById(
+            EXP_FILE_ID );
+    doReturn( reservedChars ).when( repo ).getReservedChars();
+    // stub out get file to delete
+    doReturn( new RepositoryFile.Builder( EXP_FILE_ID, EXP_DBMETA_NAME + dotKdb ).build() ).when( repo ).getFileById(
+            EXP_FILE_ID);
+    IDatasourceMgmtService datasourceMgmtService =
+            new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
+    if( throwException ) {
+      deleteDatasourceWithIdThrowException( repo );
+    }
+    datasourceMgmtService.deleteDatasourceById( EXP_FILE_ID );
+    verify( repo ).deleteFile( eq( EXP_FILE_ID ), eq( true ), anyString() );
+  }
+
+  @Test
+  public void testgetDatasourceById() throws Exception {
+    testgetDatasourceById( false );
+  }
+
+  @Test
+  public void testgetDatasourceByIdException() throws Exception {
+    testgetDatasourceById( true );
+  }
+
+  private void testgetDatasourceById( boolean throwException ) throws Exception {
+    final String dotKdb = ".kdb";
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    NodeRepositoryFileData nodeRep = mock ( NodeRepositoryFileData.class );
+    DataNode dataNode = mock( DataNode.class );
+    // stub out get parent folder
+    doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFileById(
+            EXP_FILE_ID );
+    doReturn( reservedChars ).when( repo ).getReservedChars();
+    // stub out get file to delete
+    doReturn( new RepositoryFile.Builder( EXP_FILE_ID, EXP_DBMETA_NAME + dotKdb ).build() ).when( repo ).getFileById(
+            EXP_FILE_ID);
+    doReturn( nodeRep ).when(repo).getDataForRead( any(), any() );
+    doReturn( dataNode ).when( nodeRep ).getNode();
+    IDatasourceMgmtService datasourceMgmtService =
+            new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
+
+    if( throwException ) {
+      getDatasourceWithIdThrowException( repo );
+    }
+    assertNotNull( datasourceMgmtService.getDatasourceById( EXP_FILE_ID ) );
+  }
+
+  private void deleteDatasourceWithIdThrowException( IUnifiedRepository repo ) {
+    when( repo.getFileById( anyString() ) ).thenThrow( UnifiedRepositoryException.class );
+    datasourceException.expect(DatasourceMgmtServiceException.class);
+    datasourceException.expectMessage("DatasourceMgmtService.ERROR_0002 - Error occurred during deleting the datasource " + EXP_FILE_ID + ". Cause: null");
+  }
+
+  private void getDatasourceWithIdThrowException( IUnifiedRepository repo ) {
+    when( repo.getFileById( anyString() ) ).thenThrow( UnifiedRepositoryException.class );
+    datasourceException.expect(DatasourceMgmtServiceException.class);
+    datasourceException.expectMessage("DatasourceMgmtService.ERROR_0004 - Error occurred during retrieving the datasource " + EXP_FILE_ID + ". Cause: {1}");
+  }
+
+  private void deleteDatasourceWithNameThrowException( IUnifiedRepository repo ) {
+    when( repo.getFile( anyString() ) ).thenThrow( UnifiedRepositoryException.class );
+    datasourceException.expect(DatasourceMgmtServiceException.class);
+    datasourceException.expectMessage("DatasourceMgmtService.ERROR_0002 - Error occurred during deleting the datasource " + EXP_DBMETA_NAME + ". Cause: null");
   }
 
   @Test
