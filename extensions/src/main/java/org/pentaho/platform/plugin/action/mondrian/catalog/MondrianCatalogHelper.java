@@ -62,6 +62,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.util.XmlParseException;
@@ -157,9 +158,11 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     List<MondrianCatalog> catalogs = new ArrayList<MondrianCatalog>();
     // Analyzer cache is also placed in the MONDRIAN_CATALOG_CACHE_REGION
     // so we need to filter the list to only keep MondrianCatalog objects
-    for ( Object o : catalogsMap.values() ) {
-      if ( o instanceof MondrianCatalog ) {
-        catalogs.add( (MondrianCatalog) o );
+    if ( catalogsMap != null ) {
+      for ( Object o : catalogsMap.values() ) {
+        if ( o instanceof MondrianCatalog ) {
+          catalogs.add( (MondrianCatalog) o );
+        }
       }
     }
     // Sort
@@ -1077,8 +1080,13 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
                                           final boolean jndiOnly ) {
     List<MondrianCatalog> filtered = new ArrayList<MondrianCatalog>();
     for ( MondrianCatalog orig : origList ) {
-      if ( hasAccess( orig, RepositoryFilePermission.READ ) && ( !jndiOnly || orig.isJndi() ) ) {
-        filtered.add( orig );
+      try {
+        if ( hasAccess( orig, RepositoryFilePermission.READ ) && ( !jndiOnly || orig.isJndi() ) ) {
+          filtered.add( orig );
+        }
+      } catch ( UnifiedRepositoryException e ) {
+        // in case of catalog doesn't exist anymore
+        continue;
       }
     }
     return filtered;
@@ -1093,7 +1101,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    */
   protected boolean hasAccess( MondrianCatalog cat, RepositoryFilePermission permission ) {
     return getAclHelper().canAccess( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( cat.getName() ),
-        EnumSet.of( permission ) );
+      EnumSet.of( permission ) );
   }
 
   protected String getSolutionRepositoryRelativePath( final String path, final IPentahoSession pentahoSession ) {
