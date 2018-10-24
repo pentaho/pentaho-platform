@@ -28,6 +28,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -86,13 +88,15 @@ public class RepositoryFileProxy extends RepositoryFile {
 
   public RepositoryFileProxy( final Node node, final JcrTemplate template, IPentahoLocale pentahoLocale ) {
     super( null, null, false, HIDDEN_BY_DEFAULT, SCHEDULABLE_BY_DEFAULT, false, null, null, null, null, false, null,
-        null, null, null, null, null,
-        null,
-        null, -1, null, null, false );
+      null, null, null, null, null,
+      null,
+      null, -1, null, null, false );
     this.node = node;
     this.pentahoLocale = pentahoLocale;
     try {
       this.absPath = node.getPath();
+    } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+      getLogger().warn( "InvalidItemStateException in constructor. Probable cause: File does not exist anymore" );
     } catch ( RepositoryException e ) {
       getLogger().error( "RepositoryException was found: ", e );
     }
@@ -187,10 +191,10 @@ public class RepositoryFileProxy extends RepositoryFile {
                 createdDate = tmpCal.getTime();
               }
             }
-          } catch ( PathNotFoundException e ) {
-            getLogger().error( null, e );
           } catch ( ValueFormatException e ) {
             getLogger().error( null, e );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getCreatedDate. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( null, e );
           }
@@ -208,6 +212,8 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             metadata = JcrRepositoryFileUtils.getFileMetadata( session, getId() );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getMetadata. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -226,6 +232,8 @@ public class RepositoryFileProxy extends RepositoryFile {
           creatorId = (String) metadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
         }
       }
+    } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+      getLogger().warn( "InvalidItemStateException in getCreatorId. Probable cause: File does not exist anymore" );
     } catch ( RepositoryException e ) {
       getLogger().error( "RepositoryException was found: ", e );
     }
@@ -267,16 +275,18 @@ public class RepositoryFileProxy extends RepositoryFile {
               // not found
               if ( title == null && node.hasNode( getPentahoJcrConstants().getPHO_TITLE() ) ) {
                 title =
-                    JcrRepositoryFileUtils.getLocalizedString( session, getPentahoJcrConstants(), node
-                        .getNode( getPentahoJcrConstants().getPHO_TITLE() ), pentahoLocale );
+                  JcrRepositoryFileUtils.getLocalizedString( session, getPentahoJcrConstants(), node
+                    .getNode( getPentahoJcrConstants().getPHO_TITLE() ), pentahoLocale );
               }
               if ( description == null && node.hasNode( getPentahoJcrConstants().getPHO_DESCRIPTION() ) ) {
                 description =
-                    JcrRepositoryFileUtils.getLocalizedString( session, getPentahoJcrConstants(), node
-                        .getNode( getPentahoJcrConstants().getPHO_DESCRIPTION() ), pentahoLocale );
+                  JcrRepositoryFileUtils.getLocalizedString( session, getPentahoJcrConstants(), node
+                    .getNode( getPentahoJcrConstants().getPHO_DESCRIPTION() ), pentahoLocale );
               }
 
             }
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getTitleAndDescription. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -308,6 +318,8 @@ public class RepositoryFileProxy extends RepositoryFile {
             if ( node.hasProperty( getPentahoJcrConstants().getPHO_FILESIZE() ) ) {
               fileSize = node.getProperty( getPentahoJcrConstants().getPHO_FILESIZE() ).getLong();
             }
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getFileSize. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -326,6 +338,8 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             id = JcrRepositoryFileUtils.getNodeId( session, getPentahoJcrConstants(), node );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getId. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -351,6 +365,8 @@ public class RepositoryFileProxy extends RepositoryFile {
                 }
               }
             }
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getLastModifiedDate. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -376,11 +392,11 @@ public class RepositoryFileProxy extends RepositoryFile {
 
           try {
             localeMap =
-                JcrRepositoryFileUtils.getLocalePropertiesMap( session, getPentahoJcrConstants(), node.getNode(
-                    getPentahoJcrConstants().getPHO_LOCALES() ) );
-          } catch ( javax.jcr.PathNotFoundException e ) {
-            // Do not throw a stack trace if the locale file is missing.
-          } catch ( RepositoryException e ) {
+              JcrRepositoryFileUtils.getLocalePropertiesMap( session, getPentahoJcrConstants(), node.getNode(
+                getPentahoJcrConstants().getPHO_LOCALES() ) );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getLocalePropertiesMap. Probable cause: File does not exist anymore" );
+          }  catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
         }
@@ -397,6 +413,8 @@ public class RepositoryFileProxy extends RepositoryFile {
 
           try {
             lock = session.getWorkspace().getLockManager().getLock( node.getPath() );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getLock. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -414,6 +432,8 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             lockDate = lockHelper.getLockDate( session, getPentahoJcrConstants(), getLock() );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getLockDate. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -431,6 +451,8 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             lockMessage = lockHelper.getLockMessage( session, getPentahoJcrConstants(), getLock() );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getLockMessage. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -448,6 +470,8 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             lockOwner = lockHelper.getLockOwner( session, getPentahoJcrConstants(), getLock() );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getLockOwner. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -465,8 +489,10 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             name =
-                RepositoryFile.SEPARATOR.equals( getPath() )
-                    ? "" : JcrRepositoryFileUtils.getNodeName( session, getPentahoJcrConstants(), node ); //$NON-NLS-1$
+              RepositoryFile.SEPARATOR.equals( getPath() )
+                ? "" : JcrRepositoryFileUtils.getNodeName( session, getPentahoJcrConstants(), node ); //$NON-NLS-1$
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getName. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -479,7 +505,7 @@ public class RepositoryFileProxy extends RepositoryFile {
   @Override
   public String getOriginalParentFolderPath() {
     return super.getOriginalParentFolderPath(); // To change body of overridden methods use File | Settings | File
-                                                // Templates.
+    // Templates.
   }
 
   @Override
@@ -490,8 +516,10 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             path =
-                new DefaultPathConversionHelper().absToRel( ( JcrRepositoryFileUtils.getAbsolutePath( session,
-                    getPentahoJcrConstants(), node ) ) );
+              new DefaultPathConversionHelper().absToRel( ( JcrRepositoryFileUtils.getAbsolutePath( session,
+                getPentahoJcrConstants(), node ) ) );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in getPath. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -516,6 +544,8 @@ public class RepositoryFileProxy extends RepositoryFile {
           public void execute( Session session ) {
             try {
               versionId = JcrRepositoryFileUtils.getVersionId( session, getPentahoJcrConstants(), node );
+            } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+              getLogger().warn( "InvalidItemStateException in getVersionId. Probable cause: File does not exist anymore" );
             } catch ( RepositoryException e ) {
               getLogger().error( "RepositoryException was found: ", e );
             }
@@ -545,6 +575,8 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             folder = JcrRepositoryFileUtils.isPentahoFolder( getPentahoJcrConstants(), node );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in isFolder. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -565,6 +597,8 @@ public class RepositoryFileProxy extends RepositoryFile {
             if ( node.hasProperty( getPentahoJcrConstants().getPHO_HIDDEN() ) ) {
               hidden = node.getProperty( getPentahoJcrConstants().getPHO_HIDDEN() ).getBoolean();
             }
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in isHidden. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -584,7 +618,8 @@ public class RepositoryFileProxy extends RepositoryFile {
           try {
             Map<String, Serializable> metadata = getMetadata();
             if ( metadata != null ) {
-              schedulable = metadata.get( SCHEDULABLE_KEY ) != null ? BooleanUtils.toBoolean( (String) metadata.get( SCHEDULABLE_KEY ) ) : null;
+              schedulable = metadata.get( SCHEDULABLE_KEY ) != null
+                ? BooleanUtils.toBoolean( (String) metadata.get( SCHEDULABLE_KEY ) ) : null;
             }
           } catch ( Exception e ) {
             e.printStackTrace();
@@ -604,6 +639,8 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             locked = JcrRepositoryFileUtils.isLocked( getPentahoJcrConstants(), node );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in isLocked. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -621,6 +658,8 @@ public class RepositoryFileProxy extends RepositoryFile {
         public void execute( Session session ) {
           try {
             versioned = JcrRepositoryFileUtils.isVersioned( session, getPentahoJcrConstants(), node );
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in isVersioned. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -640,6 +679,8 @@ public class RepositoryFileProxy extends RepositoryFile {
             if ( node.hasProperty( getPentahoJcrConstants().getPHO_ACLNODE() ) ) {
               aclNode = node.getProperty( getPentahoJcrConstants().getPHO_ACLNODE() ).getBoolean();
             }
+          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+            getLogger().warn( "InvalidItemStateException in isAclNode. Probable cause: File does not exist anymore" );
           } catch ( RepositoryException e ) {
             getLogger().error( "RepositoryException was found: ", e );
           }
@@ -669,6 +710,8 @@ public class RepositoryFileProxy extends RepositoryFile {
           }
         } );
       }
+    } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+      getLogger().warn( "InvalidItemStateException in toString. Probable cause: File does not exist anymore" );
     } catch ( RepositoryException e ) {
       getLogger().error( "RepositoryException was found: ", e );
     }
