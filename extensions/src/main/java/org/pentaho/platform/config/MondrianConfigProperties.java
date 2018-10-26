@@ -33,9 +33,9 @@ public class MondrianConfigProperties implements IMondrianConfig {
 
   public MondrianConfigProperties( File propertiesFile ) throws IOException {
     Properties props = new Properties();
-    InputStream in = new FileInputStream( propertiesFile );
-    props.load( in );
-    in.close();
+    try ( InputStream in = new FileInputStream( propertiesFile ) ) {
+      props.load( in );
+    }
     properties = props;
   }
 
