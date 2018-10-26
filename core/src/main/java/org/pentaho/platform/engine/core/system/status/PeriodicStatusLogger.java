@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2015 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2018 Hitachi Vantara..  All rights reserved.
  */
 package org.pentaho.platform.engine.core.system.status;
 
@@ -41,20 +41,22 @@ public class PeriodicStatusLogger implements Runnable, IServerStatusChangeListen
   private String[] lastMessages;
   private IServerStatusProvider.ServerStatus lastServerStatus;
 
+  static {
+    periodicStatusLogger = new PeriodicStatusLogger();
+
+    serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
+    serverStatusProvider.registerServerStatusChangeListener( periodicStatusLogger );
+  }
+
   private PeriodicStatusLogger() {
     // Access through static methods only
   }
 
   private static PeriodicStatusLogger getInstance() {
-    if ( periodicStatusLogger == null ) {
-      periodicStatusLogger = new PeriodicStatusLogger();
-      serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
-      serverStatusProvider.registerServerStatusChangeListener( periodicStatusLogger );
-    }
     return periodicStatusLogger;
   }
 
-  public synchronized static void start() {
+  public static synchronized void start() {
     if ( runThread != null ) {
       throw new IllegalStateException( "Only one instance of the PeriodicStatusLogger is allowed" );
     }
@@ -62,7 +64,7 @@ public class PeriodicStatusLogger implements Runnable, IServerStatusChangeListen
     runThread.start();
   }
 
-  public synchronized static void stop() {
+  public static synchronized void stop() {
     if ( periodicStatusLogger == null || runThread == null ) {
       throw new IllegalStateException( "The PeriodicStatusLogger has not been started" );
     }
@@ -83,7 +85,7 @@ public class PeriodicStatusLogger implements Runnable, IServerStatusChangeListen
   }
 
   private void logMessages() {
-    if ( lastMessages != null ) {
+    if ( runThread != null &&  lastMessages != null ) {
       for ( String message : lastMessages ) {
         if ( logger.isInfoEnabled() ) {
           logger.info( message );
@@ -116,7 +118,7 @@ public class PeriodicStatusLogger implements Runnable, IServerStatusChangeListen
         || lastServerStatus != serverStatusProvider.getStatus() ) {
       setCurrentValues();
       logMessages();
-      if (runThread != null ) {
+      if ( runThread != null ) {
         runThread.interrupt();
       }
     }
