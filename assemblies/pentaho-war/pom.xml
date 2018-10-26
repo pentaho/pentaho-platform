@@ -38,6 +38,18 @@
     <apache-log4j-extras>1.2.17</apache-log4j-extras>
   </properties>
   <dependencies>
+    <!-- region - Fasterxml jackson providers are required to be in the main classloader for serialization of POJOs
+         in the Publish Model step. -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-base</artifactId>
+    </dependency>
+    <!-- endregion -->
+
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
