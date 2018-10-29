@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2013 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
  */
 
 package org.pentaho.platform.config;
@@ -21,6 +21,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.config.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -118,13 +119,17 @@ public class PentahoXml {
   }
 
   public List<AclEntry> getDefaultAcls() {
-    List<AclEntry> aclEntries = new ArrayList<AclEntry>();
-    List<Element> elements = document.selectNodes( ACL_ENTRY_XPATH ); //$NON-NLS-1$ //$NON-NLS-2$
-    for ( Element element : elements ) {
-      AclEntry aclEntry = new AclEntry();
-      aclEntry.setPrincipalName( element.attributeValue( "role" ) );
-      aclEntry.setPermission( element.attributeValue( "acl" ) );
-      aclEntries.add( aclEntry );
+    List<AclEntry> aclEntries = new ArrayList<>();
+    List<Node> nodes = document.selectNodes( ACL_ENTRY_XPATH ); //$NON-NLS-1$ //$NON-NLS-2$
+    for ( Node node : nodes ) {
+      if ( node.getNodeType() == Node.ELEMENT_NODE ) {
+        Element element = (Element) node;
+
+        AclEntry aclEntry = new AclEntry();
+        aclEntry.setPrincipalName( element.attributeValue( "role" ) );
+        aclEntry.setPermission( element.attributeValue( "acl" ) );
+        aclEntries.add( aclEntry );
+      }
     }
     return aclEntries;
   }
