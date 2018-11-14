@@ -92,13 +92,14 @@ public class KettleSystemListener implements IPentahoSystemListener {
       File slaveServerConfigFile =
           new File( PentahoSystem.getApplicationContext().getSolutionPath( slaveServerConfigFilename ) );
       if ( slaveServerConfigFile.exists() ) {
-        InputStream is = new FileInputStream( slaveServerConfigFile );
-        Node configNode = getSlaveServerConfigNode( is );
-        SlaveServerConfig config = new DIServerConfig( new LogChannel( "Slave server config" ), configNode );
-        config.setFilename( slaveServerConfigFile.getAbsolutePath() );
-        SlaveServer slaveServer = new SlaveServer();
-        config.setSlaveServer( slaveServer );
-        CarteSingleton.setSlaveServerConfig( config );
+        try ( InputStream is = new FileInputStream( slaveServerConfigFile ) ) {
+          Node configNode = getSlaveServerConfigNode( is );
+          SlaveServerConfig config = new DIServerConfig( new LogChannel( "Slave server config" ), configNode );
+          config.setFilename( slaveServerConfigFile.getAbsolutePath() );
+          SlaveServer slaveServer = new SlaveServer();
+          config.setSlaveServer( slaveServer );
+          CarteSingleton.setSlaveServerConfig( config );
+        }
       }
     } catch ( Throwable t ) {
       t.printStackTrace();
