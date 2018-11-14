@@ -30,10 +30,10 @@ import java.util.List;
 @XmlAccessorType( XmlAccessType.FIELD )
 @XmlType( name = "RoleExport", propOrder = { "rolename", "permissions" } )
 public class RoleExport {
-  @XmlElement( name="rolename" )
+  @XmlElement( name = "rolename" )
   private String rolename;
 
-  @XmlElement( name="permissions" )
+  @XmlElement( name = "permissions" )
   List<String> permissions = new ArrayList<String>();
 
   public String getRolename() {
@@ -49,6 +49,6 @@ public class RoleExport {
   }
 
   public void setPermission( List<String> permissions ) {
-    this.permissions= permissions;
+    this.permissions = permissions;
   }
 }

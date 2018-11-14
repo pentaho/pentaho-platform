@@ -46,7 +46,7 @@ public class DefaultContentSystemListener implements IPentahoSystemListener {
     // By default we'll run in a separate thread. This checks to see if someone has disabled this.
     ISystemConfig systemSettings = PentahoSystem.get( ISystemConfig.class );
     Boolean enableAsyncLoading = true;
-    if( systemSettings != null ) {
+    if ( systemSettings != null ) {
       String disableLoadAsyncStr = systemSettings.getProperty( "system.enable-async-default-content-loading" );
       enableAsyncLoading = Boolean.valueOf( disableLoadAsyncStr );
     }
@@ -76,7 +76,7 @@ public class DefaultContentSystemListener implements IPentahoSystemListener {
         }
       }
     };
-    if( enableAsyncLoading ) {
+    if ( enableAsyncLoading ) {
       Thread t = new Thread( runnable );
       t.setDaemon( true );
       t.setName( "Default Content Loader Thread" );

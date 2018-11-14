@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hsqldb.Server;
 import org.hsqldb.server.ServerConfiguration;
 import org.hsqldb.server.ServerConstants;
-import org.hsqldb.server.ServerProperties;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.persist.HsqlProperties;
 import org.pentaho.platform.web.hsqldb.messages.Messages;
@@ -269,6 +268,5 @@ public class HsqlDatabaseStarterBean {
   public boolean getAllowPortFailover() {
     return allowFailoverToDefaultPort;
   }
-  
-}
 
+}

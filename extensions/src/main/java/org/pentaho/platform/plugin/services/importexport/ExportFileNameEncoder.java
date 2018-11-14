@@ -40,7 +40,7 @@ public class ExportFileNameEncoder {
    */
   public static String encodeZipFileName( String fileName ) {
     try {
-      return URLEncoder.encode( fileName, "UTF-8" ).replace( "*" , "%2A" );
+      return URLEncoder.encode( fileName, "UTF-8" ).replace( "*", "%2A" );
     } catch ( UnsupportedEncodingException e ) {
       // Should not happen
       e.printStackTrace();

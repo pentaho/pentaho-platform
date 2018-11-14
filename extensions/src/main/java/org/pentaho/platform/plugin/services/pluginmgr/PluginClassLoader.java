@@ -33,7 +33,6 @@ import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A custom implementation of {@link URLClassLoader} for Pentaho Platform Plugins. It is used to load plugin jars and

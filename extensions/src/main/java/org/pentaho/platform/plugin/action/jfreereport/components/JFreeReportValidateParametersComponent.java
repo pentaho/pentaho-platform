@@ -88,8 +88,7 @@ public class JFreeReportValidateParametersComponent extends AbstractJFreeReportC
     while ( it.hasNext() ) {
       String paramName = (String) it.next();
       Object paramValue = getInputValue( paramName );
-      if ( ( paramValue == null ) || ( "".equals( paramValue ) ) ) //$NON-NLS-1$
-      {
+      if ( ( paramValue == null ) || ( "".equals( paramValue ) ) ) { //$NON-NLS-1$
         IActionParameter paramParameter = getInputParameter( paramName );
         if ( paramParameter.getPromptStatus() == IActionParameter.PROMPT_PENDING ) {
           parameterUINeeded = true;

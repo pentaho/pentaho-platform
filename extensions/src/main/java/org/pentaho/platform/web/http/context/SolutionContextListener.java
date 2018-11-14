@@ -20,15 +20,6 @@
 
 package org.pentaho.platform.web.http.context;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Properties;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IConfiguration;
@@ -45,18 +36,26 @@ import org.pentaho.platform.web.http.messages.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Properties;
+
 public class SolutionContextListener implements ServletContextListener {
 
   protected static String solutionPath;
 
   protected static String contextPath;
-  
+
   private static final String DEFAULT_SPRING_CONFIG_FILE_NAME = "pentahoObjects.spring.xml"; //$NON-NLS-1$
 
   private ServletContext context;
-  
+
   private static final IServerStatusProvider serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
-  
+
   Logger logger = LoggerFactory.getLogger( getClass() );
 
   public void contextInitialized( final ServletContextEvent event ) {
@@ -141,7 +140,7 @@ public class SolutionContextListener implements ServletContextListener {
         }
       }
     }
-        
+
     /*
      * Copy out all the initParameter values from the servlet context and put them in the application context.
      */
@@ -149,7 +148,7 @@ public class SolutionContextListener implements ServletContextListener {
     String initParmName;
     while ( initParmNames.hasMoreElements() ) {
       initParmName = (String) initParmNames.nextElement();
-      props.setProperty( initParmName, getServerParameter( initParmName , true ) );
+      props.setProperty( initParmName, getServerParameter( initParmName, true ) );
     }
     ( (WebApplicationContext) applicationContext ).setProperties( props );
 
@@ -159,7 +158,7 @@ public class SolutionContextListener implements ServletContextListener {
     serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STARTING );
     serverStatusProvider.setStatusMessages( new String[] { "Caution, the system is initializing. Do not shut down or restart the system at this time." } );
     PeriodicStatusLogger.start();
-    
+
     boolean initOk = false;
     try {
       initOk = PentahoSystem.init( applicationContext );
@@ -290,11 +289,11 @@ public class SolutionContextListener implements ServletContextListener {
     logger.info( Messages.getInstance().getString(
       "SolutionContextListener.INFO_SYSTEM_EXITING" ) ); //$NON-NLS-1$
   }
-  
+
   private String getServerParameter( String paramName ) {
     return getServerParameter( paramName, false );
   }
-  
+
   private String getServerParameter( String paramName, boolean suppressWarning ) {
     String result = context.getInitParameter( paramName );
     if ( result == null ) {

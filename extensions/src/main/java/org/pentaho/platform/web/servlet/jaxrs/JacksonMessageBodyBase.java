@@ -38,8 +38,7 @@ public class JacksonMessageBodyBase {
   private ObjectMapper mapper;
 
   protected boolean isSupported( Class<?> cls, Type type, Annotation[] annotations, MediaType mediaType ) {
-    return mediaType.equals( MediaType.APPLICATION_JSON_TYPE ) &&
-      cls.getAnnotation( JsonRootName.class ) != null ;
+    return mediaType.equals( MediaType.APPLICATION_JSON_TYPE ) && cls.getAnnotation( JsonRootName.class ) != null;
   }
 
   protected ObjectMapper getMapper( final Class<?> cls ) throws IllegalStateException {

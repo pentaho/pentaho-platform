@@ -59,7 +59,7 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
   private static final Pattern WADL_PATTERN = Pattern.compile( "(.*)" + APPLICATION_WADL + "(/[A-Za-z0-9_]+(.xsd)+)*" );
 
   private ApplicationContext applicationContext;
-  
+
   public static final ThreadLocal requestThread = new ThreadLocal();
 
   private static final Log logger = LogFactory.getLog( JAXRSPluginServlet.class );
@@ -129,10 +129,8 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
     super.initiate( rc, wa );
   }
 
-  protected ResourceConfig getDefaultResourceConfig( Map<String, Object> props, WebConfig webConfig ) 
-      throws ServletException{
-    props.put( "com.sun.jersey.config.property.WadlGeneratorConfig", 
-        "org.pentaho.platform.web.servlet.PentahoWadlGeneratorConfig" );
+  protected ResourceConfig getDefaultResourceConfig( Map<String, Object> props, WebConfig webConfig ) throws ServletException {
+    props.put( "com.sun.jersey.config.property.WadlGeneratorConfig", "org.pentaho.platform.web.servlet.PentahoWadlGeneratorConfig" );
     return super.getDefaultResourceConfig( props, webConfig );
   }
 }

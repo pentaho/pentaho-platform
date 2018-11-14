@@ -174,7 +174,7 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
             if ( ignoreFailure ) {
               chain.doFilter( wrapper, response );
             } else {
-              authenticationEntryPoint.commence( wrapper, ( HttpServletResponse ) response, failed );
+              authenticationEntryPoint.commence( wrapper, (HttpServletResponse) response, failed );
             }
 
             return;

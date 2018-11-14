@@ -20,13 +20,12 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
+import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.pentaho.platform.api.mimetype.IMimeType;
-import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
-import org.pentaho.platform.core.mimetype.MimeType;
 
 /**
  * Resolves mime-types by extension.

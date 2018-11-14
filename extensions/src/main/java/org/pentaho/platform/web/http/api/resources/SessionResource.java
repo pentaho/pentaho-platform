@@ -72,7 +72,7 @@ public class SessionResource extends AbstractJaxRSResource {
   public String doGetCurrentUserDir() {
     return getUserHomeFolderPath( getSession().getName() ) + "/workspace";
   }
-  
+
   /**
    * Returns the current user's user name.
    *

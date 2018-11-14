@@ -72,7 +72,7 @@ public class PlatformKettleDataSourceProvider implements DataSourceProviderInter
   public DataSource getNamedDataSource( String dataSourceName, DataSourceProviderInterface.DatasourceType type )
     throws DataSourceNamingException {
     if ( type != null ) {
-      switch( type ) {
+      switch ( type ) {
         case JNDI:
           return getNamedDataSourceFromService( IJndiDatasourceService.class, dataSourceName );
         case POOLED:

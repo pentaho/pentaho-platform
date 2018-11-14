@@ -20,23 +20,19 @@
 
 package org.pentaho.platform.web.servlet;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Callable;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-
 import mondrian.olap.Connection;
 import mondrian.olap.DriverManager;
 import mondrian.olap.MondrianException;
 import mondrian.olap.MondrianServer;
+import mondrian.server.DynamicContentFinder;
 import mondrian.server.FileRepository;
 import mondrian.server.RepositoryContentFinder;
-
+import mondrian.spi.CatalogLocator;
+import mondrian.spi.impl.ServletContextCatalogLocator;
+import mondrian.xmla.XmlaException;
+import mondrian.xmla.XmlaHandler.ConnectionFactory;
+import mondrian.xmla.impl.DynamicDatasourceXmlaServlet;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -69,14 +65,14 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.xml.sax.EntityResolver;
 
-import mondrian.server.DynamicContentFinder;
-import mondrian.spi.CatalogLocator;
-import mondrian.spi.impl.ServletContextCatalogLocator;
-import mondrian.xmla.XmlaException;
-import mondrian.xmla.XmlaHandler.ConnectionFactory;
-import mondrian.xmla.impl.DynamicDatasourceXmlaServlet;
-
-import static org.apache.commons.collections.CollectionUtils.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Callable;
 
 /**
  * Filters out <code>DataSource</code> elements that are not XMLA-related.
@@ -177,7 +173,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
             private List<Node> getNodesToRemove( Document doc ) {
               List<Node> nodesToRemove = doc.selectNodes( "/DataSources/DataSource/Catalogs/Catalog" );
-              filter( nodesToRemove,
+              CollectionUtils.filter( nodesToRemove,
                   new Predicate() {
                     @Override
                     public boolean evaluate( Object o ) {

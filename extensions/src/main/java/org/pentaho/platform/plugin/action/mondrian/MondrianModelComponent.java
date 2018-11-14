@@ -117,8 +117,7 @@ public class MondrianModelComponent extends ComponentBase {
         Iterator<Pair<String, String>> iter = connectProperties.iterator();
         while ( iter.hasNext() ) {
           Pair<String, String> pair = iter.next();
-          if ( !properties.containsKey( pair.getKey() ) ) // Only set if not set already
-          {
+          if ( !properties.containsKey( pair.getKey() ) ) { // Only set if not set already
             properties.put( pair.getKey(), pair.getValue() );
           }
         }
