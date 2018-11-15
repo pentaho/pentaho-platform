@@ -32,6 +32,8 @@ public class HttpContentItem implements IContentItem {
 
   private String mimeType;
 
+  private String name;
+
   private OutputStream outputStream;
 
   private HttpOutputHandler outputHandler;
@@ -64,7 +66,8 @@ public class HttpContentItem implements IContentItem {
   }
 
   public void setName( String name ) {
-
+    this.name = name;
+    outputHandler.setName( name );
   }
 
   public InputStream getInputStream() throws ContentException {
