@@ -46,8 +46,7 @@ public class SQLDdlComponent extends SQLLookupRule {
   }
 
   @Override
-  public IPentahoResultSet
-  doQuery( final SQLConnection sqlConnection, final String query, boolean forwardOnlyResultset ) throws Exception {
+  public IPentahoResultSet doQuery( final SQLConnection sqlConnection, final String query, boolean forwardOnlyResultset ) throws Exception {
 
     MemoryResultSet resultSet = null;
     int n = ( (SQLConnection) connection ).execute( query );

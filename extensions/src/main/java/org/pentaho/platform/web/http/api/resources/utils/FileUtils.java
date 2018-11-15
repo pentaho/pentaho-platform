@@ -102,9 +102,9 @@ public class FileUtils {
 
     int index = trimTrailingSlash( path ).lastIndexOf( PATH_SEPARATOR );
 
-    if(index == -1) {
+    if ( index == -1 ) {
       return null;
-    } else if(index == 0) {
+    } else if ( index == 0 ) {
       return PATH_SEPARATOR;
     } else {
       return path.substring( 0, index );

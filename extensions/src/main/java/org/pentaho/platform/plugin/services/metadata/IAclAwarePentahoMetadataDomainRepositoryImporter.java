@@ -23,10 +23,7 @@ package org.pentaho.platform.plugin.services.metadata;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
-import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.plugin.action.mondrian.catalog.IAclAwareMondrianCatalogService;
 
 import java.io.InputStream;
 

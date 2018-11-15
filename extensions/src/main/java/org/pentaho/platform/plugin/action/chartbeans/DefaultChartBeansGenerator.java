@@ -22,6 +22,7 @@ package org.pentaho.platform.plugin.action.chartbeans;
 
 import org.apache.commons.io.IOUtils;
 import org.pentaho.actionsequence.dom.ActionSequenceDocument;
+import org.pentaho.actionsequence.dom.IActionSequenceDocument;
 import org.pentaho.actionsequence.dom.IActionSequenceInput;
 import org.pentaho.actionsequence.dom.IActionSequenceInputSource;
 import org.pentaho.actionsequence.dom.IActionSequenceOutput;
@@ -66,8 +67,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
-
-import static org.pentaho.actionsequence.dom.IActionSequenceDocument.*;
 
 public class DefaultChartBeansGenerator implements IChartBeansGenerator {
 
@@ -308,28 +307,28 @@ public class DefaultChartBeansGenerator implements IChartBeansGenerator {
     actionSequenceDocument.setHelp( "" ); //$NON-NLS-1$
     actionSequenceDocument.setResultType( "rule" ); //$NON-NLS-1$
 
-    IActionSequenceInput queryInput = actionSequenceDocument.createInput( "query", STRING_TYPE ); //$NON-NLS-1$
-    IActionSequenceInput chartModelJsonInput = actionSequenceDocument.createInput( "chart-model-json", STRING_TYPE ); //$NON-NLS-1$
-    IActionSequenceInput chartWidthInput = actionSequenceDocument.createInput( "chart-width", INTEGER_TYPE ); //$NON-NLS-1$
-    chartWidthInput.addSource( REQUEST_INPUT_SOURCE, "chart-width" ); //$NON-NLS-1$
+    IActionSequenceInput queryInput = actionSequenceDocument.createInput( "query", IActionSequenceDocument.STRING_TYPE ); //$NON-NLS-1$
+    IActionSequenceInput chartModelJsonInput = actionSequenceDocument.createInput( "chart-model-json", IActionSequenceDocument.STRING_TYPE ); //$NON-NLS-1$
+    IActionSequenceInput chartWidthInput = actionSequenceDocument.createInput( "chart-width", IActionSequenceDocument.INTEGER_TYPE ); //$NON-NLS-1$
+    chartWidthInput.addSource( IActionSequenceDocument.REQUEST_INPUT_SOURCE, "chart-width" ); //$NON-NLS-1$
     chartWidthInput.setDefaultValue( "1" ); //$NON-NLS-1$
-    IActionSequenceInput chartHeightInput = actionSequenceDocument.createInput( "chart-height", INTEGER_TYPE ); //$NON-NLS-1$
-    chartHeightInput.addSource( REQUEST_INPUT_SOURCE, "chart-height" ); //$NON-NLS-1$
+    IActionSequenceInput chartHeightInput = actionSequenceDocument.createInput( "chart-height", IActionSequenceDocument.INTEGER_TYPE ); //$NON-NLS-1$
+    chartHeightInput.addSource( IActionSequenceDocument.REQUEST_INPUT_SOURCE, "chart-height" ); //$NON-NLS-1$
     chartHeightInput.setDefaultValue( "1" ); //$NON-NLS-1$
-    IActionSequenceInput seriesColumnInput = actionSequenceDocument.createInput( "series-column", STRING_TYPE ); //$NON-NLS-1$
+    IActionSequenceInput seriesColumnInput = actionSequenceDocument.createInput( "series-column", IActionSequenceDocument.STRING_TYPE ); //$NON-NLS-1$
     seriesColumnInput.setDefaultValue( "1" ); //$NON-NLS-1$
-    IActionSequenceInput categoryColumnInput = actionSequenceDocument.createInput( "category-column", STRING_TYPE ); //$NON-NLS-1$
+    IActionSequenceInput categoryColumnInput = actionSequenceDocument.createInput( "category-column", IActionSequenceDocument.STRING_TYPE ); //$NON-NLS-1$
     // set a default value of empty string to avoid an error when rendering pie charts (which don't have a category
     // column
     categoryColumnInput.setDefaultValue( "2" ); //$NON-NLS-1$
-    IActionSequenceInput valueColumnInput = actionSequenceDocument.createInput( "value-column", STRING_TYPE ); //$NON-NLS-1$
+    IActionSequenceInput valueColumnInput = actionSequenceDocument.createInput( "value-column", IActionSequenceDocument.STRING_TYPE ); //$NON-NLS-1$
     valueColumnInput.setDefaultValue( "0" ); //$NON-NLS-1$
-    IActionSequenceInput scalingFactorInput = actionSequenceDocument.createInput( "scaling-factor", STRING_TYPE ); //$NON-NLS-1$
+    IActionSequenceInput scalingFactorInput = actionSequenceDocument.createInput( "scaling-factor", IActionSequenceDocument.STRING_TYPE ); //$NON-NLS-1$
 
     // add inputs from parameterNameSet; these parameters will appear as placeholders in the query input
     for ( String parameterName : parameterNameSet ) {
       IActionSequenceInput input =
-          actionSequenceDocument.createInput( ActionDefinitionEncoder.encodeBlankSpaces( parameterName ), STRING_TYPE );
+          actionSequenceDocument.createInput( ActionDefinitionEncoder.encodeBlankSpaces( parameterName ), IActionSequenceDocument.STRING_TYPE );
       IActionSequenceInputSource[] sources = input.getSources();
       if ( sources.length > 0 ) {
         input.getSources()[0].setName( parameterName );
@@ -338,15 +337,15 @@ public class DefaultChartBeansGenerator implements IChartBeansGenerator {
       }
     }
 
-    IActionSequenceOutput outputStreamOutput = actionSequenceDocument.createOutput( "outputstream", CONTENT_TYPE ); //$NON-NLS-1$
-    outputStreamOutput.addDestination( RESPONSE_OUTPUT_DESTINATION, "content" ); //$NON-NLS-1$
+    IActionSequenceOutput outputStreamOutput = actionSequenceDocument.createOutput( "outputstream", IActionSequenceDocument.CONTENT_TYPE ); //$NON-NLS-1$
+    outputStreamOutput.addDestination( IActionSequenceDocument.RESPONSE_OUTPUT_DESTINATION, "content" ); //$NON-NLS-1$
 
     MQLAction mqlAction = (MQLAction) actionSequenceDocument.addAction( MQLAction.class );
     mqlAction.setActionInputValue( "query", queryInput ); //$NON-NLS-1$
 
     // add inputs from parameterNameSet to this action
     for ( String parameterName : parameterNameSet ) {
-      mqlAction.addInput( ActionDefinitionEncoder.encodeBlankSpaces( parameterName ), STRING_TYPE );
+      mqlAction.addInput( ActionDefinitionEncoder.encodeBlankSpaces( parameterName ), IActionSequenceDocument.STRING_TYPE );
     }
 
     mqlAction.setOutputResultSet( "chartdata" ); //$NON-NLS-1$
@@ -359,14 +358,14 @@ public class DefaultChartBeansGenerator implements IChartBeansGenerator {
       pojoAction.setComponentDefinition( "contentLinkingTemplate", contentLinkingTemplate );
     }
     pojoAction.setActionInputValue( "chart-model-json", chartModelJsonInput ); //$NON-NLS-1$
-    pojoAction.addInput( "chartdata", RESULTSET_TYPE ); //$NON-NLS-1$
+    pojoAction.addInput( "chartdata", IActionSequenceDocument.RESULTSET_TYPE ); //$NON-NLS-1$
     pojoAction.setActionInputValue( "chart-width", chartWidthInput ); //$NON-NLS-1$
     pojoAction.setActionInputValue( "chart-height", chartHeightInput ); //$NON-NLS-1$
     pojoAction.setActionInputValue( "series-column", seriesColumnInput ); //$NON-NLS-1$
     pojoAction.setActionInputValue( "category-column", categoryColumnInput ); //$NON-NLS-1$
     pojoAction.setActionInputValue( "value-column", valueColumnInput ); //$NON-NLS-1$
     pojoAction.setActionInputValue( "scaling-factor", scalingFactorInput ); //$NON-NLS-1$
-    pojoAction.addOutput( "outputstream", CONTENT_TYPE ); //$NON-NLS-1$
+    pojoAction.addOutput( "outputstream", IActionSequenceDocument.CONTENT_TYPE ); //$NON-NLS-1$
 
     return actionSequenceDocument;
   }

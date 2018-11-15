@@ -45,7 +45,7 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-  private final static QName _ImportHandlerMimeTypeDefinitions_QNAME = new QName( "http://www.pentaho.com/schema/",
+  private static final QName _ImportHandlerMimeTypeDefinitions_QNAME = new QName( "http://www.pentaho.com/schema/",
       "ImportHandlerMimeTypeDefinitions" );
 
   /**

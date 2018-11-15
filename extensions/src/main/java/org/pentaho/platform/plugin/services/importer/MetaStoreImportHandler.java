@@ -104,8 +104,7 @@ public class MetaStoreImportHandler implements IPlatformImportHandler {
         }
         tmpXmlMetaStore.setName( bundle.getName() );
 
-        String desc = bundle.getProperty( "description" ) == null ?
-          null : bundle.getProperty( "description" ).toString();
+        String desc = bundle.getProperty( "description" ) == null ? null : bundle.getProperty( "description" ).toString();
 
         tmpXmlMetaStore.setDescription( desc );
 

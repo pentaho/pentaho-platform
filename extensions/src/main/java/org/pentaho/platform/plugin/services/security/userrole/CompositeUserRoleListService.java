@@ -20,17 +20,16 @@
 
 package org.pentaho.platform.plugin.services.security.userrole;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.mt.ITenant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.settings.ServerPortRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class delgates calls to a configured list of IUserRoleListService delegates. The results are determined by the

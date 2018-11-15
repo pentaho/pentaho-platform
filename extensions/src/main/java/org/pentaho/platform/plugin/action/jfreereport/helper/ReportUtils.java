@@ -129,9 +129,7 @@ public class ReportUtils {
     }
   }
 
-  private static URL
-  getURL( final IPentahoSession session, final IActionSequenceResource resource, final boolean create )
-    throws IOException {
+  private static URL getURL( final IPentahoSession session, final IActionSequenceResource resource, final boolean create ) throws IOException {
     if ( resource.getSourceType() == IActionSequenceResource.URL_RESOURCE ) {
       return new URL( resource.getAddress() );
     }

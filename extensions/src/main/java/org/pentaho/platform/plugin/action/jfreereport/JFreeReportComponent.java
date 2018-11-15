@@ -264,8 +264,7 @@ public class JFreeReportComponent extends AbstractJFreeReportComponent {
     for ( IActionInput element : actionInputs ) {
       Object paramValue = element.getValue();
       String inputName = element.getName();
-      if ( ( paramValue == null ) || ( "".equals( paramValue ) ) ) //$NON-NLS-1$
-      {
+      if ( ( paramValue == null ) || ( "".equals( paramValue ) ) ) { //$NON-NLS-1$
         IActionParameter paramParameter = getInputParameter( inputName );
         if ( paramParameter.getPromptStatus() == IActionParameter.PROMPT_PENDING ) {
           result = JFreeReportComponent.INIT_REPORT_PARAMS_STATUS_PROMPT_PENDING;

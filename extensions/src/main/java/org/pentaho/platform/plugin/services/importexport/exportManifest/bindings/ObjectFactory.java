@@ -378,8 +378,7 @@ public class ObjectFactory {
    * Create an instance of {@link DatabaseConnection.ConnectionPoolingProperties.Entry }
    * 
    */
-  public DatabaseConnection.ConnectionPoolingProperties.Entry
-  createDatabaseConnectionConnectionPoolingPropertiesEntry() {
+  public DatabaseConnection.ConnectionPoolingProperties.Entry createDatabaseConnectionConnectionPoolingPropertiesEntry() {
     return new DatabaseConnection.ConnectionPoolingProperties.Entry();
   }
 

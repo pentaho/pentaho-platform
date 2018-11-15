@@ -26,7 +26,6 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -78,15 +77,15 @@ public class CachingUserRoleListServiceDecorator implements IUserRoleListService
 
   @SuppressWarnings( "unchecked" )
   private List<String> performOperation( String cacheEntry, DelegateOperation operation ) {
-      List<String> results = null;
+    List<String> results = null;
     Object fromRegionCache = cacheManager.getFromRegionCache( REGION, cacheEntry );
-    if (fromRegionCache instanceof List ) {
-        results = (List<String>) fromRegionCache;
-    }else{
-        results = operation.perform();
-        cacheManager.putInRegionCache( REGION, cacheEntry, results );
+    if ( fromRegionCache instanceof List ) {
+      results = (List<String>) fromRegionCache;
+    } else {
+      results = operation.perform();
+      cacheManager.putInRegionCache( REGION, cacheEntry, results );
     }
-    return new ArrayList<String>(results);
+    return new ArrayList<String>( results );
   }
 
 

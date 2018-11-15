@@ -58,7 +58,7 @@ public class PentahoDataSourceResolver implements DataSourceResolver {
       /* We tried to find the datasource using unbound name. 
       ** Now as a fall back we will attempt to find this datasource as it is.
       ** For example jboss/datasource/Hibernate. The unbound name ends up to be Hibernate
-      ** We will first look for Hibernate and if we fail then look for jboss/datasource/Hibernate */ 
+      ** We will first look for Hibernate and if we fail then look for jboss/datasource/Hibernate */
 
       logger.warn( Messages.getInstance().getString(
           "PentahoXmlaServlet.WARN_0001_UNABLE_TO_FIND_UNBOUND_NAME", dataSourceName, unboundDsName ), e ); //$NON-NLS-1$

@@ -1174,8 +1174,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
         error( Messages.getInstance().getErrorString( "Kettle.ERROR_0018_META_REPOSITORY_NOT_POPULATED" ), e ); //$NON-NLS-1$
         return null;
       }
-      if ( ( repositoriesXMLFile != null ) && !"".equals( repositoriesXMLFile ) ) //$NON-NLS-1$
-      {
+      if ( ( repositoriesXMLFile != null ) && !"".equals( repositoriesXMLFile ) ) { //$NON-NLS-1$
         error( Messages.getInstance().getErrorString( "Kettle.ERROR_0017_XML_REPOSITORY_NOT_SUPPORTED" ) ); //$NON-NLS-1$
         debug( getKettleLog( true ) );
         return null;

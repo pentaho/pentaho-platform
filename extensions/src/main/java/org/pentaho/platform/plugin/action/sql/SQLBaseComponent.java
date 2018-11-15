@@ -633,8 +633,7 @@ public abstract class SQLBaseComponent extends ComponentBase implements IDataCom
     return false;
   }
 
-  public IPentahoResultSet
-  doQuery( final SQLConnection sqlConnection, final String query, boolean forwardOnlyResultset ) throws Exception {
+  public IPentahoResultSet doQuery( final SQLConnection sqlConnection, final String query, boolean forwardOnlyResultset ) throws Exception {
     //
     // At this point, 'connection' and 'sqlConnection' should be pointers to
     // the same object iff the 'connection' is a subclass of pentaho's SQLConnection.

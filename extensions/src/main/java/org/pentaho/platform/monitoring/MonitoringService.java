@@ -52,10 +52,10 @@ public class MonitoringService implements IMonitoringService {
     asyncEventBus = new AsyncEventBus( Executors.newCachedThreadPool(
         new ThreadFactory() {
           @Override
-          public Thread newThread(Runnable r) {
-            Thread thread = Executors.defaultThreadFactory().newThread(r);
-            thread.setDaemon(true);
-            thread.setName("MonitoringService pool");
+          public Thread newThread( Runnable r ) {
+            Thread thread = Executors.defaultThreadFactory().newThread( r );
+            thread.setDaemon( true );
+            thread.setName( "MonitoringService pool" );
             return thread;
           }
         }
