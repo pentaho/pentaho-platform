@@ -445,14 +445,15 @@ public class PentahoWebContextFilter implements Filter {
     // added to Javascript fragments that get executed.
     if ( paramMap.size() > 0 ) {
       StringBuilder sb = new StringBuilder();
-      Map.Entry<String, String[]> me = null;
+      Map.Entry<String, String[]> me;
       char sep = '?'; // first separator is '?'
+
       Iterator<Map.Entry<String, String[]>> it = paramMap.entrySet().iterator();
       int i;
       while ( it.hasNext() ) {
         me = it.next();
         for ( i = 0; i < me.getValue().length; i++ ) {
-          sb.append( sep ).append( Encode.forJavaScript( me.getKey().toString() ) ).append( "=" ).append(
+          sb.append( sep ).append( Encode.forJavaScript( me.getKey() ) ).append( "=" ).append(
               Encode.forJavaScript( me.getValue()[i] ) );
         }
         if ( sep == '?' ) {
@@ -464,14 +465,14 @@ public class PentahoWebContextFilter implements Filter {
 
     List<String> externalResources = pluginManager.getExternalResourcesForContext( contextName );
     out.write( ( "\n<!-- Injecting web resources defined in by plugins as external-resources for: "
-        + Encode.forHtml(
-        contextName ) + "-->" ).getBytes() ); //$NON-NLS-1$ //$NON-NLS-2$
-    if ( externalResources != null ) {
+        + Encode.forHtml( contextName ) + "-->" ).getBytes() ); //$NON-NLS-1$ //$NON-NLS-2$
 
+    if ( externalResources != null ) {
       for ( String res : externalResources ) {
         if ( res == null ) {
           continue;
         }
+
         if ( res.endsWith( JS ) && !printCssOnly ) {
           out.write( ( "\ndocument.write(\"<script language='javascript' type='text/javascript' src='\" + CONTEXT_PATH + \"" + res.trim() + reqStr + "'></scr\"+\"ipt>\");" //$NON-NLS-1$ //$NON-NLS-2$
           ).getBytes() );

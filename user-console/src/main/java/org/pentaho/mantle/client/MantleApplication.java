@@ -189,7 +189,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public static native void showBusyIndicator( String title, String message )
   /*-{
-      $wnd.pen.require([
+      $wnd.require([
               "common-ui/util/BusyIndicator"
           ],
 
@@ -200,7 +200,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public static native void hideBusyIndicator()
   /*-{
-      $wnd.pen.require([
+      $wnd.require([
               "common-ui/util/BusyIndicator"
           ],
 
@@ -211,7 +211,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public static native void showBusyIndicatorById( String title, String message, String id )
   /*-{
-      $wnd.pen.require([
+      $wnd.require([
               "common-ui/util/BusyIndicator"
           ],
 
@@ -222,7 +222,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public static native void hideBusyIndicatorById( String id )
   /*-{
-      $wnd.pen.require([
+      $wnd.require([
               "common-ui/util/BusyIndicator"
           ],
 
