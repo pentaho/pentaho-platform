@@ -49,9 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 // TODO sbarkdull, exernalize strings, comment methods
 
@@ -182,14 +180,9 @@ public class XmlDom4JHelper {
     // TransformerConfigurationException
     // Start the transformation
     if ( params != null ) {
-      Set<?> keys = params.keySet();
-      Iterator<?> it = keys.iterator();
-      String key, val;
-      while ( it.hasNext() ) {
-        key = (String) it.next();
-        val = (String) params.get( key );
-        if ( val != null ) {
-          t.setParameter( key, val );
+      for ( Map.Entry<String, String> entry : (Iterable<Map.Entry<String, String>>) params.entrySet() ) {
+        if ( entry.getValue() != null ) {
+          t.setParameter( entry.getKey(), entry.getValue() );
         }
       }
     }

@@ -36,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -434,14 +433,9 @@ public class XmlHelper {
     // TransformerConfigurationException
     // Start the transformation
     if ( params != null ) {
-      Set keys = params.keySet();
-      Iterator it = keys.iterator();
-      String key, val;
-      while ( it.hasNext() ) {
-        key = (String) it.next();
-        val = (String) params.get( key );
-        if ( val != null ) {
-          t.setParameter( key, val );
+      for ( Map.Entry<String, String> entry : (Iterable<Map.Entry<String, String>>) params.entrySet() ) {
+        if ( entry.getValue() != null ) {
+          t.setParameter( entry.getKey(), entry.getValue() );
         }
       }
     }
