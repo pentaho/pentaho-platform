@@ -183,7 +183,11 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     }
     RepositoryFileTree tree = repo.getTree( repositoryRequest );
 
-    return new RepositoryFileTreeAdapter( repositoryRequest ).marshal( tree );
+    if ( tree != null ) {
+      return new RepositoryFileTreeAdapter( repositoryRequest ).marshal( tree );
+    } else {
+      return null;
+    }
   }
 
   protected List<RepositoryFileDto> marshalFiles( List<RepositoryFile> files ) {
