@@ -804,7 +804,8 @@ define([
 
       var folderClicked = this.model.getFolderClicked();
       var obj = {
-        folderBreadcrumb: folderClicked != undefined ? folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined,
+        folderBreadcrumb: folderClicked && folderClicked.attr("path") ?
+            folderClicked.attr("path").split("/").slice(1).join(" > ") : undefined,
         i18n: jQuery.i18n,
         refreshHandler: function () {
           if (window.parent.mantle_fireEvent) {
@@ -1046,42 +1047,61 @@ define([
         $(this).addClass("first");
       });
 
-	  //open last clicked folder or home folder
-	  var $folder = $("[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']");
-	  if ( FileBrowser.fileBrowserModel.getFolderClicked() != undefined ) {
-		// if folder hidden than save home
-		if ( $("div[path=\"" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "\"]").length != 0 ) {
-			$folder = $("[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']");
-		}
-	  }
+      // open last clicked folder or start folder (home folder)
+      // if startFolder is not visible, use first one that it is instead
+      var $folder = undefined;
+      if ( $( "div[path=\"" + FileBrowser.fileBrowserModel.get("startFolder") + "\"]" ).length === 0 ) {
+        $folder = myself.getFirstVisibleFolder();
+      } else {
+        $folder = $("[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']");
+      }
 
-	  var $parentFolder = $folder.parent(".folders");
+      if ( FileBrowser.fileBrowserModel.getFolderClicked() != undefined ) {
+        // verify if clicked folder is visible
+        if ( FileBrowser.fileBrowserModel.getFolderClicked().attr("path")
+          && ( $( "div[path=\"" + FileBrowser.fileBrowserModel.getFolderClicked().attr( "path" ) + "\"]" ).length !== 0 ) ) {
+          $folder = $( "[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr( "path" ) + "']" );
+        }
+      }
+
+      var $parentFolder = $folder.parent(".folders");
       while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
         $parentFolder.show();
         $parentFolder.parent().addClass("open");
         $parentFolder = $parentFolder.parent().parent();
       }
-  	  FileBrowser.fileBrowserModel.set("clickedFolder", {
-						obj: $folder,
-						time: (new Date()).getTime()
-					});
-	  $clickedFile = FileBrowser.fileBrowserModel.getFileClicked();
-	  if ( $clickedFile != undefined && FileBrowser.fileBrowserModel.getLastClick() == "file" )	{
-			FileBrowser.fileBrowserModel.get("fileListModel").set("clickedFile", {
-				obj: FileBrowser.fileBrowserModel.getFileClicked(),
-				time: (new Date()).getTime()
-			});
-			FileBrowser.fileBrowserModel.updateFileClicked();
-			$folder.addClass("secondarySelected");
-			$folder.removeClass("selected");
-			$clickedFile.addClass("selected");
-	  } else {
-		$folder.addClass("open");
-		$folder.addClass("selected");
-		$folder.find("> .folders").show();
-	  }
-	  FileBrowser.fileBrowserModel.updateFolderButtons($folder.attr("path"));
+      FileBrowser.fileBrowserModel.set("clickedFolder", {
+            obj: $folder,
+            time: (new Date()).getTime()
+          });
+      $clickedFile = FileBrowser.fileBrowserModel.getFileClicked();
+      if ( $clickedFile != undefined && FileBrowser.fileBrowserModel.getLastClick() == "file" )	{
+        FileBrowser.fileBrowserModel.get("fileListModel").set("clickedFile", {
+          obj: FileBrowser.fileBrowserModel.getFileClicked(),
+          time: (new Date()).getTime()
+        });
+        FileBrowser.fileBrowserModel.updateFileClicked();
+        $folder.addClass("secondarySelected");
+        $folder.removeClass("selected");
+        $clickedFile.addClass("selected");
+      } else {
+        $folder.addClass("open");
+        $folder.addClass("selected");
+        $folder.find("> .folders").show();
+      }
+      FileBrowser.fileBrowserModel.updateFolderButtons($folder.attr("path"));
       myself.updateDescriptions();
+    },
+
+    getFirstVisibleFolder: function () {
+      var myself = this;
+      var firstVisibleFolder = myself.model.get("data").children.find(function(elem){
+        return elem && elem.file && elem.file.folder && elem.file.path
+          && $("div[path=\"" + elem.file.path + "\"]").length != 0;
+      });
+      if ( firstVisibleFolder ) {
+        return $("[path='" + firstVisibleFolder.file.path + "']");
+      }
     },
 
     expandFolder: function (event) {

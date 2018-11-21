@@ -199,6 +199,9 @@ public class PentahoSystem {
 
   private static final IServerStatusProvider serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
 
+  public static final String HIDE_USER_HOME_FOLDER_ON_CREATION_PROPERTY =
+    "system.hideUserHomeFolderOnCreate";
+
   // TODO even if logging is not configured messages need to make it out to
   // the console
 
