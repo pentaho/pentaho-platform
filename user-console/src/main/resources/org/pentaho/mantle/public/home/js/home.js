@@ -69,7 +69,7 @@ define([
     }
 
     // Handle the new popover menu. If we add another, make generic
-    
+
       createNew.buildContents(createNewConfig, function ($contents) {
         var result = "";
         for (var i = 0; i < $contents.length; i++) {
@@ -84,7 +84,7 @@ define([
         return $('#btnCreateNewContent').html();
       }
     });
-    
+
     // setup a listener to hide popovers when a click happens outside of them
     $('body').on('click', function (e) {
       $('.popover-source').each(function () {
@@ -123,7 +123,7 @@ define([
   }
 
   function initFavoritesAndRecents(config) {
-    pen.require(["home/FavoritesController"], function (FavoritesController) {
+    require(["home/FavoritesController"], function (FavoritesController) {
       controller = new FavoritesController(config);
     });
   }

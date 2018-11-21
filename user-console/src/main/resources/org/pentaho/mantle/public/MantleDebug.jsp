@@ -78,10 +78,7 @@
     var SESSION_NAME = 'admin';
     <!-- Providing computed Locale for session -->
     var SESSION_LOCALE = 'en';
-    if (typeof(pen) != 'undefined' && pen.define) {
-      define('Locale', {locale: 'en'})
-    }
-    ;
+
     <!-- Injecting web resources defined in by plugins as external-resources for: global-->
     document.write("<script language='javascript' type='text/javascript' src='" + CONTEXT_PATH + "content/pentaho-mobile/resources/mobile-utils.js?context=mantle'></scr" + "ipt>");
     document.write("<script language='javascript' type='text/javascript' src='" + CONTEXT_PATH + "content/common-ui/resources/web/dojo/djConfig.js?context=mantle'></scr" + "ipt>");
@@ -173,7 +170,7 @@
 <script type="text/javascript">
   document.getElementById("pucWrapper").style.position = "absolute";
   document.getElementById("pucWrapper").style.left = "-5000px";
-  pen.require(["common-ui/util/BusyIndicator"], function (busy) {
+  require(["common-ui/util/BusyIndicator"], function (busy) {
 
     busy.show("<%= properties.getString("pleaseWait") %>", "<%= properties.getString("loadingConsole") %>", "pucPleaseWait");
 
