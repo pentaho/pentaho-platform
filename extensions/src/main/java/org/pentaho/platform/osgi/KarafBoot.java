@@ -196,7 +196,14 @@ public class KarafBoot implements IPentahoSystemListener {
               return false;
             } else if ( symlinks.contains( relativePath ) ) {
               File linkFile = new File( destDir, relativePath );
-              linkFile.getParentFile().mkdirs();
+              try {
+                boolean linkFileDirCreated = linkFile.getParentFile().mkdirs();
+                logger.info(
+                  "link file " + linkFile.getParentFile().getAbsolutePath() + ( linkFileDirCreated ? "created" : "already existed" ) );
+              } catch ( SecurityException exception ) {
+                logger.error( linkFile.getParentFile().getAbsolutePath() + " Access denied." );
+                throw exception;
+              }
               Path link = Paths.get( linkFile.toURI() );
               try {
                 // Try to create a symlink and skip the copy if successful
@@ -204,8 +211,7 @@ public class KarafBoot implements IPentahoSystemListener {
                   return false;
                 }
               } catch ( IOException e ) {
-                logger
-                  .warn( "Unable to create symlink " + linkFile.getAbsolutePath() + " -> " + file.getAbsolutePath() );
+                logger.warn( "Unable to create symlink " + linkFile.getAbsolutePath() + " -> " + file.getAbsolutePath() );
               }
             }
             return true;
@@ -322,7 +328,13 @@ public class KarafBoot implements IPentahoSystemListener {
         deleteRecursiveIfExists( subitem );
       }
     }
-    item.delete();
+    try {
+      if ( !item.delete() ) {
+        LoggerFactory.getLogger( KarafBoot.class ).warn( item.toURI().toString() + " could not be deleted." );
+      }
+    } catch ( SecurityException exception ) {
+      LoggerFactory.getLogger( KarafBoot.class ).warn( item.toURI().toString() + " cannot delete file. Access denied." );
+    }
     return;
   }
 

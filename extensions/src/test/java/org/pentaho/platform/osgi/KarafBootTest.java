@@ -52,6 +52,7 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -380,6 +381,21 @@ public class KarafBootTest {
       FileUtils.deleteDirectory( root );
     }
 
+  }
+
+  @Test
+  public void deleteRecursiveIfExistsTest() {
+
+    File dir = new File( "dir" );
+    dir.mkdir();
+    File file = new File( dir,  "file" );
+    try {
+      file.createNewFile();
+      KarafBoot.deleteRecursiveIfExists( dir );
+      assertNull( dir.listFiles() );
+    } catch ( IOException e ) {
+      e.printStackTrace();
+    }
   }
 
   private boolean isOSX() {
