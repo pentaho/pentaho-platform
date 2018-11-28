@@ -413,15 +413,15 @@ public class JcrRepositoryFileUtils {
     Assert.hasText( prefix );
 
     if ( localePropertiesMap != null && !localePropertiesMap.isEmpty() ) {
-      for ( String locale : localePropertiesMap.keySet() ) {
-        Properties properties = localePropertiesMap.get( locale );
+      for ( Map.Entry<String, Properties> locale : localePropertiesMap.entrySet() ) {
+        Properties properties = locale.getValue();
         if ( properties != null ) {
           // create node and set properties for each locale
           Node localeNode;
-          if ( !NodeHelper.checkHasNode( localeRootNode, locale ) ) {
-            localeNode = localeRootNode.addNode( locale, pentahoJcrConstants.getNT_UNSTRUCTURED() );
+          if ( !NodeHelper.checkHasNode( localeRootNode, locale.getKey() ) ) {
+            localeNode = localeRootNode.addNode( locale.getKey(), pentahoJcrConstants.getNT_UNSTRUCTURED() );
           } else {
-            localeNode = NodeHelper.checkGetNode( localeRootNode, locale );
+            localeNode = NodeHelper.checkGetNode( localeRootNode, locale.getKey() );
           }
           for ( String propertyName : properties.stringPropertyNames() ) {
             try {
@@ -1385,8 +1385,8 @@ public class JcrRepositoryFileUtils {
       propertyIter.nextProperty().remove();
     }
 
-    for ( String key : metadataMap.keySet() ) {
-      setMetadataItemForFile( session, key, metadataMap.get( key ), metadataNode );
+    for ( Map.Entry<String, Serializable> entry : metadataMap.entrySet() ) {
+      setMetadataItemForFile( session, entry.getKey(), entry.getValue(), metadataNode );
     }
 
     checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants, metadataNode, null );
