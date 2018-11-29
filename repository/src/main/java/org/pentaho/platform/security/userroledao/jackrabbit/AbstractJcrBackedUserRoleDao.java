@@ -34,6 +34,7 @@ import org.apache.jackrabbit.core.security.user.PentahoUserManagerImpl;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -841,9 +842,14 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
           JcrRepositoryFileUtils.getFileByAbsolutePath( session, ServerRepositoryPaths.getUserHomeFolderPath(
               theTenant, username ), pathConversionHelper, lockHelper, false, null );
       if ( userHomeFolder == null ) {
+        RepositoryFile.Builder newFolder = new RepositoryFile.Builder( username ).folder( true );
+        String hidePropertyValue = PentahoSystem.get( ISystemConfig.class )
+          .getProperty( PentahoSystem.HIDE_USER_HOME_FOLDER_ON_CREATION_PROPERTY );
+        Boolean hideUserHomeFolder = hidePropertyValue != null && "true".equals( hidePropertyValue.toLowerCase() );
+        newFolder = newFolder.hidden( hideUserHomeFolder );
         userHomeFolder =
-            internalCreateFolder( session, tenantHomeFolder.getId(), new RepositoryFile.Builder( username ).folder(
-                true ).build(), aclsForUserHomeFolder.build(), "user home folder" ); //$NON-NLS-1$
+            internalCreateFolder( session, tenantHomeFolder.getId(), newFolder.build(),
+              aclsForUserHomeFolder.build(), "user home folder" ); //$NON-NLS-1$
       }
 
     }
