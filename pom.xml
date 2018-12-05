@@ -232,7 +232,6 @@
     <commons-discovery.version>0.4</commons-discovery.version>
     <commons-digester.version>1.8</commons-digester.version>
     <hamcrest-library.version>1.3</hamcrest-library.version>
-    <axis.version>1.4</axis.version>
     <xmlenc.version>0.52</xmlenc.version>
     <jsendnsca.version>2.0.1</jsendnsca.version>
     <neethi.version>2.0.1</neethi.version>
