@@ -50,6 +50,17 @@
 				</Level>
 			</Hierarchy>
 		</Dimension>
+    <Dimension foreignKey="CUSTOMERNUMBER" name="Credit Limit">
+			<Hierarchy hasAll="true" primaryKey="CUSTOMERNUMBER">
+				<Table name="CUSTOMER_W_TER">
+				</Table>
+        <Level name="Credit Limit" column="CREDITLIMIT" type="Numeric" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+          <Annotations>
+            <Annotation name="AnalyzerBusinessGroup">Customers</Annotation>
+          </Annotations>  
+        </Level>
+			</Hierarchy>
+		</Dimension>    
 		<Dimension foreignKey="PRODUCTCODE" name="Product">
       <Hierarchy name="" hasAll="true" allMemberName="All Products" primaryKey="PRODUCTCODE" caption="">
 				<Table name="PRODUCTS">
