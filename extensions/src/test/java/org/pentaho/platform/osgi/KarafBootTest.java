@@ -54,6 +54,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -394,7 +395,7 @@ public class KarafBootTest {
       KarafBoot.deleteRecursiveIfExists( dir );
       assertNull( dir.listFiles() );
     } catch ( IOException e ) {
-      e.printStackTrace();
+      fail( "Couldn't create file to test deleteRecursiveIfExists()" );
     }
   }
 
