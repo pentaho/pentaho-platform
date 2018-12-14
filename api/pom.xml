@@ -51,11 +51,11 @@
       <artifactId>dom4j</artifactId>
       <scope>compile</scope>
     </dependency>
+
+    <!-- Needed for runtime testing -->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>${spring-security.version}</version>  <!-- see maven-parent-pom -->
-      <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -66,8 +66,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>${spring.framework.version}</version>
-      <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -75,6 +73,8 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- -->
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
