@@ -260,7 +260,6 @@
     <!-- ===================== -->
     <!-- ASSEMBLY DEPENDENCIES -->
     <!-- ===================== -->
-  <axis.version>1.4</axis.version>
   <bsf.version>2.4.0</bsf.version>
   <bsh.version>1.3.0</bsh.version>
   <commons-digester.version>1.8</commons-digester.version>
