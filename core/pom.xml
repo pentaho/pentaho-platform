@@ -5,11 +5,11 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>8.2.0.0-SNAPSHOT</version>
+    <version>8.2.0.1-427</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-core</artifactId>
-  <version>8.2.0.0-SNAPSHOT</version>
+  <version>8.2.0.1-427</version>
   <properties>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <js.version>1.7R1</js.version>
@@ -18,12 +18,12 @@
     <jcommon.version>1.0.14</jcommon.version>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
-    <commons-xul.version>8.2.0.0-SNAPSHOT</commons-xul.version>
-    <pentaho-connections.version>8.2.0.0-SNAPSHOT</pentaho-connections.version>
-    <pentaho-actionsequence-dom.version>8.2.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
-    <pentaho-metadata.version>8.2.0.0-SNAPSHOT</pentaho-metadata.version>
-    <pentaho-versionchecker.version>8.2.0.0-SNAPSHOT</pentaho-versionchecker.version>
-    <pdi.version>8.2.0.0-SNAPSHOT</pdi.version>
+    <commons-xul.version>8.2.0.1-427</commons-xul.version>
+    <pentaho-connections.version>8.2.0.1-427</pentaho-connections.version>
+    <pentaho-actionsequence-dom.version>8.2.0.1-427</pentaho-actionsequence-dom.version>
+    <pentaho-metadata.version>8.2.0.1-427</pentaho-metadata.version>
+    <pentaho-versionchecker.version>8.2.0.1-427</pentaho-versionchecker.version>
+    <pdi.version>8.2.0.1-427</pdi.version>
   </properties>
   <dependencies>
     <dependency>
