@@ -22,7 +22,7 @@
       <component-name>HelloWorldComponent</component-name>
       <action-type>Hello World</action-type>
       <component-definition> 
-        <quote>Fuck Face!!!</quote> 
+        <quote>Greetings from Pentaho!!!</quote>
       </component-definition> 
     </action-definition>
  
