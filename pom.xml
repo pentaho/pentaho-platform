@@ -111,7 +111,6 @@
     <jmock-junit4.version>2.5.1</jmock-junit4.version>
     <commons-codec.version>1.9</commons-codec.version>
     <commons-lang.version>2.6</commons-lang.version>
-    <jetty-webapp.version>8.1.15.v20140411</jetty-webapp.version>
     <jmi.version>200507110943</jmi.version>
     <pentaho-concurrent.version>1.0.0</pentaho-concurrent.version>
     <xmlunit.version>1.6</xmlunit.version>
