@@ -2082,7 +2082,7 @@ public class FileServiceTest {
     when( repositoryFile.getPath() ).thenReturn( "/dir/file.txt" );
     when( repositoryFile.getName() ).thenReturn( "file.txt" );
 
-    when( fileService.repository.getFile( anyString() ) ).thenReturn( repositoryFile );
+    when( fileService.repository.getFile( anyString() ) ).thenReturn( repositoryFile ).thenReturn( null ); // On the second call to repository.getFile() we are testing if the target object already exists, so for this test on the second call we need a null
     when( fileService.repository.getFileById( anyString() ) ).thenReturn( repositoryFile );
     String pathId = ":dir:file.txt";
     String newName = "file1.txt";
@@ -2093,6 +2093,20 @@ public class FileServiceTest {
 
   @Test
   public void testDoRenameNegative() throws Exception {
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    when( repositoryFile.getPath() ).thenReturn( "/dir/file.txt" );
+    when( repositoryFile.getName() ).thenReturn( "file.txt" );
+
+    when( fileService.repository.getFile( anyString() ) ).thenReturn( repositoryFile ).thenReturn( null ); // On the second call to repository.getFile() we are testing if the target object already exists, so for this test on the second call we need a null;
+    String pathId = ":dir:file.txt";
+    String newName = "file1.txt";
+
+    boolean success = fileService.doRename( pathId, newName );
+    assertFalse( success );
+  }
+
+  @Test( expected = IllegalArgumentException.class )
+  public void testDoRenameWhenTargetAlreadyExists() throws Exception{
     RepositoryFile repositoryFile = mock( RepositoryFile.class );
     when( repositoryFile.getPath() ).thenReturn( "/dir/file.txt" );
     when( repositoryFile.getName() ).thenReturn( "file.txt" );
