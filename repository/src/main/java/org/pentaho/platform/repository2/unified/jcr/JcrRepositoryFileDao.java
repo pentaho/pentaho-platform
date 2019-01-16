@@ -896,8 +896,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
                   .isPentahoFile( pentahoJcrConstants, destFileNode ) ), Messages.getInstance().getString(
                   "JcrRepositoryFileDao.ERROR_0002_CANNOT_OVERWRITE_FILE_WITH_FOLDER" ) ); //$NON-NLS-1$
           if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, destFileNode ) ) {
-            throw new IllegalArgumentException( Messages.getInstance().getString(
-              "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) );
+            // existing item; caller is not renaming file, only moving it
+            appendFileName = true;
+            destParentFolderNode = destFileNode;
           } else {
             // get parent of existing dest item
             int lastSlashIndex = cleanDestAbsPath.lastIndexOf( RepositoryFile.SEPARATOR );
