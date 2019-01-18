@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -934,13 +934,44 @@ public class FileResource extends AbstractJaxRSResource {
   @Path ( "{pathId : .+}/localeProperties" )
   @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully updated locale properties." ),
+      @ResponseCode ( code = 200, condition = "Updated locale properties, unable to rename File/Folder" ),
+      @ResponseCode ( code = 204, condition = "Successfully updated locale properties." ),
       @ResponseCode ( code = 500, condition = "Unable to update locale properties due to some other error." ) } )
   public Response doSetLocaleProperties( @PathParam ( "pathId" ) String pathId, @QueryParam ( "locale" ) String locale,
                                          List<StringKeyStringValueDto> properties ) {
+    boolean success = true;
+    String responseMsg = "";
     try {
+      /*
+       [BISERVER-14087] If one of the properties is to change the file/folder name, it is also necessary to run this command to
+       get the file's path to update as well. We need to remove it from the properties, because it can affect future
+       renames. We need to keep it consistent.
+      */
+      String[] pathSplit = pathId.split( ":" );
+      String originalFilename = pathSplit[ pathSplit.length - 1 ];
+      StringKeyStringValueDto fileTitle = null;
+      for ( StringKeyStringValueDto property : properties ) {
+        // Check to see if the file.title is listed here, it may be used to rename the file/folder
+        if ( property.getKey().equals( "file.title" ) ) {
+          // Check to see if the file title is different than the current file/folder, if it is, we need to move it.
+          // Setting up the response message now
+          responseMsg = Messages.getInstance().getString( "FileResource.FILE_RENAME_FAILED", originalFilename );
+          fileTitle = property;
+          // we need to remove this property, so that the filename and the path remain consistent.
+          properties.remove( fileTitle );
+          break;
+        }
+      }
       fileService.doSetLocaleProperties( pathId, locale, properties );
-      return Response.ok().build();
+      if ( fileTitle != null && !originalFilename.equals( fileTitle.getValue() ) ) {
+        success = fileService.doRename( pathId, fileTitle.getValue() );
+      }
+      // We use a similar response to doRename, the default here before was to just send an OK Response regardless.
+      if ( success ) {
+        return buildOkNoContentResponse();
+      } else {
+        return buildOkResponse( responseMsg );
+      }
     } catch ( Throwable t ) {
       return Response.serverError().entity( t.getMessage() ).build();
     }
@@ -2127,6 +2158,10 @@ public class FileResource extends AbstractJaxRSResource {
 
   protected Response buildOkResponse( String msg ) {
     return Response.ok( msg ).build();
+  }
+
+  protected Response buildOkNoContentResponse() {
+    return Response.noContent().build();
   }
 
   protected Response buildPlainTextOkResponse( String msg ) {
