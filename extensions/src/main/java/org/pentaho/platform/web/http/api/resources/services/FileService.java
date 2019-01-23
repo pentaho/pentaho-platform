@@ -1501,6 +1501,11 @@ public class FileService {
         buf.append( extension );
       }
     }
+    // If destination already exists throw
+    if ( repository.getFile( buf.toString() ) != null ) {
+      throw new IllegalArgumentException( org.pentaho.platform.repository2.messages.Messages.getInstance().getString(
+              "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) );
+    }
     repository.moveFile( fileToBeRenamed.getId(), buf.toString(), "Renaming the file" );
     RepositoryFile movedFile = repository.getFileById( fileToBeRenamed.getId() );
     if ( movedFile != null ) {
