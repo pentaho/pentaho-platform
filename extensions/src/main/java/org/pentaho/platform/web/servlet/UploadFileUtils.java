@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,7 +23,9 @@ package org.pentaho.platform.web.servlet;
 import com.ice.tar.TarEntry;
 import com.ice.tar.TarInputStream;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.pentaho.di.core.util.StringUtil;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.util.ITempFileDeleter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -39,6 +41,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -55,7 +58,7 @@ public class UploadFileUtils {
   private static final String DEFAULT_EXTENSIONS = "csv,dat,txt,tar,zip,tgz,gz,gzip";
   public static final String DEFAULT_RELATIVE_UPLOAD_FILE_PATH = File.separatorChar
     + "system" + File.separatorChar + "metadata" + File.separatorChar + "csvfiles" + File.separatorChar;
-    //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+  private static final String DOT_TMP = ".tmp";
   private String fileName;
   private boolean shouldUnzip;
   private boolean temporary;
@@ -101,9 +104,19 @@ public class UploadFileUtils {
     this.maxTmpFolderSize = Long.parseLong( maxTmpFolderLimit );
   }
 
-  protected boolean checkExtension( String fileName, boolean emitMessage ) throws IOException {
-
-    if ( ( fileName == null ) || ( fileName.length() == 0 ) ) {
+  /**
+   * <p>Checks if the given extension is supported.</p>
+   * <p>A <code>null</code> is an invalid extension; to check if a NoExtension is allowed, an empty string must be
+   * given.</p>
+   *
+   * @param extension   the extension to check
+   * @param emitMessage if a message is to be written when an error occurs
+   * @return <code>true</code> if the given extension is supported, <code>false</code> if it's an invalid
+   * or unsupported extension
+   * @throws IOException
+   */
+  protected boolean checkExtension( String extension, boolean emitMessage ) throws IOException {
+    if ( null == extension ) {
       if ( emitMessage ) {
         getWriter()
           .write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0010_FILE_NAME_INVALID" ) );
@@ -111,29 +124,15 @@ public class UploadFileUtils {
       return false;
     }
 
-    int lastDot = fileName.lastIndexOf( '.' );
-    if ( ( lastDot < 0 ) ) {
-      if ( !allowsNoExtension ) {
-        // File names without extensions not allowed
-        if ( emitMessage ) {
-          getWriter()
-            .write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0010_FILE_NAME_INVALID" ) );
-        }
-        return false;
-      } else {
-        return true;
-      }
-    }
-    String ext = fileName.substring( lastDot + 1 );
-    if ( ext.length() == 0 ) { // file name ended in dot like "foo." - disallowed
-      if ( emitMessage ) {
+    if ( extension.isEmpty() ) {
+      if ( !allowsNoExtension && emitMessage ) {
         getWriter()
           .write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0010_FILE_NAME_INVALID" ) );
       }
-      return false;
+      return allowsNoExtension;
     }
 
-    if ( !allowedExtensions.contains( ext ) ) {
+    if ( !allowedExtensions.contains( extension ) ) {
       if ( emitMessage ) {
         getWriter()
           .write( Messages.getInstance()
@@ -141,11 +140,11 @@ public class UploadFileUtils {
       }
       return false;
     }
+
     return true;
   }
 
   public boolean process() throws Exception {
-    // Moved so I can write a test case ...
     path = PentahoSystem.getApplicationContext().getSolutionPath( relativePath );
     pathDir = new File( path );
     // create the path if it doesn't exist yet
@@ -168,7 +167,8 @@ public class UploadFileUtils {
         .write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0010_FILE_NAME_INVALID" ) );
       return false;
     }
-    if ( !checkExtension( this.fileName, true ) ) {
+
+    if ( !checkExtension( FilenameUtils.getExtension( this.fileName ), true ) ) {
       return false;
     }
 
@@ -178,11 +178,10 @@ public class UploadFileUtils {
   }
 
   /**
-   * process uploading using inputStream instead of UploadedFileItem
-   * do not support unzipping
+   * process uploading using inputStream instead of UploadedFileItem do not support unzipping
    *
    * @param inputStream
-   * @return
+   * @return <code>true</code> if the processing finished successfully and <code>false</code> otherwise
    * @throws Exception
    */
   public boolean process( InputStream inputStream ) throws Exception {
@@ -191,8 +190,10 @@ public class UploadFileUtils {
     }
     File file = null;
     if ( isTemporary() ) {
+      // Use the full filename because GZip relies on the extensions of the file to discover it's content
       file =
-        PentahoSystem.getApplicationContext().createTempFile( session, "", ".tmp", true ); //$NON-NLS-1$ //$NON-NLS-2$
+        PentahoSystem.getApplicationContext()
+          .createTempFile( session, StringUtil.EMPTY_STRING, '-' + getUploadedFileItem().getName() + DOT_TMP, true );
     } else {
       file = new File( getPath() + File.separatorChar + fileName );
       // Check that it's where it belongs - prevent ../../.. attacks.
@@ -231,16 +232,18 @@ public class UploadFileUtils {
 
     // .zip/.tar/.gz/.tgz files are always considered temporary and deleted on session expire
 
-    ITempFileDeleter fileDeleter = null;
-    if ( ( session != null ) ) {
-      fileDeleter = (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );
+    if ( session != null ) {
+      ITempFileDeleter fileDeleter =
+        (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );
       if ( fileDeleter != null ) {
         fileDeleter.trackTempFile( file ); // make sure the deleter knows to clean this puppy up...
       }
     }
 
-    if ( ( getUploadedFileItem().getName().toLowerCase().endsWith( ".zip" ) || getUploadedFileItem().getContentType()
-      .equals( "application/zip" ) ) ) { //$NON-NLS-1$ //$NON-NLS-2$
+    String extension = FilenameUtils.getExtension( getUploadedFileItem().getName().toLowerCase() );
+    String contentType = getUploadedFileItem().getContentType();
+
+    if ( "zip".equals( extension ) || "application/zip".equals( contentType ) ) {
       // handle a zip
       if ( checkLimits( getUncompressedZipFileSize( file ), true ) ) {
         fileNames = handleZip( file );
@@ -248,24 +251,18 @@ public class UploadFileUtils {
         file.delete(); // delete immediately (see requirements on BISERVER-4321)
         return false;
       }
-    } else if ( ( getUploadedFileItem().getName().toLowerCase().endsWith( ".tgz" ) || //$NON-NLS-1$
-      getUploadedFileItem().getName().toLowerCase().endsWith( ".tar.gz" ) || //$NON-NLS-1$
-      getUploadedFileItem().getContentType().equals( "application/x-compressed" ) || getUploadedFileItem()
-      .getContentType().equals( "application/tgz" ) ) ) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    } else if ( "tgz".equals( extension ) || getUploadedFileItem().getName().toLowerCase().endsWith( ".tar.gz" )
+            || "application/x-compressed".equals( contentType ) || "application/tgz".equals( contentType ) ) {
       // handle a tgz
       long tarSize = getUncompressedGZipFileSize( file );
-      if ( checkLimits( tarSize, true ) ) {
-        if ( isTemporary() || checkLimits( tarSize * 2, true ) ) {
-          fileNames = handleTarGZ( file );
-        } else {
-          return false;
-        }
+      if ( checkLimits( tarSize, true )
+        && ( isTemporary() || checkLimits( tarSize * 2, true ) ) ) {
+        fileNames = handleTarGZ( file );
       } else {
         file.delete(); // delete immediately (see requirements on BISERVER-4321)
         return false;
       }
-    } else if ( ( getUploadedFileItem().getName().toLowerCase().endsWith( ".gzip" ) || getUploadedFileItem().getName()
-      .toLowerCase().endsWith( ".gz" ) ) ) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    } else if ( "gzip".equals( extension ) || "gz".equals( extension ) ) {
       // handle a gzip
       if ( checkLimits( getUncompressedGZipFileSize( file ), true ) ) {
         fileNames = handleGZip( file, false );
@@ -273,8 +270,7 @@ public class UploadFileUtils {
         file.delete(); // delete immediately (see requirements on BISERVER-4321)
         return false;
       }
-    } else if ( ( getUploadedFileItem().getName().toLowerCase().endsWith( ".tar" ) || getUploadedFileItem()
-      .getContentType().equals( "application/x-tar" ) ) ) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    } else if ( "tar".equals( extension ) || "application/x-tar".equals( contentType ) ) {
       // handle a tar
       //
       // Note - after the .tar file lands on the file system, you have to
@@ -299,41 +295,36 @@ public class UploadFileUtils {
   /**
    * Gets the uncompressed file size of a .zip file.
    *
-   * @param theFile
-   * @return long uncompressed file size.
-   * @throws IOException mbatchelor
+   * @param theFile the zip file
+   * @return a long representing the uncompressed file size.
+   * @throws IOException
+   * @see #getUncompressedGZipFileSize(File)
    */
   private long getUncompressedZipFileSize( File theFile ) throws IOException {
     long rtn = 0;
-    ZipFile zf = new ZipFile( theFile );
-    try {
+    try ( ZipFile zf = new ZipFile( theFile ) ) {
       Enumeration<? extends ZipEntry> zfEntries = zf.entries();
       ZipEntry ze = null;
       while ( zfEntries.hasMoreElements() ) {
         ze = zfEntries.nextElement();
         rtn += ze.getSize();
       }
-    } finally {
-      try {
-        zf.close();
-      } catch ( Exception ignored ) {
-        //ignored
-      }
     }
+
     return rtn;
   }
 
   /**
-   * Gets the uncompressed file size of a .gz file by reading the last four bytes of the file
+   * Gets the uncompressed file size of a .gz file by reading the last four bytes of the file.
    *
-   * @param file
-   * @return long uncompressed original file size
-   * @throws IOException mbatchelor
+   * @param theFile the gzip file
+   * @return a long representing the uncompressed file size.
+   * @throws IOException
+   * @see #getUncompressedZipFileSize(File)
    */
-  private long getUncompressedGZipFileSize( File file ) throws IOException {
+  private long getUncompressedGZipFileSize( File theFile ) throws IOException {
     long rtn = 0;
-    RandomAccessFile gzipFile = new RandomAccessFile( file, "r" );
-    try {
+    try ( RandomAccessFile gzipFile = new RandomAccessFile( theFile, "r" ) ) {
       // go 4 bytes from end of file - the original uncompressed file size is there
       gzipFile.seek( gzipFile.length() - 4 );
       byte[] intelSize = new byte[ 4 ];
@@ -344,13 +335,8 @@ public class UploadFileUtils {
       rtn =
         ( ( ( intelSize[ 3 ] & 0xFF ) << 24 ) | ( ( intelSize[ 2 ] & 0xFF ) << 16 ) + ( ( intelSize[ 1 ] & 0xFF ) << 8 )
           + ( intelSize[ 0 ] & 0xFF ) ) & 0xffffffffL;
-    } finally {
-      try {
-        gzipFile.close();
-      } catch ( Exception ignored ) {
-        //ignored
-      }
     }
+
     return rtn;
   }
 
@@ -358,41 +344,37 @@ public class UploadFileUtils {
    * Decompress a zip file and return a list of the file names that were unpacked
    *
    * @param file
-   * @param session
    * @return
    * @throws IOException
    */
   protected String handleZip( File file ) throws IOException {
     StringBuilder sb = new StringBuilder();
-    FileInputStream fileStream = new FileInputStream( file.getAbsolutePath() );
+    FileInputStream fileStream = new FileInputStream( file );
     try {
       // create a zip input stream from the tmp file that was uploaded
       ZipInputStream zipStream = new ZipInputStream( new BufferedInputStream( fileStream ) );
       try {
         ZipEntry entry = zipStream.getNextEntry();
-        // iterate thru the entries in the zip file
+        // iterate through the entries in the zip file
         while ( entry != null ) {
-
           // ignore hidden directories and files, extract the rest
-          if ( !entry.isDirectory() && !entry.getName().startsWith( "." ) && !entry.getName()
-            .startsWith( "__MACOSX/" ) ) { //$NON-NLS-1$ //$NON-NLS-2$
+          if ( !entry.isDirectory() && !entry.getName().startsWith( "." )
+            && !entry.getName().startsWith( "__MACOSX/" ) ) {
 
             File entryFile = null;
-            if ( checkExtension( entry.getName(), false ) ) {
+
+            String extension = FilenameUtils.getExtension( entry.getName() );
+            if ( checkExtension( extension, false ) ) {
               if ( isTemporary() ) {
-                String extension = ".tmp"; //$NON-NLS-1$
-                int idx = entry.getName().lastIndexOf( '.' );
-                if ( idx != -1 ) {
-                  extension = entry.getName().substring( idx ) + extension;
-                }
                 entryFile =
-                  PentahoSystem.getApplicationContext().createTempFile( session, "", extension, true ); //$NON-NLS-1$
+                  PentahoSystem.getApplicationContext()
+                    .createTempFile( session, StringUtil.EMPTY_STRING, '.' + extension + DOT_TMP, true );
               } else {
                 entryFile = new File( getPath() + File.separatorChar + entry.getName() );
               }
 
               if ( sb.length() > 0 ) {
-                sb.append( "\n" ); //$NON-NLS-1$
+                sb.append( '\n' );
               }
               sb.append( entryFile.getName() );
               FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
@@ -421,34 +403,43 @@ public class UploadFileUtils {
   }
 
   protected String handleGZip( File file, boolean fullPath ) throws IOException {
-    FileInputStream fileStream = new FileInputStream( file.getAbsolutePath() );
+    FileInputStream fileStream = new FileInputStream( file );
 
     try {
+      // Find the real extension (the one of the compressed file)
       String gzFile = file.getCanonicalPath();
-      int idx = gzFile.lastIndexOf( '.' );
-      String endFileName = null;
-      endFileName = gzFile.substring( 0, idx ); // cuts off the .gz/.gzip part
-      idx = endFileName.lastIndexOf( '.' ); // Now, get the real extension index
-      if ( !checkExtension( endFileName, true ) ) {
-        return "";
+
+      // First: if this is a temporary file, ignore this extension
+      if ( FilenameUtils.isExtension( gzFile, "tmp" ) ) {
+        gzFile = FilenameUtils.removeExtension( gzFile );
       }
-      // create a gzip input stream from the tmp file that was uploaded
-      GZIPInputStream zipStream = new GZIPInputStream( new BufferedInputStream( fileStream ) );
+      // Second: this is the .gz/.gzip part: ignore it
+      gzFile = FilenameUtils.removeExtension( gzFile );
+      // We now have the real extension
+      String extension = FilenameUtils.getExtension( gzFile );
+      if ( !checkExtension( extension, true ) ) {
+        return StringUtil.EMPTY_STRING;
+      }
 
       File entryFile = null;
       if ( isTemporary() || fullPath ) {
         entryFile =
-          PentahoSystem.getApplicationContext().createTempFile( session, "", ".tmp", true ); //$NON-NLS-1$ //$NON-NLS-2$
+          PentahoSystem.getApplicationContext()
+            .createTempFile( session, StringUtil.EMPTY_STRING, '.' + extension + DOT_TMP, true );
       } else {
-        if ( idx > 0 ) {
-          entryFile = new File( endFileName );
+        if ( !extension.isEmpty() ) {
+          entryFile = new File( extension );
         } else {
           // Odd - someone specified the name as .gz or .gzip... create a temp file (for naming)
           // Note - not added to deleter because it's a file that should stay around - it's CSV data
           File parentFolder = file.getParentFile();
-          entryFile = File.createTempFile( "upload_gzip", ".tmp", parentFolder ); //$NON-NLS-1$ //$NON-NLS-2$
+          entryFile = File.createTempFile( "upload_gzip", DOT_TMP, parentFolder );
         }
       }
+
+      // create a gzip input stream from the tmp file that was uploaded
+      GZIPInputStream zipStream = new GZIPInputStream( new BufferedInputStream( fileStream ) );
+
       try {
         FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
         try {
@@ -480,27 +471,26 @@ public class UploadFileUtils {
       TarInputStream zipStream = new TarInputStream( new BufferedInputStream( fileStream ) );
       try {
         TarEntry entry = zipStream.getNextEntry();
-        // iterate thru the entries in the zip file
+        // iterate through the entries in the zip file
         while ( entry != null ) {
           // ignore hidden directories and files, extract the rest
-          if ( !entry.isDirectory() && !entry.getName().startsWith( "." ) && !entry.getName()
-            .startsWith( "__MACOSX/" ) ) { //$NON-NLS-1$ //$NON-NLS-2$
+          if ( !entry.isDirectory() && !entry.getName().startsWith( "." )
+            && !entry.getName().startsWith( "__MACOSX/" ) ) {
+
             File entryFile = null;
-            if ( checkExtension( entry.getName(), false ) ) {
+
+            String extension = FilenameUtils.getExtension( entry.getName() );
+            if ( checkExtension( extension, false ) ) {
               if ( isTemporary() ) {
-                String extension = ".tmp"; //$NON-NLS-1$
-                int idx = entry.getName().lastIndexOf( '.' );
-                if ( idx != -1 ) {
-                  extension = entry.getName().substring( idx ) + extension;
-                }
                 entryFile =
-                  PentahoSystem.getApplicationContext().createTempFile( session, "", extension, true ); //$NON-NLS-1$
+                  PentahoSystem.getApplicationContext()
+                    .createTempFile( session, StringUtil.EMPTY_STRING, '.' + extension + DOT_TMP, true );
               } else {
                 entryFile = new File( getPath() + File.separatorChar + entry.getName() );
               }
 
               if ( sb.length() > 0 ) {
-                sb.append( "\n" ); //$NON-NLS-1$
+                sb.append( '\n' );
               }
               sb.append( entryFile.getName() );
               FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
@@ -517,7 +507,6 @@ public class UploadFileUtils {
       } finally {
         IOUtils.closeQuietly( zipStream );
       }
-
     } finally {
       IOUtils.closeQuietly( fileStream );
     }
@@ -536,9 +525,9 @@ public class UploadFileUtils {
 
     File tarFile = new File( filename );
 
-    ITempFileDeleter fileDeleter;
-    if ( ( session != null ) ) {
-      fileDeleter = (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );
+    if ( session != null ) {
+      ITempFileDeleter fileDeleter =
+        (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );
       if ( fileDeleter != null ) {
         fileDeleter.trackTempFile( tarFile ); // make sure the deleter knows to clean this puppy up...
       }
@@ -584,12 +573,13 @@ public class UploadFileUtils {
 
   private long getFolderSize( File folder ) {
     long foldersize = 0;
-    File[] filelist = folder.listFiles();
-    for ( int i = 0; i < filelist.length; i++ ) {
-      if ( filelist[ i ].isDirectory() ) {
-        foldersize += getFolderSize( filelist[ i ] );
-      } else {
-        foldersize += filelist[ i ].length();
+    if ( folder.isDirectory() ) {
+      for ( File file : folder.listFiles() ) {
+        if ( file.isDirectory() ) {
+          foldersize += getFolderSize( file );
+        } else {
+          foldersize += file.length();
+        }
       }
     }
     return foldersize;
@@ -649,13 +639,6 @@ public class UploadFileUtils {
     return this.relativePath;
   }
 
-/*
- *
-  private Set<String> allowedExtensions;
-  private String allowedExtensionsString;
-  private boolean allowsNoExtension;
- */
-
   void setAllowsNoExtension( boolean value ) {
     this.allowsNoExtension = value;
   }
@@ -669,14 +652,11 @@ public class UploadFileUtils {
     String[] extensions = value.split( "," );
 
     HashSet<String> theSet = new HashSet<>( extensions.length );
-    for ( int i = 0; i < extensions.length; i++ ) {
-      theSet.add( extensions[ i ] );
-    }
+    Collections.addAll( theSet, extensions );
     this.allowedExtensions = theSet;
   }
 
   String getAllowedExtensionsString() {
     return this.allowedExtensionsString;
   }
-
 }
