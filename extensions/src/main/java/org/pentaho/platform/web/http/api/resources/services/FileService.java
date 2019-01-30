@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -69,6 +69,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -1353,11 +1354,15 @@ public class FileService {
     repositoryRequest.setIncludeAcls( includeAcls );
     repositoryRequest.setIncludeSystemFolders( includeSystemFolders );
 
-    RepositoryFileTreeDto tree = getRepoWs().getTreeFromRequest( repositoryRequest );
-
+    RepositoryFileTreeDto tree = null;
+    try {
+      tree = getRepoWs().getTreeFromRequest( repositoryRequest );
+    } catch ( UnifiedRepositoryException e ) {
+      logger.error( e.getCause() );
+    }
 
     // BISERVER-9599 - Use special sort order
-    if ( isShowingTitle( repositoryRequest ) ) {
+    if ( tree != null && isShowingTitle( repositoryRequest ) ) {
       Collator collator = getCollatorInstance();
       collator.setStrength( Collator.PRIMARY ); // ignore case
       sortByLocaleTitle( collator, tree );
