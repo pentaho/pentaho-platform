@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -45,6 +45,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -170,7 +171,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     return localeCode;
   }
 
-  private RepositoryFile getLocaleParent( RepositoryFileImportBundle locale, Properties localePropertiesFromIndex ) {
+  @VisibleForTesting
+  RepositoryFile getLocaleParent( RepositoryFileImportBundle locale, Properties localePropertiesFromIndex ) {
     if ( unifiedRepository == null ) {
       return null;
     }
@@ -214,7 +216,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
             break;
           }
 
-        } else if ( extractFileName( localeFileName ).equals( localeChildName )
+        } else if ( ( extractFileName( localeFileName ).equals( localeChildName )                   // matches default properties files
+            || ( extractFileNameWithLocalization( localeFileName ).equals( localeChildName ) ) )    // matches file_locale.properties files
             && artifacts.contains( localeChildExtension ) ) {
           localeParent = localeChild;
           break;
@@ -240,6 +243,15 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   private String extractFileName( String name ) {
     int idx = name.lastIndexOf( "." );
+    if ( idx == -1 || idx == name.length() ) {
+      return name;
+    }
+    return name.substring( 0, idx );
+  }
+
+  private String extractFileNameWithLocalization( String name ) {
+    String localeSuffix = "_" + LocaleHelper.getLocale().toString().toLowerCase(); // Accounts for fileName_fr.properties; fileName_en_US.properties; fileName_en_GB.properties, etc.
+    int idx = name.toLowerCase().lastIndexOf( localeSuffix );
     if ( idx == -1 || idx == name.length() ) {
       return name;
     }
