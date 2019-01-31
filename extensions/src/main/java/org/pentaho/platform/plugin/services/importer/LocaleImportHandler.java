@@ -78,11 +78,6 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     this.artifacts = artifacts;
   }
 
-  @VisibleForTesting
-  void setRepositoryForTesting( IUnifiedRepository repository ) {
-    this.unifiedRepository = repository;
-  }
-
   public void importFile( IPlatformImportBundle bundle ) throws PlatformImportException {
     RepositoryFileImportBundle localeBundle = (RepositoryFileImportBundle) bundle;
 

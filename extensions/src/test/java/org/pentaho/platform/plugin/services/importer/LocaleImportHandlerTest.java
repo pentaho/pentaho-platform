@@ -64,6 +64,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.reflect.Whitebox.setInternalState;
 
 public class LocaleImportHandlerTest {
 
@@ -140,7 +141,7 @@ public class LocaleImportHandlerTest {
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    localeImportHandler.setRepositoryForTesting( mockUnifiedRepository );
+    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -173,7 +174,7 @@ public class LocaleImportHandlerTest {
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    localeImportHandler.setRepositoryForTesting( mockUnifiedRepository );
+    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -206,7 +207,7 @@ public class LocaleImportHandlerTest {
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    localeImportHandler.setRepositoryForTesting( mockUnifiedRepository );
+    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -239,7 +240,7 @@ public class LocaleImportHandlerTest {
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    localeImportHandler.setRepositoryForTesting( mockUnifiedRepository );
+    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -270,7 +271,7 @@ public class LocaleImportHandlerTest {
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    localeImportHandler.setRepositoryForTesting( mockUnifiedRepository );
+    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -301,7 +302,7 @@ public class LocaleImportHandlerTest {
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    localeImportHandler.setRepositoryForTesting( mockUnifiedRepository );
+    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -332,7 +333,7 @@ public class LocaleImportHandlerTest {
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    localeImportHandler.setRepositoryForTesting( mockUnifiedRepository );
+    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -365,7 +366,7 @@ public class LocaleImportHandlerTest {
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    localeImportHandler.setRepositoryForTesting( mockUnifiedRepository );
+    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
