@@ -78,8 +78,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     this.artifacts = artifacts;
   }
 
-  // This method is used for testing purposes
-  protected void setRepositoryForTesting( IUnifiedRepository repository ) {
+  @VisibleForTesting
+  void setRepositoryForTesting(IUnifiedRepository repository) {
     this.unifiedRepository = repository;
   }
 
@@ -176,7 +176,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     return localeCode;
   }
 
-  protected RepositoryFile getLocaleParent( RepositoryFileImportBundle locale, Properties localePropertiesFromIndex ) {
+  @VisibleForTesting
+  RepositoryFile getLocaleParent( RepositoryFileImportBundle locale, Properties localePropertiesFromIndex ) {
     if ( unifiedRepository == null ) {
       return null;
     }
