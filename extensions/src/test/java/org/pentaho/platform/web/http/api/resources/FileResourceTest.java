@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -76,13 +76,11 @@ import static org.mockito.Mockito.*;
 public class FileResourceTest {
   private static final String XML_EXTENSION = "xml";
   private static final String PATH_ID = "pathId.xml";
-  private static final String PATH_ID_WITHOUT_EXTENSION = "pathId";
+  private static final String PATH_ID_WITHOUTH_EXTENSION = "pathId";
   private static final String PATH_ID_INCORRECT_EXTENSION = "pathId.wrong";
   private static final String NAME_NEW_FILE = "nameNewFile.xml";
-  private static final String NAME_NEW_FILE_WITHOUT_EXTENSION = "nameNewFile";
+  private static final String NAME_NEW_FILE_WITHOUTH_EXTENSION = "nameNewFile";
   private static final String NAME_NEW_FILE_WRONG_EXTENSION = "nameNewFile.wrong";
-  private static final int HTTP_OK_CONTENT_STATUS = 200;
-  private static final int HTTP_OK_NO_CONTENT_STATUS = 204;
 
   private static final String FILE_ID = "444324fd54ghad";
   private FileResource fileResource;
@@ -281,7 +279,7 @@ public class FileResourceTest {
   @Test
   public void testCreateFileWithoutExtension() throws Exception {
     InputStream mockInputStream = mock( InputStream.class );
-    Response testResponse = fileResource.createFile( PATH_ID_WITHOUT_EXTENSION, mockInputStream );
+    Response testResponse = fileResource.createFile( PATH_ID_WITHOUTH_EXTENSION, mockInputStream );
     assertEquals( Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
 
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( anyString() );
@@ -1380,69 +1378,25 @@ public class FileResourceTest {
     doReturn( mockOkMsgResponse ).when( fileResource ).buildOkResponse( errMsg );
 
     // Test 1
-    doReturn( true ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    doReturn( true ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
 
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     assertEquals( mockOkResponse, testResponse );
 
     // Test 2
-    doReturn( false ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    doReturn( false ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
 
-    testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     assertEquals( mockOkMsgResponse, testResponse );
 
-    verify( fileResource.fileService, times( 2 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    verify( fileResource.fileService, times( 2 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     verify( fileResource, times( 1 ) ).buildOkResponse();
     verify( fileResource, times( 1 ) ).buildOkResponse( errMsg );
   }
 
   @Test
-  public void testDoSetLocaleProperties() throws Exception {
-    String locale = "locale";
-    String newName = "TestA.xml";
-    List<StringKeyStringValueDto> properties = new ArrayList<>();
-    properties.add( new StringKeyStringValueDto( "file.title", newName ) );
-    properties.add( new StringKeyStringValueDto( "file.description", "test description" ) );
-
-    doNothing().when( fileResource.fileService ).doSetLocaleProperties( PATH_ID, locale, properties );
-
-//    Response mockOkResponse = mock( Response.class );
-//    doReturn( mockOkResponse ).when( fileResource ).buildOkResponse();
-
-    String errMsg = "Unable to rename File/Folder: " + PATH_ID;
-
-    // Test 1 - File title exists and rename works
-    doReturn( true ).when( fileResource.fileService ).doRename( PATH_ID, newName );
-
-    Response testResponse = fileResource.doSetLocaleProperties( PATH_ID, locale, properties );
-    assertEquals( testResponse.getStatus(), HTTP_OK_NO_CONTENT_STATUS );
-
-    // Test 2 - no file title in the properties
-    properties = new ArrayList<>();
-    properties.add( new StringKeyStringValueDto( "file.description", "test description" ) );
-
-    testResponse = fileResource.doSetLocaleProperties( PATH_ID, locale, properties );
-    assertEquals( testResponse.getStatus(), HTTP_OK_NO_CONTENT_STATUS );
-
-    // Test 3 - File title exists, but rename fails.
-    properties = new ArrayList<>();
-    properties.add( new StringKeyStringValueDto( "file.title", newName ) );
-    properties.add( new StringKeyStringValueDto( "file.description", "test description" ) );
-    doReturn( false ).when( fileResource.fileService ).doRename( PATH_ID, newName );
-
-    testResponse = fileResource.doSetLocaleProperties( PATH_ID, locale, properties );
-    assertEquals( testResponse.getStatus(), HTTP_OK_CONTENT_STATUS );
-    assertEquals( testResponse.getEntity(), errMsg );
-
-    verify( fileResource.fileService, times( 3 ) ).doSetLocaleProperties( PATH_ID, locale, properties );
-    verify( fileResource.fileService, times( 2 ) ).doRename( PATH_ID, newName );
-    verify( fileResource, times( 2 ) ).buildOkNoContentResponse();
-    verify( fileResource, times( 1 ) ).buildOkResponse( errMsg );
-  }
-
-  @Test
   public void testDoRenameCorrectExtension() throws Exception {
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     assertEquals( Status.OK.getStatusCode(), testResponse.getStatus() );
 
     verify( fileResource, times( 1 ) ).buildOkResponse( anyString() );
@@ -1451,7 +1405,7 @@ public class FileResourceTest {
   @Test
   public void testDoRenameError() throws Exception {
     Throwable mockThrowable = mock( RuntimeException.class );
-    doThrow( mockThrowable ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    doThrow( mockThrowable ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
 
     String msg = "msg";
     doReturn( msg ).when( mockThrowable ).getMessage();
@@ -1459,10 +1413,10 @@ public class FileResourceTest {
     Response mockResponse = mock( Response.class );
     doReturn( mockResponse ).when( fileResource ).buildServerErrorResponse( msg );
 
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     assertEquals( mockResponse, testResponse );
 
-    verify( fileResource.fileService, times( 1 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    verify( fileResource.fileService, times( 1 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
     verify( mockThrowable, times( 1 ) ).getMessage();
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( msg );
   }
