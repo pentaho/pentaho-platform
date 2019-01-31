@@ -79,7 +79,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
   }
 
   @VisibleForTesting
-  void setRepositoryForTesting(IUnifiedRepository repository) {
+  void setRepositoryForTesting( IUnifiedRepository repository ) {
     this.unifiedRepository = repository;
   }
 
