@@ -14,13 +14,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.solutionbrowser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
@@ -109,7 +110,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private boolean isScheduler = false;
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
+  private static List<String> supportedFileExtensions;
   private JsArrayString filters;
+
+  {
+    supportedFileExtensions = Arrays.asList( "cda", "xaction", "kjb", "xcdf", "wcdf,"
+      + "xjpivot", "ktr", "prpt", "url", "xanalyzer", "prpti" );
+  }
 
   private Command ToggleLocalizedNamesCommand = new Command() {
     public void execute() {
@@ -350,7 +357,26 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setDashboardsFilter(Lcom/google/gwt/core/client/JsArrayString;)(filters);
     }
+    $wnd.mantle_showPluginError = function (filename) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::showPluginError(Ljava/lang/String;)(filename);
+    }
+    $wnd.mantle_isSupportedExtension = function (extension) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isSupportedExtension(Ljava/lang/String;)(extension);
+    }
   }-*/;
+
+  public void showPluginError( String filename ) {
+    MessageDialogBox dialogBox =
+      new MessageDialogBox( Messages.getString( "error.NoPlugin" ), Messages.getString( "error.NoPluginText", filename ), false, false, true ); //$NON-NLS-1$ $NON-NLS-2$
+    dialogBox.setWidth( "350px" );
+    dialogBox.center();
+  }
+
+  public boolean isSupportedExtension( String extension ) {
+    return supportedFileExtensions.contains( extension );
+  }
 
   public void setDashboardsFilter( JsArrayString filters ) {
     this.filters = filters;
@@ -467,6 +493,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         extension = fileNameWithPath.substring( fileNameWithPath.lastIndexOf( FILE_EXTENSION_DELIMETER ) + 1 ); //$NON-NLS-1$
       }
       if ( !executableFileExtensions.contains( extension ) ) {
+        if ( isSupportedExtension( extension ) ) {
+          showPluginError( repositoryFile.getName() );
+          return;
+        }
         url = getPath() + "api/repos/" + pathToId( fileNameWithPath ) + "/content"; //$NON-NLS-1$ //$NON-NLS-2$ 
       } else {
         ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin( fileNameWithPath );
