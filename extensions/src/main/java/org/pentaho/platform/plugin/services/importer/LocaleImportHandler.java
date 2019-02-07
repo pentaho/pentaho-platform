@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -170,7 +170,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     return localeCode;
   }
 
-  private RepositoryFile getLocaleParent( RepositoryFileImportBundle locale, Properties localePropertiesFromIndex ) {
+  @VisibleForTesting
+  RepositoryFile getLocaleParent( RepositoryFileImportBundle locale, Properties localePropertiesFromIndex ) {
     if ( unifiedRepository == null ) {
       return null;
     }
@@ -214,7 +215,9 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
             break;
           }
 
-        } else if ( extractFileName( localeFileName ).equals( localeChildName )
+        } else if ( ( extractFileName( localeFileName ).equals( localeChildName )                         // matches default properties files
+            || ( extractFileNameWithCountryLocalization( localeFileName ).equals( localeChildName ) )     // matches file_en.properties files
+            || ( extractFileNameWithLanguageLocalization( localeFileName ).equals( localeChildName ) ) )  // matches file_en_US.properties files
             && artifacts.contains( localeChildExtension ) ) {
           localeParent = localeChild;
           break;
@@ -238,12 +241,25 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     return name.substring( idx + 1 );
   }
 
-  private String extractFileName( String name ) {
-    int idx = name.lastIndexOf( "." );
+  private String extractFileName( String name, char separator ) {
+    int idx = name.lastIndexOf( separator );
     if ( idx == -1 || idx == name.length() ) {
       return name;
     }
     return name.substring( 0, idx );
+  }
+
+  private String extractFileName( String name ) {
+    return extractFileName( name, '.' );
+  }
+
+  private String extractFileNameWithCountryLocalization( String name ) {
+    return extractFileName( name, '_' );
+  }
+
+  private String extractFileNameWithLanguageLocalization( String name ) {
+    String aux = extractFileName( name, '_' );
+    return extractFileName( aux, '_' );
   }
 
   private boolean checkIfLocaleFileNameAlsoContainsAFileExtension( String locale ) {
