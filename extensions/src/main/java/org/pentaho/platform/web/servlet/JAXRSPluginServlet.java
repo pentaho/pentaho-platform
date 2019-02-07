@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -113,6 +113,13 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
       }
     }
     super.service( request, response );
+
+    // JAX-RS Response return objects do not trigger the "error state" in the HttpServletResponse
+    // Forcing all HTTP Error Status into "sendError" enables the configuration of custom error
+    // pages in web.xml.
+    if ( response.getStatus() >= 400 && response.getStatus() < 600 ) {
+      response.sendError( response.getStatus() );
+    }
   }
 
   @Override
