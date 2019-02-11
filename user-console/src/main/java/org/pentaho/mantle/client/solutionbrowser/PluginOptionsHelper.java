@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -40,6 +40,14 @@ public class PluginOptionsHelper {
   private static String manageDatasourcesOverrideCommandTitle;
   private static String addDatasourceOverrideCommandUrl;
   private static String addDatasourceOverrideCommandTitle;
+
+  private static native void setupNativeHooks()
+  /*-{
+    $wnd.PluginOptionHelper_hasPlugin = function( filename ) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      return @org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper::getContentTypePlugin(Ljava/lang/String;)(filename) !== null;
+    }
+  }-*/;
 
   public static void buildEnabledOptionsList( Map<String, String> settings ) {
     enabledOptionsList.clear();
@@ -134,6 +142,8 @@ public class PluginOptionsHelper {
     defaultMenu.addCommand( COMMAND.FAVORITE );
     defaultMenu.addCommand( COMMAND.FAVORITE_REMOVE );
     enabledOptionsList.add( defaultMenu );
+
+    setupNativeHooks();
   }
 
   public static FileTypeEnabledOptions getEnabledOptions( String filename ) {
