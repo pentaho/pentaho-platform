@@ -115,7 +115,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   {
     supportedFileExtensions = Arrays.asList( "cda", "xaction", "kjb", "xcdf", "wcdf,"
-      + "xjpivot", "ktr", "prpt", "url", "xanalyzer", "prpti" );
+      + "xjpivot", "ktr", "prpt", "url", "xanalyzer", "prpti", "xdash" );
   }
 
   private Command ToggleLocalizedNamesCommand = new Command() {
