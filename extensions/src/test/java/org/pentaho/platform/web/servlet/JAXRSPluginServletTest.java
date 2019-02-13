@@ -43,7 +43,8 @@ import static org.mockito.Mockito.when;
 @PrepareForTest( SpringServlet.class )
 public class JAXRSPluginServletTest {
 
-  private void validateSendErrorForStatus( JAXRSPluginServlet servlet, int httpStatusCode, boolean shouldCallSendError ) throws ServletException, IOException {
+  private void validateSendErrorForStatus( JAXRSPluginServlet servlet, int httpStatusCode, boolean shouldCallSendError )
+      throws ServletException, IOException {
     HttpServletRequest request = mock( HttpServletRequest.class );
     HttpServletResponse response = mock( HttpServletResponse.class );
 
@@ -61,12 +62,34 @@ public class JAXRSPluginServletTest {
     }
   }
 
+  private void validateSendErrorWhenResponseIsCommitted( JAXRSPluginServlet servlet, boolean isCommitted )
+      throws ServletException, IOException {
+    HttpServletRequest request = mock( HttpServletRequest.class );
+    HttpServletResponse response = mock( HttpServletResponse.class );
+
+    when( request.getPathInfo() ).thenReturn( "/url" );
+    when( response.getStatus() ).thenReturn( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
+    when( response.isCommitted() ).thenReturn( isCommitted );
+
+    PowerMockito.suppress( PowerMockito.methodsDeclaredIn( SpringServlet.class ) );
+
+    servlet.service( request, response );
+
+    if ( isCommitted ) {
+      verify( response, never() ).sendError( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
+    } else {
+      verify( response, times( 1 ) ).sendError( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
+    }
+  }
+
   @Test
   public void service_whenResponseHasHttpErrorStatusCodeThenSendErrorIsCalled_test()
       throws ServletException, IOException {
     JAXRSPluginServlet servlet = new JAXRSPluginServlet();
 
-    for ( int errorStatusCode = 400; errorStatusCode < 600; ++errorStatusCode ) {
+    for ( int errorStatusCode = HttpServletResponse.SC_BAD_REQUEST;
+          errorStatusCode < JAXRSPluginServlet.OVER_KNOWN_ERROR_RANGE;
+          ++errorStatusCode ) {
       validateSendErrorForStatus( servlet, errorStatusCode, true );
     }
   }
@@ -76,8 +99,27 @@ public class JAXRSPluginServletTest {
       throws ServletException, IOException {
     JAXRSPluginServlet servlet = new JAXRSPluginServlet();
 
-    validateSendErrorForStatus( servlet, 200, false );
-    validateSendErrorForStatus( servlet, 399, false );
-    validateSendErrorForStatus( servlet, 600, false );
+    validateSendErrorForStatus( servlet, HttpServletResponse.SC_OK, false );
+    validateSendErrorForStatus( servlet, JAXRSPluginServlet.UNDER_KNOWN_ERROR_RANGE, false );
+    validateSendErrorForStatus( servlet, JAXRSPluginServlet.OVER_KNOWN_ERROR_RANGE, false );
   }
+
+  @Test
+  public void service_whenResponseWasAlreadyCommittedThenSendErrorIsNotCalled_test()
+      throws ServletException, IOException {
+
+    JAXRSPluginServlet servlet = new JAXRSPluginServlet();
+
+    validateSendErrorWhenResponseIsCommitted( servlet, true );
+  }
+
+  @Test
+  public void service_whenResponseIsNotYetCommittedThenSendErrorIsCalled_test()
+      throws ServletException, IOException {
+
+    JAXRSPluginServlet servlet = new JAXRSPluginServlet();
+
+    validateSendErrorWhenResponseIsCommitted( servlet, false );
+  }
+
 }
