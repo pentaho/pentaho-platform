@@ -49,12 +49,13 @@
     </dependency>
     <!-- endregion -->
 
-    <!-- Needed for runtime -->
+    <!-- region - Needed for runtime -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
+      <scope>runtime</scope>
     </dependency>
-    <!-- -->
+    <!-- endregion -->
 
     <dependency>
       <groupId>pentaho</groupId>
