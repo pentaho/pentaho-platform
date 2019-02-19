@@ -2,6 +2,7 @@
 <audit-sql>
 
   <auditConnection>
+    <tableName>pro_audit</tableName>
     <insertSQL>
         INSERT INTO PRO_AUDIT (AUDIT_ID, JOB_ID, INST_ID, OBJ_ID, OBJ_TYPE, ACTOR,MESSAGE_TYPE, MESSAGE_NAME, MESSAGE_TEXT_VALUE, MESSAGE_NUM_VALUE, DURATION,AUDIT_TIME) values (NEXTVAL('hibernate_sequence'),?,?,?,?,?,?,?,?,?,?,?)    
     </insertSQL>
