@@ -128,7 +128,6 @@
     <trilead-ssh2.version>build213</trilead-ssh2.version>
     <spring-ldap-core.version>2.1.0.RELEASE</spring-ldap-core.version>
     <xmlbeans.version>2.6.0</xmlbeans.version>
-    <org.apache.felix.utils.version>1.8.0</org.apache.felix.utils.version>
     <saaj.version>1.3</saaj.version>
     <jcl-over-slf4j.version>1.7.7</jcl-over-slf4j.version>
     <fontbox.version>0.1.0</fontbox.version>
