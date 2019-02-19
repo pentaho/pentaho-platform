@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -28,11 +28,15 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.logging.Logger;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author mbatchel
@@ -40,6 +44,12 @@ import java.sql.Types;
  */
 public class AuditSQLEntry implements IAuditEntry {
   private static AuditConnection audc;
+
+  private Map<String, String> columnsSizeMap;
+  private static String TABLE_NAME;
+  private static final String CONFIG_FILE_NAME = "audit_sql.xml";
+  private static final String TABLE_NAME_XML_KEY = "auditConnection/tableName";
+  private static final String INSERT_XML_KEY = "auditConnection/insertSQL";
 
   /**
    * This ugliness exists because of bug http://jira.pentaho.com/browse/BISERVER-3478. Once this is fixed, we can
@@ -50,11 +60,11 @@ public class AuditSQLEntry implements IAuditEntry {
    */
   private static String INSERT_STMT;
   static {
-
-    String tmp = PentahoSystem.getSystemSetting( "audit_sql.xml", "auditConnection/insertSQL", null ); //$NON-NLS-1$ //$NON-NLS-2$
+    TABLE_NAME = PentahoSystem.getSystemSetting( CONFIG_FILE_NAME, TABLE_NAME_XML_KEY, null ); //$NON-NLS-1$ //$NON-NLS-2$
+    String tmp = PentahoSystem.getSystemSetting( CONFIG_FILE_NAME, INSERT_XML_KEY, null ); //$NON-NLS-1$ //$NON-NLS-2$
     INSERT_STMT =
         ( tmp != null ) ? tmp : PentahoSystem.getSystemSetting(
-            "auditConnection/insertSQL", Messages.getInstance().getString( "AUDSQLENT.CODE_AUDIT_INSERT_STATEMENT" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+          INSERT_XML_KEY, Messages.getInstance().getString( "AUDSQLENT.CODE_AUDIT_INSERT_STATEMENT" ) ); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   static {
@@ -80,17 +90,28 @@ public class AuditSQLEntry implements IAuditEntry {
    */
   private void retrieveParameters() {
 
-    String tmp = PentahoSystem.getSystemSetting( "audit_sql.xml", "auditConnection/insertSQL", null ); //$NON-NLS-1$ //$NON-NLS-2$
+    String tmp = PentahoSystem.getSystemSetting( CONFIG_FILE_NAME, INSERT_XML_KEY, null ); //$NON-NLS-1$ //$NON-NLS-2$
     INSERT_STMT =
         ( tmp != null ) ? tmp : PentahoSystem.getSystemSetting(
-            "auditConnection/insertSQL", Messages.getInstance().getString( "AUDSQLENT.CODE_AUDIT_INSERT_STATEMENT" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+          INSERT_XML_KEY, Messages.getInstance().getString( "AUDSQLENT.CODE_AUDIT_INSERT_STATEMENT" ) ); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   private void setString( final PreparedStatement stmt, final int num, final String val ) throws SQLException {
     if ( val != null ) {
-      stmt.setString( num, val );
+      stmt.setString( num, getStringPreparedForColumn( num, val ) );
     } else {
       stmt.setNull( num, Types.VARCHAR );
+    }
+  }
+
+  private String getStringPreparedForColumn( int columnIndex, String value ) {
+    Map<String, String> colMetaData = getColumnsSizeMap();
+    if ( colMetaData != null && colMetaData.containsKey( "" + columnIndex )
+      && value != null && !value.isEmpty() ) {
+      int columnLength = Integer.parseInt( colMetaData.get( "" + columnIndex ) );
+      return value.substring( 0, Math.min( value.length(), columnLength ) );
+    } else {
+      return value;
     }
   }
 
@@ -110,10 +131,6 @@ public class AuditSQLEntry implements IAuditEntry {
     }
   }
 
-  /*
-   * private void setInteger(PreparedStatement stmt, int num, Integer val) throws SQLException{ if (val != null) {
-   * stmt.setInt(num, val.intValue()); } else { stmt.setNull(num, Types.INTEGER); } }
-   */
   public void auditAll( final String jobId, final String instId, final String objId, final String objType,
       final String actor, final String messageType, final String messageName, final String messageTxtValue,
       final BigDecimal messageNumValue, final double duration ) throws AuditException {
@@ -133,7 +150,7 @@ public class AuditSQLEntry implements IAuditEntry {
           setString( stmt, 7, messageName );
           setObject( stmt, 8, messageTxtValue );
           setBigDec( stmt, 9, messageNumValue );
-          setBigDec( stmt, 10, new BigDecimal( duration ) );
+          setBigDec( stmt, 10, BigDecimal.valueOf( duration ) );
           stmt.setTimestamp( 11, new Timestamp( System.currentTimeMillis() ) );
           stmt.executeUpdate();
         } catch ( SQLException ex ) {
@@ -153,6 +170,49 @@ public class AuditSQLEntry implements IAuditEntry {
     } catch ( SQLException ex ) {
       throw new AuditException( ex );
     }
+  }
+
+  private Map<String, String> getColumnsSizeMap() {
+    if ( columnsSizeMap == null && TABLE_NAME != null ) {
+      Connection con = null;
+      try {
+        con = AuditSQLEntry.audc.getAuditConnection();
+        ResultSet columns = getColumnsMetadata( con, TABLE_NAME );
+        if ( columns != null ) {
+          columnsSizeMap = new HashMap<>();
+          int index = 0;
+          while ( columns.next() ) {
+            columnsSizeMap.put( "" + index, "" + columns.getInt( "COLUMN_SIZE" ) );
+            index++;
+          }
+        }
+      } catch ( SQLException ex ) {
+        Logger.error( this.getClass().getName(), ex.getMessage(), ex );
+      } finally {
+        try {
+          if ( con != null ) {
+            con.close();
+          }
+        } catch ( SQLException ex ) {
+          Logger.error( this.getClass().getName(), ex.getMessage(), ex );
+        }
+      }
+    }
+    return columnsSizeMap;
+  }
+
+  private ResultSet getColumnsMetadata( Connection con, String tableNameFilter ) {
+    try {
+      if ( con != null ) {
+        DatabaseMetaData dbMetaData = con.getMetaData();
+        if ( dbMetaData != null ) {
+          return dbMetaData.getColumns( null, null, tableNameFilter, "%" );
+        }
+      }
+    } catch ( SQLException ex ) {
+      Logger.error( this.getClass().getName(), ex.getMessage(), ex );
+    }
+    return null;
   }
 
 }
