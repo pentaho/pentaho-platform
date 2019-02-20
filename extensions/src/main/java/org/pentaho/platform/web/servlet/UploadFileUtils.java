@@ -189,9 +189,10 @@ public class UploadFileUtils {
     File file = null;
     if ( isTemporary() ) {
       // Use the full filename because GZip relies on the extensions of the file to discover it's content
+      String extension = ( getUploadedFileItem() != null ) ? '-' + getUploadedFileItem().getName() + DOT_TMP : DOT_TMP;
       file =
         PentahoSystem.getApplicationContext()
-          .createTempFile( session, StringUtil.EMPTY_STRING, '-' + getUploadedFileItem().getName() + DOT_TMP, true );
+          .createTempFile( session, StringUtil.EMPTY_STRING, extension, true );
     } else {
       file = new File( getPath() + File.separatorChar + fileName );
       // Check that it's where it belongs - prevent ../../.. attacks.
