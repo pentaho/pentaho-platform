@@ -2226,20 +2226,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.http.proxy</artifactId>
-      <version>${org.apache.felix.http.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
       <artifactId>org.apache.felix.main</artifactId>
       <version>${org.apache.felix.main.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.http.base</artifactId>
-      <version>${org.apache.felix.http.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
