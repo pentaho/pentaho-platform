@@ -5,9 +5,9 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>8.2.0.0-SNAPSHOT</version>
+    <version>8.2.0.3-539</version>
   </parent>
   <artifactId>pentaho-samples</artifactId>
-  <version>8.2.0.0-SNAPSHOT</version>
+  <version>8.2.0.3-539</version>
   <packaging>pom</packaging>
 </project>
