@@ -20,11 +20,13 @@
 
 package org.pentaho.mantle.client.solutionbrowser;
 
+import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.mantle.client.EmptyRequestCallback;
@@ -76,14 +78,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
-import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.TreeListener;
-import com.google.gwt.user.client.ui.Widget;
+
 
 @SuppressWarnings( "deprecation" )
 public class SolutionBrowserPanel extends HorizontalPanel {
@@ -368,8 +363,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }-*/;
 
   public void showPluginError( String filename ) {
-    MessageDialogBox dialogBox =
-      new MessageDialogBox( Messages.getString( "error.NoPlugin" ), Messages.getString( "error.NoPluginText", filename ), false, false, true ); //$NON-NLS-1$ $NON-NLS-2$
+    InfoDialog dialogBox =
+      new InfoDialog( Messages.getString( "error.NoPlugin" ), Messages.getString( "error.NoPluginText", filename ), true, false, true ); //$NON-NLS-1$ $NON-NLS-2$
     dialogBox.setWidth( "350px" );
     dialogBox.center();
   }
@@ -823,4 +818,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     return encodeURIComponent(URI);
   }-*/;
 
+  private class InfoDialog extends PromptDialogBox { // All of this is to get a OK button that is aligned right
+
+    public InfoDialog( String title, String message, boolean isHTML, boolean autoHide, boolean modal ) {
+      super( title, Messages.getString( "dialog.button.ok" ), "removeMe", autoHide, modal, isHTML ? new HTML( message ) : new Label( message ) ); //$NON-NLS-1$
+      // This relies on the fact that PromptDialogBox will right justify the buttons if and only if there is a cancel and ok button definition.
+      // We give it a dummy cancel button ("removeMe") and a real OK button to satisfy the contract, then delete the cancel from the panel (parent).
+      cancelButton.removeFromParent();
+    }
+  }
 }
