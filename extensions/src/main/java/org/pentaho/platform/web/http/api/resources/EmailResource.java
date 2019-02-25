@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -105,7 +105,7 @@ public class EmailResource extends AbstractJaxRSResource {
   @GET
   @Path( "/resetEmailConfig" )
   @Produces( { MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON } )
-  public Response deleteEmailConfig( EmailConfiguration emailConfiguration ) {
+  public Response deleteEmailConfig() {
     if ( canAdminister() ) {
       try {
         emailService.setEmailConfig( new EmailConfiguration() );

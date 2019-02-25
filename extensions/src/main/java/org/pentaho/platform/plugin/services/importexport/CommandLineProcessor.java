@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -666,18 +666,15 @@ public class CommandLineProcessor {
           if ( response.getStatus() == 200 ) {
             errorMessage = Messages.getInstance().getString( "CommandLineProcessor.INFO_IMPORT_SUCCESSFUL" );
             System.out.println( errorMessage );
-            return;
           }
           if ( response.getStatus() == 403 ) {
             errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0007_FORBIDDEN", path );
             System.out.println( errorMessage );
-            return;
           }
           if ( response.getStatus() == 404 ) {
             errorMessage =
                 Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
             System.out.println( errorMessage );
-            return;
           }
           String message = response.getEntity( String.class );
           System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
