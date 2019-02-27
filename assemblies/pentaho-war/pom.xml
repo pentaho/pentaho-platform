@@ -442,7 +442,6 @@
     <dependency>
       <groupId>org.apache.karaf</groupId>
       <artifactId>org.apache.karaf.main</artifactId>
-      <version>${org.apache.karaf.main.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -454,7 +453,6 @@
     <dependency>
       <groupId>org.apache.karaf.management</groupId>
       <artifactId>org.apache.karaf.management.boot</artifactId>
-      <version>${org.apache.karaf.management.boot.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -466,7 +464,6 @@
     <dependency>
       <groupId>org.apache.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.boot</artifactId>
-      <version>${org.apache.karaf.jaas.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -478,7 +475,6 @@
     <dependency>
       <groupId>org.apache.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.config</artifactId>
-      <version>${org.apache.karaf.jaas.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -490,7 +486,6 @@
     <dependency>
       <groupId>org.apache.karaf</groupId>
       <artifactId>org.apache.karaf.util</artifactId>
-      <version>${org.apache.karaf.main.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

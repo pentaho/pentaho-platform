@@ -2209,19 +2209,16 @@
     <dependency>
       <groupId>org.apache.karaf</groupId>
       <artifactId>org.apache.karaf.main</artifactId>
-      <version>${org.apache.karaf.main.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.boot</artifactId>
-      <version>${org.apache.karaf.jaas.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.modules</artifactId>
-      <version>${org.apache.karaf.jaas.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
