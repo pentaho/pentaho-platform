@@ -829,7 +829,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private class InfoDialog extends PromptDialogBox { // All of this is to get a OK button that is aligned right
 
     public InfoDialog( String title, String message, boolean isHTML, boolean autoHide, boolean modal ) {
-      super( title, Messages.getString( "dialog.button.ok" ), "removeMe", autoHide, modal, isHTML ? new HTML( message ) : new Label( message ) ); //$NON-NLS-1$
+      super( title, Messages.getString( "ok" ), "removeMe", autoHide, modal, isHTML ? new HTML( message ) : new Label( message ) ); //$NON-NLS-1$
       // This relies on the fact that PromptDialogBox will right justify the buttons if and only if there is a cancel and ok button definition.
       // We give it a dummy cancel button ("removeMe") and a real OK button to satisfy the contract, then delete the cancel from the panel (parent).
       cancelButton.removeFromParent();
