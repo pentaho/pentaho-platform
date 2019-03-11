@@ -238,8 +238,15 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>${spring.framework.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -251,7 +258,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>${spring.framework.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -263,7 +269,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>${spring.framework.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -275,7 +280,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>se-jcr</artifactId>
-      <version>${se-jcr.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -429,7 +433,6 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>${spring-security.version}</version> <!-- see maven-parent-pom -->
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -441,7 +444,6 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>${spring-security.version}</version>  <!-- see maven-parent-pom -->
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -453,12 +455,10 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>${spring-security.version}</version>  <!-- see maven-parent-pom -->
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>${spring-security.version}</version>  <!-- see maven-parent-pom -->
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -470,7 +470,6 @@
     <dependency>
       <groupId>org.springframework.ldap</groupId>
       <artifactId>spring-ldap-core</artifactId>
-      <version>${spring-ldap-core.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -2369,7 +2368,6 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core-tests</artifactId>
-      <version>${spring-security-core-tests.version}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -2765,13 +2763,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>${spring.framework.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>${spring.framework.version}</version>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey.contribs</groupId>
@@ -2843,17 +2839,6 @@
       <artifactId>pentaho-vfs</artifactId>
       <version>${pentaho-vfs.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.webflow</groupId>
-      <artifactId>spring-binding</artifactId>
-      <version>${spring-binding.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>ognl</artifactId>
-          <groupId>opensymphony</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
