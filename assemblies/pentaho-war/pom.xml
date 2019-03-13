@@ -26,7 +26,6 @@
     <xmlgraphics-commons.version>2.2</xmlgraphics-commons.version>
     <c3p0.version>0.9.1.2</c3p0.version>
     <xml-apis.version>2.0.2</xml-apis.version>
-    <slf4j.version>1.7.7</slf4j.version>
     <jackrabbit.version>2.14.2</jackrabbit.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
@@ -833,7 +832,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
-      <version>${jcl-over-slf4j.version}</version>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>rhino</groupId>
@@ -903,7 +902,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>jcommon</groupId>
