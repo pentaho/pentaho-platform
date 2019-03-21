@@ -312,7 +312,6 @@
         <module>repository</module>
         <module>scheduler</module>
         <module>extensions</module>
-        <module>build-utils</module>
       </modules>
     </profile>
     <profile>
