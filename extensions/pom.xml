@@ -2146,12 +2146,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-build-utils</artifactId>
-      <version>${project.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>annogen</groupId>
       <artifactId>annogen</artifactId>
       <version>${annogen.version}</version>
