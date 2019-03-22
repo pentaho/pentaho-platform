@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -46,6 +46,8 @@ public class DatabaseHelper {
   private static final String PROP_DATA_TBS = "DATA_TBS"; //$NON-NLS-1$
 
   private static final String PROP_SERVERNAME = "SERVERNAME"; //$NON-NLS-1$
+
+  private static final String PROP_WAREHOUSE = "WAREHOUSE"; //$NON-NLS-1$
 
   private static final String PROP_PASSWORD = "PASSWORD"; //$NON-NLS-1$
 
@@ -111,6 +113,7 @@ public class DatabaseHelper {
     rootNode.setProperty( PROP_USERNAME, setNull( databaseConnection.getUsername() ) );
     rootNode.setProperty( PROP_PASSWORD, encryptPassword( databaseConnection.getPassword() ) );
     rootNode.setProperty( PROP_SERVERNAME, setNull( databaseConnection.getInformixServername() ) );
+    rootNode.setProperty( PROP_WAREHOUSE, setNull( databaseConnection.getWarehouse() ) );
     rootNode.setProperty( PROP_DATA_TBS, setNull( databaseConnection.getDataTablespace() ) );
     rootNode.setProperty( PROP_INDEX_TBS, setNull( databaseConnection.getIndexTablespace() ) );
     rootNode.setProperty( PROP_CONNECT_SQL, setNull( databaseConnection.getConnectSql() ) );
@@ -145,17 +148,17 @@ public class DatabaseHelper {
     // Store the extra options
     attrNode = rootNode.addNode( NODE_EXTRA_OPTIONS );
     attributes = databaseConnection.getExtraOptions();
-    for ( String key : attributes.keySet() ) {
-      String value = attributes.get( key );
-      attrNode.setProperty( key, value );
+
+    for ( Entry<String, String> entry : attributes.entrySet() ) {
+      attrNode.setProperty( entry.getKey(), entry.getValue() );
     }
 
     // Store the extra options order
     attrNode = rootNode.addNode( NODE_EXTRA_OPTIONS_ORDER );
     Map<String, String> extraOptionsOrder = databaseConnection.getExtraOptionsOrder();
-    for ( String key : extraOptionsOrder.keySet() ) {
-      String value = extraOptionsOrder.get( key );
-      attrNode.setProperty( key, value );
+
+    for ( Entry<String, String> entry : extraOptionsOrder.entrySet() ) {
+      attrNode.setProperty( entry.getKey(), entry.getValue() );
     }
 
     return rootNode;
@@ -196,6 +199,7 @@ public class DatabaseHelper {
     databaseConnection.setUsername( databaseMeta.getUsername() );
     databaseConnection.setPassword( databaseMeta.getPassword() );
     databaseConnection.setInformixServername( databaseMeta.getServername() );
+    databaseConnection.setWarehouse( databaseMeta.getWarehouse() );
     databaseConnection.setDataTablespace( databaseMeta.getDataTablespace() );
     databaseConnection.setIndexTablespace( databaseMeta.getIndexTablespace() );
     databaseConnection.setConnectSql( databaseMeta.getConnectSQL() );
@@ -207,14 +211,14 @@ public class DatabaseHelper {
     databaseConnection.setQuoteAllFields( databaseMeta.isQuoteAllFields() );
     databaseConnection.setUsingDoubleDecimalAsSchemaTableSeparator( databaseMeta.isUsingDoubleDecimalAsSchemaTableSeparator() );
 
-    Map<String, String> attributeMap = new HashMap<String, String>();
+    Map<String, String> attributeMap = new HashMap<>();
 
     for ( Entry<Object, Object> entry:databaseMeta.getAttributes().entrySet() ) {
       attributeMap.put( (String) entry.getKey(), (String) entry.getValue() );
     }
     databaseConnection.setAttributes( attributeMap );
 
-    Map<String, String> connectionPoolingMap = new HashMap<String, String>();
+    Map<String, String> connectionPoolingMap = new HashMap<>();
     for ( Entry<Object, Object> entry:databaseMeta.getConnectionPoolingProperties().entrySet() ) {
       connectionPoolingMap.put( (String) entry.getKey(), (String) entry.getValue() );
     }
@@ -253,6 +257,7 @@ public class DatabaseHelper {
     databaseConnection.setUsername( getString( rootNode, PROP_USERNAME ) );
     databaseConnection.setPassword( decryptPassword( getString( rootNode, PROP_PASSWORD ) ) );
     databaseConnection.setInformixServername( getString( rootNode, PROP_SERVERNAME ) );
+    databaseConnection.setWarehouse( getString( rootNode, PROP_WAREHOUSE ) );
     databaseConnection.setDataTablespace( getString( rootNode, PROP_DATA_TBS ) );
     databaseConnection.setIndexTablespace( getString( rootNode, PROP_INDEX_TBS ) );
     databaseConnection.setConnectSql( getString( rootNode, PROP_CONNECT_SQL ) );

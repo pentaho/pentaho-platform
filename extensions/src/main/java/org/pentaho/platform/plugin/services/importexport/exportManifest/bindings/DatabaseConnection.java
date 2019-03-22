@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -126,6 +126,7 @@ import java.util.List;
  *         &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="indexTablespace" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="informixServername" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="warehouse" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="initialPoolSize" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="maximumPoolSize" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
@@ -150,7 +151,7 @@ import java.util.List;
 @XmlType ( name = "databaseConnection", propOrder = { "accessType", "accessTypeValue", "attributes", "changed",
     "connectSql", "connectionPoolingProperties", "dataTablespace", "databaseName", "databasePort", "databaseType",
     "extraOptions", "forcingIdentifiersToLowerCase", "forcingIdentifiersToUpperCase", "hostname", "id",
-    "indexTablespace", "informixServername", "initialPoolSize", "maximumPoolSize", "name", "partitioned",
+    "indexTablespace", "informixServername", "warehouse", "initialPoolSize", "maximumPoolSize", "name", "partitioned",
     "partitioningInformation", "password", "quoteAllFields", "sqlServerInstance", "streamingResults", "username",
     "usingConnectionPool", "usingDoubleDecimalAsSchemaTableSeparator" } )
 public class DatabaseConnection {
@@ -176,6 +177,7 @@ public class DatabaseConnection {
   protected String id;
   protected String indexTablespace;
   protected String informixServername;
+  protected String warehouse;
   protected int initialPoolSize;
   protected int maximumPoolSize;
   protected String name;
@@ -483,6 +485,14 @@ public class DatabaseConnection {
    */
   public void setInformixServername( String value ) {
     this.informixServername = value;
+  }
+
+  public String getWarehouse() {
+    return warehouse;
+  }
+
+  public void setWarehouse( String warehouse ) {
+    this.warehouse = warehouse;
   }
 
   /**

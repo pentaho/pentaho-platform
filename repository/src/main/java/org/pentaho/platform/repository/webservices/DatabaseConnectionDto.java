@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -55,6 +55,7 @@ public class DatabaseConnectionDto {
 
   // Informix server name
   String informixServername;
+  String warehouse;
 
   boolean forcingIdentifiersToLowerCase;
   boolean forcingIdentifiersToUpperCase;
@@ -64,9 +65,9 @@ public class DatabaseConnectionDto {
   String accessTypeValue = null;
   DatabaseAccessType accessType = null;
   String driver = null;
-  Map<String, String> extraOptions = new HashMap<String, String>();
-  Map<String, String> attributes = new HashMap<String, String>();
-  Map<String, String> connectionPoolingProperties = new HashMap<String, String>();
+  Map<String, String> extraOptions = new HashMap<>();
+  Map<String, String> attributes = new HashMap<>();
+  Map<String, String> connectionPoolingProperties = new HashMap<>();
   List<PartitionDatabaseMeta> partitioningInformation;
   int initialPoolSize;
   int maxPoolSize;
@@ -301,6 +302,14 @@ public class DatabaseConnectionDto {
 
   public List<PartitionDatabaseMeta> getPartitioningInformation() {
     return this.partitioningInformation;
+  }
+
+  public String getWarehouse() {
+    return warehouse;
+  }
+
+  public void setWarehouse( String warehouse ) {
+    this.warehouse = warehouse;
   }
 
 }

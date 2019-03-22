@@ -65,6 +65,7 @@
       <xs:element name="id" type="xs:string" minOccurs="0"/>
       <xs:element name="indexTablespace" type="xs:string" minOccurs="0"/>
       <xs:element name="informixServername" type="xs:string" minOccurs="0"/>
+      <xs:element name="warehouse" type="xs:string" minOccurs="0"/>
       <xs:element name="initialPoolSize" type="xs:int"/>
       <xs:element name="maximumPoolSize" type="xs:int"/>
       <xs:element name="name" type="xs:string" minOccurs="0"/>

@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -62,6 +62,7 @@ public class DatabaseConnectionAdapter extends XmlAdapter<DatabaseConnectionDto,
       dbConnDto.setUsername( dbConn.getUsername() );
       dbConnDto.setUsingConnectionPool( dbConn.isUsingConnectionPool() );
       dbConnDto.setUsingDoubleDecimalAsSchemaTableSeparator( dbConn.isUsingDoubleDecimalAsSchemaTableSeparator() );
+      dbConnDto.setWarehouse( dbConn.getWarehouse() );
       return dbConnDto;
     } else {
       return null;
@@ -103,6 +104,7 @@ public class DatabaseConnectionAdapter extends XmlAdapter<DatabaseConnectionDto,
       dbConn.setUsername( dbConnDto.getUsername() );
       dbConn.setUsingConnectionPool( dbConnDto.isUsingConnectionPool() );
       dbConn.setUsingDoubleDecimalAsSchemaTableSeparator( dbConnDto.isUsingDoubleDecimalAsSchemaTableSeparator() );
+      dbConn.setWarehouse( dbConnDto.getWarehouse() );
       return dbConn;
     } else {
       return null;

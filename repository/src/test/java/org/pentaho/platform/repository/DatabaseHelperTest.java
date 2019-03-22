@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -42,6 +42,8 @@ public class DatabaseHelperTest {
   public static final String PROP_DATA_TBS = "DATA_TBS"; //$NON-NLS-1$
 
   public static final String PROP_SERVERNAME = "SERVERNAME"; //$NON-NLS-1$
+
+  public static final String PROP_WAREHOUSE = "WAREHOUSE"; //$NON-NLS-1$
 
   public static final String PROP_PASSWORD = "PASSWORD"; //$NON-NLS-1$
 
@@ -134,6 +136,7 @@ public class DatabaseHelperTest {
     databaseConnection.setUsername( "username" );
     databaseConnection.setPassword( "password" );
     databaseConnection.setInformixServername( "informixServername" );
+    databaseConnection.setWarehouse( "COMPUTE_WH" );
     databaseConnection.setDataTablespace( "dataTablespace" );
     databaseConnection.setIndexTablespace( "indexTableSpace" );
     databaseConnection.setConnectSql( "connectSql" );
@@ -175,6 +178,7 @@ public class DatabaseHelperTest {
     rootNode.setProperty( PROP_USERNAME, "username" );
     rootNode.setProperty( PROP_PASSWORD, "password" );
     rootNode.setProperty( PROP_SERVERNAME, "servername" );
+    rootNode.setProperty( PROP_WAREHOUSE, "COMPUTE_WH" );
     rootNode.setProperty( PROP_DATA_TBS, "dataTbs" );
     rootNode.setProperty( PROP_INDEX_TBS, "1" );
     rootNode.setProperty( PROP_CONNECT_SQL, "connectSql" );
