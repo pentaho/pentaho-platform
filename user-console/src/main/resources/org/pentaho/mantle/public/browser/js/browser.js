@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
  */
 define([
   "./browser.fileButtons",
@@ -1050,7 +1050,7 @@ define([
       // open last clicked folder or start folder (home folder)
       // if startFolder is not visible, use first one that it is instead
       var $folder = undefined;
-      if ( $( "div[path=\"" + FileBrowser.fileBrowserModel.get("startFolder") + "\"]" ).length === 0 ) {
+      if ( !FileBrowser.fileBrowserModel.get("startFolder")) {
         $folder = myself.getFirstVisibleFolder();
       } else {
         $folder = $("[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']");
