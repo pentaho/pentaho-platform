@@ -523,9 +523,10 @@ public class QuartzScheduler implements IScheduler {
   protected void setJobNextRun( Job job, Trigger trigger ) {
     //if getNextFireTime() is in the future, then we use it
     //if it is in past, we call getFireTimeAfter( new Date() ) to get the correct next date from today on
-    job.setNextRun( ( trigger.getNextFireTime().getTime() > new Date().getTime() )
-      ? trigger.getNextFireTime()
-      : trigger.getFireTimeAfter( new Date() ) );
+    Date nextFire = trigger.getNextFireTime();
+    job.setNextRun( nextFire != null && ( nextFire.getTime() < new Date().getTime() )
+      ? trigger.getFireTimeAfter( new Date() )
+      : nextFire );
   }
 
   private void setJobTrigger( Scheduler scheduler, Job job, Trigger trigger ) throws SchedulerException,

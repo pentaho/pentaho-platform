@@ -161,7 +161,7 @@ public class QuartzSchedulerTest {
 
     quartzScheduler.setJobNextRun( job, trigger );
 
-    assertEquals( job.getNextRun(), new Date( futureDate ) );
+    assertEquals( new Date( futureDate ), job.getNextRun() );
   }
 
   @Test
@@ -178,7 +178,23 @@ public class QuartzSchedulerTest {
 
     quartzScheduler.setJobNextRun( job, trigger );
 
-    assertEquals( job.getNextRun(), new Date( nowDate ) );
+    assertEquals( new Date( nowDate ), job.getNextRun() );
+  }
+
+  @Test
+  public void testSetJobNextRunToNullDate() {
+
+    Trigger trigger = Mockito.mock( Trigger.class );
+    Job job = new Job();
+    QuartzScheduler quartzScheduler = new QuartzScheduler();
+    long nowDate = new Date().getTime();
+
+    Mockito.when( trigger.getNextFireTime() ).thenReturn( null );
+    Mockito.when( trigger.getFireTimeAfter( any() ) ).thenReturn( new Date( nowDate ) );
+
+    quartzScheduler.setJobNextRun( job, trigger );
+
+    assertEquals( null,  job.getNextRun() );
   }
 
 }
