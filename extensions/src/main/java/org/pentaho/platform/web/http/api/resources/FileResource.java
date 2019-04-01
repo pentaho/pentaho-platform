@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -175,11 +175,11 @@ public class FileResource extends AbstractJaxRSResource {
       wrapper = fileService.systemBackup( userAgent );
       return buildZipOkResponse( wrapper );
     } catch ( IOException e ) {
-      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+      throw new WebApplicationException( e, Response.Status.INTERNAL_SERVER_ERROR );
     } catch ( ExportException e ) {
-      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+      throw new WebApplicationException( e, Response.Status.INTERNAL_SERVER_ERROR );
     } catch ( SecurityException e ) {
-      throw new WebApplicationException( Response.Status.FORBIDDEN );
+      throw new WebApplicationException( e, Response.Status.FORBIDDEN );
     }
   }
 
@@ -205,9 +205,9 @@ public class FileResource extends AbstractJaxRSResource {
       fileService.systemRestore( fileUpload, overwriteFile, applyAclSettings, overwriteAclSettings );
       return Response.ok().build();
     } catch ( PlatformImportException e ) {
-      throw new WebApplicationException( Response.Status.INTERNAL_SERVER_ERROR );
+      throw new WebApplicationException( e, Response.Status.INTERNAL_SERVER_ERROR );
     } catch ( SecurityException e ) {
-      throw new WebApplicationException( Response.Status.FORBIDDEN );
+      throw new WebApplicationException( e, Response.Status.FORBIDDEN );
     }
   }
 
