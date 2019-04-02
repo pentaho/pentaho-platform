@@ -25,7 +25,7 @@
     <tika-core.version>1.19.1</tika-core.version>
     <xmlgraphics-commons.version>2.2</xmlgraphics-commons.version>
     <c3p0.version>0.9.1.2</c3p0.version>
-    <xml-apis.version>2.0.2</xml-apis.version>
+    <slf4j.version>1.7.7</slf4j.version>
     <jackrabbit.version>2.14.2</jackrabbit.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
@@ -910,7 +910,6 @@
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
-      <version>${xml-apis.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>

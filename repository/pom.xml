@@ -684,7 +684,6 @@
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
-      <version>${xml-apis.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
