@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -439,7 +439,8 @@ public class CommandLineProcessor {
    * @throws ParseException
    * @throws IOException
    */
-  private void performMetadataDatasourceImport( String contextURL, File metadataDatasourceFile, String overwrite )
+  private void performMetadataDatasourceImport( String contextURL, File metadataDatasourceFile, String overwrite,
+                                                String logFile, String path )
     throws ParseException, IOException {
     File metadataFileInZip = null;
     InputStream metadataFileInZipInputStream = null;
@@ -494,9 +495,8 @@ public class CommandLineProcessor {
         // Response response
         ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
         if ( response != null ) {
-          String message = response.getEntity( String.class );
-          System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-              message ) );
+          logImportResponseMessage( logFile, path, response );
+          response.close();
         }
 
       } else {
@@ -513,9 +513,8 @@ public class CommandLineProcessor {
         // Response response
         ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
         if ( response != null ) {
-          String message = response.getEntity( String.class );
-          System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-              message ) );
+          logImportResponseMessage( logFile, path, response );
+          response.close();
         }
         metadataDatasourceInputStream.close();
       }
@@ -537,7 +536,8 @@ public class CommandLineProcessor {
    * @throws ParseException
    * @throws IOException
    */
-  private void performAnalysisDatasourceImport( String contextURL, File analysisDatasourceFile, String overwrite )
+  private void performAnalysisDatasourceImport( String contextURL, File analysisDatasourceFile, String overwrite,
+                                                String logFile, String path )
     throws ParseException, IOException {
     String analysisImportURL = contextURL + ANALYSIS_DATASOURCE_IMPORT;
 
@@ -571,10 +571,8 @@ public class CommandLineProcessor {
     // Response response
     ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
     if ( response != null ) {
-      String message = response.getEntity( String.class );
+      logImportResponseMessage( logFile, path, response );
       response.close();
-      System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-          message ) );
     }
     inputStream.close();
     part.cleanup();
@@ -589,6 +587,7 @@ public class CommandLineProcessor {
     String filePath = getOptionValue( INFO_OPTION_FILEPATH_NAME, true, false );
     String datasourceType = getOptionValue( INFO_OPTION_DATASOURCE_TYPE_NAME, true, false );
     String overwrite = getOptionValue( INFO_OPTION_OVERWRITE_NAME, false, true );
+    String logFile = getOptionValue( INFO_OPTION_LOGFILE_NAME, false, true );
 
     /*
      * wrap in a try/finally to ensure input stream is closed properly
@@ -599,9 +598,9 @@ public class CommandLineProcessor {
       File file = new File( filePath );
       if ( datasourceType != null ) {
         if ( datasourceType.equals( DatasourceType.ANALYSIS.name() ) ) {
-          performAnalysisDatasourceImport( contextURL, file, overwrite );
+          performAnalysisDatasourceImport( contextURL, file, overwrite, logFile, filePath );
         } else if ( datasourceType.equals( DatasourceType.METADATA.name() ) ) {
-          performMetadataDatasourceImport( contextURL, file, overwrite );
+          performMetadataDatasourceImport( contextURL, file, overwrite, logFile, filePath );
         }
       }
 
@@ -663,28 +662,7 @@ public class CommandLineProcessor {
         // Response response
         ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
         if ( response != null ) {
-          if ( response.getStatus() == 200 ) {
-            errorMessage = Messages.getInstance().getString( "CommandLineProcessor.INFO_IMPORT_SUCCESSFUL" );
-            System.out.println( errorMessage );
-            return;
-          }
-          if ( response.getStatus() == 403 ) {
-            errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0007_FORBIDDEN", path );
-            System.out.println( errorMessage );
-            return;
-          }
-          if ( response.getStatus() == 404 ) {
-            errorMessage =
-                Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
-            System.out.println( errorMessage );
-            return;
-          }
-          String message = response.getEntity( String.class );
-          System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-              message ) );
-          if ( logFile != null && !"".equals( logFile ) ) {
-            writeFile( message, logFile );
-          }
+          logImportResponseMessage( logFile, path, response );
           response.close();
         }
       } catch ( Exception e ) {
@@ -697,6 +675,25 @@ public class CommandLineProcessor {
         part.cleanup();
         in.close();
       }
+    }
+  }
+
+  private void logImportResponseMessage( String logFile, String path, ClientResponse response ) {
+    if ( response.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
+      errorMessage = Messages.getInstance().getString( "CommandLineProcessor.INFO_IMPORT_SUCCESSFUL" );
+    } else if ( response.getStatus() == ClientResponse.Status.FORBIDDEN.getStatusCode() ) {
+      errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0007_FORBIDDEN", path );
+    } else if ( response.getStatus() == ClientResponse.Status.NOT_FOUND.getStatusCode() ) {
+      errorMessage =
+          Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
+    }
+    StringBuilder message = new StringBuilder( errorMessage );
+    message.append( System.getProperty( "line.separator" ) );
+    message.append( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
+      response.getEntity( String.class ) ) );
+    System.out.println( message.toString() );
+    if ( logFile != null && !"".equals( logFile ) ) {
+      writeFile( message.toString(), logFile );
     }
   }
 
