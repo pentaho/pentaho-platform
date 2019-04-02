@@ -975,12 +975,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>javax.faces</groupId>
-      <artifactId>jsf-api</artifactId>
-      <version>${jsf-api.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.taglibs</groupId>
       <artifactId>taglibs-standard-impl</artifactId>
       <version>${taglibs-standard-impl.version}</version>
