@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -505,7 +505,7 @@ public class QuartzScheduler implements IScheduler {
             job.setJobId( jobId );
             setJobTrigger( scheduler, job, trigger );
             job.setJobName( QuartzJobKey.parse( jobId ).getJobName() );
-            job.setNextRun( trigger.getFireTimeAfter( new Date() ) );
+            setJobNextRun( job, trigger );
             job.setLastRun( trigger.getPreviousFireTime() );
             if ( ( filter == null ) || filter.accept( job ) ) {
               jobs.add( job );
@@ -518,6 +518,15 @@ public class QuartzScheduler implements IScheduler {
           Messages.getInstance().getString( "QuartzScheduler.ERROR_0004_FAILED_TO_LIST_JOBS" ), e ); //$NON-NLS-1$
     }
     return jobs;
+  }
+
+  protected void setJobNextRun( Job job, Trigger trigger ) {
+    //if getNextFireTime() is in the future, then we use it
+    //if it is in past, we call getFireTimeAfter( new Date() ) to get the correct next date from today on
+    Date nextFire = trigger.getNextFireTime();
+    job.setNextRun( nextFire != null && ( nextFire.getTime() < new Date().getTime() )
+      ? trigger.getFireTimeAfter( new Date() )
+      : nextFire );
   }
 
   private void setJobTrigger( Scheduler scheduler, Job job, Trigger trigger ) throws SchedulerException,

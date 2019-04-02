@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,17 +25,21 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import static org.mockito.Matchers.any;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.quartz.CronExpression;
 import org.quartz.CronTrigger;
+import org.quartz.Trigger;
 
 import java.text.ParseException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
@@ -142,4 +146,55 @@ public class QuartzSchedulerTest {
     assertNotNull( cronTrigger.getTimeZone() );
     assertEquals( currentTimezoneId, cronTrigger.getTimeZone().getID() );
   }
+
+  @Test
+  public void testSetJobNextRunToTheFuture() {
+
+    Trigger trigger = Mockito.mock( Trigger.class );
+    Job job = new Job();
+    QuartzScheduler quartzScheduler = new QuartzScheduler();
+    long nowDate = new Date().getTime();
+    long futureDate = nowDate+1000000000;
+
+    Mockito.when( trigger.getNextFireTime() ).thenReturn( new Date( futureDate ) );
+    Mockito.when( trigger.getFireTimeAfter( any() ) ).thenReturn( new Date( nowDate ) );
+
+    quartzScheduler.setJobNextRun( job, trigger );
+
+    assertEquals( new Date( futureDate ), job.getNextRun() );
+  }
+
+  @Test
+  public void testSetJobNextRunToThePast() {
+
+    Trigger trigger = Mockito.mock( Trigger.class );
+    Job job = new Job();
+    QuartzScheduler quartzScheduler = new QuartzScheduler();
+    long nowDate = new Date().getTime();
+    long pastDate = nowDate-1000000000;
+
+    Mockito.when( trigger.getNextFireTime() ).thenReturn( new Date( pastDate ) );
+    Mockito.when( trigger.getFireTimeAfter( any() ) ).thenReturn( new Date( nowDate ) );
+
+    quartzScheduler.setJobNextRun( job, trigger );
+
+    assertEquals( new Date( nowDate ), job.getNextRun() );
+  }
+
+  @Test
+  public void testSetJobNextRunToNullDate() {
+
+    Trigger trigger = Mockito.mock( Trigger.class );
+    Job job = new Job();
+    QuartzScheduler quartzScheduler = new QuartzScheduler();
+    long nowDate = new Date().getTime();
+
+    Mockito.when( trigger.getNextFireTime() ).thenReturn( null );
+    Mockito.when( trigger.getFireTimeAfter( any() ) ).thenReturn( new Date( nowDate ) );
+
+    quartzScheduler.setJobNextRun( job, trigger );
+
+    assertEquals( null,  job.getNextRun() );
+  }
+
 }
