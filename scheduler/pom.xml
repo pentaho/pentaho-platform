@@ -148,6 +148,30 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- region - Needed for IT testing -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${javax.servlet-api.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-platform-repository</artifactId>
+      <version>9.0.0.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- endregion -->
   </dependencies>
   <build>
     <plugins>
