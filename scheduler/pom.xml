@@ -165,12 +165,6 @@
       <version>${javax.servlet-api.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-repository</artifactId>
-      <version>9.0.0.0-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
     <!-- endregion -->
   </dependencies>
   <build>
