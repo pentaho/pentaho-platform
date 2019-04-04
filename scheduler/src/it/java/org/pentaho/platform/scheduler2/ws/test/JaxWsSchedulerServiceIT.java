@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.action.IAction;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.PluginBeanException;
@@ -47,8 +48,6 @@ import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
-import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.quartz.test.StubUserDetailsService;
 import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
@@ -57,7 +56,6 @@ import org.pentaho.platform.scheduler2.ws.ListParamValue;
 import org.pentaho.platform.scheduler2.ws.MapParamValue;
 import org.pentaho.platform.scheduler2.ws.ParamValue;
 import org.pentaho.platform.scheduler2.ws.StringParamValue;
-import org.pentaho.platform.scheduler2.ws.test.TestQuartzScheduler;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.engine.core.PluginManagerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +91,7 @@ public class JaxWsSchedulerServiceIT {
     mp.define( "IScheduler2", TestQuartzScheduler.class );
     mp.define( IUserRoleListService.class, StubUserRoleListService.class );
     mp.define( UserDetailsService.class, StubUserDetailsService.class );
+    mp.define( IAuthorizationPolicy.class, ScheduleAuthorizationPolicy.class );
     mp.start();
 
     scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null );
@@ -109,6 +108,10 @@ public class JaxWsSchedulerServiceIT {
 
     RUN_ONCE_IN_3_SECS = JobTrigger.ONCE_NOW;
     RUN_ONCE_IN_3_SECS.setStartTime( new Date( System.currentTimeMillis() + 2000L ) );
+
+    // Force a job schedule to guarantee that all security session vars are ready to running all tests
+    String jobId = schedulerSvc.createSimpleJob( "test job", generateFullJobParams(), JobTrigger.ONCE_NOW );
+    scheduler.removeJob( jobId );
   }
 
   @After
