@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -160,8 +160,6 @@ public class ActionRunner implements Callable<Boolean> {
         waitForFileCreated = true;
       }
       actionParams.put( "outputStream", stream );
-      // The lineage_id is only useful for the metadata and not needed at this level see PDI-10171
-      ActionUtil.removeKeyFromMap( actionParams, ActionUtil.QUARTZ_LINEAGE_ID );
       actionHarness.setValues( actionParams );
     }
 
