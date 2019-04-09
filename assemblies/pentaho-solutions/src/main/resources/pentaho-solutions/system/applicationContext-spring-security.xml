@@ -222,7 +222,6 @@
         <sec:intercept-url pattern="\A/js/theme.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/common-ui/resources/themes/.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/dojo/djconfig.js.*\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/content/common-ui/resources/web/angular-directives/angular-directives.css\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/pentaho-mobile/resources/.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/docs/.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/mantlelogin/.*\Z" access="Anonymous,Authenticated" />
