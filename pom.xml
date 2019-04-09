@@ -139,7 +139,7 @@
     <jakarta-regexp.version>1.2</jakarta-regexp.version>
     <geronimo-stax-api_1.0_spec.version>1.0.1</geronimo-stax-api_1.0_spec.version>
     <XmlSchema.version>1.4.2</XmlSchema.version>
-    <mail.version>1.4.7</mail.version>
+    <mail.version>1.6.1</mail.version>
     <sjsxp.version>1.0</sjsxp.version>
     <mdrapi.version>200507110943</mdrapi.version>
     <stax-ex.version>1.0</stax-ex.version>
