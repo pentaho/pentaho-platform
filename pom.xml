@@ -165,6 +165,7 @@
     <owasp.encoder.version>1.2</owasp.encoder.version>
     <powermock.version>1.6.3</powermock.version>
     <httpclient.version>4.5.3</httpclient.version>
+    <derby.version>10.5.3.0_1</derby.version>
     <ehcache-core.version>2.5.1</ehcache-core.version>
     <mockito-core.version>1.10.19</mockito-core.version>
     <apacheds.version>1.5.5</apacheds.version>
