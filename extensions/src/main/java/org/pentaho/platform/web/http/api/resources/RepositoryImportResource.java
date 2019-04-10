@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -241,8 +241,6 @@ public class RepositoryImportResource {
           PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", PentahoSessionHolder
               .getSession() );
       mondrianCatalogService.reInit( PentahoSessionHolder.getSession() );
-    } catch ( PentahoAccessControlException e ) {
-      return Response.serverError().entity( e.toString() ).build();
     } catch ( Exception e ) {
       return Response.serverError().entity( e.toString() ).build();
     } finally {
