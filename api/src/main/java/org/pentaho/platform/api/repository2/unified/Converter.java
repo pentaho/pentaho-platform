@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -41,7 +41,7 @@ public interface Converter {
    * @param mimeType
    * @return
    */
-  IRepositoryFileData convert( final InputStream inputStream, final String charset, final String mimeType );
+  IRepositoryFileData convert( final InputStream inputStream, final String charset, final String mimeType ) throws ConverterException;
 
   /**
    * 

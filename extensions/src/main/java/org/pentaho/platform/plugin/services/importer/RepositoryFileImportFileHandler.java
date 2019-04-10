@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,6 +27,7 @@ import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.repository2.unified.ConverterException;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -206,7 +207,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
       RepositoryFile repositoryFile;
 
-      IRepositoryFileData data = converter.convert( bundle.getInputStream(), bundle.getCharset(), mimeType );
+      IRepositoryFileData data = null;
+
+      try {
+        data = converter.convert( bundle.getInputStream(), bundle.getCharset(), mimeType );
+      } catch ( ConverterException e ) {
+        throw e;
+      }
       if ( null == file ) {
         repositoryFile = createFile( bundle, repositoryPath, data );
         if ( repositoryFile != null ) {
