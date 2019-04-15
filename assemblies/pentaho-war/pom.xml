@@ -33,6 +33,7 @@
     <paho.version>1.2.0</paho.version>
     <rxjava.version>2.2.3</rxjava.version>
     <apache-log4j-extras>1.2.17</apache-log4j-extras>
+    <snowflake-jdbc.version>3.6.28</snowflake-jdbc.version>
   </properties>
   <dependencies>
     <!-- region - Fasterxml jackson providers are required to be in the main classloader for serialization of POJOs
@@ -881,6 +882,11 @@
       <groupId>monetdb</groupId>
       <artifactId>monetdb-jdbc</artifactId>
       <version>${monetdb-jdbc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.snowflake</groupId>
+      <artifactId>snowflake-jdbc</artifactId>
+      <version>${snowflake-jdbc.version}</version>
     </dependency>
     <dependency>
       <groupId>net.sourceforge.nekohtml</groupId>

@@ -17,6 +17,7 @@
     <wkhtmltox.version>0.10.0_rc2</wkhtmltox.version>
     <wkhtmltoimage.version>${wkhtmltox.version}-static</wkhtmltoimage.version>
     <resources.directory>${basedir}/src/main/resources</resources.directory>
+    <snowflake-jdbc.version>3.6.28</snowflake-jdbc.version>
   </properties>
   <dependencies>
     <dependency>
@@ -116,6 +117,11 @@
       <groupId>log4j</groupId>
       <artifactId>apache-log4j-extras</artifactId>
       <version>${apache-log4j-extras}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.snowflake</groupId>
+      <artifactId>snowflake-jdbc</artifactId>
+      <version>${snowflake-jdbc.version}</version>
     </dependency>
   </dependencies>
   <build>
