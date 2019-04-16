@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>8.2.0.0-SNAPSHOT</version>
+    <version>8.2.0.5-625</version>
   </parent>
   <artifactId>pentaho-style</artifactId>
-  <version>8.2.0.0-SNAPSHOT</version>
+  <version>8.2.0.5-625</version>
   <packaging>war</packaging>
   <properties>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>

@@ -5,11 +5,11 @@
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>8.2.0.0-SNAPSHOT</version>
+    <version>8.2.0.5-625</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-ce-parent</artifactId>
-  <version>8.2.0.0-SNAPSHOT</version>
+  <version>8.2.0.5-625</version>
   <packaging>pom</packaging>
   <name>Pentaho BI Platform Community Edition</name>
   <description>Parent pom for pentaho-platform projects</description>
@@ -37,7 +37,7 @@
     <activation.version>1.1</activation.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
     <commons-vfs2.version>2.2</commons-vfs2.version>
-    <pentaho-json.version>8.2.0.0-SNAPSHOT</pentaho-json.version>
+    <pentaho-json.version>8.2.0.5-625</pentaho-json.version>
     <poi.version>3.17</poi.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
     <bsh.version>1.3.0</bsh.version>
@@ -190,7 +190,7 @@
     <snmp4j.version>1.9.3d</snmp4j.version>
     <batik.version>1.9.1</batik.version>
     <itext.version>2.1.7</itext.version>
-    <mondrian.version>8.2.0.0-SNAPSHOT</mondrian.version>
+    <mondrian.version>8.2.0.5-625</mondrian.version>
     <mockito-all.version>1.10.19</mockito-all.version>
     <org.apache.karaf.jaas.version>3.0.3</org.apache.karaf.jaas.version>
     <log4j.version>1.2.17</log4j.version>
