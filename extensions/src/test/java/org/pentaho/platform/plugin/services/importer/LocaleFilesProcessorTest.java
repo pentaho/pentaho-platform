@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -42,9 +42,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 /**
@@ -163,6 +167,37 @@ public class LocaleFilesProcessorTest {
     ArgumentCaptor<IPlatformImportBundle> argument = ArgumentCaptor.forClass( IPlatformImportBundle.class );
     Mockito.verify( localeImportHandlerSpy ).importFile( argument.capture() );
     assertEquals( localeFileName, argument.getValue().getName() );
+  }
+
+  @Test
+  public void isXMLLocaleTest() {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<index>"
+      + "<name>the name</name>"
+      + "<description>the description</description>"
+      + "</index>";
+    localeFilesProcessor = new LocaleFilesProcessor();
+    assertTrue( localeFilesProcessor.isXMLlocale( new ByteArrayInputStream( xml.getBytes() ) ) );
+  }
+
+  @Test
+  public void isXMLLocaleWrongFormatTest() {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<name>the name</name>"
+      + "<description>the description</description>";
+    localeFilesProcessor = new LocaleFilesProcessor();
+    assertFalse( localeFilesProcessor.isXMLlocale( new ByteArrayInputStream( xml.getBytes() ) ) );
+  }
+
+  @Test
+  public void isXMLLocaleEmptyValuesTest() {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<index>"
+      + "<name></name>"
+      + "<description></description>"
+      + "</index>";
+    localeFilesProcessor = new LocaleFilesProcessor();
+    assertFalse( localeFilesProcessor.isXMLlocale( new ByteArrayInputStream( xml.getBytes() ) ) );
   }
 
   private boolean processIsLocalFile( String fileName, StringBuffer localeContent ) throws Exception {
