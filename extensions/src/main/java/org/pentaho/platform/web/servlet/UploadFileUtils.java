@@ -58,6 +58,7 @@ public class UploadFileUtils {
   private static final String DEFAULT_EXTENSIONS = "csv,dat,txt,tar,zip,tgz,gz,gzip";
   public static final String DEFAULT_RELATIVE_UPLOAD_FILE_PATH = File.separatorChar
     + "system" + File.separatorChar + "metadata" + File.separatorChar + "csvfiles" + File.separatorChar;
+  private static final char DOT = '.';
   private static final String DOT_TMP = ".tmp";
   private String fileName;
   private boolean shouldUnzip;
@@ -191,7 +192,8 @@ public class UploadFileUtils {
     File file = null;
     if ( isTemporary() ) {
       // Use the full filename because GZip relies on the extensions of the file to discover it's content
-      String extension = ( getUploadedFileItem() != null ) ? '-' + getUploadedFileItem().getName() + DOT_TMP : DOT_TMP;
+      String extension =
+        ( getUploadedFileItem() != null ) ? DOT + removeFileName( getUploadedFileItem().getName() ) + DOT_TMP : DOT_TMP;
       file =
         PentahoSystem.getApplicationContext()
           .createTempFile( session, StringUtil.EMPTY_STRING, extension, true );
@@ -369,7 +371,7 @@ public class UploadFileUtils {
               if ( isTemporary() ) {
                 entryFile =
                   PentahoSystem.getApplicationContext()
-                    .createTempFile( session, StringUtil.EMPTY_STRING, '.' + extension + DOT_TMP, true );
+                    .createTempFile( session, StringUtil.EMPTY_STRING, DOT + extension + DOT_TMP, true );
               } else {
                 entryFile = new File( getPath() + File.separatorChar + entry.getName() );
               }
@@ -426,7 +428,7 @@ public class UploadFileUtils {
       if ( isTemporary() || fullPath ) {
         entryFile =
           PentahoSystem.getApplicationContext()
-            .createTempFile( session, StringUtil.EMPTY_STRING, '.' + extension + DOT_TMP, true );
+            .createTempFile( session, StringUtil.EMPTY_STRING, DOT + extension + DOT_TMP, true );
       } else {
         if ( !extension.isEmpty() ) {
           entryFile = new File( extension );
@@ -485,7 +487,7 @@ public class UploadFileUtils {
               if ( isTemporary() ) {
                 entryFile =
                   PentahoSystem.getApplicationContext()
-                    .createTempFile( session, StringUtil.EMPTY_STRING, '.' + extension + DOT_TMP, true );
+                    .createTempFile( session, StringUtil.EMPTY_STRING, DOT + extension + DOT_TMP, true );
               } else {
                 entryFile = new File( getPath() + File.separatorChar + entry.getName() );
               }
@@ -584,6 +586,32 @@ public class UploadFileUtils {
       }
     }
     return foldersize;
+  }
+
+  /**
+   * <p>Removes the file name, leaving all extensions of a given filename.</p>
+   * <p>Returns <code>null</code> if filename is <code>null</code>, and an empty string if the filename is empty or has
+   * no extensions.</p>
+   *
+   * @param filename the filename for which we want the extensions
+   * @return all extensions of the given filename
+   */
+  protected String removeFileName( String filename ) {
+    if ( null != filename ) {
+      int dotIndex = filename.indexOf( DOT );
+
+      if ( 0 < dotIndex ) {
+        int len = filename.length();
+        ++dotIndex;
+        if ( len > dotIndex ) {
+          return filename.substring( dotIndex );
+        }
+      }
+
+      return StringUtil.EMPTY_STRING;
+    }
+
+    return null;
   }
 
   /******************* Getters and Setters ********************/
