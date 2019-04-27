@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -31,6 +31,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
@@ -64,6 +65,8 @@ public class ZipExportProcessor extends BaseExportProcessor {
   protected boolean withManifest = true;
 
   protected List<String> localeExportList;
+
+  private static final int SAFETY_TMP_FILE_SIZE = 50;
 
   /**
    * Encapsulates the logic of registering import handlers, generating the manifest, and performing the export
@@ -382,8 +385,24 @@ public class ZipExportProcessor extends BaseExportProcessor {
    */
   private InputStream createLocaleFile( String name, Properties properties, String locale ) throws IOException {
     if ( properties != null ) {
-      File localeFile = File.createTempFile( ExportFileNameEncoder.encodeZipFileName( name ), LOCALE_EXT );
-      localeFile.deleteOnExit();
+      File localeFile = null;
+
+      try {
+        localeFile = PentahoSystem
+          .getApplicationContext().createTempFile( getSession(), ExportFileNameEncoder.encodeZipFileName( name ), LOCALE_EXT, true );
+      } catch ( IOException e ) {
+        // BISERVER-14140 - Retry when temp file name exceeds the limit of OS
+        // Retry inside a catch because there isn't an accurate mechanism to determine the effective temp file max length
+        // This is the local temp file only, inside the zip, the final file will have the original name
+        String smallerName = ExportFileNameEncoder.encodeZipFileName( name ).substring( 0, SAFETY_TMP_FILE_SIZE );
+        log.debug( "Error with original name file. Retrying with a smaller temp file name - " + smallerName );
+        localeFile = PentahoSystem
+          .getApplicationContext().createTempFile( getSession(), smallerName, LOCALE_EXT, true );
+      } finally {
+        if ( localeFile != null ) {
+          localeFile.deleteOnExit();
+        }
+      }
 
       try ( FileOutputStream fileOut = new FileOutputStream( localeFile ) ) {
         properties.store( fileOut, "Locale = " + locale );
