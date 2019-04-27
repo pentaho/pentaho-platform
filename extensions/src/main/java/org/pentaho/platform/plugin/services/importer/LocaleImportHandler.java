@@ -92,12 +92,23 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
       if ( ImportSession.getSession().getSkippedFiles().contains( fullPath ) ) {
         getLogger().trace(
             "Not importing Locale [" + bundleFileName + "] since parent file not written " );
-      } else {
+      } else if ( !isLocalePropertiesForFileSet( localeParent, localeBundle, bundleFileName ) ) {
         getLogger().trace( "Processing Locale [" + bundleFileName + "]" );
         unifiedRepository
             .setLocalePropertiesForFile( localeParent, extractLocaleCode( localeBundle ), localeProperties );
       }
     }
+  }
+
+  private boolean isLocalePropertiesForFileSet( RepositoryFile localeParent, RepositoryFileImportBundle localeBundle, String bundleFileName ) {
+    Properties unifiedRep = unifiedRepository.getLocalePropertiesForFile( localeParent, extractLocaleCode( localeBundle ) );
+    //If properties have not been set, or the old format index.xml is set but we are trying to set the new format index.locale
+    //we should set the locale properties
+    if ( unifiedRep == null || ( unifiedRep.getProperty( FILE_TITLE ).equals( LOCALE_FOLDER + XML_LOCALE_EXT )
+      && bundleFileName.equals( LOCALE_FOLDER + LOCALE_EXT ) ) ) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -273,13 +284,16 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     return false;
   }
 
-  private Properties loadPropertiesByXml( RepositoryFileImportBundle localeBundle ) {
+  @VisibleForTesting
+  Properties loadPropertiesByXml( RepositoryFileImportBundle localeBundle ) {
     final Properties properties = new Properties();
-    String fileTitle = localeBundle.getName();
+    String fileTitle = localeBundle.getFile().getName();
 
     if ( ( LOCALE_FOLDER + XML_LOCALE_EXT ).equals( fileTitle ) ) {
       try {
-        Document document = getLocalBundleDocument( localeBundle.getInputStream() );
+        InputStream is = localeBundle.getInputStream();
+        is.reset();
+        Document document = getLocalBundleDocument( is );
         XPath xPath = XPathFactory.newInstance().newXPath();
 
         String name = xPath.compile( "/index/name" ).evaluate( document );
