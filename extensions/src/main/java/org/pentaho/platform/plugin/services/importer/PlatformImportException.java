@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -43,6 +43,8 @@ public class PlatformImportException extends Exception {
   public static final int PUBLISH_CONTENT_EXISTS_ERROR = 9;
 
   public static final int PUBLISH_PROHIBITED_SYMBOLS_ERROR = 10;
+
+  public static final int PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS = 11;
 
   private int errorStatusCode = PlatformImportException.PUBLISH_TO_SERVER_FAILED;
 

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -28,11 +28,13 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.di.core.exception.KettleMissingPluginsException;
 import org.pentaho.di.repository.RepositoryObjectType;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.repository2.unified.ConverterException;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
@@ -142,6 +144,14 @@ public class PentahoPlatformImporter implements IPlatformImporter {
         );
       } catch ( PlatformImportException pe ) {
         throw pe; // if already converted - just rethrow
+      } catch ( ConverterException ce ) {
+        Throwable cause = ce.getCause();
+        if ( cause instanceof KettleMissingPluginsException ) {
+          throw new PlatformImportException( messages
+            .getString( "PentahoPlatformImporter.ERROR_0008_PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS", cause.getLocalizedMessage() ),
+            PlatformImportException.PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS, cause
+          );
+        }
       } catch ( Exception e1 ) {
         throw new PlatformImportException( messages
             .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR", e1.getLocalizedMessage() ),
