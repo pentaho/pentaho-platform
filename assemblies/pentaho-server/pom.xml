@@ -116,7 +116,6 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>apache-log4j-extras</artifactId>
-      <version>${apache-log4j-extras}</version>
     </dependency>
     <dependency>
       <groupId>net.snowflake</groupId>
