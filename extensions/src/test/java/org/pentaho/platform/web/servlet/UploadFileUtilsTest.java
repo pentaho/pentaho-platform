@@ -17,7 +17,9 @@
 
 package org.pentaho.platform.web.servlet;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
@@ -54,5 +56,17 @@ public class UploadFileUtilsTest {
     assertFalse( testUtils.checkExtension( "", false ) );
     testUtils.setAllowsNoExtension( true );
     assertTrue( testUtils.checkExtension( "", false ) );
+  }
+
+  @Test
+  public void testGetAllExtensions() throws Exception {
+    UploadFileUtils testUtils = new UploadFileUtils( null );
+    assertNull( testUtils.removeFileName( null ) );
+    assertEquals( "",  testUtils.removeFileName( "" ) );
+    assertEquals( "",  testUtils.removeFileName( "aaaa" ) );
+    assertEquals( "",  testUtils.removeFileName( " bb " ) );
+    assertEquals( "a",  testUtils.removeFileName( "b.a" ) );
+    assertEquals( "b.a",  testUtils.removeFileName( "c.b.a" ) );
+    assertEquals( "c.b.a",  testUtils.removeFileName( "d.c.b.a" ) );
   }
 }
