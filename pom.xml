@@ -144,7 +144,6 @@
   <jmock-junit4.version>2.5.1</jmock-junit4.version>
   <js.version>1.7R3</js.version>
   <jsch.version>0.1.54</jsch.version>
-  <jsf-api.version>1.1</jsf-api.version>
   <jsendnsca.version>2.0.1</jsendnsca.version>
   <json.version>7.1-SNAPSHOT</json.version>
   <json-path.version>0.8.1</json-path.version>
