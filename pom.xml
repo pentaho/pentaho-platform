@@ -201,7 +201,6 @@
   <poi.version>3.17</poi.version>
   <commons-collections4.version>4.1</commons-collections4.version>
   <portlet-api.version>2.0</portlet-api.version>
-  <postgresql.version>9.3-1102-jdbc4</postgresql.version>
   <powermock.version>1.6.3</powermock.version>
   <quartz.version>1.7.2</quartz.version>
   <rome.version>1.0</rome.version>
