@@ -67,6 +67,7 @@ public class LocaleFilesProcessor {
   private static final String NAME = "name";
   private static final String PROPERTIES_EXT = ".properties";
   private static final String LOCALE_EXT = ".locale";
+  private static final String XML_LOCALE = "index.xml";
   private List<LocaleFileDescriptor> localeFiles;
 
   public LocaleFilesProcessor() {
@@ -98,7 +99,7 @@ public class LocaleFilesProcessor {
       sourceVersion = 1;
     } else if ( fileName.endsWith( LOCALE_EXT ) ) {
       sourceVersion = 2;
-    } else if ( isXMLlocale( file.getInputStream() ) ) {
+    } else if ( fileName.equals( XML_LOCALE ) && isXMLlocale( file.getInputStream() ) ) {
       String filePath = ( actualFilePath.equals( "/" ) || actualFilePath.equals( "\\" ) ) ? "" : actualFilePath;
       filePath = RepositoryFilenameUtils.concat( parentPath, filePath );
       localeFiles.add( new LocaleFileDescriptor( fileName, "", filePath, localeRepositoryFile, new ByteArrayInputStream( bytes ) ) );
@@ -222,7 +223,7 @@ public class LocaleFilesProcessor {
     for ( LocaleFileDescriptor localeFile : localeFiles ) {
       String extension = localeFile.getExtension();
       if ( !StringUtils.isEmpty( extension ) && extension.equals( LOCALE_EXT )
-        || isXMLlocale( localeFile.getInputStream() ) ) {
+        || ( localeFile.getName().equals( XML_LOCALE ) && isXMLlocale( localeFile.getInputStream() ) ) ) {
         //substringing the actual name for the dot char, make sure that things like <filename.xaction.locale> get converted
         //to <filename>, since it can exist a <filename.properties> file which we don't want to import
         String actualFileName = localeFile.getFile().getName().indexOf( "." ) != -1
