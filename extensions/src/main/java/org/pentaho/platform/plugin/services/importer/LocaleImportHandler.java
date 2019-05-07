@@ -104,7 +104,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     Properties unifiedRep = unifiedRepository.getLocalePropertiesForFile( localeParent, extractLocaleCode( localeBundle ) );
     //If properties have not been set, or the old format index.xml is set but we are trying to set the new format index.locale
     //we should set the locale properties
-    if ( unifiedRep == null || ( unifiedRep.getProperty( FILE_TITLE ).equals( LOCALE_FOLDER + XML_LOCALE_EXT )
+    if ( unifiedRep == null || ( unifiedRep.getProperty( FILE_TITLE ) != null && unifiedRep.getProperty( FILE_TITLE ).equals( LOCALE_FOLDER + XML_LOCALE_EXT )
       && bundleFileName.equals( LOCALE_FOLDER + LOCALE_EXT ) ) ) {
       return false;
     }
@@ -287,6 +287,10 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
   @VisibleForTesting
   Properties loadPropertiesByXml( RepositoryFileImportBundle localeBundle ) {
     final Properties properties = new Properties();
+    RepositoryFile file = localeBundle.getFile();
+    if ( file == null ) {
+      return properties;
+    }
     String fileTitle = localeBundle.getFile().getName();
 
     if ( ( LOCALE_FOLDER + XML_LOCALE_EXT ).equals( fileTitle ) ) {
