@@ -15,7 +15,7 @@ REM without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTIC
 REM See the GNU General Public License for more details.
 REM
 REM
-REM Copyright 2011 - 2018 Hitachi Vantara.  All rights reserved.
+REM Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
 REM *******************************************************************************************
 
 setlocal
@@ -29,9 +29,11 @@ call set-pentaho-env.bat "%~dp0jre"
 
 cd tomcat\bin
 set CATALINA_HOME=%~dp0tomcat
+
+SET BITS=64
 SET DI_HOME="%~dp0pentaho-solutions\system\kettle"
 
-set CATALINA_OPTS=-Xms2048m -Xmx6144m -XX:MaxPermSize=256m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -DDI_HOME=%DI_HOME%
+set CATALINA_OPTS=-Xms2048m -Xmx6144m  -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -DDI_HOME=%DI_HOME%
 
 rem Make sure we set the appropriate variable so Tomcat can start (e.g. JAVA_HOME iff. _PENTAHO_JAVA_HOME points to a JDK)
 if not exist "%_PENTAHO_JAVA_HOME%\bin\jdb.exe" goto noJdk

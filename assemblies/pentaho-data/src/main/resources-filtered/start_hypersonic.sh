@@ -15,24 +15,32 @@
 # See the GNU General Public License for more details.
 #
 #
-# Copyright 2011 - 2018 Hitachi Vantara.  All rights reserved.
+# Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
 # *******************************************************************************************
 
 ### ====================================================================== ###
 ##                                                                          ##
-##  Hitachi Vantara Stop Script                                                     ##
+##  HSQLDB Start Script                                                     ##
 ##                                                                          ##
 ### ====================================================================== ###
 
 DIR_REL=`dirname $0`
 cd $DIR_REL
 DIR=`pwd`
-#cd -
+cd -
 
 . "$DIR/set-pentaho-env.sh"
 
-setPentahoEnv "$DIR/jre"
+setPentahoEnv "$DIR/../jre"
 
-cd "$DIR/tomcat/bin"
-JAVA_HOME=$_PENTAHO_JAVA_HOME
-sh shutdown.sh
+#---------------------------------#
+# dynamically build the classpath #
+#---------------------------------#
+THE_CLASSPATH=
+for i in `ls $DIR_REL/lib/hsqldb*.jar`
+do
+  THE_CLASSPATH=${THE_CLASSPATH}:${i}
+done
+echo "classpath is $THE_CLASSPATH"
+
+"$_PENTAHO_JAVA" -cp $THE_CLASSPATH org.hsqldb.Server -database.0 $DIR_REL/hsqldb/sampledata -dbname.0 sampledata -database.1 $DIR_REL/hsqldb/hibernate -dbname.1 hibernate -database.2 $DIR_REL/hsqldb/quartz -dbname.2 quartz

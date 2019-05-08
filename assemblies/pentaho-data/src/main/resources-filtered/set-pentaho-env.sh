@@ -15,7 +15,7 @@
 # See the GNU General Public License for more details.
 #
 #
-# Copyright 2011 - 2018 Hitachi Vantara.  All rights reserved.
+# Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
 # *******************************************************************************************
 
 # -----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ setPentahoEnv() {
   DIR_REL=`dirname $0`
   cd $DIR_REL
   DIR=`pwd`
-  #cd -
+  cd -
 	
   if [ -n "$PENTAHO_JAVA" ]; then
     __LAUNCHER="$PENTAHO_JAVA"

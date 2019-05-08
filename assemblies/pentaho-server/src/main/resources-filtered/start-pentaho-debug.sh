@@ -15,7 +15,7 @@
 # See the GNU General Public License for more details.
 #
 #
-# Copyright 2011 - 2018 Hitachi Vantara.  All rights reserved.
+# Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
 # *******************************************************************************************
 
 ### ====================================================================== ###

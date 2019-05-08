@@ -1,4 +1,4 @@
-@Echo Off
+@echo off
 
 REM *******************************************************************************************
 REM This program is free software; you can redistribute it and/or modify it under the
@@ -15,39 +15,29 @@ REM without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTIC
 REM See the GNU General Public License for more details.
 REM
 REM
-REM Copyright 2011 - 2018 Hitachi Vantara.  All rights reserved.
+REM Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
 REM *******************************************************************************************
 
-setlocal 
+setlocal
 cd /D %~dp0
-REM ---------------------------------------------
-REM - Create the classpath for this application -
-REM ---------------------------------------------
-SET tempclasspath=
-SET libdir=.\lib
+call set-pentaho-env.bat "%~dp0jre"
 
-FOR /f "delims=" %%a IN ('dir %libdir%\hsqldb*.jar /b /a-d') DO call :addToClasspath %%a
-GOTO :startApp
+cd tomcat\bin
+set CATALINA_HOME=%~dp0tomcat
 
-:addToClasspath
-IF "%tempclasspath%"=="" SET tempclasspath=%libdir%\%1& GOTO :end
-SET tempclasspath=%tempclasspath%;%libdir%\%1
-GOTO :end
+rem Make sure we set the appropriate variable so Tomcat can start (e.g. JAVA_HOME iff. _PENTAHO_JAVA_HOME points to a JDK)
+if not exist "%_PENTAHO_JAVA_HOME%\bin\jdb.exe" goto noJdk
+if not exist "%_PENTAHO_JAVA_HOME%\bin\javac.exe" goto noJdk
+set JAVA_HOME=%_PENTAHO_JAVA_HOME%
+set JRE_HOME=
+goto start
 
-REM -----------------------
-REM - Run the application -
-REM -----------------------
-:startApp
-FOR %%b IN (sampledata,hibernate,quartz) DO call :runCommand %%b 
-GOTO end
+:noJdk
+rem If no JDK found at %_PENTAHO_JAVA_HOME% unset JAVA_HOME and set JRE_HOME so Tomcat doesn't misinterpret JAVA_HOME == JDK_HOME
+set JAVA_HOME=
+set JRE_HOME=%_PENTAHO_JAVA_HOME%
 
-:runCommand
-
-call set-pentaho-env.bat "%~dp0..\jre"
-
-"%_PENTAHO_JAVA%" -cp %tempclasspath% org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/%1" -user "SA" -password ""
-echo %command%
-%command%
-GOTO :end
-
-:end
+:start
+shutdown.bat
+endlocal
+exit
