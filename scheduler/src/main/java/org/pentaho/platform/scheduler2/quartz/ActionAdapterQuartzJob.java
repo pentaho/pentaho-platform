@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2018 Hitachi Vantara.  All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.scheduler2.quartz;
@@ -245,8 +245,6 @@ public class ActionAdapterQuartzJob implements Job {
             waitForFileCreated = true;
           }
           actionParams.put( "outputStream", stream );
-          // The lineage_id is only useful for the metadata and not needed at this level see PDI-10171
-          actionParams.remove( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
           actionHarness.setValues( actionParams );
         }
 
