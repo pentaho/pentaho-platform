@@ -222,8 +222,7 @@ public class LocaleFilesProcessor {
     //if there is a .locale file in a folder, we should not import the .properties file on that same folder
     for ( LocaleFileDescriptor localeFile : localeFiles ) {
       String extension = localeFile.getExtension();
-      if ( !StringUtils.isEmpty( extension ) && extension.equals( LOCALE_EXT )
-        || ( localeFile.getName().equals( XML_LOCALE ) && isXMLlocale( localeFile.getInputStream() ) ) ) {
+      if ( !StringUtils.isEmpty( extension ) && extension.equals( LOCALE_EXT ) ) {
         //substringing the actual name for the dot char, make sure that things like <filename.xaction.locale> get converted
         //to <filename>, since it can exist a <filename.properties> file which we don't want to import
         String actualFileName = localeFile.getFile().getName().indexOf( "." ) != -1
