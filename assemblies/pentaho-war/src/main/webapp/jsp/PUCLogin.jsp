@@ -215,7 +215,7 @@
                 <div class="input-container">
                   <label><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></label>
                   <input id="j_password" name="j_password" type="password"
-                         placeholder='<%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD.PLACEHOLDER")%>'
+                         placeholder=""
                          autocomplete="off">
                 </div>
                 <div class="space-60"></div>
