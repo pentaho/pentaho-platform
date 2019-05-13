@@ -11,6 +11,23 @@
 
   <fileSets>
     <fileSet>
+      <directory>${project.basedir}/src/main/resources-filtered</directory>
+      <outputDirectory>./data</outputDirectory>
+      <filtered>true</filtered>
+      <includes>
+        <include>**/*.sh</include>
+      </includes>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/src/main/resources-filtered</directory>
+      <outputDirectory>./data</outputDirectory>
+      <filtered>true</filtered>
+      <excludes>
+        <exclude>**/*.sh</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
       <directory>${basedir}/src/main/resources</directory>
       <outputDirectory>.</outputDirectory>
     </fileSet>

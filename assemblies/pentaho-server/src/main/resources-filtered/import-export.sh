@@ -15,14 +15,8 @@
 # See the GNU General Public License for more details.
 #
 #
-# Copyright 2011 - 2018 Hitachi Vantara.  All rights reserved.
+# Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
 # *******************************************************************************************
-
-### ====================================================================== ###
-##                                                                          ##
-##  Hitachi Vantara Start Script                                                    ##
-##                                                                          ##
-### ====================================================================== ###
 
 DIR_REL=`dirname $0`
 cd $DIR_REL
@@ -30,8 +24,7 @@ DIR=`pwd`
 #cd -
 
 . "$DIR/set-pentaho-env.sh"
-
-setPentahoEnv "$DIR/jre"
+setPentahoEnv
 
 ### =========================================================== ###
 ## Set a variable for DI_HOME (to be used as a system property)  ##
@@ -40,16 +33,6 @@ setPentahoEnv "$DIR/jre"
 ### =========================================================== ###
 DI_HOME="$DIR"/pentaho-solutions/system/kettle
 
-errCode=0
-if [ -f "$DIR/promptuser.sh" ]; then
-  sh "$DIR/promptuser.sh"
-  errCode="$?"
-  rm "$DIR/promptuser.sh"
-fi
-if [ "$errCode" = 0 ]; then
-  cd "$DIR/tomcat/bin"
-  CATALINA_OPTS="-Xms2048m -Xmx6144m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -DDI_HOME=\"$DI_HOME\""
-  export CATALINA_OPTS
-  JAVA_HOME=$_PENTAHO_JAVA_HOME
-  sh startup.sh
-fi
+# uses Java 6 classpath wildcards
+# quotes required around classpath to prevent shell expansion
+"$_PENTAHO_JAVA" -Xmx2048m -XX:MaxPermSize=256m -Dfile.encoding=utf8 -DDI_HOME="$DI_HOME" -classpath "$DIR/tomcat/webapps/pentaho/WEB-INF/lib/*" org.pentaho.platform.plugin.services.importexport.CommandLineProcessor ${1+"$@"}

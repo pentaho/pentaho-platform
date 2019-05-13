@@ -15,10 +15,10 @@ REM without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTIC
 REM See the GNU General Public License for more details.
 REM
 REM
-REM Copyright 2011 - 2018 Hitachi Vantara.  All rights reserved.
+REM Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
 REM *******************************************************************************************
 
-setlocal
+setlocal 
 cd /D %~dp0
 REM ---------------------------------------------
 REM - Create the classpath for this application -
@@ -38,12 +38,16 @@ REM -----------------------
 REM - Run the application -
 REM -----------------------
 :startApp
+FOR %%b IN (sampledata,hibernate,quartz) DO call :runCommand %%b 
+GOTO end
+
+:runCommand
 
 call set-pentaho-env.bat "%~dp0..\jre"
 
-"%_PENTAHO_JAVA%" -cp %tempclasspath% org.hsqldb.Server -database.0 hsqldb\sampledata -dbname.0 sampledata -database.1 hsqldb\hibernate -dbname.1 hibernate -database.2 hsqldb\quartz -dbname.2 quartz
+"%_PENTAHO_JAVA%" -cp %tempclasspath% org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/%1" -user "SA" -password ""
 echo %command%
 %command%
-exit
+GOTO :end
 
 :end
