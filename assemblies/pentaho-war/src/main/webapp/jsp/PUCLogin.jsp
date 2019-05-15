@@ -349,15 +349,13 @@
           return;
         }
         // fail
-        document.getElementById('loginError').style.display='inline-flex';
-        document.getElementById('login-messages').className='some-login-message-visible';
+        showOneErrorMessage('loginError');
       },
 
       success:function(data, textStatus, jqXHR){
         if (data.indexOf("j_spring_security_check") != -1) {
           // fail
-          document.getElementById('loginError').style.display='inline-flex';
-          document.getElementById('login-messages').className='some-login-message-visible';
+          showOneErrorMessage('loginError');
           return false;
         } else {
           document.getElementById("j_password").value = "";
@@ -366,6 +364,27 @@
       }
     });
     return false;
+  }
+
+  function showOneErrorMessage(divId) {
+    var msgs = document.getElementsByClassName('login-error-message');
+    var isSomeMessageVisible = false;
+    if(msgs && msgs.length > 0) {
+      for (var i = 0; i < msgs.length; i++) {
+        if(msgs[i].id === divId) {
+          msgs[i].style.display='inline-flex';
+          isSomeMessageVisible = true;
+        } else {
+          msgs[i].style.display='none';
+        }
+      }
+    }
+
+    if(isSomeMessageVisible){
+      document.getElementById('login-messages').className='some-login-message-visible';
+    } else {
+      document.getElementById('login-messages').className='none-login-message-visible';
+    }
   }
 
   function loginAs (username, password) {
