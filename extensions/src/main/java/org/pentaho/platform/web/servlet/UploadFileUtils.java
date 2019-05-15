@@ -206,7 +206,7 @@ public class UploadFileUtils {
         // Trying to upload outside of folder.
         getWriter()
           .write( Messages.getInstance()
-            .getErrorString( "UploadFileServlet.ERROR_0008_FILE_LOCATION_INVALID" ) ); //$NON-NLS-1$
+            .getErrorString( "UploadFileServlet.ERROR_0008_FILE_LOCATION_INVALID" ) );
         return false;
       }
     }
@@ -546,8 +546,8 @@ public class UploadFileUtils {
   public boolean checkLimits( long itemSize, boolean compressed ) throws IOException {
     if ( itemSize > maxFileSize ) {
       String error =
-        compressed ? Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0006_FILE_TOO_BIG" ) //$NON-NLS-1$
-          : Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0003_FILE_TOO_BIG" ); //$NON-NLS-1$
+        compressed ? Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0006_FILE_TOO_BIG" )
+          : Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0003_FILE_TOO_BIG" );
       writer.write( error );
       return false;
     }
@@ -565,9 +565,8 @@ public class UploadFileUtils {
     if ( ( itemSize + actualDirSize ) > folderLimit ) {
       String error =
         compressed ? Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0007_FOLDER_SIZE_LIMIT_REACHED" )
-          //$NON-NLS-1$
           : Messages.getInstance()
-          .getErrorString( "UploadFileServlet.ERROR_0004_FOLDER_SIZE_LIMIT_REACHED" ); //$NON-NLS-1$
+          .getErrorString( "UploadFileServlet.ERROR_0004_FOLDER_SIZE_LIMIT_REACHED" );
       writer.write( error );
       return false;
     }
@@ -592,9 +591,12 @@ public class UploadFileUtils {
    * <p>Removes the file name, leaving all extensions of a given filename.</p>
    * <p>Returns <code>null</code> if filename is <code>null</code>, and an empty string if the filename is empty or has
    * no extensions.</p>
+   * <p>The result, if not <code>null</code> nor an empty string is sanitized by replacing any character that is not a
+   * letter (lower or upper case), a digit (0-9), an underscore ("_"), a dot (".") or a dash ("-"), by an underscore
+   * ("_").</p>
    *
    * @param filename the filename for which we want the extensions
-   * @return all extensions of the given filename
+   * @return all extensions (sanitized) of the given filename
    */
   protected String removeFileName( String filename ) {
     if ( null != filename ) {
@@ -604,7 +606,7 @@ public class UploadFileUtils {
         int len = filename.length();
         ++dotIndex;
         if ( len > dotIndex ) {
-          return filename.substring( dotIndex );
+          return filename.substring( dotIndex ).replaceAll( "[^a-zA-Z0-9_.-]", "_" );
         }
       }
 

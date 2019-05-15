@@ -65,11 +65,16 @@ public class UploadFileUtilsTest {
   public void testGetAllExtensions() throws Exception {
     UploadFileUtils testUtils = new UploadFileUtils( null );
     assertNull( testUtils.removeFileName( null ) );
-    assertEquals( "",  testUtils.removeFileName( "" ) );
-    assertEquals( "",  testUtils.removeFileName( "aaaa" ) );
-    assertEquals( "",  testUtils.removeFileName( " bb " ) );
-    assertEquals( "a",  testUtils.removeFileName( "b.a" ) );
-    assertEquals( "b.a",  testUtils.removeFileName( "c.b.a" ) );
-    assertEquals( "c.b.a",  testUtils.removeFileName( "d.c.b.a" ) );
+    assertEquals( "", testUtils.removeFileName( "" ) );
+    assertEquals( "", testUtils.removeFileName( "aaaa" ) );
+    assertEquals( "", testUtils.removeFileName( " bb " ) );
+    assertEquals( "a", testUtils.removeFileName( "b.a" ) );
+    assertEquals( "b.a", testUtils.removeFileName( "c.b.a" ) );
+    assertEquals( "c.b.a", testUtils.removeFileName( "d.c.b.a" ) );
+    // BACKLOG-29017: Special characters
+    assertEquals( "_________-__________-_____test.csv",
+      testUtils.removeFileName( "TestCSVspecialchar.$&#%^( )!- ;[ ]{ }`@-_+=',test.csv" ) );
+    assertEquals( "Tes____CSVspecialchar._________-__________-_____test.dat",
+      testUtils.removeFileName( "_.Tes~ºª_CSVspecialchar.$&#%^( )!- ;[ ]{ }`@-_+=',test.dat" ) );
   }
 }
