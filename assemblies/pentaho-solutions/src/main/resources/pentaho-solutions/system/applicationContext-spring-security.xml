@@ -211,6 +211,8 @@
       <!-- http://stackoverflow.com/questions/30099851/spring-security-samples-preauth-xml-example-fails-to-run#answer-30105317 -->
       <sec:filter-security-metadata-source request-matcher="ciRegex" use-expressions="false">
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/(.+/)*.+\.js.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/kettle/executeJob.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/kettle/executeTrans.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/.*require-cfg.js.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/.*require-js-cfg.js.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/require.js.*\Z" access="Anonymous,Authenticated" />
