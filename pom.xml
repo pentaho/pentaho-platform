@@ -92,7 +92,7 @@
     <mdrjdbc.version>1.4.2</mdrjdbc.version>
     <hamcrest-core.version>1.3</hamcrest-core.version>
     <servlet-api.version>2.5</servlet-api.version>
-    <joda-time.version>1.6</joda-time.version>
+    <joda-time.version>2.10.2</joda-time.version>
     <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
     <hibernate-ehcache.version>3.6.0.Final</hibernate-ehcache.version>
     <jaybird.version>2.1.6</jaybird.version>
