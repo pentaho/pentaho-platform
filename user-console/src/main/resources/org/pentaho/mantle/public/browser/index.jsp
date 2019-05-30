@@ -259,7 +259,7 @@
           FileBrowser.update(window.parent.HOME_FOLDER, paramJson.booleanParam); // refresh folder list
         }
         else if (paramJson.eventSubType == "RefreshFolderEvent") {
-          FileBrowser.update(paramJson.stringParam); // refresh specified folder
+          FileBrowser.updateFolder(paramJson.stringParam); // refresh specified folder
         }
         else if (paramJson.eventSubType == "RefreshCurrentFolderEvent") {
           FileBrowser.updateData();
