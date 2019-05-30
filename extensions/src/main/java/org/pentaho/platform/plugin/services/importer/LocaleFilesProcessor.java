@@ -12,11 +12,22 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
+ *
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.importer;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +65,7 @@ public class LocaleFilesProcessor {
   private static final String NAME = "name";
   private static final String PROPERTIES_EXT = ".properties";
   private static final String LOCALE_EXT = ".locale";
+  private static final String XML_LOCALE = "index.xml";
   private List<LocaleFileDescriptor> localeFiles;
 
   public LocaleFilesProcessor() {
@@ -85,6 +97,11 @@ public class LocaleFilesProcessor {
       sourceVersion = 1;
     } else if ( fileName.endsWith( LOCALE_EXT ) ) {
       sourceVersion = 2;
+    } else if ( fileName.equals( XML_LOCALE ) && isXMLlocale( file.getInputStream() ) ) {
+      String filePath = ( actualFilePath.equals( "/" ) || actualFilePath.equals( "\\" ) ) ? "" : actualFilePath;
+      filePath = RepositoryFilenameUtils.concat( parentPath, filePath );
+      localeFiles.add( new LocaleFileDescriptor( fileName, "", filePath, localeRepositoryFile, new ByteArrayInputStream( bytes ) ) );
+      isLocale = true;
     }
     if ( sourceVersion != 0 ) {
       InputStream inputStream = new ByteArrayInputStream( bytes );
@@ -203,7 +220,6 @@ public class LocaleFilesProcessor {
     for ( LocaleFileDescriptor localeFile : localeFiles ) {
       String extension = localeFile.getExtension();
       if ( !StringUtils.isEmpty( extension ) && extension.equals( LOCALE_EXT ) ) {
-        localeFilesToProceed.add( localeFile );
       }
     }
 
@@ -229,5 +245,23 @@ public class LocaleFilesProcessor {
     bundleBuilder.mime( mimeType );
     IPlatformImportBundle platformImportBundle = bundleBuilder.build();
     importer.importFile( platformImportBundle );
+  }
+
+  @VisibleForTesting
+  boolean isXMLlocale( InputStream localeBundle ) {
+    try {
+      DocumentBuilderFactory builderFactory = XMLParserFactoryProducer.createSecureDocBuilderFactory();
+      DocumentBuilder builder = builderFactory.newDocumentBuilder();
+      XPath xPath = XPathFactory.newInstance().newXPath();
+      Document document = builder.parse( localeBundle );
+      String name = xPath.compile( "/index/name" ).evaluate( document );
+      String desc = xPath.compile( "/index/description" ).evaluate( document );
+      if ( !name.isEmpty() && !desc.isEmpty() ) {
+        return true;
+      }
+    } catch ( XPathExpressionException | ParserConfigurationException | SAXException | IOException e ) {
+      return false;
+    }
+    return false;
   }
 }
