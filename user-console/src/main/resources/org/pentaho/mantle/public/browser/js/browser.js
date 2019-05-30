@@ -131,7 +131,18 @@ define([
   FileBrowser.update = function (initialPath, showDescriptions) {
     this.redraw(initialPath, showDescriptions);
   };
-
+  
+  FileBrowser.updateFolder = function (clickedPath, showDescriptions) {
+	// Sets initialPath as the clicked folder  
+	if (this.fileBrowserModel && clickedPath) {
+	  this.fileBrowserModel.set("clickedFolder", {
+        obj: $("[path='" + clickedPath + "']"),
+        time: (new Date()).getTime()
+      });	
+    } 
+    this.redraw(clickedPath, showDescriptions);
+  };
+  
   FileBrowser.updateData = function () {
     if (this.fileBrowserModel != null && this.fileBrowserModel.get('fileListModel') != null) {
       this.fileBrowserModel.get('fileListModel').updateData();
@@ -1047,50 +1058,54 @@ define([
         $(this).addClass("first");
       });
 
-      // open last clicked folder or start folder (home folder)
-      // if startFolder is not visible, use first one that it is instead
-      var $folder = undefined;
-      if ( !FileBrowser.fileBrowserModel.get("startFolder")) {
-        $folder = myself.getFirstVisibleFolder();
-      } else {
-        $folder = $("[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']");
-      }
+      // Checks if any folder is visible
+      var $firstVisibleFolder = myself.getFirstVisibleFolder();
 
-      if ( FileBrowser.fileBrowserModel.getFolderClicked() != undefined ) {
-        // verify if clicked folder is visible
-        if ( FileBrowser.fileBrowserModel.getFolderClicked().attr("path")
-          && ( $( "div[path=\"" + FileBrowser.fileBrowserModel.getFolderClicked().attr( "path" ) + "\"]" ).length !== 0 ) ) {
-          $folder = $( "[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr( "path" ) + "']" );
+      if( $firstVisibleFolder ) {
+        // open last clicked folder or start folder (home folder)
+        // if startFolder is not visible, use first one that it is instead
+        var $folder = undefined;
+		        
+	    // verify if clicked folder is visible
+	    if ( FileBrowser.fileBrowserModel.getFolderClicked() &&
+		    FileBrowser.fileBrowserModel.getFolderClicked().attr("path") &&
+		  ( $( "div[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']" ).length !== 0 ) ) {
+		  $folder = $("[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']");
+	    } else if ( FileBrowser.fileBrowserModel.get("startFolder") &&
+		           ( $( "div[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" ).length !== 0 ) ) {
+		  $folder = $( "[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" );
+	    } else {
+		  $folder = myself.getFirstVisibleFolder();
+	    }
+        
+        var $parentFolder = $folder.parent(".folders");
+        while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
+          $parentFolder.show();
+          $parentFolder.parent().addClass("open");
+          $parentFolder = $parentFolder.parent().parent();
         }
-      }
-
-      var $parentFolder = $folder.parent(".folders");
-      while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
-        $parentFolder.show();
-        $parentFolder.parent().addClass("open");
-        $parentFolder = $parentFolder.parent().parent();
-      }
-      FileBrowser.fileBrowserModel.set("clickedFolder", {
-            obj: $folder,
-            time: (new Date()).getTime()
-          });
-      $clickedFile = FileBrowser.fileBrowserModel.getFileClicked();
-      if ( $clickedFile != undefined && FileBrowser.fileBrowserModel.getLastClick() == "file" )	{
-        FileBrowser.fileBrowserModel.get("fileListModel").set("clickedFile", {
-          obj: FileBrowser.fileBrowserModel.getFileClicked(),
+        FileBrowser.fileBrowserModel.set("clickedFolder", {
+          obj: $folder,
           time: (new Date()).getTime()
         });
-        FileBrowser.fileBrowserModel.updateFileClicked();
-        $folder.addClass("secondarySelected");
-        $folder.removeClass("selected");
-        $clickedFile.addClass("selected");
-      } else {
-        $folder.addClass("open");
-        $folder.addClass("selected");
-        $folder.find("> .folders").show();
+        $clickedFile = FileBrowser.fileBrowserModel.getFileClicked();
+        if ($clickedFile != undefined && FileBrowser.fileBrowserModel.getLastClick() == "file") {
+          FileBrowser.fileBrowserModel.get("fileListModel").set("clickedFile", {
+            obj: FileBrowser.fileBrowserModel.getFileClicked(),
+            time: (new Date()).getTime()
+          });
+          FileBrowser.fileBrowserModel.updateFileClicked();
+          $folder.addClass("secondarySelected");
+          $folder.removeClass("selected");
+          $clickedFile.addClass("selected");
+        } else {
+          $folder.addClass("open");
+          $folder.addClass("selected");
+          $folder.find("> .folders").show();
+        }
+        FileBrowser.fileBrowserModel.updateFolderButtons($folder.attr("path"));
+        myself.updateDescriptions();
       }
-      FileBrowser.fileBrowserModel.updateFolderButtons($folder.attr("path"));
-      myself.updateDescriptions();
     },
 
     getFirstVisibleFolder: function () {
@@ -1461,6 +1476,7 @@ define([
     update: FileBrowser.update,
     updateData: FileBrowser.updateData,
     updateFile: FileBrowser.updateFile,
+    updateFolder: FileBrowser.updateFolder,
     redraw: FileBrowser.redraw,
     templates: FileBrowser.templates,
     openFolder: FileBrowser.openFolder,
