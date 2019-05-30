@@ -220,6 +220,7 @@ public class LocaleFilesProcessor {
     for ( LocaleFileDescriptor localeFile : localeFiles ) {
       String extension = localeFile.getExtension();
       if ( !StringUtils.isEmpty( extension ) && extension.equals( LOCALE_EXT ) ) {
+        localeFilesToProceed.add( localeFile );
       }
     }
 
