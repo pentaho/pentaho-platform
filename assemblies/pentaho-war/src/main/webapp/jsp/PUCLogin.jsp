@@ -221,7 +221,6 @@
                 <div class="space-60"></div>
                 <div class="input-container">
                   <button type="submit" id="loginbtn" class="btn"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
-                  <input type="hidden" name="locale" value="en_US">
                 </div>
                 <div class="space-60"></div>
               </div>
@@ -303,15 +302,12 @@
   %>
 
   function bounceToReturnLocation() {
-    // pass
-    var locale = document.login.locale.value;
-
     var returnLocation = '<%=Encode.forJavaScript(requestedURL)%>';
 
     if (returnLocation != '' && returnLocation != null) {
       window.location.href = returnLocation;
     } else {
-      window.location.href = window.location.href.replace("Login", "Home") + "?locale=" + locale;
+      window.location.href = window.location.href.replace("Login", "Home");
     }
 
   }
