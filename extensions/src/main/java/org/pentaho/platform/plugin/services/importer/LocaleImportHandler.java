@@ -272,13 +272,20 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     return false;
   }
 
-  private Properties loadPropertiesByXml( RepositoryFileImportBundle localeBundle ) {
+  @VisibleForTesting
+  Properties loadPropertiesByXml( RepositoryFileImportBundle localeBundle ) {
     final Properties properties = new Properties();
-    String fileTitle = localeBundle.getName();
+    RepositoryFile file = localeBundle.getFile();
+    if ( file == null ) {
+      return properties;
+    }
+    String fileTitle = localeBundle.getFile().getName();
 
     if ( ( LOCALE_FOLDER + XML_LOCALE_EXT ).equals( fileTitle ) ) {
       try {
-        Document document = getLocalBundleDocument( localeBundle.getInputStream() );
+        InputStream is = localeBundle.getInputStream();
+        is.reset();
+        Document document = getLocalBundleDocument( is );
         XPath xPath = XPathFactory.newInstance().newXPath();
 
         String name = xPath.compile( "/index/name" ).evaluate( document );
