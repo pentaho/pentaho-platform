@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -30,7 +30,6 @@ import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
 import org.pentaho.reporting.engine.classic.core.MasterReport;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 import org.pentaho.reporting.libraries.docbundle.DocumentMetaData;
@@ -71,10 +70,6 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
 
       DocumentMetaData documentMetaData = extractMetaData( bytes );
       fillLocaleEntry( localeFilesProcessor, documentMetaData, filePath, fileName, importBundle.getFile() );
-      if ( importBundle.isHidden() == null ) {
-        boolean hidden = isReportHidden( documentMetaData );
-        importBundle.setHidden( hidden );
-      }
       super.importFile( importBundle );
       localeFilesProcessor.processLocaleFiles( importer );
     } catch ( Exception ex ) {
@@ -98,18 +93,6 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
     if ( title != null || description != null ) {
       localeFilesProcessor.createLocaleEntry( filePath, fileName, title, description, rf, new ByteArrayInputStream( "".getBytes() ) );
     }
-  }
-
-  /**
-   * check properties from metadata
-   * 
-   * @param metaData
-   * @return true if this report is hidden. The report is hidden if the visible attribute is set to 'false' (with case
-   *         sensitive check to filter out garbage).
-   */
-  private boolean isReportHidden( DocumentMetaData metaData ) {
-    // we are conservative here. Only if the string matches 'true' with this spelling.
-    return "false".equals( metaData.getBundleAttribute( ClassicEngineBoot.METADATA_NAMESPACE, "visible" ) );
   }
 
   // keep it protected for test goal, we should not add any logic for this method such we just
