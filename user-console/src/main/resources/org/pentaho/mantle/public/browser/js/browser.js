@@ -1110,12 +1110,20 @@ define([
 
     getFirstVisibleFolder: function () {
       var myself = this;
-      var firstVisibleFolder = myself.model.get("data").children.find(function(elem){
-        return elem && elem.file && elem.file.folder && elem.file.path
-          && $("div[path=\"" + elem.file.path + "\"]").length != 0;
-      });
+      var firstVisibleFolder = undefined;
+      var foldersList = myself.model.get( "data" ).children;
+
+      for ( var i = 0; i < foldersList.length; i++ ) {
+        var elem = foldersList[i];
+        if ( elem && elem.file && elem.file.folder && elem.file.path &&
+            $("div[path=\"" + elem.file.path + "\"]").length != 0 ) {
+          firstVisibleFolder = elem;
+          break;
+        }
+      }
+
       if ( firstVisibleFolder ) {
-        return $("[path='" + firstVisibleFolder.file.path + "']");
+        return $( "[path='" + firstVisibleFolder.file.path + "']" );
       }
     },
 
