@@ -14,12 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.metadata;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,6 +51,7 @@ import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -67,6 +69,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Handles the storage and retrieval of Pentaho Metada Domain objects in a repository. It does this by using a
@@ -406,28 +412,38 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    * file and multiple .properties files.
    */
   public Map<String, InputStream> getDomainFilesData( final String domainId ) {
-    Set<RepositoryFile> metadataFiles;
     lock.readLock().lock();
     try {
-      metadataFiles = metadataMapping.getFiles( domainId );
+      if ( !metadataMapping.getDomainIds().contains( domainId ) ) {
+        return emptyMap();
+      }
+      Map<String, InputStream> localeFiles =
+        ofNullable( metadataMapping.getLocaleFiles( domainId ) ).orElse( emptyMap() ).entrySet().stream()
+          .collect(
+            toMap( entry -> "messages_" + entry.getKey() + ".properties",
+              item -> getRepositoryFileInputStream( item.getValue() ) ) );
+      //    ^ keys of map are locale file names, e.g. "messages_fr_FR.properties"
+      return ImmutableMap.<String, InputStream>builder()
+        .putAll( localeFiles )
+        .put( getXmiFilename( domainId ), getRepositoryFileInputStream( metadataMapping.getDomainFile( domainId ) ) )
+        .build();
     } finally {
       lock.readLock().unlock();
     }
-
-    Map<String, InputStream> values = new HashMap<String, InputStream>( metadataFiles.size() );
-    for ( RepositoryFile repoFile : metadataFiles ) {
-      RepositoryFileInputStream is;
-      try {
-        is = new RepositoryFileInputStream( repoFile );
-      } catch ( Exception e ) {
-        return null; // This pretty much ensures an exception will be thrown later and passed to the client
-      }
-      String fileName = repoFile.getName().endsWith( ".properties" ) ? repoFile.getName()
-        : domainId + ( domainId.endsWith( ".xmi" ) ? "" : ".xmi" );
-      values.put( fileName, is );
-    }
-    return values;
   }
+
+  private String getXmiFilename( String domainId ) {
+    return domainId + ( domainId.endsWith( ".xmi" ) ? "" : ".xmi" );
+  }
+
+  private RepositoryFileInputStream getRepositoryFileInputStream( RepositoryFile file ) {
+    try {
+      return new RepositoryFileInputStream( file );
+    } catch ( FileNotFoundException e ) {
+      throw new IllegalStateException( e );
+    }
+  }
+
 
   /**
    * retrieve a domain from the repo. This does lazy loading of the repo, so it calls reloadDomains() if not already
@@ -876,7 +892,8 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     if ( domainFile == null ) {
 
       if ( logger.isDebugEnabled() ) {
-        logger.debug( "Requested Domain (" + domainId + ") wasn't found in Metadata Mapping. Domain cache will be reloaded" );
+        logger.debug(
+          "Requested Domain (" + domainId + ") wasn't found in Metadata Mapping. Domain cache will be reloaded" );
       }
       lock.writeLock().lock();
       try {

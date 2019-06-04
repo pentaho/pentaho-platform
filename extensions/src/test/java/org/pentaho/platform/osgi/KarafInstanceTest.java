@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -37,9 +37,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * 
  * @author tkafalas
- *
  */
 public class KarafInstanceTest {
   private String TEST_CACHE_FOLDER = "./bin/test/cacheTest";
@@ -87,13 +85,16 @@ public class KarafInstanceTest {
     PortFileManager.getInstance().clear();
 
     //Now start up the instance
-    final KarafInstance instance = new KarafInstance( TEST_CACHE_FOLDER, "./src/test/resources/KarafInstanceTest/KarafPorts.yaml", "default" );
+    final KarafInstance instance =
+      new KarafInstance( TEST_CACHE_FOLDER, "./src/test/resources/KarafInstanceTest/KarafPorts.yaml", "default" );
     instance.assignPortsAndCreateCache();
 
-    assertEquals( expectedInstanceNumber, instance.getInstanceNumber() );
+    assertEquals( "NOTE: this test will fail if Karaf is running elsewhere on the system",
+      expectedInstanceNumber, instance.getInstanceNumber() );
     assertTrue( instance.getCachePath().endsWith( "data-" + expectedInstanceNumber ) );
     for ( String id : instance.getPortIds() ) {
-      assertEquals( instance.getPort( id ).getAssignedPort(), Integer.valueOf( System.getProperty( instance.getPort( id )
+      assertEquals( instance.getPort( id ).getAssignedPort(),
+        Integer.valueOf( System.getProperty( instance.getPort( id )
           .getPropertyName() ) ) );
     }
     File cacheFolder = new File( instance.getCachePath() );
@@ -109,6 +110,6 @@ public class KarafInstanceTest {
       instancePorts.add( port.getAssignedPort() );
     }
     PortFileManagerTest.testPortsWereWrittenToPortFile( instance.getCachePath() + "/" + USED_PORT_FILENAME,
-        instancePorts );
+      instancePorts );
   }
 }
