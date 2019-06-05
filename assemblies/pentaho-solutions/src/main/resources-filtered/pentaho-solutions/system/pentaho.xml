@@ -34,7 +34,7 @@
     <!--
 	This is the URL to the user guide
     -->
-    <documentation-url>${doc.base.url}/Products/User_Console</documentation-url>
+    <documentation-url>${doc.base.url}/Products/Pentaho_User_Console</documentation-url>
 
 	<log-file>server.log</log-file>
 	<log-level>DEBUG</log-level>
