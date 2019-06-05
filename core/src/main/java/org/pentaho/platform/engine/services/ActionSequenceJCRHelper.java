@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -309,7 +309,7 @@ public class ActionSequenceJCRHelper {
 
   private RepositoryFile[] listFiles( RepositoryFile searchDir, final IFileFilter filter ) {
     List<RepositoryFile> matchedFiles = new ArrayList<RepositoryFile>();
-    Object[] objArray = repository.getChildren( searchDir.getId() ).toArray();
+    Object[] objArray = repository.getChildren( searchDir.getId(), null, true ).toArray();
     for ( Object element : objArray ) {
       if ( filter.accept( (RepositoryFile) element ) ) {
         matchedFiles.add( (RepositoryFile) element );
