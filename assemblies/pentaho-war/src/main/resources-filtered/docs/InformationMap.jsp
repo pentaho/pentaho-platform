@@ -46,7 +46,7 @@ $('document').ready(function(){
    $('#analyzer').attr("href", docBase + 'Data/Multidimensional');
    $('#pme').attr("href", docBase + 'Data/Relational');
    $('#report_designer').attr("href", docBase + 'Products/Report_Designer');
-   $('#puc_plugins').attr("href", docBase + 'Products/User_Console');
+   $('#puc_plugins').attr("href", docBase + 'Products/Pentaho_User_Console');
    $('#define_data').attr("href", docBase + 'Products/Data_Source_Wizard');
    $('#ba_install_select').attr("href", docBase + 'Setup/Installation');
    $('#ba_install_manual').attr("href", docBase + 'Setup/Installation');
