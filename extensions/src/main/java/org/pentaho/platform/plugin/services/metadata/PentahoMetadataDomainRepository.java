@@ -20,7 +20,6 @@
 
 package org.pentaho.platform.plugin.services.metadata;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -423,10 +422,9 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
             toMap( entry -> "messages_" + entry.getKey() + ".properties",
               item -> getRepositoryFileInputStream( item.getValue() ) ) );
       //    ^ keys of map are locale file names, e.g. "messages_fr_FR.properties"
-      return ImmutableMap.<String, InputStream>builder()
-        .putAll( localeFiles )
-        .put( getXmiFilename( domainId ), getRepositoryFileInputStream( metadataMapping.getDomainFile( domainId ) ) )
-        .build();
+      Map<String, InputStream> map = new HashMap<>( localeFiles );
+      map.put( getXmiFilename( domainId ), getRepositoryFileInputStream( metadataMapping.getDomainFile( domainId ) ) );
+      return map;
     } finally {
       lock.readLock().unlock();
     }
