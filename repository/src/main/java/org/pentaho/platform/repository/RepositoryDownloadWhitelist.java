@@ -13,7 +13,8 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ *
  */
 
 package org.pentaho.platform.repository;
@@ -22,7 +23,7 @@ import java.util.StringTokenizer;
 
 public class RepositoryDownloadWhitelist {
 
-  private String extensions = "gif,jpg,jpeg,png,bmp,tiff,csv,xls,xlsx,pdf,txt,css,html,js,xml,doc,ppt,eml";
+  private String extensions = "gif,jpg,jpeg,png,bmp,tiff,csv,xls,xlsx,pdf,txt,css,html,js,xml,doc,ppt,eml,properties";
 
   public RepositoryDownloadWhitelist() {
   }
