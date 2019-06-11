@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
 --%>
 
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
@@ -214,7 +214,6 @@
             <div class="input-container">
               <label>&nbsp;</label>
               <button type="submit" id="loginbtn" class="btn"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
-              <input type="hidden" name="locale" value="en_US">
             </div>
           </div>
           <div id="eval-users-toggle-container">
@@ -307,15 +306,12 @@
   %>
 
   function bounceToReturnLocation() {
-    // pass
-    var locale = document.login.locale.value;
-
     var returnLocation = '<%=Encode.forJavaScript(requestedURL)%>';
 
     if (returnLocation != '' && returnLocation != null) {
       window.location.href = returnLocation;
     } else {
-      window.location.href = window.location.href.replace("Login", "Home") + "?locale=" + locale;
+      window.location.href = window.location.href.replace("Login", "Home");
     }
 
   }
