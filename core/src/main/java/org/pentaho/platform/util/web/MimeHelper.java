@@ -25,67 +25,67 @@ import java.util.Map;
 
 public class MimeHelper {
 
-  public static final String MIMETYPE_RTF = "application/rtf"; //$NON-NLS-1$
-  public static final String RTF_EXTENSION = ".rtf"; //$NON-NLS-1$
-  public static final String MIMETYPE_MS_WORD = "application/msword"; //$NON-NLS-1$
-  public static final String MS_WORD_EXTENSION = ".doc"; //$NON-NLS-1$
-  public static final String MIMETYPE_PDF = "application/pdf"; //$NON-NLS-1$
-  public static final String PDF_EXTENSION = ".pdf"; //$NON-NLS-1$
-  public static final String MIMETYPE_MS_EXCEL = "application/vnd.ms-excel"; //$NON-NLS-1$
-  public static final String MS_EXCEL_EXTENSION = ".xls"; //$NON-NLS-1$
-  public static final String MIMETYPE_MS_PPT = "application/vnd.ms-powerpoint"; //$NON-NLS-1$
-  public static final String MS_PPT_EXTENSION = ".ppt"; //$NON-NLS-1$
-  public static final String MIMETYPE_MS_PROJECT = "application/vnd.ms-project"; //$NON-NLS-1$
-  public static final String MS_PROJECT_EXTENSION = ".mpp"; //$NON-NLS-1$
-  public static final String MIMETYPE_ZIP = "application/zip"; //$NON-NLS-1$
-  public static final String ZIP_EXTENSION = ".zip"; //$NON-NLS-1$
-  public static final String MIMETYPE_MP3 = "audio/mpeg"; //$NON-NLS-1$
-  public static final String MP3_EXTENSION = ".mp3"; //$NON-NLS-1$
-  public static final String MIMETYPE_WAV = "audio/x-wav"; //$NON-NLS-1$
-  public static final String WAV_EXTENSION = ".wav"; //$NON-NLS-1$
-  public static final String MIMETYPE_BMP = "image/bmp"; //$NON-NLS-1$
-  public static final String BMP_EXTENSION = ".bmp"; //$NON-NLS-1$
-  public static final String MIMETYPE_GIF = "image/gif"; //$NON-NLS-1$
-  public static final String GIF_EXTENSION = ".gif"; //$NON-NLS-1$
-  public static final String MIMETYPE_JPEG = "image/jpeg"; //$NON-NLS-1$
-  public static final String JPEG_EXTENSION_1 = ".jpg"; //$NON-NLS-1$
-  public static final String JPEG_EXTENSION_2 = ".jpe"; //$NON-NLS-1$
-  public static final String JPEG_EXTENSION_3 = ".jpeg"; //$NON-NLS-1$
-  public static final String MIMETYPE_PNG = "image/png"; //$NON-NLS-1$
-  public static final String PNG_EXTENSION = ".png"; //$NON-NLS-1$
-  public static final String MIMETYPE_SVG = "image/svg+xml"; //$NON-NLS-1$
-  public static final String SVG_EXTENSION = ".svg"; //$NON-NLS-1$
-  public static final String MIMETYPE_TIFF = "image/tiff"; //$NON-NLS-1$
-  public static final String TIFF_EXTENSION_1 = ".tif"; //$NON-NLS-1$
-  public static final String TIFF_EXTENSION_2 = ".tiff"; //$NON-NLS-1$
-  public static final String MIMETYPE_CSV = "text/csv"; //$NON-NLS-1$
-  public static final String CSV_EXTENSION = ".csv"; //$NON-NLS-1$
-  public static final String MIMETYPE_HTML = "text/html"; //$NON-NLS-1$
-  public static final String HTML_EXTENSION_1 = ".html"; //$NON-NLS-1$
-  public static final String HTML_EXTENSION_2 = ".htm"; //$NON-NLS-1$
-  public static final String MIMETYPE_TEXT = "text/plain"; //$NON-NLS-1$
-  public static final String TEXT_EXTENSION = ".txt"; //$NON-NLS-1$
-  public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
-  public static final String MIMETYPE_MPG = "video/mpeg"; //$NON-NLS-1$
-  public static final String MPG_EXTENSION_1 = ".mpg"; //$NON-NLS-1$
-  public static final String MPG_EXTENSION_2 = ".mpe"; //$NON-NLS-1$
-  public static final String MPG_EXTENSION_3 = ".mpeg"; //$NON-NLS-1$
-  public static final String MIMETYPE_AVI = "video/x-msvideo"; //$NON-NLS-1$
-  public static final String AVI_EXTENSION = ".avi"; //$NON-NLS-1$
-  public static final String MIMETYPE_XACTION = "text/xaction+xml"; //$NON-NLS-1$
-  public static final String XACTION_EXTENSION = ".xaction"; //$NON-NLS-1$
-  public static final String MIMETYPE_CSS = "text/css"; //$NON-NLS-1$
-  public static final String CSS_EXTENSION = ".css"; //$NON-NLS-1$
-  public static final String MIMETYPE_JS = "text/javascript"; //$NON-NLS-1$
-  public static final String JS_EXTENSION = ".js"; //$NON-NLS-1$
-  public static final String MIMETYPE_XML = "text/xml"; //$NON-NLS-1$
-  public static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
-  public static final String MIMETYPE_FLASH = "application/x-shockwave-flash"; //$NON-NLS-1$
-  public static final String FLASH_EXTENSION = ".swf"; //$NON-NLS-1$
-  public static final String MIMETYPE_MS_EXCEL_2007 = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; //$NON-NLS-1$
-  public static final String MS_EXCEL_2007_EXTENSION = ".xlsx"; //$NON-NLS-1$
-  public static final String MIMETYPE_EMAIL_MSG = "mime-message/text/html"; //$NON-NLS-1$
-  public static final String EMAIL_MSG_EXTENSION = ".eml"; //$NON-NLS-1$
+  public static final String MIMETYPE_RTF = "application/rtf";
+  public static final String RTF_EXTENSION = ".rtf";
+  public static final String MIMETYPE_MS_WORD = "application/msword";
+  public static final String MS_WORD_EXTENSION = ".doc";
+  public static final String MIMETYPE_PDF = "application/pdf";
+  public static final String PDF_EXTENSION = ".pdf";
+  public static final String MIMETYPE_MS_EXCEL = "application/vnd.ms-excel";
+  public static final String MS_EXCEL_EXTENSION = ".xls";
+  public static final String MIMETYPE_MS_PPT = "application/vnd.ms-powerpoint";
+  public static final String MS_PPT_EXTENSION = ".ppt";
+  public static final String MIMETYPE_MS_PROJECT = "application/vnd.ms-project";
+  public static final String MS_PROJECT_EXTENSION = ".mpp";
+  public static final String MIMETYPE_ZIP = "application/zip";
+  public static final String ZIP_EXTENSION = ".zip";
+  public static final String MIMETYPE_MP3 = "audio/mpeg";
+  public static final String MP3_EXTENSION = ".mp3";
+  public static final String MIMETYPE_WAV = "audio/x-wav";
+  public static final String WAV_EXTENSION = ".wav";
+  public static final String MIMETYPE_BMP = "image/bmp";
+  public static final String BMP_EXTENSION = ".bmp";
+  public static final String MIMETYPE_GIF = "image/gif";
+  public static final String GIF_EXTENSION = ".gif";
+  public static final String MIMETYPE_JPEG = "image/jpeg";
+  public static final String JPEG_EXTENSION_1 = ".jpg";
+  public static final String JPEG_EXTENSION_2 = ".jpe";
+  public static final String JPEG_EXTENSION_3 = ".jpeg";
+  public static final String MIMETYPE_PNG = "image/png";
+  public static final String PNG_EXTENSION = ".png";
+  public static final String MIMETYPE_SVG = "image/svg+xml";
+  public static final String SVG_EXTENSION = ".svg";
+  public static final String MIMETYPE_TIFF = "image/tiff";
+  public static final String TIFF_EXTENSION_1 = ".tif";
+  public static final String TIFF_EXTENSION_2 = ".tiff";
+  public static final String MIMETYPE_CSV = "text/csv";
+  public static final String CSV_EXTENSION = ".csv";
+  public static final String MIMETYPE_HTML = "text/html";
+  public static final String HTML_EXTENSION_1 = ".html";
+  public static final String HTML_EXTENSION_2 = ".htm";
+  public static final String MIMETYPE_TEXT = "text/plain";
+  public static final String TEXT_EXTENSION = ".txt";
+  public static final String PROPERTIES_EXTENSION = ".properties";
+  public static final String MIMETYPE_MPG = "video/mpeg";
+  public static final String MPG_EXTENSION_1 = ".mpg";
+  public static final String MPG_EXTENSION_2 = ".mpe";
+  public static final String MPG_EXTENSION_3 = ".mpeg";
+  public static final String MIMETYPE_AVI = "video/x-msvideo";
+  public static final String AVI_EXTENSION = ".avi";
+  public static final String MIMETYPE_XACTION = "text/xaction+xml";
+  public static final String XACTION_EXTENSION = ".xaction";
+  public static final String MIMETYPE_CSS = "text/css";
+  public static final String CSS_EXTENSION = ".css";
+  public static final String MIMETYPE_JS = "text/javascript";
+  public static final String JS_EXTENSION = ".js";
+  public static final String MIMETYPE_XML = "text/xml";
+  public static final String XML_EXTENSION = ".xml";
+  public static final String MIMETYPE_FLASH = "application/x-shockwave-flash";
+  public static final String FLASH_EXTENSION = ".swf";
+  public static final String MIMETYPE_MS_EXCEL_2007 = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  public static final String MS_EXCEL_2007_EXTENSION = ".xlsx";
+  public static final String MIMETYPE_EMAIL_MSG = "mime-message/text/html";
+  public static final String EMAIL_MSG_EXTENSION = ".eml";
 
   private static final String UTF_CHARACTER_ENCODING = "UTF-8";
   private static final Map<String, String> mimes = new HashMap<String, String>();
@@ -93,7 +93,6 @@ public class MimeHelper {
   private static final Map<String, String> defaultCharset = new HashMap<String, String>();
 
   static {
-
     MimeHelper.mimes.put( MIMETYPE_RTF, RTF_EXTENSION );
     MimeHelper.mimes.put( MIMETYPE_MS_WORD, MS_WORD_EXTENSION );
     MimeHelper.mimes.put( MIMETYPE_PDF, PDF_EXTENSION );
@@ -159,7 +158,6 @@ public class MimeHelper {
 
     MimeHelper.defaultCharset.put( MIMETYPE_HTML, UTF_CHARACTER_ENCODING );
     MimeHelper.defaultCharset.put( MIMETYPE_TEXT, UTF_CHARACTER_ENCODING );
-
   }
 
   public static String getExtension( final String mimeType ) {
@@ -181,5 +179,4 @@ public class MimeHelper {
   public static String getDefaultCharset( final String mimeType ) {
     return MimeHelper.defaultCharset.get( mimeType );
   }
-
 }
