@@ -62,7 +62,7 @@
     </wss:service>
   </wss:binding>
 
-  <!--  GWT services are defined as Spring beans.  The id maps to the request URL like so: 
+  <!--  GWT services are defined as Spring beans.  The id maps to the request URL like so:
       requests to "/ws/gwt/myService" will be dispatched to a bean with id "ws-gwt-myService"
   -->
   <bean id="ws-gwt-unifiedRepository" class="org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService"/>
@@ -130,14 +130,14 @@
   </bean>
 
   <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request">
-    <property name="whitelist"><ref bean="RepositoryDownloadWhitelist"/></property>
+    <property name="whitelist" ref="RepositoryDownloadWhitelist"/>
   </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.EmailResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SchedulerResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.BlockoutResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request">
-  <property name="whitelist"><ref bean="RepositoryDownloadWhitelist"/></property>
+    <property name="whitelist" ref="RepositoryDownloadWhitelist"/>
   </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryImportResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.PluginResource" scope="request"/>
