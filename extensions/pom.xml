@@ -14,7 +14,6 @@
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
-    <httpclient.version>4.5.3</httpclient.version>
     <nekohtml.version>1.9.15</nekohtml.version>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <jstl.version>1.0.5</jstl.version>
@@ -108,18 +107,6 @@
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>${httpclient.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -2120,18 +2107,6 @@
       <artifactId>annogen</artifactId>
       <version>${annogen.version}</version>
       <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
-      <version>${httpcore.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.ws.commons.neethi</groupId>
