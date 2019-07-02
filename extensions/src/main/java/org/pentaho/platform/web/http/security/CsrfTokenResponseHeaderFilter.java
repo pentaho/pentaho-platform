@@ -19,6 +19,7 @@
  */
 package org.pentaho.platform.web.http.security;
 
+import org.pentaho.platform.web.WebUtil;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -59,6 +60,9 @@ public class CsrfTokenResponseHeaderFilter extends OncePerRequestFilter {
 
       final String tokenValue = token.getToken();
       response.setHeader( RESPONSE_TOKEN_NAME , tokenValue );
+
+      // Add CORS headers, if CORS is enabled.
+      WebUtil.setCorsResponseHeaders( request, response );
 
       return;
     }
