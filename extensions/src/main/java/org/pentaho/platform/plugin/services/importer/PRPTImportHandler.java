@@ -57,7 +57,8 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
     IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
     String fileName = importBundle.getName();
 
-    String filePath = ( importBundle.getPath().equals( "/" ) || importBundle.getPath().equals( "\\" ) ) ? "" : importBundle.getPath();
+    String filePath =
+      ( importBundle.getPath().equals( "/" ) || importBundle.getPath().equals( "\\" ) ) ? "" : importBundle.getPath();
 
     // If is locale file store it for later processing.
     // need to extract this from meta.xml
@@ -70,6 +71,10 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
 
       DocumentMetaData documentMetaData = extractMetaData( bytes );
       fillLocaleEntry( localeFilesProcessor, documentMetaData, filePath, fileName, importBundle.getFile() );
+
+      // The hidden property to be used is the one that comes from configuration (see BISERVER-14231)
+      importBundle.setHidden( this.getMimeTypeMap().get( importBundle.getMimeType() ).isHidden() );
+
       super.importFile( importBundle );
       localeFilesProcessor.processLocaleFiles( importer );
     } catch ( Exception ex ) {
@@ -87,7 +92,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
     }
     String title = (String) metaData.getBundleAttribute( ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.TITLE );
     if ( StringUtils.isEmpty( title, true ) ) {
-      // make sure that empty strings and strings with only whitespace are not used as description.
+      // make sure that empty strings and strings with only whitespace are not used as title.
       title = null;
     }
     if ( title != null || description != null ) {
