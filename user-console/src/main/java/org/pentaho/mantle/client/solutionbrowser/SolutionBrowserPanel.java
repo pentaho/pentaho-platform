@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
@@ -32,6 +33,8 @@ import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
+import org.pentaho.mantle.client.csrf.CsrfUtil;
+import org.pentaho.mantle.client.csrf.JsCsrfToken;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.ShowDescriptionsEvent;
@@ -125,15 +128,27 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     public void execute() {
       solutionTree.setShowLocalizedFileNames( !solutionTree.isShowLocalizedFileNames() );
 
-      // update setting
       final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_LOCALIZED_FILENAMES"; //$NON-NLS-1$
-      RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
-      builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-      try {
-        builder.sendRequest( "" + solutionTree.isShowLocalizedFileNames(), EmptyRequestCallback.getInstance() );
-      } catch ( RequestException e ) {
-        // showError(e);
-      }
+
+      CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
+
+        public void onFailure( Throwable caught ) {
+        }
+
+        public void onSuccess( JsCsrfToken token ) {
+          // update setting
+          RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+          builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+          if ( token != null ) {
+            builder.setHeader( token.getHeader(), token.getToken() );
+          }
+          try {
+            builder.sendRequest( "" + solutionTree.isShowLocalizedFileNames(), EmptyRequestCallback.getInstance() );
+          } catch ( RequestException e ) {
+            // showError(e);
+          }
+        }
+      } );
     }
   };
 
@@ -148,17 +163,29 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       event.setValue( solutionTree.isShowHiddenFiles() );
       EventBusUtil.EVENT_BUS.fireEvent( event );
 
-      // update setting
       final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES"; //$NON-NLS-1$
-      RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
-      try {
-        builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-        builder.sendRequest( "" + solutionTree.isShowHiddenFiles(), EmptyRequestCallback.getInstance() );
-        RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree( true, null, null,
-          solutionTree.isShowHiddenFiles() );
-      } catch ( RequestException e ) {
-        // showError(e);
-      }
+
+      CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
+
+        public void onFailure( Throwable caught ) {
+        }
+
+        public void onSuccess( JsCsrfToken token ) {
+          // update setting
+          RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+          try {
+            builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+            if ( token != null ) {
+              builder.setHeader( token.getHeader(), token.getToken() );
+            }
+            builder.sendRequest( "" + solutionTree.isShowHiddenFiles(), EmptyRequestCallback.getInstance() );
+            RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree( true, null, null,
+                solutionTree.isShowHiddenFiles() );
+          } catch ( RequestException e ) {
+            // showError(e);
+          }
+        }
+      } );
     }
   };
 
@@ -172,15 +199,28 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       event.setValue( solutionTree.isUseDescriptionsForTooltip() );
       EventBusUtil.EVENT_BUS.fireEvent( event );
 
-      // update setting
       final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS"; //$NON-NLS-1$
-      RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
-      try {
-        builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-        builder.sendRequest( "" + solutionTree.isUseDescriptionsForTooltip(), EmptyRequestCallback.getInstance() );
-      } catch ( RequestException e ) {
-        // showError(e);
-      }
+
+      CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
+
+        public void onFailure( Throwable caught ) {
+        }
+
+        public void onSuccess( JsCsrfToken token ) {
+          // update setting
+
+          RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+          try {
+            builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+            if ( token != null ) {
+              builder.setHeader( token.getHeader(), token.getToken() );
+            }
+            builder.sendRequest( "" + solutionTree.isUseDescriptionsForTooltip(), EmptyRequestCallback.getInstance() );
+          } catch ( RequestException e ) {
+            // showError(e);
+          }
+        }
+      } );
     }
   };
 

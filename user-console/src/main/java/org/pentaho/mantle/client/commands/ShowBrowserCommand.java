@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,7 +24,10 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.mantle.client.EmptyRequestCallback;
+import org.pentaho.mantle.client.csrf.CsrfUtil;
+import org.pentaho.mantle.client.csrf.JsCsrfToken;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 
@@ -49,14 +52,26 @@ public class ShowBrowserCommand implements Command {
         PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
       }
     }
-    final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_NAVIGATOR"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
-    try {
-      builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-      builder.sendRequest( "" + state, EmptyRequestCallback.getInstance() );
-    } catch ( RequestException e ) {
-      // showError(e);
-    }
-  }
 
+    final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_NAVIGATOR"; //$NON-NLS-1$
+
+    CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
+
+      public void onFailure( Throwable caught ) {
+      }
+
+      public void onSuccess( JsCsrfToken token ) {
+        RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+        try {
+          builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+          if ( token != null ) {
+            builder.setHeader( token.getHeader(), token.getToken() );
+          }
+          builder.sendRequest( "" + state, EmptyRequestCallback.getInstance() );
+        } catch ( RequestException e ) {
+          // showError(e);
+        }
+      }
+    } );
+  }
 }
