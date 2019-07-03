@@ -20,21 +20,27 @@
 
 package org.pentaho.platform.web.http.security;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.pentaho.platform.web.WebUtil;
+
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockFilterConfig;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mockito.Mockito;
+import org.springframework.security.web.csrf.CsrfToken;
 
-import static org.mockito.Mockito.mock;
-
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( WebUtil.class )
 public class CsrfTokenResponseHeaderFilterTest {
 
   private HttpServletRequest mockRequest;
@@ -42,21 +48,32 @@ public class CsrfTokenResponseHeaderFilterTest {
   private CsrfTokenResponseHeaderFilter filter;
   private FilterChain filterChain;
 
+  private static final String RESPONSE_HEADER_VALUE = "HEADER_NAME";
+  private static final String RESPONSE_PARAM_VALUE = "PARAM_NAME";
+  private static final String RESPONSE_TOKEN_VALUE = "TOKEN";
+
   @Before
   public void setUp() throws Exception {
 
-    this.mockRequest = mock( HttpServletRequest.class );
-    this.mockResponse = mock( HttpServletResponse.class );
+    this.mockRequest = Mockito.mock( HttpServletRequest.class );
+    this.mockResponse = Mockito.mock( HttpServletResponse.class );
     this.filter = new CsrfTokenResponseHeaderFilter();
     this.filterChain = new MockFilterChain();
   }
 
-  @After
-  public void tearDown() throws Exception {
+  private static CsrfToken createToken() {
+
+    CsrfToken token = Mockito.mock( CsrfToken.class );
+
+    Mockito.when( token.getHeaderName() ).thenReturn( RESPONSE_HEADER_VALUE );
+    Mockito.when( token.getParameterName() ).thenReturn( RESPONSE_PARAM_VALUE );
+    Mockito.when( token.getToken() ).thenReturn( RESPONSE_TOKEN_VALUE );
+
+    return token;
   }
 
-  @Test
-  public void testWorks() throws Exception {
+  @Test( expected = ServletException.class )
+  public void testWhenNoCsrfTokenThenThrow() throws Exception {
 
     MockFilterConfig cfg = new MockFilterConfig();
 
@@ -65,5 +82,49 @@ public class CsrfTokenResponseHeaderFilterTest {
     filter.doFilter( this.mockRequest, this.mockResponse, this.filterChain );
 
     Mockito.verify( mockResponse, Mockito.never() ).setHeader( Mockito.anyString(), Mockito.anyString() );
+  }
+
+  @Test
+  public void testWhenCsrfTokenThenCsrfResponseHeaders() throws Exception {
+
+    MockFilterConfig cfg = new MockFilterConfig();
+
+    filter.init( cfg );
+
+    CsrfToken token = createToken();
+
+    Mockito.when( this.mockRequest.getAttribute( CsrfTokenResponseHeaderFilter.REQUEST_ATTRIBUTE_NAME ) )
+        .thenReturn( token );
+
+    filter.doFilter( this.mockRequest, this.mockResponse, this.filterChain );
+
+    Mockito.verify( mockResponse, Mockito.times( 1 ))
+            .setHeader( CsrfTokenResponseHeaderFilter.RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE );
+
+    Mockito.verify( mockResponse, Mockito.times( 1 ))
+            .setHeader( CsrfTokenResponseHeaderFilter.RESPONSE_PARAM_NAME, RESPONSE_PARAM_VALUE );
+
+    Mockito.verify( mockResponse, Mockito.times( 1 ))
+            .setHeader( CsrfTokenResponseHeaderFilter.RESPONSE_TOKEN_NAME, RESPONSE_TOKEN_VALUE );
+  }
+
+  @Test
+  public void TestWhenCsrfTokenThenCorsResponseHeaders() throws Exception {
+
+    MockFilterConfig cfg = new MockFilterConfig();
+
+    filter.init( cfg );
+
+    CsrfToken token = createToken();
+
+    Mockito.when( this.mockRequest.getAttribute( CsrfTokenResponseHeaderFilter.REQUEST_ATTRIBUTE_NAME ) )
+        .thenReturn( token );
+
+    PowerMockito.mockStatic( WebUtil.class );
+
+    filter.doFilter( this.mockRequest, this.mockResponse, this.filterChain );
+
+    PowerMockito.verifyStatic( Mockito.times( 1 ) );
+    WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
   }
 }

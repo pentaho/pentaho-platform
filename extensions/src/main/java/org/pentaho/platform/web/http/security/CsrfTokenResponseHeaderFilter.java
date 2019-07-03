@@ -40,33 +40,33 @@ import java.io.IOException;
  * Code from https://github.com/aditzel/spring-security-csrf-filter/blob/master/src/main/java/com/allanditzel/springframework/security/web/csrf/CsrfTokenResponseHeaderBindingFilter.java
  */
 public class CsrfTokenResponseHeaderFilter extends OncePerRequestFilter {
-  private static final String REQUEST_ATTRIBUTE_NAME = "_csrf";
-  private static final String RESPONSE_HEADER_NAME = "X-CSRF-HEADER";
-  private static final String RESPONSE_PARAM_NAME = "X-CSRF-PARAM";
-  private static final String RESPONSE_TOKEN_NAME = "X-CSRF-TOKEN";
+
+  // These are package private for testing purposes.
+  static final String REQUEST_ATTRIBUTE_NAME = "_csrf";
+  static final String RESPONSE_HEADER_NAME = "X-CSRF-HEADER";
+  static final String RESPONSE_PARAM_NAME = "X-CSRF-PARAM";
+  static final String RESPONSE_TOKEN_NAME = "X-CSRF-TOKEN";
 
   @Override
   protected void doFilterInternal( HttpServletRequest request,
                                    HttpServletResponse response,
-                                   FilterChain filterChain ) throws ServletException, IOException {
+                                   FilterChain filterChain ) throws ServletException {
+
     final CsrfToken token = (CsrfToken) request.getAttribute( REQUEST_ATTRIBUTE_NAME );
-
-    if ( token != null ) {
-      final String tokenHeaderName = token.getHeaderName();
-      response.setHeader( RESPONSE_HEADER_NAME, tokenHeaderName );
-
-      final String tokenParameterName = token.getParameterName();
-      response.setHeader( RESPONSE_PARAM_NAME, tokenParameterName );
-
-      final String tokenValue = token.getToken();
-      response.setHeader( RESPONSE_TOKEN_NAME , tokenValue );
-
-      // Add CORS headers, if CORS is enabled.
-      WebUtil.setCorsResponseHeaders( request, response );
-
-      return;
+    if ( token == null ) {
+      throw new ServletException("Invalid filter usage.");
     }
 
-    filterChain.doFilter( request, response );
+    final String tokenHeaderName = token.getHeaderName();
+    response.setHeader( RESPONSE_HEADER_NAME, tokenHeaderName );
+
+    final String tokenParameterName = token.getParameterName();
+    response.setHeader( RESPONSE_PARAM_NAME, tokenParameterName );
+
+    final String tokenValue = token.getToken();
+    response.setHeader( RESPONSE_TOKEN_NAME , tokenValue );
+
+    // Add CORS headers, if CORS is enabled.
+    WebUtil.setCorsResponseHeaders( request, response );
   }
 }
