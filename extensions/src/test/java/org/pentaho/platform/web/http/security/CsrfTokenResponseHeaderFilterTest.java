@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.web.http.security;
 
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -126,5 +127,23 @@ public class CsrfTokenResponseHeaderFilterTest {
 
     PowerMockito.verifyStatic( Mockito.times( 1 ) );
     WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
+  }
+
+  @Test
+  public void TestStatusCodeNoContent() throws Exception {
+
+    MockFilterConfig cfg = new MockFilterConfig();
+
+    filter.init( cfg );
+
+    CsrfToken token = createToken();
+
+    Mockito.when( this.mockRequest.getAttribute( CsrfTokenResponseHeaderFilter.REQUEST_ATTRIBUTE_NAME ) )
+        .thenReturn( token );
+
+    filter.doFilter( this.mockRequest, this.mockResponse, this.filterChain );
+
+    Mockito.verify( mockResponse, Mockito.times( 1 ))
+        .setStatus( HttpStatus.SC_NO_CONTENT );
   }
 }

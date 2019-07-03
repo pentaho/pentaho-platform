@@ -19,6 +19,7 @@
  */
 package org.pentaho.platform.web.http.security;
 
+import org.apache.http.HttpStatus;
 import org.pentaho.platform.web.WebUtil;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,7 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.FilterChain;
-import java.io.IOException;
 
 /**
  * Binds a {@link org.springframework.security.web.csrf.CsrfToken} to the {@link HttpServletResponse} headers if the
@@ -68,5 +68,7 @@ public class CsrfTokenResponseHeaderFilter extends OncePerRequestFilter {
 
     // Add CORS headers, if CORS is enabled.
     WebUtil.setCorsResponseHeaders( request, response );
+
+    response.setStatus( HttpStatus.SC_NO_CONTENT );
   }
 }
