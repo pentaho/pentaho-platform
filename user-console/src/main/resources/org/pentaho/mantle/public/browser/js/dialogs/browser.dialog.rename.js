@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
  */
 
 define([
@@ -22,11 +22,12 @@ define([
   "../browser.utils",
   "common-ui/util/URLEncoder",
   "dojox/html/entities",
+  "pentaho/csrf/service",,
   "common-ui/bootstrap",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery",
   "pentaho/utils"
-], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder, Entities) {
+], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder, Entities, csrfService) {
 
   var BrowserUtils = new Utils();
 
@@ -165,11 +166,20 @@ define([
       var onOverrideOk = function () {
         var showOverrideDialog = !$(this).parents(".pentaho-dialog").find("#do-not-show").prop("checked");
 
-        BrowserUtils._makeAjaxCall("POST", "text", me.model.buildsessionVariableUrl("showOverrideDialog", showOverrideDialog), true);
+        BrowserUtils._makeAjaxCall(
+            "POST",
+            "text",
+            me.model.buildsessionVariableUrl("showOverrideDialog", showOverrideDialog),
+            true,
+            null,
+            null,
+            null,
+            true);
+
         me.model.set("showOverrideDialog", showOverrideDialog);
 
         me.showRenameDialog.apply(me);
-      }
+      };
 
       var onOverrideShow = function () {
         this.$dialog.find("#do-not-show").prop("checked", false);

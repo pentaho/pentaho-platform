@@ -107,8 +107,8 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Save the value of a particular setting for the current user
-   * 
+   * Save the value of a particular setting for the current user.
+   *
    * @param setting  (Setting name)
    * @param settingValue   (Value of the setting)
    * 
