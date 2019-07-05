@@ -2,4 +2,27 @@
   <max_log_lines>10000</max_log_lines>
   <max_log_timeout_minutes>2880</max_log_timeout_minutes>
   <object_timeout_minutes>240</object_timeout_minutes>
+
+  <!--
+      Defines the endpoints security that are available from Kettle Status page
+    -->
+  <role-bindings>
+    <role-binding>
+      <context-pattern>\/start.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/stop.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/pause.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/remove.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+  </role-bindings>
+
 </slave_config> 
