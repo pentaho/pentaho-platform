@@ -62,7 +62,7 @@
     </wss:service>
   </wss:binding>
 
-  <!--  GWT services are defined as Spring beans.  The id maps to the request URL like so: 
+  <!--  GWT services are defined as Spring beans.  The id maps to the request URL like so:
       requests to "/ws/gwt/myService" will be dispatched to a bean with id "ws-gwt-myService"
   -->
   <bean id="ws-gwt-unifiedRepository" class="org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService"/>
@@ -166,4 +166,5 @@
 
   <bean class="org.pentaho.platform.web.http.api.resources.PasswordResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.ServiceResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.Log4jResource" scope="request"/>
 </beans>
