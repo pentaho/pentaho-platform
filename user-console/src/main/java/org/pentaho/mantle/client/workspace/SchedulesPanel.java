@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.workspace;
 
 import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -29,6 +30,8 @@ import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
+import org.pentaho.mantle.client.csrf.CsrfUtil;
+import org.pentaho.mantle.client.csrf.JsCsrfToken;
 import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.OutputLocationUtils;
 import org.pentaho.mantle.client.events.EventBusUtil;
@@ -1057,20 +1060,36 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void openOutputLocation( final String outputLocation ) {
-    final String url = GWT.getHostPageBaseURL() + "api/mantle/session-variable?key=scheduler_folder&value=" + outputLocation;
+
     PerspectiveManager.getInstance().setPerspective( PerspectiveManager.BROWSER_PERSPECTIVE );
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.POST, url );
-    try {
-      executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
-        public void onError( Request request, Throwable exception ) {
+
+    final String url = GWT.getHostPageBaseURL() + "api/mantle/session-variable?key=scheduler_folder&value=" + outputLocation;
+
+    CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
+
+      public void onFailure( Throwable caught ) {
+      }
+
+      public void onSuccess( JsCsrfToken token ) {
+        RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.POST, url );
+        if ( token != null ) {
+          executableTypesRequestBuilder.setHeader( token.getHeader(), token.getToken() );
         }
 
-        public void onResponseReceived( Request request, Response response ) {
+        try {
+          executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
+            public void onError( Request request, Throwable exception ) {
+            }
+
+            public void onResponseReceived( Request request, Response response ) {
+            }
+          } );
+        } catch ( RequestException e ) {
+          //IGNORE
         }
-      } );
-    } catch ( RequestException e ) {
-      //IGNORE
-    }
+      }
+    } );
+
     GenericEvent event = new GenericEvent();
     event.setEventSubType( "RefreshFolderEvent" );
     event.setStringParam( outputLocation );

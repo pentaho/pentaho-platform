@@ -63,11 +63,7 @@ define(["./favorites"], function (Favorites) {
             url: that.getUrlBase() + that.favoritesUrl + "?ts=" + now.getTime(),
             async: false,
             success: function (result) {
-              try {
-                that.favoritesList = JSON.parse(result);
-              } catch (err) {
-                that.favoritesList = [];
-              }
+              that.favoritesList = result || [];
             },
             error: function (err) {
               console.log(that.i18nMap.error_could_not_get_favorites + " -- " + err);

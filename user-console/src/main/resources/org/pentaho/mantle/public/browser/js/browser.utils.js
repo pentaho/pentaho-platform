@@ -12,11 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
  */
 
 define([
-], function () {
+  "pentaho/csrf/service"
+], function(csrfService) {
 
   var local = {
 
@@ -121,23 +122,32 @@ define([
       return window.location.pathname.substring(0, window.location.pathname.indexOf("/mantle/")) + "/";
     },
 
-    getContent: function (serviceUrl, successCallback, errorCallback, beforeSendCallback) {
-      this._makeAjaxCall("GET", "json", serviceUrl, true, successCallback, errorCallback, beforeSendCallback);
+    getContent: function (serviceUrl, successCallback, errorCallback, beforeSendCallback, isProtected) {
+      this._makeAjaxCall("GET", "json", serviceUrl, true, successCallback, errorCallback, beforeSendCallback, isProtected);
     },
 
-    putContent: function (serviceUrl, successCallback, errorCallback, beforeSendCallback) {
-      this._makeAjaxCall("POST", "json", serviceUrl, true, successCallback, errorCallback, beforeSendCallback);
+    putContent: function (serviceUrl, successCallback, errorCallback, beforeSendCallback, isProtected) {
+      this._makeAjaxCall("POST", "json", serviceUrl, true, successCallback, errorCallback, beforeSendCallback, isProtected);
     },
 
-    _makeAjaxCall: function (type, dataType, serviceUrl, async, successCallback, errorCallback, beforeSendCallback) {
+    _makeAjaxCall: function (type, dataType, serviceUrl, async, successCallback, errorCallback, beforeSendCallback, isProtected) {
       var now = new Date();
       var url = serviceUrl + (serviceUrl.indexOf("?") > -1 ? "&" : "?") + "ts=" + now.getTime();
+
+      var headers = {};
+      if(isProtected) {
+        var csrfToken = csrfService.getToken(url);
+        if(csrfToken !== null) {
+          headers[csrfToken.header] = csrfToken.token;
+        }
+      }
 
       $.ajax({
         type: type,
         dataType: dataType,
         url: url,
         async: async,
+        headers: headers,
         success: function (result) {
           if (successCallback) {
             successCallback(result);

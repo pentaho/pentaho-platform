@@ -12,10 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2018 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  */
 
-define(["common-ui/util/PentahoSpinner", "common-ui/util/spin"], function (spinner, Spinner) {
+define([
+  "common-ui/util/PentahoSpinner",
+  "common-ui/util/spin",
+  "pentaho/csrf/service"
+], function(spinner, Spinner, csrfService) {
 
   var local = {
     name: "favorites",
@@ -158,10 +162,19 @@ define(["common-ui/util/PentahoSpinner", "common-ui/util/spin"], function (spinn
       var context = {};
       context.i18n = that.i18nMap;
 
+      var headers = {};
+      var url = that.getUrlBase() + that.serviceUrl;
+
+      var csrfToken = csrfService.getToken(url);
+      if(csrfToken != null) {
+        headers[csrfToken.header] = csrfToken.token;
+      }
+
       $.ajax({
-        url: that.getUrlBase() + that.serviceUrl,
+        url: url,
         type: 'POST',
         data: [],
+        headers: headers,
 
         success: function (result) {
           that.showList(result, context);

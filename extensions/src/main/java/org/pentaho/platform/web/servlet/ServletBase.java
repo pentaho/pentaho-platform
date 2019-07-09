@@ -25,22 +25,16 @@ import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.logging.Logger;
+import org.pentaho.platform.web.WebUtil;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.List;
 
 public abstract class ServletBase extends HttpServlet implements ILogger {
 
   public static final boolean debug = PentahoSystem.debug;
-
-  static String ORIGIN_HEADER = "origin";
-  static String CORS_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
-  static String CORS_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
 
   private int loggingLevel = ILogger.ERROR;
 
@@ -143,41 +137,6 @@ public abstract class ServletBase extends HttpServlet implements ILogger {
   }
 
   public void setCorsHeaders( HttpServletRequest request, HttpServletResponse response ) {
-    if ( !this.isCorsRequestsAllowed() ) {
-      return;
-    }
-
-    String origin = request.getHeader( ORIGIN_HEADER );
-    if ( this.isCorsRequestOriginAllowed( origin ) ) {
-      response.setHeader( CORS_ALLOW_ORIGIN_HEADER, origin );
-      response.setHeader( CORS_ALLOW_CREDENTIALS_HEADER, "true" );
-    }
+    WebUtil.setCorsResponseHeaders( request, response );
   }
-
-  private boolean isCorsRequestsAllowed() {
-    String isCorsAllowed = this.getCorsRequestsAllowedSystemProperty();
-    return "true".equals( isCorsAllowed );
-  }
-
-  private List<String> getCorsRequestsAllowedDomains() {
-    String allowedDomains = this.getCorsAllowedDomainsSystemProperty();
-    boolean hasDomains = !StringUtil.isEmpty( allowedDomains );
-
-    return hasDomains ? Arrays.asList( allowedDomains.split( "\\s*,\\s*" ) ) : null;
-  }
-
-  private boolean isCorsRequestOriginAllowed( String domain ) {
-    List<String> allowedDomains = this.getCorsRequestsAllowedDomains();
-    return allowedDomains != null && allowedDomains.contains( domain );
-  }
-
-  // region package-private methods for unit testing mock/spying
-  String getCorsRequestsAllowedSystemProperty() {
-    return PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED, "false" );
-  }
-
-  String getCorsAllowedDomainsSystemProperty() {
-    return PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED_DOMAINS, null );
-  }
-  // endregion
 }

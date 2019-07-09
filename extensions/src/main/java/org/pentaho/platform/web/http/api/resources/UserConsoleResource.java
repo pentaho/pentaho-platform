@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -291,7 +291,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Apply the selected locale to the user console
+   * Apply the selected locale to the user console.
    *
    * @param locale (user console's locale)
    * @return
@@ -315,6 +315,13 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return new SystemResource().getLocale();
   }
 
+  /**
+   * Sets the value of a session variable.
+   *
+   * @param key The name of the session variable
+   * @param value The value of the session variable
+   * @return
+   */
   @POST
   @Path ( "/session-variable" )
   @Facet ( name = "Unsupported" )
@@ -327,6 +334,12 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return Response.status( FORBIDDEN ).build();
   }
 
+  /**
+   * Gets the value of a session variable.
+   *
+   * @param key The name of the session variable
+   * @return
+   */
   @GET
   @Path ( "/session-variable" )
   @Facet ( name = "Unsupported" )
@@ -343,6 +356,12 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     return Response.status( FORBIDDEN ).build();
   }
 
+  /**
+   * Deletes the value of a session variable.
+   *
+   * @param key The name of the session variable
+   * @return
+   */
   @DELETE
   @Path ( "/session-variable" )
   @Facet ( name = "Unsupported" )
@@ -353,7 +372,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @GET
   @Path ( "/registeredPlugins" )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Returns a list of registerd plugins as a list string" )
+      @ResponseCode ( code = 200, condition = "Returns a list of registered plugins as a list string" )
   } )
   @Facet ( name = "Unsupported" )
   public Response registeredPlugins() {

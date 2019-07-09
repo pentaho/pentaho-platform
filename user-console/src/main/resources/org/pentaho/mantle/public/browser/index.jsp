@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
 --%>
 
 <!DOCTYPE html>
@@ -85,7 +85,7 @@
   var FileBrowser = null;
 
   function initBrowser(canDownload, showHiddenFiles, showDescriptions, canPublish, canRead, canCreate) {
-    require(["mantle/browser/browser"], function (pentahoFileBrowser) {
+    require(["mantle/browser/browser", "pentaho/csrf/service"], function (pentahoFileBrowser, csrfService) {
       FileBrowser = pentahoFileBrowser;
       FileBrowser.setOpenFileHandler(openRepositoryFile);
       FileBrowser.setContainer($("#fileBrowser"));
@@ -97,24 +97,35 @@
       FileBrowser.setCanCreate(canCreate);
       
       var open_dir = window.parent.HOME_FOLDER;
-      
+      var initialFolderResourceUrl = CONTEXT_PATH + "api/mantle/session-variable?key=scheduler_folder";
+
       $.ajax({
-				url: CONTEXT_PATH + "api/mantle/session-variable?key=scheduler_folder",
+				url: initialFolderResourceUrl,
 				type: "GET",
 				cache: false,
 				async: true,
 				success: function (response) {
-					if(response != null && response.length > 0){
+					if(response != null && response.length > 0) {
+
 						open_dir = decodeURIComponent(response);
-							$.ajax({
-							url: CONTEXT_PATH + "api/mantle/session-variable?key=scheduler_folder",
+
+						var headers = {};
+                        var csrfToken = csrfService.getToken(initialFolderResourceUrl);
+                        if(csrfToken !== null) {
+                          headers[csrfToken.header] = csrfToken.token;
+                        }
+
+						$.ajax({
+							url: initialFolderResourceUrl,
 							type: "DELETE",
 							cache: false,
 							async: true,
+                            headers: headers,
 							success: function (response) {
 							}
 						});
 					}
+
 					FileBrowser.update(open_dir);
 				}
 			});

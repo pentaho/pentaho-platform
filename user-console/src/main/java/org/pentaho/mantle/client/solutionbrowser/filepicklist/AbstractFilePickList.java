@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -30,7 +30,10 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.mantle.client.csrf.CsrfUtil;
+import org.pentaho.mantle.client.csrf.JsCsrfToken;
 import org.pentaho.mantle.client.messages.Messages;
 
 import java.util.ArrayList;
@@ -209,28 +212,47 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
    * @param settingName
    */
   public void save( String settingName ) {
+
     final String url = GWT.getHostPageBaseURL() + "api/user-settings/" + settingName; //$NON-NLS-1$
 
-    RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
-    try {
-      builder.setHeader( "accept", "application/json" );
-      builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-      builder.sendRequest( toJson().toString(), new RequestCallback() {
+    CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
 
-        public void onError( Request request, Throwable exception ) {
-          MessageDialogBox dialog =
-              new MessageDialogBox(
-                  Messages.getString( "error" ), Messages.getString( "couldNotSetUserSettings" ), true, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
-          dialog.center();
-        }
+      public void onFailure( Throwable caught ) {
+        MessageDialogBox dialog = new MessageDialogBox(
+            Messages.getString( "error" ),
+            Messages.getString( "couldNotSetUserSettings" ),
+            true,
+            false,
+            true );
+        dialog.center();
+      }
 
-        public void onResponseReceived( Request request, Response response ) {
-          fireOnSavedEvent();
+      public void onSuccess( JsCsrfToken token ) {
+        RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+        try {
+          builder.setHeader( "accept", "application/json" );
+          builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+          if ( token != null ) {
+            builder.setHeader( token.getHeader(), token.getToken() );
+          }
+          builder.sendRequest( toJson().toString(), new RequestCallback() {
+
+            public void onError( Request request, Throwable exception ) {
+              MessageDialogBox dialog =
+                  new MessageDialogBox(
+                      Messages.getString( "error" ), Messages.getString( "couldNotSetUserSettings" ), true, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+              dialog.center();
+            }
+
+            public void onResponseReceived( Request request, Response response ) {
+              fireOnSavedEvent();
+            }
+          } );
+        } catch ( RequestException e ) {
+          // showError(e);
         }
-      } );
-    } catch ( RequestException e ) {
-      // showError(e);
-    }
+      }
+    } );
   }
 
   public void reloadFavorites( final T pickListItem, final String command ) {
