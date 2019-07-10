@@ -714,9 +714,9 @@
             </EntityAcl>
         </ExportManifestProperty>
     </ExportManifestEntity>
-    <ExportManifestEntity path="public/Steel Wheels/Enterprise Edition/js/vendor/jquery-1.12.4.min.js">
+    <ExportManifestEntity path="public/Steel Wheels/Enterprise Edition/js/vendor/jquery-${jquery.version}.min.js">
         <ExportManifestProperty>
-            <EntityMetaData name="jquery-1.12.4.min.js" createdDate="2016-06-21T14:58:07.000+04:00" isFolder="false" path="public/Steel Wheels/Enterprise Edition/js/vendor/jquery-1.12.4.min.js" isHidden="false" locale="en_US" title="jquery-1.12.4.min"/>
+            <EntityMetaData name="jquery-${jquery.version}.min.js" createdDate="2016-06-21T14:58:07.000+04:00" isFolder="false" path="public/Steel Wheels/Enterprise Edition/js/vendor/jquery-${jquery.version}.min.js" isHidden="false" locale="en_US" title="jquery-${jquery.version}.min"/>
         </ExportManifestProperty>
         <ExportManifestProperty>
             <EntityAcl>

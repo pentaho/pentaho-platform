@@ -10,4 +10,34 @@
   <artifactId>pentaho-samples</artifactId>
   <version>9.0.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>jquery</artifactId>
+                  <type>jar</type>
+                  <includes>**/jquery.min.js</includes>
+                  <outputDirectory>${project.build.directory}/webjars</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
