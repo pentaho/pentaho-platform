@@ -197,7 +197,7 @@
             <configuration>
               <file>${tomcat.directory}/conf/server.xml</file>
               <token>&lt;Connector</token>
-              <value>&lt;Connector URIEncoding=&quot;UTF-8&quot;</value>
+              <value>&lt;Connector URIEncoding="UTF-8" relaxedPathChars="[]|" relaxedQueryChars="^{}[]|<![CDATA[&amp;]]>"</value>
             </configuration>
           </execution>
         </executions>
