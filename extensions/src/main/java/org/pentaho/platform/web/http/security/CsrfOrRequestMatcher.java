@@ -25,21 +25,47 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+/**
+ * A request matcher class which matches a given request if any one of a given list of request matchers
+ * matches a request.
+ *
+ * Additionally, the matcher is enabled or disabled according to
+ * the Pentaho system's setting "csrf-protection-enabled".
+ */
 public class CsrfOrRequestMatcher implements RequestMatcher {
-  private static final String CSRF_PROTECTION_ENABLED = "csrf-protection-enabled";
 
-  private boolean csrfProtectionEnabled;
-  private List<RequestMatcher> requestMatchers;
+  final private boolean csrfProtectionEnabled;
+  final private List<RequestMatcher> requestMatchers;
 
+  /**
+   * Creates a request matcher given a list of request matchers.
+   *
+   * @param requestMatchers
+   *  The list of request matchers to which actual matching is delegated.
+   */
   public CsrfOrRequestMatcher( List<RequestMatcher> requestMatchers ) {
+    this( requestMatchers, PentahoSystem.isCsrfProtectionEnabled() );
+  }
+
+  // Package private for testing purposes.
+  /**
+   * Creates a request matcher given a list of request matchers and
+   * an indication of whether matching is enabled.
+   *
+   * @param requestMatchers
+   *  The list of request matchers to which actual matching is delegated.
+   *
+   * @param csrfProtectionEnabled
+   *  Indicates if CSRF protection is enabled.
+   */
+  CsrfOrRequestMatcher( List<RequestMatcher> requestMatchers, boolean csrfProtectionEnabled ) {
     if ( requestMatchers == null ) {
       throw new IllegalArgumentException( "requestMatchers must be defined" );
     }
 
-    this.csrfProtectionEnabled = Boolean.valueOf(
-      PentahoSystem.getSystemSetting( CSRF_PROTECTION_ENABLED, "false" ) );
-
     this.requestMatchers = requestMatchers;
+
+    this.csrfProtectionEnabled = csrfProtectionEnabled;
   }
 
   @Override
