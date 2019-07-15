@@ -316,6 +316,11 @@ public class DefaultPluginManager implements IPluginManager {
     }
   }
 
+  public boolean isCsrfProtectionEnabled( String pluginId ) {
+    return PentahoSystem.isCsrfProtectionEnabled() &&
+        "true".equals(this.getPluginSetting( pluginId, "csrf-protection-enabled", "true" ) );
+  }
+
   private void registerPerspectives( IPlatformPlugin plugin, ClassLoader loader ) {
     for ( IPluginPerspective pluginPerspective : plugin.getPluginPerspectives() ) {
       PentahoSystem.get( IPluginPerspectiveManager.class ).addPluginPerspective( pluginPerspective );

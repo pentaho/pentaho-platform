@@ -464,7 +464,7 @@
 
   <servlet-mapping>
     <servlet-name>DebugHome</servlet-name>
-    <url-pattern>/DebugHome</url-pattern>
+      <url-pattern>/DebugHome</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

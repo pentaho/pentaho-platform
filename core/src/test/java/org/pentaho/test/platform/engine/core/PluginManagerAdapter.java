@@ -140,6 +140,11 @@ public class PluginManagerAdapter implements IPluginManager {
     return null;
   }
 
+  @Override
+  public boolean isCsrfProtectionEnabled(String pluginId) {
+    return false;
+  }
+
   public String getServicePlugin( String path ) {
     // Auto-generated method stub
     return null;

@@ -407,7 +407,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       synchronized ( other ) {
         this.id( other.getId() ).path( other.getPath() ).createdDate( other.getCreatedDate() ).creatorId(
           other.getCreatorId() ).fileSize( other.getFileSize() ).folder( other.isFolder() ).lastModificationDate(
-          other.getLastModifiedDate() ).versioned( other.isVersioned() ).hidden( other.isHidden() ).schedulable(
+          other.getLastModifiedDate() ).versioned ( other.isVersioned() ).hidden( other.isHidden() ).schedulable(
           other.isSchedulable() ).versionId(
           other.getVersionId() ).locked( other.isLocked() ).lockDate( other.getLockDate() ).lockOwner(
           other.getLockOwner() ).lockMessage( other.getLockMessage() ).title( other.getTitle() ).description(

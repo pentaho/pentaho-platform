@@ -126,6 +126,11 @@ public class MockPluginManager implements IPluginManager {
     return null;
   }
 
+  @Override
+  public boolean isCsrfProtectionEnabled(String pluginId) {
+    return false;
+  }
+
   public String getServicePlugin( String arg0 ) {
     // TODO Auto-generated method stub
     return null;
