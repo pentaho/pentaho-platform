@@ -54,7 +54,7 @@ import java.util.Set;
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2009 - 2017 Hitachi Vantara.  All rights reserved. 
+ * Copyright 2009 - 2019 Hitachi Vantara.  All rights reserved.
  * 
  */
 public class PluginManagerAdapter implements IPluginManager {
@@ -138,6 +138,11 @@ public class PluginManagerAdapter implements IPluginManager {
   public Object getPluginSetting( String pluginId, String key, String defaultValue ) {
     // Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public boolean isCsrfProtectionEnabled( String pluginId ) {
+    return false;
   }
 
   public String getServicePlugin( String path ) {

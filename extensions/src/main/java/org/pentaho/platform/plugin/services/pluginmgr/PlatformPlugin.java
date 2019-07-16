@@ -14,17 +14,19 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
+import org.pentaho.platform.api.engine.CsrfProtectionDefinition;
 import org.pentaho.platform.api.engine.IContentGeneratorInfo;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
+import org.pentaho.platform.api.engine.IPlatformPluginCsrfProtection;
 import org.pentaho.platform.api.engine.IPluginLifecycleListener;
 import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginLifecycleException;
@@ -43,7 +45,7 @@ import java.util.Map;
 /**
  * Default bean implementation of {@link IPlatformPlugin}
  */
-public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
+public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer, IPlatformPluginCsrfProtection {
 
   private List<IContentGeneratorInfo> contentGenerators = new ArrayList<IContentGeneratorInfo>();
 
@@ -78,6 +80,8 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
   private ClassLoaderType loaderType;
 
   private Map<String, List<String>> externalResources = new HashMap<String, List<String>>();
+
+  private CsrfProtectionDefinition csrfProtectionDefinition;
 
   public PlatformPlugin() {
   }
@@ -258,4 +262,11 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
     perspectives.add( perspective );
   }
 
+  public CsrfProtectionDefinition getCsrfProtection() {
+    return this.csrfProtectionDefinition;
+  }
+
+  public void setCsrfProtection( CsrfProtectionDefinition csrfProtectionDefinition ) {
+    this.csrfProtectionDefinition = csrfProtectionDefinition;
+  }
 }

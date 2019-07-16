@@ -78,7 +78,6 @@
     }
   }
 
-
   boolean loggedIn = request.getRemoteUser() != null && request.getRemoteUser() != "";
   int year = (new java.util.Date()).getYear() + 1900;
 
@@ -98,8 +97,10 @@
       ua = "none";
     }
     if ( !"desktop".equalsIgnoreCase( request.getParameter( "mode") ) ) {
-      if ( ua.contains( "ipad" ) || ua.contains( "ipod" ) || ua.contains( "iphone" )
-           || ua.contains( "android" ) || "mobile".equalsIgnoreCase( request.getParameter( "mode" ) ) ) {
+      if ( ua.contains( "ipad" )   || ua.contains( "ipod" )    ||
+           ua.contains( "iphone" ) || ua.contains( "android" ) ||
+           "mobile".equalsIgnoreCase( request.getParameter( "mode" ) ) ) {
+
         IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
         List<String> pluginIds = pluginManager.getRegisteredPlugins();
         for ( String id : pluginIds ) {

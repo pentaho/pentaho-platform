@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -91,8 +91,9 @@ public class PentahoSystem {
   public static final boolean trace = false;
 
   public static final boolean ignored = false; // used to suppress compiler
-  private static final String securityContextHolderStrategy =
-    SecurityContextHolder.MODE_INHERITABLETHREADLOCAL;
+
+  private static final String securityContextHolderStrategy = SecurityContextHolder.MODE_INHERITABLETHREADLOCAL;
+
   public static final String JAVA_SYSTEM_PROPERTIES = "java-system-properties";
 
   public static int loggingLevel = ILogger.ERROR;

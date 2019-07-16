@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -153,7 +153,7 @@ public interface IPluginManager {
   /**
    * Returns the Plugin perspectives for a plugin of specific id
    *
-   * @param the id of the plugin
+   * @param id the id of the plugin
    * @return the list of REST perspectives for a plugin of specific id or <code>null</code> if none were found
    */
   public List<String> getPluginRESTPerspectivesForId( String id );
@@ -176,6 +176,14 @@ public interface IPluginManager {
    * @return the plugin setting
    */
   public Object getPluginSetting( String pluginId, String key, String defaultValue );
+
+  /**
+   * Gets a value that indicates if CSRF protection is enabled for the system and a given plugin.
+   *
+   * @param pluginId     the ID of the plugin.
+   * @return true if CSRF protection is enabled; false, otherwise.
+   */
+  public boolean isCsrfProtectionEnabled( String pluginId );
 
   /**
    * Returns the plugin that can handle a request for the resource at "path". A plugin is determined to be able to serve

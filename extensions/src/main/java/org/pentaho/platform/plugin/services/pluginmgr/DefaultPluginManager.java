@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -314,6 +314,11 @@ public class DefaultPluginManager implements IPluginManager {
       Logger.error( getClass().toString(), msg, t );
       PluginMessageLogger.add( msg );
     }
+  }
+
+  public boolean isCsrfProtectionEnabled( String pluginId ) {
+    return PentahoSystem.isCsrfProtectionEnabled()
+        && "true".equals( this.getPluginSetting( pluginId, "csrf-protection-enabled", "true" ) );
   }
 
   private void registerPerspectives( IPlatformPlugin plugin, ClassLoader loader ) {

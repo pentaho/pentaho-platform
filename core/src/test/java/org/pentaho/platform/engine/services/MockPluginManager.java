@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -124,6 +124,11 @@ public class MockPluginManager implements IPluginManager {
   public Object getPluginSetting( String arg0, String arg1, String arg2 ) {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public boolean isCsrfProtectionEnabled( String pluginId ) {
+    return false;
   }
 
   public String getServicePlugin( String arg0 ) {
