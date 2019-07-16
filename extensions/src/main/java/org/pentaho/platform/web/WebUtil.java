@@ -125,7 +125,7 @@ public class WebUtil {
           Messages.getInstance().getString( "CsrfProtection.REQUEST_MATCHER_NO_PATTERN" ) );
     }
 
-    Collection<String> methodsCol = new ArrayList<String>(  );
+    List<String> methodsCol = new ArrayList<>(  );
 
     for ( String method : methods.split( "\\s*,\\s*" ) ) {
       try {
@@ -152,7 +152,7 @@ public class WebUtil {
   // region WebUtil.buildCsrfRequestMatcher
   public static RequestMatcher buildCsrfRequestMatcher( Collection<CsrfProtectionDefinition> csrfProtectionDefinitions ) {
 
-    List<RequestMatcher> requestMatchers = new ArrayList<RequestMatcher>();
+    List<RequestMatcher> requestMatchers = new ArrayList<>();
 
     for ( CsrfProtectionDefinition csrfProtectionDefinition : csrfProtectionDefinitions ) {
       collectRequestMatchers( requestMatchers, csrfProtectionDefinition );
