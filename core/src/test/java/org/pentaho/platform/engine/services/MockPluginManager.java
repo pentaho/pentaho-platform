@@ -127,7 +127,7 @@ public class MockPluginManager implements IPluginManager {
   }
 
   @Override
-  public boolean isCsrfProtectionEnabled(String pluginId) {
+  public boolean isCsrfProtectionEnabled( String pluginId ) {
     return false;
   }
 
