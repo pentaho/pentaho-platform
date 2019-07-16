@@ -100,7 +100,7 @@ public class CsrfGateFilter implements Filter {
 
   private synchronized void doInit() throws ServletException {
     if ( logger.isDebugEnabled() ) {
-      logger.debug( "CsrfGateFilter.init" ); //$NON-NLS-1$
+      logger.debug( "CsrfGateFilter.init" );
     }
 
     if ( this.initialized ) {
