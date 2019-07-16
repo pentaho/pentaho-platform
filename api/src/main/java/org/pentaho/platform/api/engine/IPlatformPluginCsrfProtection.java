@@ -27,5 +27,5 @@ public interface IPlatformPluginCsrfProtection {
    *
    * @return
    */
-  public CsrfProtectionDefinition getCsrfProtection();
+  CsrfProtectionDefinition getCsrfProtection();
 }

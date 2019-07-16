@@ -17,6 +17,7 @@
  */
 package org.pentaho.platform.web.http.security;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.CsrfProtectionDefinition;
@@ -40,15 +41,32 @@ public class CsrfGateFilter implements Filter {
 
   private static final Log logger = LogFactory.getLog( CsrfGateFilter.class );
 
-  // For unit testing
-  org.springframework.security.web.csrf.CsrfFilter innerCsrfFilter;
-  // For unit testing
-  boolean isCsrfProtectionEnabled = true;
-  // For unit testing
-  boolean initialized = false;
+  private org.springframework.security.web.csrf.CsrfFilter innerCsrfFilter;
+  private boolean isCsrfProtectionEnabled = true;
+  private boolean initialized = false;
 
   public CsrfGateFilter( CsrfTokenRepository csrfTokenRepository ) {
     this.innerCsrfFilter = new org.springframework.security.web.csrf.CsrfFilter( csrfTokenRepository );
+  }
+
+  @VisibleForTesting
+  boolean getIsCsrfProtectionEnabled() {
+    return isCsrfProtectionEnabled;
+  }
+
+  @VisibleForTesting
+  org.springframework.security.web.csrf.CsrfFilter getInnerCsrfFilter() {
+    return this.innerCsrfFilter;
+  }
+
+  @VisibleForTesting
+  boolean getInitialized() {
+    return this.initialized;
+  }
+
+  @VisibleForTesting
+  void setInitialized( boolean initialized ) {
+    this.initialized = initialized;
   }
 
   /**

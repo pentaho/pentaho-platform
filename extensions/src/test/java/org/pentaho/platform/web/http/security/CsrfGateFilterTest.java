@@ -73,7 +73,7 @@ public class CsrfGateFilterTest {
 
   @Test
   public void testConstructor() throws Exception {
-    assertNotNull( this.csrfGateFilter.innerCsrfFilter );
+    assertNotNull( this.csrfGateFilter.getInnerCsrfFilter() );
     // No way to test that csrfTokenRepository was the received repository.
   }
 
@@ -100,14 +100,14 @@ public class CsrfGateFilterTest {
     when( PentahoSystem.get( IPluginManager.class ) ).thenReturn( this.pluginManager );
     when( PentahoSystem.isCsrfProtectionEnabled() ).thenReturn( false );
 
-    assertFalse( this.csrfGateFilter.initialized );
+    assertFalse( this.csrfGateFilter.getInitialized() );
 
     this.csrfGateFilter.init( this.filterConfig );
 
-    assertEquals( this.filterConfig, this.csrfGateFilter.innerCsrfFilter.getFilterConfig() );
+    assertEquals( this.filterConfig, this.csrfGateFilter.getInnerCsrfFilter().getFilterConfig() );
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertFalse( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertFalse( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
 
     verify( this.pluginManager ).addPluginManagerListener( any( IPluginManagerListener.class ) );
   }
@@ -124,14 +124,14 @@ public class CsrfGateFilterTest {
     PowerMockito.mockStatic( WebUtil.class );
     when( WebUtil.buildCsrfRequestMatcher( any() ) ).thenReturn( null );
 
-    assertFalse( this.csrfGateFilter.initialized );
+    assertFalse( this.csrfGateFilter.getInitialized() );
 
     this.csrfGateFilter.init( this.filterConfig );
 
-    assertEquals( this.filterConfig, this.csrfGateFilter.innerCsrfFilter.getFilterConfig() );
+    assertEquals( this.filterConfig, this.csrfGateFilter.getInnerCsrfFilter().getFilterConfig() );
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertFalse( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertFalse( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
   }
 
   @Test
@@ -147,14 +147,14 @@ public class CsrfGateFilterTest {
     PowerMockito.mockStatic( WebUtil.class );
     when( WebUtil.buildCsrfRequestMatcher( any() ) ).thenReturn( requestMatcher );
 
-    assertFalse( this.csrfGateFilter.initialized );
+    assertFalse( this.csrfGateFilter.getInitialized() );
 
     this.csrfGateFilter.init( this.filterConfig );
 
-    assertEquals( this.filterConfig, this.csrfGateFilter.innerCsrfFilter.getFilterConfig() );
+    assertEquals( this.filterConfig, this.csrfGateFilter.getInnerCsrfFilter().getFilterConfig() );
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertTrue( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertTrue( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
   }
 
   @Test
@@ -179,14 +179,14 @@ public class CsrfGateFilterTest {
     PowerMockito.verifyStatic( times( 1 ) );
     PentahoSystem.getAll( eq( CsrfProtectionDefinition.class ) );
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertTrue( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertTrue( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
 
     // Test Simulate reload.
     listenerCapture.getValue().onReload();
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertTrue( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertTrue( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
 
     PowerMockito.verifyStatic( times( 2 ) );
     PentahoSystem.getAll( eq( CsrfProtectionDefinition.class ) );
@@ -204,8 +204,8 @@ public class CsrfGateFilterTest {
 
     this.csrfGateFilter.init( this.filterConfig );
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertFalse( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertFalse( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
 
     // Test
     HttpServletRequest mockRequest = Mockito.mock( HttpServletRequest.class );
@@ -244,8 +244,8 @@ public class CsrfGateFilterTest {
     PowerMockito.verifyStatic( times( 1 ) );
     PentahoSystem.getAll( eq( CsrfProtectionDefinition.class ) );
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertTrue( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertTrue( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
 
     // Test
     this.csrfGateFilter.doFilter( mockRequest, mockResponse, filterChain );
@@ -253,8 +253,8 @@ public class CsrfGateFilterTest {
     PowerMockito.verifyStatic( times( 1 ) );
     PentahoSystem.getAll( eq( CsrfProtectionDefinition.class ) );
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertTrue( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertTrue( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
   }
 
   @Test
@@ -286,11 +286,11 @@ public class CsrfGateFilterTest {
     PowerMockito.verifyStatic( times( 1 ) );
     PentahoSystem.getAll( eq( CsrfProtectionDefinition.class ) );
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertTrue( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertTrue( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
 
-    // Simulate within doInit() in another thread...
-    this.csrfGateFilter.initialized = false;
+    // Simulate to be within doInit(), in another thread...
+    this.csrfGateFilter.setInitialized( false );
 
     // Test
     this.csrfGateFilter.doFilter( mockRequest, mockResponse, filterChain );
@@ -298,7 +298,7 @@ public class CsrfGateFilterTest {
     PowerMockito.verifyStatic( times( 2 ) );
     PentahoSystem.getAll( eq( CsrfProtectionDefinition.class ) );
 
-    assertTrue( this.csrfGateFilter.initialized );
-    assertTrue( this.csrfGateFilter.isCsrfProtectionEnabled );
+    assertTrue( this.csrfGateFilter.getInitialized() );
+    assertTrue( this.csrfGateFilter.getIsCsrfProtectionEnabled() );
   }
 }
