@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -14,13 +13,11 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +47,6 @@ import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.WebUtil;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -60,7 +56,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An implmentation of {@link IPluginProvider} that searches for plugin.xml files in the Pentaho system path and
+ * An implementation of {@link IPluginProvider} that searches for plugin.xml files in the Pentaho system path and
  * instantiates {@link IPlatformPlugin}s from the information in those files.
  * 
  * @author aphillips
@@ -465,7 +461,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         if ( protectionDefinition != null ) {
           plugin.setCsrfProtection( protectionDefinition );
         }
-      } catch( IllegalArgumentException parseError ) {
+      } catch ( IllegalArgumentException parseError ) {
         PluginMessageLogger.add(
             Messages.getInstance().getString(
                 "PluginManager.WARN_CSRF_REQUEST_MATCHER_NOT_REGISTERED",

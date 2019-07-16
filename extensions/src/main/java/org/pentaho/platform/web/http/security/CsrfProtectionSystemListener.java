@@ -18,7 +18,9 @@
 package org.pentaho.platform.web.http.security;
 
 import org.dom4j.Element;
-import org.pentaho.platform.api.engine.*;
+import org.pentaho.platform.api.engine.CsrfProtectionDefinition;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
 import org.pentaho.platform.web.WebUtil;
@@ -29,7 +31,7 @@ import java.util.List;
 public class CsrfProtectionSystemListener implements IPentahoSystemListener {
 
   @Override
-  public boolean startup(IPentahoSession session) {
+  public boolean startup( IPentahoSession session ) {
     // Register pentaho.xml's CsrfProtectionDefinition.
     if ( PentahoSystem.isCsrfProtectionEnabled() ) {
 
@@ -46,7 +48,7 @@ public class CsrfProtectionSystemListener implements IPentahoSystemListener {
                   .build(),
               CsrfProtectionDefinition.class );
 
-        } catch( IllegalArgumentException parseError ) {
+        } catch ( IllegalArgumentException parseError ) {
           Logger.warn(
               CsrfProtectionSystemListener.class.getName(),
               Messages.getInstance().getString(

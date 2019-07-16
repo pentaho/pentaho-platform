@@ -109,9 +109,9 @@ public class WebUtil {
 
   private static RequestMatcherDefinition getCsrfRequestMatcher( Element csrfRequestMatcherElem ) {
 
-    String type = csrfRequestMatcherElem.attributeValue("type", "regex" );
-    String pattern = csrfRequestMatcherElem.attributeValue("pattern", "" );
-    String methods = csrfRequestMatcherElem.attributeValue("methods", "GET,POST" );
+    String type = csrfRequestMatcherElem.attributeValue( "type", "regex" );
+    String pattern = csrfRequestMatcherElem.attributeValue( "pattern", "" );
+    String methods = csrfRequestMatcherElem.attributeValue( "methods", "GET,POST" );
 
     if ( !"regex".equals( type ) ) {
       throw new IllegalArgumentException(
@@ -130,7 +130,7 @@ public class WebUtil {
     for ( String method : methods.split( "\\s*,\\s*" ) ) {
       try {
         RequestMethod.valueOf( method );
-      } catch( IllegalArgumentException invalidEnumError ) {
+      } catch ( IllegalArgumentException invalidEnumError ) {
         throw new IllegalArgumentException(
             Messages.getInstance().getString(
                 "CsrfProtection.REQUEST_MATCHER_INVALID_METHOD",
@@ -166,13 +166,13 @@ public class WebUtil {
 
     Collection<RequestMatcherDefinition> requestMatcherDefinitions =
         csrfProtectionDefinition.getProtectedRequestMatchers();
-    if ( requestMatcherDefinitions != null) {
+    if ( requestMatcherDefinitions != null ) {
       for ( RequestMatcherDefinition requestMatcherDefinition : requestMatcherDefinitions ) {
 
         Collection<String> httpMethods = requestMatcherDefinition.getMethods();
         if ( httpMethods == null ) {
           requestMatchers.add(
-              new RegexRequestMatcher(requestMatcherDefinition.getPattern(), null, false ) );
+              new RegexRequestMatcher( requestMatcherDefinition.getPattern(), null, false ) );
         } else {
           for ( String httpMethod : requestMatcherDefinition.getMethods() ) {
             requestMatchers.add(

@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -14,8 +13,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.plugin.services.pluginmgr;
@@ -394,7 +392,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
     // a service class may be configured as a plugin bean
     registerServices( plugin, loader, beanFactory );
 
-    if ( plugin instanceof IPlatformPluginCsrfProtection) {
+    if ( plugin instanceof IPlatformPluginCsrfProtection ) {
       registerCsrfProtection( plugin,  (IPlatformPluginCsrfProtection) plugin );
     }
 
@@ -655,8 +653,8 @@ public class PentahoSystemPluginManager implements IPluginManager {
   }
 
   public boolean isCsrfProtectionEnabled( String pluginId ) {
-    return PentahoSystem.isCsrfProtectionEnabled() &&
-        "true".equals(this.getPluginSetting( pluginId, "csrf-protection-enabled", "true" ) );
+    return PentahoSystem.isCsrfProtectionEnabled()
+        && "true".equals( this.getPluginSetting( pluginId, "csrf-protection-enabled", "true" ) );
   }
 
   private void registerCsrfProtection( IPlatformPlugin plugin, IPlatformPluginCsrfProtection pluginCsrfProtection ) {

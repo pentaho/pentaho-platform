@@ -65,7 +65,7 @@ public class CsrfGateFilter implements Filter {
 
     this.innerCsrfFilter.init( filterConfig );
 
-    PentahoSystem.get( IPluginManager.class ).addPluginManagerListener(new IPluginManagerListener() {
+    PentahoSystem.get( IPluginManager.class ).addPluginManagerListener( new IPluginManagerListener() {
       @Override
       public void onReload() {
         try {
@@ -75,7 +75,7 @@ public class CsrfGateFilter implements Filter {
           logger.error( e );
         }
       }
-    });
+    } );
 
     this.doInit();
   }

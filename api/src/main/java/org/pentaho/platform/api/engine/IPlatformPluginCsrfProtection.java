@@ -18,8 +18,6 @@
 
 package org.pentaho.platform.api.engine;
 
-import java.util.List;
-
 /**
  * This interface represents an extension to the contract of a plugin containing CSRF protection information.
  */
