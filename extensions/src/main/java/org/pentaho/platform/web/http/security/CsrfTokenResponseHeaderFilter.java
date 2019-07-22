@@ -71,7 +71,7 @@ public class CsrfTokenResponseHeaderFilter extends OncePerRequestFilter {
     response.setHeader( RESPONSE_PARAM_NAME, tokenParameterName );
 
     final String tokenValue = token.getToken();
-    response.setHeader( RESPONSE_TOKEN_NAME , tokenValue );
+    response.setHeader( RESPONSE_TOKEN_NAME, tokenValue );
 
     // Add CORS headers, if CORS is enabled.
     WebUtil.setCorsResponseHeaders( request, response, getCorsHeadersConfiguration() );
@@ -83,7 +83,7 @@ public class CsrfTokenResponseHeaderFilter extends OncePerRequestFilter {
   Map<String, List<String>> getCorsHeadersConfiguration() {
     Map<String, List<String>> corsConfiguration = new HashMap<>( 1 );
 
-    List<String> exposedHeaders = Arrays.asList( RESPONSE_HEADER_NAME, RESPONSE_PARAM_NAME , RESPONSE_TOKEN_NAME );
+    List<String> exposedHeaders = Arrays.asList( RESPONSE_HEADER_NAME, RESPONSE_PARAM_NAME, RESPONSE_TOKEN_NAME );
     corsConfiguration.put( CORS_EXPOSE_HEADERS_HEADER, exposedHeaders );
 
     return corsConfiguration;
