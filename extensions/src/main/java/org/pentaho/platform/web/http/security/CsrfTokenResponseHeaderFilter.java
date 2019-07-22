@@ -19,6 +19,7 @@
  */
 package org.pentaho.platform.web.http.security;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.http.HttpStatus;
 import org.pentaho.platform.web.WebUtil;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -28,6 +29,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.FilterChain;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.pentaho.platform.web.WebUtil.CORS_EXPOSE_HEADERS_HEADER;
 
 /**
  * Binds a {@link org.springframework.security.web.csrf.CsrfToken} to the {@link HttpServletResponse} headers if the
@@ -54,7 +61,7 @@ public class CsrfTokenResponseHeaderFilter extends OncePerRequestFilter {
 
     final CsrfToken token = (CsrfToken) request.getAttribute( REQUEST_ATTRIBUTE_NAME );
     if ( token == null ) {
-      throw new ServletException("Invalid filter usage.");
+      throw new ServletException( "Invalid filter usage." );
     }
 
     final String tokenHeaderName = token.getHeaderName();
@@ -64,11 +71,21 @@ public class CsrfTokenResponseHeaderFilter extends OncePerRequestFilter {
     response.setHeader( RESPONSE_PARAM_NAME, tokenParameterName );
 
     final String tokenValue = token.getToken();
-    response.setHeader( RESPONSE_TOKEN_NAME , tokenValue );
+    response.setHeader( RESPONSE_TOKEN_NAME, tokenValue );
 
     // Add CORS headers, if CORS is enabled.
-    WebUtil.setCorsResponseHeaders( request, response );
+    WebUtil.setCorsResponseHeaders( request, response, getCorsHeadersConfiguration() );
 
     response.setStatus( HttpStatus.SC_NO_CONTENT );
+  }
+
+  @VisibleForTesting
+  Map<String, List<String>> getCorsHeadersConfiguration() {
+    Map<String, List<String>> corsConfiguration = new HashMap<>( 1 );
+
+    List<String> exposedHeaders = Arrays.asList( RESPONSE_HEADER_NAME, RESPONSE_PARAM_NAME, RESPONSE_TOKEN_NAME );
+    corsConfiguration.put( CORS_EXPOSE_HEADERS_HEADER, exposedHeaders );
+
+    return corsConfiguration;
   }
 }

@@ -35,6 +35,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -120,23 +123,54 @@ public class WebUtilTest {
     verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), eq( "true" ) );
   }
 
+  @Test
+  public void testSetCorsHeadersRequestAndDomainAllowedWithConfiguration() {
+
+    this.setupCorsTest();
+
+    String domain = "foobar.com";
+    when( this.mockRequest.getHeader( WebUtil.ORIGIN_HEADER ) ).thenReturn( domain );
+
+    Map<String, List<String>> corsHeadersConfiguration = new HashMap<>( 1 );
+
+    final String extraHeaderName = "x-foo-bar";
+    final String extraHeaderValue = "foo-value";
+    corsHeadersConfiguration.put( extraHeaderName, Collections.singletonList( extraHeaderValue ) );
+
+    this.doCorsTest( "true", domain, corsHeadersConfiguration );
+
+    verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), eq( domain ) );
+    verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), eq( "true" ) );
+
+    verify( this.mockResponse ).setHeader( eq( extraHeaderName ), eq( extraHeaderValue ) );
+  }
+
   private void setupCorsTest() {
     this.mockRequest = mock( HttpServletRequest.class );
     this.mockResponse = mock( HttpServletResponse.class );
   }
 
   private void doCorsTest() {
-    this.doCorsTest( null, null );
+    this.doCorsTest( null, null, null );
   }
 
-  private void doCorsTest(String corsAllowed, String corsAllowedDomains ) {
+  private void doCorsTest( String corsAllowed, String corsAllowedDomains ) {
+    this.doCorsTest( corsAllowed, corsAllowedDomains, null );
+  }
+
+  private void doCorsTest( String corsAllowed, String corsAllowedDomains,
+                           Map<String, List<String>> corsHeadersConfiguration ) {
 
     spy( WebUtil.class );
 
     when( WebUtil.getCorsRequestsAllowedSystemProperty() ).thenReturn( corsAllowed );
     when( WebUtil.getCorsAllowedDomainsSystemProperty() ).thenReturn( corsAllowedDomains );
 
-    WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
+    if ( corsHeadersConfiguration == null ) {
+      WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
+    } else {
+      WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse, corsHeadersConfiguration );
+    }
   }
   // endregion
 

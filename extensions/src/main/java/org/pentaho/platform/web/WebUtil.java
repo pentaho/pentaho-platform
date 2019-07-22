@@ -36,23 +36,38 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class WebUtil {
 
   // region CORS
-  static String ORIGIN_HEADER = "origin";
-  static String CORS_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
-  static String CORS_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
+  static final String ORIGIN_HEADER = "origin";
+  static final String CORS_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
+  static final String CORS_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
+  public static final String CORS_EXPOSE_HEADERS_HEADER = "Access-Control-Expose-Headers";
 
   public static void setCorsResponseHeaders( HttpServletRequest request, HttpServletResponse response ) {
+    setCorsResponseHeaders( request, response, null );
+  }
+
+  public static void setCorsResponseHeaders( HttpServletRequest request, HttpServletResponse response,
+                                             Map<String, List<String>> corsHeadersConfiguration ) {
     if ( !WebUtil.isCorsRequestsAllowed() ) {
       return;
     }
 
-    String origin = request.getHeader( ORIGIN_HEADER );
+    final String origin = request.getHeader( ORIGIN_HEADER );
     if ( WebUtil.isCorsRequestOriginAllowed( origin ) ) {
       response.setHeader( CORS_ALLOW_ORIGIN_HEADER, origin );
       response.setHeader( CORS_ALLOW_CREDENTIALS_HEADER, "true" );
+
+      if ( corsHeadersConfiguration != null ) {
+        corsHeadersConfiguration.forEach( ( header, parameters ) -> {
+          final String value = String.join( ",", parameters );
+
+          response.setHeader( header, value );
+        } );
+      }
     }
   }
 
