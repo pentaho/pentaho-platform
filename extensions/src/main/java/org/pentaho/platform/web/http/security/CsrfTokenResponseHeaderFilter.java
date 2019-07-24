@@ -55,23 +55,20 @@ public class CsrfTokenResponseHeaderFilter extends OncePerRequestFilter {
   static final String RESPONSE_TOKEN_NAME = "X-CSRF-TOKEN";
 
   @Override
-  protected void doFilterInternal( HttpServletRequest request,
-                                   HttpServletResponse response,
+  protected void doFilterInternal( HttpServletRequest request, HttpServletResponse response,
                                    FilterChain filterChain ) throws ServletException {
 
     final CsrfToken token = (CsrfToken) request.getAttribute( REQUEST_ATTRIBUTE_NAME );
-    if ( token == null ) {
-      throw new ServletException( "Invalid filter usage." );
+    if ( token != null ) {
+      final String tokenHeaderName = token.getHeaderName();
+      response.setHeader( RESPONSE_HEADER_NAME, tokenHeaderName );
+
+      final String tokenParameterName = token.getParameterName();
+      response.setHeader( RESPONSE_PARAM_NAME, tokenParameterName );
+
+      final String tokenValue = token.getToken();
+      response.setHeader( RESPONSE_TOKEN_NAME, tokenValue );
     }
-
-    final String tokenHeaderName = token.getHeaderName();
-    response.setHeader( RESPONSE_HEADER_NAME, tokenHeaderName );
-
-    final String tokenParameterName = token.getParameterName();
-    response.setHeader( RESPONSE_PARAM_NAME, tokenParameterName );
-
-    final String tokenValue = token.getToken();
-    response.setHeader( RESPONSE_TOKEN_NAME, tokenValue );
 
     // Add CORS headers, if CORS is enabled.
     WebUtil.setCorsResponseHeaders( request, response, getCorsHeadersConfiguration() );
@@ -83,7 +80,7 @@ public class CsrfTokenResponseHeaderFilter extends OncePerRequestFilter {
   Map<String, List<String>> getCorsHeadersConfiguration() {
     Map<String, List<String>> corsConfiguration = new HashMap<>( 1 );
 
-    List<String> exposedHeaders = Arrays.asList( RESPONSE_HEADER_NAME, RESPONSE_PARAM_NAME, RESPONSE_TOKEN_NAME );
+    final List<String> exposedHeaders = Arrays.asList( RESPONSE_HEADER_NAME, RESPONSE_PARAM_NAME, RESPONSE_TOKEN_NAME );
     corsConfiguration.put( CORS_EXPOSE_HEADERS_HEADER, exposedHeaders );
 
     return corsConfiguration;
