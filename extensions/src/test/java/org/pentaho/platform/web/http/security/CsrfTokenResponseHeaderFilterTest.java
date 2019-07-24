@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.mockito.verification.VerificationMode;
 import org.pentaho.platform.web.WebUtil;
 
 import org.powermock.api.mockito.PowerMockito;
@@ -34,10 +35,8 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockFilterConfig;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.mockito.Mockito;
 import org.springframework.security.web.csrf.CsrfToken;
 
 import java.util.Collections;
@@ -46,10 +45,15 @@ import java.util.Map;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.pentaho.platform.web.http.security.CsrfTokenResponseHeaderFilter.REQUEST_ATTRIBUTE_NAME;
+import static org.pentaho.platform.web.http.security.CsrfTokenResponseHeaderFilter.RESPONSE_HEADER_NAME;
+import static org.pentaho.platform.web.http.security.CsrfTokenResponseHeaderFilter.RESPONSE_PARAM_NAME;
+import static org.pentaho.platform.web.http.security.CsrfTokenResponseHeaderFilter.RESPONSE_TOKEN_NAME;
 
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( WebUtil.class )
@@ -85,7 +89,7 @@ public class CsrfTokenResponseHeaderFilterTest {
     return token;
   }
 
-  public void testWhenNoCsrfTokenThenThrow() throws Exception {
+  public void testWhenNoCsrfTokenInRequest() throws Exception {
 
     MockFilterConfig cfg = new MockFilterConfig();
 
@@ -93,7 +97,7 @@ public class CsrfTokenResponseHeaderFilterTest {
 
     filter.doFilter( this.mockRequest, this.mockResponse, this.filterChain );
 
-    verify( mockResponse, Mockito.never() ).setHeader( anyString(), anyString() );
+    verify( mockResponse, never() ).setHeader( anyString(), anyString() );
   }
 
   @Test
@@ -105,18 +109,13 @@ public class CsrfTokenResponseHeaderFilterTest {
 
     CsrfToken token = createToken();
 
-    when( this.mockRequest.getAttribute( CsrfTokenResponseHeaderFilter.REQUEST_ATTRIBUTE_NAME ) ).thenReturn( token );
+    when( this.mockRequest.getAttribute( REQUEST_ATTRIBUTE_NAME ) ).thenReturn( token );
 
     filter.doFilter( this.mockRequest, this.mockResponse, this.filterChain );
 
-    verify( mockResponse, times( 1 ) )
-            .setHeader( CsrfTokenResponseHeaderFilter.RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE );
-
-    verify( mockResponse, times( 1 ) )
-            .setHeader( CsrfTokenResponseHeaderFilter.RESPONSE_PARAM_NAME, RESPONSE_PARAM_VALUE );
-
-    verify( mockResponse, times( 1 ) )
-            .setHeader( CsrfTokenResponseHeaderFilter.RESPONSE_TOKEN_NAME, RESPONSE_TOKEN_VALUE );
+    verify( mockResponse, once() ).setHeader( RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE );
+    verify( mockResponse, once() ).setHeader( RESPONSE_PARAM_NAME, RESPONSE_PARAM_VALUE );
+    verify( mockResponse, once() ).setHeader( RESPONSE_TOKEN_NAME, RESPONSE_TOKEN_VALUE );
   }
 
   @Test
@@ -127,7 +126,7 @@ public class CsrfTokenResponseHeaderFilterTest {
 
     CsrfToken token = createToken();
 
-    when( this.mockRequest.getAttribute( CsrfTokenResponseHeaderFilter.REQUEST_ATTRIBUTE_NAME ) ).thenReturn( token );
+    when( this.mockRequest.getAttribute( REQUEST_ATTRIBUTE_NAME ) ).thenReturn( token );
 
     Map<String, List<String>> configuration = Collections.emptyMap();
     when( this.filter.getCorsHeadersConfiguration() ).thenReturn( configuration );
@@ -136,7 +135,7 @@ public class CsrfTokenResponseHeaderFilterTest {
 
     filter.doFilter( this.mockRequest, this.mockResponse, this.filterChain );
 
-    PowerMockito.verifyStatic( times( 1 ) );
+    PowerMockito.verifyStatic( once() );
     WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse, configuration );
   }
 
@@ -149,10 +148,14 @@ public class CsrfTokenResponseHeaderFilterTest {
 
     CsrfToken token = createToken();
 
-    when( this.mockRequest.getAttribute( CsrfTokenResponseHeaderFilter.REQUEST_ATTRIBUTE_NAME ) ).thenReturn( token );
+    when( this.mockRequest.getAttribute( REQUEST_ATTRIBUTE_NAME ) ).thenReturn( token );
 
     filter.doFilter( this.mockRequest, this.mockResponse, this.filterChain );
 
-    verify( mockResponse, times( 1 ) ).setStatus( HttpStatus.SC_NO_CONTENT );
+    verify( mockResponse, once() ).setStatus( HttpStatus.SC_NO_CONTENT );
+  }
+
+  private VerificationMode once() {
+    return times( 1 );
   }
 }
