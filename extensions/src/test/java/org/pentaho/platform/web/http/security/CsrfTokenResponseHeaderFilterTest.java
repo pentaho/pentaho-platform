@@ -85,7 +85,6 @@ public class CsrfTokenResponseHeaderFilterTest {
     return token;
   }
 
-  @Test( expected = ServletException.class )
   public void testWhenNoCsrfTokenThenThrow() throws Exception {
 
     MockFilterConfig cfg = new MockFilterConfig();
