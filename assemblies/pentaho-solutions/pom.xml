@@ -86,12 +86,11 @@
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-karaf-assembly</artifactId>
+                  <groupId>org.hitachivantara.karaf.assemblies</groupId>
+                  <artifactId>server</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
-                  <outputDirectory>${prepared.plugins.directory}</outputDirectory>
-                  <classifier>server</classifier>
+                  <outputDirectory>${prepared.plugins.directory}/karaf</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>pentaho</groupId>

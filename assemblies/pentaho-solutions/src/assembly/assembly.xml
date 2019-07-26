@@ -44,18 +44,6 @@
       <includes>
         <include>**</include>
       </includes>
-      <!-- we need to handle the karaf assembly as a special case (rename the folder from pentaho-karaf-assembly to karaf)-->
-      <excludes>
-        <exclude>pentaho-karaf-assembly/**</exclude>
-      </excludes>
-    </fileSet>
-
-    <fileSet>
-      <directory>${prepared.plugins.directory}/pentaho-karaf-assembly</directory>
-      <outputDirectory>pentaho-solutions/system/karaf</outputDirectory>
-      <includes>
-        <include>**</include>
-      </includes>
     </fileSet>
   </fileSets>
 
