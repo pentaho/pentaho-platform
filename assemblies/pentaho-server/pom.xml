@@ -186,7 +186,7 @@
             <configuration>
               <file>${tomcat.directory}/conf/server.xml</file>
               <token>&lt;Connector</token>
-              <value>&lt;Connector URIEncoding="UTF-8" relaxedPathChars="[]|" relaxedQueryChars="^{}[]|<![CDATA[&amp;]]>"</value>
+              <value>&lt;Connector URIEncoding="UTF-8" relaxedPathChars="[]|" relaxedQueryChars="^{}[]|<![CDATA[&amp;]]>" maxHttpHeaderSize="65536"</value>
             </configuration>
           </execution>
         </executions>
