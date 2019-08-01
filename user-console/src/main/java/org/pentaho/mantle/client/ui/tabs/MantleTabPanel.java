@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -273,8 +273,18 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
           if (a) {
               for (i = a.length - 1; i >= 0; i -= 1) {
                   n = a[i].name;
-                  d[n] = null;
-                  $wnd.removedAttributes++;
+
+                  if ( n === "src" ) {
+                    if ( d.tagName === "IFRAME" ) {
+                      d[n] = "about:blank";
+                      $wnd.removedAttributes++;
+                    }
+                    // else "IMG", "SCRIPT", others...
+                    // Do nothing, as some browser's like IE, Safari and Firefox will request the "./null" resource.
+                  } else {
+                    d[n] = null;
+                    $wnd.removedAttributes++;
+                  }
               }
           }
           a = d.childNodes;
