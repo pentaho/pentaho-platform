@@ -365,6 +365,9 @@
             <configuration>
               <module>org.pentaho.mantle.MantleApplication</module>
               <webappDirectory>${gwt.outputDirectory}</webappDirectory>
+              <!-- Uncomment for debugging GWT code.
+              <style>PRETTY</style>
+              -->
             </configuration>
           </execution>
         </executions>
