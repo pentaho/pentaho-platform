@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -190,83 +190,118 @@ public class IFrameTabPanel extends VerticalPanel {
       attachEventListeners( frame.getElement(), this );
     }
 
-    public native void removeEventListeners( Element ele )
+    // Called when closing a tab. See MantleTabPanel closeTab.
+    public native void removeEventListeners( Element frameElem )
     /*-{
-        var wind = ele.contentWindow;
+        var iframeWindow = frameElem.contentWindow;
+
+        // console.log("IFrameTabPanel.CustomFrame.removeEventListeners url=" + iframeWindow.location.href + " name=" + iframeWindow.name);
+
         try {
-          wind.onmouseup = null;
-          wind.onmousedown = null;
-          wind.onmousemove = null;          
-          wind.onunload = null;
+          iframeWindow.onmouseup = null;
+          iframeWindow.onmousedown = null;
+          iframeWindow.onmousemove = null;
+          iframeWindow.onunload = null;
         } catch(e) {
           // Swallow. Most probably due to Same Domain Origin Policy.
         }
+
         $wnd.watchWindow = null;
     }-*/;
 
-    public native void attachEventListeners( Element ele, CustomFrame frame )
+    public native void attachEventListeners( Element frameElem, CustomFrame frame )
     /*-{
-      var iwind = ele.contentWindow; //IFrame's window instance
-      
-      var funct = function(event){
-        event = iwind.parent.translateInnerMouseEvent(ele, event);
-        iwind.parent.sendMouseEvent(event);
-      }  
-      
-      // Hooks up mouse and unload events
-      $wnd.hookEvents = function(wind){
-        try{
-          if(wind == null){
-            wind = $wnd.watchWindow
-          }
-          wind.onmouseup = funct;
-          wind.onmousedown = funct;
-          wind.onmousemove = funct;
-          
-          wind.onunload = unloader;
-          wind.mantleEventsIn = true;
-          $wnd.watchWindow = null;
-        } catch(e){
-          //You're most likely here because of Cross-site scripting permissions... consuming
-        }
+      // IFrame's window instance.
+      var iframeWindow = frameElem.contentWindow;
+
+      // console.log("IFrameTabPanel.CustomFrame.attachEventListeners url=" + iframeWindow.location.href + " name=" + iframeWindow.name);
+
+      function onChildWindowMouseEvent(event) {
+        // console.log("IFrameTabPanel.CustomFrame.onChildWindowMouseEvent url=" + this.location.href + " name=" +  this.name);
+
+        var mantle = iframeWindow.parent;
+
+        event = mantle.translateInnerMouseEvent(frameElem, event);
+        mantle.sendMouseEvent(event);
       }
+
+      // IFrame URL watching code.
       
-      // IFrame URL watching code
-      
-      // Called on iFrame unload, calls containing Window to start monitoring it for Url change
-      var unloader = function(event){
+      // Called on IFrame unload, calls containing Window to start monitoring it for URL change.
+      // When a tab is closed through the UI, this handler is first unregistered, and so this is only
+      // called for internal navigation.
+      function onChildWindowUnload(event) {
+        // console.log("IFrameTabPanel.CustomFrame.onChildWindowUnload url=" + this.location.href + " name=" +  this.name);
+
         //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-        frame.@org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel$CustomFrame::addHistory(Ljava/lang/String;)(iwind.location.href);
-        $wnd.startIFrameWatcher(iwind);
+        frame.@org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel$CustomFrame::addHistory(Ljava/lang/String;)(iframeWindow.location.href);
+
+        // When actually closing the tab, this is redundant with what closeTab already performs.
+        // However, when navigating within a tab, this avoids the memory leak.
+
+        //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+        frame.@org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel$CustomFrame::removeEventListeners(Lcom/google/gwt/dom/client/Element;)(frameElem);
+
+        startIFrameWatcher(iframeWindow);
       }
       
       // Starts the watching loop.
-      $wnd.startIFrameWatcher = function(wind){
+      function startIFrameWatcher(wind) {
+        // console.log("IFrameTabPanel.CustomFrame.startIFrameWatcher url=" + wind.location.href + " name=" +  wind.name);
+
         $wnd.watchWindow = wind;
-        $wnd.setTimeout("rehookEventsTimer()", 300);
+        $wnd.setTimeout(rehookEventsTimer, 300);
       }
     
-      // loop that's started when an iFrame unloads, when the url changes it adds back in the hooks
-      $wnd.rehookEventsTimer = function(){
+      // Loop that's started when an IFrame unloads.
+      // When the url changes it adds back in the hooks.
+      function rehookEventsTimer() {
+        // console.log("IFrameTabPanel.CustomFrame.rehookEventsTimer url=" + ($wnd.watchWindow && $wnd.watchWindow.location.href) + " name=" + ($wnd.watchWindow && $wnd.watchWindow.name));
+
         try {
-          if($wnd.watchWindow.mantleEventsIn == undefined){
-            //location changed hook back up event interceptors
-            $wnd.setTimeout("hookEvents()", 300);
+          if($wnd.watchWindow.mantleEventsIn == undefined) {
+            // location changed hook back up event interceptors
+            $wnd.setTimeout(hookEvents, 300);
           } else {
-            $wnd.setTimeout("rehookEventsTimer()", 300);
+            $wnd.setTimeout(rehookEventsTimer, 300);
           }
         } catch(e) {
           // Swallow. Most probably due to Same Domain Origin Policy.
         }
       }
-      
-      // Scope helper funct.
-      function rehookEventsTimer(){
-        $wnd.rehookEventsTimer();
+
+      // Hooks up mouse and unload events.
+      function hookEvents(wind) {
+        if(wind == null) {
+            wind = $wnd.watchWindow;
+        }
+
+        // console.log("IFrameTabPanel.CustomFrame.hookEvents url=" + (wind && wind.location.href) + " name=" + (wind && wind.name));
+        try {
+          wind.onmouseup = onChildWindowMouseEvent;
+          wind.onmousedown = onChildWindowMouseEvent;
+          wind.onmousemove = onChildWindowMouseEvent;
+          wind.onunload = onChildWindowUnload;
+
+          wind.mantleEventsIn = true;
+          $wnd.watchWindow = null;
+        } catch(e) {
+          // You're most likely here because of Cross-site scripting permissions... consuming
+        }
       }
       
-      //Hook up the mouse and unload event handlers for iFrame being created
-      $wnd.hookEvents(iwind);
+      // Hook up the mouse and unload event handlers for IFrame being created.
+      // Usually, this frame will start at about:blank and is redirected to another url.
+      // So, the sequence is:
+      // 1. attachEventListeners about:blank
+      // 2. hookEvents about:blank
+      // 3. onChildWindowUnload about:blank
+      // 4. removeEventListeners about:blank
+      // 5. startIFramweWatcher about:blank
+      // ...
+      // 6. rehookEventsTimer new-url
+      // 7. hookEvents new-url.
+      hookEvents(iframeWindow);
     }-*/;
   }
 
