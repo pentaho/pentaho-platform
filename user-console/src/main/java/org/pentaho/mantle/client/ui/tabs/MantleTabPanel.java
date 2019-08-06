@@ -49,7 +49,6 @@ import org.pentaho.mantle.client.ui.PerspectiveManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel {
@@ -57,8 +56,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   final PopupPanel waitPopup = new PopupPanel( false, true );
   private static final String FRAME_ID_PRE = "frame_"; //$NON-NLS-1$
   private static int frameIdCount = 0;
-
-  private HashSet<IFrameTabPanel> freeFrames = new HashSet<IFrameTabPanel>();
 
   public MantleTabPanel() {
     this( false );
@@ -106,7 +103,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
 
     // Because Frames are being generated with the window.location object, relative URLs will be generated
-    // differetly
+    // differently
     // than if set with the src attribute. This detects the relative paths are prepends them appropriately.
     if ( url.indexOf( "http" ) != 0 && url.indexOf( "/" ) != 0 ) {
       url = GWT.getHostPageBaseURL() + url;
@@ -141,15 +138,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       }
     }
 
-    IFrameTabPanel panel = null;
-    if ( freeFrames.size() > 0 ) {
-      panel = freeFrames.iterator().next();
-      panel.setName( frameName );
-      // mark as no longer free by removing from set
-      freeFrames.remove( panel );
-    } else {
-      panel = new IFrameTabPanel( frameName );
-    }
+    IFrameTabPanel panel = new IFrameTabPanel( frameName );
 
     addTab( tabName, tabTooltip, true, panel );
     selectTab( elementId );
@@ -537,8 +526,13 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }-*/;
 
   public void closeTab( final PentahoTab closeTab, final boolean invokePreTabCloseHook ) {
-    if ( closeTab.getContent() instanceof IFrameTabPanel ) {
-      final Element frameElement = ( (IFrameTabPanel) closeTab.getContent() ).getFrame().getElement();
+
+    final IFrameTabPanel iFrameTabPanel = closeTab.getContent() instanceof IFrameTabPanel
+        ? (IFrameTabPanel) closeTab.getContent()
+        : null;
+
+    if ( iFrameTabPanel != null ) {
+      final Element frameElement = iFrameTabPanel.getFrame().getElement();
       String frameId = frameElement.getAttribute( "id" ).replaceAll( "\"", "\\\"" );
       // Analysis, Interactive Report and Dashboard documents saved using a double quote character will
       // be unable to close after initial save. This happens because on save, not only the tab name is changed but also
@@ -554,16 +548,18 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         // prompt user
         VerticalPanel vp = new VerticalPanel();
         vp.add( new Label( Messages.getString( "confirmTabClose" ) ) ); //$NON-NLS-1$
+
         final PromptDialogBox confirmDialog =
             new PromptDialogBox(
-                Messages.getString( "confirm" ), Messages.getString( "yes" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                Messages.getString( "confirm" ), Messages.getString( "yes" ), Messages.getString( "no" ), false, true, vp );
+
         confirmDialog.setCallback( new IDialogCallback() {
           public void cancelPressed() {
           }
 
           public void okPressed() {
             fireCloseTab( finalFrameId );
-            ( (CustomFrame) ( (IFrameTabPanel) closeTab.getContent() ).getFrame() ).removeEventListeners( frameElement );
+            ( (CustomFrame) iFrameTabPanel.getFrame() ).removeEventListeners( frameElement );
             clearClosingFrame( frameElement );
             MantleTabPanel.super.closeTab( closeTab, invokePreTabCloseHook );
             if ( getTabCount() == 0 ) {
@@ -583,23 +579,11 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       }
 
       fireCloseTab( finalFrameId );
-      ( (CustomFrame) ( (IFrameTabPanel) closeTab.getContent() ).getFrame() ).removeEventListeners( frameElement );
+      ( (CustomFrame) iFrameTabPanel.getFrame() ).removeEventListeners( frameElement );
       clearClosingFrame( frameElement );
     }
-    super.closeTab( closeTab, invokePreTabCloseHook );
 
-    // since we can't entirely reclaim the frame resources held, keep some around
-    // so we can minimize the extra leakage caused by constantly created more
-    // let's only keep 5 of these guys around so at least some of the resources
-    // can be cleaned up (maybe just wishful thinking)
-    Widget w = closeTab.getContent();
-    if ( w instanceof IFrameTabPanel && freeFrames.size() < 5 ) {
-      // wipe out any file info so it doesn't impact future usages of this frame
-      SolutionFileInfo sfi = null;
-      IFrameTabPanel iFrameTabPanel = (IFrameTabPanel) w;
-      iFrameTabPanel.setFileInfo( sfi );
-      freeFrames.add( iFrameTabPanel );
-    }
+    super.closeTab( closeTab, invokePreTabCloseHook );
 
     if ( getTabCount() == 0 ) {
       allTabsClosed();
