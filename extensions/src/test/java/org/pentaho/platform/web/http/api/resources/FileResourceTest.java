@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -74,6 +74,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class FileResourceTest {
+  private static final String ACL_OWNER = "ACL Owner";
   private static final String XML_EXTENSION = "xml";
   private static final String PATH_ID = "pathId.xml";
   private static final String PATH_ID_WITHOUTH_EXTENSION = "pathId";
@@ -823,6 +824,7 @@ public class FileResourceTest {
   public void testSetFileAcls() throws Exception {
 
     RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
+    doReturn( ACL_OWNER ).when( mockRepositoryFileAclDto ).getOwner();
 
     doNothing().when( fileResource.fileService ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
 
@@ -840,6 +842,7 @@ public class FileResourceTest {
   public void testSetFileAclsError() throws Exception {
 
     RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
+    doReturn( ACL_OWNER ).when( mockRepositoryFileAclDto ).getOwner();
 
     Messages mockMessages = mock( Messages.class );
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
@@ -856,6 +859,28 @@ public class FileResourceTest {
     verify( fileResource, times( 1 ) ).getMessagesInstance();
     verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     verify( fileResource.fileService, times( 1 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
+  }
+
+  /*
+   * [BISERVER-14294] Validating the ACL empty owner is tested against.
+   */
+  @Test
+  public void testSetFileAclsErrorNoOwner() throws Exception {
+    RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
+    doReturn( "" ).when( mockRepositoryFileAclDto ).getOwner();
+
+    Messages mockMessages = mock( Messages.class );
+    doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
+
+    Response mockForbiddenErrorResponse = mock( Response.class );
+    doReturn( mockForbiddenErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
+
+    Response testResponse = fileResource.setFileAcls( PATH_ID, mockRepositoryFileAclDto );
+    assertEquals( mockForbiddenErrorResponse, testResponse );
+
+    verify( fileResource, times( 1 ) ).getMessagesInstance();
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.FORBIDDEN );
+    verify( fileResource.fileService, times( 0 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
   }
 
   @Test
