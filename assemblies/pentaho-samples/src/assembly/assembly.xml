@@ -10,11 +10,50 @@
 
   <includeBaseDirectory>false</includeBaseDirectory>
 
+  <files>
+    <file>
+      <source>${project.build.directory}/webjars/META-INF/resources/webjars/jquery/${jquery.version}/dist/jquery.min.js</source>
+      <outputDirectory>./public/Steel Wheels/Enterprise Edition/js/vendor</outputDirectory>
+      <destName>jquery-${jquery.version}.min.js</destName>
+    </file>
+
+    <file>
+      <source>${basedir}/src/main/resources/samples/exportManifest.xml</source>
+      <outputDirectory>.</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+
+    <file>
+      <source>${basedir}/src/main/resources/samples/public/Steel Wheels/Enterprise Edition/DashboardDesigner.html</source>
+      <outputDirectory>./public/Steel Wheels/Enterprise Edition/</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+
+    <file>
+      <source>${basedir}/src/main/resources/samples/public/Steel Wheels/Enterprise Edition/InteractiveReport.html</source>
+      <outputDirectory>./public/Steel Wheels/Enterprise Edition/</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+
+    <file>
+      <source>${basedir}/src/main/resources/samples/public/Steel Wheels/Enterprise Edition/PentahoAnalyzer.html</source>
+      <outputDirectory>./public/Steel Wheels/Enterprise Edition/</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+
+  </files>
+
   <fileSets>
     <!--assembly/target/pentaho-server-->
     <fileSet>
       <directory>${basedir}/src/main/resources/samples/</directory>
       <outputDirectory>.</outputDirectory>
+      <excludes>
+        <exclude>exportManifest.xml</exclude>
+        <exclude>**/DashboardDesigner.html</exclude>
+        <exclude>**/InteractiveReport.html</exclude>
+        <exclude>**/PentahoAnalyzer.html</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
 
