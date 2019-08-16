@@ -32,7 +32,6 @@
     <kafka-clients.version>0.10.2.1</kafka-clients.version>
     <paho.version>1.2.0</paho.version>
     <rxjava.version>2.2.3</rxjava.version>
-    <apache-log4j-extras>1.2.17</apache-log4j-extras>
     <snowflake-jdbc.version>3.6.28</snowflake-jdbc.version>
   </properties>
   <dependencies>
@@ -876,7 +875,6 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>${log4j.version}</version>
     </dependency>
     <dependency>
       <groupId>monetdb</groupId>
@@ -966,7 +964,6 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>apache-log4j-extras</artifactId>
-      <version>${apache-log4j-extras}</version>
     </dependency>
   </dependencies>
   <build>
