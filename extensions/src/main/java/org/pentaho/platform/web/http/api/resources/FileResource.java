@@ -104,6 +104,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 /**
  * This service provides methods for listing, creating, downloading, uploading, and removal of files.
  *
@@ -729,12 +731,21 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 400, condition = "Failed to save acls due to malformed xml." ),
       @ResponseCode ( code = 500, condition = "Failed to save acls due to another error." ) } )
   public Response setFileAcls( @PathParam ( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
-    try {
-      fileService.setFileAcls( pathId, acl );
-      return buildOkResponse();
-    } catch ( Exception exception ) {
-      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
-      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    /*
+     * [BISERVER-14294] Ensuring the owner is set to a non-null, non-empty string value to prevent any issues
+     * that might cause problems with the repository.
+     */
+    if ( isNotBlank( acl.getOwner() ) ) {
+      try {
+        fileService.setFileAcls( pathId, acl );
+        return buildOkResponse();
+      } catch ( Exception exception ) {
+        logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
+        return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+      }
+    } else {
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ) );
+      return buildStatusResponse( Response.Status.FORBIDDEN );
     }
   }
 
