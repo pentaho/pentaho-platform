@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -29,6 +29,7 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.web.MimeHelper;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 
 import javax.servlet.http.HttpServletResponse;
@@ -55,9 +56,9 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
 
 /**
  * Represents the public files available in a plugin.
- * 
+ *
  * @author aaron
- * 
+ *
  */
 @Path( "/plugins/{pluginId}" )
 public class PluginResource {
@@ -133,11 +134,11 @@ public class PluginResource {
 
   /**
    * Retrieve the file from the selected plugin. This file is a static file (i.e javascript, html, css etc)
-   * 
+   *
    * @param pluginId (Plugin ID of the selected Plugin)
    * @param path (Path of the file being retrieved. This is a colon separated path to the plugin file. This
-   *        is usually a static file like a javascript, image or html 
-   * @return 
+   *        is usually a static file like a javascript, image or html
+   * @return
    * @throws IOException
    */
   @GET
@@ -161,6 +162,11 @@ public class PluginResource {
     }
 
     if ( !pluginManager.isPublic( pluginId, path ) ) {
+      return Response.status( Status.FORBIDDEN ).build();
+    }
+
+    // Only Admin users can access admin-plugin.
+    if ( pluginId.equals( "admin-plugin" ) && !SystemUtils.canAdminister() ) {
       return Response.status( Status.FORBIDDEN ).build();
     }
 
