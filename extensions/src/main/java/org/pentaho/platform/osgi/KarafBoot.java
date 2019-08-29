@@ -382,9 +382,6 @@ public class KarafBoot implements IPentahoSystemListener {
     } else {
       logger.warn( file.toURI().toString() + " file not exist" );
     }
-    // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
-    // same one used when instatiating appenders.
-    System.setProperty( "log4j.ignoreTCL", "true" );
   }
 
   /**
