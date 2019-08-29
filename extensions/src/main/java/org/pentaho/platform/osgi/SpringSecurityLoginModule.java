@@ -185,6 +185,8 @@ public class SpringSecurityLoginModule extends AbstractKarafLoginModule {
       principals.add( new RolePrincipal( KARAF_ADMIN ) );
     }
 
+    succeeded = true;
+
     return true;
   }
 

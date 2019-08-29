@@ -94,6 +94,10 @@
           <groupId>org.osgi</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>org.osgi.core</artifactId>
+          <groupId>org.osgi</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>javax.servlet</artifactId>
           <groupId>org.glassfish</groupId>
         </exclusion>
@@ -454,17 +458,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.karaf.management</groupId>
-      <artifactId>org.apache.karaf.management.boot</artifactId>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.apache.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.boot</artifactId>
       <scope>compile</scope>
@@ -500,7 +493,7 @@
     <dependency>
       <groupId>org.apache.felix</groupId>
       <artifactId>org.apache.felix.http.proxy</artifactId>
-      <version>${felix.http.version}</version>
+      <version>${felix.http.proxy.version}</version>
       <scope>compile</scope>
     </dependency>
     <!-- OSGi Dependencies -->
