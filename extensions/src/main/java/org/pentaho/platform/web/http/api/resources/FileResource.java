@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2018 Pentaho Corporation..  All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -35,6 +35,7 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
@@ -63,6 +64,7 @@ import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValue
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
+import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -100,6 +102,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 /**
  * This service provides methods for listing, creating, downloading, uploading, and removal of files.
  *
@@ -124,6 +128,8 @@ public class FileResource extends AbstractJaxRSResource {
   protected static DefaultUnifiedRepositoryWebService repoWs;
 
   protected static IAuthorizationPolicy policy;
+
+  protected static UserRoleListService userRoleListService;
 
   IRepositoryContentConverterHandler converterHandler;
   Map<String, Converter> converters;
@@ -728,9 +734,18 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 400, condition = "Failed to save acls due to malformed xml." ),
       @ResponseCode ( code = 500, condition = "Failed to save acls due to another error." ) } )
   public Response setFileAcls( @PathParam ( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
+    /*
+     * [BISERVER-14294] Ensuring the owner is set to a non-null, non-empty string value to prevent any issues
+     * that might cause problems with the repository. Then following it up with a user existence check
+     */
     try {
-      fileService.setFileAcls( pathId, acl );
-      return buildOkResponse();
+      if ( isNotBlank( acl.getOwner() ) && getAllUsers().contains( acl.getOwner() ) ) {
+        fileService.setFileAcls( pathId, acl );
+        return buildOkResponse();
+      } else {
+        logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ) );
+        return buildStatusResponse( Response.Status.FORBIDDEN );
+      }
     } catch ( Exception exception ) {
       logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
       return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
@@ -2258,6 +2273,8 @@ public class FileResource extends AbstractJaxRSResource {
   protected String getUserHomeFolder() {
     return ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
   }
+
+  protected List<String> getAllUsers() {
+    return new UserListWrapper( PentahoSystem.get( IUserRoleDao.class ).getUsers() ).getUsers();
+  }
 }
-
-

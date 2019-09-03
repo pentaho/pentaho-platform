@@ -1,14 +1,21 @@
-/*
- * Copyright 2002 - 2017 Pentaho Corporation.  All rights reserved.
+/*!
  *
- * This software was developed by Pentaho Corporation and is provided under the terms
- * of the Mozilla Public License, Version 1.1, or any later version. You may not use
- * this file except in compliance with the license. If you need a copy of the license,
- * please go to http://www.mozilla.org/MPL/MPL-1.1.txt. TThe Initial Developer is Pentaho Corporation.
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
  *
- * Software distributed under the Mozilla Public License is distributed on an "AS IS"
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
- * the license for the specific language governing your rights and limitations.
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ *
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ *
  */
 
 package org.pentaho.platform.web.http.api.resources;
@@ -23,10 +30,13 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
+import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -42,6 +52,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
+import org.pentaho.test.mock.MockPentahoUser;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,12 +72,14 @@ import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class FileResourceTest {
+  private static final String ACL_OWNER = "ACL Owner";
   private static final String XML_EXTENSION = "xml";
   private static final String PATH_ID = "pathId.xml";
   private static final String PATH_ID_WITHOUTH_EXTENSION = "pathId";
@@ -97,7 +110,12 @@ public class FileResourceTest {
   public static void initTest() {
     IRepositoryContentConverterHandler handler = mock( IRepositoryContentConverterHandler.class );
     when( handler.getConverter( XML_EXTENSION ) ).thenReturn( new StreamConverter() );
+    IUserRoleDao userRoleDao = mock( IUserRoleDao.class );
+    List<IPentahoUser> users = new ArrayList<>();
+    users.add( new MockPentahoUser( new Tenant(), ACL_OWNER, null, null, false ) );
+    when( userRoleDao.getUsers() ).thenReturn( users );
     PentahoSystem.registerObject( handler );
+    PentahoSystem.registerObject( userRoleDao );
   }
 
   @Test
@@ -816,6 +834,7 @@ public class FileResourceTest {
   public void testSetFileAcls() throws Exception {
 
     RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
+    doReturn( ACL_OWNER ).when( mockRepositoryFileAclDto ).getOwner();
 
     doNothing().when( fileResource.fileService ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
 
@@ -833,6 +852,7 @@ public class FileResourceTest {
   public void testSetFileAclsError() throws Exception {
 
     RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
+    doReturn( ACL_OWNER ).when( mockRepositoryFileAclDto ).getOwner();
 
     Messages mockMessages = mock( Messages.class );
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
@@ -849,6 +869,50 @@ public class FileResourceTest {
     verify( fileResource, times( 1 ) ).getMessagesInstance();
     verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     verify( fileResource.fileService, times( 1 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
+  }
+
+  /*
+   * [BISERVER-14294] Validating the ACL empty owner is tested against.
+   */
+  @Test
+  public void testSetFileAclsErrorNoOwner() throws Exception {
+    RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
+    doReturn( "" ).when( mockRepositoryFileAclDto ).getOwner();
+
+    Messages mockMessages = mock( Messages.class );
+    doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
+
+    Response mockForbiddenErrorResponse = mock( Response.class );
+    doReturn( mockForbiddenErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
+
+    Response testResponse = fileResource.setFileAcls( PATH_ID, mockRepositoryFileAclDto );
+    assertEquals( mockForbiddenErrorResponse, testResponse );
+
+    verify( fileResource, times( 1 ) ).getMessagesInstance();
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.FORBIDDEN );
+    verify( fileResource.fileService, times( 0 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
+  }
+
+  /*
+   * [BISERVER-14294] Validating the ACL unknown owner is tested against.
+   */
+  @Test
+  public void testSetFileAclsWrongOwnerError() throws Exception {
+    RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
+    doReturn( "Wrong Owner" ).when( mockRepositoryFileAclDto ).getOwner();
+
+    Messages mockMessages = mock( Messages.class );
+    doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
+
+    Response mockForbiddenErrorResponse = mock( Response.class );
+    doReturn( mockForbiddenErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
+
+    Response testResponse = fileResource.setFileAcls( PATH_ID, mockRepositoryFileAclDto );
+    assertEquals( mockForbiddenErrorResponse, testResponse );
+
+    verify( fileResource, times( 1 ) ).getMessagesInstance();
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.FORBIDDEN );
+    verify( fileResource.fileService, times( 0 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
   }
 
   @Test
