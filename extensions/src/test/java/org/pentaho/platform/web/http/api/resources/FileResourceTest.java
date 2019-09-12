@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -40,6 +41,7 @@ import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
@@ -53,13 +55,14 @@ import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.pentaho.test.mock.MockPentahoUser;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -72,12 +75,34 @@ import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.OK;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( TenantUtils.class )
 public class FileResourceTest {
   private static final String ACL_OWNER = "ACL Owner";
   private static final String XML_EXTENSION = "xml";
@@ -93,6 +118,8 @@ public class FileResourceTest {
 
   @Before
   public void setUp() {
+    mockStatic( TenantUtils.class );
+
     fileResource = spy( new FileResource() );
     fileResource.fileService = mock( FileService.class );
     fileResource.httpServletRequest = mock( HttpServletRequest.class );
@@ -110,12 +137,7 @@ public class FileResourceTest {
   public static void initTest() {
     IRepositoryContentConverterHandler handler = mock( IRepositoryContentConverterHandler.class );
     when( handler.getConverter( XML_EXTENSION ) ).thenReturn( new StreamConverter() );
-    IUserRoleDao userRoleDao = mock( IUserRoleDao.class );
-    List<IPentahoUser> users = new ArrayList<>();
-    users.add( new MockPentahoUser( new Tenant(), ACL_OWNER, null, null, false ) );
-    when( userRoleDao.getUsers() ).thenReturn( users );
     PentahoSystem.registerObject( handler );
-    PentahoSystem.registerObject( userRoleDao );
   }
 
   @Test
@@ -210,7 +232,7 @@ public class FileResourceTest {
 
     Response mockInternalServerErrorResponse = mock( Response.class );
     doReturn( mockInternalServerErrorResponse ).when( fileResource )
-      .buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+      .buildStatusResponse( INTERNAL_SERVER_ERROR );
 
     Response testResponse = fileResource.doMove( PATH_ID, params );
 
@@ -247,13 +269,13 @@ public class FileResourceTest {
     doThrow( mock( InternalError.class ) ).when( fileResource.fileService ).doRestoreFiles( params );
 
     Response mockInternalErrorResponse = mock( Response.class );
-    doReturn( mockInternalErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
 
     Response testResponse = fileResource.doRestore( params, null );
 
     assertEquals( mockInternalErrorResponse, testResponse );
     verify( fileResource.fileService, times( 1 ) ).doRestoreFiles( params );
-    verify( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    verify( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
   }
 
   @Test
@@ -264,7 +286,7 @@ public class FileResourceTest {
     doReturn( false ).when( fileResource.fileService ).canRestoreToFolderWithNoConflicts( anyString(), eq( FILE_ID ) );
 
     Response response = fileResource.doRestore( FILE_ID, null );
-    assertNotEquals( response.getStatus(), Response.Status.INTERNAL_SERVER_ERROR.getStatusCode() );
+    assertNotEquals( response.getStatus(), INTERNAL_SERVER_ERROR.getStatusCode() );
   }
 
 
@@ -291,7 +313,7 @@ public class FileResourceTest {
   public void testCreateFileWithoutExtension() throws Exception {
     InputStream mockInputStream = mock( InputStream.class );
     Response testResponse = fileResource.createFile( PATH_ID_WITHOUTH_EXTENSION, mockInputStream );
-    assertEquals( Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
+    assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
 
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( anyString() );
   }
@@ -300,7 +322,7 @@ public class FileResourceTest {
   public void testCreateFileIncorrectExtension() throws Exception {
     InputStream mockInputStream = mock( InputStream.class );
     Response testResponse = fileResource.createFile( PATH_ID_INCORRECT_EXTENSION, mockInputStream );
-    assertEquals( Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
+    assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
 
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( anyString() );
   }
@@ -309,7 +331,7 @@ public class FileResourceTest {
   public void testCreateFileCorrectExtension() throws Exception {
     InputStream mockInputStream = mock( InputStream.class );
     Response testResponse = fileResource.createFile( PATH_ID, mockInputStream );
-    assertEquals( Status.OK.getStatusCode(), testResponse.getStatus() );
+    assertEquals( OK.getStatusCode(), testResponse.getStatus() );
 
     verify( fileResource, times( 1 ) ).buildOkResponse();
   }
@@ -381,7 +403,7 @@ public class FileResourceTest {
 
     Response testResponse = fileResource.doCopyFiles( PATH_ID, mode, params );
 
-    assertEquals( Response.Status.FORBIDDEN.getStatusCode(), testResponse.getStatus() );
+    assertEquals( FORBIDDEN.getStatusCode(), testResponse.getStatus() );
     verify( fileResource, times( 0 ) ).buildSafeHtmlServerErrorResponse( illegalArgument );
     verify( fileResource.fileService ).doCopyFiles( PATH_ID, mode, params );
   }
@@ -420,7 +442,7 @@ public class FileResourceTest {
     doThrow( mockIllegalArgumentException ).when( fileResource.fileService ).doGetFileOrDir( PATH_ID );
 
     Response mockForbiddenResponse = mock( Response.class );
-    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
+    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
 
     testResponse = fileResource.doGetFileOrDir( PATH_ID );
 
@@ -462,12 +484,12 @@ public class FileResourceTest {
     doReturn( false ).when( fileResource ).isPathValid( path );
 
     Response mockForbiddenResponse = mock( Response.class );
-    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
+    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
 
     Response testResponse = fileResource.doGetDirAsZip( PATH_ID );
 
     assertEquals( mockForbiddenResponse, testResponse );
-    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.FORBIDDEN );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( FORBIDDEN );
     verify( fileResource, times( 1 ) ).isPathValid( path );
 
     // Test 2
@@ -477,7 +499,7 @@ public class FileResourceTest {
     testResponse = fileResource.doGetDirAsZip( PATH_ID );
 
     assertEquals( mockForbiddenResponse, testResponse );
-    verify( fileResource, times( 2 ) ).buildStatusResponse( Response.Status.FORBIDDEN );
+    verify( fileResource, times( 2 ) ).buildStatusResponse( FORBIDDEN );
     verify( fileResource, times( 2 ) ).isPathValid( path );
     verify( fileResource.policy, times( 1 ) ).isAllowed( PublishAction.NAME );
 
@@ -714,13 +736,13 @@ public class FileResourceTest {
     doReturn( mockBadRequestResponse ).when( fileResource ).buildStatusResponse( Response.Status.BAD_REQUEST );
 
     Response mockForbiddenResponse = mock( Response.class );
-    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
+    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
 
     Response mockNotFoundResponse = mock( Response.class );
     doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( Response.Status.NOT_FOUND );
 
     Response mockInternalServerErrorResponse = mock( Response.class );
-    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
 
     String exceptionMessage = "exception";
 
@@ -795,13 +817,13 @@ public class FileResourceTest {
 
 
     Response mockForbiddenResponse = mock( Response.class );
-    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
+    doReturn( mockForbiddenResponse ).when( fileResource ).buildStatusResponse( FORBIDDEN );
 
     Response mockNotFoundResponse = mock( Response.class );
     doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( Response.Status.NOT_FOUND );
 
     Response mockInternalServereErrorResponse = mock( Response.class );
-    doReturn( mockInternalServereErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalServereErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
 
     Messages mockMessages = mock( Messages.class );
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
@@ -832,43 +854,24 @@ public class FileResourceTest {
 
   @Test
   public void testSetFileAcls() throws Exception {
+    RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
+    doReturn( ACL_OWNER ).when( repository ).getOwner();
 
-    RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
-    doReturn( ACL_OWNER ).when( mockRepositoryFileAclDto ).getOwner();
+    doReturn( true ).when( fileResource ).userExists( ACL_OWNER );
 
-    doNothing().when( fileResource.fileService ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
-
-    Response mockOkResponse = mock( Response.class );
-    doReturn( mockOkResponse ).when( fileResource ).buildOkResponse();
-
-    Response testResponse = fileResource.setFileAcls( PATH_ID, mockRepositoryFileAclDto );
-    assertEquals( mockOkResponse, testResponse );
-
-    verify( fileResource.fileService, times( 1 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
-    verify( fileResource, times( 1 ) ).buildOkResponse();
+    assertEquals( OK.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
   }
 
   @Test
   public void testSetFileAclsError() throws Exception {
+    RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
+    doReturn( ACL_OWNER ).when( repository ).getOwner();
 
-    RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
-    doReturn( ACL_OWNER ).when( mockRepositoryFileAclDto ).getOwner();
+    doReturn( mock( Messages.class ) ).when( fileResource ).getMessagesInstance();
+    doReturn( true ).when( fileResource ).userExists( ACL_OWNER );
+    doThrow( mock( RuntimeException.class ) ).when( fileResource.fileService ).setFileAcls( PATH_ID, repository );
 
-    Messages mockMessages = mock( Messages.class );
-    doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
-
-    Response mockInternalServerErrorResponse = mock( Response.class );
-    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
-
-    Exception mockRuntimeException = mock( RuntimeException.class );
-    doThrow( mockRuntimeException ).when( fileResource.fileService ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
-
-    Response testResponse = fileResource.setFileAcls( PATH_ID, mockRepositoryFileAclDto );
-    assertEquals( mockInternalServerErrorResponse, testResponse );
-
-    verify( fileResource, times( 1 ) ).getMessagesInstance();
-    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
-    verify( fileResource.fileService, times( 1 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
+    assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
   }
 
   /*
@@ -876,21 +879,12 @@ public class FileResourceTest {
    */
   @Test
   public void testSetFileAclsErrorNoOwner() throws Exception {
-    RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
-    doReturn( "" ).when( mockRepositoryFileAclDto ).getOwner();
+    RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
+    doReturn( "" ).when( repository ).getOwner();
 
-    Messages mockMessages = mock( Messages.class );
-    doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
+    doReturn( mock( Messages.class ) ).when( fileResource ).getMessagesInstance();
 
-    Response mockForbiddenErrorResponse = mock( Response.class );
-    doReturn( mockForbiddenErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
-
-    Response testResponse = fileResource.setFileAcls( PATH_ID, mockRepositoryFileAclDto );
-    assertEquals( mockForbiddenErrorResponse, testResponse );
-
-    verify( fileResource, times( 1 ) ).getMessagesInstance();
-    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.FORBIDDEN );
-    verify( fileResource.fileService, times( 0 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
+    assertEquals( FORBIDDEN.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
   }
 
   /*
@@ -898,21 +892,13 @@ public class FileResourceTest {
    */
   @Test
   public void testSetFileAclsWrongOwnerError() throws Exception {
-    RepositoryFileAclDto mockRepositoryFileAclDto = mock( RepositoryFileAclDto.class );
-    doReturn( "Wrong Owner" ).when( mockRepositoryFileAclDto ).getOwner();
+    RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
+    doReturn( "Wrong Owner" ).when( repository ).getOwner();
 
-    Messages mockMessages = mock( Messages.class );
-    doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
+    doReturn( mock( Messages.class ) ).when( fileResource ).getMessagesInstance();
+    doReturn( false ).when( fileResource ).userExists( anyString() );
 
-    Response mockForbiddenErrorResponse = mock( Response.class );
-    doReturn( mockForbiddenErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.FORBIDDEN );
-
-    Response testResponse = fileResource.setFileAcls( PATH_ID, mockRepositoryFileAclDto );
-    assertEquals( mockForbiddenErrorResponse, testResponse );
-
-    verify( fileResource, times( 1 ) ).getMessagesInstance();
-    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.FORBIDDEN );
-    verify( fileResource.fileService, times( 0 ) ).setFileAcls( PATH_ID, mockRepositoryFileAclDto );
+    assertEquals( FORBIDDEN.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
   }
 
   @Test
@@ -941,7 +927,7 @@ public class FileResourceTest {
     doReturn( mockNotFoundResponse ).when( fileResource ).buildStatusResponse( Response.Status.NOT_FOUND );
 
     Response mockInternalServerErrorResponse = mock( Response.class );
-    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    doReturn( mockInternalServerErrorResponse ).when( fileResource ).buildStatusResponse( INTERNAL_SERVER_ERROR );
 
     Messages mockMessages = mock( Messages.class );
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
@@ -962,7 +948,7 @@ public class FileResourceTest {
     assertEquals( mockInternalServerErrorResponse, testResponse );
 
     verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.NOT_FOUND );
-    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( INTERNAL_SERVER_ERROR );
     verify( fileResource.fileService, times( 2 ) ).doSetContentCreator( PATH_ID, mockRepositoryFileDto );
     verify( mockMessages, times( 1 ) ).getErrorString( "FileResource.FILE_NOT_FOUND", PATH_ID );
     verify( mockMessages, times( 1 ) ).getString( "SystemResource.GENERAL_ERROR" );
@@ -1454,7 +1440,7 @@ public class FileResourceTest {
   @Test
   public void testDoRenameCorrectExtension() throws Exception {
     Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
-    assertEquals( Status.OK.getStatusCode(), testResponse.getStatus() );
+    assertEquals( OK.getStatusCode(), testResponse.getStatus() );
 
     verify( fileResource, times( 1 ) ).buildOkResponse( anyString() );
   }
@@ -1554,4 +1540,32 @@ public class FileResourceTest {
     assertTrue( document.getRootElement().getStringValue().equals( "true" ) );
   }
 
+  @Test
+  public void userExists() {
+    Tenant tenant = mock( Tenant.class );
+    when( TenantUtils.getCurrentTenant() ).thenReturn( tenant );
+
+    IUserRoleDao userRoleDao = mock( IUserRoleDao.class );
+    PentahoSystem.registerObject( userRoleDao );
+
+    IPentahoUser user = new MockPentahoUser( new Tenant(), ACL_OWNER, null, null, false );
+    doReturn( user ).when( userRoleDao ).getUser( tenant, "admin" );
+
+    FileResource fileResource = new FileResource();
+    assertTrue( fileResource.userExists( "admin" ) );
+  }
+
+  @Test
+  public void userDoesntExist() {
+    Tenant tenant = mock( Tenant.class );
+    when( TenantUtils.getCurrentTenant() ).thenReturn( tenant );
+
+    IUserRoleDao userRoleDao = mock( IUserRoleDao.class );
+    PentahoSystem.registerObject( userRoleDao );
+
+    doReturn( null ).when( userRoleDao ).getUser( tenant, "joe" );
+
+    FileResource fileResource = new FileResource();
+    assertFalse( fileResource.userExists( "joe" ) );
+  }
 }
