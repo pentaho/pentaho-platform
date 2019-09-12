@@ -244,8 +244,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>${commons-logging.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.glassfish.metro</groupId>
