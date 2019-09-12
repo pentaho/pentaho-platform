@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.io.IOUtils;
@@ -50,6 +51,7 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
@@ -740,7 +742,7 @@ public class FileResource extends AbstractJaxRSResource {
      * that might cause problems with the repository. Then following it up with a user existence check
      */
     try {
-      if ( isNotBlank( acl.getOwner() ) && getAllUsers().contains( acl.getOwner() ) ) {
+      if ( isNotBlank( acl.getOwner() ) && userExists( acl.getOwner() ) ) {
         fileService.setFileAcls( pathId, acl );
         return buildOkResponse();
       } else {
@@ -2261,7 +2263,13 @@ public class FileResource extends AbstractJaxRSResource {
     return ClientRepositoryPaths.getUserHomeFolderPath( PentahoSessionHolder.getSession().getName() );
   }
 
-  protected List<String> getAllUsers() {
-    return new UserListWrapper( PentahoSystem.get( IUserRoleDao.class ).getUsers() ).getUsers();
+  /**
+   * Checks if the given user exists in the current tenant
+   * @param username the login for the user to check
+   * @return true is the user exists, false otherwise
+   */
+  @VisibleForTesting
+  boolean userExists( String username ) {
+    return PentahoSystem.get( IUserRoleDao.class ).getUser( TenantUtils.getCurrentTenant(), username ) != null;
   }
 }
