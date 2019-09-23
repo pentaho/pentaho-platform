@@ -9,7 +9,7 @@
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-extensions</artifactId>
-  <version>8.1.0.1-453</version>
+  <version>8.1.0.1-C235</version>
   <properties>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
@@ -2097,13 +2097,13 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${project.version}</version>
+      <version>8.1.0.1-453</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>8.1.0.1-453</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -2115,19 +2115,19 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>${project.version}</version>
+      <version>8.1.0.1-453</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-scheduler</artifactId>
-      <version>${project.version}</version>
+      <version>8.1.0.1-453</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>8.1.0.1-453</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2140,7 +2140,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>${project.version}</version>
+      <version>8.1.0.1-453</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2153,7 +2153,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-scheduler</artifactId>
-      <version>${project.version}</version>
+      <version>8.1.0.1-453</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2166,7 +2166,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-build-utils</artifactId>
-      <version>${project.version}</version>
+      <version>8.1.0.1-453</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
