@@ -21,26 +21,19 @@ define([
   "common-ui/util/HandlebarsCompiler"
 ], function (ContextProvider, BootstrappedTabLoader, HandlebarsCompiler) {
 
-  var brightCoveVideoTemplate = "<object id='myExperience781579620001' class='BrightcoveExperience'>" +
-      "<param name='bgcolor' value='#FFFFFF' />" +
-      "<param name='width' value='{{width}}' />" +
-      "<param name='height' value='{{height}}' />" +
-      "<param name='playerKey' value='AQ~~,AAABioIZaRE~,HcMeumQTXEC1zURldbO8kIySLyfrRiBn' />" +
-      "<param name='isVid' value='true' />" +
-      "<param name='isUI' value='true' />" +
-      "<param name='dynamicStreaming' value='true' />" +
-      "<param name='@videoPlayer' value='{{videoId}}' />" +
-      "<param name='autoStart' value='true' />" +
-      "<param name='wmode' value='opaque' />" +
-      "<param name='secureConnections' value='" + ( SERVER_PROTOCOL === 'https' ) + "' />" +
-      "<param name='secureHTMLConnections' value='" + ( SERVER_PROTOCOL === 'https' ) + "' />" +
-      "</object>" +
-      "<script type='text/javascript'>brightcove.createExperiences();</script>";
+  var brightCoveVideoTemplate =
+      '<iframe src="https://players.brightcove.net/3971130171001/gsLYDENnF_default/index.html?videoId={{videoId}}&autoplay=true"' +
+      ' width="{{width}}"' +
+      ' height="{{height}}"' +
+      ' allowfullscreen' +
+      ' webkitallowfullscreen' +
+      ' mozallowfullscreen>' +
+      '</iframe>';
 
   var disableWelcomeVideo = function () {
     $("#welcome-video").empty();
     $(".welcome-img").show();
-  }
+  };
 
   function init() {
 
