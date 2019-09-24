@@ -546,11 +546,11 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     return propertyList.toString();
   }
 
-  public String getDataSourcesConfig() {
+  public synchronized String getDataSourcesConfig() {
     return dataSourcesConfig;
   }
 
-  public void setDataSourcesConfig( final String dataSourcesConfig ) {
+  public synchronized void setDataSourcesConfig( final String dataSourcesConfig ) {
     this.dataSourcesConfig = dataSourcesConfig;
   }
 
@@ -762,7 +762,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   @Deprecated
-  protected void writeDataSources( DataSources dataSources ) {
+  protected synchronized void writeDataSources( DataSources dataSources ) {
 
     File dataSourcesFile;
     try {

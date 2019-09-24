@@ -20,15 +20,6 @@
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
-import java.io.IOException;
-import java.io.StringBufferInputStream;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.pentaho.platform.api.engine.ICacheManager;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-
 import mockit.Mock;
 import mockit.MockUp;
 import mockit.NonStrictExpectations;
@@ -36,10 +27,21 @@ import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.Catalog;
 import mondrian.xmla.DataSourcesConfig.Catalogs;
 import mondrian.xmla.DataSourcesConfig.DataSource;
+import org.junit.Assert;
+import org.junit.Test;
+import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringBufferInputStream;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -121,4 +123,71 @@ public class MondrianCatalogHelperTest {
 
     assertNotNull( mch.getMondrianXmlDocument( new StringBufferInputStream( xml ) ) );
   }
+
+  // PPP-4192
+  @Test
+  public void testInconsistentSynchronizationOfDataSourcesConfig() throws Exception {
+
+    MondrianCatalogHelperTestable mondrianCatalogHelper = new MondrianCatalogHelperTestable();
+
+    AtomicReference<Boolean> failed = new AtomicReference<>();
+    failed.set( Boolean.FALSE );
+
+    ExecutorService executorService = Executors.newFixedThreadPool( 2 );
+
+    executorService.execute( () -> {
+      System.out.println( "validateSynchronizedDataSourcesConfig()" );
+      try {
+        mondrianCatalogHelper.validateSynchronizedDataSourcesConfig();
+      } catch ( InterruptedException e ) {
+        e.printStackTrace();
+        failed.set( Boolean.TRUE );
+      }
+      catch ( Exception e ) {
+        e.printStackTrace();
+        failed.set( Boolean.TRUE );
+      }
+    });
+
+    executorService.execute( () -> {
+      for( int i = 0 ; i < 25 ; i++ ) {
+        try {
+          Thread.sleep( 10 );
+        } catch ( InterruptedException e ) {
+          e.printStackTrace();
+          failed.set( Boolean.TRUE );
+        }
+        mondrianCatalogHelper.setDataSourcesConfig( "b" );
+      }
+      System.out.println( "setDataSourcesConfig() - Finished" );
+    });
+
+    executorService.shutdown();
+
+    if( executorService.awaitTermination( 5000, TimeUnit.MILLISECONDS) ) {
+      if( failed.get() ) {
+        System.out.println( "Failed multi-thread execution" );
+        Assert.fail();
+      }
+      return;
+    }
+    System.out.println( "Failed by timeout");
+    Assert.fail();
+  }
+
+  class MondrianCatalogHelperTestable extends MondrianCatalogHelper {
+
+    public synchronized void validateSynchronizedDataSourcesConfig() throws Exception {
+      setDataSourcesConfig( "a" );
+      for( int i = 0 ; i < 25 ; i++) {
+        Thread.sleep( 20 );
+        if ( !"a".equals( getDataSourcesConfig() ) ) {
+          throw new Exception("Another thread changed dataSourcesConfig value");
+        }
+      }
+      System.out.println( "validateSynchronizedDataSourcesConfig() - Finished" );
+    }
+
+  }
+
 }
