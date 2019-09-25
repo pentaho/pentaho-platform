@@ -318,7 +318,7 @@ public class KarafBoot implements IPentahoSystemListener {
 
   }
 
-  public static void deleteRecursiveIfExists( File item ) {
+  protected void deleteRecursiveIfExists( File item ) {
     if ( !item.exists() ) {
       return;
     }
@@ -330,10 +330,10 @@ public class KarafBoot implements IPentahoSystemListener {
     }
     try {
       if ( !item.delete() ) {
-        LoggerFactory.getLogger( KarafBoot.class ).warn( item.toURI().toString() + " could not be deleted." );
+        logger.warn( item.toURI().toString() + " could not be deleted." );
       }
     } catch ( SecurityException exception ) {
-      LoggerFactory.getLogger( KarafBoot.class ).warn( item.toURI().toString() + " cannot delete file. Access denied." );
+      logger.warn( item.toURI().toString() + " cannot delete file. Access denied." );
     }
     return;
   }

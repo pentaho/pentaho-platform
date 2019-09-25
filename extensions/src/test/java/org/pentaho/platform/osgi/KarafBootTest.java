@@ -392,7 +392,8 @@ public class KarafBootTest {
     File file = new File( dir,  "file" );
     try {
       file.createNewFile();
-      KarafBoot.deleteRecursiveIfExists( dir );
+      KarafBoot karafBoot = new KarafBoot();
+      karafBoot.deleteRecursiveIfExists( dir );
       assertNull( dir.listFiles() );
     } catch ( IOException e ) {
       fail( "Couldn't create file to test deleteRecursiveIfExists()" );
