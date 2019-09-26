@@ -2297,6 +2297,16 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-util-ajax</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>com.mockrunner</groupId>
       <artifactId>mockrunner-servlet</artifactId>
       <version>${mockrunner-servlet.version}</version>
