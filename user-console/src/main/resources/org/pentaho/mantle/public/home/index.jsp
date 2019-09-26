@@ -53,9 +53,9 @@
 // For consistency, we're using the same method as PentahoWebContextFilter to get scheme
 if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerCase().startsWith( "https:" ) ) {
 %>
-  <script language='JavaScript' type='text/javascript' src='https://sadmin.brightcove.com/js/BrightcoveExperiences.js'></script>
+  <script src="https://players.brightcove.net/3971130171001/gsLYDENnF_default/index.min.js"></script>
 <% } else { %>
-  <script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>
+  <script src="http://players.brightcove.net/3971130171001/gsLYDENnF_default/index.min.js"></script>
 <% } %>
 
 
