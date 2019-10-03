@@ -8,7 +8,7 @@
 		
 	<Resource name="jdbc/Quartz" auth="Container" type="javax.sql.DataSource"
 		factory="org.apache.tomcat.jdbc.pool.DataSourceFactory" maxActive="20" minIdle="0" maxIdle="5" initialSize="0"
-		maxWait="10000" username="pentaho_user" password="password"
+		maxWait="10000" username="pentaho_user" password="password" testOnBorrow="true"
 		driverClassName="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/quartz"
 		validationQuery="select 1"/>
 
