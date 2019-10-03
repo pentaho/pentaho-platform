@@ -13,7 +13,7 @@
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
 
         <!-- We need a external link for brightcove -->
-        <script language='JavaScript' type='text/javascript' src='http://admin.brightcove.com/js/BrightcoveExperiences.js'></script>
+        <script src="http://players.brightcove.net/3971130171001/gsLYDENnF_default/index.min.js"></script>
     </head>
     <body>
 
@@ -30,19 +30,18 @@
             <img src="img/screen2.png">
           </div>
     
-          <div class="video-player">            
-            <object id='myExperience781579620001' class='BrightcoveExperience'>
-              <param name='bgcolor' value='#FFFFFF' />
-              <param name='width' value='497' />
-              <param name='height' value='278' />
-              <param name='playerKey' value='AQ~~,AAABioIZaRE~,HcMeumQTXEC1zURldbO8kIySLyfrRiBn' />
-              <param name='isVid' value='true' />
-              <param name='isUI' value='true' />
-              <param name='dynamicStreaming' value='true' />
-              <param name='@videoPlayer' value='2596152925001' />
-              <param name='autoStart' value='false' />
-            </object>
-            <script type='text/javascript'>brightcove.createExperiences();</script>
+          <div class="video-player">
+            <div style="max-width: 960px;">
+              <video-js data-account="3971130171001"
+                  data-player="gsLYDENnF"
+                  data-embed="default"
+                  controls=""
+                  data-video-id="5747014081001"
+                  data-playlist-id=""
+                  data-application-id=""
+                  class="vjs-fluid">
+              </video-js>
+            </div>
           </div>
         </div>
       </div>
