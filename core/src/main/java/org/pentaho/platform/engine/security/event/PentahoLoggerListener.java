@@ -71,7 +71,7 @@ public class PentahoLoggerListener implements ApplicationListener {
 
   @Override public void onApplicationEvent( ApplicationEvent event ) {
 
-    if ( event != null && event.getClass().isAssignableFrom( AbstractAuthenticationEvent.class ) ) {
+    if ( event != null && AbstractAuthenticationEvent.class.isAssignableFrom( event.getClass() ) ) {
       loggerListener.onApplicationEvent( new WrappedAuthenticationEvent( (Authentication) event.getSource() ) );
     }
   }
