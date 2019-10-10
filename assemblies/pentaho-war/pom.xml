@@ -465,6 +465,17 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.apache.karaf.diagnostic</groupId>
+      <artifactId>org.apache.karaf.diagnostic.boot</artifactId>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.apache.karaf</groupId>
       <artifactId>org.apache.karaf.util</artifactId>
       <scope>compile</scope>
