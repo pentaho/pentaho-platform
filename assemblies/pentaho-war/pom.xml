@@ -125,10 +125,6 @@
           <artifactId>hsqldb</artifactId>
           <groupId>org.hsqldb</groupId>
         </exclusion>
-        <exclusion>
-          <artifactId>org.apache.karaf.jaas.modules</artifactId>
-          <groupId>org.apache.karaf.jaas</groupId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -460,17 +456,6 @@
     <dependency>
       <groupId>org.apache.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.boot</artifactId>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.karaf.jaas</groupId>
-      <artifactId>org.apache.karaf.jaas.config</artifactId>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
