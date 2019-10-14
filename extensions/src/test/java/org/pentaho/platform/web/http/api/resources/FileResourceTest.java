@@ -31,12 +31,12 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -54,6 +54,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.messages.Messages;
+import org.pentaho.test.mock.MockPentahoRole;
 import org.pentaho.test.mock.MockPentahoUser;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -75,6 +76,7 @@ import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
@@ -91,6 +93,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -99,26 +102,41 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.pentaho.platform.web.http.api.resources.FileResource.REPOSITORY_ADMIN_USERNAME;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith( PowerMockRunner.class )
-@PrepareForTest( TenantUtils.class )
+@PrepareForTest( { TenantUtils.class, FileResource.class } )
 public class FileResourceTest {
-  private static final String ACL_OWNER = "ACL Owner";
+  private static final String ACL_OWNER = "ACL_Owner";
+  private static final String BAD_ACL_OWNER = "<script>alert('999');</script>";
+
+  private static final String USERNAME = "admin";
+  private static final String BAD_USERNAME = "cowboy";
+
+  private static final String ROLENAME = "Administrators";
+  private static final String BAD_ROLENAME = "Outlaws";
+
   private static final String XML_EXTENSION = "xml";
   private static final String PATH_ID = "pathId.xml";
   private static final String PATH_ID_WITHOUTH_EXTENSION = "pathId";
   private static final String PATH_ID_INCORRECT_EXTENSION = "pathId.wrong";
   private static final String NAME_NEW_FILE = "nameNewFile.xml";
-  private static final String NAME_NEW_FILE_WITHOUTH_EXTENSION = "nameNewFile";
+  private static final String NAME_NEW_FILE_WITHOUT_EXTENSION = "nameNewFile";
   private static final String NAME_NEW_FILE_WRONG_EXTENSION = "nameNewFile.wrong";
 
   private static final String FILE_ID = "444324fd54ghad";
   private FileResource fileResource;
+  private IUserRoleDao userRoleDao;
+  private Tenant tenant;
+
 
   @Before
   public void setUp() {
     mockStatic( TenantUtils.class );
+
+    tenant = new Tenant( "hitachivantara", true );
+    when( TenantUtils.getCurrentTenant() ).thenReturn( tenant );
 
     fileResource = spy( new FileResource() );
     fileResource.fileService = mock( FileService.class );
@@ -126,6 +144,17 @@ public class FileResourceTest {
     fileResource.policy = mock( IAuthorizationPolicy.class );
     fileResource.repository = mock( IUnifiedRepository.class );
     fileResource.repoWs = mock( DefaultUnifiedRepositoryWebService.class );
+
+    userRoleDao = mock( IUserRoleDao.class );
+    PentahoSystem.registerObject( userRoleDao );
+
+    when( userRoleDao.getUser( tenant, BAD_ACL_OWNER ) ).thenReturn( null );
+    when( userRoleDao.getUser( tenant, BAD_USERNAME ) ).thenReturn( null );
+    when( userRoleDao.getUser( tenant, ACL_OWNER ) ).thenReturn( new MockPentahoUser() );
+    when( userRoleDao.getUser( tenant, USERNAME ) ).thenReturn( new MockPentahoUser() );
+
+    when( userRoleDao.getRole( tenant, BAD_ROLENAME ) ).thenReturn( null );
+    when( userRoleDao.getRole( tenant, ROLENAME ) ).thenReturn( new MockPentahoRole() );
   }
 
   @After
@@ -853,11 +882,10 @@ public class FileResourceTest {
   }
 
   @Test
-  public void testSetFileAcls() throws Exception {
+  public void testSetFileAclsOK() {
     RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
-    doReturn( ACL_OWNER ).when( repository ).getOwner();
 
-    doReturn( true ).when( fileResource ).userExists( ACL_OWNER );
+    doReturn( true ).when( fileResource ).usersOrRolesExist( any() );
 
     assertEquals( OK.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
   }
@@ -865,10 +893,9 @@ public class FileResourceTest {
   @Test
   public void testSetFileAclsError() throws Exception {
     RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
-    doReturn( ACL_OWNER ).when( repository ).getOwner();
 
     doReturn( mock( Messages.class ) ).when( fileResource ).getMessagesInstance();
-    doReturn( true ).when( fileResource ).userExists( ACL_OWNER );
+    doReturn( true ).when( fileResource ).usersOrRolesExist( any() );
     doThrow( mock( RuntimeException.class ) ).when( fileResource.fileService ).setFileAcls( PATH_ID, repository );
 
     assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
@@ -878,25 +905,11 @@ public class FileResourceTest {
    * [BISERVER-14294] Validating the ACL empty owner is tested against.
    */
   @Test
-  public void testSetFileAclsErrorNoOwner() throws Exception {
+  public void testSetFileAclsErrorNoOwner() {
     RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
-    doReturn( "" ).when( repository ).getOwner();
 
     doReturn( mock( Messages.class ) ).when( fileResource ).getMessagesInstance();
-
-    assertEquals( FORBIDDEN.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
-  }
-
-  /*
-   * [BISERVER-14294] Validating the ACL unknown owner is tested against.
-   */
-  @Test
-  public void testSetFileAclsWrongOwnerError() throws Exception {
-    RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
-    doReturn( "Wrong Owner" ).when( repository ).getOwner();
-
-    doReturn( mock( Messages.class ) ).when( fileResource ).getMessagesInstance();
-    doReturn( false ).when( fileResource ).userExists( anyString() );
+    doCallRealMethod().when( fileResource ).usersOrRolesExist( any() );
 
     assertEquals( FORBIDDEN.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
   }
@@ -1421,25 +1434,25 @@ public class FileResourceTest {
     doReturn( mockOkMsgResponse ).when( fileResource ).buildOkResponse( errMsg );
 
     // Test 1
-    doReturn( true ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
+    doReturn( true ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
 
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
     assertEquals( mockOkResponse, testResponse );
 
     // Test 2
-    doReturn( false ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
+    doReturn( false ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
 
-    testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
+    testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
     assertEquals( mockOkMsgResponse, testResponse );
 
-    verify( fileResource.fileService, times( 2 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
+    verify( fileResource.fileService, times( 2 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
     verify( fileResource, times( 1 ) ).buildOkResponse();
     verify( fileResource, times( 1 ) ).buildOkResponse( errMsg );
   }
 
   @Test
   public void testDoRenameCorrectExtension() throws Exception {
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
     assertEquals( OK.getStatusCode(), testResponse.getStatus() );
 
     verify( fileResource, times( 1 ) ).buildOkResponse( anyString() );
@@ -1448,7 +1461,7 @@ public class FileResourceTest {
   @Test
   public void testDoRenameError() throws Exception {
     Throwable mockThrowable = mock( RuntimeException.class );
-    doThrow( mockThrowable ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
+    doThrow( mockThrowable ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
 
     String msg = "msg";
     doReturn( msg ).when( mockThrowable ).getMessage();
@@ -1456,10 +1469,10 @@ public class FileResourceTest {
     Response mockResponse = mock( Response.class );
     doReturn( mockResponse ).when( fileResource ).buildServerErrorResponse( msg );
 
-    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
     assertEquals( mockResponse, testResponse );
 
-    verify( fileResource.fileService, times( 1 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUTH_EXTENSION );
+    verify( fileResource.fileService, times( 1 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
     verify( mockThrowable, times( 1 ) ).getMessage();
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( msg );
   }
@@ -1541,31 +1554,102 @@ public class FileResourceTest {
   }
 
   @Test
-  public void userExists() {
-    Tenant tenant = mock( Tenant.class );
-    when( TenantUtils.getCurrentTenant() ).thenReturn( tenant );
+  public void usersOrRolesExist_OwnerExists() {
+    RepositoryFileAclDto acl = new RepositoryFileAclDto();
+    acl.setOwner( ACL_OWNER );
 
-    IUserRoleDao userRoleDao = mock( IUserRoleDao.class );
-    PentahoSystem.registerObject( userRoleDao );
-
-    IPentahoUser user = new MockPentahoUser( new Tenant(), ACL_OWNER, null, null, false );
-    doReturn( user ).when( userRoleDao ).getUser( tenant, "admin" );
-
-    FileResource fileResource = new FileResource();
-    assertTrue( fileResource.userExists( "admin" ) );
+    assertTrue( fileResource.usersOrRolesExist( acl ) );
   }
 
   @Test
-  public void userDoesntExist() {
-    Tenant tenant = mock( Tenant.class );
-    when( TenantUtils.getCurrentTenant() ).thenReturn( tenant );
+  public void usersOrRolesExist_OwnerDoesntExist() {
+    RepositoryFileAclDto acl = new RepositoryFileAclDto();
+    acl.setOwner( BAD_ACL_OWNER );
 
-    IUserRoleDao userRoleDao = mock( IUserRoleDao.class );
-    PentahoSystem.registerObject( userRoleDao );
+    assertFalse( fileResource.usersOrRolesExist( acl ) );
+  }
 
-    doReturn( null ).when( userRoleDao ).getUser( tenant, "joe" );
+  @Test
+  public void usersOrRolesExist_OwnerIsBlank() {
+    RepositoryFileAclDto acl = new RepositoryFileAclDto();
 
-    FileResource fileResource = new FileResource();
-    assertFalse( fileResource.userExists( "joe" ) );
+    assertFalse( fileResource.usersOrRolesExist( acl ) );
+  }
+
+  @Test
+  public void usersOrRolesExist_OwnerIsRepositoryAdmin() {
+    RepositoryFileAclDto acl = new RepositoryFileAclDto();
+    acl.setOwner( REPOSITORY_ADMIN_USERNAME );
+
+    assertTrue( fileResource.usersOrRolesExist( acl ) );
+  }
+
+  @Test
+  public void usersOrRolesExist_RecipientIsBlank() {
+    RepositoryFileAclDto acl = new RepositoryFileAclDto();
+    acl.setOwner( ACL_OWNER );
+
+    RepositoryFileAclAceDto recipient = mock( RepositoryFileAclAceDto.class );
+    doReturn( "" ).when( recipient ).getRecipient();
+
+    acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
+
+    assertFalse( fileResource.usersOrRolesExist( acl ) );
+  }
+
+  @Test
+  public void usersOrRolesExist_RecipientUserDoesntExist() {
+    RepositoryFileAclDto acl = new RepositoryFileAclDto();
+    acl.setOwner( ACL_OWNER );
+
+    RepositoryFileAclAceDto recipient = mock( RepositoryFileAclAceDto.class );
+    doReturn( BAD_USERNAME ).when( recipient ).getRecipient();
+    doReturn( 0 ).when( recipient ).getRecipientType();
+
+    acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
+
+    assertFalse( fileResource.usersOrRolesExist( acl ) );
+  }
+
+  @Test
+  public void usersOrRolesExist_RecipientRoleDoesntExist() {
+    RepositoryFileAclDto acl = new RepositoryFileAclDto();
+    acl.setOwner( ACL_OWNER );
+
+    RepositoryFileAclAceDto recipient = mock( RepositoryFileAclAceDto.class );
+    doReturn( BAD_ROLENAME ).when( recipient ).getRecipient();
+    doReturn( 1 ).when( recipient ).getRecipientType();
+
+    acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
+
+    assertFalse( fileResource.usersOrRolesExist( acl ) );
+  }
+
+  @Test
+  public void usersOrRolesExist_RecipientRoleExists() {
+    RepositoryFileAclDto acl = new RepositoryFileAclDto();
+    acl.setOwner( ACL_OWNER );
+
+    RepositoryFileAclAceDto recipient = mock( RepositoryFileAclAceDto.class );
+    doReturn( ROLENAME ).when( recipient ).getRecipient();
+    doReturn( 1 ).when( recipient ).getRecipientType();
+
+    acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
+
+    assertTrue( fileResource.usersOrRolesExist( acl ) );
+  }
+
+  @Test
+  public void usersOrRolesExist_RecipientUserExists() {
+    RepositoryFileAclDto acl = new RepositoryFileAclDto();
+    acl.setOwner( ACL_OWNER );
+
+    RepositoryFileAclAceDto recipient = mock( RepositoryFileAclAceDto.class );
+    doReturn( USERNAME ).when( recipient ).getRecipient();
+    doReturn( 0 ).when( recipient ).getRecipientType();
+
+    acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
+
+    assertTrue( fileResource.usersOrRolesExist( acl ) );
   }
 }
