@@ -80,7 +80,18 @@ public class RepositoryFileSid implements Serializable {
   }
 
   public static enum Type {
-    USER, ROLE;
+    USER ( 0 ),
+    ROLE ( 1 );
+
+    private final int value;
+
+    Type( int value ) {
+      this.value = value;
+    }
+
+    public int getValue() {
+      return value;
+    }
   }
 
   @Override
