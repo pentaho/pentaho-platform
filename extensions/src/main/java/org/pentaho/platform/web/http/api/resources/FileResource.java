@@ -46,7 +46,9 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterH
 import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -108,7 +110,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 /**
  * This service provides methods for listing, creating, downloading, uploading, and removal of files.
@@ -117,9 +119,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  */
 @Path ( "/repo/files/" )
 public class FileResource extends AbstractJaxRSResource {
-  public static final String PATH_SEPARATOR = "/"; //$NON-NLS-1$
-
-  public static final String APPLICATION_ZIP = "application/zip"; //$NON-NLS-1$
+  public static final String APPLICATION_ZIP = "application/zip";
+  public static final String REPOSITORY_ADMIN_USERNAME = "pentahoRepoAdmin";
 
   protected static final Log logger = LogFactory.getLog( FileResource.class );
 
@@ -740,9 +741,12 @@ public class FileResource extends AbstractJaxRSResource {
     /*
      * [BISERVER-14294] Ensuring the owner is set to a non-null, non-empty string value to prevent any issues
      * that might cause problems with the repository. Then following it up with a user existence check
+     *
+     * [BISERVER-14356] What we need to check is that the users or roles we are setting permissions to exist,
+     * not just the user setting the permissions (ACL owner).
      */
     try {
-      if ( isNotBlank( acl.getOwner() ) && userExists( acl.getOwner() ) ) {
+      if ( usersOrRolesExist( acl ) ) {
         fileService.setFileAcls( pathId, acl );
         return buildOkResponse();
       } else {
@@ -2264,12 +2268,43 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks if the given user exists in the current tenant
-   * @param username the login for the user to check
-   * @return true is the user exists, false otherwise
+   * Checks if the given users and roles exist in the current tenant
+   * @param acl the ACL containing the permissions we want to set
+   * @return true if all users and roles exist, false otherwise
    */
   @VisibleForTesting
-  boolean userExists( String username ) {
-    return PentahoSystem.get( IUserRoleDao.class ).getUser( TenantUtils.getCurrentTenant(), username ) != null;
+  boolean usersOrRolesExist( RepositoryFileAclDto acl ) {
+    // start by checking the ACL owner
+    if ( isBlank( acl.getOwner() ) ) {
+      return false;
+    }
+
+    if ( acl.getOwner().equals( REPOSITORY_ADMIN_USERNAME ) ) {
+      return true; // this is a special case when logged in as 'admin'
+    }
+
+    IUserRoleDao dao = PentahoSystem.get( IUserRoleDao.class );
+
+    if ( dao.getUser( TenantUtils.getCurrentTenant(), acl.getOwner() ) == null ) {
+      return false;
+    }
+
+    // then check the ACL recipients
+    for ( RepositoryFileAclAceDto dto : acl.getAces() ) {
+      if ( isBlank( dto.getRecipient() ) ) {
+        return false;
+      }
+
+      if ( dto.getRecipientType() == RepositoryFileSid.Type.USER.getValue() ) {
+        if ( dao.getUser( TenantUtils.getCurrentTenant(), dto.getRecipient() ) == null ) {
+          return false;
+        }
+      } else if ( dto.getRecipientType() == RepositoryFileSid.Type.ROLE.getValue() ) {
+        if ( dao.getRole( TenantUtils.getCurrentTenant(), dto.getRecipient() ) == null ) {
+          return false;
+        }
+      }
+    }
+    return true; // if all users and roles exist we end up here!
   }
 }
