@@ -477,7 +477,6 @@
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-core</artifactId>
-      <version>${jackrabbit.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>concurrent</artifactId>
@@ -501,7 +500,6 @@
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-data</artifactId>
-      <version>${jackrabbit.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>

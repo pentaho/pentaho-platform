@@ -22,10 +22,8 @@
     <hibernate-ehcache.version>3.6.9.Final</hibernate-ehcache.version>
     <commons-io.version>2.2</commons-io.version>
     <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
-    <tika-core.version>1.19.1</tika-core.version>
     <xmlgraphics-commons.version>2.2</xmlgraphics-commons.version>
     <c3p0.version>0.9.1.2</c3p0.version>
-    <jackrabbit.version>2.14.2</jackrabbit.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
@@ -910,22 +908,18 @@
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-commons</artifactId>
-      <version>${jackrabbit.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-spi</artifactId>
-      <version>${jackrabbit.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-spi-commons</artifactId>
-      <version>${jackrabbit.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.tika</groupId>
-      <artifactId>tika-core</artifactId>
-      <version>${tika-core.version}</version>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
