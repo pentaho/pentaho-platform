@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -112,6 +112,7 @@ import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.api.resources.utils.RepositoryFileHelper;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
+import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 
 public class FileService {
 
@@ -137,12 +138,11 @@ public class FileService {
 
   public DownloadFileWrapper systemBackup( String userAgent ) throws IOException, ExportException {
     if ( doCanAdminister() ) {
-      String originalFileName, quotedFileName, encodedFileName;
+      String originalFileName, encodedFileName;
       originalFileName = "SystemBackup.zip";
       encodedFileName = makeEncodedFileName( originalFileName );
-      quotedFileName = makeQuotedFileName( originalFileName );
       StreamingOutput streamingOutput = getBackupStream();
-      final String attachment = makeAttachment( userAgent, encodedFileName, quotedFileName );
+      final String attachment = HttpMimeTypeListener.buildContentDispositionValue( originalFileName,  true );
 
       return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
     } else {
@@ -595,37 +595,19 @@ public class FileService {
     BaseExportProcessor exportProcessor = getDownloadExportProcessor( path, requiresZip, withManifest );
     originalFileName = requiresZip ? repositoryFile.getName() + ".zip" : repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
     encodedFileName = makeEncodedFileName( originalFileName );
-    String quotedFileName = makeQuotedFileName( originalFileName );
-
+    
     // add export handlers for each expected file type
     exportProcessor.addExportHandler( getDownloadExportHandler() );
 
     // copy streaming output
     StreamingOutput streamingOutput = getDownloadStream( repositoryFile, exportProcessor );
 
-    final String attachment = makeAttachment( userAgent, encodedFileName, quotedFileName );
-
-    return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
+    return new DownloadFileWrapper( streamingOutput, HttpMimeTypeListener.buildContentDispositionValue(
+        originalFileName, true ), encodedFileName );
   }
 
   private String makeEncodedFileName( String originalFile ) throws UnsupportedEncodingException {
     return URLEncoder.encode( originalFile, "UTF-8" ).replaceAll( "\\+", "%20" );
-  }
-
-  private String makeQuotedFileName( String OriginalFile ) {
-    return "\"" + OriginalFile + "\"";
-  }
-
-  private String makeAttachment( String userAgent, String encodedFileName, String quotedFileName ) {
-    final String attachment;
-    if ( userAgent.contains( "Firefox" ) ) {
-      // special content-disposition for firefox browser to support utf8-encoded symbols in filename
-      attachment = "attachment; filename*=UTF-8\'\'" + encodedFileName;
-    } else {
-      attachment = "attachment; filename=" + quotedFileName;
-    }
-
-    return attachment;
   }
 
   /**
