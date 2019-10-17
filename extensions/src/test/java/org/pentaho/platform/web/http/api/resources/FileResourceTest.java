@@ -1539,10 +1539,12 @@ public class FileResourceTest {
     } );
     when( mock.getMimetype() ).thenReturn( "mime-message/text/html" );
     final RepositoryFile repositoryFile = mock( RepositoryFile.class );
-    when( repositoryFile.getName() ).thenReturn( "test" );
+    when( repositoryFile.getName() ).thenReturn( "test \u4F60\u597D" );
     when( mock.getRepositoryFile() ).thenReturn( repositoryFile );
     final Response response = fileResource.buildOkResponse( mock );
     final MultivaluedMap<String, Object> metadata = response.getMetadata();
+    String value = (String)metadata.get( "Content-Disposition" ).get( 0 );
+    assertEquals("inline; filename*=UTF-8''test%20%E4%BD%A0%E5%A5%BD", value);
   }
 
   @Test

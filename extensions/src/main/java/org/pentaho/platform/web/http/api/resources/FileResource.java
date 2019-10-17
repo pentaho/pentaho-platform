@@ -75,6 +75,7 @@ import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
+import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import javax.servlet.http.HttpServletResponse;
@@ -2188,8 +2189,8 @@ public class FileResource extends AbstractJaxRSResource {
       builder = Response.ok( wrapper.getOutputStream(), mediaType );
     }
 
-    return builder.header( "Content-Disposition", "inline; filename=\"" + wrapper.getRepositoryFile().getName() + "\"" )
-        .build();
+    return builder.header( "Content-Disposition", HttpMimeTypeListener.buildContentDispositionValue( wrapper
+        .getRepositoryFile().getName(), false ) ).build();
   }
 
   protected Response buildZipOkResponse( FileService.DownloadFileWrapper wrapper ) {
