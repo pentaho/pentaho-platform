@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -71,7 +71,7 @@ public class PentahoLoggerListener implements ApplicationListener {
 
   @Override public void onApplicationEvent( ApplicationEvent event ) {
 
-    if ( event != null && event.getClass().isAssignableFrom( AbstractAuthenticationEvent.class ) ) {
+    if ( event != null && AbstractAuthenticationEvent.class.isAssignableFrom( event.getClass() ) ) {
       loggerListener.onApplicationEvent( new WrappedAuthenticationEvent( (Authentication) event.getSource() ) );
     }
   }
