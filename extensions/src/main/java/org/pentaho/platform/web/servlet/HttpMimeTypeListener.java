@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,6 +26,8 @@ import org.pentaho.platform.util.web.MimeHelper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
 
 public class HttpMimeTypeListener implements IMimeTypeListener {
 
@@ -66,12 +68,31 @@ public class HttpMimeTypeListener implements IMimeTypeListener {
     if ( fileName == null ) {
       fileName = "default"; //$NON-NLS-1$
     }
-    fileName = fileName.replace( ' ', '_' );
     fileName += MimeHelper.getExtension( mimeType );
     if ( ( forceAttachment != null ) && ( "true".equalsIgnoreCase( forceAttachment ) ) ) { //$NON-NLS-1$
-      response.setHeader( "content-disposition", "attachment;filename=" + fileName ); //$NON-NLS-1$ //$NON-NLS-2$
+      response.setHeader( "content-disposition", buildContentDispositionValue( fileName, true ) ); //$NON-NLS-1$ //$NON-NLS-2$
     } else {
-      response.setHeader( "content-disposition", "inline;filename=" + fileName ); //$NON-NLS-1$ //$NON-NLS-2$
+      response.setHeader( "content-disposition", buildContentDispositionValue( fileName, false ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+  }
+
+  /**
+   * Uses RFC2231/5987 encoded UTF-8 to support internationalized file names on modern browsers.
+   * 
+   * @param fileName
+   * @return
+   */
+  public static String buildContentDispositionValue( String fileName, boolean isAttachment ) {
+    try {
+      fileName = URLEncoder.encode( fileName, "UTF-8" );
+    } catch ( UnsupportedEncodingException e ) {
+      // Should never happen
+    }
+    fileName = fileName.replaceAll( "\\+", "%20" );
+    if ( isAttachment ) {
+      return "attachment; filename*=UTF-8\'\'" + fileName;
+    } else {
+      return "inline; filename*=UTF-8\'\'" + fileName;
     }
   }
 
