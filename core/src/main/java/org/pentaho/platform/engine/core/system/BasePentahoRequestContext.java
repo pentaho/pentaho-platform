@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -32,7 +32,7 @@ public class BasePentahoRequestContext implements IPentahoRequestContext {
     super();
     if ( contextPath != null ) {
       String draftPath = contextPath + ( contextPath.endsWith( SLASH ) ? EMPTY : SLASH );
-      this.contextPath = draftPath.replaceAll( "(?<!^http:)(/){2,}", SLASH );
+      this.contextPath = draftPath.replaceAll( "(?<!^http:|https:)(/){2,}", SLASH );
     } else {
       String path = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
       this.contextPath = path + ( path != null && path.endsWith( SLASH ) ? EMPTY : SLASH );
