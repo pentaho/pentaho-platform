@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -40,7 +40,9 @@ public class BasePentahoRequestContextTest {
         { "//pentaho/Login", "/pentaho/Login/" },
         { "/pentaho/Login", "/pentaho/Login/" },
         { "localhost:8080//pentaho/Login", "localhost:8080/pentaho/Login/" },
-        { "localhost:8080///pentaho/Login", "localhost:8080/pentaho/Login/" }
+        { "localhost:8080///pentaho/Login", "localhost:8080/pentaho/Login/" },
+        { "http://localhost:8080///pentaho/Login", "http://localhost:8080/pentaho/Login/" },
+        { "https://localhost:8080///pentaho/Login", "https://localhost:8080/pentaho/Login/" }
     } );
   }
 
