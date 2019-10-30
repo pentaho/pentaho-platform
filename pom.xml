@@ -131,7 +131,6 @@
     <avalon.version>4.1.5</avalon.version>
     <jta.version>1.1</jta.version>
     <jdom.version>1.0</jdom.version>
-    <xstream.version>1.4.10</xstream.version>
     <jxl.version>2.6.12</jxl.version>
     <soap.version>2.3</soap.version>
     <jakarta-regexp.version>1.2</jakarta-regexp.version>
