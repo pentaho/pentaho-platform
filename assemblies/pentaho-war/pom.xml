@@ -30,7 +30,7 @@
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
     <kafka-clients.version>0.10.2.1</kafka-clients.version>
-    <paho.version>1.2.0</paho.version>
+    <paho.version>1.2.1</paho.version>
     <rxjava.version>2.2.3</rxjava.version>
     <snowflake-jdbc.version>3.6.28</snowflake-jdbc.version>
   </properties>
