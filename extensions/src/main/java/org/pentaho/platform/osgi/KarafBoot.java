@@ -114,7 +114,8 @@ public class KarafBoot implements IPentahoSystemListener {
         }
       }
 
-      String root = karafDir.toURI().getPath();
+      // Use getAbsolutePath to prevent invalid path in Windows
+      String root = karafDir.getAbsolutePath();
 
       // See if user specified a karaf folder they would like to use
       String rootCopyFolderString = System.getProperty( PENTAHO_KARAF_ROOT_COPY_DEST_FOLDER );
@@ -356,6 +357,7 @@ public class KarafBoot implements IPentahoSystemListener {
     fillMissedSystemProperty( "karaf.startRemoteShell", "true" );
     fillMissedSystemProperty( "karaf.lock", "false" );
     fillMissedSystemProperty( "karaf.etc", root + "/etc" );
+    fillMissedSystemProperty( "karaf.log", solutionRootPath + "/logs" );
 
     // When running in the PDI-Clients there are separate etc directories so that features can be customized for
     // the particular execution needs (Carte, Spoon, Pan, Kitchen)
@@ -380,9 +382,6 @@ public class KarafBoot implements IPentahoSystemListener {
     } else {
       logger.warn( file.toURI().toString() + " file not exist" );
     }
-    // Setting ignoreTCL to true such that the OSGI classloader used to initialize log4j will be the
-    // same one used when instatiating appenders.
-    System.setProperty( "log4j.ignoreTCL", "true" );
   }
 
   /**
