@@ -27,7 +27,10 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.mantle.client.csrf.CsrfUtil;
+import org.pentaho.mantle.client.csrf.JsCsrfToken;
 import org.pentaho.mantle.client.messages.Messages;
 
 public class PurgeMondrianSchemaCacheCommand extends AbstractCommand {
@@ -35,28 +38,43 @@ public class PurgeMondrianSchemaCacheCommand extends AbstractCommand {
   }
 
   protected void performOperation() {
+
     final String url = GWT.getHostPageBaseURL() + "api/system/refresh/mondrianSchemaCache"; //$NON-NLS-1$
-    RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
-    requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-    requestBuilder.setHeader( "accept", "text/plain" );
-    try {
-      requestBuilder.sendRequest( null, new RequestCallback() {
 
-        public void onError( Request request, Throwable exception ) {
-          // showError(exception);
-        }
+    CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
 
-        public void onResponseReceived( Request request, Response response ) {
-          MessageDialogBox dialogBox =
-              new MessageDialogBox(
-                  Messages.getString( "info" ), Messages.getString( "mondrianSchemaCacheFlushedSuccessfully" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
-          dialogBox.center();
+      public void onFailure( Throwable caught ) {
+        Window.alert(caught.getMessage());
+      }
+
+      public void onSuccess( JsCsrfToken token ) {
+
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+        requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
+        requestBuilder.setHeader("accept", "text/plain");
+        if (token != null) {
+          requestBuilder.setHeader(token.getHeader(), token.getToken());
         }
-      } );
-    } catch ( RequestException e ) {
-      Window.alert( e.getMessage() );
-      // showError(e);
-    }
+        try {
+          requestBuilder.sendRequest(null, new RequestCallback() {
+
+            public void onError(Request request, Throwable exception) {
+              // showError(exception);
+            }
+
+            public void onResponseReceived(Request request, Response response) {
+              MessageDialogBox dialogBox =
+                  new MessageDialogBox(
+                      Messages.getString("info"), Messages.getString("mondrianSchemaCacheFlushedSuccessfully"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+              dialogBox.center();
+            }
+          });
+        } catch (RequestException e) {
+          Window.alert(e.getMessage());
+          // showError(e);
+        }
+      }
+    } );
   }
 
   protected void performOperation( final boolean feedback ) {
