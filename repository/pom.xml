@@ -477,7 +477,6 @@
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-core</artifactId>
-      <version>${jackrabbit.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>concurrent</artifactId>
@@ -486,10 +485,6 @@
         <exclusion>
           <artifactId>derby</artifactId>
           <groupId>org.apache.derby</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackrabbit-data</artifactId>
-          <groupId>org.apache.jackrabbit</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -500,14 +495,19 @@
     </dependency>
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
-      <artifactId>jackrabbit-data</artifactId>
-      <version>${jackrabbit.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+      <artifactId>jackrabbit-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-spi-commons</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-jcr-commons</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
