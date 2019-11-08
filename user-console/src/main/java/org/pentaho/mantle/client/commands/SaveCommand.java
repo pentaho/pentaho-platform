@@ -66,7 +66,7 @@ public class SaveCommand extends AbstractCommand {
     performOperationAsync( feedback, null );
   }
 
-  protected void performOperationAsync(boolean feedback, final CommandResultCallback callback ) {
+  protected void performOperationAsync( boolean feedback, final CommandResultCallback callback ) {
 
     final SolutionBrowserPanel navigatorPerspective = SolutionBrowserPanel.getInstance();
 
@@ -159,7 +159,7 @@ public class SaveCommand extends AbstractCommand {
                   }
 
                   @Override
-                  public void onError(Throwable error) {
+                  public void onError( Throwable error ) {
                     // Shouldn't clearValues() be called like in the other cases?
                   }
                 }, callback );
@@ -198,7 +198,7 @@ public class SaveCommand extends AbstractCommand {
               }
 
               @Override
-              public void onError(Throwable error) {
+              public void onError( Throwable error ) {
                 clearValues();
               }
             }, callback );
@@ -216,7 +216,7 @@ public class SaveCommand extends AbstractCommand {
       dialog.center();
     } else {
       // Save an existing file.
-      final CommandResultCallback composedCallback = composeCallbacks(new CommandResultCallback() {
+      final CommandResultCallback composedCallback = composeCallbacks( new CommandResultCallback() {
         @Override
         public void onSuccess() {
           clearValues();
@@ -228,13 +228,13 @@ public class SaveCommand extends AbstractCommand {
         }
 
         @Override
-        public void onError(Throwable error) {
+        public void onError( Throwable error ) {
           clearValues();
         }
       }, callback );
 
       doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type,
-          true, composedCallback);
+          true, composedCallback );
     }
   }
 
@@ -281,7 +281,7 @@ public class SaveCommand extends AbstractCommand {
     }
   }
 
-  private void doSaveAs(String elementId, String filename, String path, SolutionFileInfo.Type type, boolean overwrite,
+  private void doSaveAs( String elementId, String filename, String path, SolutionFileInfo.Type type, boolean overwrite,
                         final CommandResultCallback callback ) {
 
     // JSNI can only call methods on class fields.
@@ -321,7 +321,7 @@ public class SaveCommand extends AbstractCommand {
     frame = frame.contentWindow;
     frame.focus();
 
-    if(frame.pivot_initialized) {
+    if (frame.pivot_initialized) {
       // do jpivot save
       var actualFileName = filename;
       if (filename.indexOf("analysisview.xaction") === -1) {
@@ -524,11 +524,11 @@ public class SaveCommand extends AbstractCommand {
       final CommandResultCallback callbackA,
       final CommandResultCallback callbackB ) {
 
-    if ( callbackA == null) {
+    if ( callbackA == null ) {
       return callbackB;
     }
 
-    if ( callbackB == null) {
+    if ( callbackB == null ) {
       return callbackA;
     }
 
@@ -546,7 +546,7 @@ public class SaveCommand extends AbstractCommand {
       }
 
       @Override
-      public void onError(Throwable error) {
+      public void onError( Throwable error ) {
         callbackA.onError( error );
         callbackB.onError( error );
       }
