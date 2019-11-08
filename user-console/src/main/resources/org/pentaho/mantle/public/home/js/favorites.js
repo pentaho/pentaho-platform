@@ -18,7 +18,8 @@
 define([
   "common-ui/util/PentahoSpinner",
   "common-ui/util/spin",
-  "pentaho/csrf/service"
+  "pentaho/csrf/service",
+  "pentaho/shim/css.escape"
 ], function(spinner, Spinner, csrfService) {
 
   var local = {
@@ -68,6 +69,9 @@ define([
             var repositoryPath = context[i].fullPath;
             if (repositoryPath) {
               var extension = repositoryPath.substr((repositoryPath.lastIndexOf('.') + 1));
+
+              context[i].extension = extension;
+              context[i].extensionCssClass = "file-" + CSS.escape(extension);
               if (extension && that.knownExtensions[extension]) {
                 context[i][extension] = true;
               } else {
