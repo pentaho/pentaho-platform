@@ -39,6 +39,7 @@ import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.sun.jersey.api.client.ClientHandlerException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -70,6 +71,8 @@ import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.xml.ws.developer.JAXWSProperties;
+import org.pentaho.platform.web.http.security.CsrfToken;
+import org.pentaho.platform.web.http.security.CsrfUtil;
 
 /**
  * Handles the parsing of command line arguments and creates an import process based upon them
@@ -612,7 +615,7 @@ public class CommandLineProcessor {
   }
 
   /*
-   * --import --url=http://localhost:8080/pentaho - -username=admin --password=password --charset=UTF-8 --path=:public
+   * --import --url=http://localhost:8080/pentaho --username=admin --password=password --charset=UTF-8 --path=/public
    * --file-path=C:/Users/tband/Downloads/pentaho-solutions.zip --logfile=c:/Users/tband/Desktop/logfile.log
    * --permission=true --overwrite=true --retainOwnership=true (required fields- default is false)
    */
@@ -639,6 +642,9 @@ public class CommandLineProcessor {
        */
       try {
         initRestService();
+
+        CsrfToken csrfToken = CsrfUtil.getCsrfToken( client, contextURL, importURL );
+
         WebResource resource = client.resource( importURL );
 
         String overwrite = getOptionValue( INFO_OPTION_OVERWRITE_NAME, false, true );
@@ -659,8 +665,12 @@ public class CommandLineProcessor {
         part.getField( "fileUpload" ).setContentDisposition( FormDataContentDisposition.name( "fileUpload" ).fileName(
             fileIS.getName() ).build() );
 
-        // Response response
-        ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
+        WebResource.Builder resourceBuilder = resource.type( MediaType.MULTIPART_FORM_DATA );
+        if ( csrfToken != null ) {
+          resourceBuilder.header( csrfToken.getHeader(), csrfToken.getToken() );
+        }
+
+        ClientResponse response = resourceBuilder.post( ClientResponse.class, part );
         if ( response != null ) {
           logImportResponseMessage( logFile, path, response );
           response.close();
