@@ -145,7 +145,7 @@ public class CommandLineProcessorTest extends Assert {
         fail();
       } catch ( ParseException e ) {
         // expected
-      } catch (IOException e) {
+      } catch ( IOException e ) {
         // close()
         fail();
       }
