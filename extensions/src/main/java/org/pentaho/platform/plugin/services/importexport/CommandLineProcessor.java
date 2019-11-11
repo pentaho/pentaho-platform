@@ -20,12 +20,7 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.MalformedURLException;
@@ -81,7 +76,7 @@ import org.pentaho.platform.web.http.security.CsrfUtil;
  * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class CommandLineProcessor {
+public class CommandLineProcessor implements Closeable {
   private static final String API_REPO_FILES_IMPORT = "/api/repo/files/import";
 
   private static final String ANALYSIS_DATASOURCE_IMPORT = "/plugin/data-access/api/mondrian/postAnalysis";
@@ -105,6 +100,8 @@ public class CommandLineProcessor {
   private RequestType requestType;
 
   private IUnifiedRepository repository;
+
+  private CookieHandler defaultCookieHandler;
 
   private static final String INFO_OPTION_HELP_KEY = "h";
   private static final String INFO_OPTION_HELP_NAME = "help";
@@ -270,11 +267,9 @@ public class CommandLineProcessor {
    */
   public static void main( String[] args ) throws Exception {
 
-    try {
+    try ( final CommandLineProcessor commandLineProcessor = new CommandLineProcessor( args ) ) {
       // reset the exception information
       exception = null;
-
-      final CommandLineProcessor commandLineProcessor = new CommandLineProcessor( args );
 
       // new service only
       switch ( commandLineProcessor.getRequestType() ) {
@@ -379,6 +374,7 @@ public class CommandLineProcessor {
   private void initRestService() throws ParseException, InitializationException, KettleException {
     // This works well only on a non-multi-threaded environment, as assumed by a CLI tool.
     // This is used internally by the Client class.
+    defaultCookieHandler = CookieHandler.getDefault();
     final CookieHandler cookieHandler = new CookieManager();
     CookieHandler.setDefault( cookieHandler );
 
@@ -429,6 +425,14 @@ public class CommandLineProcessor {
         }
         requestType = ( importRequest ? RequestType.IMPORT : RequestType.EXPORT );
       }
+    }
+  }
+
+  @Override
+  public void close() throws IOException {
+    if ( this.defaultCookieHandler != null ) {
+      CookieHandler.setDefault( this.defaultCookieHandler );
+      this.defaultCookieHandler = null;
     }
   }
 
