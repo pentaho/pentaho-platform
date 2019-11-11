@@ -25,7 +25,9 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -51,6 +53,8 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
 import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.csrf.CsrfUtil;
+import org.pentaho.mantle.client.csrf.JsCsrfToken;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.GenericEvent;
 import org.pentaho.mantle.client.messages.Messages;
@@ -64,6 +68,7 @@ public class ImportDialog extends PromptDialogBox {
   private static final String UPLOAD_ACCESS_DENIED_SNIPPET = "UnifiedRepositoryAccessDeniedException"; // $NON-NLS-1$
 
   private FormPanel form;
+  private String importUrl = "api/repo/files/import";
   private final CustomListBox retainOwnershipDropDown = new CustomListBox();
   final CheckBox applyAclPermissions = new CheckBox( Messages.getString( "applyAclPermissions" ), true );
 
@@ -344,7 +349,7 @@ public class ImportDialog extends PromptDialogBox {
     form.setEncoding( FormPanel.ENCODING_MULTIPART );
     form.setMethod( FormPanel.METHOD_POST );
 
-    setFormAction();
+    setFormAction( form, importUrl );
 
     form.add( rootPanel );
 
@@ -365,13 +370,46 @@ public class ImportDialog extends PromptDialogBox {
      logWindow.document.write(htmlText);
   }-*/;
 
-  private void setFormAction() {
+  /**
+   * Adds action URL to a form panel having in account the GWT context URL
+   *
+   * @param panel
+   * @param url
+   * @return
+   */
+  private String setFormAction( FormPanel panel, String url ) {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
-    String importURL = contextURL + "api/repo/files/import";
-    form.setAction( importURL );
+    String fullURL = contextURL + url;
+
+    panel.setAction( fullURL );
+    return fullURL;
   }
+
+  /**
+   * Adds action URL to a form panel with CSRF query param in case of this type of protection being enable
+   *
+   * @param mainPanel
+   * @param callback
+   */
+  private void onOkPressedCSRFHandler( final FormPanel mainPanel, final IDialogCallback callback, String url ) {
+    final String baseUrl = setFormAction( mainPanel, url );
+
+    CsrfUtil.getCsrfToken( baseUrl, new AsyncCallback<JsCsrfToken>() {
+      public void onFailure( Throwable caught ) {
+      }
+
+      public void onSuccess( JsCsrfToken token ) {
+        if ( token != null ) {
+          mainPanel.setAction( baseUrl + "?" + token.getParameter() + "=" + URL.encode( token.getToken() ) );
+        }
+
+        callback.okPressed();
+      }
+    } );
+  }
+
 
   public FormPanel getForm() {
     return form;
@@ -383,8 +421,8 @@ public class ImportDialog extends PromptDialogBox {
     if ( validatorCallback == null || ( validatorCallback != null && validatorCallback.validate() ) ) {
       try {
         if ( callback != null ) {
-          setFormAction();
-          callback.okPressed();
+          // Handles the Ok event and adds a query parameter with a token in case of CSRF protection being enable
+          onOkPressedCSRFHandler( getForm(), callback, importUrl );
         }
       } catch ( Throwable dontCare ) {
         // ignored

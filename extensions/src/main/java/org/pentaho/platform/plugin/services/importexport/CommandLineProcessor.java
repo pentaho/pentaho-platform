@@ -20,12 +20,15 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -70,13 +73,15 @@ import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.xml.ws.developer.JAXWSProperties;
+import org.pentaho.platform.web.http.security.CsrfToken;
+import org.pentaho.platform.web.http.security.CsrfUtil;
 
 /**
  * Handles the parsing of command line arguments and creates an import process based upon them
  * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class CommandLineProcessor {
+public class CommandLineProcessor implements Closeable {
   private static final String API_REPO_FILES_IMPORT = "/api/repo/files/import";
 
   private static final String ANALYSIS_DATASOURCE_IMPORT = "/plugin/data-access/api/mondrian/postAnalysis";
@@ -100,6 +105,8 @@ public class CommandLineProcessor {
   private RequestType requestType;
 
   private IUnifiedRepository repository;
+
+  private CookieHandler defaultCookieHandler;
 
   private static final String INFO_OPTION_HELP_KEY = "h";
   private static final String INFO_OPTION_HELP_NAME = "help";
@@ -265,11 +272,9 @@ public class CommandLineProcessor {
    */
   public static void main( String[] args ) throws Exception {
 
-    try {
+    try ( final CommandLineProcessor commandLineProcessor = new CommandLineProcessor( args ) ) {
       // reset the exception information
       exception = null;
-
-      final CommandLineProcessor commandLineProcessor = new CommandLineProcessor( args );
 
       // new service only
       switch ( commandLineProcessor.getRequestType() ) {
@@ -372,6 +377,12 @@ public class CommandLineProcessor {
    * @throws ParseException
    */
   private void initRestService() throws ParseException, InitializationException, KettleException {
+    // This works well only on a non-multi-threaded environment, as assumed by a CLI tool.
+    // This is used internally by the Client class.
+    defaultCookieHandler = CookieHandler.getDefault();
+    final CookieHandler cookieHandler = new CookieManager();
+    CookieHandler.setDefault( cookieHandler );
+
     ClientConfig clientConfig = new DefaultClientConfig();
     clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
     client = Client.create( clientConfig );
@@ -419,6 +430,14 @@ public class CommandLineProcessor {
         }
         requestType = ( importRequest ? RequestType.IMPORT : RequestType.EXPORT );
       }
+    }
+  }
+
+  @Override
+  public void close() throws IOException {
+    if ( this.defaultCookieHandler != null ) {
+      CookieHandler.setDefault( this.defaultCookieHandler );
+      this.defaultCookieHandler = null;
     }
   }
 
@@ -612,7 +631,7 @@ public class CommandLineProcessor {
   }
 
   /*
-   * --import --url=http://localhost:8080/pentaho - -username=admin --password=password --charset=UTF-8 --path=:public
+   * --import --url=http://localhost:8080/pentaho --username=admin --password=password --charset=UTF-8 --path=/public
    * --file-path=C:/Users/tband/Downloads/pentaho-solutions.zip --logfile=c:/Users/tband/Desktop/logfile.log
    * --permission=true --overwrite=true --retainOwnership=true (required fields- default is false)
    */
@@ -639,6 +658,9 @@ public class CommandLineProcessor {
        */
       try {
         initRestService();
+
+        CsrfToken csrfToken = CsrfUtil.getCsrfToken( client, contextURL, importURL );
+
         WebResource resource = client.resource( importURL );
 
         String overwrite = getOptionValue( INFO_OPTION_OVERWRITE_NAME, false, true );
@@ -659,8 +681,12 @@ public class CommandLineProcessor {
         part.getField( "fileUpload" ).setContentDisposition( FormDataContentDisposition.name( "fileUpload" ).fileName(
             fileIS.getName() ).build() );
 
-        // Response response
-        ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
+        WebResource.Builder resourceBuilder = resource.type( MediaType.MULTIPART_FORM_DATA );
+        if ( csrfToken != null ) {
+          resourceBuilder.header( csrfToken.getHeader(), csrfToken.getToken() );
+        }
+
+        ClientResponse response = resourceBuilder.post( ClientResponse.class, part );
         if ( response != null ) {
           logImportResponseMessage( logFile, path, response );
           response.close();

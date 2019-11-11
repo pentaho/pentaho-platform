@@ -102,8 +102,11 @@ public class CommandLineProcessorTest extends Assert {
   }
 
   private void testRequestType( String keyKey, String nameKey, RequestType rt ) throws ParseException {
-    CommandLineProcessor clp = createCommandLineProcessor( keyKey, nameKey );
-    assertEquals( rt, clp.getRequestType() );
+    try ( CommandLineProcessor clp = createCommandLineProcessor( keyKey, nameKey ) ) {
+      assertEquals( rt, clp.getRequestType() );
+    } catch ( IOException e ) {
+      e.printStackTrace();
+    }
   }
 
   private CommandLineProcessor createCommandLineProcessor( String keyKey, String nameKey ) throws ParseException {
@@ -138,12 +141,15 @@ public class CommandLineProcessorTest extends Assert {
       testRequestType( null, "import", RequestType.IMPORT );
       testRequestType( null, "export", RequestType.EXPORT );
 
-      try {
-        createCommandLineProcessor( null, null );
+      try ( CommandLineProcessor clp = createCommandLineProcessor( null, null ) ) {
         fail();
       } catch ( ParseException e ) {
         // expected
+      } catch ( IOException e ) {
+        // close()
+        fail();
       }
+
     } catch ( Exception e ) {
       brokenConstructor = true;
       throw e;
@@ -157,7 +163,7 @@ public class CommandLineProcessorTest extends Assert {
   }
 
   @Test
-  public void get002PrintHelpTest() throws IllegalAccessException, IOException {
+  public void get002PrintHelpTest() throws IllegalAccessException {
     CommandLineProcessor.printHelp();
 
     String help = CONSOLE_BUFFER.toString();
@@ -173,8 +179,7 @@ public class CommandLineProcessorTest extends Assert {
   }
 
   @Test
-  public void get003WriteFiletest() throws IOException, NoSuchMethodException, IllegalAccessException,
-    InvocationTargetException, ParseException {
+  public void get003WriteFiletest() throws IOException {
     File file = File.createTempFile( "CommandLineProcessorTest", ".log" );
 
     try {
@@ -196,37 +201,42 @@ public class CommandLineProcessorTest extends Assert {
     String shortOption = getOption( "u" );
     String longOption = getOption( "username" );
 
-    CommandLineProcessor clp = new CommandLineProcessor( new String[] { requestType, "-" + shortOption + "=value" } );
+    try ( CommandLineProcessor clp = new CommandLineProcessor( new String[] { requestType, "-" + shortOption + "=value" } ) ) {
 
-    assertEquals( "value", clp.getOptionValue( shortOption, false, true ) );
-    assertEquals( "value", clp.getOptionValue( longOption, false, true ) );
-    assertEquals( null, clp.getOptionValue( "wrongKey", false, true ) );
-    try {
-      assertEquals( null, clp.getOptionValue( "wrongKey", true, true ) );
-      fail();
-    } catch ( ParseException e ) {
-      // expected
-    }
-    try {
-      assertEquals( null, clp.getOptionValue( "wrongKey", false, false ) );
-      fail();
-    } catch ( ParseException e ) {
-      // expected
-    }
+      assertEquals( "value", clp.getOptionValue( shortOption, false, true ) );
+      assertEquals( "value", clp.getOptionValue( longOption, false, true ) );
+      assertNull( clp.getOptionValue( "wrongKey", false, true ) );
+      try {
+        assertNull( clp.getOptionValue( "wrongKey", true, true ) );
+        fail();
+      } catch ( ParseException e ) {
+        // expected
+      }
 
-    assertEquals( "value", clp.getOptionValue( longOption, false, true ) );
-    assertEquals( null, clp.getOptionValue( "wrongKey", false, true ) );
-    try {
-      assertEquals( null, clp.getOptionValue( "wrongKey", true, true ) );
-      fail();
-    } catch ( ParseException e ) {
-      // expected
-    }
-    try {
-      assertEquals( null, clp.getOptionValue( "wrongKey", false, false ) );
-      fail();
-    } catch ( ParseException e ) {
-      // expected
+      try {
+        assertNull( clp.getOptionValue( "wrongKey", false, false ) );
+        fail();
+      } catch ( ParseException e ) {
+        // expected
+      }
+
+      assertEquals( "value", clp.getOptionValue( longOption, false, true ) );
+      assertNull( clp.getOptionValue( "wrongKey", false, true ) );
+      try {
+        assertNull( clp.getOptionValue( "wrongKey", true, true ) );
+        fail();
+      } catch ( ParseException e ) {
+        // expected
+      }
+
+      try {
+        assertNull( clp.getOptionValue( "wrongKey", false, false ) );
+        fail();
+      } catch ( ParseException e ) {
+        // expected
+      }
+    } catch ( IOException e ) {
+      e.printStackTrace();
     }
   }
 
