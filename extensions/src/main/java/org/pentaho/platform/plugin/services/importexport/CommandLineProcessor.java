@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -375,6 +377,11 @@ public class CommandLineProcessor {
    * @throws ParseException
    */
   private void initRestService() throws ParseException, InitializationException, KettleException {
+    // This works well only on a non-multi-threaded environment, as assumed by a CLI tool.
+    // This is used internally by the Client class.
+    final CookieHandler cookieHandler = new CookieManager();
+    CookieHandler.setDefault( cookieHandler );
+
     ClientConfig clientConfig = new DefaultClientConfig();
     clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
     client = Client.create( clientConfig );
