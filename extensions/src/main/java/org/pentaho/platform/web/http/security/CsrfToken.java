@@ -20,16 +20,21 @@
 
 package org.pentaho.platform.web.http.security;
 
+import java.util.List;
+
 public class CsrfToken {
 
   private String header;
   private String token;
   private String parameter;
 
-  CsrfToken( String header, String parameter, String token ) {
+  private List<String> cookies;
+
+  CsrfToken( String header, String parameter, String token, List<String> cookies ) {
     this.header = header;
     this.token = token;
     this.parameter = parameter;
+    this.cookies = cookies;
   }
 
   public String getHeader() {
@@ -42,5 +47,9 @@ public class CsrfToken {
 
   public String getToken() {
     return this.token;
+  }
+
+  public List<String> getCookies() {
+    return this.cookies;
   }
 }

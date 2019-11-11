@@ -24,6 +24,10 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+import javax.ws.rs.core.NewCookie;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class CsrfUtil {
 
   public static final String API_SYSTEM_CSRF = "/api/system/csrf";
@@ -57,6 +61,9 @@ public class CsrfUtil {
     String header = response.getHeaders().getFirst( API_SYSTEM_CSRF_RESPONSE_HEADER_HEADER );
     String parameter = response.getHeaders().getFirst( API_SYSTEM_CSRF_RESPONSE_HEADER_PARAM );
 
-    return new CsrfToken( header, parameter, token );
+    List<String> cookieList = response.getCookies().stream().map( cookie -> cookie.toCookie().toString() )
+      .collect( Collectors.toList() );
+
+    return new CsrfToken( header, parameter, token, cookieList );
   }
 }
