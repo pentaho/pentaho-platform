@@ -101,7 +101,7 @@ public class CsrfUtilTest {
 
     setupGetCsrfToken();
 
-    CsrfToken token = CsrfUtil.getCsrfToken( this.mockClient, TEST_CONTEXT_URL, TEST_PROTECTED_SERVICE_URL);
+    CsrfToken token = CsrfUtil.getCsrfToken( this.mockClient, TEST_CONTEXT_URL, TEST_PROTECTED_SERVICE_URL );
 
     when( this.mockClientReponse.getStatus() ).thenReturn( 210 );
 

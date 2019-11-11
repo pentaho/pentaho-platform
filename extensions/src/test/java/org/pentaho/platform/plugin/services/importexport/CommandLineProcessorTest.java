@@ -104,7 +104,7 @@ public class CommandLineProcessorTest extends Assert {
   private void testRequestType( String keyKey, String nameKey, RequestType rt ) throws ParseException {
     try ( CommandLineProcessor clp = createCommandLineProcessor( keyKey, nameKey ) ) {
       assertEquals( rt, clp.getRequestType() );
-    } catch (IOException e) {
+    } catch ( IOException e ) {
       e.printStackTrace();
     }
   }

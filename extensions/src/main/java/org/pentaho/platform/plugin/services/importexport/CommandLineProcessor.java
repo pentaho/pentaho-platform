@@ -20,7 +20,13 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.MalformedURLException;
@@ -36,7 +42,6 @@ import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.sun.jersey.api.client.ClientHandlerException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
