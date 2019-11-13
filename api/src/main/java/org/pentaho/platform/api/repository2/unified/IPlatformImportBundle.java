@@ -118,6 +118,20 @@ public interface IPlatformImportBundle {
    */
   void setOverwriteAclSettings( boolean overwriteAclSettings );
 
+  /**
+   * Ability to use the export manifest during import to apply extraMetaData
+   *
+   * @return
+   */
+  RepositoryFileExtraMetaData getExtraMetaData();
+
+  /**
+   * use the import manifest file to apply extraMetaData
+   *
+   * @param extraMetaData
+   */
+  void setExtraMetaData( RepositoryFileExtraMetaData extraMetaData );
+
   boolean isRetainOwnership();
 
   /**

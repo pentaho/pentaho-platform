@@ -22,6 +22,7 @@ package org.pentaho.platform.plugin.services.importer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.Map;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 
 /**
  * Repository implementation of IPlatformImportBundle. Instances of this class are contructed using the supplied Builder
@@ -52,6 +54,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   private RepositoryFile file;
   // BIServer 8158 - ACL import handling properties
   private RepositoryFileAcl acl;
+  private RepositoryFileExtraMetaData extraMetaData;
   private boolean applyAclSettings;
   private boolean overwriteAclSettings;
   private boolean retainOwnership;
@@ -78,6 +81,19 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   @Override
   public void setAcl( RepositoryFileAcl acl ) {
     this.acl = acl;
+  }
+
+  /**
+   * When set this extra meta data will be applied to the importing content if that content is to be managed by the repository.
+   *
+   * @return
+   */
+  @Override public RepositoryFileExtraMetaData getExtraMetaData() {
+    return this.extraMetaData;
+  }
+
+  @Override public void setExtraMetaData( RepositoryFileExtraMetaData extraMetaData ) {
+    this.extraMetaData = extraMetaData;
   }
 
   @Override
@@ -264,6 +280,11 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
 
     public Builder acl( RepositoryFileAcl acl ) {
       bundle.setAcl( acl );
+      return this;
+    }
+
+    public Builder extraMetaData( RepositoryFileExtraMetaData extraMetaData ) {
+      bundle.setExtraMetaData( extraMetaData );
       return this;
     }
 

@@ -279,6 +279,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       bundleBuilder.retainOwnership( bundle.isRetainOwnership() );
       bundleBuilder.overwriteAclSettings( bundle.isOverwriteAclSettings() );
       bundleBuilder.acl( getImportSession().processAclForFile( sourcePath ) );
+      bundleBuilder.extraMetaData( getImportSession().processExtraMetaDataForFile( sourcePath ) );
 
       RepositoryFile file = getFile( importBundle, fileBundle );
       ManifestFile manifestFile = getImportSession().getManifestFile( sourcePath, file != null );

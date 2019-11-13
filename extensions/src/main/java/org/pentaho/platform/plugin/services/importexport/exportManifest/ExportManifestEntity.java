@@ -20,28 +20,39 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.mt.ITenantManager;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.CustomProperty;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.EntityAcl;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.EntityExtraMetaData;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.EntityExtraMetaDataEntry;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.EntityMetaData;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestEntityDto;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestProperty;
+import org.pentaho.platform.repository.usersettings.UserSettingService;
 import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxy;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import javax.jcr.RepositoryException;
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * This Object represents the information stored in the ExportManifest for one file or folder. The
@@ -52,6 +63,7 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 public class ExportManifestEntity {
   private ExportManifestEntityDto rawExportManifestEntity;
   private EntityMetaData entityMetaData;
+  private EntityExtraMetaData entityExtraMetaData;
   private EntityAcl entityAcl;
   private List<CustomProperty> customProperties;
 
@@ -65,8 +77,10 @@ public class ExportManifestEntity {
     this();
     ExportManifestProperty rawExportManifestProperty = new ExportManifestProperty();
     createEntityMetaData( rootFolder, repositoryFile );
+    createEntityExtraMetaData( repositoryFile );
     createEntityAcl( repositoryFileAcl );
     rawExportManifestProperty.setEntityMetaData( entityMetaData );
+    rawExportManifestProperty.setEntityExtraMetaData( entityExtraMetaData );
     rawExportManifestProperty.setEntityAcl( entityAcl );
   }
 
@@ -77,7 +91,32 @@ public class ExportManifestEntity {
     createEntityMetaData( file, userId, projectId, isFolder, isHidden, isSchedulable );
     createEntityAcl( userId );
     rawExportManifestProperty.setEntityMetaData( entityMetaData );
+    rawExportManifestProperty.setEntityExtraMetaData( entityExtraMetaData );
     rawExportManifestProperty.setEntityAcl( entityAcl );
+  }
+
+  private void createEntityExtraMetaData( RepositoryFile repositoryFile ) {
+    entityExtraMetaData = new EntityExtraMetaData();
+
+    if ( repositoryFile instanceof RepositoryFileProxy ) {
+      RepositoryFileProxy repositoryFileProxy = (RepositoryFileProxy) repositoryFile;
+      try {
+        for ( Map.Entry<String, Serializable> entry : repositoryFileProxy.getMetadata().entrySet() ) {
+          if( !entry.getKey().equals( RepositoryFile.SCHEDULABLE_KEY ) &&
+              !entry.getKey().equals( RepositoryFile.HIDDEN_KEY ) &&
+              !entry.getKey().equals( IUnifiedRepository.SYSTEM_FOLDER ) &&
+              !entry.getKey().equals( ITenantManager.TENANT_ROOT ) &&
+              !entry.getKey().equals( ITenantManager.TENANT_ENABLED ) &&
+              !entry.getKey().startsWith( UserSettingService.SETTING_PREFIX ) ) {
+            entityExtraMetaData
+              .addMetadata( new EntityExtraMetaDataEntry( entry.getKey(), String.valueOf( entry.getValue() ) ) );
+          }
+        }
+      } catch ( RepositoryException e ) {
+        throw new RuntimeException( "Error while trying get metadata from repository file" );
+      }
+    }
+
   }
 
   private void createEntityAcl( String userId ) {
@@ -215,6 +254,31 @@ public class ExportManifestEntity {
     return repositoryFileAcl;
   }
 
+
+  /**
+   * Helper method for importing. Returns a FileRepositoryExtraMetaData object for the the ExportManifestEntity. Will return null
+   * if there is no EntityExtraMetaData present.
+   *
+   * @return RepositoryFileExtraMetaData
+   */
+  public RepositoryFileExtraMetaData getRepositoryFileExtraMetaData() throws ExportManifestFormatException {
+    RepositoryFileExtraMetaData repositoryFileExtraMetaData;
+    EntityExtraMetaData entityExtraMetaData = getEntityExtraMetaData();
+    if ( entityExtraMetaData == null ) {
+      return null;
+    }
+
+    Map<String, Serializable> extraMetaDataMap = new HashMap<>();
+    for( EntityExtraMetaDataEntry entry : entityExtraMetaData.getMetadata() ) {
+      extraMetaDataMap.put( entry.getName(), entry.getValue() );
+    }
+
+    repositoryFileExtraMetaData = new RepositoryFileExtraMetaData.Builder("", extraMetaDataMap).build();
+
+    return repositoryFileExtraMetaData;
+  }
+
+
   /**
    * Creates a RepositoryFileSid object from the serialized values adding error handling for enum values that may not
    * exist
@@ -267,6 +331,11 @@ public class ExportManifestEntity {
       exportManifestProperty.setEntityMetaData( entityMetaData );
       rawProperties.add( exportManifestProperty );
     }
+    if ( entityExtraMetaData != null ) {
+      ExportManifestProperty exportManifestProperty = new ExportManifestProperty();
+      exportManifestProperty.setEntityExtraMetaData( entityExtraMetaData );
+      rawProperties.add( exportManifestProperty );
+    }
 
     if ( entityAcl != null ) {
       ExportManifestProperty exportManifestProperty = new ExportManifestProperty();
@@ -292,6 +361,8 @@ public class ExportManifestEntity {
     for ( ExportManifestProperty exportManifestProperty : exportManifestEntity.getExportManifestProperty() ) {
       if ( exportManifestProperty.getEntityMetaData() != null ) {
         entityMetaData = exportManifestProperty.getEntityMetaData();
+      } else if ( exportManifestProperty.getEntityExtraMetaData() != null ) {
+        entityExtraMetaData = exportManifestProperty.getEntityExtraMetaData();
       } else if ( exportManifestProperty.getEntityAcl() != null ) {
         entityAcl = exportManifestProperty.getEntityAcl();
       } else if ( exportManifestProperty.getCustomProperty() != null
@@ -322,6 +393,21 @@ public class ExportManifestEntity {
   public void setEntityMetaData( EntityMetaData entityMetaData ) {
     this.entityMetaData = entityMetaData;
   }
+
+  /**
+   * @return the entityExtraMetaData
+   */
+  public EntityExtraMetaData getEntityExtraMetaData() {
+    return entityExtraMetaData;
+  }
+
+  /**
+   * @param entityExtraMetaData the entityExtraMetaData to set
+   */
+  public void setExtraEntityMetaData( EntityExtraMetaData entityExtraMetaData ) {
+    this.entityExtraMetaData = entityExtraMetaData;
+  }
+
 
   /**
    * @return the entityAcl
