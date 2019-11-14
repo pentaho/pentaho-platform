@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 public class RepositoryFileImportBundleTest {
   @Test
   public void testGettersAndSetters() throws Exception {
-    final String[] excludes = new String[] {};
+    final String[] excludes = new String[] { "childBundles", "folder", "hidden", "schedulable"};
     Assert.assertThat( RepositoryFileImportBundle.class, hasValidGettersAndSettersExcluding( excludes ) );
   }
 

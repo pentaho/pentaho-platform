@@ -45,7 +45,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   private String path = "/";
   private String name;
   private String title;
-  private String charSet;
+  private String charset;
   private String mimeType;
   private String comment;
   private boolean overwriteInRepository; // file or folder overwrite
@@ -139,11 +139,11 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
 
   @Override
   public String getCharset() {
-    return charSet;
+    return charset;
   }
 
-  public void setCharSet( String charSet ) {
-    this.charSet = charSet;
+  public void setCharset( String charset ) {
+    this.charset = charset;
   }
 
   @Override
@@ -233,10 +233,6 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     this.retainOwnership = retainOwnership;
   }
 
-  public String getCharSet() {
-    return charSet;
-  }
-
   private boolean validate() {
     if ( this.mimeType != null && this.mimeType.equals( "text/directory" ) ) {
       return this.inputStream == null;
@@ -308,8 +304,8 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
       return this;
     }
 
-    public Builder charSet( String charSet ) {
-      bundle.setCharSet( charSet );
+    public Builder charSet( String charset ) {
+      bundle.setCharset( charset );
       return this;
     }
 
