@@ -24,7 +24,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import javax.ws.rs.core.NewCookie;
 import java.util.List;
 import java.util.stream.Collectors;
 

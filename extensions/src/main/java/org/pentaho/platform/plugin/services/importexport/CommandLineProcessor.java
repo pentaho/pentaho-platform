@@ -560,6 +560,8 @@ public class CommandLineProcessor implements Closeable {
     throws ParseException, IOException {
     String analysisImportURL = contextURL + ANALYSIS_DATASOURCE_IMPORT;
 
+    CsrfToken csrfToken = CsrfUtil.getCsrfToken( client, contextURL, analysisImportURL );
+
     String catalogName = getOptionValue( INFO_OPTION_ANALYSIS_CATALOG_NAME, false, true );
     String datasourceName = getOptionValue( INFO_OPTION_ANALYSIS_DATASOURCE_NAME, false, true );
     String xmlaEnabledFlag = getOptionValue( INFO_OPTION_ANALYSIS_XMLA_ENABLED_NAME, false, true );
@@ -587,8 +589,13 @@ public class CommandLineProcessor implements Closeable {
     part.getField( "uploadAnalysis" ).setContentDisposition( FormDataContentDisposition.name( "uploadAnalysis" )
         .fileName( analysisDatasourceFile.getName() ).build() );
 
-    // Response response
-    ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
+    WebResource.Builder resourceBuilder = resource.type( MediaType.MULTIPART_FORM_DATA );
+    if ( csrfToken != null ) {
+      resourceBuilder.header( csrfToken.getHeader(), csrfToken.getToken() );
+    }
+
+    ClientResponse response = resourceBuilder.post( ClientResponse.class, part );
+
     if ( response != null ) {
       logImportResponseMessage( logFile, path, response );
       response.close();
