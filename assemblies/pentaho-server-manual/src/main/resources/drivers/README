@@ -1,0 +1,4 @@
+This directory contains the big data drivers that will be used by the Pentaho server.
+If you want the Pentaho server to read them from the default location, please copy the entire "drivers" directory to the <TOMCAT_INSTALL_DIR>/bin directory.
+If you would like the Pentaho server to read the files from a different location, copy the driver Kar files to the desired location and change the value of
+the SHIM_DRIVER_DEPLOYMENT_LOCATION property within the kettle.properties file to the full path of the location where the Kar files were placed.
