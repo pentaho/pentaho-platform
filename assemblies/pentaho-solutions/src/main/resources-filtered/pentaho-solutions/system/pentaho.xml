@@ -93,12 +93,6 @@
       POST /api/repo/files/import
     -->
     <request-matcher type="regex" pattern="^/api/repo/files/import\b.*" methods="POST" />
-
-    <!--
-      GET,POST /ServiceAction
-      GET,POST /ServiceActionService
-    -->
-    <request-matcher type="regex" pattern="^/(ServiceAction|ServiceActionService)\b.*" methods="GET,POST" />
   </csrf-protection>
 
 	<!--
