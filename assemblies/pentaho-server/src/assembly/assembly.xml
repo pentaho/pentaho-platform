@@ -9,6 +9,13 @@
   </formats>
   <baseDirectory>pentaho-server</baseDirectory>
 
+  <!-- Add shim drivers README file -->
+  <files>
+    <file>
+      <source>${project.basedir}/src/main/resources/drivers/README</source>
+      <outputDirectory>./tomcat/bin/drivers</outputDirectory>
+    </file>
+  </files>
   <fileSets>
     <fileSet>
       <directory>${project.basedir}/src/main/resources-filtered</directory>
@@ -74,6 +81,17 @@
   </fileSets>
 
   <dependencySets>
+    <!-- default driver kar set -->
+    <dependencySet>
+      <includes>
+        <include>*:pentaho-hadoop-shims-cdh61-kar:*</include>
+        <include>*:pentaho-hadoop-shims-hdp30-kar:*</include>
+        <include>*:pentaho-hadoop-shims-emr521-kar:*</include>
+      </includes>
+      <outputDirectory>./tomcat/bin/drivers</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
     <!-- copy platform artifacts -->
     <dependencySet>
       <unpack>true</unpack>
