@@ -1,43 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pentaho-system>
 
-	<!--
- 		The kiosk-mode setting when set to true, will cause the platform to ignore some aspects of security 
- 		to allow/enable behavior.  For example,	disable saving in WAQR.
-	-->
-	<kiosk-mode>false</kiosk-mode>
+  <!--
+    The kiosk-mode setting when set to true, will cause the platform to ignore some aspects of security
+    to allow/enable behavior.  For example,	disable saving in WAQR.
+  -->
+  <kiosk-mode>false</kiosk-mode>
 
-	<!--
-	    The number of seconds to wait before giving up on loading a script module. The default value is 30 seconds.
-	-->
-	<waitSeconds>30</waitSeconds>
+  <!--
+    The number of seconds to wait before giving up on loading a script module. The default value is 30 seconds.
+  -->
+  <waitSeconds>30</waitSeconds>
 
-    <!--
-    The login-show-users-list setting when set to true, will show a drop-down list of the default 
+  <!--
+    The login-show-users-list setting when set to true, will show a drop-down list of the default
     sample pentaho users (admin,suzy,pat,tiffany) in the login dialog which is shown when a user attemps
     to login to the Pentaho User Console (PUC).
-    -->
-    <login-show-users-list>true</login-show-users-list> 
-        
-    <!-- 
-      If true, show hint about sample users. Ultimately, should replace login-show-users-list.
-    -->
-    <login-show-sample-users-hint>true</login-show-sample-users-hint>
+  -->
+  <login-show-users-list>true</login-show-users-list>
 
-	<!--
-	The download-roles defines user/roles that have download action permissions. It accepts a comma-separated list of roles.
-	System admins must change what are the users/roles that have permissions for download action. If not defined here,
-	the default value is set to 'Administrator'.
-	-->
-	<download-roles>Administrator</download-roles>
-        
+  <!--
+    If true, show hint about sample users. Ultimately, should replace login-show-users-list.
+  -->
+  <login-show-sample-users-hint>true</login-show-sample-users-hint>
+
+  <!--
+    The download-roles defines user/roles that have download action permissions.
+    It accepts a comma-separated list of roles.
+    System admins must change what are the users/roles that have permissions for download action.
+    If not defined here, the default value is set to 'Administrator'.
+  -->
+  <download-roles>Administrator</download-roles>
+
+  <!--
+    This is the URL to the user guide
+  -->
+  <documentation-url>${doc.base.url}/Products/Pentaho_User_Console</documentation-url>
+
+  <log-file>server.log</log-file>
+  <log-level>DEBUG</log-level>
+
+  <!--
+    Enables CSRF (Cross-Site Request Forgery) protection for the server.
+
+    Default value: false (unsafe; backward-compatible).
+
+    *ATTENTION*:
+      Setting this option to false opens the server and all of its plugins to known security flaws,
+      which can allow an attacker to perform CSRF attacks.
+
+      Do NOT set this option to false, if at all possible. Instead, consider disabling CSRF protection selectively,
+      for certain platform plugins or for certain server endpoints.
+      This may be necessary if there still exists external code which depends on the unprotected and deprecated APIs.
+
+      To disable CSRF protection for a plugin, set its `csrf-protection-enabled` setting,
+      in the `settings.xml` file, to false.
+
+      To disable certain server endpoints, comment the corresponding `request-matcher` element within the
+      `csrf-protection` setting, below.
+  -->
+  <csrf-protection-enabled>false</csrf-protection-enabled>
+
+  <!-- ## CSRF protected system endpoints ## -->
+  <csrf-protection>
     <!--
-	This is the URL to the user guide
+      POST /api/user-settings/recent
+      POST /api/user-settings/favorites
+      POST /api/user-settings/MANTLE_SHOW_NAVIGATOR
+      POST /api/user-settings/MANTLE_SHOW_HIDDEN_FILES
+      POST /api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS
+      POST /api/user-settings/*
     -->
-    <documentation-url>${doc.base.url}/Products/Pentaho_User_Console</documentation-url>
+    <request-matcher type="regex" pattern="^/api/user-settings/.*" methods="POST" />
 
-	<log-file>server.log</log-file>
-	<log-level>DEBUG</log-level>
+    <!--
+      POST /api/mantle/locale
+      POST /api/mantle/session-variable
+    -->
+    <request-matcher type="regex" pattern="^/api/mantle/.*" methods="POST" />
+
+    <!--
+      POST /api/system/locale
+    -->
+    <request-matcher type="regex" pattern="^/api/system/locale\b.*" methods="POST" />
+
+    <!--
+      GET /api/system/refresh/mondrianSchemaCache
+    -->
+    <request-matcher type="regex" pattern="^/api/system/refresh/mondrianSchemaCache\b.*" methods="GET" />
+
+    <!--
+      POST /api/repo/files/import
+    -->
+    <request-matcher type="regex" pattern="^/api/repo/files/import\b.*" methods="POST" />
+
+    <!--
+      GET,POST /ServiceAction
+      GET,POST /ServiceActionService
+    -->
+    <request-matcher type="regex" pattern="^/(ServiceAction|ServiceActionService)\b.*" methods="GET,POST" />
+  </csrf-protection>
 
 	<!--
 	    cors-requests-allowed:
@@ -58,13 +120,13 @@
 
 	<!--
 		The configuration of publishers, system listeners, and session actions has been moved to
-		the systemListeners.xml, adminPlugins.xml, and sessionStartupActions.xml files which 
+		the systemListeners.xml, adminPlugins.xml, and sessionStartupActions.xml files which
 		can be found in the "system" folder within your configured pentaho solution directory.
-	
+
 		If you're looking for the objects node, this functionality
 		has been moved to the file pentahoObjects.spring.xml in the
 		system solution.
-		
+
 		When everything is completed, this file will go away, and
 		not be at all required by the bi-platform-engine classes.
 		Rather, the wiring of the components/engines/system will
@@ -73,7 +135,7 @@
 			Spring injection
 			Hand coded wiring
 			properties-file wiring
-		
+
 		This new system will allow for optimized wiring without requiring
 		the PentahoSystem, SystemSettings, or any components to parse
 		or interpret an XML document.
@@ -83,7 +145,7 @@
           <class>net.sf.ehcache.hibernate.SingletonEhCacheProvider</class>
           <region>pentahoCache</region>
           <!--
-          Uncomment this block to specify some parameters for your cache provider. EHCache has no parameters 
+          Uncomment this block to specify some parameters for your cache provider. EHCache has no parameters
           other than what are provided in the ehcache.xml.
           <properties>
               <property name="someProperty">someValue</property>
@@ -91,7 +153,7 @@
           -->
         </cache-provider>
 	<!-- Insert additional pentaho-system -->
-	
+
     <audit>
       <auditLogFile>/PentahoAuditLog.log</auditLogFile>
       <id_separator><![CDATA[\t]]></id_separator>
@@ -110,7 +172,7 @@
          won't have to do an Admin->Refresh solution repository to see changes to
          .xactions.  Uncomment if in production for better performance.
     -->
-    <!-- 
+    <!--
         <filebased-solution-cache>true</filebased-solution-cache>
      -->
 
@@ -123,7 +185,7 @@
 	<!--
 	This element, and any of its child elements are optional. These elements are used to explicitly identify
 	the xml transformer, sax parser, and dom parser implementations used by the platform. If any of these
-	elements are missing, default implementations will be supplied. For more information, see: 
+	elements are missing, default implementations will be supplied. For more information, see:
 	http://xml.apache.org/xalan-j/usagepatterns.html#plug
 	-->
 		<!--
@@ -133,7 +195,7 @@
 		<factory-impl name="javax.xml.parsers.DocumentBuilderFactory" implementation="org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"/>
 	</xml-factories>
 		-->
-		
+
   <report-config>
     <entry name="org.pentaho.web.JcrContentHandler" value="api/repo/files/{0}/inline"/>
     <entry name="org.pentaho.web.ContentHandler" value="getImage?image={0}"/>
