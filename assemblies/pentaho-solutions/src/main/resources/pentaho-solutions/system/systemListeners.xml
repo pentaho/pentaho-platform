@@ -20,6 +20,7 @@
         <bean id="jfreeReportSystemListener" class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener" />
         <bean id="mondrianSystemListener" class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener" />
         <!--<bean id="pooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener" />-->
+
         <!--
           <bean id="nonPooledDataSourceSystemListener"
           class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceSystemListener"/>
@@ -41,8 +42,9 @@
             <value>false</value>
           </property>
         </bean>
-        <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
 
+        <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
+        <bean id="csrfProtectionSystemListener" class="org.pentaho.platform.web.http.security.CsrfProtectionSystemListener" />
         <!-- Insert system-listeners -->
       </list>
     </constructor-arg>
