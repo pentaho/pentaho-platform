@@ -102,12 +102,7 @@ public class ExportManifestEntity {
       RepositoryFileProxy repositoryFileProxy = (RepositoryFileProxy) repositoryFile;
       try {
         for ( Map.Entry<String, Serializable> entry : repositoryFileProxy.getMetadata().entrySet() ) {
-          if( !entry.getKey().equals( RepositoryFile.SCHEDULABLE_KEY ) &&
-              !entry.getKey().equals( RepositoryFile.HIDDEN_KEY ) &&
-              !entry.getKey().equals( IUnifiedRepository.SYSTEM_FOLDER ) &&
-              !entry.getKey().equals( ITenantManager.TENANT_ROOT ) &&
-              !entry.getKey().equals( ITenantManager.TENANT_ENABLED ) &&
-              !entry.getKey().startsWith( UserSettingService.SETTING_PREFIX ) ) {
+          if( isExtraMetaDataKey( entry.getKey() ) ) {
             entityExtraMetaData
               .addMetadata( new EntityExtraMetaDataEntry( entry.getKey(), String.valueOf( entry.getValue() ) ) );
           }
@@ -117,6 +112,16 @@ public class ExportManifestEntity {
       }
     }
 
+  }
+
+  private boolean isExtraMetaDataKey( String key ) {
+    return
+      !key.equals( RepositoryFile.SCHEDULABLE_KEY ) &&
+      !key.equals( RepositoryFile.HIDDEN_KEY ) &&
+      !key.equals( IUnifiedRepository.SYSTEM_FOLDER ) &&
+      !key.equals( ITenantManager.TENANT_ROOT ) &&
+      !key.equals( ITenantManager.TENANT_ENABLED ) &&
+      !key.startsWith( UserSettingService.SETTING_PREFIX );
   }
 
   private void createEntityAcl( String userId ) {

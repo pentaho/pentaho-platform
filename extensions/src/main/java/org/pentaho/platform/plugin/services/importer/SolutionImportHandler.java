@@ -273,7 +273,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
       getImportSession().setCurrentManifestKey( sourcePath );
 
-      bundleBuilder.charSet( bundle.getCharset() );
+      bundleBuilder.charSet( bundle.getCharSet() );
       bundleBuilder.overwriteFile( bundle.overwriteInRepository() );
       bundleBuilder.applyAclSettings( bundle.isApplyAclSettings() );
       bundleBuilder.retainOwnership( bundle.isRetainOwnership() );

@@ -59,6 +59,7 @@ public class PDIImportFileHandler extends RepositoryFileImportFileHandler implem
       getRepository().deleteFile( file.getId(), true, null );
 
       RepositoryFileAcl newFileAcl = bundle.getAcl();
+      bundle.setAcl( originFileAcl );
       bundle.setExtraMetaData( bundle.getExtraMetaData() );
       updatedFile = createFile( bundle, file.getPath(), data );
       bundle.setAcl( newFileAcl );

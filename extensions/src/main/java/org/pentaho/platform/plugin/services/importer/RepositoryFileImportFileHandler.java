@@ -219,7 +219,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       IRepositoryFileData data = null;
 
       try {
-        data = converter.convert( bundle.getInputStream(), bundle.getCharset(), mimeType );
+        data = converter.convert( bundle.getInputStream(), bundle.getCharSet(), mimeType );
       } catch ( ConverterException e ) {
         throw e;
       }
@@ -346,7 +346,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   /**
-   * Create a formal <code>RepositoryFileAcl</code> object for import.
+   * Create a formal <code>RepositoryFileExtraMetaData</code> object for import.
    *
    * @param newFile
    *          Whether the file is being newly created or was pre-existing

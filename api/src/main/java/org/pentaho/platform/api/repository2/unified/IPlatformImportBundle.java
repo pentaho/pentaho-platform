@@ -74,7 +74,7 @@ public interface IPlatformImportBundle {
    * 
    * @return Optional character set for the associated InputStream
    */
-  String getCharset();
+  String getCharSet();
 
   /**
    * mime-type to be used to resolve an IPlatformImportHandler. If not set the IPlatformImporter will attempt to resolve
