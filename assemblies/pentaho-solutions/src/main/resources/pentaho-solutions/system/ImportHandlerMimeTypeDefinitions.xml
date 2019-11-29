@@ -66,6 +66,9 @@
       <MimeTypeDefinition mimeType="application/octet-stream" hidden="false">
         <extension>eml</extension>
       </MimeTypeDefinition>
+      <MimeTypeDefinition mimeType="application/json" hidden="false">
+        <extension>df</extension>
+      </MimeTypeDefinition>
     </MimeTypeDefinitions>
   </ImportHandler>
   
