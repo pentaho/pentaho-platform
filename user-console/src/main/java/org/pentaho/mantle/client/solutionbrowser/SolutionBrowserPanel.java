@@ -120,8 +120,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private JsArrayString filters;
 
   {
-    supportedFileExtensions = Arrays.asList( "cda", "xaction", "kjb", "xcdf", "wcdf,"
-      + "xjpivot", "ktr", "prpt", "url", "xanalyzer", "prpti", "xdash" );
+    supportedFileExtensions = Arrays.asList( "cda", "xaction", "kjb", "xcdf", "wcdf",
+      "xjpivot", "ktr", "prpt", "url", "xanalyzer", "prpti", "xdash" );
   }
 
   private Command ToggleLocalizedNamesCommand = new Command() {
@@ -293,7 +293,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorPanel.getElement().getParentElement().addClassName( "puc-navigator-panel" );
     solutionNavigatorPanel.getElement().getParentElement().removeAttribute( "style" );
 
-    setStyleName( "panelWithTitledToolbar" ); //$NON-NLS-1$  
+    setStyleName( "panelWithTitledToolbar" ); //$NON-NLS-1$
     setHeight( "100%" ); //$NON-NLS-1$
     setWidth( "100%" ); //$NON-NLS-1$
 
@@ -540,7 +540,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
           showPluginError( repositoryFile.getName() );
           return;
         }
-        url = getPath() + "api/repos/" + pathToId( fileNameWithPath ) + "/content"; //$NON-NLS-1$ //$NON-NLS-2$ 
+        url = getPath() + "api/repos/" + pathToId( fileNameWithPath ) + "/content"; //$NON-NLS-1$ //$NON-NLS-2$
       } else {
         ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin( fileNameWithPath );
         url =
@@ -690,7 +690,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         // load the editor for this plugin
         String editUrl =
           getPath()
-            + "api/repos/" + pathToId( file.getPath() ) + "/" + ( plugin != null && ( plugin.getCommandPerspective( COMMAND.EDIT ) != null ) ? plugin.getCommandPerspective( COMMAND.EDIT ) : "editor" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$       
+            + "api/repos/" + pathToId( file.getPath() ) + "/" + ( plugin != null && ( plugin.getCommandPerspective( COMMAND.EDIT ) != null ) ? plugin.getCommandPerspective( COMMAND.EDIT ) : "editor" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         // See if it's already loaded
         for ( int i = 0; i < contentTabPanel.getTabCount(); i++ ) {
           Widget w = contentTabPanel.getTab( i ).getContent();

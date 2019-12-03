@@ -17,46 +17,10 @@
                 <ownerType>USER</ownerType>
             </EntityAcl>
         </ExportManifestProperty>
-    </ExportManifestEntity>    
+    </ExportManifestEntity>
     <ExportManifestEntity path="public/Steel Wheels">
         <ExportManifestProperty>
             <EntityMetaData name="Steel Wheels" createdDate="2013-09-24T17:13:26.943+01:00" isFolder="true" path="public/Steel Wheels" isHidden="false" locale="en_US" description="Reporting, Analysis, and Dashboarding Samples for Steel Wheels, Inc." title="Steel Wheels"/>
-        </ExportManifestProperty>
-        <ExportManifestProperty>
-            <EntityAcl>
-                <entriesInheriting>true</entriesInheriting>
-                <owner>admin</owner>
-                <ownerType>USER</ownerType>
-            </EntityAcl>
-        </ExportManifestProperty>
-    </ExportManifestEntity>    
-    <ExportManifestEntity path="public/Steel Wheels/Analysis">
-        <ExportManifestProperty>
-            <EntityMetaData name="Analysis" createdDate="2013-09-24T17:13:27.315+01:00" isFolder="true" path="public/Steel Wheels/Analysis" isHidden="false" locale="en_US" title="Analysis"/>
-        </ExportManifestProperty>
-        <ExportManifestProperty>
-            <EntityAcl>
-                <entriesInheriting>true</entriesInheriting>
-                <owner>admin</owner>
-                <ownerType>USER</ownerType>
-            </EntityAcl>
-        </ExportManifestProperty>
-    </ExportManifestEntity>
-    <ExportManifestEntity path="public/Steel Wheels/Analysis/2005 Q1 Product Analysis.xjpivot.xjpivot">
-        <ExportManifestProperty>
-            <EntityMetaData name="2005 Q1 Product Analysis.xjpivot.xjpivot" createdDate="2013-09-24T17:13:27.394+01:00" isFolder="false" path="public/Steel Wheels/Analysis/2005 Q1 Product Analysis.xjpivot.xjpivot" isHidden="false" locale="en_US" title="2005 Q1 Product Analysis.xjpivot"/>
-        </ExportManifestProperty>
-        <ExportManifestProperty>
-            <EntityAcl>
-                <entriesInheriting>true</entriesInheriting>
-                <owner>admin</owner>
-                <ownerType>USER</ownerType>
-            </EntityAcl>
-        </ExportManifestProperty>
-    </ExportManifestEntity>
-    <ExportManifestEntity path="public/Steel Wheels/Analysis/Yearly Sales by Market.xjpivot.xjpivot">
-        <ExportManifestProperty>
-            <EntityMetaData name="Yearly Sales by Market.xjpivot.xjpivot" createdDate="2013-09-24T17:13:27.356+01:00" isFolder="false" path="public/Steel Wheels/Analysis/Yearly Sales by Market.xjpivot.xjpivot" isHidden="false" locale="en_US" title="Yearly Sales by Market.xjpivot"/>
         </ExportManifestProperty>
         <ExportManifestProperty>
             <EntityAcl>
@@ -89,7 +53,7 @@
                 <ownerType>USER</ownerType>
             </EntityAcl>
         </ExportManifestProperty>
-    </ExportManifestEntity>        
+    </ExportManifestEntity>
     <ExportManifestEntity path="public/Steel Wheels/Dashboards/CTools_dashboard.cdfde">
         <ExportManifestProperty>
             <EntityMetaData name="CTools_dashboard.cdfde" createdDate="2013-09-24T17:13:27.601+01:00" isFolder="false" path="public/Steel Wheels/Dashboards/CTools_dashboard.cdfde" isHidden="true" locale="en_US" title="CTools_dashboard"/>
@@ -101,7 +65,7 @@
                 <ownerType>USER</ownerType>
             </EntityAcl>
         </ExportManifestProperty>
-    </ExportManifestEntity>    
+    </ExportManifestEntity>
     <ExportManifestEntity path="public/Steel Wheels/Dashboards/CTools_dashboard.cda">
         <ExportManifestProperty>
             <EntityMetaData name="CTools_dashboard.cda" createdDate="2013-09-24T17:13:27.601+01:00" isFolder="false" path="public/Steel Wheels/Dashboards/CTools_dashboard.cda" isHidden="true" locale="en_US" title="CTools_dashboard"/>
@@ -113,7 +77,7 @@
                 <ownerType>USER</ownerType>
             </EntityAcl>
         </ExportManifestProperty>
-    </ExportManifestEntity>        
+    </ExportManifestEntity>
     <ExportManifestEntity path="public/Steel Wheels/Dashboards/Home Dashboard.xcdf">
         <ExportManifestProperty>
             <EntityMetaData name="Home Dashboard.xcdf" createdDate="2013-09-24T17:13:27.464+01:00" isFolder="false" path="public/Steel Wheels/Dashboards/Home Dashboard.xcdf" isHidden="false" locale="en_US" title="Home Dashboard"/>
@@ -4950,7 +4914,7 @@
             </EntityAcl>
         </ExportManifestProperty>
     </ExportManifestEntity>
-    
+
     <ExportManifestMondrian file="SteelWheels.xml">
         <catalogName>SteelWheels</catalogName>
         <xmlaEnabled>false</xmlaEnabled>
@@ -4962,7 +4926,7 @@
             </entries>
         </parameters>
     </ExportManifestMondrian>
-    
+
     <ExportManifestMondrian file="SampleData.xml">
         <catalogName>SampleData</catalogName>
         <xmlaEnabled>false</xmlaEnabled>
@@ -4974,9 +4938,9 @@
             </entries>
         </parameters>
     </ExportManifestMondrian>
-    
+
     <ExportManifestMetadata domainId="steel-wheels" file="metadata.xmi"/>
-    
+
     <ExportManifestDatasource>
         <name>SampleData</name>
         <accessType>NATIVE</accessType>
