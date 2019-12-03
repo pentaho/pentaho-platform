@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -307,7 +307,7 @@ public class Emailer {
         // attach the file to the message
         MimeBodyPart attachmentBodyPart = new MimeBodyPart();
         attachmentBodyPart.setDataHandler( new DataHandler( dataSource ) );
-        attachmentBodyPart.setFileName( MimeUtility.encodeText( attachmentName, "UTF-8", null ) );
+        attachmentBodyPart.setFileName( attachmentName );
         multipart.addBodyPart( attachmentBodyPart );
 
         // add the Multipart to the message
