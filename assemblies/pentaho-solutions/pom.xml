@@ -14,7 +14,6 @@
     <prepared.samples.directory>${project.build.directory}/dependency/plugin-samples</prepared.samples.directory>
     <prepared.plugins.directory>${project.build.directory}/dependency/plugins</prepared.plugins.directory>
     <prepared.kettle.plugins.directory>${project.build.directory}/dependency/pdi-plugins</prepared.kettle.plugins.directory>
-    <pentaho-jpivot-plugin.version>9.0.0.0-SNAPSHOT</pentaho-jpivot-plugin.version>
   </properties>
   <dependencies>
     <dependency>
@@ -75,13 +74,6 @@
                   <groupId>org.pentaho.ctools</groupId>
                   <artifactId>pentaho-cdf-dd</artifactId>
                   <version>${project.version}</version>
-                  <type>zip</type>
-                  <outputDirectory>${prepared.plugins.directory}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.pentaho</groupId>
-                  <artifactId>jpivot-plugin</artifactId>
-                  <version>${pentaho-jpivot-plugin.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.plugins.directory}</outputDirectory>
                 </artifactItem>
