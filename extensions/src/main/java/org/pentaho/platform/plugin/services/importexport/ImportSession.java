@@ -170,7 +170,7 @@ public class ImportSession {
         }
       }
     } catch ( Exception e ) {
-        getLogger().trace( e );
+      getLogger().trace( e );
     }
 
     return extraMetaData;

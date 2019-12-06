@@ -112,7 +112,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
             if ( bundle.getAcl() != null ) {
               updateAclFromBundle( false, bundle, file );
             }
-            if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0) {
+            if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
               updateExtraMetaDataFromBundle( false, bundle, file );
             }
           }
@@ -138,7 +138,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         if ( bundle.getAcl() != null ) {
           repoFile = repository.createFolder( parentId, repoFile, bundle.getAcl(), null );
           updateAclFromBundle( true, bundle, repoFile );
-          if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0) {
+          if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
             updateExtraMetaDataFromBundle( true, bundle, file );
           }
 
@@ -227,16 +227,12 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         repositoryFile = createFile( bundle, repositoryPath, data );
         if ( repositoryFile != null ) {
           updateAclFromBundle( true, bundle, repositoryFile );
-          if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0) {
-            updateExtraMetaDataFromBundle( true, bundle, repositoryFile );
-          }
+          updateExtraMetaDataFromBundleHelper( bundle, repositoryFile, true );
         }
       } else {
         repositoryFile = updateFile( bundle, file, data );
         updateAclFromBundle( false, bundle, repositoryFile );
-        if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0) {
-          updateExtraMetaDataFromBundle( false, bundle, repositoryFile );
-        }
+        updateExtraMetaDataFromBundleHelper( bundle, repositoryFile, false );
       }
 
       converter.convertPostRepoSave( repositoryFile );
@@ -250,6 +246,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       getLogger().warn( messages.getString( "DefaultImportHandler.WARN_0003_IOEXCEPTION", name ), e ); // TODO make sure
       // string exists
       return false;
+    }
+  }
+
+  private void updateExtraMetaDataFromBundleHelper( RepositoryFileImportBundle bundle,
+                                                    RepositoryFile file, boolean isNew) {
+    if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
+      updateExtraMetaDataFromBundle( isNew, bundle, file );
     }
   }
 
@@ -356,7 +359,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    *          The <code>RepositoryFile</code> of the target file
    */
   private void updateExtraMetaData( boolean newFile, RepositoryFile repositoryFile, RepositoryFileExtraMetaData repositoryFileExtraMetaData ) {
-    if ( repositoryFileExtraMetaData != null && !repositoryFileExtraMetaData.getExtraMetaData().isEmpty()) {
+    if ( repositoryFileExtraMetaData != null && !repositoryFileExtraMetaData.getExtraMetaData().isEmpty() ) {
       getLogger().debug( "Apply extra meta data to file that " + ( newFile ? "is new" : "already exists" ) );
       RepositoryFileExtraMetaData manifestExtraMetaData = repositoryFileExtraMetaData;
       repository.setFileMetadata( repositoryFile.getId(), manifestExtraMetaData.getExtraMetaData() );

@@ -102,7 +102,7 @@ public class ExportManifestEntity {
       RepositoryFileProxy repositoryFileProxy = (RepositoryFileProxy) repositoryFile;
       try {
         for ( Map.Entry<String, Serializable> entry : repositoryFileProxy.getMetadata().entrySet() ) {
-          if( isExtraMetaDataKey( entry.getKey() ) ) {
+          if ( isExtraMetaDataKey( entry.getKey() ) ) {
             entityExtraMetaData
               .addMetadata( new EntityExtraMetaDataEntry( entry.getKey(), String.valueOf( entry.getValue() ) ) );
           }
@@ -116,12 +116,12 @@ public class ExportManifestEntity {
 
   private boolean isExtraMetaDataKey( String key ) {
     return
-      !key.equals( RepositoryFile.SCHEDULABLE_KEY ) &&
-      !key.equals( RepositoryFile.HIDDEN_KEY ) &&
-      !key.equals( IUnifiedRepository.SYSTEM_FOLDER ) &&
-      !key.equals( ITenantManager.TENANT_ROOT ) &&
-      !key.equals( ITenantManager.TENANT_ENABLED ) &&
-      !key.startsWith( UserSettingService.SETTING_PREFIX );
+      !key.equals( RepositoryFile.SCHEDULABLE_KEY )
+        && !key.equals( RepositoryFile.HIDDEN_KEY )
+        && !key.equals( IUnifiedRepository.SYSTEM_FOLDER )
+        && !key.equals( ITenantManager.TENANT_ROOT )
+        && !key.equals( ITenantManager.TENANT_ENABLED )
+        && !key.startsWith( UserSettingService.SETTING_PREFIX );
   }
 
   private void createEntityAcl( String userId ) {
@@ -268,17 +268,17 @@ public class ExportManifestEntity {
    */
   public RepositoryFileExtraMetaData getRepositoryFileExtraMetaData() throws ExportManifestFormatException {
     RepositoryFileExtraMetaData repositoryFileExtraMetaData;
-    EntityExtraMetaData entityExtraMetaData = getEntityExtraMetaData();
-    if ( entityExtraMetaData == null ) {
+    EntityExtraMetaData currentEntityExtraMetaData = getEntityExtraMetaData();
+    if ( currentEntityExtraMetaData == null ) {
       return null;
     }
 
     Map<String, Serializable> extraMetaDataMap = new HashMap<>();
-    for( EntityExtraMetaDataEntry entry : entityExtraMetaData.getMetadata() ) {
+    for ( EntityExtraMetaDataEntry entry : currentEntityExtraMetaData.getMetadata() ) {
       extraMetaDataMap.put( entry.getName(), entry.getValue() );
     }
 
-    repositoryFileExtraMetaData = new RepositoryFileExtraMetaData.Builder("", extraMetaDataMap).build();
+    repositoryFileExtraMetaData = new RepositoryFileExtraMetaData.Builder( "", extraMetaDataMap ).build();
 
     return repositoryFileExtraMetaData;
   }

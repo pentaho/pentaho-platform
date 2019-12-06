@@ -42,11 +42,11 @@ public class RepositoryFileExtraMetaData implements Serializable {
 
   // ~ Constructors
   // ====================================================================================================
-  public RepositoryFileExtraMetaData( Serializable id, Map<String, Serializable> extraMetaData) {
+  public RepositoryFileExtraMetaData( Serializable id, Map<String, Serializable> extraMetaData ) {
     super();
     notNull( extraMetaData );
     this.id = id;
-    this.extraMetaData = new HashMap<>( extraMetaData);
+    this.extraMetaData = new HashMap<>( extraMetaData );
   }
 
   // ~ Methods
@@ -113,7 +113,7 @@ public class RepositoryFileExtraMetaData implements Serializable {
 
   @Override
   public String toString() {
-      return "RepositoryFileExtraMetaData [id=" + id + ", extraMetaData=" + extraMetaData + "]";
+    return "RepositoryFileExtraMetaData [id=" + id + ", extraMetaData=" + extraMetaData + "]";
   }
 
 

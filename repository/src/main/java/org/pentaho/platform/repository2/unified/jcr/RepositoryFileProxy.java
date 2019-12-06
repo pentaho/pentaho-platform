@@ -47,8 +47,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 
-import com.google.common.annotations.VisibleForTesting;
-
 /**
  * User: nbaker Date: 5/28/13
  */
@@ -204,7 +202,7 @@ public class RepositoryFileProxy extends RepositoryFile {
     return createdDate;
   }
 
-  public Map<String, Serializable> getMetadata() throws RepositoryException {
+  public Map<String, Serializable> getMetadata() {
     if ( metadata == null ) {
       this.executeOperation( new SessionOperation() {
         @Override
@@ -222,20 +220,16 @@ public class RepositoryFileProxy extends RepositoryFile {
     return metadata;
   }
 
-  public void setMetadata( Map<String, Serializable> metadata ) throws RepositoryException {
-
-      this.executeOperation( new SessionOperation() {
-        @Override
-        public void execute( Session session ) {
-          try {
-            JcrRepositoryFileUtils.setFileMetadata( session, getId(), metadata );
-          } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
-            getLogger().warn( "InvalidItemStateException in setMetadata. Probable cause: File does not exist anymore" );
-          } catch ( RepositoryException e ) {
-            getLogger().error( "RepositoryException was found: ", e );
-          }
-        }
-      } );
+  public void setMetadata( Map<String, Serializable> metadata ) {
+    this.executeOperation( session -> {
+      try {
+        JcrRepositoryFileUtils.setFileMetadata( session, getId(), metadata );
+      } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
+        getLogger().warn( "InvalidItemStateException in setMetadata. Probable cause: File does not exist anymore" );
+      } catch ( RepositoryException e ) {
+        getLogger().error( "RepositoryException was found: ", e );
+      }
+    } );
 
   }
 
