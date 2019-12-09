@@ -107,7 +107,7 @@ public class ExportManifestEntity {
               .addMetadata( new EntityExtraMetaDataEntry( entry.getKey(), String.valueOf( entry.getValue() ) ) );
           }
         }
-      } catch ( RepositoryException e ) {
+      } catch ( Exception e ) {
         throw new RuntimeException( "Error while trying get metadata from repository file" );
       }
     }
