@@ -301,7 +301,7 @@
     <property name="securityMetadataSource">
       <!-- http://stackoverflow.com/questions/30099851/spring-security-samples-preauth-xml-example-fails-to-run#answer-30105317 -->
       <sec:filter-security-metadata-source request-matcher="ciRegex" use-expressions="false">
-        <sec:intercept-url pattern="\A/osgi/cxf/hadoop-cluster/runTests/.*\Z" access="Authenticated" />
+        <sec:intercept-url pattern="\A/osgi/cxf/hadoop-cluster/runTests.*\Z" access="Authenticated" />
         <sec:intercept-url pattern="\A/osgi/cxf/hadoop-cluster/.*\Z" access="Administrator" />
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/(.+/)*.+\.js.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/kettle/executeJob.*\Z" access="Anonymous,Authenticated" />
