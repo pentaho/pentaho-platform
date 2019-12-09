@@ -243,9 +243,7 @@ public class RepositoryFileProxy extends RepositoryFile {
           creatorId = (String) metadata.get( PentahoJcrConstants.PHO_CONTENTCREATOR );
         }
       }
-    } catch ( InvalidItemStateException | ItemNotFoundException | PathNotFoundException e ) {
-      getLogger().warn( "InvalidItemStateException in getCreatorId. Probable cause: File does not exist anymore" );
-    } catch ( RepositoryException e ) {
+    } catch ( Exception e ) {
       getLogger().error( "RepositoryException was found: ", e );
     }
     return creatorId;
