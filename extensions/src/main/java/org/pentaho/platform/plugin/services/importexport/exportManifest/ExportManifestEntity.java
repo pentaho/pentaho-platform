@@ -42,7 +42,6 @@ import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxy;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
-import javax.jcr.RepositoryException;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
