@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -143,7 +144,7 @@ public class ProxyServlet extends ServletBase {
       String trustUserParam = "_TRUST_USER_"; //$NON-NLS-1$
       try {
         uriBuilder = new URIBuilder( theUrl );
-        List<NameValuePair> queryParams = uriBuilder.getQueryParams();
+        List<NameValuePair> queryParams = uriBuilder.isQueryEmpty() ? new ArrayList<>() : uriBuilder.getQueryParams();
         for ( NameValuePair nameValuePair : queryParams ) {
           // Just in case someone is trying to spoof the proxy
           if ( nameValuePair.getName().equals( trustUserParam ) ) {
