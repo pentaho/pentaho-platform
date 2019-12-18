@@ -250,7 +250,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   private void updateExtraMetaDataFromBundleHelper( RepositoryFileImportBundle bundle,
-                                                    RepositoryFile file, boolean isNew) {
+                                                    RepositoryFile file, boolean isNew ) {
     if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
       updateExtraMetaDataFromBundle( isNew, bundle, file );
     }

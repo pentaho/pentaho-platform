@@ -29,6 +29,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.plugin.services.importexport.ExportManifestRepositoryException;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.CustomProperty;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.EntityAcl;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.EntityExtraMetaData;
@@ -107,7 +108,7 @@ public class ExportManifestEntity {
           }
         }
       } catch ( Exception e ) {
-        throw new RuntimeException( "Error while trying get metadata from repository file" );
+        throw new ExportManifestRepositoryException( "Error while trying get metadata from repository file" );
       }
     }
 
