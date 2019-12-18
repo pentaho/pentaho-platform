@@ -13,7 +13,7 @@
   <files>
     <file>
       <source>${project.basedir}/src/main/resources/drivers/README</source>
-      <outputDirectory>./tomcat/bin/drivers</outputDirectory>
+      <outputDirectory>./pentaho-solutions/drivers</outputDirectory>
     </file>
   </files>
   <fileSets>
@@ -88,7 +88,7 @@
         <include>*:pentaho-hadoop-shims-hdp30-kar:*</include>
         <include>*:pentaho-hadoop-shims-emr521-kar:*</include>
       </includes>
-      <outputDirectory>./tomcat/bin/drivers</outputDirectory>
+      <outputDirectory>./pentaho-solutions/drivers</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
