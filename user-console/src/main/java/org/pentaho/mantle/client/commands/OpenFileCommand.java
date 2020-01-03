@@ -14,21 +14,16 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002 - 2020 Hitachi Vantara. All rights reserved.
  *
  */
-
 package org.pentaho.mantle.client.commands;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooser.FileChooserMode;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.mantle.client.MantleApplication;
-import org.pentaho.mantle.client.dialogs.WaitPopup;
-import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
@@ -36,7 +31,7 @@ import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 
 public class OpenFileCommand extends AbstractCommand {
 
-  private static String lastPath = "/"; //$NON-NLS-1$
+  private static String lastPath = "/";
   private static final String spinnerId = "OpenCommand";
 
   private FileCommand.COMMAND openMethod = FileCommand.COMMAND.RUN;
@@ -54,11 +49,12 @@ public class OpenFileCommand extends AbstractCommand {
 
   protected void performOperation( boolean feedback ) {
     final IPluginPerspective activePerspective = PerspectiveManager.getInstance().getActivePerspective();
-
     final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
-    final FileChooserDialog dialog =
-        new FileChooserDialog( FileChooserMode.OPEN, lastPath, null, false, true, solutionBrowserPerspective
-            .getSolutionTree().isShowHiddenFiles() );
+
+    final boolean showHiddenFiles = solutionBrowserPerspective.getSolutionTree().isShowHiddenFiles();
+    final FileChooserDialog dialog = new FileChooserDialog( FileChooserMode.OPEN,
+      lastPath, null, false, true, showHiddenFiles );
+
     dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
     dialog.addFileChooserListener( new FileChooserListener() {
 
@@ -77,7 +73,6 @@ public class OpenFileCommand extends AbstractCommand {
       public void fileSelectionChanged( RepositoryFile repositoryFile, String filePath, String fileName,
           String title ) {
         // TODO Auto-generated method stub
-
       }
     } );
   }
