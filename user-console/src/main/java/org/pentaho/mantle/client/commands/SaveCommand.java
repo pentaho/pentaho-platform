@@ -14,14 +14,12 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002 - 2020 Hitachi Vantara. All rights reserved.
  *
  */
-
 package org.pentaho.mantle.client.commands;
 
 import com.google.gwt.core.client.JavaScriptException;
-import com.google.gwt.user.client.Command;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooser.FileChooserMode;
@@ -83,30 +81,18 @@ public class SaveCommand extends AbstractCommand {
         }
       }
 
-      final FileChooserDialog dialog =
-        new FileChooserDialog(
-          FileChooserMode.SAVE,
-          fileDir,
-          null,
-          false,
-          true,
-          Messages.getString( "save" ),
-          Messages.getString( "save" ),
-          navigatorPerspective.getSolutionTree().isShowHiddenFiles() );
+      final String okButtonText = Messages.getString( "save" );
+      final String operationText = isSaveAs ? Messages.getString( "saveAs" ) : Messages.getString( "save" );
+      final boolean showHiddenFiles = navigatorPerspective.getSolutionTree().isShowHiddenFiles();
+
+      final FileChooserDialog dialog = new FileChooserDialog( FileChooserMode.SAVE,
+        fileDir, null, false, true, operationText, okButtonText, showHiddenFiles );
 
       dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
+      dialog.setTitle( operationText );
 
-      if ( isSaveAs ) {
-        dialog.setTitle( Messages.getString( "saveAs" ) ); //$NON-NLS-1$
-        dialog.setText( Messages.getString( "saveAs" ) ); //$NON-NLS-1$
-      } else {
-        dialog.setTitle( Messages.getString( "save" ) ); //$NON-NLS-1$
-        dialog.setText( Messages.getString( "save" ) ); //$NON-NLS-1$
-      }
-
-      // TODO Uncomment the line below and delete the line after that once gwtwidets have been branched
       dialog.addFileChooserListener( new FileChooserListener() {
-
+        @Override
         public void dialogCanceled() {
           if ( callback != null ) {
             callback.onCanceled();
@@ -118,24 +104,28 @@ public class SaveCommand extends AbstractCommand {
           SaveCommand.this.type = SolutionFileInfo.Type.XACTION;
           SaveCommand.this.name = fileName;
           SaveCommand.this.path = filePath;
+
           tabName = name;
+
           if ( tabName.indexOf( "analysisview.xaction" ) != -1 ) {
             // trim off the analysisview.xaction from the localized-name
             tabName = tabName.substring( 0, tabName.indexOf( "analysisview.xaction" ) - 1 );
           }
 
-          JsArrayString extensions =
-            getPossibleExtensions( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId() );
+          JsArrayString extensions = getPossibleExtensions(
+            navigatorPerspective.getContentTabPanel().getCurrentFrameElementId() );
+
           final String fileExtension = extensions.length() == 1 ? extensions.get( 0 ) : null;
 
           if ( dialog.doesSelectedFileExist( fileExtension ) ) {
             dialog.hide();
 
-            PromptDialogBox overWriteDialog =
-              new PromptDialogBox(
-                Messages.getString( "question" ), Messages.getString( "yes" ), Messages.getString( "no" ), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                false, true );
-            overWriteDialog.setContent( new Label( Messages.getString( "fileExistsOverwrite" ), false ) ); //$NON-NLS-1$
+            PromptDialogBox overWriteDialog = new PromptDialogBox(
+              Messages.getString( "question" ), Messages.getString( "yes" ), Messages.getString( "no" ),
+              false, true
+            );
+
+            overWriteDialog.setContent( new Label( Messages.getString( "fileExistsOverwrite" ), false ) );
             overWriteDialog.setCallback( new IDialogCallback() {
               public void okPressed() {
                 // Save as, overwriting existing file.
@@ -147,8 +137,7 @@ public class SaveCommand extends AbstractCommand {
                 final CommandResultCallback composedCallback = composeCallbacks( new CommandResultCallback() {
                   @Override
                   public void onSuccess() {
-                    Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
-                    FileChooserDialog.setIsDirty( Boolean.TRUE );
+                    Window.setTitle( Messages.getString( "productName" ) + " - " + name );
                     persistFileInfoInFrame();
                     // Shouldn't clearValues() be called like in the other cases?
                   }
@@ -164,8 +153,8 @@ public class SaveCommand extends AbstractCommand {
                   }
                 }, callback );
 
-                doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type,
-                    true, composedCallback );
+                doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(),
+                  name, path, type, true, composedCallback );
               }
 
               public void cancelPressed() {
@@ -173,6 +162,7 @@ public class SaveCommand extends AbstractCommand {
                 dialog.show();
               }
             } );
+
             overWriteDialog.center();
           } else {
             // Save as a new file.
@@ -183,12 +173,11 @@ public class SaveCommand extends AbstractCommand {
               SaveCommand.this.path = filePath.substring( 0, filePath.lastIndexOf( "/" + file.getName() ) );
             }
 
-            final CommandResultCallback composedCallback = composeCallbacks(new CommandResultCallback() {
+            final CommandResultCallback composedCallback = composeCallbacks( new CommandResultCallback() {
               @Override
               public void onSuccess() {
-                Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
+                Window.setTitle( Messages.getString( "productName" ) + " - " + name );
                 persistFileInfoInFrame();
-                // navigatorPerspective.addRecent(fullPathWithName, name);
                 clearValues();
               }
 
@@ -203,8 +192,8 @@ public class SaveCommand extends AbstractCommand {
               }
             }, callback );
 
-            doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type,
-                true, composedCallback );
+            doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(),
+              name, path, type, true, composedCallback );
           }
         }
 
@@ -213,6 +202,7 @@ public class SaveCommand extends AbstractCommand {
           // NOOP
         }
       } );
+
       dialog.center();
     } else {
       // Save an existing file.
@@ -259,9 +249,11 @@ public class SaveCommand extends AbstractCommand {
 
   private void persistFileInfoInFrame() {
     SolutionFileInfo fileInfo = new SolutionFileInfo();
+
     fileInfo.setName( this.name );
     fileInfo.setPath( this.path );
     fileInfo.setType( this.type );
+
     SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().setFileInfo( fileInfo );
   }
 
@@ -273,6 +265,7 @@ public class SaveCommand extends AbstractCommand {
 
   private void retrieveCachedValues( IFrameTabPanel tabPanel ) {
     clearValues();
+
     SolutionFileInfo info = tabPanel.getFileInfo();
     if ( info != null ) {
       this.name = info.getName();
@@ -298,12 +291,12 @@ public class SaveCommand extends AbstractCommand {
     String errorEncounteredWhileSaving = Messages.getString( "error.EncounteredWhileSaving" );
 
     doSaveAsNativeWrapper( elementId, filename, path, type, overwrite, save, unableToSaveMessage, error,
-        errorEncounteredWhileSaving );
+      errorEncounteredWhileSaving );
   }
 
   /**
    * This method will call saveReportSpecAs(string filename, string solution, string path, bool overwrite)
-   * 
+   *
    * @param save
    *          - externalize message save
    * @param unableToSaveMessage
