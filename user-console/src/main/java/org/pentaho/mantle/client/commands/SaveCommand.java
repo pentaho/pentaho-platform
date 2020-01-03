@@ -81,16 +81,15 @@ public class SaveCommand extends AbstractCommand {
         }
       }
 
-      final String modeText = isSaveAs ? Messages.getString( "saveAs" ) : Messages.getString( "save" );
+      final String okButtonText = Messages.getString( "save" );
+      final String operationText = isSaveAs ? Messages.getString( "saveAs" ) : Messages.getString( "save" );
       final boolean showHiddenFiles = navigatorPerspective.getSolutionTree().isShowHiddenFiles();
 
       final FileChooserDialog dialog = new FileChooserDialog( FileChooserMode.SAVE,
-        fileDir, null, false, true, modeText, modeText, showHiddenFiles );
+        fileDir, null, false, true, operationText, okButtonText, showHiddenFiles );
 
       dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
-
-      dialog.setTitle( modeText );
-      dialog.setText( modeText );
+      dialog.setTitle( operationText );
 
       dialog.addFileChooserListener( new FileChooserListener() {
         @Override
