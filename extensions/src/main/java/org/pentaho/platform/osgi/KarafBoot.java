@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002 - 2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -51,8 +51,6 @@ import java.util.UUID;
 
 /**
  * This Pentaho SystemListener starts the Embedded Karaf framework to support OSGI in the platform.
- * <p/>
- * Created by nbaker on 7/29/14.
  */
 public class KarafBoot implements IPentahoSystemListener {
   public static final String CLEAN_KARAF_CACHE = "org.pentaho.clean.karaf.cache";
@@ -80,6 +78,8 @@ public class KarafBoot implements IPentahoSystemListener {
   public static final String PENTAHO_KARAF_INSTANCE_RESOLVER_CLASS = "pentaho.karaf.instance.resolver.class";
 
   private static final String SYSTEM_PROP_OSX_APP_ROOT_DIR = "osx.app.root.dir";
+
+  private static final String PENTAHO_KARAF_LOGS = "karaf.log";
 
   protected static final String KARAF_DIR = "/system/karaf";
   private static FileFilter directoryFilter = new FileFilter() {
@@ -226,8 +226,7 @@ public class KarafBoot implements IPentahoSystemListener {
 
       configureSystemProperties( solutionRootPath, root );
 
-      String customLocation = root + "/etc/custom.properties";
-      expandSystemPackages( customLocation );
+      expandSystemPackages( root );
 
       cleanCachesIfFlagSet( root );
 
@@ -269,16 +268,8 @@ public class KarafBoot implements IPentahoSystemListener {
 
     // Check to see if the clean cache property is set. If so delete data and recreate before launching.
     logger.info( "Checking to see if " + CLEAN_KARAF_CACHE + " is enabled" );
-    Properties customProps = new Properties();
-    FileInputStream fileInputStream = null;
-    try {
-      fileInputStream = new FileInputStream( new File( customLocation ) );
-      customProps.load( fileInputStream );
-    } finally {
-      if ( fileInputStream != null ) {
-        IOUtils.closeQuietly( fileInputStream );
-      }
-    }
+
+    Properties customProps = getCustomProperties( root );
     String cleanCache = customProps.getProperty( CLEAN_KARAF_CACHE, "false" );
     if ( "true".equals( cleanCache ) ) {
       logger.info( CLEAN_KARAF_CACHE + " is enabled. Karaf data directories will be deleted" );
@@ -316,7 +307,6 @@ public class KarafBoot implements IPentahoSystemListener {
         }
       }
     }
-
   }
 
   protected void deleteRecursiveIfExists( File item ) {
@@ -357,7 +347,10 @@ public class KarafBoot implements IPentahoSystemListener {
     fillMissedSystemProperty( "karaf.startRemoteShell", "true" );
     fillMissedSystemProperty( "karaf.lock", "false" );
     fillMissedSystemProperty( "karaf.etc", root + "/etc" );
-    fillMissedSystemProperty( "karaf.log", solutionRootPath + "/logs" );
+
+    final Properties customProperties = getCustomProperties( root );
+    fillMissedSystemProperty( PENTAHO_KARAF_LOGS, customProperties.getProperty(
+      PENTAHO_KARAF_LOGS, solutionRootPath + "/logs" ) );
 
     // When running in the PDI-Clients there are separate etc directories so that features can be customized for
     // the particular execution needs (Carte, Spoon, Pan, Kitchen)
@@ -434,30 +427,45 @@ public class KarafBoot implements IPentahoSystemListener {
     return true;
   }
 
-  void expandSystemPackages( String s ) {
+  void expandSystemPackages( String root ) {
+    Properties properties = getCustomProperties( root );
 
-    File customFile = new File( s );
-    if ( !customFile.exists() ) {
-      logger.warn( "No custom.properties file for in karaf distribution." );
+    if ( properties.isEmpty() ) {
+      logger.error( "Not able to expand system.packages.extra properties due to an error loading custom.properties" );
+
       return;
-    }
-    Properties properties = new Properties();
-    FileInputStream inStream = null;
-    try {
-      inStream = new FileInputStream( customFile );
-      properties.load( inStream );
-    } catch ( IOException e ) {
-      logger
-          .error( "Not able to expand system.packages.extra properties due to an error loading custom.properties", e );
-      return;
-    } finally {
-      IOUtils.closeQuietly( inStream );
     }
 
     properties = new SystemPackageExtrapolator().expandProperties( properties );
     System.setProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA,
         properties.getProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA ) );
+  }
 
+  private Properties getCustomProperties( String root ) {
+    Properties properties = new Properties();
+
+    final String customLocation = root + "/etc/custom.properties";
+    File customFile = new File( customLocation );
+    if ( !customFile.exists() ) {
+      logger.warn( "No custom.properties file for in karaf distribution." );
+
+      return properties;
+    }
+
+    FileInputStream fileInputStream = null;
+    try {
+      fileInputStream = new FileInputStream( customFile );
+
+      properties.load( fileInputStream );
+    } catch ( IOException ioe ) {
+      logger.error( "Failed to load custom.properties file in karaf distribution", ioe );
+    } finally {
+      if ( fileInputStream != null ) {
+        IOUtils.closeQuietly( fileInputStream );
+      }
+    }
+
+    return properties;
   }
 
   @Override public void shutdown() {
