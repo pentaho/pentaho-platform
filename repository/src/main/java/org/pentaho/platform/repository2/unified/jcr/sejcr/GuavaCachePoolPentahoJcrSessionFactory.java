@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,7 +24,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
+import org.apache.jackrabbit.core.SessionImpl;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
@@ -38,6 +38,7 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * JCR Session Factory which caches Sessions by Credentials per Thread. The size of the cache and TTL of the entries can
@@ -47,6 +48,8 @@ import java.util.concurrent.TimeUnit;
  */
 class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFactory
   implements PentahoJcrSessionFactory {
+
+  static final String USAGE_COUNT = "usage_count"; // attribute key for tracking session usages
 
   private CredentialsStrategySessionFactory credentialsStrategySessionFactory;
   private int cacheDuration = 300;
@@ -85,24 +88,41 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   /**
    * Session cache by credentials, partitioned by thread. Two threads obtaining sessions for the same credentials cannot
    * use the same Session.
+   * <p>
+   * Sessions from the cache will have a "usage_count" attribute set to track if still in use, to verify they can be
+   * safely logged out on eviction. See
+   * {@link PentahoJcrTemplate#execute(org.springframework.extensions.jcr.JcrCallback,
+   * boolean)}
    */
   private LoadingCache<CacheKey, Session> sessionCache =
-    CacheBuilder.newBuilder().expireAfterAccess( cacheDuration, TimeUnit.SECONDS ).maximumSize(
-      cacheSize ).removalListener( new RemovalListener<CacheKey, Session>() {
-
-        @Override public void onRemoval( RemovalNotification<CacheKey, Session> objectObjectRemovalNotification ) {
-          // We're not logging out on cache purge as someone may have obtained it from the cache already.
-          // TODO: implement reference tracking (checkin/checkout) in order to condition the logout.
-          //        Session value = objectObjectRemovalNotification.getValue();
-          //        if ( value != null && value.isLive() ) {
-          //          value.logout();
-          //        }
+    CacheBuilder.newBuilder()
+      .expireAfterAccess( cacheDuration, TimeUnit.SECONDS )
+      .maximumSize( cacheSize )
+      .removalListener( (RemovalListener<CacheKey, Session>) objectObjectRemovalNotification -> {
+        Session session = objectObjectRemovalNotification.getValue();
+        if ( sessionIsUnused( session ) ) {
+          logger.debug( "Logging out cached session after eviction " + session );
+          session.logout();
+        } else {
+          logger.warn( "Session has expired from cache, but still marked as in use.  May be orphaned.  " + session );
         }
-      } ).recordStats().build( new CacheLoader<CacheKey, Session>() {
+      } ).recordStats()
+      .build( new CacheLoader<CacheKey, Session>() {
         @Override public Session load( CacheKey credKey ) throws Exception {
-          return GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
+          Session session = GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
+          if ( session instanceof SessionImpl ) {
+            ( (SessionImpl) session ).setAttribute( USAGE_COUNT, new AtomicInteger( 0 ) );
+          } else {
+            logger.warn( "Expected a Jackrabbit SessionImpl.  Will not be tracking usage." );
+          }
+          return session;
         }
       } );
+
+  private boolean sessionIsUnused( Session session ) {
+    return session.getAttribute( USAGE_COUNT ) instanceof AtomicInteger
+      && ( (AtomicInteger) session.getAttribute( USAGE_COUNT ) ).get() == 0;
+  }
 
   @Override public Session getSession( Credentials creds ) throws RepositoryException {
 
