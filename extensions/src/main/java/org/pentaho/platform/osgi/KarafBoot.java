@@ -17,7 +17,6 @@
  * Copyright (c) 2002 - 2020 Hitachi Vantara. All rights reserved.
  *
  */
-
 package org.pentaho.platform.osgi;
 
 import org.apache.commons.io.FileUtils;
@@ -57,6 +56,7 @@ public class KarafBoot implements IPentahoSystemListener {
 
   private Main main;
   private KarafInstance karafInstance;
+  private Properties karafCustomProperties;
 
   Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -79,7 +79,7 @@ public class KarafBoot implements IPentahoSystemListener {
 
   private static final String SYSTEM_PROP_OSX_APP_ROOT_DIR = "osx.app.root.dir";
 
-  private static final String PENTAHO_KARAF_LOGS = "karaf.log";
+  private static final String KARAF_LOGS_PATH = "karaf.log";
 
   protected static final String KARAF_DIR = "/system/karaf";
   private static FileFilter directoryFilter = new FileFilter() {
@@ -87,7 +87,7 @@ public class KarafBoot implements IPentahoSystemListener {
     public boolean accept( File pathname ) {
       return pathname.isDirectory();
     }
-  };;
+  };
 
   @Override
   public boolean startup( IPentahoSession session ) {
@@ -151,15 +151,18 @@ public class KarafBoot implements IPentahoSystemListener {
         }
 
         Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
-          @Override public void run() {
+          @Override
+          public void run() {
             try {
               if ( main != null ) {
                 main.destroy();
               }
+
               //release lock
               if ( karafInstance != null ) {
                 karafInstance.close();
               }
+
               deleteRecursiveIfExists( destDir );
             } catch ( IOException e ) {
               logger.error( "Unable to delete karaf directory " + destDir, e );
@@ -177,12 +180,14 @@ public class KarafBoot implements IPentahoSystemListener {
       // Copy karaf (symlinking allowed files/folders if possible)
       if ( destDir != null && ( transientRoot || !destDir.exists() ) ) {
         final Set<String> symlinks = new HashSet<>();
+
         String symlinkFiles = System.getProperty( PENTAHO_KARAF_ROOT_COPY_FOLDER_SYMLINK_FILES, "lib,system" );
         if ( symlinkFiles != null ) {
           for ( String symlink : symlinkFiles.split( "," ) ) {
             symlinks.add( symlink.trim() );
           }
         }
+
         final Set<String> excludes = new HashSet<>();
         String excludeFiles = System.getProperty( PENTAHO_KARAF_ROOT_COPY_FOLDER_EXCLUDE_FILES, "caches" );
         if ( excludeFiles != null ) {
@@ -190,15 +195,19 @@ public class KarafBoot implements IPentahoSystemListener {
             excludes.add( exclude.trim() );
           }
         }
+
         final Path karafDirPath = Paths.get( karafDir.toURI() );
         FileUtils.copyDirectory( karafDir, destDir, new AbstractFileFilter() {
-          @Override public boolean accept( File file ) {
+          @Override
+          public boolean accept( File file ) {
             Path filePath = Paths.get( file.toURI() );
+
             String relativePath = karafDirPath.relativize( filePath ).toString();
             if ( excludes.contains( relativePath ) ) {
               return false;
             } else if ( symlinks.contains( relativePath ) ) {
               File linkFile = new File( destDir, relativePath );
+
               try {
                 boolean linkFileDirCreated = linkFile.getParentFile().mkdirs();
                 logger.info(
@@ -207,7 +216,9 @@ public class KarafBoot implements IPentahoSystemListener {
                 logger.error( linkFile.getParentFile().getAbsolutePath() + " Access denied." );
                 throw exception;
               }
+
               Path link = Paths.get( linkFile.toURI() );
+
               try {
                 // Try to create a symlink and skip the copy if successful
                 if ( Files.createSymbolicLink( link, filePath ) != null ) {
@@ -217,6 +228,7 @@ public class KarafBoot implements IPentahoSystemListener {
                 logger.warn( "Unable to create symlink " + linkFile.getAbsolutePath() + " -> " + file.getAbsolutePath() );
               }
             }
+
             return true;
           }
         } );
@@ -235,14 +247,13 @@ public class KarafBoot implements IPentahoSystemListener {
       // Setup karaf instance configuration
       karafInstance = createAndProcessKarafInstance( root );
 
-
       // Wrap the startup of Karaf in a child thread which has explicitly set a bogus authentication. This is
       // work-around and issue with Karaf inheriting the Authenticaiton set on the main system thread due to the
       // InheritableThreadLocal backing the SecurityContext. By setting a fake authentication, calls to the
       // org.pentaho.platform.osgi.SpringSecurityLoginModule always challenge the user.
       Thread karafThread = new Thread( new Runnable() {
-
-        @Override public void run() {
+        @Override
+        public void run() {
           // Bogus authentication
           SecurityContextHolder.getContext().setAuthentication( new UsernamePasswordAuthenticationToken(
               UUID.randomUUID().toString(), "" ) );
@@ -255,34 +266,29 @@ public class KarafBoot implements IPentahoSystemListener {
           }
         }
       } );
+
       karafThread.setDaemon( true );
       karafThread.run();
       karafThread.join();
     } catch ( Exception e ) {
       main = null;
+
       logger.error( "Error starting Karaf", e );
     }
+
+    // release memory reserved for karaf custom properties, has they are only needed in the startup phase.
+    this.karafCustomProperties = null;
+
     return main != null;
   }
 
   void cleanCachesIfFlagSet( String root ) throws IOException {
-    String customLocation = root + "/etc/custom.properties";
-
     // Check to see if the clean cache property is set. If so delete data and recreate before launching.
     logger.info( "Checking to see if " + CLEAN_KARAF_CACHE + " is enabled" );
 
-    Properties customProps = new Properties();
-    FileInputStream fileInputStream = null;
-    try {
-      fileInputStream = new FileInputStream( new File( customLocation ) );
-      customProps.load( fileInputStream );
-    } finally {
-      if ( fileInputStream != null ) {
-        IOUtils.closeQuietly( fileInputStream );
-      }
-    }
+    final Properties customProperties = getCustomProperties( root );
 
-    String cleanCache = customProps.getProperty( CLEAN_KARAF_CACHE, "false" );
+    String cleanCache = customProperties.getProperty( CLEAN_KARAF_CACHE, "false" );
     if ( "true".equals( cleanCache ) ) {
       logger.info( CLEAN_KARAF_CACHE + " is enabled. Karaf data directories will be deleted" );
 
@@ -307,13 +313,19 @@ public class KarafBoot implements IPentahoSystemListener {
         }
       }
 
-      customProps.setProperty( CLEAN_KARAF_CACHE, "false" );
+      customProperties.setProperty( CLEAN_KARAF_CACHE, "false" );
+
       FileOutputStream out = null;
       try {
+        final String customLocation = root + "/etc/custom.properties";
+
         out = new FileOutputStream( customLocation );
         logger.info( "Setting " + CLEAN_KARAF_CACHE + " back to false as this is a one-time action" );
-        customProps.store( out, "Turning of one-time cache clean setting" );
+
+        customProperties.store( out, "Turning of one-time cache clean setting" );
       } finally {
+        this.karafCustomProperties = customProperties;
+
         if ( out != null ) {
           IOUtils.closeQuietly( out );
         }
@@ -325,12 +337,14 @@ public class KarafBoot implements IPentahoSystemListener {
     if ( !item.exists() ) {
       return;
     }
+
     if ( !Files.isSymbolicLink( item.toPath() ) && item.isDirectory() ) {
       File[] subitems = item.listFiles();
       for ( File subitem : subitems ) {
         deleteRecursiveIfExists( subitem );
       }
     }
+
     try {
       if ( !item.delete() ) {
         logger.warn( item.toURI().toString() + " could not be deleted." );
@@ -338,14 +352,15 @@ public class KarafBoot implements IPentahoSystemListener {
     } catch ( SecurityException exception ) {
       logger.warn( item.toURI().toString() + " cannot delete file. Access denied." );
     }
-    return;
   }
 
   protected KarafInstance createAndProcessKarafInstance( String root )
       throws FileNotFoundException, KarafInstanceResolverException {
     String clientType = new ExceptionBasedClientTypeProvider().getClientType();
+
     KarafInstance karafInstance = new KarafInstance( root, clientType );
     karafInstance.assignPortsAndCreateCache();
+
     return karafInstance;
   }
 
@@ -359,13 +374,16 @@ public class KarafBoot implements IPentahoSystemListener {
     fillMissedSystemProperty( "karaf.lock", "false" );
     fillMissedSystemProperty( "karaf.etc", root + "/etc" );
 
-    final String karafLogsPath = getCustomPropertyValue( root, PENTAHO_KARAF_LOGS, solutionRootPath  + "/logs" );
-    fillMissedSystemProperty( PENTAHO_KARAF_LOGS, karafLogsPath );
+    final Properties customProperties = getCustomProperties( root );
+
+    final String karafLogsPath = customProperties.getProperty( KARAF_LOGS_PATH, solutionRootPath + "/logs" );
+    fillMissedSystemProperty( KARAF_LOGS_PATH, karafLogsPath );
 
     // When running in the PDI-Clients there are separate etc directories so that features can be customized for
     // the particular execution needs (Carte, Spoon, Pan, Kitchen)
     KettleClientEnvironment.ClientType clientType = getClientType();
     String extraKettleEtc = translateToExtraKettleEtc( clientType );
+
     // If clientType is null, the extraKettleEtc will return 'etc-default'
     // Added a check to see if the folder exist before setting the system property
     if ( extraKettleEtc != null && new File( root + extraKettleEtc ).exists() ) {
@@ -399,30 +417,27 @@ public class KarafBoot implements IPentahoSystemListener {
     }
   }
 
-  private String getCustomPropertyValue( String root, String propertyName, String defaultValue ) {
-    final String customLocation = root + "/etc/custom.properties";
+  private Properties getCustomProperties( String root ) {
+    if ( this.karafCustomProperties == null ) {
+      Properties properties = new Properties();
 
-    File customFile = new File( customLocation );
-    if ( !customFile.exists() ) {
-      logger.warn( "No custom.properties file for in karaf distribution." );
+      FileInputStream inputStream = null;
+      try {
+        final String customLocation = root + "/etc/custom.properties";
+        final File customFile = new File( customLocation );
 
-      return defaultValue;
+        inputStream = new FileInputStream( customFile );
+        properties.load( inputStream );
+      } catch ( IOException ioe ) {
+        logger.error( "Not able to load properties due to an error loading custom.properties", ioe );
+      } finally {
+        IOUtils.closeQuietly( inputStream );
+
+        this.karafCustomProperties = properties;
+      }
     }
 
-    Properties properties = new Properties();
-    FileInputStream inStream = null;
-    try {
-      inStream = new FileInputStream( customFile );
-      properties.load( inStream );
-    } catch ( IOException e ) {
-      logger.error( "Not able to get " + propertyName + " due to an error loading custom.properties", e );
-    } finally {
-      IOUtils.closeQuietly( inStream );
-    }
-
-    final String value = properties.getProperty( propertyName );
-
-    return value != null ? value : defaultValue;
+    return this.karafCustomProperties;
   }
 
   protected String translateToExtraKettleEtc( KettleClientEnvironment.ClientType clientType ) {
@@ -464,30 +479,18 @@ public class KarafBoot implements IPentahoSystemListener {
   }
 
   void expandSystemPackages( String root ) {
-    final String customLocation = root + "/etc/custom.properties";
+    Properties customProperties = getCustomProperties( root );
 
-    File customFile = new File( customLocation );
-    if ( !customFile.exists() ) {
-      logger.warn( "No custom.properties file for in karaf distribution." );
+    if ( customProperties.isEmpty() ) {
+      logger.warn( "No custom.properties file found in karaf distribution." );
+
       return;
     }
 
-    Properties properties = new Properties();
-    FileInputStream inStream = null;
-    try {
-      inStream = new FileInputStream( customFile );
-      properties.load( inStream );
-    } catch ( IOException e ) {
-      logger.error(
-        "Not able to expand system.packages.extra properties due to an error loading custom.properties", e );
-      return;
-    } finally {
-      IOUtils.closeQuietly( inStream );
-    }
+    customProperties = new SystemPackageExtrapolator().expandProperties( customProperties );
 
-    properties = new SystemPackageExtrapolator().expandProperties( properties );
-    System.setProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA,
-      properties.getProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA ) );
+    final String systemPackageExtra = customProperties.getProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA );
+    System.setProperty( ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA, systemPackageExtra );
   }
 
   @Override
