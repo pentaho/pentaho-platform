@@ -239,7 +239,7 @@ public class KarafBoot implements IPentahoSystemListener {
         root = destDir.toURI().getPath();
       }
 
-      this.karafCustomProperties = getCustomProperties( root );
+      this.karafCustomProperties = this.readCustomProperties( root );
 
       configureSystemProperties( solutionRootPath, root );
       expandSystemPackages();
@@ -417,7 +417,8 @@ public class KarafBoot implements IPentahoSystemListener {
     this.karafCustomProperties = properties;
   }
 
-  private Properties getCustomProperties( String root ) {
+  @VisibleForTesting
+  Properties readCustomProperties( String root ) {
     Properties properties = new Properties();
 
     FileInputStream inputStream = null;
