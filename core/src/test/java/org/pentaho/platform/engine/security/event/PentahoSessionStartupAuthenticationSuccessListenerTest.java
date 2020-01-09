@@ -14,9 +14,10 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
+ 
 package org.pentaho.platform.engine.security.event;
 
 import static org.mockito.Mockito.mock;
@@ -27,7 +28,6 @@ import java.io.PrintStream;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,8 +51,6 @@ public class PentahoSessionStartupAuthenticationSuccessListenerTest {
 
   private ByteArrayOutputStream baos;
   private PrintStream oldOut;
-  private PentahoSessionStartupAuthenticationSuccessListener listener;
-  private ApplicationEvent event;
 
   @Before
   public void setUp() {
@@ -60,24 +58,19 @@ public class PentahoSessionStartupAuthenticationSuccessListenerTest {
     oldOut = System.out;
     System.setOut( new PrintStream( baos ) );
 
-    listener = new PentahoSessionStartupAuthenticationSuccessListener();
-    event = new InteractiveAuthenticationSuccessEvent( authentication, InteractiveAuthenticationSuccessEvent.class );
-
     PentahoSessionHolder.setSession( session );
   }
 
   @After
   public void tearDown() {
     System.setOut( oldOut );
-    listener = null;
-    event = null;
-    System.out.flush();
   }
 
   @Test
   public void testOnApplicationEvent_onlyInteractiveAuthenticationSuccessEvent() {
-    when( session.getAttribute( "StartupActionsFired" ) ).thenReturn( true );
+    ApplicationEvent event = new InteractiveAuthenticationSuccessEvent( authentication, InteractiveAuthenticationSuccessEvent.class );
 
+    PentahoSessionStartupAuthenticationSuccessListener listener = new PentahoSessionStartupAuthenticationSuccessListener();
     listener.onApplicationEvent( event );
     System.out.flush();
 
@@ -89,6 +82,7 @@ public class PentahoSessionStartupAuthenticationSuccessListenerTest {
   public void testOnApplicationEvent_AuthenticationEvent() {
     ApplicationEvent event = mock( ApplicationEvent.class );
 
+    PentahoSessionStartupAuthenticationSuccessListener listener = new PentahoSessionStartupAuthenticationSuccessListener();
     listener.onApplicationEvent( event );
     System.out.flush();
 
