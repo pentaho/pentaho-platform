@@ -104,6 +104,7 @@ public class KarafBootTest {
     PentahoSystem.setApplicationContext( appContext );
     when( appContext.getSolutionRootPath() ).thenReturn( tmpDir.getPath() );
     boot = new KarafBoot();
+    boot.setCustomProperties( new Properties() );
   }
 
   @After
