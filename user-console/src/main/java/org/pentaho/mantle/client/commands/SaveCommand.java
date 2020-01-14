@@ -67,124 +67,107 @@ public class SaveCommand extends AbstractCommand {
     final SolutionBrowserPanel navigatorPerspective = SolutionBrowserPanel.getInstance();
 
     retrieveCachedValues( navigatorPerspective.getContentTabPanel().getCurrentFrame() );
-    boolean forceReload = false;
-    if ( FileChooserDialog.getIsDirty() ) {
-      forceReload = true;
-      WaitPopup.getInstance().setVisibleById( true, spinnerId );
-      FileChooserDialog.setIsDirty( Boolean.FALSE );
-    }
-    RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree( new AsyncCallback<RepositoryFileTree>() {
-      public void onFailure( Throwable caught ) {
-      }
-
-      public void onSuccess( RepositoryFileTree tree ) {
-
-        retrieveCachedValues( navigatorPerspective.getContentTabPanel().getCurrentFrame() );
-        if ( isSaveAs || name == null ) {
-          String fileDir = "";
-          if ( path != null && !StringUtils.isEmpty( path ) ) {
-            // If has extension
-            if ( path.endsWith( name ) ) {
-              fileDir = path.substring( 0, path.lastIndexOf( "/" ) );
-            } else {
-              fileDir = path;
-            }
-
-          }
-          WaitPopup.getInstance().setVisibleById( false, spinnerId );
-          final FileChooserDialog dialog =
-            new FileChooserDialog(
-              FileChooserMode.SAVE,
-              fileDir,
-              tree,
-              false,
-              true,
-              Messages.getString( "save" ), Messages.getString( "save" ), navigatorPerspective.getSolutionTree().isShowHiddenFiles() ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-          dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
-          if ( isSaveAs ) {
-            dialog.setTitle( Messages.getString( "saveAs" ) ); //$NON-NLS-1$
-            dialog.setText( Messages.getString( "saveAs" ) ); //$NON-NLS-1$
-          } else {
-            dialog.setTitle( Messages.getString( "save" ) ); //$NON-NLS-1$
-            dialog.setText( Messages.getString( "save" ) ); //$NON-NLS-1$
-          }
-          // TODO Uncomment the line below and delete the line after that once gwtwidets have been branched
-          dialog.addFileChooserListener( new FileChooserListener() {
-
-            public void dialogCanceled() {
-
-            }
-
-            @Override
-            public void fileSelected( final RepositoryFile file, String filePath, String fileName, String title ) {
-              SaveCommand.this.type = SolutionFileInfo.Type.XACTION;
-              SaveCommand.this.name = fileName;
-              SaveCommand.this.path = filePath;
-              tabName = name;
-              if ( tabName.indexOf( "analysisview.xaction" ) != -1 ) {
-                // trim off the analysisview.xaction from the localized-name
-                tabName = tabName.substring( 0, tabName.indexOf( "analysisview.xaction" ) - 1 );
-              }
-
-              JsArrayString extensions =
-                getPossibleExtensions( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId() );
-              final String fileExtension = extensions.length() == 1 ? extensions.get( 0 ) : null;
-
-              if ( dialog.doesSelectedFileExist( fileExtension ) ) {
-                dialog.hide();
-                PromptDialogBox overWriteDialog =
-                  new PromptDialogBox(
-                    Messages.getString( "question" ), Messages.getString( "yes" ), Messages.getString( "no" ), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    false, true );
-                overWriteDialog.setContent( new Label( Messages.getString( "fileExistsOverwrite" ), false ) ); //$NON-NLS-1$
-                overWriteDialog.setCallback( new IDialogCallback() {
-                  public void okPressed() {
-                    if ( fileExtension != null && tabName.endsWith( fileExtension ) ) {
-                      tabName = tabName.substring( 0, tabName.lastIndexOf( fileExtension ) );
-                    }
-                    doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type,
-                      true );
-                    Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
-                    FileChooserDialog.setIsDirty( Boolean.TRUE );
-                    persistFileInfoInFrame();
-                  }
-
-                  public void cancelPressed() {
-                    dialog.show();
-                  }
-                } );
-                overWriteDialog.center();
-              } else {
-
-                // [Fix for PIR-833]
-                if ( file != null && !file.isFolder() && !fileName.equals( title )
-                  && filePath.endsWith( file.getName() ) ) {
-                  SaveCommand.this.path = filePath.substring( 0, filePath.lastIndexOf( "/" + file.getName() ) );
-                }
-
-                doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true );
-                Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
-                persistFileInfoInFrame();
-                // navigatorPerspective.addRecent(fullPathWithName, name);
-                clearValues();
-              }
-            }
-
-            @Override
-            public void fileSelectionChanged( RepositoryFile file, String filePath, String fileName, String title ) {
-              // TODO Auto-generated method stub
-
-            }
-
-          } );
-          dialog.center();
+    if ( isSaveAs || name == null ) {
+      String fileDir = "";
+      if ( path != null && !StringUtils.isEmpty( path ) ) {
+        // If has extension
+        if ( path.endsWith( name ) ) {
+          fileDir = path.substring( 0, path.lastIndexOf( "/" ) );
         } else {
-          doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true );
-          clearValues();
+          fileDir = path;
         }
-        WaitPopup.getInstance().setVisibleById( false, spinnerId );
+
       }
-    }, forceReload, null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles() );
+      final FileChooserDialog dialog =
+        new FileChooserDialog(
+          FileChooserMode.SAVE,
+          fileDir,
+          null,
+          false,
+          true,
+          Messages.getString( "save" ), Messages.getString( "save" ), navigatorPerspective.getSolutionTree().isShowHiddenFiles() ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
+      if ( isSaveAs ) {
+        dialog.setTitle( Messages.getString( "saveAs" ) ); //$NON-NLS-1$
+        dialog.setText( Messages.getString( "saveAs" ) ); //$NON-NLS-1$
+      } else {
+        dialog.setTitle( Messages.getString( "save" ) ); //$NON-NLS-1$
+        dialog.setText( Messages.getString( "save" ) ); //$NON-NLS-1$
+      }
+      // TODO Uncomment the line below and delete the line after that once gwtwidets have been branched
+      dialog.addFileChooserListener( new FileChooserListener() {
+
+        public void dialogCanceled() {
+
+        }
+
+        @Override
+        public void fileSelected( final RepositoryFile file, String filePath, String fileName, String title ) {
+          SaveCommand.this.type = SolutionFileInfo.Type.XACTION;
+          SaveCommand.this.name = fileName;
+          SaveCommand.this.path = filePath;
+          tabName = name;
+          if ( tabName.indexOf( "analysisview.xaction" ) != -1 ) {
+            // trim off the analysisview.xaction from the localized-name
+            tabName = tabName.substring( 0, tabName.indexOf( "analysisview.xaction" ) - 1 );
+          }
+
+          JsArrayString extensions =
+            getPossibleExtensions( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId() );
+          final String fileExtension = extensions.length() == 1 ? extensions.get( 0 ) : null;
+
+          if ( dialog.doesSelectedFileExist( fileExtension ) ) {
+            dialog.hide();
+            PromptDialogBox overWriteDialog =
+              new PromptDialogBox(
+                Messages.getString( "question" ), Messages.getString( "yes" ), Messages.getString( "no" ), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                false, true );
+            overWriteDialog.setContent( new Label( Messages.getString( "fileExistsOverwrite" ), false ) ); //$NON-NLS-1$
+            overWriteDialog.setCallback( new IDialogCallback() {
+              public void okPressed() {
+                if ( fileExtension != null && tabName.endsWith( fileExtension ) ) {
+                  tabName = tabName.substring( 0, tabName.lastIndexOf( fileExtension ) );
+                }
+                doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type,
+                  true );
+                Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
+                FileChooserDialog.setIsDirty( Boolean.TRUE );
+                persistFileInfoInFrame();
+              }
+
+              public void cancelPressed() {
+                dialog.show();
+              }
+            } );
+            overWriteDialog.center();
+          } else {
+
+            // [Fix for PIR-833]
+            if ( file != null && !file.isFolder() && !fileName.equals( title )
+              && filePath.endsWith( file.getName() ) ) {
+              SaveCommand.this.path = filePath.substring( 0, filePath.lastIndexOf( "/" + file.getName() ) );
+            }
+
+            doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true );
+            Window.setTitle( Messages.getString( "productName" ) + " - " + name ); //$NON-NLS-1$ //$NON-NLS-2$
+            persistFileInfoInFrame();
+            // navigatorPerspective.addRecent(fullPathWithName, name);
+            clearValues();
+          }
+        }
+
+        @Override
+        public void fileSelectionChanged( RepositoryFile file, String filePath, String fileName, String title ) {
+          // TODO Auto-generated method stub
+
+        }
+
+      } );
+      dialog.center();
+    } else {
+      doSaveAs( navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true );
+      clearValues();
+    }
   }
 
   /**
