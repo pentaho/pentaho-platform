@@ -5,17 +5,17 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>9.0.0.0-SNAPSHOT</version>
+    <version>9.1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>pentaho-war</artifactId>
-  <version>9.0.0.0-SNAPSHOT</version>
+  <version>9.1.0.0-SNAPSHOT</version>
   <packaging>war</packaging>
   <properties>
     <snakeyaml.version>1.13</snakeyaml.version>
     <rdbms>hsqldb</rdbms>
-    <commons-database.version>9.0.0.0-SNAPSHOT</commons-database.version>
+    <commons-database.version>9.1.0.0-SNAPSHOT</commons-database.version>
     <prepared.war.directory>${pentaho-server.directory}/tomcat/webapps/pentaho</prepared.war.directory>
-    <pentaho-hadoop-shims.version>9.0.0.0-SNAPSHOT</pentaho-hadoop-shims.version>
+    <pentaho-hadoop-shims.version>9.1.0.0-SNAPSHOT</pentaho-hadoop-shims.version>
     <prepared.war.lib.directory>${prepared.war.directory}/WEB-INF/lib</prepared.war.lib.directory>
     <jettison.version>1.3.3</jettison.version>
     <datasource.resources.directory>${basedir}/src/main/resources/datasources</datasource.resources.directory>

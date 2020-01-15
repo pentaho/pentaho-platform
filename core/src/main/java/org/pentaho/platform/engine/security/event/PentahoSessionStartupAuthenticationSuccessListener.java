@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -73,11 +73,6 @@ public class PentahoSessionStartupAuthenticationSuccessListener implements Appli
         IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
         Assert.notNull( pentahoSession, "PentahoSessionHolder doesn't have a session" );
         IParameterProvider sessionParameters = new PentahoSessionParameterProvider( pentahoSession );
-        if ( pentahoSession.getAttribute( "StartupActionsFired" ) != null ) {
-          // If startup actions have already fired maybe this is not the first session to run, so set StartupActionsFired
-          // to false so that startup actions can run for the current session
-          pentahoSession.setAttribute( "StartupActionsFired", false );
-        }
         PentahoSystem.sessionStartup( pentahoSession, sessionParameters );
       } catch ( Exception e ) {
         logger.error( e.getLocalizedMessage(), e );
