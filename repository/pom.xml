@@ -108,7 +108,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-vfs2</artifactId>
-      <version>${commons-vfs2.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
