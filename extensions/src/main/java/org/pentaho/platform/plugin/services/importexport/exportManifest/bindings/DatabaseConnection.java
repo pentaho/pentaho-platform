@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,10 +27,14 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
+import org.pentaho.di.core.encryption.Encr;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -182,6 +186,7 @@ public class DatabaseConnection {
   protected boolean partitioned;
   @XmlElement ( nillable = true )
   protected List<PartitionDatabaseMeta> partitioningInformation;
+  @XmlJavaTypeAdapter( PasswordEncryptionAdapter.class )
   protected String password;
   protected boolean quoteAllFields;
   @XmlElement ( name = "SQLServerInstance" )
@@ -566,7 +571,7 @@ public class DatabaseConnection {
    */
   public List<PartitionDatabaseMeta> getPartitioningInformation() {
     if ( partitioningInformation == null ) {
-      partitioningInformation = new ArrayList<PartitionDatabaseMeta>();
+      partitioningInformation = new ArrayList<>();
     }
     return this.partitioningInformation;
   }
@@ -738,7 +743,7 @@ public class DatabaseConnection {
      */
     public List<DatabaseConnection.Attributes.Entry> getEntry() {
       if ( entry == null ) {
-        entry = new ArrayList<DatabaseConnection.Attributes.Entry>();
+        entry = new ArrayList<>();
       }
       return this.entry;
     }
@@ -869,7 +874,7 @@ public class DatabaseConnection {
      */
     public List<DatabaseConnection.ConnectionPoolingProperties.Entry> getEntry() {
       if ( entry == null ) {
-        entry = new ArrayList<DatabaseConnection.ConnectionPoolingProperties.Entry>();
+        entry = new ArrayList<>();
       }
       return this.entry;
     }
@@ -998,7 +1003,7 @@ public class DatabaseConnection {
      */
     public List<DatabaseConnection.ExtraOptions.Entry> getEntry() {
       if ( entry == null ) {
-        entry = new ArrayList<DatabaseConnection.ExtraOptions.Entry>();
+        entry = new ArrayList<>();
       }
       return this.entry;
     }
@@ -1067,7 +1072,20 @@ public class DatabaseConnection {
       }
 
     }
-
   }
 
+  /**
+   * An implementation of {@link XmlAdapter} that allows us to have passwords encrypted on serialization.
+   */
+  public static class PasswordEncryptionAdapter extends XmlAdapter<String, String> {
+    @Override
+    public String marshal( final String plainText ) throws Exception {
+      return Encr.encryptPassword( plainText );
+    }
+
+    @Override
+    public String unmarshal( final String encodedText ) throws Exception {
+      return Encr.decryptPassword( encodedText );
+    }
+  }
 }
