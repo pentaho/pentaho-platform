@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -87,6 +87,27 @@ public class DefaultUnifiedRepositoryWebServiceTest extends TestCase {
       assertTrue( metadata.get( 1 ).equals( fileMetadata.get( 0 ) ) || metadata.get( 1 )
         .equals( fileMetadata.get( 1 ) ) );
     }
+  }
+
+  public void testGetDeletedFiles() throws Exception {
+
+    repository.createFile( repository.getFile( "/etc" ).getId(), new RepositoryFile.Builder( "firstFileToDelete" ).build(),
+      new SimpleRepositoryFileData( new ByteArrayInputStream( "test".getBytes() ),
+        "UTF-8", "text/plain" ), null );
+    repository.createFile( repository.getFile( "/etc" ).getId(), new RepositoryFile.Builder( "secondFileToDelete" ).build(),
+      new SimpleRepositoryFileData( new ByteArrayInputStream( "test".getBytes() ),
+        "UTF-8", "text/plain" ), null );
+
+    List<RepositoryFile> expectedList = new ArrayList<>();
+    expectedList.add( repository.getFile( "/etc/firstFileToDelete" ) );
+    expectedList.add( repository.getFile( "/etc/secondFileToDelete" ) );
+
+    repository.deleteFile( repository.getFile( "/etc/secondFileToDelete" ).getId(), null );
+    repository.deleteFile( repository.getFile( "/etc/firstFileToDelete" ).getId(), null );
+
+    List<RepositoryFile> list = repository.getDeletedFiles();
+    assertEquals( 2, list.size() );
+    assertEquals( list, expectedList );
   }
 
   /**
