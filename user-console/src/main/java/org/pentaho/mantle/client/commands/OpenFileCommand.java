@@ -56,46 +56,29 @@ public class OpenFileCommand extends AbstractCommand {
     final IPluginPerspective activePerspective = PerspectiveManager.getInstance().getActivePerspective();
 
     final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
-    boolean forceReload = false;
-    if ( FileChooserDialog.getIsDirty() ) {
-      forceReload = true;
-      WaitPopup.getInstance().setVisibleById( true, spinnerId );
-      FileChooserDialog.setIsDirty( Boolean.FALSE );
-    }
+    final FileChooserDialog dialog =
+        new FileChooserDialog( FileChooserMode.OPEN, lastPath, null, false, true, solutionBrowserPerspective
+            .getSolutionTree().isShowHiddenFiles() );
+    dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
+    dialog.addFileChooserListener( new FileChooserListener() {
 
-    RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree( new AsyncCallback<RepositoryFileTree>() {
-      public void onFailure( Throwable caught ) {
+      public void dialogCanceled() {
+        // retain current active perspective
+        PerspectiveManager.getInstance().setPerspective( activePerspective.getId() );
       }
 
-      public void onSuccess( RepositoryFileTree tree ) {
-        // TODO Uncomment the line below and delete the line after that once gwtwidets have been branched
-        WaitPopup.getInstance().setVisibleById( false, spinnerId );
-        final FileChooserDialog dialog =
-            new FileChooserDialog( FileChooserMode.OPEN, lastPath, tree, false, true, solutionBrowserPerspective
-                .getSolutionTree().isShowHiddenFiles() );
-        dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
-        dialog.addFileChooserListener( new FileChooserListener() {
-
-          public void dialogCanceled() {
-            // retain current active perspective
-            PerspectiveManager.getInstance().setPerspective( activePerspective.getId() );
-          }
-
-          @Override
-          public void fileSelected( RepositoryFile repositoryFile, String filePath, String fileName, String title ) {
-            dialog.hide();
-            solutionBrowserPerspective.openFile( repositoryFile, openMethod );
-          }
-
-          @Override
-          public void fileSelectionChanged( RepositoryFile repositoryFile, String filePath, String fileName,
-              String title ) {
-            // TODO Auto-generated method stub
-
-          }
-        } );
-        dialog.center();
+      @Override
+      public void fileSelected( RepositoryFile repositoryFile, String filePath, String fileName, String title ) {
+        dialog.hide();
+        solutionBrowserPerspective.openFile( repositoryFile, openMethod );
       }
-    }, forceReload, null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles() );
+
+      @Override
+      public void fileSelectionChanged( RepositoryFile repositoryFile, String filePath, String fileName,
+          String title ) {
+        // TODO Auto-generated method stub
+
+      }
+    } );
   }
 }
