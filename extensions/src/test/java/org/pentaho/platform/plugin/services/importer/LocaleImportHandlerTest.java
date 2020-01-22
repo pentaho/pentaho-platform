@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -77,6 +77,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 public class LocaleImportHandlerTest {
 
   private static final String DEFAULT_ENCODING = "UTF-8";
+  private static final String FILE_BUNDLE_PATH = "/pentaho-solutions/my-test/";
 
   PentahoPlatformImporter importer;
   LocaleFilesProcessor localeFilesProcessor;
@@ -460,6 +461,55 @@ public class LocaleImportHandlerTest {
 
   }
 
+  @Test
+  public void testImportLocaleFolderChild() {
+    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
+    RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
+    Properties mockProperties = mock( Properties.class );
+    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
+
+    String someFile1 = "someFile.xaction";
+    String someFile2 = "someFile_rf.xaction";
+    String someFile3 = "someFile_rf.prpt";
+    String propertyFile = "someFile_rf.xaction.properties";
+
+    String propertiesContent =
+      "description=Some Description\n"
+        + "title=Some Title";
+    RepositoryFileImportBundle importBundle1 = createBundle( propertiesContent, someFile1 );
+    when( mockUnifiedRepository.getFile( FILE_BUNDLE_PATH + someFile1 ) ).thenReturn( importBundle1.getFile() );
+    RepositoryFileImportBundle importBundle2 = createBundle( propertiesContent, someFile2 );
+    when( mockUnifiedRepository.getFile( FILE_BUNDLE_PATH + someFile2 ) ).thenReturn( importBundle2.getFile() );
+    RepositoryFileImportBundle importBundle3 = createBundle( propertiesContent, someFile3 );
+    when( mockUnifiedRepository.getFile( FILE_BUNDLE_PATH + someFile3 ) ).thenReturn( importBundle3.getFile() );
+    RepositoryFileImportBundle importProperties = createBundle( propertiesContent, propertyFile );
+    when( mockUnifiedRepository.getFile( FILE_BUNDLE_PATH + propertyFile ) ).thenReturn( importProperties.getFile() );
+
+    List<RepositoryFile> localeFolderChildren = new ArrayList<>( );
+    localeFolderChildren.add( importBundle1.getFile() );
+    localeFolderChildren.add( importBundle2.getFile() );
+    localeFolderChildren.add( importBundle3.getFile() );
+    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
+
+    RepositoryFile localeParent1 = localeImportHandler.getLocaleParent( importBundle1, mockProperties );
+    RepositoryFile localeParent2 = localeImportHandler.getLocaleParent( importBundle2, mockProperties );
+    RepositoryFile localeParent3 = localeImportHandler.getLocaleParent( importBundle3, mockProperties );
+    RepositoryFile localeParent4 = localeImportHandler.getLocaleParent( importProperties, mockProperties );
+
+    verify( mockUnifiedRepository, times( 4 ) ).getFile( anyString() );
+    verify( mockUnifiedRepository, times( 4 ) ).getChildren( anyInt() );
+
+    assertNotNull( localeParent1 );
+    assertNotNull( localeParent2 );
+    assertNotNull( localeParent3 );
+    assertNotNull( localeParent4 );
+
+    assertEquals( localeParent1.getName(), someFile1 );
+    assertEquals( localeParent2.getName(), someFile2 );
+    assertEquals( localeParent3.getName(), someFile3 );
+    assertEquals( localeParent4.getName(), someFile2 );
+  }
+
   private IUnifiedRepository initLocaleHandler( RepositoryFileImportBundle importBundle ) {
     IUnifiedRepository unifiedRepository = mock( IUnifiedRepository.class );
     when( unifiedRepository.getFile( importBundle.getPath() ) ).thenReturn( importBundle.getFile() );
@@ -474,7 +524,7 @@ public class LocaleImportHandlerTest {
     RepositoryFile repoFile = new RepositoryFile.Builder( fileName ).build();
 
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
-    bundleBuilder.path( "/pentaho-solutions/my-test/" + fileName );
+    bundleBuilder.path( FILE_BUNDLE_PATH + fileName );
     bundleBuilder.mime( "text/locale" );
     bundleBuilder.input( in );
     bundleBuilder.charSet( DEFAULT_ENCODING );
