@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara..  All rights reserved.
  */
 
 define([
@@ -134,8 +134,17 @@ define([
             window.parent.executeCommand("RefreshRepositoryCommand");
           },
           function (error) {
-            setPrevVals.apply(me);
-            me.view.showError.apply(me.view);
+            if (error.status === 403 || error.status === 404) {
+              var i18n = me.view.options.i18n;
+              var body = i18n.prop(error.responseText);
+              //preventing XSS
+              body = Entities.encode( body );
+              setPrevVals.apply(me);
+              me.view.createCannotRenameDialog(body, me.view).show(me.view);
+            }else{
+              setPrevVals.apply(me);
+              me.view.showError.apply(me.view);
+            }
           }
         );
       }

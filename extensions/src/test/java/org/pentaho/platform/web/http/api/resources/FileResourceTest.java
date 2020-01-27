@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -36,7 +36,12 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterH
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
+import org.pentaho.platform.api.repository2.unified.webservices.LocaleMapDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -44,12 +49,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
-import org.pentaho.platform.api.repository2.unified.webservices.LocaleMapDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
-import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
@@ -118,6 +119,9 @@ public class FileResourceTest {
   private static final String BAD_ROLENAME = "Outlaws";
 
   private static final String XML_EXTENSION = "xml";
+  private static final String PATH_CONTROL_CHARACTER = "Create Control Character \u0017 File.xml";
+  private static final String PATH_SPECIAL_CHARACTERS = "éÉèÈçÇºªüÜ@£§.xml";
+  private static final String PATH_JAPANESE_CHARACTERS = "キャラクター.xml";
   private static final String PATH_ID = "pathId.xml";
   private static final String PATH_ID_WITHOUTH_EXTENSION = "pathId";
   private static final String PATH_ID_INCORRECT_EXTENSION = "pathId.wrong";
@@ -130,7 +134,6 @@ public class FileResourceTest {
   private IUserRoleDao userRoleDao;
   private Tenant tenant;
 
-
   @Before
   public void setUp() {
     mockStatic( TenantUtils.class );
@@ -138,7 +141,7 @@ public class FileResourceTest {
     tenant = new Tenant( "hitachivantara", true );
     when( TenantUtils.getCurrentTenant() ).thenReturn( tenant );
 
-    fileResource = spy( new FileResource() );
+    fileResource = spy( FileResource.class );
     fileResource.fileService = mock( FileService.class );
     fileResource.httpServletRequest = mock( HttpServletRequest.class );
     fileResource.policy = mock( IAuthorizationPolicy.class );
@@ -366,6 +369,54 @@ public class FileResourceTest {
   }
 
   @Test
+  public void testCreateFile_Forbidden_ControlCharactersFound() throws Exception {
+    String charsetName = "charsetName";
+    InputStream mockInputStream = mock( InputStream.class );
+    doReturn( charsetName ).when( fileResource.httpServletRequest ).getCharacterEncoding();
+    doCallRealMethod().when( fileResource.fileService )
+      .createFile( charsetName, PATH_CONTROL_CHARACTER, mockInputStream );
+
+    Response testResponse = fileResource.createFile( PATH_CONTROL_CHARACTER, mockInputStream );
+    assertEquals( FORBIDDEN.getStatusCode(), testResponse.getStatus() );
+    assertEquals( testResponse.getEntity(), "containsIllegalCharacters" );
+    verify( fileResource, times( 0 ) ).buildOkResponse();
+  }
+
+  @Test
+  public void testCreateFile_Special_Characters() throws Exception {
+    String charsetName = "charsetName";
+    InputStream mockInputStream = mock( InputStream.class );
+    RepositoryFileOutputStream repositoryFileOutputStream = mock( RepositoryFileOutputStream.class );
+
+    doReturn( charsetName ).when( fileResource.httpServletRequest ).getCharacterEncoding();
+    doReturn( repositoryFileOutputStream ).when( fileResource.fileService )
+      .getRepositoryFileOutputStream( anyString() );
+    doCallRealMethod().when( fileResource.fileService )
+      .createFile( charsetName, PATH_SPECIAL_CHARACTERS, mockInputStream );
+
+    Response testResponse = fileResource.createFile( PATH_SPECIAL_CHARACTERS, mockInputStream );
+    assertEquals( OK.getStatusCode(), testResponse.getStatus() );
+    verify( fileResource, times( 1 ) ).buildOkResponse();
+  }
+
+  @Test
+  public void testCreateFile_Japanese_Characters() throws Exception {
+    String charsetName = "charsetName";
+    InputStream mockInputStream = mock( InputStream.class );
+    RepositoryFileOutputStream repositoryFileOutputStream = mock( RepositoryFileOutputStream.class );
+
+    doReturn( charsetName ).when( fileResource.httpServletRequest ).getCharacterEncoding();
+    doReturn( repositoryFileOutputStream ).when( fileResource.fileService )
+      .getRepositoryFileOutputStream( anyString() );
+    doCallRealMethod().when( fileResource.fileService )
+      .createFile( charsetName, PATH_JAPANESE_CHARACTERS, mockInputStream );
+
+    Response testResponse = fileResource.createFile( PATH_JAPANESE_CHARACTERS, mockInputStream );
+    assertEquals( OK.getStatusCode(), testResponse.getStatus() );
+    verify( fileResource, times( 1 ) ).buildOkResponse();
+  }
+
+  @Test
   public void testCreateFileError() throws Exception {
     String charsetName = "charsetName";
     InputStream mockInputStream = mock( InputStream.class );
@@ -386,6 +437,21 @@ public class FileResourceTest {
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( mockException );
     verify( fileResource.httpServletRequest, times( 1 ) ).getCharacterEncoding();
     verify( fileResource.fileService ).createFile( charsetName, PATH_ID, mockInputStream );
+  }
+
+  @Test
+  public void testdoCreateDirSafe_Forbidden_ControlCharactersFound() throws Exception {
+    doReturn( new StringBuffer() ).when( fileResource.fileService ).doGetReservedChars();
+    doCallRealMethod().when( fileResource.fileService )
+      .doCreateDirSafe( PATH_CONTROL_CHARACTER );
+    doCallRealMethod().when( fileResource.fileService )
+      .idToPath( PATH_CONTROL_CHARACTER );
+
+
+    Response testResponse = fileResource.doCreateDirs( PATH_CONTROL_CHARACTER );
+    assertEquals( FORBIDDEN.getStatusCode(), testResponse.getStatus() );
+    assertEquals( testResponse.getEntity(), "containsIllegalCharacters" );
+    verify( fileResource, times( 0 ) ).buildOkResponse();
   }
 
   @Test
@@ -1428,34 +1494,62 @@ public class FileResourceTest {
   public void testDoRename() throws Exception {
     Response mockOkResponse = mock( Response.class );
     doReturn( mockOkResponse ).when( fileResource ).buildOkResponse();
-
-    String errMsg = "File to be renamed does not exist";
-    Response mockOkMsgResponse = mock( Response.class );
-    doReturn( mockOkMsgResponse ).when( fileResource ).buildOkResponse( errMsg );
-
-    // Test 1
     doReturn( true ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
 
     Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
     assertEquals( mockOkResponse, testResponse );
-
-    // Test 2
-    doReturn( false ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
-
-    testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
-    assertEquals( mockOkMsgResponse, testResponse );
-
-    verify( fileResource.fileService, times( 2 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    verify( fileResource.fileService, times( 1 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
     verify( fileResource, times( 1 ) ).buildOkResponse();
-    verify( fileResource, times( 1 ) ).buildOkResponse( errMsg );
+
   }
 
   @Test
+  public void testDoRename_FileNotFound() throws Exception {
+    String entity = "fileNotFound";
+    doReturn( false ).when( fileResource.fileService ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+
+    Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+    assertNotNull( testResponse );
+    assertEquals( Response.Status.NOT_FOUND.getStatusCode(), testResponse.getStatus() );
+    assertEquals( entity, testResponse.getEntity() );
+    verify( fileResource.fileService, times( 1 ) ).doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+  }
+
+  @Test
+  public void testDoRename_Forbidden_ControlCharactersFound() throws Exception {
+
+    String charsetName = "charsetName";
+    doReturn( charsetName ).when( fileResource.httpServletRequest ).getCharacterEncoding();
+
+    Response testResponse = fileResource.doRename( PATH_ID, PATH_CONTROL_CHARACTER );
+    assertEquals( FORBIDDEN.getStatusCode(), testResponse.getStatus() );
+    assertEquals( testResponse.getEntity(), "containsIllegalCharacters" );
+    verify( fileResource, times( 0 ) ).buildOkResponse();
+    verify( fileResource.fileService, times( 0 ) ).doRename( anyString(), anyString() );
+  }
+
+  @Test
+  public void testDoRename_Special_Characters() throws Exception {
+    fileResource.doRename( PATH_ID, PATH_SPECIAL_CHARACTERS );
+    verify( fileResource.fileService, times( 1 ) ).doRename( anyString(), anyString() );
+  }
+
+  @Test
+  public void testDoRename_Japanese_Characters() throws Exception {
+    fileResource.doRename( PATH_ID, PATH_JAPANESE_CHARACTERS );
+    verify( fileResource.fileService, times( 1 ) ).doRename( anyString(), anyString() );
+  }
+
+
+  @Test
   public void testDoRenameCorrectExtension() throws Exception {
+    doReturn( true ).when( fileResource.fileService )
+      .doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
+
     Response testResponse = fileResource.doRename( PATH_ID, NAME_NEW_FILE_WITHOUT_EXTENSION );
     assertEquals( OK.getStatusCode(), testResponse.getStatus() );
 
-    verify( fileResource, times( 1 ) ).buildOkResponse( anyString() );
+    verify( fileResource, times( 1 ) ).buildOkResponse();
   }
 
   @Test
@@ -1543,8 +1637,8 @@ public class FileResourceTest {
     when( mock.getRepositoryFile() ).thenReturn( repositoryFile );
     final Response response = fileResource.buildOkResponse( mock );
     final MultivaluedMap<String, Object> metadata = response.getMetadata();
-    String value = (String)metadata.get( "Content-Disposition" ).get( 0 );
-    assertEquals("inline; filename*=UTF-8''test%20%E4%BD%A0%E5%A5%BD", value);
+    String value = (String) metadata.get( "Content-Disposition" ).get( 0 );
+    assertEquals( "inline; filename*=UTF-8''test%20%E4%BD%A0%E5%A5%BD", value );
   }
 
   @Test

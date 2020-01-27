@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -120,7 +120,8 @@ public class NewFolderCommand extends AbstractCommand {
 
       public void okPressed() {
 
-        if ( !NameUtils.isValidFolderName( folderNameTextBox.getText() ) ) {
+        if ( !NameUtils.isValidFolderName( folderNameTextBox.getText() )
+          || NameUtils.containsControlCharacters( folderNameTextBox.getText() ) ) {
           event.setMessage( Messages.getString( "containsIllegalCharacters", folderNameTextBox.getText() ) );
           EventBusUtil.EVENT_BUS.fireEvent( event );
           return;

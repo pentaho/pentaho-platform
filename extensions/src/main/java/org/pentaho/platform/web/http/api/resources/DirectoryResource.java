@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -90,6 +90,8 @@ public class DirectoryResource extends AbstractJaxRSResource {
       } else {
         return Response.status( Response.Status.CONFLICT ).entity( "couldNotCreateFolderDuplicate" ).build();
       }
+    } catch ( FileService.InvalidNameException e ) {
+      return Response.status( Response.Status.FORBIDDEN ).entity( "containsIllegalCharacters" ).build();
     } catch ( Throwable t ) {
       return Response.serverError().entity( "" ).build();
     }
