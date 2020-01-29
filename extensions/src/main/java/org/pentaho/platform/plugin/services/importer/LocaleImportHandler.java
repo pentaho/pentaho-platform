@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -187,41 +187,47 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
       localeParent = localeFolder;
     } else if ( localeFolder != null ) {
       List<RepositoryFile> localeFolderChildren = unifiedRepository.getChildren( localeFolder.getId() );
-      for ( RepositoryFile localeChild : localeFolderChildren ) {
+      // The localeFolderChildren are files that are not locale/properties file based and are actual files/reports. So
+      // we can do a quick check to make sure we are looking at potential locale files first before we need to go deeper
+      RepositoryFile foundLocaleFolderChild = getLocaleFolderChild( localeFileName, localeFolderChildren );
+      if ( foundLocaleFolderChild == null ) {
+        for ( RepositoryFile localeChild : localeFolderChildren ) {
 
-        String localeChildName = extractFileName( localeChild.getName() );
-        String localeChildExtension = extractExtension( localeChild.getName() );
+          String localeChildName = extractFileName( localeChild.getName() );
+          String localeChildExtension = extractExtension( localeChild.getName() );
 
-        // [BISERVER-10444] locale is not being applied to correct file extension (report1.prpt.locale vs.
-        // report1.xaction.locale)
-        boolean localeFileNameAlsoContainsFileExtension =
+          // [BISERVER-10444] locale is not being applied to correct file extension (report1.prpt.locale vs.
+          // report1.xaction.locale)
+          boolean localeFileNameAlsoContainsFileExtension =
             checkIfLocaleFileNameAlsoContainsAFileExtension( localeFileName );
 
-        if ( localeFileNameAlsoContainsFileExtension ) {
-          // FilenameUtils.getBaseName() returns name of file or empty string if none exists (NPE safe)
-          // FilenameUtils.getExtension() returns extension of file or empty string if none exists (NPE safe)
-          String localeFileExtension = FilenameUtils.getExtension( FilenameUtils.getBaseName( localeFileName ) );
-          String localeFileNameWithoutExtensions =
+          if ( localeFileNameAlsoContainsFileExtension ) {
+            // FilenameUtils.getBaseName() returns name of file or empty string if none exists (NPE safe)
+            // FilenameUtils.getExtension() returns extension of file or empty string if none exists (NPE safe)
+            String localeFileExtension = FilenameUtils.getExtension( FilenameUtils.getBaseName( localeFileName ) );
+            String localeFileNameWithoutExtensions =
               FilenameUtils.getBaseName( FilenameUtils.getBaseName( localeFileName ) );
 
-          if ( localeFileExtension.contains( "_" ) ) {
-            localeFileExtension = localeFileExtension.substring( 0, localeFileExtension.indexOf( "_" ) );
-          }
+            if ( localeFileExtension.contains( "_" ) ) {
+              localeFileExtension = localeFileExtension.substring( 0, localeFileExtension.indexOf( "_" ) );
+            }
 
-          if ( localeFileNameWithoutExtensions.equals( localeChildName )
+            if ( localeFileNameWithoutExtensions.equals( localeChildName )
               && localeFileExtension.equalsIgnoreCase( localeChildExtension )
+              && artifacts.contains( localeChildExtension ) ) {
+              localeParent = localeChild;
+              break;
+            }
+          } else if ( ( extractFileName( localeFileName ).equals( localeChildName )  // matches default properties files
+              || ( extractFileNameWithCountryLocalization( localeFileName ).equals( localeChildName ) ) // matches file_en.properties files
+              || ( extractFileNameWithLanguageLocalization( localeFileName ).equals( localeChildName ) ) ) // matches file_en_US.properties files
               && artifacts.contains( localeChildExtension ) ) {
             localeParent = localeChild;
             break;
           }
-
-        } else if ( ( extractFileName( localeFileName ).equals( localeChildName )                         // matches default properties files
-            || ( extractFileNameWithCountryLocalization( localeFileName ).equals( localeChildName ) )     // matches file_en.properties files
-            || ( extractFileNameWithLanguageLocalization( localeFileName ).equals( localeChildName ) ) )  // matches file_en_US.properties files
-            && artifacts.contains( localeChildExtension ) ) {
-          localeParent = localeChild;
-          break;
         }
+      } else {
+        localeParent = foundLocaleFolderChild;
       }
     }
     return localeParent;
@@ -231,6 +237,17 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     return ( localeFileName.startsWith( LOCALE_FOLDER ) && localeFileName.endsWith( LOCALE_EXT ) )
         || ( localeFileName.startsWith( LOCALE_FOLDER ) && localeFileName.endsWith( OLD_LOCALE_EXT ) )
         || ( localeFileName.equals( LOCALE_FOLDER + XML_LOCALE_EXT ) && !localePropertiesFromIndex.isEmpty() );
+  }
+
+  private RepositoryFile getLocaleFolderChild( String localeFileName, List<RepositoryFile> localeFolderChildren ) {
+    RepositoryFile localeFolderChild = null;
+    for ( RepositoryFile localeChild : localeFolderChildren ) {
+      if ( localeFileName.equals( localeChild.getName() ) ) {
+        localeFolderChild = localeChild;
+        break;
+      }
+    }
+    return localeFolderChild;
   }
 
   private String extractExtension( String name ) {
