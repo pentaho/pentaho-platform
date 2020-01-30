@@ -93,8 +93,6 @@ public class RepositoryCleanerTest {
     IPentahoSystemSessionFactory sessionFactory = mock( IPentahoSystemSessionFactory.class );
     when( sessionFactory.create( any() ) ).thenReturn( systemSession );
     Node parentNode = mock( Node.class );
-    Node childNode = mock( Node.class );
-    when( parentNode.getNode( anyString() ) ).thenReturn( childNode );
     when( systemSession.getNode( anyString() ) ).thenReturn( parentNode );
     when( parentNode.getName() ).thenReturn( "" );
     when( parentNode.getNodes() ).thenReturn( null );
