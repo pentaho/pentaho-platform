@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -112,7 +112,7 @@ public class RepositoryCleaner {
   }
 
   private void findVersionNodesAndPurge( Node node, Session session ) {
-    if( node == null || session == null ){
+    if ( node == null || session == null ) {
       return;
     }
     try {
@@ -143,6 +143,10 @@ public class RepositoryCleaner {
       nodes = node.getNodes();
     } catch ( RepositoryException e ) {
       logger.error( "Error purging version nodes. Routine will continue", e );
+    }
+
+    if ( nodes == null ) {
+      return;
     }
 
     while ( nodes.hasNext() ) {
