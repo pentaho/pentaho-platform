@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -304,6 +304,11 @@ public class FileService {
   public void createFile( String charsetName, String pathId, InputStream fileContents )
     throws Exception {
     try {
+
+      if ( FileUtils.containsControlCharacters( pathId ) ) {
+        throw new InvalidNameException();
+      }
+
       String idToPath = idToPath( pathId );
       RepositoryFileOutputStream rfos = getRepositoryFileOutputStream( idToPath );
       rfos.setCharsetName( charsetName );
@@ -595,7 +600,7 @@ public class FileService {
     BaseExportProcessor exportProcessor = getDownloadExportProcessor( path, requiresZip, withManifest );
     originalFileName = requiresZip ? repositoryFile.getName() + ".zip" : repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
     encodedFileName = makeEncodedFileName( originalFileName );
-    
+
     // add export handlers for each expected file type
     exportProcessor.addExportHandler( getDownloadExportHandler() );
 
@@ -1544,7 +1549,7 @@ public class FileService {
     return doCreateDirFor( path );
   }
 
-  protected boolean doCreateDirFor( String pathWithSlashes ) {
+  boolean doCreateDirFor( String pathWithSlashes ) {
     String[] folders = pathWithSlashes.split( "[" + FileUtils.PATH_SEPARATOR + "]" ); //$NON-NLS-1$//$NON-NLS-2$
     RepositoryFileDto parentDir = getRepoWs().getFile( FileUtils.PATH_SEPARATOR );
     boolean dirCreated = false;
@@ -1589,6 +1594,10 @@ public class FileService {
       throw new InvalidNameException();
     }
     if ( !isValidFolderName( path ) ) {
+      throw new InvalidNameException();
+    }
+
+    if ( FileUtils.containsControlCharacters( pathId ) ) {
       throw new InvalidNameException();
     }
 

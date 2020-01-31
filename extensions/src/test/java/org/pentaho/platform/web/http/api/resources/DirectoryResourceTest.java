@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -39,14 +39,17 @@ import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 public class DirectoryResourceTest {
   private static final String PATH = "/home/dirName";
+  private static final String PATH_CONTROL_CHARACTER = ":home:Create Control Character \u0017 Folder";
+  private static final String PATH_SPECIAL_CHARACTERS = ":home:éÉèÈçÇºªüÜ@£§ folder";
+  private static final String PATH_JAPANESE_CHARACTERS = ":home:キャラクター";
   private static final String ROOTLEVEL_PATH = "/dirName";
 
   private DirectoryResource directoryResource;
 
   @Before
   public void setUp() {
-    directoryResource = spy( new DirectoryResource() );
-    directoryResource.fileService = mock( FileService.class );
+    directoryResource = spy( DirectoryResource.class );
+    directoryResource.fileService = spy( FileService.class );
     directoryResource.httpServletRequest = mock( HttpServletRequest.class );
   }
 
@@ -101,6 +104,33 @@ public class DirectoryResourceTest {
 
     assertEquals( Response.Status.FORBIDDEN.getStatusCode(), testResponse.getStatus() );
     verify( directoryResource.fileService, times( 0 ) ).doCreateDirSafe( anyString() );
+  }
+
+  @Test
+  public void testCreateDirs_Forbidden_ControlCharactersFound() {
+    doReturn( new StringBuffer() ).when( directoryResource.fileService ).doGetReservedChars();
+    Response testResponse = directoryResource.createDirs( PATH_CONTROL_CHARACTER );
+
+    assertEquals( Response.Status.FORBIDDEN.getStatusCode(), testResponse.getStatus() );
+    assertEquals( testResponse.getEntity(), "containsIllegalCharacters" );
+  }
+
+  @Test
+  public void testCreateDirs_Special_Characters() throws Exception {
+    doReturn( true ).when( directoryResource.fileService ).doCreateDirSafe( PATH_SPECIAL_CHARACTERS );
+    Response testResponse = directoryResource.createDirs( PATH_SPECIAL_CHARACTERS );
+
+    assertEquals( Response.Status.OK.getStatusCode(), testResponse.getStatus() );
+    verify( directoryResource.fileService, times( 1 ) ).doCreateDirSafe( PATH_SPECIAL_CHARACTERS );
+  }
+
+  @Test
+  public void testCreateDirs_Forbidden_Japanese_Characters() throws Exception {
+    doReturn( true ).when( directoryResource.fileService ).doCreateDirSafe( PATH_JAPANESE_CHARACTERS );
+    Response testResponse = directoryResource.createDirs( PATH_JAPANESE_CHARACTERS );
+
+    assertEquals( Response.Status.OK.getStatusCode(), testResponse.getStatus() );
+    verify( directoryResource.fileService, times( 1 ) ).doCreateDirSafe( PATH_JAPANESE_CHARACTERS );
   }
 
 }

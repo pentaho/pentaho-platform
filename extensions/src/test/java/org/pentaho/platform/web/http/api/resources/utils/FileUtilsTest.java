@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -201,5 +201,11 @@ public class FileUtilsTest {
     assertEquals( false, FileUtils.isRootLevelPath( "/etc/ghjk" ) );
     assertEquals( false, FileUtils.isRootLevelPath( "/etc/ghjk/zxcv" ) );
     assertEquals( false, FileUtils.isRootLevelPath( "/etc/as~!@#$%df/gh^&*()jk/zx_+ ,.cv/bnm" ) );
+  }
+
+  @Test
+  public void foundControlCharacters() {
+    assertEquals( true, FileUtils.containsControlCharacters( "/home/Create Control Character \u0017 Folder" ) );
+    assertEquals( false, FileUtils.containsControlCharacters( "/home/Create normal Folder" ) );
   }
 }

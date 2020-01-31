@@ -14,12 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources.utils;
 
+import com.google.gwt.regexp.shared.RegExp;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -83,6 +84,18 @@ public class FileUtils {
       path = FilenameUtils.getPathNoEndSeparator( path );
     }
     return false;
+  }
+
+  /**
+   * Checks whether {@code path} contains any of Control Characters
+   *
+   * @param path to be validated
+   * @return {@code true} if any of {@code Control Characters} is contained in {@code path}
+   */
+
+  public static boolean containsControlCharacters( String path ) {
+    RegExp pattern = RegExp.compile( "[\\x00-\\x1F\\x7F]" );
+    return pattern.test( path );
   }
 
   public static String[] convertCommaSeparatedStringToArray( String stringToConvert ) {

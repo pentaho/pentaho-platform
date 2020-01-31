@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -407,6 +407,8 @@ public class FileResource extends AbstractJaxRSResource {
 
       fileService.createFile( httpServletRequest.getCharacterEncoding(), pathId, fileContents );
       return buildOkResponse();
+    } catch ( FileService.InvalidNameException e ) {
+      return Response.status( Response.Status.FORBIDDEN ).entity( "containsIllegalCharacters" ).build();
     } catch ( Throwable t ) {
       return buildServerErrorResponse( t );
     }
@@ -1916,17 +1918,23 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces ( { MediaType.WILDCARD } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully renamed file." ),
-    @ResponseCode( code = 200, condition = "File to be renamed does not exist." ) } )
+    @ResponseCode( code = 403, condition = "Forbidden." ),
+    @ResponseCode( code = 404, condition = "File not found." ) } )
   public Response doRename( @PathParam( "pathId" ) String pathId, @QueryParam( "newName" ) String newName ) {
     try {
+      if ( FileUtils.containsControlCharacters( newName ) ) {
+        return Response.status( Response.Status.FORBIDDEN ).entity( "containsIllegalCharacters" ).build();
+      }
+
       JcrRepositoryFileUtils.checkName( newName );
 
       boolean success = fileService.doRename( pathId, newName );
       if ( success ) {
         return buildOkResponse();
-      } else {
-        return buildOkResponse( "File to be renamed does not exist" );
       }
+
+      return Response.status( Response.Status.NOT_FOUND ).entity( "fileNotFound" ).build();
+
     } catch ( Throwable t ) {
       return buildServerErrorResponse( t.getMessage() );
     }
@@ -2000,6 +2008,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Consumes ( { MediaType.WILDCARD } )
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully created folder." ),
+      @ResponseCode ( code = 403, condition = "Forbidden." ),
       @ResponseCode ( code = 409, condition = "Path already exists." ),
       @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public Response doCreateDirs( @PathParam ( "pathId" ) String pathId ) {
@@ -2009,6 +2018,8 @@ public class FileResource extends AbstractJaxRSResource {
       } else {
         return Response.status( Response.Status.CONFLICT ).entity( "couldNotCreateFolderDuplicate" ).build();
       }
+    } catch ( FileService.InvalidNameException e ) {
+      return Response.status( Response.Status.FORBIDDEN ).entity( "containsIllegalCharacters" ).build();
     } catch ( Throwable t ) {
       return buildServerErrorResponse( t.getMessage() );
     }
