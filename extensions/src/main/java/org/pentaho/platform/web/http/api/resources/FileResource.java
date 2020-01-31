@@ -407,7 +407,7 @@ public class FileResource extends AbstractJaxRSResource {
 
       fileService.createFile( httpServletRequest.getCharacterEncoding(), pathId, fileContents );
       return buildOkResponse();
-    } catch ( FileService.InvalidNameException t ) {
+    } catch ( FileService.InvalidNameException e ) {
       return Response.status( Response.Status.FORBIDDEN ).entity( "containsIllegalCharacters" ).build();
     } catch ( Throwable t ) {
       return buildServerErrorResponse( t );
