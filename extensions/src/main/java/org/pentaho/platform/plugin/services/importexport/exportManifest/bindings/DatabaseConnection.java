@@ -142,38 +142,61 @@ import java.util.List;
  *         &lt;element name="streamingResults" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="username" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="usingConnectionPool" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
- *         &lt;element name="usingDoubleDecimalAsSchemaTableSeparator" type="{http://www.w3
- *         .org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="usingDoubleDecimalAsSchemaTableSeparator" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="extraOptionsOrder">
+ *           &lt;complexType>
+ *             &lt;complexContent>
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *                 &lt;sequence>
+ *                   &lt;element name="entry" maxOccurs="unbounded" minOccurs="0">
+ *                     &lt;complexType>
+ *                       &lt;complexContent>
+ *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *                           &lt;sequence>
+ *                             &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *                             &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *                           &lt;/sequence>
+ *                         &lt;/restriction>
+ *                       &lt;/complexContent>
+ *                     &lt;/complexType>
+ *                   &lt;/element>
+ *                 &lt;/sequence>
+ *               &lt;/restriction>
+ *             &lt;/complexContent>
+ *           &lt;/complexType>
+ *         &lt;/element>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType ( XmlAccessType.FIELD )
-@XmlType ( name = "databaseConnection", propOrder = { "accessType", "accessTypeValue", "attributes", "changed",
-    "connectSql", "connectionPoolingProperties", "dataTablespace", "databaseName", "databasePort", "databaseType",
-    "extraOptions", "forcingIdentifiersToLowerCase", "forcingIdentifiersToUpperCase", "hostname", "id",
-    "indexTablespace", "informixServername", "initialPoolSize", "maximumPoolSize", "name", "partitioned",
-    "partitioningInformation", "password", "quoteAllFields", "sqlServerInstance", "streamingResults", "username",
-    "usingConnectionPool", "usingDoubleDecimalAsSchemaTableSeparator" } )
+@XmlAccessorType( XmlAccessType.FIELD )
+@XmlType( name = "databaseConnection", propOrder = { "accessType", "accessTypeValue", "attributes", "changed",
+  "connectSql", "connectionPoolingProperties", "dataTablespace", "databaseName", "databasePort", "databaseType",
+  "extraOptions", "forcingIdentifiersToLowerCase", "forcingIdentifiersToUpperCase", "hostname", "id",
+  "indexTablespace", "informixServername", "initialPoolSize", "maximumPoolSize", "name", "partitioned",
+  "partitioningInformation", "password", "quoteAllFields", "sqlServerInstance", "streamingResults", "username",
+  "usingConnectionPool", "usingDoubleDecimalAsSchemaTableSeparator", "extraOptionsOrder" } )
 public class DatabaseConnection {
 
   protected DatabaseAccessType accessType;
   protected String accessTypeValue;
-  @XmlElement ( required = true )
+  @XmlElement( required = true )
   protected DatabaseConnection.Attributes attributes;
   protected boolean changed;
   protected String connectSql;
-  @XmlElement ( required = true )
+  @XmlElement( required = true )
   protected DatabaseConnection.ConnectionPoolingProperties connectionPoolingProperties;
   protected String dataTablespace;
   protected String databaseName;
   protected String databasePort;
-  @XmlElement ( namespace = "http://www.pentaho.com/schema/" )
+  @XmlElement( namespace = "http://www.pentaho.com/schema/" )
   protected DatabaseType databaseType;
-  @XmlElement ( required = true )
+  @XmlElement( required = true )
   protected DatabaseConnection.ExtraOptions extraOptions;
+  @XmlElement( required = true )
+  protected DatabaseConnection.ExtraOptionsOrder extraOptionsOrder;
   protected boolean forcingIdentifiersToLowerCase;
   protected boolean forcingIdentifiersToUpperCase;
   protected String hostname;
@@ -184,12 +207,12 @@ public class DatabaseConnection {
   protected int maximumPoolSize;
   protected String name;
   protected boolean partitioned;
-  @XmlElement ( nillable = true )
+  @XmlElement( nillable = true )
   protected List<PartitionDatabaseMeta> partitioningInformation;
   @XmlJavaTypeAdapter( PasswordEncryptionAdapter.class )
   protected String password;
   protected boolean quoteAllFields;
-  @XmlElement ( name = "SQLServerInstance" )
+  @XmlElement( name = "SQLServerInstance" )
   protected String sqlServerInstance;
   protected boolean streamingResults;
   protected String username;
@@ -388,6 +411,24 @@ public class DatabaseConnection {
    */
   public void setExtraOptions( DatabaseConnection.ExtraOptions value ) {
     this.extraOptions = value;
+  }
+
+  /**
+   * Gets the value of the extraOptionsOrder property.
+   *
+   * @return possible object is {@link DatabaseConnection.ExtraOptionsOrder }
+   */
+  public DatabaseConnection.ExtraOptionsOrder getExtraOptionsOrder() {
+    return extraOptionsOrder;
+  }
+
+  /**
+   * Sets the value of the extraOptionsOrder property.
+   *
+   * @param value allowed object is {@link DatabaseConnection.ExtraOptionsOrder }
+   */
+  public void setExtraOptionsOrder( DatabaseConnection.ExtraOptionsOrder value ) {
+    this.extraOptionsOrder = value;
   }
 
   /**
@@ -687,391 +728,31 @@ public class DatabaseConnection {
   }
 
   /**
-   * <p/>
-   * Java class for anonymous complex type.
-   * <p/>
-   * <p/>
-   * The following schema fragment specifies the expected content contained within this class.
-   * <p/>
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;sequence>
-   *         &lt;element name="entry" maxOccurs="unbounded" minOccurs="0">
-   *           &lt;complexType>
-   *             &lt;complexContent>
-   *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *                 &lt;sequence>
-   *                   &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-   *                   &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-   *                 &lt;/sequence>
-   *               &lt;/restriction>
-   *             &lt;/complexContent>
-   *           &lt;/complexType>
-   *         &lt;/element>
-   *       &lt;/sequence>
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
+   * <p>Defining an inner class to support the attributes'Map object from the original class.</p>
+   * {@inheritDoc}
    */
-  @XmlAccessorType ( XmlAccessType.FIELD )
-  @XmlType ( name = "", propOrder = { "entry" } )
-  public static class Attributes {
-
-    protected List<DatabaseConnection.Attributes.Entry> entry;
-
-    /**
-     * Gets the value of the entry property.
-     * <p/>
-     * <p/>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
-     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
-     * the entry property.
-     * <p/>
-     * <p/>
-     * For example, to add a new item, do as follows:
-     * <p/>
-     * <pre>
-     * getEntry().add( newItem );
-     * </pre>
-     * <p/>
-     * <p/>
-     * <p/>
-     * Objects of the following type(s) are allowed in the list {@link DatabaseConnection.Attributes.Entry }
-     */
-    public List<DatabaseConnection.Attributes.Entry> getEntry() {
-      if ( entry == null ) {
-        entry = new ArrayList<>();
-      }
-      return this.entry;
-    }
-
-    /**
-     * <p/>
-     * Java class for anonymous complex type.
-     * <p/>
-     * <p/>
-     * The following schema fragment specifies the expected content contained within this class.
-     * <p/>
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;sequence>
-     *         &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-     *         &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-     *       &lt;/sequence>
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     */
-    @XmlAccessorType ( XmlAccessType.FIELD )
-    @XmlType ( name = "", propOrder = { "key", "value" } )
-    public static class Entry {
-
-      protected String key;
-      protected String value;
-
-      /**
-       * Gets the value of the key property.
-       *
-       * @return possible object is {@link String }
-       */
-      public String getKey() {
-        return key;
-      }
-
-      /**
-       * Sets the value of the key property.
-       *
-       * @param value allowed object is {@link String }
-       */
-      public void setKey( String value ) {
-        this.key = value;
-      }
-
-      /**
-       * Gets the value of the value property.
-       *
-       * @return possible object is {@link String }
-       */
-      public String getValue() {
-        return value;
-      }
-
-      /**
-       * Sets the value of the value property.
-       *
-       * @param value allowed object is {@link String }
-       */
-      public void setValue( String value ) {
-        this.value = value;
-      }
-
-    }
-
+  public static class Attributes extends MapExport {
   }
 
   /**
-   * <p/>
-   * Java class for anonymous complex type.
-   * <p/>
-   * <p/>
-   * The following schema fragment specifies the expected content contained within this class.
-   * <p/>
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;sequence>
-   *         &lt;element name="entry" maxOccurs="unbounded" minOccurs="0">
-   *           &lt;complexType>
-   *             &lt;complexContent>
-   *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *                 &lt;sequence>
-   *                   &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-   *                   &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-   *                 &lt;/sequence>
-   *               &lt;/restriction>
-   *             &lt;/complexContent>
-   *           &lt;/complexType>
-   *         &lt;/element>
-   *       &lt;/sequence>
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
+   * <p>Defining an inner class to support the connectionPoolingProperties'Map object from the original class.</p>
+   * {@inheritDoc}
    */
-  @XmlAccessorType ( XmlAccessType.FIELD )
-  @XmlType ( name = "", propOrder = { "entry" } )
-  public static class ConnectionPoolingProperties {
-
-    protected List<DatabaseConnection.ConnectionPoolingProperties.Entry> entry;
-
-    /**
-     * Gets the value of the entry property.
-     * <p/>
-     * <p/>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
-     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
-     * the entry property.
-     * <p/>
-     * <p/>
-     * For example, to add a new item, do as follows:
-     * <p/>
-     * <pre>
-     * getEntry().add( newItem );
-     * </pre>
-     * <p/>
-     * <p/>
-     * <p/>
-     * Objects of the following type(s) are allowed in the list {@link DatabaseConnection.ConnectionPoolingProperties
-     * .Entry
-     * }
-     */
-    public List<DatabaseConnection.ConnectionPoolingProperties.Entry> getEntry() {
-      if ( entry == null ) {
-        entry = new ArrayList<>();
-      }
-      return this.entry;
-    }
-
-    /**
-     * <p/>
-     * Java class for anonymous complex type.
-     * <p/>
-     * <p/>
-     * The following schema fragment specifies the expected content contained within this class.
-     * <p/>
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;sequence>
-     *         &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-     *         &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-     *       &lt;/sequence>
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     */
-    @XmlAccessorType ( XmlAccessType.FIELD )
-    @XmlType ( name = "", propOrder = { "key", "value" } )
-    public static class Entry {
-
-      protected String key;
-      protected String value;
-
-      /**
-       * Gets the value of the key property.
-       *
-       * @return possible object is {@link String }
-       */
-      public String getKey() {
-        return key;
-      }
-
-      /**
-       * Sets the value of the key property.
-       *
-       * @param value allowed object is {@link String }
-       */
-      public void setKey( String value ) {
-        this.key = value;
-      }
-
-      /**
-       * Gets the value of the value property.
-       *
-       * @return possible object is {@link String }
-       */
-      public String getValue() {
-        return value;
-      }
-
-      /**
-       * Sets the value of the value property.
-       *
-       * @param value allowed object is {@link String }
-       */
-      public void setValue( String value ) {
-        this.value = value;
-      }
-
-    }
-
+  public static class ConnectionPoolingProperties extends MapExport {
   }
 
   /**
-   * <p/>
-   * Java class for anonymous complex type.
-   * <p/>
-   * <p/>
-   * The following schema fragment specifies the expected content contained within this class.
-   * <p/>
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;sequence>
-   *         &lt;element name="entry" maxOccurs="unbounded" minOccurs="0">
-   *           &lt;complexType>
-   *             &lt;complexContent>
-   *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *                 &lt;sequence>
-   *                   &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-   *                   &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-   *                 &lt;/sequence>
-   *               &lt;/restriction>
-   *             &lt;/complexContent>
-   *           &lt;/complexType>
-   *         &lt;/element>
-   *       &lt;/sequence>
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
+   * <p>Defining an inner class to support the extraOptions'Map object from the original class.</p>
+   * {@inheritDoc}
    */
-  @XmlAccessorType ( XmlAccessType.FIELD )
-  @XmlType ( name = "", propOrder = { "entry" } )
-  public static class ExtraOptions {
+  public static class ExtraOptions extends MapExport {
+  }
 
-    protected List<DatabaseConnection.ExtraOptions.Entry> entry;
-
-    /**
-     * Gets the value of the entry property.
-     * <p/>
-     * <p/>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
-     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
-     * the entry property.
-     * <p/>
-     * <p/>
-     * For example, to add a new item, do as follows:
-     * <p/>
-     * <pre>
-     * getEntry().add( newItem );
-     * </pre>
-     * <p/>
-     * <p/>
-     * <p/>
-     * Objects of the following type(s) are allowed in the list {@link DatabaseConnection.ExtraOptions.Entry }
-     */
-    public List<DatabaseConnection.ExtraOptions.Entry> getEntry() {
-      if ( entry == null ) {
-        entry = new ArrayList<>();
-      }
-      return this.entry;
-    }
-
-    /**
-     * <p/>
-     * Java class for anonymous complex type.
-     * <p/>
-     * <p/>
-     * The following schema fragment specifies the expected content contained within this class.
-     * <p/>
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;sequence>
-     *         &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-     *         &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-     *       &lt;/sequence>
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     */
-    @XmlAccessorType ( XmlAccessType.FIELD )
-    @XmlType ( name = "", propOrder = { "key", "value" } )
-    public static class Entry {
-
-      protected String key;
-      protected String value;
-
-      /**
-       * Gets the value of the key property.
-       *
-       * @return possible object is {@link String }
-       */
-      public String getKey() {
-        return key;
-      }
-
-      /**
-       * Sets the value of the key property.
-       *
-       * @param value allowed object is {@link String }
-       */
-      public void setKey( String value ) {
-        this.key = value;
-      }
-
-      /**
-       * Gets the value of the value property.
-       *
-       * @return possible object is {@link String }
-       */
-      public String getValue() {
-        return value;
-      }
-
-      /**
-       * Sets the value of the value property.
-       *
-       * @param value allowed object is {@link String }
-       */
-      public void setValue( String value ) {
-        this.value = value;
-      }
-
-    }
+  /**
+   * <p>Defining an inner class to support the extraOptionsOrder'Map object from the original class.</p>
+   * {@inheritDoc}
+   */
+  public static class ExtraOptionsOrder extends MapExport {
   }
 
   /**

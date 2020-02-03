@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2019-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,6 +24,8 @@ package org.pentaho.platform.plugin.services.importexport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseAccessType;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseType;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.MapExport;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.PartitionDatabaseMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,16 +45,33 @@ public class DatabaseConnectionConverter {
       databaseConnectionExport = new DatabaseConnection();
 
       databaseConnectionExport.setAccessType( model2export( databaseConnection.getAccessType() ) );
-      databaseConnectionExport.setAttributes( attributesModel2export( databaseConnection.getAttributes() ) );
+
+      DatabaseConnection.Attributes attributes = new DatabaseConnection.Attributes();
+      attributes.getEntry().addAll( mapModel2export( databaseConnection.getAttributes() ) );
+      databaseConnectionExport.setAttributes( attributes );
+
       databaseConnectionExport.setChanged( databaseConnection.getChanged() );
-      databaseConnectionExport.setConnectionPoolingProperties(
-        connectionPoolingPropertiesModel2export( databaseConnection.getConnectionPoolingProperties() ) );
+
+      DatabaseConnection.ConnectionPoolingProperties connectionPoolingProperties =
+        new DatabaseConnection.ConnectionPoolingProperties();
+      connectionPoolingProperties.getEntry()
+        .addAll( mapModel2export( databaseConnection.getConnectionPoolingProperties() ) );
+      databaseConnectionExport.setConnectionPoolingProperties( connectionPoolingProperties );
+
       databaseConnectionExport.setConnectSql( databaseConnection.getConnectSql() );
       databaseConnectionExport.setDatabaseName( databaseConnection.getDatabaseName() );
       databaseConnectionExport.setDatabasePort( databaseConnection.getDatabasePort() );
       databaseConnectionExport.setDatabaseType( model2export( databaseConnection.getDatabaseType() ) );
       databaseConnectionExport.setDataTablespace( databaseConnection.getDataTablespace() );
-      databaseConnectionExport.setExtraOptions( extraOptionsModel2export( databaseConnection.getExtraOptions() ) );
+
+      DatabaseConnection.ExtraOptions extraOptions = new DatabaseConnection.ExtraOptions();
+      extraOptions.getEntry().addAll( mapModel2export( databaseConnection.getExtraOptions() ) );
+      databaseConnectionExport.setExtraOptions( extraOptions );
+
+      DatabaseConnection.ExtraOptionsOrder extraOptionsOrder = new DatabaseConnection.ExtraOptionsOrder();
+      extraOptionsOrder.getEntry().addAll( mapModel2export( databaseConnection.getExtraOptionsOrder() ) );
+      databaseConnectionExport.setExtraOptionsOrder( extraOptionsOrder );
+
       databaseConnectionExport.setForcingIdentifiersToLowerCase( databaseConnection.isForcingIdentifiersToLowerCase() );
       databaseConnectionExport.setForcingIdentifiersToUpperCase( databaseConnection.isForcingIdentifiersToUpperCase() );
       databaseConnectionExport.setHostname( databaseConnection.getHostname() );
@@ -63,6 +82,7 @@ public class DatabaseConnectionConverter {
       databaseConnectionExport.setMaximumPoolSize( databaseConnection.getMaximumPoolSize() );
       databaseConnectionExport.setName( databaseConnection.getName() );
       databaseConnectionExport.setPartitioned( databaseConnection.isPartitioned() );
+      partitioningInformationModel2export( databaseConnection, databaseConnectionExport );
       databaseConnectionExport.setPassword( databaseConnection.getPassword() );
       databaseConnectionExport.setQuoteAllFields( databaseConnection.isQuoteAllFields() );
       databaseConnectionExport.setSQLServerInstance( databaseConnection.getSQLServerInstance() );
@@ -84,16 +104,17 @@ public class DatabaseConnectionConverter {
       databaseConnection = new org.pentaho.database.model.DatabaseConnection();
 
       databaseConnection.setAccessType( export2model( databaseConnectionExport.getAccessType() ) );
-      databaseConnection.setAttributes( attributesExport2model( databaseConnectionExport.getAttributes() ) );
+      databaseConnection.setAttributes( mapExport2model( databaseConnectionExport.getAttributes() ) );
       databaseConnection.setChanged( databaseConnectionExport.isChanged() );
-      databaseConnection.setConnectionPoolingProperties(
-        connectionPoolingPropertiesExport2model( databaseConnectionExport.getConnectionPoolingProperties() ) );
+      databaseConnection
+        .setConnectionPoolingProperties( mapExport2model( databaseConnectionExport.getConnectionPoolingProperties() ) );
       databaseConnection.setConnectSql( databaseConnectionExport.getConnectSql() );
       databaseConnection.setDatabaseName( databaseConnectionExport.getDatabaseName() );
       databaseConnection.setDatabasePort( databaseConnectionExport.getDatabasePort() );
       databaseConnection.setDatabaseType( export2model( databaseConnectionExport.getDatabaseType() ) );
       databaseConnection.setDataTablespace( databaseConnectionExport.getDataTablespace() );
-      databaseConnection.setExtraOptions( extraOptionsExport2model( databaseConnectionExport.getExtraOptions() ) );
+      databaseConnection.setExtraOptions( mapExport2model( databaseConnectionExport.getExtraOptions() ) );
+      databaseConnection.setExtraOptionsOrder( mapExport2model( databaseConnectionExport.getExtraOptionsOrder() ) );
       databaseConnection.setForcingIdentifiersToLowerCase( databaseConnectionExport.isForcingIdentifiersToLowerCase() );
       databaseConnection.setForcingIdentifiersToUpperCase( databaseConnectionExport.isForcingIdentifiersToUpperCase() );
       databaseConnection.setHostname( databaseConnectionExport.getHostname() );
@@ -104,6 +125,7 @@ public class DatabaseConnectionConverter {
       databaseConnection.setMaximumPoolSize( databaseConnectionExport.getMaximumPoolSize() );
       databaseConnection.setName( databaseConnectionExport.getName() );
       databaseConnection.setPartitioned( databaseConnectionExport.isPartitioned() );
+      partitioningInformationExport2model( databaseConnectionExport, databaseConnection );
       databaseConnection.setPassword( databaseConnectionExport.getPassword() );
       databaseConnection.setQuoteAllFields( databaseConnectionExport.isQuoteAllFields() );
       databaseConnection.setSQLServerInstance( databaseConnectionExport.getSQLServerInstance() );
@@ -145,7 +167,9 @@ public class DatabaseConnectionConverter {
     if ( null != databaseType ) {
       databaseTypeExport.setDefaultDatabaseName( databaseType.getDefaultDatabaseName() );
       databaseTypeExport.setDefaultDatabasePort( databaseType.getDefaultDatabasePort() );
-      databaseTypeExport.setDefaultOptions( defaultOptionsModel2export( databaseType.getDefaultOptions() ) );
+      DatabaseType.DefaultOptions defaultOptions = new DatabaseType.DefaultOptions();
+      defaultOptions.getEntry().addAll( mapModel2export( databaseType.getDefaultOptions() ) );
+      databaseTypeExport.setDefaultOptions( defaultOptions );
       databaseTypeExport.setExtraOptionsHelpUrl( databaseType.getExtraOptionsHelpUrl() );
       databaseTypeExport.setName( databaseType.getName() );
       databaseTypeExport.setShortName( databaseType.getShortName() );
@@ -164,7 +188,7 @@ public class DatabaseConnectionConverter {
     if ( null != databaseTypeExport ) {
       databaseType.setDefaultDatabaseName( databaseTypeExport.getDefaultDatabaseName() );
       databaseType.setDefaultDatabasePort( databaseTypeExport.getDefaultDatabasePort() );
-      databaseType.setDefaultOptions( defaultOptionsExport2model( databaseTypeExport.getDefaultOptions() ) );
+      databaseType.setDefaultOptions( mapExport2model( databaseTypeExport.getDefaultOptions() ) );
       databaseType.setExtraOptionsHelpUrl( databaseTypeExport.getExtraOptionsHelpUrl() );
       databaseType.setName( databaseTypeExport.getName() );
       databaseType.setShortName( databaseTypeExport.getShortName() );
@@ -178,116 +202,74 @@ public class DatabaseConnectionConverter {
     return databaseType;
   }
 
-  public static DatabaseConnection.Attributes attributesModel2export( Map<String, String> attributes ) {
-    DatabaseConnection.Attributes attributesExport = new DatabaseConnection.Attributes();
+  public static List<MapExport.Entry> mapModel2export( Map<String, String> mapModel ) {
+    List<MapExport.Entry> exportList = new ArrayList<>();
 
-    if ( null != attributes ) {
-      for ( Map.Entry<String, String> attribute : attributes.entrySet() ) {
-        DatabaseConnection.Attributes.Entry attributeEntry = new DatabaseConnection.Attributes.Entry();
-        attributeEntry.setKey( attribute.getKey() );
-        attributeEntry.setValue( attribute.getValue() );
-        attributesExport.getEntry().add( attributeEntry );
+    if ( null != mapModel ) {
+      for ( Map.Entry<String, String> modelEntry : mapModel.entrySet() ) {
+        MapExport.Entry exportEntry = new MapExport.Entry();
+        exportEntry.setKey( modelEntry.getKey() );
+        exportEntry.setValue( modelEntry.getValue() );
+        exportList.add( exportEntry );
       }
     }
 
-    return attributesExport;
+    return exportList;
   }
 
-  public static Map<String, String> attributesExport2model( DatabaseConnection.Attributes attributesExport ) {
-    Map<String, String> attributes = new HashMap<>();
+  public static Map<String, String> mapExport2model( MapExport mapExport ) {
+    Map<String, String> mapModel = new HashMap<>();
 
-    if ( null != attributesExport ) {
-      for ( DatabaseConnection.Attributes.Entry attributeEntry : attributesExport.getEntry() ) {
-        attributes.put( attributeEntry.getKey(), attributeEntry.getValue() );
+    if ( null != mapExport ) {
+      for ( MapExport.Entry exportEntry : mapExport.getEntry() ) {
+        mapModel.put( exportEntry.getKey(), exportEntry.getValue() );
       }
     }
 
-    return attributes;
+    return mapModel;
   }
 
-  public static DatabaseConnection.ExtraOptions extraOptionsModel2export( Map<String, String> extraOptions ) {
-    DatabaseConnection.ExtraOptions extraOptionsExport = new DatabaseConnection.ExtraOptions();
+  public static void partitioningInformationModel2export(
+    org.pentaho.database.model.IDatabaseConnection databaseConnection, DatabaseConnection databaseConnectionExport ) {
+    List<org.pentaho.database.model.PartitionDatabaseMeta> partitioningInformationList =
+      databaseConnection.getPartitioningInformation();
+    List<PartitionDatabaseMeta> partitioningInformationExportList =
+      databaseConnectionExport.getPartitioningInformation();
 
-    if ( null != extraOptions ) {
-      for ( Map.Entry<String, String> extraOption : extraOptions.entrySet() ) {
-        DatabaseConnection.ExtraOptions.Entry extraOptionEntry = new DatabaseConnection.ExtraOptions.Entry();
-        extraOptionEntry.setKey( extraOption.getKey() );
-        extraOptionEntry.setValue( extraOption.getValue() );
-        extraOptionsExport.getEntry().add( extraOptionEntry );
+    if ( null != partitioningInformationList ) {
+      for ( org.pentaho.database.model.PartitionDatabaseMeta partitioningInformation : partitioningInformationList ) {
+        PartitionDatabaseMeta partitionDatabaseMetaExport = new PartitionDatabaseMeta();
+        partitionDatabaseMetaExport.setDatabaseName( partitioningInformation.getDatabaseName() );
+        partitionDatabaseMetaExport.setHostname( partitioningInformation.getHostname() );
+        partitionDatabaseMetaExport.setPartitionId( partitioningInformation.getPartitionId() );
+        partitionDatabaseMetaExport.setPassword( partitioningInformation.getPassword() );
+        partitionDatabaseMetaExport.setPort( partitioningInformation.getPort() );
+        partitionDatabaseMetaExport.setUsername( partitioningInformation.getUsername() );
+        partitioningInformationExportList.add( partitionDatabaseMetaExport );
       }
     }
-
-    return extraOptionsExport;
   }
 
-  public static Map<String, String> extraOptionsExport2model( DatabaseConnection.ExtraOptions extraOptionsExport ) {
-    Map<String, String> extraOptions = new HashMap<>();
+  public static void partitioningInformationExport2model( DatabaseConnection databaseConnectionExport,
+                                                          org.pentaho.database.model.IDatabaseConnection databaseConnection ) {
+    List<org.pentaho.database.model.PartitionDatabaseMeta> partitioningInformationList = new ArrayList<>();
+    List<PartitionDatabaseMeta> partitioningInformationExportList =
+      databaseConnectionExport.getPartitioningInformation();
 
-    if ( null != extraOptionsExport ) {
-      for ( DatabaseConnection.ExtraOptions.Entry extraOptionEntry : extraOptionsExport.getEntry() ) {
-        extraOptions.put( extraOptionEntry.getKey(), extraOptionEntry.getValue() );
+    if ( null != partitioningInformationExportList ) {
+      for ( PartitionDatabaseMeta partitioningInformationExport : partitioningInformationExportList ) {
+        org.pentaho.database.model.PartitionDatabaseMeta partitionDatabaseMeta =
+          new org.pentaho.database.model.PartitionDatabaseMeta();
+        partitionDatabaseMeta.setDatabaseName( partitioningInformationExport.getDatabaseName() );
+        partitionDatabaseMeta.setHostname( partitioningInformationExport.getHostname() );
+        partitionDatabaseMeta.setPartitionId( partitioningInformationExport.getPartitionId() );
+        partitionDatabaseMeta.setPassword( partitioningInformationExport.getPassword() );
+        partitionDatabaseMeta.setPort( partitioningInformationExport.getPort() );
+        partitionDatabaseMeta.setUsername( partitioningInformationExport.getUsername() );
+        partitioningInformationList.add( partitionDatabaseMeta );
       }
     }
 
-    return extraOptions;
-  }
-
-  public static DatabaseConnection.ConnectionPoolingProperties connectionPoolingPropertiesModel2export(
-    Map<String, String> connectionPoolingProperties ) {
-    DatabaseConnection.ConnectionPoolingProperties connectionPoolingPropertiesExport =
-      new DatabaseConnection.ConnectionPoolingProperties();
-
-    if ( null != connectionPoolingProperties ) {
-      for ( Map.Entry<String, String> extraOption : connectionPoolingProperties.entrySet() ) {
-        DatabaseConnection.ConnectionPoolingProperties.Entry extraOptionEntry =
-          new DatabaseConnection.ConnectionPoolingProperties.Entry();
-        extraOptionEntry.setKey( extraOption.getKey() );
-        extraOptionEntry.setValue( extraOption.getValue() );
-        connectionPoolingPropertiesExport.getEntry().add( extraOptionEntry );
-      }
-    }
-
-    return connectionPoolingPropertiesExport;
-  }
-
-  public static Map<String, String> connectionPoolingPropertiesExport2model(
-    DatabaseConnection.ConnectionPoolingProperties connectionPoolingPropertiesExport ) {
-    Map<String, String> connectionPoolingProperties = new HashMap<>();
-
-    if ( null != connectionPoolingPropertiesExport ) {
-      for ( DatabaseConnection.ConnectionPoolingProperties.Entry extraOptionEntry : connectionPoolingPropertiesExport
-        .getEntry() ) {
-        connectionPoolingProperties.put( extraOptionEntry.getKey(), extraOptionEntry.getValue() );
-      }
-    }
-
-    return connectionPoolingProperties;
-  }
-
-  public static DatabaseType.DefaultOptions defaultOptionsModel2export( Map<String, String> defaultOptions ) {
-    DatabaseType.DefaultOptions defaultOptionsExport = new DatabaseType.DefaultOptions();
-
-    if ( null != defaultOptions ) {
-      for ( Map.Entry<String, String> extraOption : defaultOptions.entrySet() ) {
-        DatabaseType.DefaultOptions.Entry extraOptionEntry = new DatabaseType.DefaultOptions.Entry();
-        extraOptionEntry.setKey( extraOption.getKey() );
-        extraOptionEntry.setValue( extraOption.getValue() );
-        defaultOptionsExport.getEntry().add( extraOptionEntry );
-      }
-    }
-
-    return defaultOptionsExport;
-  }
-
-  public static Map<String, String> defaultOptionsExport2model( DatabaseType.DefaultOptions defaultOptionsExport ) {
-    Map<String, String> defaultOptions = new HashMap<>();
-
-    if ( null != defaultOptionsExport ) {
-      for ( DatabaseType.DefaultOptions.Entry extraOptionEntry : defaultOptionsExport.getEntry() ) {
-        defaultOptions.put( extraOptionEntry.getKey(), extraOptionEntry.getValue() );
-      }
-    }
-
-    return defaultOptions;
+    databaseConnection.setPartitioningInformation( partitioningInformationList );
   }
 }
