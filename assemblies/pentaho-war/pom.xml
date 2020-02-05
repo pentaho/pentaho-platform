@@ -28,7 +28,6 @@
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
     <kafka-clients.version>0.10.2.1</kafka-clients.version>
-    <paho.version>1.2.0</paho.version>
     <rxjava.version>2.2.3</rxjava.version>
     <snowflake-jdbc.version>3.6.28</snowflake-jdbc.version>
   </properties>
@@ -904,13 +903,6 @@
     <dependency>
       <groupId>org.eclipse.paho</groupId>
       <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-      <version>${paho.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.reactivex.rxjava2</groupId>
