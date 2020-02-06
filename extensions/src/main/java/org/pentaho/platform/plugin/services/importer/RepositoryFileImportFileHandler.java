@@ -34,6 +34,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
@@ -111,6 +112,9 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
             if ( bundle.getAcl() != null ) {
               updateAclFromBundle( false, bundle, file );
             }
+            if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
+              updateExtraMetaDataFromBundle( false, bundle, file );
+            }
           }
         } else {
           if ( getImportSession().getIsNotRunningImport() ) {
@@ -134,9 +138,14 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         if ( bundle.getAcl() != null ) {
           repoFile = repository.createFolder( parentId, repoFile, bundle.getAcl(), null );
           updateAclFromBundle( true, bundle, repoFile );
+          if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
+            updateExtraMetaDataFromBundle( true, bundle, file );
+          }
+
         } else {
           repository.createFolder( parentId, repoFile, null );
         }
+
       } else {
         // The file doesn't exist. Create file.
         getLogger().trace( "Creating file [" + repositoryFilePath + "]" );
@@ -210,7 +219,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       IRepositoryFileData data = null;
 
       try {
-        data = converter.convert( bundle.getInputStream(), bundle.getCharset(), mimeType );
+        data = converter.convert( bundle.getInputStream(), bundle.getCharSet(), mimeType );
       } catch ( ConverterException e ) {
         throw e;
       }
@@ -218,11 +227,12 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         repositoryFile = createFile( bundle, repositoryPath, data );
         if ( repositoryFile != null ) {
           updateAclFromBundle( true, bundle, repositoryFile );
+          updateExtraMetaDataFromBundleHelper( bundle, repositoryFile, true );
         }
-
       } else {
         repositoryFile = updateFile( bundle, file, data );
         updateAclFromBundle( false, bundle, repositoryFile );
+        updateExtraMetaDataFromBundleHelper( bundle, repositoryFile, false );
       }
 
       converter.convertPostRepoSave( repositoryFile );
@@ -236,6 +246,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       getLogger().warn( messages.getString( "DefaultImportHandler.WARN_0003_IOEXCEPTION", name ), e ); // TODO make sure
       // string exists
       return false;
+    }
+  }
+
+  private void updateExtraMetaDataFromBundleHelper( RepositoryFileImportBundle bundle,
+                                                    RepositoryFile file, boolean isNew ) {
+    if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
+      updateExtraMetaDataFromBundle( isNew, bundle, file );
     }
   }
 
@@ -315,6 +332,38 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // whatever is stored
     // return repository.getAcl(repositoryFile.getId());
     return defaultAclHandler.createDefaultAcl( repositoryFile.clone() );
+  }
+
+  /**
+   * Create a formal <code>RepositoryFileExtraMetaData</code> object for import.
+   *
+   * @param newFile
+   *          Whether the file is being newly created or was pre-existing
+   * @param bundle
+   *          The RepositoryImportBundle (which contains the effective manifest extraMetaData)
+   * @param repositoryFile
+   *          The <code>RepositoryFile</code> of the target file
+   */
+  private void updateExtraMetaDataFromBundle( boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile ) {
+    updateExtraMetaData( newFile, repositoryFile, bundle.getExtraMetaData() );
+  }
+
+  /**
+   * Create a formal <code>RepositoryFileExtraMetaData</code> object for import.
+   *
+   * @param newFile
+   *          Whether the file is being newly created or was pre-existing
+   * @param repositoryFileExtraMetaData
+   *          The effect extraMetaData as defined in the manifest
+   * @param repositoryFile
+   *          The <code>RepositoryFile</code> of the target file
+   */
+  private void updateExtraMetaData( boolean newFile, RepositoryFile repositoryFile, RepositoryFileExtraMetaData repositoryFileExtraMetaData ) {
+    if ( repositoryFileExtraMetaData != null && !repositoryFileExtraMetaData.getExtraMetaData().isEmpty() ) {
+      getLogger().debug( "Apply extra meta data to file that " + ( newFile ? "is new" : "already exists" ) );
+      RepositoryFileExtraMetaData manifestExtraMetaData = repositoryFileExtraMetaData;
+      repository.setFileMetadata( repositoryFile.getId(), manifestExtraMetaData.getExtraMetaData() );
+    }
   }
 
   /**
