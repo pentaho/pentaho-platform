@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler;
@@ -158,6 +159,22 @@ public class ImportSession {
     return acl;
   }
 
+
+  public RepositoryFileExtraMetaData processExtraMetaDataForFile( String filePath ) {
+    RepositoryFileExtraMetaData extraMetaData = null;
+    try {
+      if ( manifest != null ) {
+        ExportManifestEntity entity = manifest.getExportManifestEntity( filePath );
+        if ( entity != null ) {
+          extraMetaData = entity.getRepositoryFileExtraMetaData();
+        }
+      }
+    } catch ( Exception e ) {
+      getLogger().trace( e );
+    }
+
+    return extraMetaData;
+  }
   /**
    * @return the skippedFiles
    */
