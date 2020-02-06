@@ -14,33 +14,36 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2019 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
-import org.junit.Test;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSettersExcluding;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.*;
+@XmlAccessorType( XmlAccessType.FIELD )
+@XmlType( name = "EntityExtraMetaData" )
+public class EntityExtraMetaData {
 
-/**
- * Created by rfellows on 10/26/15.
- */
-public class ExportManifestPropertyTest {
+  @XmlElement( name = "metadata" )
+  List<EntityExtraMetaDataEntry> metadata = new ArrayList<>();
 
-  @Test
-  public void testGettersAndSetters() throws Exception {
-    String[] excludes = new String[] { "customProperty" };
-    assertThat( ExportManifestProperty.class, hasValidGettersAndSettersExcluding( excludes ) );
+  public void addMetadata( EntityExtraMetaDataEntry entry ) {
+    this.metadata.add( entry );
   }
 
-  @Test
-  public void testGetCustomProperty() throws Exception {
-    ExportManifestProperty property = new ExportManifestProperty();
-    assertNotNull( property.getCustomProperty() );
-    assertEquals( 0, property.getCustomProperty().size() );
+  public List<EntityExtraMetaDataEntry> getMetadata() {
+    return metadata;
   }
+
+  public void setMetadata( List<EntityExtraMetaDataEntry> metadata ) {
+    this.metadata = metadata;
+  }
+
 }
