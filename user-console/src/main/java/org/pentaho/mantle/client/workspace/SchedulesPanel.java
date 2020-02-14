@@ -22,7 +22,6 @@ package org.pentaho.mantle.client.workspace;
 import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
@@ -49,7 +48,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.cell.client.FieldUpdater;
@@ -789,26 +791,8 @@ public class SchedulesPanel extends SimplePanel {
     triggerNowButton.setCommand( new Command() {
       public void execute() {
         Set<JsJob> selectedJobs = getSelectedJobs();
-        if ( selectedJobs != null && selectedJobs.size() > 0 ) {
-          MessageDialogBox messageDialog =
-            new MessageDialogBox( Messages.getString( "executeNow" ), Messages.getString( "executeNowStarted" ),
-              false, true, true );
-          messageDialog.setCallback( new IDialogCallback() {
-            public void okPressed() {
-              // wait a little to refresh to give schedule time to update the last run
-              Timer t = new Timer() {
-                public void run() {
-                  refresh();
-                }
-              };
-              t.schedule( 2000 );
-            }
-
-            public void cancelPressed() {
-            }
-          } );
-          messageDialog.center();
-          controlJobs( selectedJobs, "triggerNow", RequestBuilder.POST, false );
+        if ( selectedJobs.size() > 0 ) {
+          executeJobs( selectedJobs );
         }
       }
     } );
@@ -968,6 +952,57 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
+  private void executeJobs( final Set<JsJob> jobs ) {
+    final Map<String, JsJob> candidateJobs = new HashMap<String, JsJob>( jobs.size() );
+    for ( JsJob job : jobs ) {
+      candidateJobs.put( job.getFullResourceName(), job );
+    }
+
+    canAccessJobListRequest( jobs, new RequestCallback() {
+      public void onError( Request request, Throwable exception ) {
+        promptForScheduleResourceError( jobs );
+      }
+
+      public void onResponseReceived( Request request, Response response ) {
+        final Set<JsJob> executeList = new HashSet<JsJob>();
+
+        try {
+          final List<String> readableFiles = parseAccessList( response.getText() ).getReadableFiles();
+
+          for ( String resourceName : readableFiles ) {
+            executeList.add( candidateJobs.get( resourceName ) );
+          }
+        } catch ( Exception e ) {
+          // noop
+        }
+
+        // execute job schedules that can be executed
+        if ( !executeList.isEmpty() ) {
+          final String title = Messages.getString( "executeNow" );
+          final String message = Messages.getString( "executeNowStarted"
+            + ( executeList.size() > 1 ? "Multiple" : "" ) );
+
+          MessageDialogBox messageDialog = new MessageDialogBox( title, message, false, true, true );
+          messageDialog.center();
+
+          controlJobs( executeList, "triggerNow", RequestBuilder.POST, true );
+        }
+
+        final Set<JsJob> removeList = new HashSet<JsJob>();
+        for ( JsJob job : candidateJobs.values() ) {
+          if ( !executeList.contains( job ) ) {
+            removeList.add( job );
+          }
+        }
+
+        // remove job schedules that no longer can be executed
+        if ( !removeList.isEmpty() ) {
+          promptForScheduleResourceError( removeList );
+        }
+      }
+    } );
+  }
+
   private void promptForScheduleResourceError( final Set<JsJob> jobs ) {
     final PromptDialogBox prompt = new PromptDialogBox( Messages.getString( "fileUnavailable" ),
       Messages.getString( "yesDelete" ), Messages.getString( "no" ), false, true );
@@ -1123,6 +1158,30 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
+  private void canAccessJobListRequest( final Set<JsJob> jobs, RequestCallback callback ) {
+    final JSONArray jobNameList = new JSONArray();
+
+    int idx = 0;
+    for ( JsJob job : jobs ) {
+      jobNameList.set( idx++, new JSONString( job.getFullResourceName() ) );
+    }
+
+    final JSONObject payload = new JSONObject();
+    payload.put( "strings", jobNameList );
+
+    final String accessListEndpoint = "api/repo/files/pathsAccessList?cb=" + System.currentTimeMillis();
+    RequestBuilder accessListBuilder = createRequestBuilder( RequestBuilder.POST, accessListEndpoint );
+
+    accessListBuilder.setHeader( "Content-Type", "application/json" );
+    accessListBuilder.setHeader( "Accept", "application/json" );
+
+    try {
+      accessListBuilder.sendRequest( payload.toString(), callback );
+    } catch ( RequestException re ) {
+      // noop
+    }
+  }
+
   private RequestBuilder createRequestBuilder( Method method, String apiEndpoint ) {
     return createRequestBuilder( method, apiEndpoint, GWT.getHostPageBaseURL() );
   }
@@ -1147,6 +1206,10 @@ public class SchedulesPanel extends SimplePanel {
   }-*/;
 
   private native JsJob parseJsonJob( String json ) /*-{
+    return JSON.parse(json);
+  }-*/;
+
+  private native JsPermissionsList parseAccessList( String json ) /*-{
     return JSON.parse(json);
   }-*/;
 }
