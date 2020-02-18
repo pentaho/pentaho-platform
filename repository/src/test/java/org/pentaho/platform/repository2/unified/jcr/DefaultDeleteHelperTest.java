@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -39,6 +39,7 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
@@ -69,11 +70,17 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.endsWith;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultDeleteHelperTest {
   private ILockHelper lockHelper;
@@ -364,6 +371,60 @@ public class DefaultDeleteHelperTest {
     assertEquals( 3, deletedFilesAdmin.size() );
   }
 
+  @Test
+  public void testGetAllDeletedFiles_deletedUserHomeFolderNode() throws Exception {
+
+    final String pathUser1 = "pathUser1";
+    final Calendar dateUser1 = Calendar.getInstance();
+    final Node deletedNodeUser1 = createDeletedNode( pathUser1, dateUser1 );
+    final Node nodeTrashUser1 = mock( Node.class );
+
+    when( nodeTrashUser1.getNodes() ).thenAnswer( invoc -> {
+      NodeIterator nodeIteratorUser1 = mock( NodeIterator.class );
+      when( nodeIteratorUser1.hasNext() ).thenReturn( true, false );
+      when( nodeIteratorUser1.nextNode() ).thenReturn( deletedNodeUser1 );
+      return nodeIteratorUser1;
+    } );
+
+    final Node nodeUser1 = mock( Node.class );
+    when( nodeUser1.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeUser1.getNode( anyString() ) ).thenReturn( nodeTrashUser1 );
+
+    final String pathUser2 = "pathUser2";
+    final Calendar dateUser2 = Calendar.getInstance();
+    final Node deletedNodeUser2 = createDeletedNode( pathUser2, dateUser2 );
+    final Node nodeTrashUser2 = mock( Node.class );
+
+    when( nodeTrashUser2.getNodes() ).thenAnswer( invoc -> {
+      NodeIterator nodeIteratorUser2 = mock( NodeIterator.class );
+      when( nodeIteratorUser2.hasNext() ).thenReturn( true, false );
+      when( nodeIteratorUser2.nextNode() ).thenReturn( deletedNodeUser2 );
+      return nodeIteratorUser2;
+    } );
+
+    final Node nodeUser2 = mock( Node.class );
+    when( nodeUser2.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeUser2.getNode( anyString() ) ).thenReturn( nodeTrashUser2 );
+
+    defaultDeleteHelper = new DefaultDeleteHelper( lockHelper, pathConversionHelper ) {
+      @Override
+      protected boolean isAdmin() {
+        return true;
+      }
+      @Override
+      protected List<String> getUserList() {
+        return Arrays.asList( "user1", "userInvalidPath", "user2" );
+      }
+    };
+    when( session.getItem( endsWith( "/userInvalidPath" ) ) ).thenThrow(  new PathNotFoundException() );
+    when( session.getItem( endsWith( "/user2" ) ) ).thenReturn( nodeUser2 );
+    when( session.getItem( endsWith( "/user1" ) ) ).thenReturn( nodeUser1 );
+
+    final List<RepositoryFile> deletedFilesAdmin = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
+    assertNotNull( deletedFilesAdmin );
+    assertEquals( 2, deletedFilesAdmin.size() );
+
+  }
 
   @Test
   public void testPermanentlyDeleteFile() throws Exception {
