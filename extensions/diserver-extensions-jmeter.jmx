@@ -7978,7 +7978,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-              <stringProp name="HTTPSampler.path">/${appName}/api/plugins/common-ui/files/resources/themes/css/angular-animations.css</stringProp>
+              <stringProp name="HTTPSampler.path">/${appName}/api/plugins/common-ui/files/resources/themes/native/globalNative.css</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
