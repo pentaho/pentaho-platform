@@ -20,6 +20,8 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -39,6 +41,7 @@ import org.springframework.util.StringUtils;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
@@ -55,6 +58,7 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -119,6 +123,7 @@ import java.util.stream.Collectors;
  */
 public class DefaultDeleteHelper implements IDeleteHelper {
   public static final String JCR_ROOT_VERSION = "jcr:rootVersion";
+  private static final Log logger = LogFactory.getLog( DefaultDeleteHelper.class );
 
   // ~ Static fields/initializers
   // ======================================================================================
@@ -370,11 +375,17 @@ public class DefaultDeleteHelper implements IDeleteHelper {
       ITenant tenant = JcrTenantUtils.getTenant();
       for ( String user : getUserList() ) {
         String homePath = getHomePath( tenant, user );
-        Node userHomeFolderNode = (Node) session.getItem( homePath );
-        if ( userHomeFolderNode.hasNode( FOLDER_NAME_TRASH ) ) {
-          Node trashNode = userHomeFolderNode.getNode( FOLDER_NAME_TRASH );
-          List<RepositoryFile> deletedForUser = getDeletedFiles( session, pentahoJcrConstants, trashNode, user );
-          deletedFiles.addAll( deletedForUser );
+        try {
+          Node userHomeFolderNode = (Node) session.getItem( homePath );
+          if ( userHomeFolderNode.hasNode( FOLDER_NAME_TRASH ) ) {
+            Node trashNode = userHomeFolderNode.getNode( FOLDER_NAME_TRASH );
+            List<RepositoryFile> deletedForUser = getDeletedFiles( session, pentahoJcrConstants, trashNode, user );
+            deletedFiles.addAll( deletedForUser );
+          }
+        } catch ( PathNotFoundException e ) {
+          logger.warn( MessageFormat.format(
+            Messages.getInstance()
+              .getString( "DefaultDeleteHelper.PATH_NOT_FOUND_EXCEPTION" ), homePath, user ), e );
         }
       }
       Collections.sort( deletedFiles );
