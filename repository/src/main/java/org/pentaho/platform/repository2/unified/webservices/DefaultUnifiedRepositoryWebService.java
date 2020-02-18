@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -242,7 +242,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public List<RepositoryFileDto> getDeletedFiles() {
-    return marshalFiles( repo.getDeletedFiles() );
+    return marshalFiles( repo.getAllDeletedFiles() );
   }
 
   public List<RepositoryFileDto> getDeletedFilesInFolder( String folderPath ) {
