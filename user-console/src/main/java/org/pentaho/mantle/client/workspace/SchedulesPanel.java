@@ -23,6 +23,7 @@ import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.apache.http.protocol.HTTP;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -98,23 +99,28 @@ public class SchedulesPanel extends SimplePanel {
   private static final String JOB_STATE_NORMAL = "NORMAL";
   private static final String SCHEDULER_STATE_RUNNING = "RUNNING";
 
+  private static final String HTTP_ACCEPT_HEADER = "Accept";
+  private static final String JSON_CONTENT_TYPE = "application/json";
   private static final String IF_MODIFIED_SINCE = "01 Jan 1970 00:00:00 GMT";
+
+  private static final String ICON_SMALL_STYLE = "icon-small";
+  private static final String ICON_RUN_STYLE = "icon-run";
 
   private static final String BLANK_VALUE = "-";
 
   private static final int READ_PERMISSION = 0;
 
   private ToolbarButton controlScheduleButton = new ToolbarButton( ImageUtil.getThemeableImage(
-    "icon-small", "icon-run" ) );
+    ICON_SMALL_STYLE, ICON_RUN_STYLE ) );
   private ToolbarButton editButton = new ToolbarButton( ImageUtil.getThemeableImage( "pentaho-editbutton" ) );
   private ToolbarButton triggerNowButton = new ToolbarButton( ImageUtil.getThemeableImage(
-    "icon-small", "icon-execute" ) );
+    ICON_SMALL_STYLE, "icon-execute" ) );
   private ToolbarButton scheduleRemoveButton = new ToolbarButton( ImageUtil.getThemeableImage(
     "pentaho-deletebutton" ) );
   private ToolbarButton filterButton = new ToolbarButton( ImageUtil.getThemeableImage(
-    "icon-small", "icon-filter-add" ) );
+    ICON_SMALL_STYLE, "icon-filter-add" ) );
   private ToolbarButton filterRemoveButton = new ToolbarButton( ImageUtil.getThemeableImage(
-    "icon-small", "icon-filter-remove" ) );
+    ICON_SMALL_STYLE, "icon-filter-remove" ) );
 
   private JsArray<JsJob> allJobs;
 
@@ -176,7 +182,7 @@ public class SchedulesPanel extends SimplePanel {
           }
         } );
       }
-      filterRemoveButton.setEnabled( filters.size() > 0 );
+      filterRemoveButton.setEnabled( !filters.isEmpty() );
       filterAndShowData();
     }
 
@@ -216,7 +222,7 @@ public class SchedulesPanel extends SimplePanel {
     final String apiEndpoint = "api/scheduler/getJobs";
 
     RequestBuilder executableTypesRequestBuilder = createRequestBuilder( RequestBuilder.GET, apiEndpoint, contextURL );
-    executableTypesRequestBuilder.setHeader( "Accept", "application/json" );
+    executableTypesRequestBuilder.setHeader( HTTP_ACCEPT_HEADER, JSON_CONTENT_TYPE );
 
     try {
       executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
@@ -282,13 +288,7 @@ public class SchedulesPanel extends SimplePanel {
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean isRunning = SCHEDULER_STATE_RUNNING.equalsIgnoreCase( response.getText() );
-
-          final String tooltip = isRunning ? "stopScheduler" : "startScheduler";
-          controlSchedulerButton.setToolTip( tooltip );
-
-          final String buttonIconCss = isRunning ? "icon-stop-scheduler" : "icon-start-scheduler";
-          controlSchedulerButton.setImage( ImageUtil.getThemeableImage( "icon-small", buttonIconCss ) );
+          updateControlSchedulerButtonStyle( controlSchedulerButton, response.getText() );
 
           controlSchedulerButton.setEnabled( isScheduler );
         }
@@ -296,6 +296,28 @@ public class SchedulesPanel extends SimplePanel {
     } catch ( RequestException e ) {
       // showError(e);
     }
+  }
+
+
+  private void updateControlSchedulerButtonStyle( ToolbarButton controlSchedulerButton, String state ) {
+    boolean isRunning = SCHEDULER_STATE_RUNNING.equalsIgnoreCase( state );
+
+    final String tooltip = isRunning ? "stopScheduler" : "startScheduler";
+    controlSchedulerButton.setToolTip( tooltip );
+
+    final String buttonIconCss = isRunning ? "icon-stop-scheduler" : "icon-start-scheduler";
+    controlSchedulerButton.setImage( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, buttonIconCss ) );
+  }
+
+  private void updateJobScheduleButtonStyle( String state ) {
+    boolean isRunning = JOB_STATE_NORMAL.equalsIgnoreCase( state );
+
+    String controlButtonCss = isRunning ? "icon-stop" : ICON_RUN_STYLE;
+    controlScheduleButton.setImage( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, controlButtonCss ) );
+
+    String controlButtonTooltip = isRunning ? Messages.getString( "stop" ) : Messages.getString( "start" );
+    controlScheduleButton.setToolTip( controlButtonTooltip );
+
   }
 
   private void toggleSchedulerOnOff( final ToolbarButton controlSchedulerButton, final boolean isScheduler ) {
@@ -663,18 +685,12 @@ public class SchedulesPanel extends SimplePanel {
       public void onSelectionChange( SelectionChangeEvent event ) {
         Set<JsJob> selectedJobs = getSelectedJobs();
 
-        if ( selectedJobs.size() > 0 ) {
+        if ( !selectedJobs.isEmpty() ) {
           final JsJob job = selectedJobs.toArray( new JsJob[0] )[0];
+          updateJobScheduleButtonStyle( job.getState() );
+
+          controlScheduleButton.setEnabled( isScheduler );
           editButton.setEnabled( isScheduler );
-
-          boolean isRunning = JOB_STATE_NORMAL.equalsIgnoreCase( job.getState() );
-
-          String controlButtonCss = isRunning ? "icon-stop" : "icon-run";
-          controlScheduleButton.setImage( ImageUtil.getThemeableImage( "icon-small", controlButtonCss ) );
-
-          String controlButtonTooltip = isRunning ? Messages.getString( "stop" ) : Messages.getString( "start" );
-          controlScheduleButton.setToolTip( controlButtonTooltip );
-
           controlScheduleButton.setEnabled( isScheduler );
           scheduleRemoveButton.setEnabled( isScheduler );
           triggerNowButton.setEnabled( isScheduler );
@@ -726,7 +742,7 @@ public class SchedulesPanel extends SimplePanel {
     // Add control scheduler button
     if ( isAdmin ) {
       final ToolbarButton controlSchedulerButton = new ToolbarButton( ImageUtil.getThemeableImage(
-        "icon-small", "icon-start-scheduler" ) );
+        ICON_SMALL_STYLE, "icon-start-scheduler" ) );
 
       controlSchedulerButton.setCommand( new Command() {
         public void execute() {
@@ -764,17 +780,17 @@ public class SchedulesPanel extends SimplePanel {
         filters.clear();
         filterAndShowData();
         filterRemoveButton.setEnabled( false );
-        filterButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-filter-add" ) );
+        filterButton.setImage( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-filter-add" ) );
       }
     } );
     filterRemoveButton.setToolTip( Messages.getString( "removeFilters" ) );
-    filterRemoveButton.setEnabled( filters.size() > 0 );
+    filterRemoveButton.setEnabled( !filters.isEmpty() );
     if ( isAdmin ) {
       bar.add( filterRemoveButton );
     }
 
     // Add refresh button
-    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( "icon-small", "icon-refresh" ) );
+    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-refresh" ) );
     refresh.setToolTip( Messages.getString( "refreshTooltip" ) );
     refresh.setCommand( new Command() {
       public void execute() {
@@ -791,7 +807,7 @@ public class SchedulesPanel extends SimplePanel {
     triggerNowButton.setCommand( new Command() {
       public void execute() {
         Set<JsJob> selectedJobs = getSelectedJobs();
-        if ( selectedJobs.size() > 0 ) {
+        if ( !selectedJobs.isEmpty() ) {
           executeJobs( selectedJobs );
         }
       }
@@ -804,7 +820,7 @@ public class SchedulesPanel extends SimplePanel {
       public void execute() {
         Set<JsJob> selectedJobs = getSelectedJobs();
 
-        if ( selectedJobs.size() > 0 ) {
+        if ( !selectedJobs.isEmpty() ) {
           final JsJob job = selectedJobs.toArray( new JsJob[0] )[0];
 
           boolean isRunning = JOB_STATE_NORMAL.equalsIgnoreCase( job.getState() );
@@ -824,7 +840,7 @@ public class SchedulesPanel extends SimplePanel {
       public void execute() {
         Set<JsJob> selectedJobs = getSelectedJobs();
 
-        if ( selectedJobs.size() > 0 ) {
+        if ( !selectedJobs.isEmpty() ) {
           final JsJob editJob = selectedJobs.toArray( new JsJob[0] )[0];
 
           canAccessJobRequest( editJob, new RequestCallback() {
@@ -895,7 +911,7 @@ public class SchedulesPanel extends SimplePanel {
     final String apiEndpoint = "api/scheduler/jobinfo?jobId=" + URL.encodeQueryString( jobId );
 
     RequestBuilder executableTypesRequestBuilder = createRequestBuilder( RequestBuilder.GET, apiEndpoint );
-    executableTypesRequestBuilder.setHeader( "Accept", "application/json" );
+    executableTypesRequestBuilder.setHeader( HTTP_ACCEPT_HEADER, JSON_CONTENT_TYPE );
 
     try {
       executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
@@ -1030,7 +1046,7 @@ public class SchedulesPanel extends SimplePanel {
     for ( final JsJob job : jobs ) {
       RequestBuilder builder = createRequestBuilder( method, "api/scheduler/" + function );
 
-      builder.setHeader( "Content-Type", "application/json" );
+      builder.setHeader( HTTP.CONTENT_TYPE, JSON_CONTENT_TYPE );
 
       JSONObject startJobRequest = new JSONObject();
       startJobRequest.put( "jobId", new JSONString( job.getJobId() ) );
@@ -1048,12 +1064,7 @@ public class SchedulesPanel extends SimplePanel {
             job.setState( jobState );
             table.redraw();
 
-            boolean isRunning = JOB_STATE_NORMAL.equalsIgnoreCase( jobState );
-            final String tooltipKey = isRunning ? "stop" : "start";
-            controlScheduleButton.setToolTip( Messages.getString( tooltipKey ) );
-
-            final String controlIconCss = isRunning ? "icon-stop" : "icon-run";
-            controlScheduleButton.setImage( ImageUtil.getThemeableImage( "icon-small", controlIconCss ) );
+            updateJobScheduleButtonStyle( jobState );
 
             if ( refreshData ) {
               refresh();
@@ -1072,19 +1083,12 @@ public class SchedulesPanel extends SimplePanel {
 
     try {
       builder.sendRequest( null, new RequestCallback() {
-
         public void onError( Request request, Throwable exception ) {
           // showError(exception);
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean isRunning = SCHEDULER_STATE_RUNNING.equalsIgnoreCase( response.getText() );
-
-          final String tooltipKey = isRunning ? "stopScheduler" : "startScheduler";
-          controlSchedulerButton.setToolTip( Messages.getString( tooltipKey ) );
-
-          final String schedulerIconCss = isRunning ? "icon-stop-scheduler" : "icon-start-scheduler";
-          controlSchedulerButton.setImage( ImageUtil.getThemeableImage( "icon-small", schedulerIconCss ) );
+          updateControlSchedulerButtonStyle( controlSchedulerButton, response.getText() );
 
           controlSchedulerButton.setEnabled( isScheduler );
         }
@@ -1172,8 +1176,8 @@ public class SchedulesPanel extends SimplePanel {
     final String accessListEndpoint = "api/repo/files/pathsAccessList?cb=" + System.currentTimeMillis();
     RequestBuilder accessListBuilder = createRequestBuilder( RequestBuilder.POST, accessListEndpoint );
 
-    accessListBuilder.setHeader( "Content-Type", "application/json" );
-    accessListBuilder.setHeader( "Accept", "application/json" );
+    accessListBuilder.setHeader( HTTP.CONTENT_TYPE, JSON_CONTENT_TYPE );
+    accessListBuilder.setHeader( HTTP_ACCEPT_HEADER, JSON_CONTENT_TYPE );
 
     try {
       accessListBuilder.sendRequest( payload.toString(), callback );
