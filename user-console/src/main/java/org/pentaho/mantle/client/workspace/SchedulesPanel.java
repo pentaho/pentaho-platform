@@ -14,15 +14,16 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
-
 package org.pentaho.mantle.client.workspace;
 
 import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.apache.http.protocol.HTTP;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -45,10 +46,13 @@ import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableRe
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.cell.client.FieldUpdater;
@@ -77,8 +81,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -94,19 +96,31 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
 public class SchedulesPanel extends SimplePanel {
 
+  private static final String JOB_STATE_NORMAL = "NORMAL";
+  private static final String SCHEDULER_STATE_RUNNING = "RUNNING";
+
+  private static final String HTTP_ACCEPT_HEADER = "Accept";
+  private static final String JSON_CONTENT_TYPE = "application/json";
+  private static final String IF_MODIFIED_SINCE = "01 Jan 1970 00:00:00 GMT";
+
+  private static final String ICON_SMALL_STYLE = "icon-small";
+  private static final String ICON_RUN_STYLE = "icon-run";
+
+  private static final String BLANK_VALUE = "-";
+
   private static final int READ_PERMISSION = 0;
 
-  private ToolbarButton controlScheduleButton = new ToolbarButton( ImageUtil.getThemeableImage( "icon-small",
-      "icon-run" ) );
+  private ToolbarButton controlScheduleButton = new ToolbarButton( ImageUtil.getThemeableImage(
+    ICON_SMALL_STYLE, ICON_RUN_STYLE ) );
   private ToolbarButton editButton = new ToolbarButton( ImageUtil.getThemeableImage( "pentaho-editbutton" ) );
-  private ToolbarButton triggerNowButton = new ToolbarButton( ImageUtil
-      .getThemeableImage( "icon-small", "icon-execute" ) );
-  private ToolbarButton scheduleRemoveButton =
-      new ToolbarButton( ImageUtil.getThemeableImage( "pentaho-deletebutton" ) );
-  private ToolbarButton filterButton =
-      new ToolbarButton( ImageUtil.getThemeableImage( "icon-small", "icon-filter-add" ) );
-  private ToolbarButton filterRemoveButton = new ToolbarButton( ImageUtil.getThemeableImage( "icon-small",
-      "icon-filter-remove" ) );
+  private ToolbarButton triggerNowButton = new ToolbarButton( ImageUtil.getThemeableImage(
+    ICON_SMALL_STYLE, "icon-execute" ) );
+  private ToolbarButton scheduleRemoveButton = new ToolbarButton( ImageUtil.getThemeableImage(
+    "pentaho-deletebutton" ) );
+  private ToolbarButton filterButton = new ToolbarButton( ImageUtil.getThemeableImage(
+    ICON_SMALL_STYLE, "icon-filter-add" ) );
+  private ToolbarButton filterRemoveButton = new ToolbarButton( ImageUtil.getThemeableImage(
+    ICON_SMALL_STYLE, "icon-filter-remove" ) );
 
   private JsArray<JsJob> allJobs;
 
@@ -168,7 +182,7 @@ public class SchedulesPanel extends SimplePanel {
           }
         } );
       }
-      filterRemoveButton.setEnabled( filters.size() > 0 );
+      filterRemoveButton.setEnabled( !filters.isEmpty() );
       filterAndShowData();
     }
 
@@ -178,17 +192,16 @@ public class SchedulesPanel extends SimplePanel {
 
   @SuppressWarnings ( "unchecked" )
   private Set<JsJob> getSelectedJobs() {
-    Set<JsJob> selectedJobs = ( (MultiSelectionModel<JsJob>) table.getSelectionModel() ).getSelectedSet();
-    return selectedJobs;
+    return ( (MultiSelectionModel<JsJob>) table.getSelectionModel() ).getSelectedSet();
   }
 
   private IDialogCallback scheduleDialogCallback = new IDialogCallback() {
     public void okPressed() {
       refresh();
 
-      MessageDialogBox dialogBox =
-          new MessageDialogBox(
-              Messages.getString( "scheduleUpdatedTitle" ), Messages.getString( "scheduleUpdatedMessage" ), false, false, true ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+      MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "scheduleUpdatedTitle" ),
+        Messages.getString( "scheduleUpdatedMessage" ), false, false, true );
+
       dialogBox.center();
     }
 
@@ -205,10 +218,12 @@ public class SchedulesPanel extends SimplePanel {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
-    final String url = contextURL + "api/scheduler/jobs"; //$NON-NLS-1$
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
-    executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-    executableTypesRequestBuilder.setHeader( "accept", "application/json" );
+
+    final String apiEndpoint = "api/scheduler/getJobs";
+
+    RequestBuilder executableTypesRequestBuilder = createRequestBuilder( RequestBuilder.GET, apiEndpoint, contextURL );
+    executableTypesRequestBuilder.setHeader( HTTP_ACCEPT_HEADER, JSON_CONTENT_TYPE );
+
     try {
       executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
 
@@ -261,11 +276,10 @@ public class SchedulesPanel extends SimplePanel {
     table.redraw();
   }
 
-  private void
-  updateControlSchedulerButtonState( final ToolbarButton controlSchedulerButton, final boolean isScheduler ) {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/state"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
-    builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+  private void updateControlSchedulerButtonState( final ToolbarButton controlSchedulerButton,
+                                                  final boolean isScheduler ) {
+    RequestBuilder builder = createRequestBuilder( RequestBuilder.GET, "api/scheduler/state" );
+
     try {
       builder.sendRequest( null, new RequestCallback() {
 
@@ -274,20 +288,9 @@ public class SchedulesPanel extends SimplePanel {
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean isRunning = "RUNNING".equalsIgnoreCase( response.getText() );
-          if ( isRunning ) {
-            controlSchedulerButton.setToolTip( Messages.getString( "stopScheduler" ) );
-            controlSchedulerButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-stop-scheduler" ) );
-          } else {
-            controlSchedulerButton.setToolTip( Messages.getString( "startScheduler" ) );
-            controlSchedulerButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-start-scheduler" ) );
-          }
+          updateControlSchedulerButtonStyle( controlSchedulerButton, response.getText() );
 
-          if ( !isScheduler ) {
-            controlSchedulerButton.setEnabled( false );
-          } else {
-            controlSchedulerButton.setEnabled( true );
-          }
+          controlSchedulerButton.setEnabled( isScheduler );
         }
       } );
     } catch ( RequestException e ) {
@@ -295,10 +298,31 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
+
+  private void updateControlSchedulerButtonStyle( ToolbarButton controlSchedulerButton, String state ) {
+    boolean isRunning = SCHEDULER_STATE_RUNNING.equalsIgnoreCase( state );
+
+    final String tooltip = isRunning ? "stopScheduler" : "startScheduler";
+    controlSchedulerButton.setToolTip( tooltip );
+
+    final String buttonIconCss = isRunning ? "icon-stop-scheduler" : "icon-start-scheduler";
+    controlSchedulerButton.setImage( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, buttonIconCss ) );
+  }
+
+  private void updateJobScheduleButtonStyle( String state ) {
+    boolean isRunning = JOB_STATE_NORMAL.equalsIgnoreCase( state );
+
+    String controlButtonCss = isRunning ? "icon-stop" : ICON_RUN_STYLE;
+    controlScheduleButton.setImage( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, controlButtonCss ) );
+
+    String controlButtonTooltip = isRunning ? Messages.getString( "stop" ) : Messages.getString( "start" );
+    controlScheduleButton.setToolTip( controlButtonTooltip );
+
+  }
+
   private void toggleSchedulerOnOff( final ToolbarButton controlSchedulerButton, final boolean isScheduler ) {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/state"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
-    builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+    RequestBuilder builder = createRequestBuilder( RequestBuilder.GET, "api/scheduler/state" );
+
     try {
       builder.sendRequest( null, new RequestCallback() {
 
@@ -307,12 +331,10 @@ public class SchedulesPanel extends SimplePanel {
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean isRunning = "RUNNING".equalsIgnoreCase( response.getText() );
-          if ( isRunning ) {
-            controlScheduler( controlSchedulerButton, "pause", isScheduler );
-          } else {
-            controlScheduler( controlSchedulerButton, "start", isScheduler );
-          }
+          boolean isRunning = SCHEDULER_STATE_RUNNING.equalsIgnoreCase( response.getText() );
+
+          final String action = isRunning ? "pause" : "start";
+          controlScheduler( controlSchedulerButton, action, isScheduler );
         }
       } );
     } catch ( RequestException e ) {
@@ -371,13 +393,15 @@ public class SchedulesPanel extends SimplePanel {
         try {
           String outputPath = jsJob.getOutputPath();
           if ( StringUtils.isEmpty( outputPath ) ) {
-            return "-";
-          } else {
-            outputPath = new SafeHtmlBuilder().appendEscaped( outputPath ).toSafeHtml().asString();
-            return MessageFormat.format( "<span class=''workspace-resource-link'' title=''{0}''>{0}</span>", outputPath );
+            return BLANK_VALUE;
           }
+
+          outputPath = new SafeHtmlBuilder().appendEscaped( outputPath ).toSafeHtml().asString();
+
+          return MessageFormat.format(
+            "<span class=''workspace-resource-link'' title=''{0}''>{0}</span>", outputPath );
         } catch ( Throwable t ) {
-          return "-";
+          return BLANK_VALUE;
         }
       }
     };
@@ -385,7 +409,7 @@ public class SchedulesPanel extends SimplePanel {
     outputPathColumn.setFieldUpdater( new FieldUpdater<JsJob, SafeHtml>() {
       @Override
       public void update( final int index, final JsJob jsJob, final SafeHtml value ) {
-        if ( !value.equals( "-" ) ) {
+        if ( value != null && !BLANK_VALUE.equals( value.asString() ) ) {
 
           final Command errorCallback = new Command() {
             @Override
@@ -413,7 +437,7 @@ public class SchedulesPanel extends SimplePanel {
         try {
           return job.getJobTrigger().getDescription();
         } catch ( Throwable t ) {
-          return "-";
+          return BLANK_VALUE;
         }
       }
     };
@@ -424,7 +448,7 @@ public class SchedulesPanel extends SimplePanel {
         try {
           return job.getUserName();
         } catch ( Throwable t ) {
-          return "-";
+          return BLANK_VALUE;
         }
       }
     };
@@ -438,7 +462,7 @@ public class SchedulesPanel extends SimplePanel {
           // not css text-transform because tooltip will use pure text from the cell
           return jobState.substring( 0, 1 ).toUpperCase() + jobState.substring( 1 ).toLowerCase();
         } catch ( Throwable t ) {
-          return "-";
+          return BLANK_VALUE;
         }
       }
     };
@@ -449,12 +473,14 @@ public class SchedulesPanel extends SimplePanel {
         try {
           Date date = job.getNextRun();
           if ( date == null ) {
-            return "-";
+            return BLANK_VALUE;
           }
+
           DateTimeFormat format = DateTimeFormat.getFormat( PredefinedFormat.DATE_TIME_MEDIUM );
+
           return format.format( date );
         } catch ( Throwable t ) {
-          return "-";
+          return BLANK_VALUE;
         }
       }
     };
@@ -465,12 +491,13 @@ public class SchedulesPanel extends SimplePanel {
         try {
           Date date = job.getLastRun();
           if ( date == null ) {
-            return "-";
+            return BLANK_VALUE;
           }
+
           DateTimeFormat format = DateTimeFormat.getFormat( PredefinedFormat.DATE_TIME_MEDIUM );
           return format.format( date );
         } catch ( Throwable t ) {
-          return "-";
+          return BLANK_VALUE;
         }
       }
     };
@@ -657,18 +684,14 @@ public class SchedulesPanel extends SimplePanel {
     table.getSelectionModel().addSelectionChangeHandler( new Handler() {
       public void onSelectionChange( SelectionChangeEvent event ) {
         Set<JsJob> selectedJobs = getSelectedJobs();
-        if ( selectedJobs != null && selectedJobs.size() > 0 ) {
-          JsJob[] jobs = selectedJobs.toArray( new JsJob[selectedJobs.size()] );
-          editButton.setEnabled( isScheduler );
-          if ( "NORMAL".equalsIgnoreCase( jobs[0].getState() ) ) {
-            controlScheduleButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-stop" ) );
-          } else {
-            controlScheduleButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-run" ) );
-          }
-          controlScheduleButton.setEnabled( isScheduler );
 
-          boolean isRunning = "NORMAL".equalsIgnoreCase( jobs[0].getState() );
-          controlScheduleButton.setToolTip( isRunning ? Messages.getString( "stop" ) : Messages.getString( "start" ) );
+        if ( !selectedJobs.isEmpty() ) {
+          final JsJob job = selectedJobs.toArray( new JsJob[0] )[0];
+          updateJobScheduleButtonStyle( job.getState() );
+
+          controlScheduleButton.setEnabled( isScheduler );
+          editButton.setEnabled( isScheduler );
+          controlScheduleButton.setEnabled( isScheduler );
           scheduleRemoveButton.setEnabled( isScheduler );
           triggerNowButton.setEnabled( isScheduler );
         } else {
@@ -679,6 +702,7 @@ public class SchedulesPanel extends SimplePanel {
         }
       }
     } );
+
     // BISERVER-9965
     table.addCellPreviewHandler( new CellPreviewEvent.Handler<JsJob>() {
       @Override
@@ -698,11 +722,6 @@ public class SchedulesPanel extends SimplePanel {
           Range range = getDisplay().getVisibleRange();
           int pageSize = range.getLength();
 
-          // Removed the min to show fixed ranges
-          // if (isRangeLimited && display.isRowCountExact()) {
-          // index = Math.min(index, display.getRowCount() - pageSize);
-          // }
-
           index = Math.max( 0, index );
           if ( index != range.getStart() ) {
             getDisplay().setVisibleRange( index, pageSize );
@@ -711,7 +730,6 @@ public class SchedulesPanel extends SimplePanel {
       }
     };
     pager.setDisplay( table );
-    // pager.setRangeLimited(false);
 
     VerticalPanel tableAndPager = new VerticalPanel();
     tableAndPager.setHorizontalAlignment( HasHorizontalAlignment.ALIGN_CENTER );
@@ -723,8 +741,8 @@ public class SchedulesPanel extends SimplePanel {
 
     // Add control scheduler button
     if ( isAdmin ) {
-      final ToolbarButton controlSchedulerButton =
-          new ToolbarButton( ImageUtil.getThemeableImage( "icon-small", "icon-start-scheduler" ) );
+      final ToolbarButton controlSchedulerButton = new ToolbarButton( ImageUtil.getThemeableImage(
+        ICON_SMALL_STYLE, "icon-start-scheduler" ) );
 
       controlSchedulerButton.setCommand( new Command() {
         public void execute() {
@@ -745,9 +763,11 @@ public class SchedulesPanel extends SimplePanel {
         } else {
           filterDialog.initUI( allJobs );
         }
+
         filterDialog.center();
       }
     } );
+
     filterButton.setToolTip( Messages.getString( "filterSchedules" ) );
     if ( isAdmin ) {
       bar.add( filterButton );
@@ -760,17 +780,17 @@ public class SchedulesPanel extends SimplePanel {
         filters.clear();
         filterAndShowData();
         filterRemoveButton.setEnabled( false );
-        filterButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-filter-add" ) );
+        filterButton.setImage( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-filter-add" ) );
       }
     } );
     filterRemoveButton.setToolTip( Messages.getString( "removeFilters" ) );
-    filterRemoveButton.setEnabled( filters.size() > 0 );
+    filterRemoveButton.setEnabled( !filters.isEmpty() );
     if ( isAdmin ) {
       bar.add( filterRemoveButton );
     }
 
     // Add refresh button
-    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( "icon-small", "icon-refresh" ) );
+    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-refresh" ) );
     refresh.setToolTip( Messages.getString( "refreshTooltip" ) );
     refresh.setCommand( new Command() {
       public void execute() {
@@ -787,26 +807,8 @@ public class SchedulesPanel extends SimplePanel {
     triggerNowButton.setCommand( new Command() {
       public void execute() {
         Set<JsJob> selectedJobs = getSelectedJobs();
-        if ( selectedJobs != null && selectedJobs.size() > 0 ) {
-          MessageDialogBox messageDialog =
-              new MessageDialogBox( Messages.getString( "executeNow" ), Messages.getString( "executeNowStarted" ),
-                  false, true, true );
-          messageDialog.setCallback( new IDialogCallback() {
-            public void okPressed() {
-              // wait a little to refresh to give schedule time to update the last run
-              Timer t = new Timer() {
-                public void run() {
-                  refresh();
-                }
-              };
-              t.schedule( 2000 );
-            }
-
-            public void cancelPressed() {
-            }
-          } );
-          messageDialog.center();
-          controlJobs( selectedJobs, "triggerNow", RequestBuilder.POST, false );
+        if ( !selectedJobs.isEmpty() ) {
+          triggerExecuteNow( selectedJobs );
         }
       }
     } );
@@ -817,13 +819,14 @@ public class SchedulesPanel extends SimplePanel {
     controlScheduleButton.setCommand( new Command() {
       public void execute() {
         Set<JsJob> selectedJobs = getSelectedJobs();
-        if ( selectedJobs != null && selectedJobs.size() > 0 ) {
-          JsJob[] jobs = selectedJobs.toArray( new JsJob[selectedJobs.size()] );
-          if ( "NORMAL".equals( jobs[0].getState() ) ) {
-            controlJobs( selectedJobs, "pauseJob", RequestBuilder.POST, false );
-          } else {
-            controlJobs( selectedJobs, "resumeJob", RequestBuilder.POST, false );
-          }
+
+        if ( !selectedJobs.isEmpty() ) {
+          final JsJob job = selectedJobs.toArray( new JsJob[0] )[0];
+
+          boolean isRunning = JOB_STATE_NORMAL.equalsIgnoreCase( job.getState() );
+
+          final String action = isRunning ? "pauseJob" : "resumeJob";
+          controlJobs( selectedJobs, action, RequestBuilder.POST, false );
         }
       }
     } );
@@ -836,33 +839,25 @@ public class SchedulesPanel extends SimplePanel {
     editButton.setCommand( new Command() {
       public void execute() {
         Set<JsJob> selectedJobs = getSelectedJobs();
-        if ( selectedJobs != null && selectedJobs.size() > 0 ) {
-          JsJob[] jobs = selectedJobs.toArray( new JsJob[selectedJobs.size()] );
-          final JsJob editJob = jobs[0];
-          final String url =
-              GWT.getHostPageBaseURL() + "api/repo/files/"
-                  + SolutionBrowserPanel.pathToId( editJob.getFullResourceName() ) + "/canAccess?cb="
-                  + System.currentTimeMillis() + "&permissions=" + READ_PERMISSION;
-          RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
-          try {
-            executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-            executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
 
-              public void onError( Request request, Throwable exception ) {
-                promptForScheduleResourceError( editJob );
+        if ( !selectedJobs.isEmpty() ) {
+          final JsJob editJob = selectedJobs.toArray( new JsJob[0] )[0];
+
+          canAccessJobRequest( editJob, new RequestCallback() {
+            public void onError( Request request, Throwable exception ) {
+              promptForScheduleResourceError( Collections.singleton( editJob ) );
+            }
+
+            public void onResponseReceived( Request request, Response response ) {
+              boolean canEditJob = "true".equalsIgnoreCase( response.getText() );
+              if ( !canEditJob ) {
+                promptForScheduleResourceError( Collections.singleton( editJob ) );
+                return;
               }
 
-              public void onResponseReceived( Request request, Response response ) {
-                if ( "true".equalsIgnoreCase( response.getText() ) ) {
-                  editJob( editJob );
-                } else {
-                  promptForScheduleResourceError( editJob );
-                }
-              }
-            } );
-          } catch ( RequestException e ) {
-            // showError(e);
-          }
+              editJob( editJob );
+            }
+          } );
         }
       }
     } );
@@ -874,16 +869,19 @@ public class SchedulesPanel extends SimplePanel {
     // Add remove button
     scheduleRemoveButton.setCommand( new Command() {
       public void execute() {
-        Set<JsJob> selectedJobs = getSelectedJobs();
-        if ( selectedJobs != null && selectedJobs.size() > 0 ) {
-          final PromptDialogBox prompt =
-              new PromptDialogBox( Messages.getString( "warning" ), Messages.getString( "yes" ), Messages
-                  .getString( "no" ), false, true );
-          prompt.setContent( new Label( Messages.getString( "deleteConfirmSchedles", "" + selectedJobs.size() ) ) );
+        final Set<JsJob> selectedJobs = getSelectedJobs();
+
+        int selectionSize = selectedJobs.size();
+        if ( selectionSize > 0 ) {
+          final PromptDialogBox prompt = new PromptDialogBox( Messages.getString( "warning" ),
+            Messages.getString( "yes" ), Messages.getString( "no" ), false, true );
+
+          final String promptContent = Messages.getString( "deleteConfirmSchedles", "" + selectionSize );
+          prompt.setContent( new Label( promptContent ) );
 
           prompt.setCallback( new IDialogCallback() {
             public void okPressed() {
-              controlJobs( getSelectedJobs(), "removeJob", RequestBuilder.DELETE, true );
+              controlJobs( selectedJobs, "removeJob", RequestBuilder.DELETE, true );
               prompt.hide();
             }
 
@@ -891,6 +889,7 @@ public class SchedulesPanel extends SimplePanel {
               prompt.hide();
             }
           } );
+
           prompt.center();
         }
       }
@@ -907,11 +906,13 @@ public class SchedulesPanel extends SimplePanel {
     setWidget( tableAndPager );
   }
 
-  private void editJob( JsJob editJob ) {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + URL.encodeQueryString( editJob.getJobId() );
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
-    executableTypesRequestBuilder.setHeader( "accept", "application/json" );
-    executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+  private void editJob( final JsJob editJob ) {
+    final String jobId = editJob.getJobId();
+    final String apiEndpoint = "api/scheduler/jobinfo?jobId=" + URL.encodeQueryString( jobId );
+
+    RequestBuilder executableTypesRequestBuilder = createRequestBuilder( RequestBuilder.GET, apiEndpoint );
+    executableTypesRequestBuilder.setHeader( HTTP_ACCEPT_HEADER, JSON_CONTENT_TYPE );
+
     try {
       executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
 
@@ -924,25 +925,28 @@ public class SchedulesPanel extends SimplePanel {
             final JsJob jsJob = parseJsonJob( JsonUtils.escapeJsonForEval( response.getText() ) );
 
             // check email is setup
-            RequestBuilder emailValidRequest =
-                new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/emailconfig/isValid" );
-            emailValidRequest.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+            final String checkEmailEndpoint = "api/emailconfig/isValid";
+            RequestBuilder emailValidRequest = createRequestBuilder( RequestBuilder.GET, checkEmailEndpoint );
+
             emailValidRequest.setHeader( "accept", "text/plain" );
+
             try {
               emailValidRequest.sendRequest( null, new RequestCallback() {
 
                 public void onError( Request request, Throwable exception ) {
-                  MessageDialogBox dialogBox =
-                      new MessageDialogBox( Messages.getString( "error" ), exception.toString(), false, false, true ); //$NON-NLS-1$
+                  MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ),
+                    exception.toString(), false, false, true );
+
                   dialogBox.center();
                 }
 
                 public void onResponseReceived( Request request, Response response ) {
                   if ( response.getStatusCode() == Response.SC_OK ) {
                     final boolean isEmailConfValid = Boolean.parseBoolean( response.getText() );
-                    final NewScheduleDialog schedDialog =
-                        new NewScheduleDialog( jsJob, scheduleDialogCallback, isEmailConfValid );
-                    schedDialog.center();
+                    final NewScheduleDialog scheduleDialog = new NewScheduleDialog( jsJob.getFullResourceName(),
+                      scheduleDialogCallback, isEmailConfValid );
+
+                    scheduleDialog.center();
                   }
                 }
               } );
@@ -951,9 +955,10 @@ public class SchedulesPanel extends SimplePanel {
             }
 
           } else {
-            MessageDialogBox dialogBox =
-                new MessageDialogBox(
-                    Messages.getString( "error" ), Messages.getString( "serverErrorColon" ) + " " + response.getStatusCode(), false, false, true ); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            String message = Messages.getString( "serverErrorColon" ) + " " + response.getStatusCode();
+            MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ), message,
+              false, false, true );
+
             dialogBox.center();
           }
         }
@@ -963,18 +968,78 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-  private void promptForScheduleResourceError( final JsJob job ) {
-    final PromptDialogBox prompt =
-        new PromptDialogBox( Messages.getString( "fileUnavailable" ), Messages.getString( "yesDelete" ), Messages
-            .getString( "no" ), false, true );
-    prompt.setContent( new HTML( Messages.getString( "editScheduleResourceDoesNotExist",
-        job.getFullResourceName() ) ) );
+  private void triggerExecuteNow( final Set<JsJob> jobs ) {
+    final Map<String, JsJob> candidateJobs = new HashMap<String, JsJob>( jobs.size() );
+    for ( JsJob job : jobs ) {
+      candidateJobs.put( job.getFullResourceName(), job );
+    }
+
+    canAccessJobListRequest( jobs, new RequestCallback() {
+      public void onError( Request request, Throwable exception ) {
+        promptForScheduleResourceError( jobs );
+      }
+
+      public void onResponseReceived( Request request, Response response ) {
+        final Set<JsJob> executeList = getExecutableJobs( candidateJobs, response );
+
+        // execute job schedules that can be executed
+        if ( !executeList.isEmpty() ) {
+          executeJobs( executeList );
+        }
+
+        final Set<JsJob> removeList = new HashSet<JsJob>();
+        for ( JsJob job : candidateJobs.values() ) {
+          if ( !executeList.contains( job ) ) {
+            removeList.add( job );
+          }
+        }
+
+        // remove job schedules that no longer can be executed
+        if ( !removeList.isEmpty() ) {
+          promptForScheduleResourceError( removeList );
+        }
+      }
+    } );
+  }
+
+  private void executeJobs( Set<JsJob> jobs ) {
+    final String title = Messages.getString( "executeNow" );
+    final String message = Messages.getString( "executeNowStarted"
+      + ( jobs.size() > 1 ? "Multiple" : "" ) );
+
+    MessageDialogBox messageDialog = new MessageDialogBox( title, message, false, true, true );
+    messageDialog.center();
+
+    controlJobs( jobs, "triggerNow", RequestBuilder.POST, true );
+  }
+
+  private Set<JsJob> getExecutableJobs( Map<String, JsJob> candidateJobs, Response response ) {
+    final Set<JsJob> executeList = new HashSet<JsJob>();
+
+    try {
+      final List<String> readableFiles = parseJsonAccessList( response.getText() ).getReadableFiles();
+
+      for ( String resourceName : readableFiles ) {
+        executeList.add( candidateJobs.get( resourceName ) );
+      }
+    } catch ( Exception e ) {
+      // noop
+    }
+
+    return executeList;
+  }
+
+  private void promptForScheduleResourceError( final Set<JsJob> jobs ) {
+    final PromptDialogBox prompt = new PromptDialogBox( Messages.getString( "fileUnavailable" ),
+      Messages.getString( "yesDelete" ), Messages.getString( "no" ), false, true );
+
+    final String promptContent = Messages.getString( "editScheduleResourceDoesNotExist"
+      + ( jobs.size() > 1 ? "Multiple" : "" ) );
+    prompt.setContent( new HTML( promptContent ) );
 
     prompt.setCallback( new IDialogCallback() {
       public void okPressed() {
-        HashSet<JsJob> jobSet = new HashSet<JsJob>();
-        jobSet.add( job );
-        controlJobs( jobSet, "removeJob", RequestBuilder.DELETE, true );
+        controlJobs( jobs, "removeJob", RequestBuilder.DELETE, true );
         prompt.hide();
       }
 
@@ -982,19 +1047,19 @@ public class SchedulesPanel extends SimplePanel {
         prompt.hide();
       }
     } );
+
     prompt.setWidth( "530px" );
     prompt.center();
   }
 
   private void controlJobs( final Set<JsJob> jobs, String function, final Method method, final boolean refreshData ) {
     for ( final JsJob job : jobs ) {
-      final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
-      RequestBuilder builder = new RequestBuilder( method, url );
-      builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-      builder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
+      RequestBuilder builder = createRequestBuilder( method, "api/scheduler/" + function );
+
+      builder.setHeader( HTTP.CONTENT_TYPE, JSON_CONTENT_TYPE );
 
       JSONObject startJobRequest = new JSONObject();
-      startJobRequest.put( "jobId", new JSONString( job.getJobId() ) ); //$NON-NLS-1$
+      startJobRequest.put( "jobId", new JSONString( job.getJobId() ) );
 
       try {
         builder.sendRequest( startJobRequest.toString(), new RequestCallback() {
@@ -1004,16 +1069,13 @@ public class SchedulesPanel extends SimplePanel {
           }
 
           public void onResponseReceived( Request request, Response response ) {
-            job.setState( response.getText() );
+            final String jobState = response.getText();
+
+            job.setState( jobState );
             table.redraw();
-            boolean isRunning = "NORMAL".equalsIgnoreCase( response.getText() );
-            if ( isRunning ) {
-              controlScheduleButton.setToolTip( Messages.getString( "stop" ) );
-              controlScheduleButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-stop" ) );
-            } else {
-              controlScheduleButton.setToolTip( Messages.getString( "start" ) );
-              controlScheduleButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-run" ) );
-            }
+
+            updateJobScheduleButtonStyle( jobState );
+
             if ( refreshData ) {
               refresh();
             }
@@ -1027,31 +1089,18 @@ public class SchedulesPanel extends SimplePanel {
 
   private void controlScheduler( final ToolbarButton controlSchedulerButton, final String function,
                                  final boolean isScheduler ) {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
-    builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+    final RequestBuilder builder = createRequestBuilder( RequestBuilder.POST, "api/scheduler/" + function );
+
     try {
       builder.sendRequest( null, new RequestCallback() {
-
         public void onError( Request request, Throwable exception ) {
           // showError(exception);
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean isRunning = "RUNNING".equalsIgnoreCase( response.getText() );
-          if ( isRunning ) {
-            controlSchedulerButton.setToolTip( Messages.getString( "stopScheduler" ) );
-            controlSchedulerButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-stop-scheduler" ) );
-          } else {
-            controlSchedulerButton.setToolTip( Messages.getString( "startScheduler" ) );
-            controlSchedulerButton.setImage( ImageUtil.getThemeableImage( "icon-small", "icon-start-scheduler" ) );
-          }
+          updateControlSchedulerButtonStyle( controlSchedulerButton, response.getText() );
 
-          if ( !isScheduler ) {
-            controlSchedulerButton.setEnabled( false );
-          } else {
-            controlSchedulerButton.setEnabled( true );
-          }
+          controlSchedulerButton.setEnabled( isScheduler );
         }
       } );
     } catch ( RequestException e ) {
@@ -1099,25 +1148,82 @@ public class SchedulesPanel extends SimplePanel {
   private void showValidateOutputLocationError() {
     String title = Messages.getString( "outputLocationErrorTitle" );
     String message = Messages.getString( "outputLocationErrorMessage" );
-    MessageDialogBox dialogBox =
-        new MessageDialogBox( title, message, false, false, true, Messages.getString( "close" ), null, null ); //$NON-NLS-1$
+    String okText = Messages.getString( "close" );
+
+    MessageDialogBox dialogBox = new MessageDialogBox( title, message,
+      false, false, true, okText, null, null );
+
     dialogBox.addStyleName( "pentaho-dialog-small" );
     dialogBox.center();
   }
 
-  private native JsArray<JsJob> parseJson( String json )
-  /*-{
-      var obj = JSON.parse(json);
-      if (obj != null && obj.hasOwnProperty("job")) {
-          return obj.job;
-      }
-      return [];
+  private void canAccessJobRequest( final JsJob job, RequestCallback callback ) {
+    final String jobId = SolutionBrowserPanel.pathToId( job.getFullResourceName() );
+
+    final String apiEndpoint = "api/repo/files/" + jobId + "/canAccess?cb=" + System.currentTimeMillis()
+      + "&permissions=" + READ_PERMISSION;
+
+    final RequestBuilder accessBuilder = createRequestBuilder( RequestBuilder.GET, apiEndpoint );
+
+    try {
+      accessBuilder.sendRequest( null, callback );
+    } catch ( RequestException re ) {
+      // noop
+    }
+  }
+
+  private void canAccessJobListRequest( final Set<JsJob> jobs, RequestCallback callback ) {
+    final JSONArray jobNameList = new JSONArray();
+
+    int idx = 0;
+    for ( JsJob job : jobs ) {
+      jobNameList.set( idx++, new JSONString( job.getFullResourceName() ) );
+    }
+
+    final JSONObject payload = new JSONObject();
+    payload.put( "strings", jobNameList );
+
+    final String accessListEndpoint = "api/repo/files/pathsAccessList?cb=" + System.currentTimeMillis();
+    RequestBuilder accessListBuilder = createRequestBuilder( RequestBuilder.POST, accessListEndpoint );
+
+    accessListBuilder.setHeader( HTTP.CONTENT_TYPE, JSON_CONTENT_TYPE );
+    accessListBuilder.setHeader( HTTP_ACCEPT_HEADER, JSON_CONTENT_TYPE );
+
+    try {
+      accessListBuilder.sendRequest( payload.toString(), callback );
+    } catch ( RequestException re ) {
+      // noop
+    }
+  }
+
+  private RequestBuilder createRequestBuilder( Method method, String apiEndpoint ) {
+    return createRequestBuilder( method, apiEndpoint, GWT.getHostPageBaseURL() );
+  }
+
+  private RequestBuilder createRequestBuilder( Method method, String apiEndpoint, String context ) {
+    final String url = context + apiEndpoint;
+
+    RequestBuilder builder = new RequestBuilder( method, url );
+    builder.setHeader( "If-Modified-Since", IF_MODIFIED_SINCE );
+
+    return builder;
+  }
+
+  private native JsArray<JsJob> parseJson( String json ) /*-{
+    var obj = JSON.parse(json);
+
+    if (obj != null && obj.hasOwnProperty("job")) {
+      return obj.job;
+    }
+
+    return [];
   }-*/;
 
-  private native JsJob parseJsonJob( String json )
-  /*-{
-      var obj = JSON.parse(json);
-      return obj;
+  private native JsJob parseJsonJob( String json ) /*-{
+    return JSON.parse(json);
   }-*/;
 
+  private native JsPermissionsList parseJsonAccessList( String json ) /*-{
+    return JSON.parse(json);
+  }-*/;
 }
