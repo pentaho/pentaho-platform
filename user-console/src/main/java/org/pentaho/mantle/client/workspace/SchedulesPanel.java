@@ -808,7 +808,7 @@ public class SchedulesPanel extends SimplePanel {
       public void execute() {
         Set<JsJob> selectedJobs = getSelectedJobs();
         if ( !selectedJobs.isEmpty() ) {
-          executeJobs( selectedJobs );
+          triggerExecuteNow( selectedJobs );
         }
       }
     } );
@@ -968,7 +968,7 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-  private void executeJobs( final Set<JsJob> jobs ) {
+  private void triggerExecuteNow( final Set<JsJob> jobs ) {
     final Map<String, JsJob> candidateJobs = new HashMap<String, JsJob>( jobs.size() );
     for ( JsJob job : jobs ) {
       candidateJobs.put( job.getFullResourceName(), job );
@@ -980,28 +980,11 @@ public class SchedulesPanel extends SimplePanel {
       }
 
       public void onResponseReceived( Request request, Response response ) {
-        final Set<JsJob> executeList = new HashSet<JsJob>();
-
-        try {
-          final List<String> readableFiles = parseAccessList( response.getText() ).getReadableFiles();
-
-          for ( String resourceName : readableFiles ) {
-            executeList.add( candidateJobs.get( resourceName ) );
-          }
-        } catch ( Exception e ) {
-          // noop
-        }
+        final Set<JsJob> executeList = getExecutableJobs( candidateJobs, response );
 
         // execute job schedules that can be executed
         if ( !executeList.isEmpty() ) {
-          final String title = Messages.getString( "executeNow" );
-          final String message = Messages.getString( "executeNowStarted"
-            + ( executeList.size() > 1 ? "Multiple" : "" ) );
-
-          MessageDialogBox messageDialog = new MessageDialogBox( title, message, false, true, true );
-          messageDialog.center();
-
-          controlJobs( executeList, "triggerNow", RequestBuilder.POST, true );
+          executeJobs( executeList );
         }
 
         final Set<JsJob> removeList = new HashSet<JsJob>();
@@ -1017,6 +1000,33 @@ public class SchedulesPanel extends SimplePanel {
         }
       }
     } );
+  }
+
+  private void executeJobs( Set<JsJob> jobs ) {
+    final String title = Messages.getString( "executeNow" );
+    final String message = Messages.getString( "executeNowStarted"
+      + ( jobs.size() > 1 ? "Multiple" : "" ) );
+
+    MessageDialogBox messageDialog = new MessageDialogBox( title, message, false, true, true );
+    messageDialog.center();
+
+    controlJobs( jobs, "triggerNow", RequestBuilder.POST, true );
+  }
+
+  private Set<JsJob> getExecutableJobs( Map<String, JsJob> candidateJobs, Response response ) {
+    final Set<JsJob> executeList = new HashSet<JsJob>();
+
+    try {
+      final List<String> readableFiles = parseJsonAccessList( response.getText() ).getReadableFiles();
+
+      for ( String resourceName : readableFiles ) {
+        executeList.add( candidateJobs.get( resourceName ) );
+      }
+    } catch ( Exception e ) {
+      // noop
+    }
+
+    return executeList;
   }
 
   private void promptForScheduleResourceError( final Set<JsJob> jobs ) {
@@ -1213,7 +1223,7 @@ public class SchedulesPanel extends SimplePanel {
     return JSON.parse(json);
   }-*/;
 
-  private native JsPermissionsList parseAccessList( String json ) /*-{
+  private native JsPermissionsList parseJsonAccessList( String json ) /*-{
     return JSON.parse(json);
   }-*/;
 }
