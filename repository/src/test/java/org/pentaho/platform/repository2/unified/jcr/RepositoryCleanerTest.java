@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,13 +23,20 @@ package org.pentaho.platform.repository2.unified.jcr;
 import org.apache.jackrabbit.core.IPentahoSystemSessionFactory;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.gc.GarbageCollector;
+import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Andrey Khayrutdinov
@@ -69,5 +76,34 @@ public class RepositoryCleanerTest {
 
   protected String getSolutionPath() {
     return SOLUTION_PATH;
+  }
+
+  @Test
+  public void testFindVersionNodesAndPurgeWhenNodeHasNullNodes() throws Exception {
+    GarbageCollector collector = mock( GarbageCollector.class );
+    RepositoryImpl repository = mock( RepositoryImpl.class );
+    when( repository.createDataStoreGarbageCollector() ).thenReturn( collector );
+    MicroPlatform mp = new MicroPlatform( getSolutionPath() );
+    mp.defineInstance( Repository.class, repository );
+    mp.defineInstance( "jcrRepository", repository );
+    mp.start();
+
+    RepositoryCleaner cleaner = new RepositoryCleaner();
+    Session systemSession = mock( Session.class );
+    IPentahoSystemSessionFactory sessionFactory = mock( IPentahoSystemSessionFactory.class );
+    when( sessionFactory.create( any() ) ).thenReturn( systemSession );
+    Node parentNode = mock( Node.class );
+    when( systemSession.getNode( anyString() ) ).thenReturn( parentNode );
+    when( parentNode.getName() ).thenReturn( "" );
+    when( parentNode.getNodes() ).thenReturn( null );
+    try {
+      cleaner.setSystemSessionFactory( sessionFactory );
+      cleaner.gc();
+    } catch ( Exception e ) {
+      Assert.fail();
+    } finally {
+      mp.stop();
+    }
+
   }
 }
