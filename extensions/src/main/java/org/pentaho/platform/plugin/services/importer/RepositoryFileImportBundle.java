@@ -30,6 +30,7 @@ import java.util.Map;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 
 /**
  * Repository implementation of IPlatformImportBundle. Instances of this class are contructed using the supplied Builder
@@ -52,6 +53,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   private RepositoryFile file;
   // BIServer 8158 - ACL import handling properties
   private RepositoryFileAcl acl;
+  private RepositoryFileExtraMetaData extraMetaData;
   private boolean applyAclSettings;
   private boolean overwriteAclSettings;
   private boolean retainOwnership;
@@ -78,6 +80,19 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   @Override
   public void setAcl( RepositoryFileAcl acl ) {
     this.acl = acl;
+  }
+
+  /**
+   * When set this extra meta data will be applied to the importing content if that content is to be managed by the repository.
+   *
+   * @return
+   */
+  @Override public RepositoryFileExtraMetaData getExtraMetaData() {
+    return this.extraMetaData;
+  }
+
+  @Override public void setExtraMetaData( RepositoryFileExtraMetaData extraMetaData ) {
+    this.extraMetaData = extraMetaData;
   }
 
   @Override
@@ -122,7 +137,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   }
 
   @Override
-  public String getCharset() {
+  public String getCharSet() {
     return charSet;
   }
 
@@ -217,10 +232,6 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     this.retainOwnership = retainOwnership;
   }
 
-  public String getCharSet() {
-    return charSet;
-  }
-
   private boolean validate() {
     if ( this.mimeType != null && this.mimeType.equals( "text/directory" ) ) {
       return this.inputStream == null;
@@ -267,6 +278,11 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
       return this;
     }
 
+    public Builder extraMetaData( RepositoryFileExtraMetaData extraMetaData ) {
+      bundle.setExtraMetaData( extraMetaData );
+      return this;
+    }
+
     public Builder input( InputStream in ) {
       bundle.setInputStream( in );
       return this;
@@ -287,8 +303,8 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
       return this;
     }
 
-    public Builder charSet( String charSet ) {
-      bundle.setCharSet( charSet );
+    public Builder charSet( String charset ) {
+      bundle.setCharSet( charset );
       return this;
     }
 
