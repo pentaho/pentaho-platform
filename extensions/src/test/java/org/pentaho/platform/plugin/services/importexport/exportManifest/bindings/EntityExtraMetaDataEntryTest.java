@@ -14,33 +14,35 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2019 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSettersExcluding;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.*;
 
-/**
- * Created by rfellows on 10/26/15.
- */
-public class ExportManifestPropertyTest {
-
+public class EntityExtraMetaDataEntryTest {
   @Test
   public void testGettersAndSetters() throws Exception {
-    String[] excludes = new String[] { "customProperty" };
-    assertThat( ExportManifestProperty.class, hasValidGettersAndSettersExcluding( excludes ) );
+    final String[] excludes = new String[] {};
+    Assert.assertThat( EntityExtraMetaDataEntry.class, hasValidGettersAndSettersExcluding( excludes ) );
   }
 
   @Test
-  public void testGetCustomProperty() throws Exception {
-    ExportManifestProperty property = new ExportManifestProperty();
-    assertNotNull( property.getCustomProperty() );
-    assertEquals( 0, property.getCustomProperty().size() );
+  public void testConstructor() throws Exception {
+    String name = "name";
+    String value = "value";
+    final EntityExtraMetaDataEntry entityExtraMetaDataEntry = new EntityExtraMetaDataEntry( name, value );
+
+    Assert.assertEquals( name, entityExtraMetaDataEntry.getName() );
+    Assert.assertEquals( value, entityExtraMetaDataEntry.getValue() );
+
   }
 }
