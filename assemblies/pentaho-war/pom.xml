@@ -27,7 +27,6 @@
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
-    <kafka-clients.version>0.10.2.1</kafka-clients.version>
     <rxjava.version>2.2.3</rxjava.version>
     <snowflake-jdbc.version>3.6.28</snowflake-jdbc.version>
   </properties>
@@ -892,7 +891,6 @@
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
-      <version>${kafka-clients.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
