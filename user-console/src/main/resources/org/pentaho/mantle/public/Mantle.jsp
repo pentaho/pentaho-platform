@@ -121,8 +121,6 @@
   <%}%>
   <link rel="stylesheet" href="mantle/Widgets.css"/>
 
-  <!-- ANGULAR INCLUDES -->
-  <link rel='stylesheet' href='content/common-ui/resources/themes/css/angular-animations.css'/>
   <script language="javascript" type="text/javascript" src="webcontext.js?context=mantle"></script>
 
   <script type="text/javascript" src="mantle/nativeScripts.js"></script>
@@ -181,18 +179,13 @@
         }
       });
     }
-
-    // Require Angular Plugin Initialization
-    require(['mantle/puc-api/pucAngularApi']);
   </script>
 
 </head>
 
 <body oncontextmenu="return false;" class="pentaho-page-background">
 
-  <div ng-show="viewContainer === 'PUC'" 
-    class="ng-app-element deny-animation-change" animate="fade" 
-    id="pucWrapper" cellspacing="0" cellpadding="0" style="width: 100%; height: 100%;">
+  <div id="pucWrapper" cellspacing="0" cellpadding="0" style="width: 100%; height: 100%;">
     
     <div id="pucHeader" cellspacing="0" cellpadding="0">
       <div id="pucMenuBar"></div>
@@ -203,9 +196,6 @@
 
     <div id="pucContent"></div>
   </div>
-
-  <div ng-view ng-show="viewContainer === 'ngView'" class="ng-app-view ng-app-element"></div>
-  
 
 <script type="text/javascript">
   document.getElementById("pucWrapper").style.position = "absolute";
