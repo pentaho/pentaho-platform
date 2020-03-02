@@ -21,19 +21,14 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestEntity;
-import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
-import org.powermock.reflect.Whitebox;
 
 public class ImportSessionTest {
   private static final String PATH = "path";
@@ -109,19 +104,5 @@ public class ImportSessionTest {
     assertNotNull( ImportSession.getSession().getManifest() );
     ImportSession.clearSession();
     assertNull( ImportSession.getSession().getManifest() );
-  }
-
-  @Test
-  public void testProcessExtraMetaDataForFile() throws ExportManifestFormatException {
-    ExportManifest manifest = mock( ExportManifest.class );
-    ExportManifestEntity entity = mock( ExportManifestEntity.class );
-    RepositoryFileExtraMetaData repositoryFileExtraMetaData = mock( RepositoryFileExtraMetaData.class );
-
-    when( manifest.getExportManifestEntity( anyString() )).thenReturn( entity );
-    when( entity.getRepositoryFileExtraMetaData() ).thenReturn( repositoryFileExtraMetaData );
-
-    Whitebox.setInternalState( importSession, "manifest", manifest );
-    Assert.assertEquals( repositoryFileExtraMetaData, importSession.processExtraMetaDataForFile( "filePath" ));
-
   }
 }

@@ -641,7 +641,7 @@ public class FileServiceTest {
     RepositoryFileImportBundle bundle = argumentCaptor.getValue();
 
     assertTrue( bundle.getInputStream() == inputStreamMock );
-    assertEquals( "UTF-8", bundle.getCharset() );
+    assertEquals( "UTF-8", bundle.getCharSet() );
     assertEquals( RepositoryFile.HIDDEN_BY_DEFAULT, bundle.isHidden() );
     assertEquals( RepositoryFile.SCHEDULABLE_BY_DEFAULT, bundle.isSchedulable() );
     assertEquals( "/", bundle.getPath() );

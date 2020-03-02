@@ -60,7 +60,6 @@ public class PDIImportFileHandler extends RepositoryFileImportFileHandler implem
 
       RepositoryFileAcl newFileAcl = bundle.getAcl();
       bundle.setAcl( originFileAcl );
-      bundle.setExtraMetaData( bundle.getExtraMetaData() );
       updatedFile = createFile( bundle, file.getPath(), data );
       bundle.setAcl( newFileAcl );
     }
