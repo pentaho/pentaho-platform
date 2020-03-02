@@ -33,7 +33,9 @@ public class ExportManifestPropertyTest {
 
   @Test
   public void testGettersAndSetters() throws Exception {
-    String[] excludes = new String[] { "customProperty" };
+    String[] excludes = new String[] {
+      "customProperty"
+    };
     assertThat( ExportManifestProperty.class, hasValidGettersAndSettersExcluding( excludes ) );
   }
 
