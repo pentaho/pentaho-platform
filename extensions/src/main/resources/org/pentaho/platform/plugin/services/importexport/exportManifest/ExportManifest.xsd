@@ -93,8 +93,6 @@
     <choice minOccurs="1">
       <element name="EntityMetaData" type="tns:EntityMetaData"
                maxOccurs="1"/>
-      <element name="EntityExtraMetaData" type="tns:EntityExtraMetaData"
-               maxOccurs="1"/>
       <element name="EntityAcl" type="tns:EntityAcl" maxOccurs="1"/>
       <element name="CustomProperty" type="tns:CustomProperty"
                maxOccurs="unbounded"/>
@@ -206,19 +204,4 @@
     </attribute>
     <attribute name="runAfterImport" type="boolean" default="false" use="optional"/>
   </complexType>
-
-  <complexType name="EntityExtraMetaData">
-    <choice minOccurs="0">
-      <element name="EntityExtraMetaDataEntry" type="tns:EntityExtraMetaDataEntry"
-               minOccurs="0"/>
-    </choice>
-  </complexType>
-
-  <complexType name="EntityExtraMetaDataEntry">
-    <choice minOccurs="1">
-      <element name="name" type="string"/>
-      <element name="value" type="string"/>
-    </choice>
-  </complexType>
-
 </schema>
