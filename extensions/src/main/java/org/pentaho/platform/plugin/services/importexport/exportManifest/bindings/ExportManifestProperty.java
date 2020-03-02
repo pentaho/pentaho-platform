@@ -59,13 +59,11 @@ import java.util.List;
  * 
  */
 @XmlAccessorType( XmlAccessType.FIELD )
-@XmlType( name = "ExportManifestProperty", propOrder = { "entityMetaData", "entityExtraMetaData", "entityAcl", "customProperty"} )
+@XmlType( name = "ExportManifestProperty", propOrder = { "entityMetaData", "entityAcl", "customProperty" } )
 public class ExportManifestProperty {
 
   @XmlElement( name = "EntityMetaData" )
   protected EntityMetaData entityMetaData;
-  @XmlElement( name = "EntityExtraMetaData" )
-  protected EntityExtraMetaData entityExtraMetaData;
   @XmlElement( name = "EntityAcl" )
   protected EntityAcl entityAcl;
   @XmlElement( name = "CustomProperty" )
@@ -90,27 +88,6 @@ public class ExportManifestProperty {
    */
   public void setEntityMetaData( EntityMetaData value ) {
     this.entityMetaData = value;
-  }
-
-  /**
-   * Gets the value of the entityExtraMetaData property.
-   *
-   * @return possible object is {@link EntityExtraMetaData }
-   *
-   */
-  public EntityExtraMetaData getEntityExtraMetaData() {
-    return entityExtraMetaData;
-  }
-
-  /**
-   * Sets the value of the entityExtraMetaData property.
-   *
-   * @param value
-   *          allowed object is {@link EntityExtraMetaData }
-   *
-   */
-  public void setEntityExtraMetaData( EntityExtraMetaData value ) {
-    this.entityExtraMetaData = value;
   }
 
   /**
