@@ -29,6 +29,7 @@
     <replacer.version>1.5.2</replacer.version>
     <rxjava.version>2.2.3</rxjava.version>
     <snowflake-jdbc.version>3.6.28</snowflake-jdbc.version>
+    <big-data-plugin.version>9.1.0.0-SNAPSHOT</big-data-plugin.version>
   </properties>
   <dependencies>
     <!-- region - Fasterxml jackson providers are required to be in the main classloader for serialization of POJOs
@@ -236,6 +237,17 @@
       <artifactId>pentaho-capability-manager</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-big-data-legacy-core</artifactId>
+      <version>${big-data-plugin.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
