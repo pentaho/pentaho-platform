@@ -13,7 +13,6 @@
   <properties>
     <tomcat.directory>${project.build.directory}/apache-tomcat-${tomcat.version}</tomcat.directory>
     <replacer.version>1.5.2</replacer.version>
-    <tomcat.version>8.5.34</tomcat.version>
     <wkhtmltox.version>0.10.0_rc2</wkhtmltox.version>
     <wkhtmltoimage.version>${wkhtmltox.version}-static</wkhtmltoimage.version>
     <resources.directory>${basedir}/src/main/resources</resources.directory>
