@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,7 +25,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemConfigBuilder;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.provider.AbstractFileProvider;
+import org.apache.commons.vfs2.provider.FileProvider;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.MondrianSchemaAnnotator;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -36,13 +36,12 @@ import java.util.Collection;
 /**
  * @author Ezequiel Cuellar
  */
-public class MondrianVfs extends AbstractFileProvider {
+public class MondrianVfs implements FileProvider {
 
   public static final String SCHEMA_XML = "schema.xml";
   public static final String ANNOTATIONS_XML = "annotations.xml";
   public static final String ANNOTATOR_KEY = "inlineModeling";
 
-  @Override
   public FileObject createFileSystem( String arg0, FileObject arg1,
                                       FileSystemOptions arg2 ) throws FileSystemException {
     // TODO Auto-generated method stub
@@ -70,17 +69,14 @@ public class MondrianVfs extends AbstractFileProvider {
       + "mondrian" + catalog + RepositoryFile.SEPARATOR + fileName );
   }
 
-  @Override
   public Collection getCapabilities() {
     return null;
   }
 
-  @Override
   public FileSystemConfigBuilder getConfigBuilder() {
     return null;
   }
 
-  @Override
   public FileName parseUri( FileName arg0, String arg1 ) throws FileSystemException {
     return null;
   }
