@@ -951,7 +951,7 @@ public class FileResourceTest {
   public void testSetFileAclsOK() {
     RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
 
-    doReturn( true ).when( fileResource ).usersOrRolesExist( any() );
+    doReturn( true ).when( fileResource ).validateUsersAndRoles( any() );
 
     assertEquals( OK.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
   }
@@ -961,7 +961,7 @@ public class FileResourceTest {
     RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
 
     doReturn( mock( Messages.class ) ).when( fileResource ).getMessagesInstance();
-    doReturn( true ).when( fileResource ).usersOrRolesExist( any() );
+    doReturn( true ).when( fileResource ).validateUsersAndRoles( any() );
     doThrow( mock( RuntimeException.class ) ).when( fileResource.fileService ).setFileAcls( PATH_ID, repository );
 
     assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
@@ -975,7 +975,7 @@ public class FileResourceTest {
     RepositoryFileAclDto repository = mock( RepositoryFileAclDto.class );
 
     doReturn( mock( Messages.class ) ).when( fileResource ).getMessagesInstance();
-    doCallRealMethod().when( fileResource ).usersOrRolesExist( any() );
+    doCallRealMethod().when( fileResource ).validateUsersAndRoles( any() );
 
     assertEquals( FORBIDDEN.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
   }
@@ -1654,22 +1654,14 @@ public class FileResourceTest {
     RepositoryFileAclDto acl = new RepositoryFileAclDto();
     acl.setOwner( ACL_OWNER );
 
-    assertTrue( fileResource.usersOrRolesExist( acl ) );
-  }
-
-  @Test
-  public void usersOrRolesExist_OwnerDoesntExist() {
-    RepositoryFileAclDto acl = new RepositoryFileAclDto();
-    acl.setOwner( BAD_ACL_OWNER );
-
-    assertFalse( fileResource.usersOrRolesExist( acl ) );
+    assertTrue( fileResource.validateUsersAndRoles( acl ) );
   }
 
   @Test
   public void usersOrRolesExist_OwnerIsBlank() {
     RepositoryFileAclDto acl = new RepositoryFileAclDto();
 
-    assertFalse( fileResource.usersOrRolesExist( acl ) );
+    assertFalse( fileResource.validateUsersAndRoles( acl ) );
   }
 
   @Test
@@ -1677,7 +1669,7 @@ public class FileResourceTest {
     RepositoryFileAclDto acl = new RepositoryFileAclDto();
     acl.setOwner( REPOSITORY_ADMIN_USERNAME );
 
-    assertTrue( fileResource.usersOrRolesExist( acl ) );
+    assertTrue( fileResource.validateUsersAndRoles( acl ) );
   }
 
   @Test
@@ -1690,35 +1682,7 @@ public class FileResourceTest {
 
     acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
 
-    assertFalse( fileResource.usersOrRolesExist( acl ) );
-  }
-
-  @Test
-  public void usersOrRolesExist_RecipientUserDoesntExist() {
-    RepositoryFileAclDto acl = new RepositoryFileAclDto();
-    acl.setOwner( ACL_OWNER );
-
-    RepositoryFileAclAceDto recipient = mock( RepositoryFileAclAceDto.class );
-    doReturn( BAD_USERNAME ).when( recipient ).getRecipient();
-    doReturn( 0 ).when( recipient ).getRecipientType();
-
-    acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
-
-    assertFalse( fileResource.usersOrRolesExist( acl ) );
-  }
-
-  @Test
-  public void usersOrRolesExist_RecipientRoleDoesntExist() {
-    RepositoryFileAclDto acl = new RepositoryFileAclDto();
-    acl.setOwner( ACL_OWNER );
-
-    RepositoryFileAclAceDto recipient = mock( RepositoryFileAclAceDto.class );
-    doReturn( BAD_ROLENAME ).when( recipient ).getRecipient();
-    doReturn( 1 ).when( recipient ).getRecipientType();
-
-    acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
-
-    assertFalse( fileResource.usersOrRolesExist( acl ) );
+    assertFalse( fileResource.validateUsersAndRoles( acl ) );
   }
 
   @Test
@@ -1732,7 +1696,7 @@ public class FileResourceTest {
 
     acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
 
-    assertTrue( fileResource.usersOrRolesExist( acl ) );
+    assertTrue( fileResource.validateUsersAndRoles( acl ) );
   }
 
   @Test
@@ -1746,6 +1710,25 @@ public class FileResourceTest {
 
     acl.setAces( Arrays.asList( new RepositoryFileAclAceDto[] { recipient } ), false );
 
-    assertTrue( fileResource.usersOrRolesExist( acl ) );
+    assertTrue( fileResource.validateUsersAndRoles( acl ) );
+  }
+
+
+  /**
+   * RFC 2253 - The names of security principal objects can contain all Unicode characters except the special LDAP
+   * characters defined in RFC 2253. This list of special characters includes: a leading space; a trailing space;
+   * and any of the following characters: # , + " \ < > ;
+   */
+  @Test
+  public void validateSecurityPrincipal() {
+    assertFalse( fileResource.validateSecurityPrincipal( "#" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "," ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "+" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "\"" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "\\" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "<" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( ">" ) );
+
+    assertTrue( fileResource.validateSecurityPrincipal( "A" ) );
   }
 }
