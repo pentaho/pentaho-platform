@@ -39,21 +39,18 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
@@ -110,6 +107,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -120,6 +118,10 @@ import static org.apache.commons.lang.StringUtils.isBlank;
  */
 @Path ( "/repo/files/" )
 public class FileResource extends AbstractJaxRSResource {
+
+  private static final String INVALID_SECURITY_PRINCIPAL_CHARACTERS = "[\\#\\,\\+\\\"\\\\\\<\\>]";
+  private static final Pattern INVALID_SECURITY_PRINCIPAL_PATTERN = Pattern.compile( INVALID_SECURITY_PRINCIPAL_CHARACTERS );
+
   public static final String APPLICATION_ZIP = "application/zip";
   public static final String REPOSITORY_ADMIN_USERNAME = "pentahoRepoAdmin";
 
@@ -743,11 +745,13 @@ public class FileResource extends AbstractJaxRSResource {
      * [BISERVER-14294] Ensuring the owner is set to a non-null, non-empty string value to prevent any issues
      * that might cause problems with the repository. Then following it up with a user existence check
      *
-     * [BISERVER-14356] What we need to check is that the users or roles we are setting permissions to exist,
-     * not just the user setting the permissions (ACL owner).
+     * [BISERVER-14409] What we need to check is that the users or roles don't contain invalid characters.
+     *
+     * We can't check if a user or a role exist, some scenarios like mixed AuthZ / AuthN are unable of confirming
+     * that a user or role exist. One of such scenarios is with SAML.
      */
     try {
-      if ( usersOrRolesExist( acl ) ) {
+      if ( validateUsersAndRoles( acl ) ) {
         fileService.setFileAcls( pathId, acl );
         return buildOkResponse();
       } else {
@@ -2269,12 +2273,18 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Checks if the given users and roles exist in the current tenant
+   * Checks if the given users and roles are valid, i.e. don't contain illegal characters.
+   * Illegal characters may lead to repository corruption.
+   *
+   * RFC 2253 - The names of security principal objects can contain all Unicode characters except the special LDAP
+   * characters defined in RFC 2253. This list of special characters includes: a leading space; a trailing space;
+   * and any of the following characters: # , + " \ < > ;
+   *
    * @param acl the ACL containing the permissions we want to set
-   * @return true if all users and roles exist, false otherwise
+   * @return true if all users and roles are valid, false otherwise
    */
   @VisibleForTesting
-  boolean usersOrRolesExist( RepositoryFileAclDto acl ) {
+  boolean validateUsersAndRoles( RepositoryFileAclDto acl ) {
     // start by checking the ACL owner
     if ( isBlank( acl.getOwner() ) ) {
       return false;
@@ -2284,9 +2294,7 @@ public class FileResource extends AbstractJaxRSResource {
       return true; // this is a special case when logged in as 'admin'
     }
 
-    IUserRoleDao dao = PentahoSystem.get( IUserRoleDao.class );
-
-    if ( dao.getUser( TenantUtils.getCurrentTenant(), acl.getOwner() ) == null ) {
+    if ( !validateSecurityPrincipal( acl.getOwner() ) ) {
       return false;
     }
 
@@ -2296,16 +2304,21 @@ public class FileResource extends AbstractJaxRSResource {
         return false;
       }
 
-      if ( dto.getRecipientType() == RepositoryFileSid.Type.USER.getValue() ) {
-        if ( dao.getUser( TenantUtils.getCurrentTenant(), dto.getRecipient() ) == null ) {
-          return false;
-        }
-      } else if ( dto.getRecipientType() == RepositoryFileSid.Type.ROLE.getValue() ) {
-        if ( dao.getRole( TenantUtils.getCurrentTenant(), dto.getRecipient() ) == null ) {
-          return false;
-        }
+      if ( !validateSecurityPrincipal( dto.getRecipient() ) ) {
+        return false;
       }
     }
     return true; // if all users and roles exist we end up here!
+  }
+
+  /**
+   * Checks if all characters in the security principal name are valid.
+   *
+   * @param principal The security principal do validate
+   * @return true if all characters are valid.
+   */
+  @VisibleForTesting
+  boolean validateSecurityPrincipal( String principal ) {
+    return !INVALID_SECURITY_PRINCIPAL_PATTERN.matcher( principal ).matches();
   }
 }
