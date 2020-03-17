@@ -1635,6 +1635,17 @@ public class FileResourceTest {
     assertFalse( fileResource.validateSecurityPrincipal( "<" ) );
     assertFalse( fileResource.validateSecurityPrincipal( ">" ) );
 
-    assertTrue( fileResource.validateSecurityPrincipal( "A" ) );
+    assertTrue( fileResource.validateSecurityPrincipal( "Admin" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "#Admin" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "Admin#" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "Ad<min" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "Adm>in" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "Ad<m>in" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "Ad\\min" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "Ad\"min" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "Ad+min" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "Ad,min" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( ",Admin" ) );
+    assertFalse( fileResource.validateSecurityPrincipal( "Admin\"" ) );
   }
 }
