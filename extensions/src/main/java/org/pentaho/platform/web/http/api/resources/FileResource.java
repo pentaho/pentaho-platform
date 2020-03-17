@@ -119,7 +119,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 @Path ( "/repo/files/" )
 public class FileResource extends AbstractJaxRSResource {
 
-  private static final String INVALID_SECURITY_PRINCIPAL_CHARACTERS = "[\\#\\,\\+\\\"\\\\\\<\\>]";
+  private static final String INVALID_SECURITY_PRINCIPAL_CHARACTERS = ".*[#,+\"\\\\<>]+.*";
   private static final Pattern INVALID_SECURITY_PRINCIPAL_PATTERN = Pattern.compile( INVALID_SECURITY_PRINCIPAL_CHARACTERS );
 
   public static final String APPLICATION_ZIP = "application/zip";
