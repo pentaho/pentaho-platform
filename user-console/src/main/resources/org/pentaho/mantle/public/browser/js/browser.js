@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara..  All rights reserved.
  */
 define([
   "./browser.fileButtons",
@@ -69,6 +69,7 @@ define([
   var trashItemButtons = new TrashItemButtons(jQuery.i18n);
   var browserUtils = new BrowserUtils();
   var multiSelectButtons = new MultiSelectButtons(jQuery.i18n);
+  var depth = 3;
 
   fileButtons.renameDialog = renameDialog;
   folderButtons.renameDialog = renameDialog;
@@ -131,18 +132,18 @@ define([
   FileBrowser.update = function (initialPath, showDescriptions) {
     this.redraw(initialPath, showDescriptions);
   };
-  
+
   FileBrowser.updateFolder = function (clickedPath, showDescriptions) {
-	// Sets initialPath as the clicked folder  
+	// Sets initialPath as the clicked folder
 	if (this.fileBrowserModel && clickedPath) {
 	  this.fileBrowserModel.set("clickedFolder", {
         obj: $("[path='" + clickedPath + "']"),
         time: (new Date()).getTime()
-      });	
-    } 
+      });
+    }
     this.redraw(clickedPath, showDescriptions);
   };
-  
+
   FileBrowser.updateData = function () {
     if (this.fileBrowserModel != null && this.fileBrowserModel.get('fileListModel') != null) {
       this.fileBrowserModel.get('fileListModel').updateData();
@@ -537,7 +538,8 @@ define([
      * Path has already been converted to colons
      */
     getFileTreeRequest: function (path) {
-      return CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*%7CFOLDERS";
+      return CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=" + depth
+          + "&showHidden=" + this.get("showHiddenFiles") + "&filter=*%7CFOLDERS";
     }
   });
 
@@ -1045,14 +1047,6 @@ define([
       //close all children folders
       myself.$el.find(".folders").hide();
 
-
-      //handle empty folders
-      $(".folders").each(function () {
-        if ($(this).children().length == 0) {
-          $(this).parent().addClass("empty");
-        }
-      });
-
       //remove padding of first folder
       myself.$el.children().each(function () {
         $(this).addClass("first");
@@ -1065,7 +1059,7 @@ define([
         // open last clicked folder or start folder (home folder)
         // if startFolder is not visible, use first one that it is instead
         var $folder = undefined;
-		        
+
 	    // verify if clicked folder is visible
 	    if ( FileBrowser.fileBrowserModel.getFolderClicked() &&
 		    FileBrowser.fileBrowserModel.getFolderClicked().attr("path") &&
@@ -1077,7 +1071,7 @@ define([
 	    } else {
 		  $folder = myself.getFirstVisibleFolder();
 	    }
-        
+
         var $parentFolder = $folder.parent(".folders");
         while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
           $parentFolder.show();
@@ -1088,7 +1082,7 @@ define([
           obj: $folder,
           time: (new Date()).getTime()
         });
-        $clickedFile = FileBrowser.fileBrowserModel.getFileClicked();
+        var $clickedFile = FileBrowser.fileBrowserModel.getFileClicked();
         if ($clickedFile != undefined && FileBrowser.fileBrowserModel.getLastClick() == "file") {
           FileBrowser.fileBrowserModel.get("fileListModel").set("clickedFile", {
             obj: FileBrowser.fileBrowserModel.getFileClicked(),
@@ -1131,8 +1125,54 @@ define([
       var $target = $(event.currentTarget).parent().parent();
       if ($target.hasClass("open")) {
         $target.removeClass("open").find("> .folders").hide();
-      } else {
+      } else if ($target.find("> .folders").children().length > 0) {
         $target.addClass("open").find("> .folders").show();
+      } else {
+        var path = $target.attr("path");
+        var myself = this;
+
+        var url = CONTEXT_PATH + "api/repo/files/" +
+            FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path))
+            + "/tree?depth=1&showHidden=" + myself.model.get("showHiddenFiles") + "&filter=*%7CFOLDERS";
+        $.ajax({
+          async: true,
+          cache: false, // prevent IE from caching the request
+          dataType: "json",
+          url: url,
+          success: function (response) {
+            if (response.children) {
+              var toAppend = "";
+              for(var i = 0; i < response.children.length; i++) {
+                var child = response.children[i].file;
+                toAppend += "<div id=\"" + child.id + "\" class=\"folder\" path=\"" + child.path +
+                                "\" desc=\"\" ext=\"" + child.title + "\" title=\"" + child.title + "\">" +
+                              "<div class=\"element\">" +
+                                "<div class=\"expandCollapse\"></div>" +
+                                "<div class=\"icon\"></div>" +
+                                "<div class=\"title\">" + child.name + "</div>" +
+                              "</div>" +
+                              "<div class=\"folders\" style=\"\"></div>" +
+                            "</div>"
+              }
+              $target.find("> .folders").append(toAppend ? toAppend : "");
+              depth = $target.attr("path").split("/").length;
+            }
+            // set the widths of new folder descriptions
+            $target.find(".element").each(function () {
+              var $this = $(this);
+              var tries = 0;
+              while ($this.height() > 20 && tries < 250) {
+                $this.width($this.width() + 20);
+                tries++;
+              }
+            });
+            $target.addClass("open").find("> .folders").show();
+          },
+          error: function () {
+          },
+          beforeSend: function (xhr) {
+          }
+        });
       }
       event.stopPropagation();
     },
@@ -1153,6 +1193,7 @@ define([
       $target.addClass("selected");
       //deselect any files
       $(".file.selected").removeClass("selected");
+      depth = $target.attr("path").split("/").length;
       event.stopPropagation();
     },
 
