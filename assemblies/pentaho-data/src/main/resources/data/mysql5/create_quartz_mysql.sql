@@ -1,13 +1,14 @@
 #
 # Quartz seems to work best with the driver mm.mysql-2.0.7-bin.jar
 #
-# In your Quartz properties file, you'll need to set 
+# In your Quartz properties file, you'll need to set
 # org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.StdJDBCDelegate
 #
 
 CREATE DATABASE IF NOT EXISTS `quartz` DEFAULT CHARACTER SET latin1;
 
-grant all on quartz.* to 'pentaho_user'@'localhost' identified by 'password';
+CREATE USER 'pentaho_user'@'localhost' identified by 'password';
+GRANT ALL PRIVILEGES ON quartz.* to 'pentaho_user'@'localhost' WITH GRANT OPTION;
 
 USE `quartz`;
 
@@ -127,7 +128,7 @@ CREATE TABLE QRTZ5_CALENDARS
 
 CREATE TABLE QRTZ5_PAUSED_TRIGGER_GRPS
   (
-    TRIGGER_GROUP  VARCHAR(200) NOT NULL, 
+    TRIGGER_GROUP  VARCHAR(200) NOT NULL,
     PRIMARY KEY (TRIGGER_GROUP)
 );
 
@@ -158,7 +159,7 @@ CREATE TABLE QRTZ5_SCHEDULER_STATE
 
 CREATE TABLE QRTZ5_LOCKS
   (
-    LOCK_NAME  VARCHAR(40) NOT NULL, 
+    LOCK_NAME  VARCHAR(40) NOT NULL,
     PRIMARY KEY (LOCK_NAME)
 );
 
