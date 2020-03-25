@@ -276,9 +276,8 @@
       </bean>
     </property>
     <property name="authenticationFailureHandler">
-      <bean class="org.pentaho.platform.web.http.security.PreventBruteForceSimpleUrlAuthenticationFailureHandler">
+      <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
         <constructor-arg type="java.lang.String" value="/Login?login_error=1" />
-        <constructor-arg type="org.pentaho.platform.api.security.ILoginAttemptService" ref="loginAttemptService"/>
       </bean>
     </property>
     <property name="filterProcessesUrl" value="/j_spring_security_check" />
