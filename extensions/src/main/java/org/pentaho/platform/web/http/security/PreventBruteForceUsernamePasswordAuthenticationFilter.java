@@ -37,8 +37,7 @@ public class PreventBruteForceUsernamePasswordAuthenticationFilter extends Usern
     this.loginAttemptService = loginAttemptService;
   }
 
-  @Override public Authentication attemptAuthentication( HttpServletRequest request, HttpServletResponse response )
-    throws AuthenticationException {
+  @Override public Authentication attemptAuthentication( HttpServletRequest request, HttpServletResponse response ) {
     String clientIp = getClientIp( request );
     if ( this.loginAttemptService.isBlocked( clientIp ) ) {
       throw new PreventBruteForceException( "Authentication blocked to prevent brute force login" );

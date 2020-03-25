@@ -51,7 +51,6 @@ public class LoginAttemptServiceTest {
     int cacheMinutes = 60;
     ILoginAttemptService loginAttemptService = new LoginAttemptService( maxAttempt, cacheMinutes );
     assertEquals( maxAttempt, (int) getInternalState( loginAttemptService, "maxAttempt" ) );
-    assertEquals( cacheMinutes, (int) getInternalState( loginAttemptService, "cacheMinutes" ) );
   }
 
   @Test

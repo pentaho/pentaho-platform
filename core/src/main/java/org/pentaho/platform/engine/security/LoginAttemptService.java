@@ -33,12 +33,9 @@ public class LoginAttemptService implements ILoginAttemptService {
 
   private LoadingCache<String, Integer> attemptsCache;
   private final int maxAttempt;
-  private final int cacheMinutes;
-
 
   public LoginAttemptService( int maxAttempt, int cacheMinutes ) {
     this.maxAttempt = maxAttempt;
-    this.cacheMinutes = cacheMinutes;
     attemptsCache = CacheBuilder.newBuilder().
       expireAfterWrite( cacheMinutes, TimeUnit.MINUTES ).build( new CacheLoader<String, Integer>() {
         public Integer load( String key ) {
