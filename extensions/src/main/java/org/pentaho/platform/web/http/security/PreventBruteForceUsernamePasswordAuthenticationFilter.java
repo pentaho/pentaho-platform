@@ -22,7 +22,6 @@ package org.pentaho.platform.web.http.security;
 
 import org.pentaho.platform.api.security.ILoginAttemptService;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletRequest;
