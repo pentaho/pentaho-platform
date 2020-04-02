@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -63,6 +63,7 @@ import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.plugin.services.importexport.DatabaseConnectionConverter;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
@@ -304,10 +305,10 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       importSchedules( manifest.getScheduleList() );
 
       // Add Hitachi Vantara Connections
-      List<org.pentaho.database.model.DatabaseConnection> datasourceList = manifest.getDatasourceList();
+      List<org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection> datasourceList = manifest.getDatasourceList();
       if ( datasourceList != null ) {
         IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
-        for ( org.pentaho.database.model.DatabaseConnection databaseConnection : datasourceList ) {
+        for ( org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection databaseConnection : datasourceList ) {
           if ( databaseConnection.getDatabaseType() == null ) {
             // don't try to import the connection if there is no type it will cause an error
             // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
@@ -321,10 +322,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             if ( existingDBConnection != null && existingDBConnection.getName() != null ) {
               if ( isOverwriteFile() ) {
                 databaseConnection.setId( existingDBConnection.getId() );
-                datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(), databaseConnection );
+                datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(),
+                  DatabaseConnectionConverter.export2model( databaseConnection ) );
               }
             } else {
-              datasourceMgmtSvc.createDatasource( databaseConnection );
+              datasourceMgmtSvc.createDatasource( DatabaseConnectionConverter.export2model( databaseConnection ) );
             }
           } catch ( Exception e ) {
             e.printStackTrace();

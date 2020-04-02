@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -52,23 +52,49 @@ import java.util.List;
  *         &lt;element name="shortName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="supportedAccessTypes" type="{http://www.pentaho.com/schema/}databaseAccessType"
  * maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="defaultDatabaseName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="defaultOptions">
+ *           &lt;complexType>
+ *             &lt;complexContent>
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *                 &lt;sequence>
+ *                   &lt;element name="entry" maxOccurs="unbounded" minOccurs="0">
+ *                     &lt;complexType>
+ *                       &lt;complexContent>
+ *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *                           &lt;sequence>
+ *                             &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *                             &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *                           &lt;/sequence>
+ *                         &lt;/restriction>
+ *                       &lt;/complexContent>
+ *                     &lt;/complexType>
+ *                   &lt;/element>
+ *                 &lt;/sequence>
+ *               &lt;/restriction>
+ *             &lt;/complexContent>
+ *           &lt;/complexType>
+ *         &lt;/element>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType ( XmlAccessType.FIELD )
-@XmlType ( name = "databaseType", propOrder = { "defaultDatabasePort", "extraOptionsHelpUrl", "name", "shortName",
-    "supportedAccessTypes" } )
+@XmlAccessorType( XmlAccessType.FIELD )
+@XmlType( name = "databaseType", propOrder = { "defaultDatabasePort", "extraOptionsHelpUrl", "name", "shortName",
+  "supportedAccessTypes", "defaultDatabaseName", "defaultOptions" } )
 public class DatabaseType {
 
   protected int defaultDatabasePort;
   protected String extraOptionsHelpUrl;
   protected String name;
   protected String shortName;
-  @XmlElement ( nillable = true )
+  @XmlElement( nillable = true )
   protected List<DatabaseAccessType> supportedAccessTypes;
+  protected String defaultDatabaseName;
+  @XmlElement( required = true )
+  protected DatabaseType.DefaultOptions defaultOptions;
 
   /**
    * Gets the value of the defaultDatabasePort property.
@@ -159,9 +185,49 @@ public class DatabaseType {
    */
   public List<DatabaseAccessType> getSupportedAccessTypes() {
     if ( supportedAccessTypes == null ) {
-      supportedAccessTypes = new ArrayList<DatabaseAccessType>();
+      supportedAccessTypes = new ArrayList<>();
     }
     return this.supportedAccessTypes;
   }
 
+  /**
+   * Gets the value of the defaultDatabaseName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getDefaultDatabaseName() {
+    return defaultDatabaseName;
+  }
+
+  /**
+   * Sets the value of the defaultDatabaseName property.
+   */
+  public void setDefaultDatabaseName( String value ) {
+    this.defaultDatabaseName = value;
+  }
+
+  /**
+   * Gets the value of the defaultOptions property.
+   *
+   * @return possible object is {@link DatabaseType.DefaultOptions }
+   */
+  public DatabaseType.DefaultOptions getDefaultOptions() {
+    return defaultOptions;
+  }
+
+  /**
+   * Sets the value of the defaultOptions property.
+   *
+   * @param value allowed object is {@link DatabaseType.DefaultOptions }
+   */
+  public void setDefaultOptions( DatabaseType.DefaultOptions value ) {
+    this.defaultOptions = value;
+  }
+
+  /**
+   * <p>Defining an inner class to support the DefaultOptions'Map object from the original class.</p>
+   * {@inheritDoc}
+   */
+  public static class DefaultOptions extends MapExport {
+  }
 }
