@@ -761,12 +761,12 @@ public class DatabaseConnection {
   public static class PasswordEncryptionAdapter extends XmlAdapter<String, String> {
     @Override
     public String marshal( final String plainText ) throws Exception {
-      return Encr.encryptPassword( plainText );
+      return Encr.encryptPasswordIfNotUsingVariables( plainText );
     }
 
     @Override
     public String unmarshal( final String encodedText ) throws Exception {
-      return Encr.decryptPassword( encodedText );
+      return Encr.decryptPasswordOptionallyEncrypted( encodedText );
     }
   }
 }
