@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,6 +22,7 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest.binding
 
 import org.junit.Test;
 
+import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSetters;
 import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSettersExcluding;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
@@ -39,9 +40,21 @@ public class DatabaseTypeTest {
   }
 
   @Test
+  public void testInnerEntryClasses() throws Exception {
+    assertThat( DatabaseType.DefaultOptions.Entry.class, hasValidGettersAndSetters() );
+  }
+
+  @Test
   public void testGetSupportedAccessTypes() throws Exception {
     DatabaseType dbType = new DatabaseType();
     assertNotNull( dbType.getSupportedAccessTypes() );
     assertEquals( 0, dbType.getSupportedAccessTypes().size() );
+  }
+
+  @Test
+  public void testAttributes() throws Exception {
+    DatabaseType.DefaultOptions defaultOptions = new DatabaseType.DefaultOptions();
+    assertNotNull( defaultOptions.getEntry() );
+    assertEquals( 0, defaultOptions.getEntry().size() );
   }
 }
