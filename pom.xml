@@ -109,7 +109,6 @@
     <lucene-core.version>3.6.0</lucene-core.version>
     <georss-rome.version>0.9.8</georss-rome.version>
     <jmock-junit4.version>2.5.1</jmock-junit4.version>
-    <commons-codec.version>1.9</commons-codec.version>
     <commons-lang.version>2.6</commons-lang.version>
     <jetty-webapp.version>8.1.15.v20140411</jetty-webapp.version>
     <jmi.version>200507110943</jmi.version>
