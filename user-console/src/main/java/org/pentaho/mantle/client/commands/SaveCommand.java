@@ -75,7 +75,7 @@ public class SaveCommand extends AbstractCommand {
       if ( path != null && !StringUtils.isEmpty( path ) ) {
         // If has extension
         if ( path.endsWith( name ) ) {
-          fileDir = path.substring( 0, path.lastIndexOf( "/" ) );
+          fileDir = path.substring( 0, path.lastIndexOf( '/' ) );
         } else {
           fileDir = path;
         }
@@ -289,9 +289,10 @@ public class SaveCommand extends AbstractCommand {
     String save = Messages.getString( "save" );
     String error = Messages.getString( "error" );
     String errorEncounteredWhileSaving = Messages.getString( "error.EncounteredWhileSaving" );
+    String invalidFilename = Messages.getString( "filenameContainsIllegalCharacters" );
 
     doSaveAsNativeWrapper( elementId, filename, path, type, overwrite, save, unableToSaveMessage, error,
-      errorEncounteredWhileSaving );
+      errorEncounteredWhileSaving, invalidFilename );
   }
 
   /**
@@ -308,11 +309,25 @@ public class SaveCommand extends AbstractCommand {
    */
   private native void doSaveAsNativeWrapper( String elementId, String filename, String path,
     SolutionFileInfo.Type type, boolean overwrite, String save, String unableToSaveMessage, String error,
-    String errorEncounteredWhileSaving )
+    String errorEncounteredWhileSaving, String invalidFilename )
   /*-{
     var frame = $doc.getElementById(elementId);
     frame = frame.contentWindow;
     frame.focus();
+
+    // Check if the name has illegal characters
+    if( /[\x00-\x1F\x7F]/.test(filename) ) {
+      window.parent.mantle_showMessage(save, invalidFilename);
+
+      $wnd.mantle_setIsRepoDirty(true);
+      $wnd.mantle_isBrowseRepoDirty = true;
+
+      // Must be an Error instance, for JSNI interop to work.
+      e = new Error(invalidFilename);
+
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      that.@org.pentaho.mantle.client.commands.SaveCommand::performOperationCallbackError(Lcom/google/gwt/core/client/JavaScriptException;)(e);
+    }
 
     if (frame.pivot_initialized) {
       // do jpivot save
