@@ -69,6 +69,8 @@ define([
   var trashItemButtons = new TrashItemButtons(jQuery.i18n);
   var browserUtils = new BrowserUtils();
   var multiSelectButtons = new MultiSelectButtons(jQuery.i18n);
+  // BACKLOG-30159 -- depth preset to 3 because initial folder will be /home/<user> (i.e. /home/admin)
+  // and we need 3 levels, 1. home, 2. <user>, and 3. any folders within /home/<user>
   var depth = 3;
 
   fileButtons.renameDialog = renameDialog;
@@ -117,8 +119,8 @@ define([
   }
 
   FileBrowser.updateShowDescriptions = function (value) {
-	this.setShowDescriptions(value);
-	this.fileBrowserModel.set("showDescriptions", value);
+    this.setShowDescriptions(value);
+    this.fileBrowserModel.set("showDescriptions", value);
   };
 
   FileBrowser.setContainer = function ($container) {
@@ -134,9 +136,9 @@ define([
   };
 
   FileBrowser.updateFolder = function (clickedPath, showDescriptions) {
-	// Sets initialPath as the clicked folder
-	if (this.fileBrowserModel && clickedPath) {
-	  this.fileBrowserModel.set("clickedFolder", {
+    // Sets initialPath as the clicked folder
+    if (this.fileBrowserModel && clickedPath) {
+      this.fileBrowserModel.set("clickedFolder", {
         obj: $("[path='" + clickedPath + "']"),
         time: (new Date()).getTime()
       });
@@ -172,24 +174,24 @@ define([
 
   FileBrowser.redraw = function (initialPath, _showDescriptions) {
     var myself = this;
-	var _clikedFolder = undefined;
-	var _clickedFile = undefined;
-	var _lastClick = "folder";
-	if ( this.fileBrowserModel ) {
-		_clikedFolder = {
-			obj: this.fileBrowserModel.getFolderClicked(),
-			time: (new Date()).getTime()
-		};
-		_clickedFile = {
-			obj: this.fileBrowserModel.getFileClicked(),
-			time: (new Date()).getTime()
-		};
-		_lastClick = this.fileBrowserModel.getLastClick();
-	}
-	//if we have not new parameter, than save previous
-	if ( _showDescriptions == undefined ) {
-		_showDescriptions = myself.showDescriptions;
-	}
+    var _clikedFolder = undefined;
+    var _clickedFile = undefined;
+    var _lastClick = "folder";
+    if ( this.fileBrowserModel ) {
+      _clikedFolder = {
+        obj: this.fileBrowserModel.getFolderClicked(),
+        time: (new Date()).getTime()
+      };
+      _clickedFile = {
+        obj: this.fileBrowserModel.getFileClicked(),
+        time: (new Date()).getTime()
+      };
+      _lastClick = this.fileBrowserModel.getLastClick();
+    }
+    //if we have not new parameter, than save previous
+    if ( _showDescriptions == undefined ) {
+      _showDescriptions = myself.showDescriptions;
+    }
     myself.fileBrowserModel = new FileBrowserModel({
       spinConfig: spin,
       openFileHandler: myself.openFileHandler,
@@ -199,10 +201,10 @@ define([
       canPublish: myself.canPublish,
       canRead: myself.canRead,
       canCreate: myself.canCreate,
-	  startFolder: initialPath,
-	  clickedFolder: _clikedFolder,
+      startFolder: initialPath,
+      clickedFolder: _clikedFolder,
       clickedFile: _clickedFile,
-	  lastClick: _lastClick
+      lastClick: _lastClick
     });
     myself.FileBrowserView = new FileBrowserView({
       model: myself.fileBrowserModel,
@@ -218,14 +220,14 @@ define([
 
   FileBrowser.openFolder = function (path) {
     //first select folder
-	var $folder = $("[path='"+path+"']"),
-		$parentFolder = $folder.parent(".folders");
-	while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
-		$parentFolder.show();
-		$parentFolder.parent().addClass("open");
-		$parentFolder = $parentFolder.parent().parent();
-	}
-	$folder.find("> .element .name").trigger("click");
+    var $folder = $("[path='"+path+"']"),
+        $parentFolder = $folder.parent(".folders");
+    while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
+      $parentFolder.show();
+      $parentFolder.parent().addClass("open");
+      $parentFolder = $parentFolder.parent().parent();
+    }
+    $folder.find("> .element .name").trigger("click");
   };
 
   var FileBrowserModel = Backbone.Model.extend({
@@ -267,33 +269,33 @@ define([
       var spinner1 = new Spinner(config),
           spinner2 = new Spinner(config);
       var _clickedFolder = undefined;
-	  var _clickedFile = undefined;
-	  if ( foldersTreeModel ) {
-		 _clickedFolder = {
-			obj: foldersTreeModel.get("clickedFolder"),
-			time: (new Date()).getTime()
-			}
-	  }
+      var _clickedFile = undefined;
+      if ( foldersTreeModel ) {
+        _clickedFolder = {
+          obj: foldersTreeModel.get("clickedFolder"),
+          time: (new Date()).getTime()
+        }
+      }
       if ( fileListModel ) {
-		_clickedFile = {
-			obj: fileListModel.get("clickedFile"),
-			time: (new Date()).getTime()
-			}
-	  }
-	  //create two models
+        _clickedFile = {
+          obj: fileListModel.get("clickedFile"),
+          time: (new Date()).getTime()
+        }
+      }
+      //create two models
       foldersTreeModel = new FileBrowserFolderTreeModel({
         spinner: spinner1,
         showHiddenFiles: myself.get("showHiddenFiles"),
         showDescriptions: myself.get("showDescriptions"),
-		startFolder: myself.get("startFolder"),
-		clickedFolder: _clickedFolder
+        startFolder: myself.get("startFolder"),
+        clickedFolder: _clickedFolder
       });
       fileListModel = new FileBrowserFileListModel({
         spinner: spinner2,
         openFileHandler: myself.get("openFileHandler"),
         showHiddenFiles: myself.get("showHiddenFiles"),
         showDescriptions: myself.get("showDescriptions"),
-		clickedFile: _clickedFile
+        clickedFile: _clickedFile
       });
 
       //assign backbone events
@@ -335,40 +337,40 @@ define([
       this.updateFolderButtons(folderPath);
     },
 
-	updateFolderButtons: function( _folderPath) {
-		var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
-		var model = FileBrowser.fileBrowserModel; // trap model
-		var folderPath = Encoder.encodeRepositoryPath( _folderPath);
+    updateFolderButtons: function( _folderPath) {
+      var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
+      var model = FileBrowser.fileBrowserModel; // trap model
+      var folderPath = Encoder.encodeRepositoryPath( _folderPath);
 
-    // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
-    //
-    // Ajax request to check if user can download
-    $.ajax({
-      url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent( _folderPath ),
-      type: "GET",
-      async: true,
-      success: function (response) {
-        folderButtons.canDownload(response == "true");
-      },
-      error: function (response) {
-        folderButtons.canDownload(false);
-      }
-    });
+      // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
+      //
+      // Ajax request to check if user can download
+      $.ajax({
+        url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent( _folderPath ),
+        type: "GET",
+        async: true,
+        success: function (response) {
+          folderButtons.canDownload(response == "true");
+        },
+        error: function (response) {
+          folderButtons.canDownload(false);
+        }
+      });
 
-    // Ajax request to check if user can upload (a.k.a. publish)
-    $.ajax({
-      url: CONTEXT_PATH + "api/repo/files/canUpload?dirPath=" + encodeURIComponent( _folderPath ),
-      type: "GET",
-      async: true,
-      success: function (response) {
-        folderButtons.canPublish(response == "true");
-      },
-      error: function (response) {
-        folderButtons.canPublish(false);
-      }
-    });
+      // Ajax request to check if user can upload (a.k.a. publish)
+      $.ajax({
+        url: CONTEXT_PATH + "api/repo/files/canUpload?dirPath=" + encodeURIComponent( _folderPath ),
+        type: "GET",
+        async: true,
+        success: function (response) {
+          folderButtons.canPublish(response == "true");
+        },
+        error: function (response) {
+          folderButtons.canPublish(false);
+        }
+      });
 
-        //Ajax request to check write permissions for folder
+      //Ajax request to check write permissions for folder
       $.ajax({
         url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
         type: "GET",
@@ -385,7 +387,7 @@ define([
           folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems, false);
         }
       });
-	},
+    },
 
     updateFileClicked: function () {
       var clickedFile = this.get("fileListModel").get("clickedFile");
@@ -666,7 +668,7 @@ define([
             }
             else {
               myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] = FileBrowser.
-                  fileBrowserModel.attributes.fileListModel.reformatResponse(response);
+              fileBrowserModel.attributes.fileListModel.reformatResponse(response);
             }
           }
         },
@@ -687,7 +689,7 @@ define([
                 }
                 xhr.abort();
                 if (myself.get("path") == ".trash" && myself.get("deletedFiles") == "") {
-					FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
+                  FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
                 }
                 myself.set("runSpinner", false);
               }
@@ -823,7 +825,7 @@ define([
         refreshHandler: function () {
           if (window.parent.mantle_fireEvent) {
             window.parent.mantle_fireEvent('GenericEvent', {"eventSubType": "RefreshBrowsePerspectiveEvent",
-                                                         "booleanParam": FileBrowser.fileBrowserModel.get("showDescriptions") });
+              "booleanParam": FileBrowser.fileBrowserModel.get("showDescriptions") });
           }
         }
       };
@@ -905,18 +907,18 @@ define([
             for (var i = 0; i < multiSelectItems.length; i++) {
               fileList += multiSelectItems[i].obj.attr("id") + ",";
             }
-              type ="file";
-            }
-            if ((path != null) && event.data.handler) {
-              event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
-              event.stopPropagation();
-            } else {
-              event.data.handler(fileList, type, mode);
-              event.stopPropagation();
-            }
-          });
+            type ="file";
+          }
+          if ((path != null) && event.data.handler) {
+            event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
+            event.stopPropagation();
+          } else {
+            event.data.handler(fileList, type, mode);
+            event.stopPropagation();
+          }
+        });
       });
-	  model.updateFolderButtons( folderClicked == undefined ? window.parent.HOME_FOLDER : folderClicked.attr("path") );
+      model.updateFolderButtons( folderClicked == undefined ? window.parent.HOME_FOLDER : folderClicked.attr("path") );
     },
 
     updateButtonsMulti: function () {
@@ -968,10 +970,10 @@ define([
             event.data.handler(path, title, id, multiSelectItems, model.get("browserUtils"));
             event.stopPropagation();
           } else {
-              event.data.handler(fileList, type, mode);
-              event.stopPropagation();
+            event.data.handler(fileList, type, mode);
+            event.stopPropagation();
           }
-         });
+        });
       });
     },
 
@@ -1060,17 +1062,17 @@ define([
         // if startFolder is not visible, use first one that it is instead
         var $folder = undefined;
 
-	    // verify if clicked folder is visible
-	    if ( FileBrowser.fileBrowserModel.getFolderClicked() &&
-		    FileBrowser.fileBrowserModel.getFolderClicked().attr("path") &&
-		  ( $( "div[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']" ).length !== 0 ) ) {
-		  $folder = $("[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']");
-	    } else if ( FileBrowser.fileBrowserModel.get("startFolder") &&
-		           ( $( "div[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" ).length !== 0 ) ) {
-		  $folder = $( "[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" );
-	    } else {
-		  $folder = myself.getFirstVisibleFolder();
-	    }
+        // verify if clicked folder is visible
+        if ( FileBrowser.fileBrowserModel.getFolderClicked() &&
+            FileBrowser.fileBrowserModel.getFolderClicked().attr("path") &&
+            ( $( "div[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']" ).length !== 0 ) ) {
+          $folder = $("[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']");
+        } else if ( FileBrowser.fileBrowserModel.get("startFolder") &&
+            ( $( "div[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" ).length !== 0 ) ) {
+          $folder = $( "[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" );
+        } else {
+          $folder = myself.getFirstVisibleFolder();
+        }
 
         var $parentFolder = $folder.parent(".folders");
         while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
@@ -1123,10 +1125,14 @@ define([
 
     expandFolder: function (event) {
       var $target = $(event.currentTarget).parent().parent();
+      // If target has class open, it is already opened and showing children...close it and hide children
       if ($target.hasClass("open")) {
         $target.removeClass("open").find("> .folders").hide();
+      // Else if the children are already part of the DOM, there is no need to make a rest call to get them
+      // Simply add .open class to target, and show children (we've already made a call to get them)
       } else if ($target.find("> .folders").children().length > 0) {
         $target.addClass("open").find("> .folders").show();
+      // else, we must make a call to get the children of the target folder (if they exist) and add them to DOM
       } else {
         var path = $target.attr("path");
         var myself = this;
@@ -1145,14 +1151,14 @@ define([
               for(var i = 0; i < response.children.length; i++) {
                 var child = response.children[i].file;
                 toAppend += "<div id=\"" + child.id + "\" class=\"folder\" path=\"" + child.path +
-                                "\" desc=\"\" ext=\"" + child.title + "\" title=\"" + child.title + "\">" +
-                              "<div class=\"element\">" +
-                                "<div class=\"expandCollapse\"></div>" +
-                                "<div class=\"icon\"></div>" +
-                                "<div class=\"title\">" + child.name + "</div>" +
-                              "</div>" +
-                              "<div class=\"folders\" style=\"\"></div>" +
-                            "</div>"
+                    "\" desc=\"\" ext=\"" + child.title + "\" title=\"" + child.title + "\">" +
+                    "<div class=\"element\">" +
+                    "<div class=\"expandCollapse\"></div>" +
+                    "<div class=\"icon\"></div>" +
+                    "<div class=\"title\">" + child.name + "</div>" +
+                    "</div>" +
+                    "<div class=\"folders\" style=\"\"></div>" +
+                    "</div>"
               }
               $target.find("> .folders").append(toAppend ? toAppend : "");
               depth = $target.attr("path").split("/").length;
@@ -1266,26 +1272,26 @@ define([
       }
 
       myself.updateDescriptions();
-	  var fileSelected = false;
-	  if ( myself.model.attributes.clickedFile ){
-		var filelist = myself.$el.children();
-		for (index = 0; index < filelist.length; ++index) {
-			if ( $(myself.$el.children().get(index)).attr("path") == myself.model.attributes.clickedFile.obj.attr("path") ) {
-				$(myself.$el.children().get(index)).addClass("selected");
-				fileSelected = true;
-			}
-		}
-	 }
-	 //could not find file, select folder for file
-	 if (!fileSelected) {
-		var $folder = $(".folder.secondarySelected");
-		if ($folder.length > 0) {
-			$folder.addClass("selected");
-			$folder.removeClass("secondarySelected");
-			FileBrowser.fileBrowserModel.updateFolderLastClick();
-			FileBrowser.FileBrowserView.updateButtonsHeader();
-		}
-	}
+      var fileSelected = false;
+      if ( myself.model.attributes.clickedFile ){
+        var filelist = myself.$el.children();
+        for (index = 0; index < filelist.length; ++index) {
+          if ( $(myself.$el.children().get(index)).attr("path") == myself.model.attributes.clickedFile.obj.attr("path") ) {
+            $(myself.$el.children().get(index)).addClass("selected");
+            fileSelected = true;
+          }
+        }
+      }
+      //could not find file, select folder for file
+      if (!fileSelected) {
+        var $folder = $(".folder.secondarySelected");
+        if ($folder.length > 0) {
+          $folder.addClass("selected");
+          $folder.removeClass("secondarySelected");
+          FileBrowser.fileBrowserModel.updateFolderLastClick();
+          FileBrowser.FileBrowserView.updateButtonsHeader();
+        }
+      }
       setTimeout(function () {
         myself.model.set("runSpinner", false);
       }, 100);
@@ -1388,7 +1394,7 @@ define([
         $target.attr("title");
         //prev Clicked title
         prevClicked.obj.attr("title");
-      //Single Click
+        //Single Click
       } else {
         //Clear the multiselect array
         this.model.set("multiSelect", []);
@@ -1425,15 +1431,15 @@ define([
 
     clickBody: function (event) {
       if(!this.model.get("desel")){
-				$(".file.selected").removeClass("selected");
-				if(FileBrowser.fileBrowserModel.getLastClick() == 'file'){
-					FileBrowser.fileBrowserModel.set("lastClick", "folder");
-					$(".file.selected").removeClass("selected");
-					$(".folder.secondarySelected").addClass("selected");
-					$(".folder.secondarySelected").removeClass("secondarySelected");
-					FileBrowser.FileBrowserView.updateButtonsHeader();
-				}
-			}
+        $(".file.selected").removeClass("selected");
+        if(FileBrowser.fileBrowserModel.getLastClick() == 'file'){
+          FileBrowser.fileBrowserModel.set("lastClick", "folder");
+          $(".file.selected").removeClass("selected");
+          $(".folder.secondarySelected").addClass("selected");
+          $(".folder.secondarySelected").removeClass("secondarySelected");
+          FileBrowser.FileBrowserView.updateButtonsHeader();
+        }
+      }
       this.model.set("desel", 0);
     },
 
@@ -1494,7 +1500,7 @@ define([
         }
         else {
           for (var i = 0; i < node.children.length; i++)
-            // recursively sort children
+              // recursively sort children
             recursivePreorder(node.children[i]);
           node.children.sort(sortFunction);
         }
