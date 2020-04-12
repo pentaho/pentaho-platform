@@ -21,6 +21,7 @@
 package org.pentaho.platform.web.http.api.resources.services;
 
 import org.apache.commons.lang3.StringUtils;
+import org.pentaho.di.core.Const;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -29,6 +30,7 @@ import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
@@ -174,9 +176,18 @@ public class UserRoleDaoService {
   public void createUser( User user ) throws Exception {
     if ( canAdminister() ) {
       if ( userValid( user ) ) {
+
+        String userName = decode( user.getUserName() );
+        String password = decode( user.getPassword() );
+
+        ValidationFailedException exception = validatePasswordFormat( password );
+        if ( exception != null ) {
+          throw exception;
+        }
+
         IUserRoleDao roleDao =
             PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-        roleDao.createUser( null, decode( user.getUserName() ), decode( user.getPassword() ), "", new String[0] );
+        roleDao.createUser( null, userName, password, "", new String[0] );
       } else {
         throw new ValidationFailedException();
       }
@@ -192,6 +203,24 @@ public class UserRoleDaoService {
     return userNameValid && newPassValid && oldPassValid;
   }
 
+  private ValidationFailedException validatePasswordFormat( String password ) {
+
+    int reqPassLength = Const.getPucUserPasswordLength();
+    boolean isSpecCharReq = Const.isPassSpecialCharRequired();
+    final String PASSWORD_SPEC_CHAR_PATTERN = "((?=.*[@#$%!]).{0,100})";
+    ValidationFailedException exception;
+
+    if ( password.length() < reqPassLength ) {
+      exception = new ValidationFailedException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_Length", Integer.toString( reqPassLength ) ) );
+      return exception;
+    } else if ( isSpecCharReq && !password.matches( PASSWORD_SPEC_CHAR_PATTERN ) ) {
+      exception = new ValidationFailedException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_SpecChar" ) );
+      return exception;
+    } else {
+      return null;
+    }
+  }
+
   private boolean credentialValid( IPentahoUser pentahoUser, String oldPass ) {
     if ( pentahoUser != null ) {
       DefaultPentahoPasswordEncoder encoder = new DefaultPentahoPasswordEncoder();
@@ -202,6 +231,11 @@ public class UserRoleDaoService {
 
   public void changeUserPassword( final String userName, final String newPass, String oldPass ) throws Exception {
     if ( inputValid( userName, newPass, oldPass ) ) {
+
+      ValidationFailedException exception = validatePasswordFormat( newPass );
+      if ( exception != null ) {
+        throw exception;
+      }
 
       final IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
       //You must be either an admin or trying to change your own password
@@ -288,7 +322,7 @@ public class UserRoleDaoService {
     }
   }
 
-  public void updatePassword( User user, String administratorPassword ) throws SecurityException {
+  public void updatePassword( User user, String administratorPassword ) throws Exception {
     final IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
 
     AuthenticationProvider authenticator = PentahoSystem.get( AuthenticationProvider.class, pentahoSession );
@@ -309,10 +343,16 @@ public class UserRoleDaoService {
     }
   }
 
-  public void updatePassword( User user ) throws SecurityException {
+  public void updatePassword( User user ) throws Exception {
     if ( canAdminister() ) {
       String userName = decode( user.getUserName() );
       String password = decode( user.getPassword() );
+
+      ValidationFailedException exception = validatePasswordFormat( password );
+      if ( exception != null ) {
+        throw exception;
+      }
+
       IUserRoleDao roleDao =
           PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
       IPentahoUser puser = roleDao.getUser( null, userName );
@@ -356,6 +396,14 @@ public class UserRoleDaoService {
   }
 
   public static class ValidationFailedException extends Exception {
+
+    public ValidationFailedException() {
+      super();
+    }
+
+    public ValidationFailedException( String message ) {
+      super( message );
+    }
   }
 
 }

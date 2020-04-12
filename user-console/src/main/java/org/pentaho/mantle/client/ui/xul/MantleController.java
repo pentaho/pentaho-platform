@@ -47,6 +47,7 @@ import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
+import org.pentaho.mantle.client.admin.ServiceCallback;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
@@ -90,6 +91,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MantleController extends AbstractXulEventHandler {
+
+  private static final String PUC_VALIDATION_ERROR_MESSAGE = "PUC_VALIDATION_ERROR_MESSAGE";
 
   private MantleModel model;
 
@@ -701,6 +704,59 @@ public class MantleController extends AbstractXulEventHandler {
   public void saveAsClicked() {
     model.executeSaveAsCommand();
   }
+
+  @Bindable
+  public void openChangePasswordDialog() {
+    model.openChangePasswordDialog( this );
+  }
+
+  public void updatePassword( String user, String newPassword, String oldPassword, final ServiceCallback callback ) {
+
+    String userName = user;
+    String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/user";
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, serviceUrl );
+    try {
+      executableTypesRequestBuilder.setHeader( "accept", "application/json" );
+      executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+      executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
+      String json =
+              "{\"userName\": \"" + encodeUri( userName ) + "\", \"newPassword\": \"" + encodeUri( newPassword ) + "\", \"oldPassword\": \"" + encodeUri( oldPassword ) + "\"}";
+      executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
+        public void onError( Request request, Throwable exception ) {
+          showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
+          callback.serviceResult( false );
+        }
+
+        public void onResponseReceived( Request request, Response response ) {
+          if ( response.getStatusCode() != Response.SC_NO_CONTENT ) {
+            showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" )
+                    + "\n" + response.getHeader( PUC_VALIDATION_ERROR_MESSAGE ) );
+            callback.serviceResult( false );
+          } else {
+            callback.serviceResult( true );
+          }
+        }
+      } );
+    } catch ( RequestException e ) {
+      showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
+      callback.serviceResult( false );
+    }
+
+  }
+
+  private void showXulErrorMessage( String title, String message ) {
+    GwtMessageBox messageBox = new GwtMessageBox();
+    messageBox.setTitle( title );
+    messageBox.setMessage( message );
+    messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
+    messageBox.setWidth( 520 );
+    messageBox.show();
+  }
+
+  private final native String encodeUri( String URI )
+  /*-{
+    return encodeURIComponent(URI);
+  }-*/;
 
   @Bindable
   public void showNavigatorClicked() {
