@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -51,6 +51,8 @@ import java.util.List;
 
 public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel,
     UpdatePasswordController {
+
+  private static final String PUC_VALIDATION_ERROR_MESSAGE = "PUC_VALIDATION_ERROR_MESSAGE";
   private String delimiter = "\t";
   private static UserRolesAdminPanelController instance = new UserRolesAdminPanelController();
   private boolean usingPentahoSecurity;
@@ -96,9 +98,19 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          initializeAvailableUsers( name );
-          initializeRoles( rolesListBox.getValue( rolesListBox.getSelectedIndex() ), "api/userroledao/roles",
-              rolesListBox );
+
+          if ( response.getStatusCode() != Response.SC_NO_CONTENT ) {
+            String errorMsg = Messages.getString( "newUserErrorMessage" );
+            String errorValidationMessage = response.getHeader( PUC_VALIDATION_ERROR_MESSAGE );
+            if ( errorValidationMessage != null ) {
+              errorMsg = errorMsg + "\n" + errorValidationMessage;
+            }
+            showXulErrorMessage( Messages.getString( "newUser" ), errorMsg );
+          } else {
+            initializeAvailableUsers( name );
+            initializeRoles( rolesListBox.getValue( rolesListBox.getSelectedIndex() ), "api/userroledao/roles",
+                    rolesListBox );
+          }
         }
       } );
     } catch ( RequestException e ) {
@@ -237,7 +249,12 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() != Response.SC_NO_CONTENT ) {
-            showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
+            String errorMsg = Messages.getString( "newUserErrorMessage" );
+            String errorValidationMessage = response.getHeader( PUC_VALIDATION_ERROR_MESSAGE );
+            if ( errorValidationMessage != null ) {
+              errorMsg = errorMsg + "\n" + errorValidationMessage;
+            }
+            showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), errorMsg );
             callback.serviceResult( false );
           } else {
             callback.serviceResult( true );
