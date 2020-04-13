@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -69,6 +69,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @Path ( "/userroledao/" )
 public class UserRoleDaoResource extends AbstractJaxRSResource {
 
+  private static final String PUC_VALIDATION_ERROR_MESSAGE = "PUC_VALIDATION_ERROR_MESSAGE";
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = null;
   private ITenantManager tenantManager = null;
   private final UserRoleDaoService userRoleDaoService;
@@ -144,7 +145,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
     } catch ( UserRoleDaoService.ValidationFailedException e ) {
-      throw new WebApplicationException( Response.Status.BAD_REQUEST );
+      Response.ResponseBuilder response = Response.status( Response.Status.BAD_REQUEST );
+      response.header( PUC_VALIDATION_ERROR_MESSAGE, e.getMessage() );
+      throw new WebApplicationException( response.build() );
     } catch ( Exception e ) {
       // TODO: INTERNAL_SERVER_ERROR(500) returns (FORBIDDEN)403 error instead for unknown reason. To avoid it use
       // PRECONDITION_FAILED
@@ -224,7 +227,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     try {
       userRoleDaoService.changeUserPassword( user.getUserName(), user.getNewPassword(), user.getOldPassword() );
     } catch ( ValidationFailedException e ) {
-      throw new WebApplicationException( Response.Status.BAD_REQUEST );
+      Response.ResponseBuilder response = Response.status( Response.Status.BAD_REQUEST );
+      response.header( PUC_VALIDATION_ERROR_MESSAGE, e.getMessage() );
+      throw new WebApplicationException( response.build() );
     } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
     } catch ( Exception e ) {
@@ -867,11 +872,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   public Response updatePassword( UserChangePasswordDTO user ) {
     try {
       userRoleDaoService.updatePassword( user, user.getAdministratorPassword() );
-
-      return Response.noContent().build();
     } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
+    } catch ( ValidationFailedException e ) {
+      Response.ResponseBuilder response = Response.status( Response.Status.BAD_REQUEST );
+      response.header( PUC_VALIDATION_ERROR_MESSAGE, e.getMessage() );
+      throw new WebApplicationException( response.build() );
     }
+    return Response.noContent().build();
   }
 
   protected ITenant getTenant( String tenantId ) throws NotFoundException {

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -47,6 +47,7 @@ import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
+import org.pentaho.mantle.client.admin.ServiceCallback;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
@@ -90,6 +91,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MantleController extends AbstractXulEventHandler {
+
+  private static final String PUC_VALIDATION_ERROR_MESSAGE = "PUC_VALIDATION_ERROR_MESSAGE";
+  private static final String CHANGE_PASS_ERROR_TITLE = "changePasswordErrorTitle";
+  private static final String CHANGE_PASS_ERROR_MESSAGE = "changePasswordErrorMessage";
+  private static final String HTTP_REQUEST_ACCEPT_HEADER = "accept";
+  private static final String JSON_REQUEST_HEADER = "application/json";
 
   private MantleModel model;
 
@@ -244,7 +251,7 @@ public class MantleController extends AbstractXulEventHandler {
           RequestBuilder getThemesRequestBuilder =
               new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/list" ); //$NON-NLS-1$
           getThemesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-          getThemesRequestBuilder.setHeader( "accept", "application/json" ); //$NON-NLS-1$ //$NON-NLS-2$
+          getThemesRequestBuilder.setHeader( HTTP_REQUEST_ACCEPT_HEADER, JSON_REQUEST_HEADER ); //$NON-NLS-1$ //$NON-NLS-2$
 
           try {
             getThemesRequestBuilder.sendRequest( null, new RequestCallback() {
@@ -256,7 +263,7 @@ public class MantleController extends AbstractXulEventHandler {
                   final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
                   RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
                   requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-                  requestBuilder.setHeader( "accept", "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
+                  requestBuilder.setHeader( HTTP_REQUEST_ACCEPT_HEADER, "text/plain" ); //$NON-NLS-1$ //$NON-NLS-2$
                   requestBuilder.sendRequest( null, new RequestCallback() {
 
                     public void onError( Request request, Throwable caught ) {
@@ -542,7 +549,7 @@ public class MantleController extends AbstractXulEventHandler {
       RequestBuilder builder =
           new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/mantle/getAdminContent" ); //$NON-NLS-1$
       builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-      builder.setHeader( "accept", "application/json" ); //$NON-NLS-1$ //$NON-NLS-2$
+      builder.setHeader( HTTP_REQUEST_ACCEPT_HEADER, JSON_REQUEST_HEADER ); //$NON-NLS-1$ //$NON-NLS-2$
       builder.sendRequest( null, internalCallback );
       // TO DO Reset the menuItem click for browser and workspace here?
     } catch ( RequestException e ) {
@@ -701,6 +708,62 @@ public class MantleController extends AbstractXulEventHandler {
   public void saveAsClicked() {
     model.executeSaveAsCommand();
   }
+
+  @Bindable
+  public void openChangePasswordDialog() {
+    model.openChangePasswordDialog( this );
+  }
+
+  public void updatePassword( String user, String newPassword, String oldPassword, final ServiceCallback callback ) {
+
+    String userName = user;
+    String serviceUrl = GWT.getHostPageBaseURL() + "api/userroledao/user";
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.PUT, serviceUrl );
+    try {
+      executableTypesRequestBuilder.setHeader( HTTP_REQUEST_ACCEPT_HEADER, JSON_REQUEST_HEADER );
+      executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+      executableTypesRequestBuilder.setHeader( "Content-Type", JSON_REQUEST_HEADER );
+      String json =
+              "{\"userName\": \"" + encodeUri( userName ) + "\", \"newPassword\": \"" + encodeUri( newPassword ) + "\", \"oldPassword\": \"" + encodeUri( oldPassword ) + "\"}";
+      executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
+        public void onError( Request request, Throwable exception ) {
+          handleCallbackError( callback, false, "" );
+        }
+
+        public void onResponseReceived( Request request, Response response ) {
+          if ( response.getStatusCode() != Response.SC_NO_CONTENT ) {
+            handleCallbackError( callback, false, response.getHeader( PUC_VALIDATION_ERROR_MESSAGE ) );
+          } else {
+            callback.serviceResult( true );
+          }
+        }
+      } );
+    } catch ( RequestException e ) {
+      showXulErrorMessage( Messages.getString( CHANGE_PASS_ERROR_TITLE ), Messages.getString( CHANGE_PASS_ERROR_MESSAGE ) );
+      callback.serviceResult( false );
+    }
+
+  }
+
+  private void handleCallbackError( ServiceCallback callback, boolean serviceResult, String details ) {
+    showXulErrorMessage( Messages.getString( CHANGE_PASS_ERROR_TITLE ), Messages.getString( CHANGE_PASS_ERROR_MESSAGE )
+            + "\n" + details );
+    callback.serviceResult( serviceResult );
+  }
+
+  private void showXulErrorMessage( String title, String message ) {
+    GwtMessageBox messageBox = new GwtMessageBox();
+    messageBox.setTitle( title );
+    messageBox.setMessage( message );
+    messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
+    messageBox.setWidth( 520 );
+    messageBox.show();
+  }
+
+  private final native String encodeUri( String uri )
+  /*-{
+    return encodeURIComponent(uri);
+  }-*/;
 
   @Bindable
   public void showNavigatorClicked() {

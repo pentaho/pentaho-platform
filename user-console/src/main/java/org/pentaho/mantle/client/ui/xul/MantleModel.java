@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.ui.xul;
 
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.admin.ChangePasswordByUserDialog;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
@@ -326,6 +327,14 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   public void executeOpenFileCommand() {
     OpenFileCommand openFileCommand = new OpenFileCommand();
     openFileCommand.execute();
+  }
+
+  @Bindable
+  public void openChangePasswordDialog( MantleController controller ) {
+
+    ChangePasswordByUserDialog changePasswordDialog = new ChangePasswordByUserDialog( controller  );
+    changePasswordDialog.show();
+
   }
 
   @Bindable

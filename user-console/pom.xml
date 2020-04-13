@@ -29,6 +29,12 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>pentaho-kettle</groupId>
+      <artifactId>kettle-core</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>pentaho</groupId>
       <artifactId>common-ui</artifactId>
       <version>${common-ui.version}</version>
