@@ -55,6 +55,7 @@ import org.springframework.security.core.AuthenticationException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -192,7 +193,7 @@ public class UserRoleDaoService {
         throw new ValidationFailedException();
       }
     } else {
-      throw new SecurityException();
+      throw new SecurityException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_WrongPass" ) );
     }
   }
 
@@ -208,13 +209,21 @@ public class UserRoleDaoService {
     int reqPassLength = Const.getPucUserPasswordLength();
     boolean isSpecCharReq = Const.isPassSpecialCharRequired();
     final String PASSWORD_SPEC_CHAR_PATTERN = "((?=.*[@#$%!]).{0,100})";
+    String errorMsg = "New password must: ";
     ValidationFailedException exception;
+    ArrayList<String> validationCriteria = new ArrayList<>();
 
-    if ( password.length() < reqPassLength ) {
-      exception = new ValidationFailedException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_Length", Integer.toString( reqPassLength ) ) );
-      return exception;
-    } else if ( isSpecCharReq && !password.matches( PASSWORD_SPEC_CHAR_PATTERN ) ) {
-      exception = new ValidationFailedException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_SpecChar" ) );
+    if ( reqPassLength > 0 ) {
+      validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_Length", Integer.toString( reqPassLength ) ) );
+    }
+    if ( isSpecCharReq ) {
+      validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_SpecChar" ) );
+    }
+
+    errorMsg = errorMsg + String.join( ", ", validationCriteria ) + ".";
+
+    if ( ( password.length() < reqPassLength ) || ( isSpecCharReq && !password.matches( PASSWORD_SPEC_CHAR_PATTERN ) ) ) {
+      exception = new ValidationFailedException( errorMsg );
       return exception;
     } else {
       return null;
@@ -254,10 +263,10 @@ public class UserRoleDaoService {
             }
           } );
         } else {
-          throw new SecurityException();
+          throw new SecurityException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_WrongPass" ) );
         }
       } else {
-        throw new SecurityException();
+        throw new SecurityException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_WrongPass" ) );
       }
     } else {
       throw new ValidationFailedException();
