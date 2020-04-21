@@ -231,7 +231,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       response.header( PUC_VALIDATION_ERROR_MESSAGE, e.getMessage() );
       throw new WebApplicationException( response.build() );
     } catch ( SecurityException e ) {
-      throw new WebApplicationException( Response.Status.FORBIDDEN );
+      Response.ResponseBuilder response = Response.status( Response.Status.FORBIDDEN );
+      response.header( PUC_VALIDATION_ERROR_MESSAGE, e.getMessage() );
+      throw new WebApplicationException( response.build() );
     } catch ( Exception e ) {
       // TODO: INTERNAL_SERVER_ERROR(500) returns (FORBIDDEN)403 error instead for unknown reason. I used
       // PRECONDITION_FAILED
@@ -873,7 +875,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     try {
       userRoleDaoService.updatePassword( user, user.getAdministratorPassword() );
     } catch ( SecurityException e ) {
-      throw new WebApplicationException( Response.Status.FORBIDDEN );
+      Response.ResponseBuilder response = Response.status( Response.Status.FORBIDDEN );
+      response.header( PUC_VALIDATION_ERROR_MESSAGE, e.getMessage() );
+      throw new WebApplicationException( response.build() );
     } catch ( ValidationFailedException e ) {
       Response.ResponseBuilder response = Response.status( Response.Status.BAD_REQUEST );
       response.header( PUC_VALIDATION_ERROR_MESSAGE, e.getMessage() );

@@ -746,8 +746,12 @@ public class MantleController extends AbstractXulEventHandler {
   }
 
   private void handleCallbackError( ServiceCallback callback, boolean serviceResult, String details ) {
-    showXulErrorMessage( Messages.getString( CHANGE_PASS_ERROR_TITLE ), Messages.getString( CHANGE_PASS_ERROR_MESSAGE )
-            + "\n" + details );
+
+    String errorMsg = Messages.getString( CHANGE_PASS_ERROR_MESSAGE );
+    if ( details != null ) {
+      errorMsg = errorMsg + "\n" + details;
+    }
+    showXulErrorMessage( Messages.getString( CHANGE_PASS_ERROR_TITLE ), errorMsg );
     callback.serviceResult( serviceResult );
   }
 
