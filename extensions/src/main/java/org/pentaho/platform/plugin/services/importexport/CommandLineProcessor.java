@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -514,7 +514,7 @@ public class CommandLineProcessor implements Closeable {
         // Response response
         ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
         if ( response != null ) {
-          logImportResponseMessage( logFile, path, response );
+          logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
         }
 
@@ -532,7 +532,7 @@ public class CommandLineProcessor implements Closeable {
         // Response response
         ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
         if ( response != null ) {
-          logImportResponseMessage( logFile, path, response );
+          logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
         }
         metadataDatasourceInputStream.close();
@@ -597,7 +597,7 @@ public class CommandLineProcessor implements Closeable {
     ClientResponse response = resourceBuilder.post( ClientResponse.class, part );
 
     if ( response != null ) {
-      logImportResponseMessage( logFile, path, response );
+      logResponseMessage( logFile, path, response, RequestType.IMPORT );
       response.close();
     }
     inputStream.close();
@@ -695,7 +695,7 @@ public class CommandLineProcessor implements Closeable {
 
         ClientResponse response = resourceBuilder.post( ClientResponse.class, part );
         if ( response != null ) {
-          logImportResponseMessage( logFile, path, response );
+          logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
         }
       } catch ( Exception e ) {
@@ -711,9 +711,9 @@ public class CommandLineProcessor implements Closeable {
     }
   }
 
-  private void logImportResponseMessage( String logFile, String path, ClientResponse response ) {
+  private void logResponseMessage( String logFile, String path, ClientResponse response, RequestType requestType ) {
     if ( response.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
-      errorMessage = Messages.getInstance().getString( "CommandLineProcessor.INFO_IMPORT_SUCCESSFUL" );
+      errorMessage = Messages.getInstance().getString( "CommandLineProcessor.INFO_" + requestType.toString() + "_SUCCESSFUL" );
     } else if ( response.getStatus() == ClientResponse.Status.FORBIDDEN.getStatusCode() ) {
       errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0007_FORBIDDEN", path );
     } else if ( response.getStatus() == ClientResponse.Status.NOT_FOUND.getStatusCode() ) {
@@ -722,8 +722,10 @@ public class CommandLineProcessor implements Closeable {
     }
     StringBuilder message = new StringBuilder( errorMessage );
     message.append( System.getProperty( "line.separator" ) );
-    message.append( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-      response.getEntity( String.class ) ) );
+    if ( response.hasEntity() ) {
+      message.append( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
+        response.getEntity( String.class ) ) );
+    }
     System.out.println( message.toString() );
     if ( logFile != null && !"".equals( logFile ) ) {
       writeFile( message.toString(), logFile );
@@ -817,12 +819,7 @@ public class CommandLineProcessor implements Closeable {
       // Response response
       ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
       if ( response != null ) {
-        String message = response.getEntity( String.class );
-        System.out.println( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-            message ) );
-        if ( logFile != null && !"".equals( logFile ) ) {
-          writeFile( message, logFile );
-        }
+        logResponseMessage( logFile, filePath, response, RequestType.RESTORE );
         response.close();
       }
     } catch ( Exception e ) {
