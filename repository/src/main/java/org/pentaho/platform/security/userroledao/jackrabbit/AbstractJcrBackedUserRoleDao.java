@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -444,9 +444,11 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         while ( currentGroups.hasNext() ) {
           currentGroups.next().removeMember( jackrabbitUser );
         }
+        getUserCache().remove( jackrabbitUser.getID() );
         purgeUserFromCache( user.getUsername() );
         // [BISERVER-9215]
         jackrabbitUser.remove();
+        session.save();
       } else {
         throw new NotFoundException( "" ); //$NON-NLS-1$
       }
