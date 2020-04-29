@@ -74,7 +74,7 @@ public interface IPlatformImportBundle {
    * 
    * @return Optional character set for the associated InputStream
    */
-  String getCharset();
+  String getCharSet();
 
   /**
    * mime-type to be used to resolve an IPlatformImportHandler. If not set the IPlatformImporter will attempt to resolve
@@ -117,6 +117,20 @@ public interface IPlatformImportBundle {
    * @param overwriteAclSettings
    */
   void setOverwriteAclSettings( boolean overwriteAclSettings );
+
+  /**
+   * Ability to use the export manifest during import to apply extraMetaData
+   *
+   * @return
+   */
+  RepositoryFileExtraMetaData getExtraMetaData();
+
+  /**
+   * use the import manifest file to apply extraMetaData
+   *
+   * @param extraMetaData
+   */
+  void setExtraMetaData( RepositoryFileExtraMetaData extraMetaData );
 
   boolean isRetainOwnership();
 
