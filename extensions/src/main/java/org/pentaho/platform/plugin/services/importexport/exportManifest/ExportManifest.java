@@ -14,23 +14,24 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
-import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestEntityDto;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
+import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.xml.sax.InputSource;
@@ -68,17 +69,17 @@ public class ExportManifest {
   private HashMap<String, ExportManifestEntity> exportManifestEntities;
 
   private ExportManifestDto.ExportManifestInformation manifestInformation;
-  private List<ExportManifestMetadata> metadataList = new ArrayList<ExportManifestMetadata>();
-  private List<ExportManifestMondrian> mondrianList = new ArrayList<ExportManifestMondrian>();
-  private List<JobScheduleRequest> scheduleList = new ArrayList<JobScheduleRequest>();
-  private List<DatabaseConnection> datasourceList = new ArrayList<DatabaseConnection>();
-  private List<UserExport> userExports = new ArrayList<UserExport>();
-  private List<RoleExport> roleExports = new ArrayList<RoleExport>();
+  private List<ExportManifestMetadata> metadataList = new ArrayList<>();
+  private List<ExportManifestMondrian> mondrianList = new ArrayList<>();
+  private List<JobScheduleRequest> scheduleList = new ArrayList<>();
+  private List<DatabaseConnection> datasourceList = new ArrayList<>();
+  private List<UserExport> userExports = new ArrayList<>();
+  private List<RoleExport> roleExports = new ArrayList<>();
   private List<ExportManifestUserSetting> globalUserSettings = new ArrayList<>();
   private ExportManifestMetaStore metaStore;
 
   public ExportManifest() {
-    this.exportManifestEntities = new HashMap<String, ExportManifestEntity>();
+    this.exportManifestEntities = new HashMap<>();
     this.manifestInformation = new ExportManifestDto.ExportManifestInformation();
   }
 
@@ -151,16 +152,13 @@ public class ExportManifest {
     if ( !isValid() ) {
       throw new ExportManifestFormatException( "Invalid root Folder for manifest" );
     }
-    final JAXBContext jaxbContext = JAXBContext.newInstance( ExportManifestDto.class );
-    Marshaller marshaller = getMarshaller();
-    marshaller.marshal( new JAXBElement<ExportManifestDto>( new QName( "http://www.pentaho.com/schema/",
+    getMarshaller().marshal( new JAXBElement<ExportManifestDto>( new QName( "http://www.pentaho.com/schema/",
       "ExportManifest" ), ExportManifestDto.class, getExportManifestDto() ), outputStream );
   }
 
   public String toXmlString() throws JAXBException {
     StringWriter sw = new StringWriter();
     Marshaller marshaller = getMarshaller();
-    marshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
     marshaller.marshal( new JAXBElement<ExportManifestDto>( new QName( "http://www.pentaho.com/schema/",
         "ExportManifest" ), ExportManifestDto.class, getExportManifestDto() ), sw );
     return sw.toString();
@@ -208,7 +206,7 @@ public class ExportManifest {
     ExportManifestDto rawExportManifest = new ExportManifestDto();
     List<ExportManifestEntityDto> rawEntityList = rawExportManifest.getExportManifestEntity();
     rawExportManifest.setExportManifestInformation( manifestInformation );
-    TreeSet<String> ts = new TreeSet<String>( exportManifestEntities.keySet() );
+    TreeSet<String> ts = new TreeSet<>( exportManifestEntities.keySet() );
     for ( String path : ts ) {
       rawEntityList.add( exportManifestEntities.get( path ).getExportManifestEntityDto() );
     }
@@ -236,13 +234,13 @@ public class ExportManifest {
   }
 
   public boolean isValid() {
-    if ( this.exportManifestEntities.size() > 0 ) {
+    if ( !this.exportManifestEntities.isEmpty() ) {
       for ( ExportManifestEntity manEntity : exportManifestEntities.values() ) {
         if ( !manEntity.isValid() ) {
           return false;
         }
       }
-      if ( manifestInformation.getRootFolder() == null || manifestInformation.getRootFolder().length() == 0 ) {
+      if ( StringUtil.isEmpty( manifestInformation.getRootFolder() ) ) {
         return false;
       }
     }
@@ -326,6 +324,7 @@ public class ExportManifest {
   public List<ExportManifestUserSetting> getGlobalUserSettings() {
     return globalUserSettings;
   }
+
   public void addGlobalUserSetting( ExportManifestUserSetting globalSetting ) {
     globalUserSettings.add( globalSetting );
   }

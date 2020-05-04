@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,7 +24,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metastore.api.IMetaStore;
@@ -48,6 +47,7 @@ import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetti
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
@@ -170,19 +170,19 @@ public class PentahoPlatformExporterTest {
     String tenantPath = "path";
     when( session.getAttribute( IPentahoSession.TENANT_ID_KEY ) ).thenReturn( tenantPath );
 
-    List<String> userList = new ArrayList<String>();
+    List<String> userList = new ArrayList<>();
     String user = "testUser";
     String role = "testRole";
 
     userList.add( user );
     when( mockDao.getAllUsers( any( ITenant.class ) ) ).thenReturn( userList );
 
-    List<String> roleList = new ArrayList<String>();
+    List<String> roleList = new ArrayList<>();
     roleList.add( role );
     when( mockDao.getAllRoles() ).thenReturn( roleList );
 
-    Map<String, List<String>> map = new HashMap<String, List<String>>();
-    List<String> permissions = new ArrayList<String>();
+    Map<String, List<String>> map = new HashMap<>();
+    List<String> permissions = new ArrayList<>();
     permissions.add( "read" );
     map.put( "testRole", permissions );
     RoleBindingStruct struct = mock( RoleBindingStruct.class );
@@ -200,7 +200,7 @@ public class PentahoPlatformExporterTest {
     when( userSettingService.getUserSettings( user ) ).thenReturn( settings );
     when( userSettingService.getGlobalUserSettings() ).thenReturn( settings );
 
-    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
+    List<GrantedAuthority> authList = new ArrayList<>();
     UserDetails userDetails = new User( "testUser", "testPassword", true, true, true, true, authList );
     when( userDetailsService.loadUserByUsername( anyString() ) ).thenReturn( userDetails );
 
@@ -240,7 +240,7 @@ public class PentahoPlatformExporterTest {
 
     Map<String, InputStream> inputMap = new HashMap<>();
     InputStream is = mock( InputStream.class );
-    when( is.read( any( ( new byte[] {} ).getClass() ) ) ).thenReturn( -1 );
+    when( is.read( any( byte[].class ) ) ).thenReturn( -1 );
     inputMap.put( "test1", is );
 
     doReturn( inputMap ).when( exporterSpy ).getDomainFilesData( "test1" );
@@ -260,7 +260,8 @@ public class PentahoPlatformExporterTest {
     exporterSpy.setDatasourceMgmtService( svc );
 
     List<IDatabaseConnection> datasources = new ArrayList<>();
-    IDatabaseConnection conn = mock( DatabaseConnection.class );
+    IDatabaseConnection conn = mock( org.pentaho.database.model.DatabaseConnection.class );
+    when( conn.getName() ).thenReturn( "aDatasourceName" );
     IDatabaseConnection icon = mock( IDatabaseConnection.class );
     datasources.add( conn );
     datasources.add( icon );
@@ -270,7 +271,8 @@ public class PentahoPlatformExporterTest {
     exporterSpy.exportDatasources();
 
     assertEquals( 1, exporterSpy.getExportManifest().getDatasourceList().size() );
-    assertEquals( conn, exporterSpy.getExportManifest().getDatasourceList().get( 0 ) );
+    DatabaseConnection exportedDatabaseConnection = exporterSpy.getExportManifest().getDatasourceList().get( 0 );
+    assertEquals( "aDatasourceName", exportedDatabaseConnection.getName() );
   }
 
   @Test
@@ -360,7 +362,7 @@ public class PentahoPlatformExporterTest {
 
     Map<String, InputStream> inputMap = new HashMap<>();
     InputStream is = mock( InputStream.class );
-    when( is.read( any( ( new byte[] {} ).getClass() ) ) ).thenReturn( -1 );
+    when( is.read( any( byte[].class ) ) ).thenReturn( -1 );
     inputMap.put( catalogName, is );
     when( mondrianCatalogRepositoryHelper.getModrianSchemaFiles( catalogName ) ).thenReturn( inputMap );
     exporterSpy.zos = mock( ZipOutputStream.class );

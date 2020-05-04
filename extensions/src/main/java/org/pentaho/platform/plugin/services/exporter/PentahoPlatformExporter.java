@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,7 +22,6 @@ package org.pentaho.platform.plugin.services.exporter;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
@@ -45,6 +44,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
+import org.pentaho.platform.plugin.services.importexport.DatabaseConnectionConverter;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.ExportException;
 import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
@@ -170,10 +170,9 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     log.debug( "export datasources" );
     // get all connection to export
     try {
-      List<IDatabaseConnection> datasources = getDatasourceMgmtService().getDatasources();
-      for ( IDatabaseConnection datasource : datasources ) {
-        if ( datasource instanceof DatabaseConnection ) {
-          getExportManifest().addDatasource( (DatabaseConnection) datasource );
+      for ( IDatabaseConnection datasource : getDatasourceMgmtService().getDatasources() ) {
+        if ( datasource instanceof org.pentaho.database.model.DatabaseConnection ) {
+          getExportManifest().addDatasource( DatabaseConnectionConverter.model2export( datasource ) );
         }
       }
     } catch ( DatasourceMgmtServiceException e ) {

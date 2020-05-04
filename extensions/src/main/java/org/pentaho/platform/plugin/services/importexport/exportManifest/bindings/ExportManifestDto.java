@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,7 +27,6 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
-import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
@@ -147,21 +146,21 @@ public class ExportManifestDto {
    */
   public List<ExportManifestMondrian> getExportManifestMondrian() {
     if ( exportManifestMondrian == null ) {
-      exportManifestMondrian = new ArrayList<ExportManifestMondrian>();
+      exportManifestMondrian = new ArrayList<>();
     }
     return this.exportManifestMondrian;
   }
 
   public List<UserExport> getExportManifestUser() {
     if ( exportManifestUser == null ) {
-      exportManifestUser = new ArrayList<UserExport>();
+      exportManifestUser = new ArrayList<>();
     }
     return this.exportManifestUser;
   }
 
   public List<RoleExport> getExportManifestRole() {
     if ( exportManifestRole == null ) {
-      exportManifestRole = new ArrayList<RoleExport>();
+      exportManifestRole = new ArrayList<>();
     }
     return this.exportManifestRole;
   }
@@ -187,7 +186,7 @@ public class ExportManifestDto {
    */
   public List<ExportManifestMetadata> getExportManifestMetadata() {
     if ( exportManifestMetadata == null ) {
-      exportManifestMetadata = new ArrayList<ExportManifestMetadata>();
+      exportManifestMetadata = new ArrayList<>();
     }
     return this.exportManifestMetadata;
   }
@@ -213,7 +212,7 @@ public class ExportManifestDto {
    */
   public List<JobScheduleRequest> getExportManifestSchedule() {
     if ( exportManifestSchedule == null ) {
-      exportManifestSchedule = new ArrayList<JobScheduleRequest>();
+      exportManifestSchedule = new ArrayList<>();
     }
     return this.exportManifestSchedule;
   }
@@ -239,7 +238,7 @@ public class ExportManifestDto {
    */
   public List<DatabaseConnection> getExportManifestDatasource() {
     if ( exportManifestDatasource == null ) {
-      exportManifestDatasource = new ArrayList<DatabaseConnection>();
+      exportManifestDatasource = new ArrayList<>();
     }
     return this.exportManifestDatasource;
   }
@@ -265,7 +264,7 @@ public class ExportManifestDto {
    */
   public List<ExportManifestEntityDto> getExportManifestEntity() {
     if ( exportManifestEntity == null ) {
-      exportManifestEntity = new ArrayList<ExportManifestEntityDto>();
+      exportManifestEntity = new ArrayList<>();
     }
     return this.exportManifestEntity;
   }
