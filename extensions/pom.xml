@@ -921,11 +921,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>bouncycastle</groupId>
-      <artifactId>bcprov-jdk14</artifactId>
-      <version>${bcprov-jdk14.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.sun</groupId>
       <artifactId>jai_codec</artifactId>
       <version>${jai_codec.version}</version>
