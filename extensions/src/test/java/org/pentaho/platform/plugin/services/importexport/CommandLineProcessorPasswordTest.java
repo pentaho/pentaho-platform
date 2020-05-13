@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.di.core.encryption.Encr;
-import org.pentaho.di.core.encryption.KettleTwoWayPasswordEncoder;
+import org.pentaho.support.encryption.KettleTwoWayPasswordEncoder;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.util.EnvUtil;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -47,6 +47,7 @@ import static org.powermock.reflect.Whitebox.getInternalState;
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( EnvUtil.class )
 public class CommandLineProcessorPasswordTest {
+  private static final String CR = System.getProperty( "line.separator" );
 
   private static final String INFO_OPTION_USERNAME_NAME = "username";
   private static final String INFO_OPTION_PASSWORD_NAME = "password";
@@ -95,7 +96,7 @@ public class CommandLineProcessorPasswordTest {
     try {
       cmd.getPassword();
     } catch ( KettleException e ) {
-      assertEquals( "\nUnable to find plugin with ID 'AES'\n", e.getMessage() );
+      assertEquals( CR + "Unable to find plugin with ID 'AES'" + CR, e.getMessage() );
       throw e;
     }
   }
