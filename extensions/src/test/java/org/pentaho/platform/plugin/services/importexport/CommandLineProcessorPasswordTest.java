@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2018-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -47,7 +47,6 @@ import static org.powermock.reflect.Whitebox.getInternalState;
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( EnvUtil.class )
 public class CommandLineProcessorPasswordTest {
-  private static final String CR = System.getProperty( "line.separator" );
 
   private static final String INFO_OPTION_USERNAME_NAME = "username";
   private static final String INFO_OPTION_PASSWORD_NAME = "password";
@@ -68,7 +67,7 @@ public class CommandLineProcessorPasswordTest {
   }
 
   /**
-   * {@link org.pentaho.di.core.encryption.Encr} will use {@link org.pentaho.di.core.encryption.KettleTwoWayPasswordEncoder} as default.
+   * {@link org.pentaho.di.core.encryption.Encr} will use {@link org.pentaho.support.encryption.KettleTwoWayPasswordEncoder} as default.
    */
   @Test
   public void testInitRestServiceWithKettlePassword() throws Exception {
@@ -96,7 +95,7 @@ public class CommandLineProcessorPasswordTest {
     try {
       cmd.getPassword();
     } catch ( KettleException e ) {
-      assertEquals( CR + "Unable to find plugin with ID 'AES'" + CR, e.getMessage() );
+      assertEquals( "\nUnable to find plugin with ID 'AES'\n", e.getMessage() );
       throw e;
     }
   }
