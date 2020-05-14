@@ -28,6 +28,7 @@
     <pentaho-actionsequence-dom.version>9.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
     <pentaho-metadata.version>9.1.0.0-SNAPSHOT</pentaho-metadata.version>
     <pentaho-chartbeans.version>9.1.0.0-SNAPSHOT</pentaho-chartbeans.version>
+    <bcprov-jdk15on.version>1.56</bcprov-jdk15on.version>
   </properties>
   <dependencies>
     <dependency>
@@ -2741,6 +2742,11 @@
       <artifactId>javax.websocket-api</artifactId>
       <version>${websocket-api.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>${bcprov-jdk15on.version}</version>
     </dependency>
   </dependencies>
   <build>

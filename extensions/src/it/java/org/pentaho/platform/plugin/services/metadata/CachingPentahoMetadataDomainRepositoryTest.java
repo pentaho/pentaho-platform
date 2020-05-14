@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -30,7 +30,7 @@ import org.pentaho.platform.repository2.unified.RepositoryUtils;
  * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class CachingPentahoMetadataDomainRepositoryTest extends PentahoMetadataDomainRepositoryTest {
+public class CachingPentahoMetadataDomainRepositoryTest extends PentahoMetadataDomainRepositoryIT {
   protected PentahoMetadataDomainRepository createDomainRepository( final IUnifiedRepository repository ) {
     return new CachingPentahoMetadataDomainRepository( repository );
   }
