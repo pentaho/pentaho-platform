@@ -33,10 +33,8 @@ explicitly covering such access.
     
     <!--  SQL Server Configuration -->
     <property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
-    <property name="connection.url">jdbc:sqlserver://localhost:1433;DatabaseName=hibernate</property>
     <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
-    <property name="connection.username">hibuser</property>
-    <property name="connection.password">password</property>
+    <property name="hibernate.connection.datasource">java:comp/env/jdbc/Hibernate</property>
     <property name="connection.pool_size">10</property>
     <property name="show_sql">false</property>
     <property name="hibernate.jdbc.use_streams_for_binary">true</property>

@@ -12,10 +12,8 @@
 
     <!--  Oracle 10g Configuration -->
     <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
-    <property name="connection.url">jdbc:oracle:thin:@localhost:1521:pentaho</property>
     <property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>
-    <property name="connection.username">hibuser</property>
-    <property name="connection.password">password</property>
+    <property name="hibernate.connection.datasource">java:comp/env/jdbc/Hibernate</property>
     <property name="connection.pool_size">10</property>
     <property name="show_sql">false</property>
     <property name="hibernate.jdbc.use_streams_for_binary">true</property>

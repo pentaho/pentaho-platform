@@ -32,6 +32,8 @@ import org.pentaho.di.core.util.EnvUtil;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -95,7 +97,7 @@ public class CommandLineProcessorPasswordTest {
     try {
       cmd.getPassword();
     } catch ( KettleException e ) {
-      assertEquals( "\nUnable to find plugin with ID 'AES'\n", e.getMessage() );
+      assertThat( e.getMessage(), containsString( "Unable to find plugin with ID 'AES'" ) );
       throw e;
     }
   }
