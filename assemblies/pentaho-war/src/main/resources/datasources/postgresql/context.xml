@@ -12,4 +12,11 @@
 		driverClassName="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/quartz"
 		validationQuery="select 1"/>
 
+	<Resource name="jdbc/jackrabbit" auth="Container" type="javax.sql.DataSource"
+		factory="org.pentaho.di.core.database.util.DecryptingDataSourceFactory" maxActive="20" minIdle="0"
+		maxIdle="5" initialSize="0"
+		maxWait="10000" username="jcr_user" password="password"
+		driverClassName="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/jackrabbit"
+		validationQuery="select 1"/>
+
 </Context>
