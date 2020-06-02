@@ -191,7 +191,6 @@
     <dumbster.version>1.6.0</dumbster.version>
     <bcprov-jdk14.version>138</bcprov-jdk14.version>
     <commons-pool.version>1.5.7</commons-pool.version>
-    <jstl.version>1.2</jstl.version>
     <jsch.version>0.1.54</jsch.version>
     <jcommon-logging-log4jlog.version>1.0.2</jcommon-logging-log4jlog.version>
     <h2.version>1.2.131</h2.version>
