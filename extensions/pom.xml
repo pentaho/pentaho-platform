@@ -2747,6 +2747,7 @@
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
       <version>${bcprov-jdk15on.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>pentaho-kettle</groupId>
