@@ -611,6 +611,9 @@ public class MantleController extends AbstractXulEventHandler {
     $wnd.mantle_buildFavoritesAndRecent = function(force) {
       controller.@org.pentaho.mantle.client.ui.xul.MantleController::buildFavoritesAndRecent(Z)(force);
     }
+    $wnd.mantle_openChangePasswordDialog = function() {
+      controller.@org.pentaho.mantle.client.ui.xul.MantleController::openChangePasswordDialog()();
+    }
   }-*/;
 
   public void enableUsersRolesTreeItem( boolean enabled ) {

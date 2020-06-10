@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.ui;
 
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
+import org.pentaho.mantle.client.commands.ChangePasswordCommand;
 import org.pentaho.mantle.client.commands.LogoutCommand;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -31,13 +32,24 @@ public class UserDropDown extends CustomDropDown {
     super( UserDropDown.getUsername(), null, MODE.MINOR );
     MenuBar menuBar = new MenuBar( true );
     menuBar.addItem( new MenuItem( Messages.getString( "logout" ), new LogoutCommand() ) );
+    menuBar.addItem( new MenuItem( Messages.getString( "changeMyPassword" ), new ChangePasswordCommand() ) );
     menuBar.addStyleName( "puc-logout-option" );
     setMenuBar( menuBar );
+    setupNativeHooks( this );
   }
+
+  private static native void setupNativeHooks( CustomDropDown userDropDown )
+  /*-{
+    $wnd.closeUserDropDownMenu = function() {
+      userDropDown.@org.pentaho.mantle.client.ui.CustomDropDown::hidePopup()();
+    }
+  }-*/;
 
   private static native String getUsername()
   /*-{  
     return window.parent.SESSION_NAME;
   }-*/;
+
+
 
 }
