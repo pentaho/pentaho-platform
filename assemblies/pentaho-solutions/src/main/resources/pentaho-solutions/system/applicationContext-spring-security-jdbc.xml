@@ -51,7 +51,7 @@
 	    </pen:publish>
 	</bean>
   
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+	<bean id="dataSource" class="org.pentaho.di.core.database.util.DecryptingDataSource">
 		<property name="driverClassName" value="${datasource.driver.classname}" />
 		<property name="url" value="${datasource.url}" />
 		<property name="username" value="${datasource.username}" />
