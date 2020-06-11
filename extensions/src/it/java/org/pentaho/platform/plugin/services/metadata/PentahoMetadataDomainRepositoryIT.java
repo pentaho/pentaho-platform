@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -84,7 +84,7 @@ import static org.mockito.Matchers.eq;
  *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class PentahoMetadataDomainRepositoryTest {
+public class PentahoMetadataDomainRepositoryIT {
   private static final String SAMPLE_DOMAIN_ID = "sample";
   private static final String STEEL_WHEELS = "steel-wheels";
   private static final Properties EMPTY_PROPERTIES = new Properties();
@@ -1003,7 +1003,7 @@ public class PentahoMetadataDomainRepositoryTest {
    * @throws Exception
    */
   private static Domain loadDomain( final String domainId, final String domainFile ) throws Exception {
-    final InputStream in = PentahoMetadataDomainRepositoryTest.class.getResourceAsStream( domainFile );
+    final InputStream in = PentahoMetadataDomainRepositoryIT.class.getResourceAsStream( domainFile );
     final XmiParser parser = new XmiParser();
     final Domain domain = parser.parseXmi( in );
     domain.setId( domainId );
