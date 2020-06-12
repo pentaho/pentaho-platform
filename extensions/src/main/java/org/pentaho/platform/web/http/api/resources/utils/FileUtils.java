@@ -35,6 +35,7 @@ public class FileUtils {
   public static final String PATH_SEPARATOR = "/";
   public static final String ENCODED_PATH_SEPARATOR = ":";
   private static final Log logger = LogFactory.getLog( FileUtils.class );
+  private static final RegExp containsControlCharactersPattern = RegExp.compile( "[\\x00-\\x1F\\x7F]" );
 
   public static String idToPath( String pathId ) {
     // slashes in pathId are illegal.. we scrub them out so the file will not be found
@@ -42,7 +43,7 @@ public class FileUtils {
     if ( pathId.contains( PATH_SEPARATOR ) ) {
       logger.warn( Messages.getInstance().getString( "FileResource.ILLEGAL_PATHID", pathId ) );
     }
-    String path = pathId.replaceAll( PATH_SEPARATOR, ENCODED_PATH_SEPARATOR );
+    String path = pathId.replace( PATH_SEPARATOR, ENCODED_PATH_SEPARATOR );
     path = RepositoryPathEncoder.decodeRepositoryPath( path );
     if ( !path.startsWith( PATH_SEPARATOR ) ) {
       path = PATH_SEPARATOR + path;
@@ -92,10 +93,8 @@ public class FileUtils {
    * @param path to be validated
    * @return {@code true} if any of {@code Control Characters} is contained in {@code path}
    */
-
   public static boolean containsControlCharacters( String path ) {
-    RegExp pattern = RegExp.compile( "[\\x00-\\x1F\\x7F]" );
-    return pattern.test( path );
+    return containsControlCharactersPattern.test( path );
   }
 
   public static String[] convertCommaSeparatedStringToArray( String stringToConvert ) {

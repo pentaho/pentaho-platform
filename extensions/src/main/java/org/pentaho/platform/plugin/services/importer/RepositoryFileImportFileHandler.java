@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -40,6 +40,7 @@ import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -57,10 +58,9 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private static final Messages messages = Messages.getInstance();
 
   private IUnifiedRepository repository;
-  private ThreadLocal<ImportSession> importSession = new ThreadLocal<ImportSession>();
 
   private SolutionFileImportHelper solutionHelper = new SolutionFileImportHelper();
-  private HashMap<String, IMimeType> mimeTypeMap = new HashMap<String, IMimeType>();
+  private HashMap<String, IMimeType> mimeTypeMap = new HashMap<>();
 
   private List<String> knownExtensions;
 
@@ -91,6 +91,9 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     }
     String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
     getLogger().trace( "Processing [" + repositoryFilePath + "]" );
+
+    // Check if the name is valid
+    validateName( bundle );
 
     // Verify if destination already exists in the repository.
     RepositoryFile file = repository.getFile( repositoryFilePath );
@@ -141,15 +144,31 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
           if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
             updateExtraMetaDataFromBundle( true, bundle, file );
           }
-
         } else {
           repository.createFolder( parentId, repoFile, null );
         }
-
       } else {
         // The file doesn't exist. Create file.
         getLogger().trace( "Creating file [" + repositoryFilePath + "]" );
         copyFileToRepository( bundle, repositoryFilePath, null );
+      }
+    }
+  }
+
+  private void validateName( RepositoryFileImportBundle bundle ) throws PlatformImportException {
+    if ( null != bundle ) {
+      FileService fileService = new FileService();
+      String name = bundle.getName();
+      if ( bundle.isFolder() ) {
+        if ( !fileService.isValidFolderName( name ) ) {
+          throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME",
+            name ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
+        }
+      } else {
+        if ( !fileService.isValidFolderName( name ) ) {
+          throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME",
+            name ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
+        }
       }
     }
   }

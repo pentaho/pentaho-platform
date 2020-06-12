@@ -120,8 +120,7 @@ public class NewFolderCommand extends AbstractCommand {
 
       public void okPressed() {
 
-        if ( !NameUtils.isValidFolderName( folderNameTextBox.getText() )
-          || NameUtils.containsControlCharacters( folderNameTextBox.getText() ) ) {
+        if ( !NameUtils.isValidFolderName( folderNameTextBox.getText() ) ) {
           event.setMessage( Messages.getString( "containsIllegalCharacters", folderNameTextBox.getText() ) );
           EventBusUtil.EVENT_BUS.fireEvent( event );
           return;
@@ -164,17 +163,14 @@ public class NewFolderCommand extends AbstractCommand {
                         : Messages.getString( createFolderResponse.getText(), folderNameTextBox.getText() )
                 );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
-
               }
             }
-
           } );
         } catch ( RequestException e ) {
           Window.alert( e.getLocalizedMessage() );
           event.setMessage( e.getLocalizedMessage() );
           EventBusUtil.EVENT_BUS.fireEvent( event );
         }
-
       }
     };
     newFolderDialog.setCallback( callback );
@@ -193,5 +189,4 @@ public class NewFolderCommand extends AbstractCommand {
   /*-{
     $wnd.mantle_isBrowseRepoDirty=isDirty;
   }-*/;
-
 }

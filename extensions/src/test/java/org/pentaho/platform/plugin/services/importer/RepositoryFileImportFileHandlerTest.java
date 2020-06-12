@@ -14,19 +14,15 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
@@ -40,9 +36,19 @@ import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository.ICurrentUserProvider;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -50,8 +56,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -59,6 +65,8 @@ import static org.mockito.Mockito.when;
  * @author tkafalas
  *
  */
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( { DefaultUnifiedRepositoryWebService.class, FileService.class } )
 public class RepositoryFileImportFileHandlerTest {
   private static final String USER_NAME = "__root__"; // The mock unified repository gives this user full access
   private static final String USER_NAME2 = "mickeyMouse"; // Used with acls
@@ -78,20 +86,20 @@ public class RepositoryFileImportFileHandlerTest {
   UserProvider userProvider;
 
   @Test
-  public void testGetImportSession() {
+  public void testGetImportSession() throws Exception {
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     assertNotNull( importSession );
   }
 
   @Test
-  public void testGetLogger() {
+  public void testGetLogger() throws Exception {
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     Log logger = fileHandler.getLogger();
     assertNotNull( logger );
   }
 
   @Test
-  public void testGetMimeTypeMap() {
+  public void testGetMimeTypeMap() throws Exception {
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     Map<String, IMimeType> map = fileHandler.getMimeTypeMap();
     assertNotNull( map );
@@ -341,7 +349,7 @@ public class RepositoryFileImportFileHandlerTest {
   }
 
   @Test
-  public void testExtensionNotTruncated() {
+  public void testExtensionNotTruncated() throws Exception {
     String name = "file.csv";
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     String title = fileHandler.getTitle( name );
@@ -349,7 +357,7 @@ public class RepositoryFileImportFileHandlerTest {
   }
 
   @Test
-  public void testExtensionTruncated() {
+  public void testExtensionTruncated() throws Exception {
     String name = "file.prpt";
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     String title = fileHandler.getTitle( name );
@@ -357,7 +365,7 @@ public class RepositoryFileImportFileHandlerTest {
   }
 
   @Test
-  public void testFileWithoutExtension() {
+  public void testFileWithoutExtension() throws Exception {
     String name = "file";
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     String title = fileHandler.getTitle( name );
@@ -416,7 +424,8 @@ public class RepositoryFileImportFileHandlerTest {
     return new RepositoryFileAcl( "", sid, inheriting, aces );
   }
 
-  private void setup( String mimeTypeName, String extension, String path, String fileName, boolean folder ) {
+  private void setup( String mimeTypeName, String extension, String path, String fileName, boolean folder )
+    throws Exception {
     List<String> extensions = Arrays.asList( extension );
     IMimeType mimeType = new MimeType( mimeTypeName, extensions );
     mimeType.setConverter( mock( Converter.class ) );
@@ -428,6 +437,12 @@ public class RepositoryFileImportFileHandlerTest {
     userProvider = new UserProvider();
     mockRepository = new MockUnifiedRepository( userProvider );
     fileHandler = new RepositoryFileImportFileHandler( mimeTypeList );
+
+    FileService fileService = spy( FileService.class );
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    PowerMockito.whenNew( DefaultUnifiedRepositoryWebService.class ).withNoArguments().thenReturn( repoWs );
+    PowerMockito.whenNew( FileService.class ).withNoArguments().thenReturn( fileService );
+
     fileHandler.setRepository( mockRepository );
     fileHandler.setDefaultAclHandler( new DefaultAclHandler() );
     fileHandler.setKnownExtensions( Arrays.asList( "prpt" ) );
@@ -474,7 +489,7 @@ public class RepositoryFileImportFileHandlerTest {
       this.mimename = mimename;
     }
 
-    public ImportTester initialSetup() {
+    public ImportTester initialSetup() throws Exception {
       setup( mimename, mimeExtension, path, targetName, folder );
       return this;
     }
