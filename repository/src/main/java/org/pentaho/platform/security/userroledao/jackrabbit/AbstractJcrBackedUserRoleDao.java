@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -278,7 +278,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return false;
   }
 
-  private boolean isMyself( String userName ) {
+  @VisibleForTesting
+  protected boolean isMyself( String userName ) {
     return PentahoSessionHolder.getSession().getName().equals( userName );
   }
 
@@ -444,9 +445,11 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         while ( currentGroups.hasNext() ) {
           currentGroups.next().removeMember( jackrabbitUser );
         }
+        getUserCache().remove( jackrabbitUser.getID() );
         purgeUserFromCache( user.getUsername() );
         // [BISERVER-9215]
         jackrabbitUser.remove();
+        session.save();
       } else {
         throw new NotFoundException( "" ); //$NON-NLS-1$
       }
@@ -567,8 +570,22 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     userCache.remove( jackrabbitUser.getID() );
   }
 
+  @VisibleForTesting
+  protected void setUserDetailsCache( UserCache userDetailsCache ) {
+    this.userDetailsCache = userDetailsCache;
+  }
+
+  @VisibleForTesting
+  protected void setTenantedUserNameUtils( ITenantedPrincipleNameResolver userNameUtils ) {
+    tenantedUserNameUtils = userNameUtils;
+  }
   public ITenantedPrincipleNameResolver getTenantedUserNameUtils() {
     return tenantedUserNameUtils;
+  }
+
+  @VisibleForTesting
+  protected void setTenantedRoleNameUtils( ITenantedPrincipleNameResolver roleNameUtils ) {
+    tenantedRoleNameUtils = roleNameUtils;
   }
 
   public ITenantedPrincipleNameResolver getTenantedRoleNameUtils() {
@@ -781,7 +798,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return roles;
   }
 
-  private RepositoryFile createUserHomeFolder( ITenant theTenant, String username, Session session )
+  @VisibleForTesting
+  protected RepositoryFile createUserHomeFolder( ITenant theTenant, String username, Session session )
       throws RepositoryException {
     Builder aclsForUserHomeFolder = null;
     Builder aclsForTenantHomeFolder = null;
@@ -885,8 +903,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
    * @return Error message if invalid or null if ok
    * @throws RepositoryException
    */
-
-  private boolean canDeleteUser( Session session, final IPentahoUser user ) throws RepositoryException {
+  @VisibleForTesting
+  protected boolean canDeleteUser( Session session, final IPentahoUser user ) throws RepositoryException {
     boolean userHasAdminRole = false;
     List<IPentahoRole> roles = getUserRoles( null, user.getUsername() );
     for ( IPentahoRole role : roles ) {
@@ -947,7 +965,17 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   }
 
   @VisibleForTesting
-  LRUMap getUserCache() {
+  protected void initUserCache() {
+    userCache = new LRUMap( 4096 );
+  }
+
+  @VisibleForTesting
+  protected LRUMap getUserCache() {
     return userCache;
+  }
+
+  @VisibleForTesting
+  protected void initUserDetailsCache() {
+    userDetailsCache = new NullUserCache();
   }
 }

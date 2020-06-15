@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -124,7 +124,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( FileUtils.class )
-public class FileServiceTest {
+public class FileServiceIT {
 
   private static FileService fileService;
   private static final String COMMA = ",";
@@ -641,7 +641,7 @@ public class FileServiceTest {
     RepositoryFileImportBundle bundle = argumentCaptor.getValue();
 
     assertTrue( bundle.getInputStream() == inputStreamMock );
-    assertEquals( "UTF-8", bundle.getCharset() );
+    assertEquals( "UTF-8", bundle.getCharSet() );
     assertEquals( RepositoryFile.HIDDEN_BY_DEFAULT, bundle.isHidden() );
     assertEquals( RepositoryFile.SCHEDULABLE_BY_DEFAULT, bundle.isSchedulable() );
     assertEquals( "/", bundle.getPath() );
