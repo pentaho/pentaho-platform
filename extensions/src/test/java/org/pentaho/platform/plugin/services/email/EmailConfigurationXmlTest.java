@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,10 +23,16 @@ package org.pentaho.platform.plugin.services.email;
 import junit.framework.TestCase;
 import org.dom4j.Document;
 
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 
 /**
  * Test class for the {@link }EmailConfigurationXml} class
@@ -126,6 +132,17 @@ public class EmailConfigurationXmlTest extends TestCase {
     assertEquals( "sampleuser", emailConfiguration.getUserId() );
     assertEquals( "", emailConfiguration.getPassword() );
 
+  }
+
+  public void testPasswordEncryption() throws Exception {
+    final File emailConfigFile = getSampleEmailConfigFile( "testdata/email_config_1.xml" );
+    EmailConfigurationXml emailConfiguration = new EmailConfigurationXml( emailConfigFile );
+    Document xmlDoc = emailConfiguration.getDocument();
+    //Verify password is stored in xml in encrypted form
+    String xmlString = xmlDoc.asXML();
+    assertTrue( xmlString.contains( "password>Encrypted 2be98dca907d79e81bb18bd63c99dbdde" ) );
+    //and that it comes back decrypted
+    assertEquals( "samplepassword", emailConfiguration.getPassword() );
   }
 
   private static final File getSampleEmailConfigFile( final String filename ) {
