@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -34,6 +34,8 @@ import org.pentaho.platform.config.DtdEntityResolver;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.pentaho.support.encryption.Encr;
+import org.pentaho.support.encryption.PasswordEncoderException;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
@@ -112,7 +114,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
     setDefaultFrom( getStringValue( doc, DEFAULT_FROM_XPATH ) );
     setFromName( getStringValue( doc, FROM_NAME_XPATH ) );
     setUserId( getStringValue( doc, USER_ID_XPATH ) );
-    setPassword( getStringValue( doc, PASSWORD_XPATH ) );
+    setPassword( getEncr().decryptPasswordOptionallyEncrypted( getStringValue( doc, PASSWORD_XPATH ) ) );
   }
 
   private static String getStringValue( final Document doc, final String xpath ) {
@@ -185,7 +187,18 @@ public class EmailConfigurationXml extends EmailConfiguration {
     setValue( document, DEFAULT_FROM_XPATH, ObjectUtils.toString( emailConfiguration.getDefaultFrom() ) );
     setValue( document, FROM_NAME_XPATH, ObjectUtils.toString( emailConfiguration.getFromName() ) );
     setValue( document, USER_ID_XPATH, ObjectUtils.toString( emailConfiguration.getUserId() ) );
-    setValue( document, PASSWORD_XPATH, ObjectUtils.toString( emailConfiguration.getPassword() ) );
+    String rawPassword = ObjectUtils.toString( emailConfiguration.getPassword() );
+    setValue( document, PASSWORD_XPATH,
+      StringUtils.isEmpty( rawPassword ) ? "" : getEncr().encryptPasswordIfNotUsingVariables( rawPassword ) );
     return document;
+  }
+
+  private static Encr getEncr() {
+    try {
+      return Encr.getInstance();
+    } catch ( PasswordEncoderException | org.pentaho.support.utils.XmlParseException e ) {
+      //should never happen if configuration is setup properly
+      throw new IllegalStateException( "Could not decrypt password", e );
+    }
   }
 }
