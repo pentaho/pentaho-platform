@@ -220,6 +220,7 @@
     <hibernate-jpa-2.0-api.version>1.0.1.Final</hibernate-jpa-2.0-api.version>
     <hsqldb.version>2.3.2</hsqldb.version>
     <websocket-api.version>1.0</websocket-api.version>
+    <encryption-support.version>${project.version}</encryption-support.version>
   </properties>
   <build>
     <pluginManagement>
