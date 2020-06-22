@@ -32,7 +32,7 @@ public class UserDropDown extends CustomDropDown {
     super( UserDropDown.getUsername(), null, MODE.MINOR );
     MenuBar menuBar = new MenuBar( true );
     menuBar.addItem( new MenuItem( Messages.getString( "logout" ), new LogoutCommand() ) );
-    menuBar.addItem( new MenuItem( Messages.getString( "changeMyPassword" ), new ChangePasswordCommand() ) );
+    menuBar.addItem( new MenuItem( Messages.getString( "changePassword" ), new ChangePasswordCommand() ) );
     menuBar.addStyleName( "puc-logout-option" );
     setMenuBar( menuBar );
     setupNativeHooks( this );

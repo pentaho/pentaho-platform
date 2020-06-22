@@ -19,7 +19,7 @@
       <menuitem id="saveAsMenuItem" label="${saveAsEllipsis}" command="mantleXulHandler.saveAsClicked()"
                 disabled="true"/>
       <menubarseparator id="logoutSeparator"/>
-      <menuitem id="changeMyPassword" label="${changeMyPassword}" command="mantleXulHandler.openChangePasswordDialog()"/>
+      <menuitem id="changePassword" label="${changePassword}" command="mantleXulHandler.openChangePasswordDialog()"/>
       <menuitem id="logoutMenuItem" label="${logout}" command="mantleXulHandler.executeMantleCommand('LogoutCommand')"/>
     </menubar>
 
