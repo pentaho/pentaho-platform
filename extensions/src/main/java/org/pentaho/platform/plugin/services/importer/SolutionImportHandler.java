@@ -197,7 +197,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         bundleInputStream = new ByteArrayInputStream( bytes );
         // If is locale file store it for later processing.
         if ( localeFilesProcessor.isLocaleFile( fileBundle, importBundle.getPath(), bytes ) ) {
-          getLogger().trace( "Skipping [" + repositoryFilePath + "], it is a locale property file" );
+          getLogger().trace( Messages.getInstance()
+            .getString( "SolutionImportHandler.SkipLocaleFile",  repositoryFilePath ) );
           continue;
         }
         bundleBuilder.input( bundleInputStream );
@@ -268,8 +269,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           if ( databaseConnection.getDatabaseType() == null ) {
             // don't try to import the connection if there is no type it will cause an error
             // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
-            getLogger().warn(
-              "Can't import connection " + databaseConnection.getName() + " because it doesn't have a databaseType" );
+            getLogger().warn( Messages.getInstance()
+              .getString( "SolutionImportHandler.ConnectionWithoutDatabaseType", databaseConnection.getName() ) );
             continue;
           }
           try {
@@ -359,8 +360,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             // the space(s)
             if ( jobScheduleRequest.getInputFile().contains( " " ) || jobScheduleRequest.getOutputFile()
               .contains( " " ) ) {
-              getLogger().info( "Could not import schedule, attempting to replace spaces with underscores and retrying: "
-                + jobScheduleRequest.getInputFile() );
+              getLogger().info( Messages.getInstance()
+                .getString( "SolutionImportHandler.SchedulesWithSpaces", jobScheduleRequest.getInputFile() ) );
               File inFile = new File( jobScheduleRequest.getInputFile() );
               File outFile = new File( jobScheduleRequest.getOutputFile() );
               String inputFileName = inFile.getParent() + RepositoryFile.SEPARATOR
@@ -433,7 +434,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     if ( users != null && roleDao != null ) {
       for ( UserExport user : users ) {
         String password = user.getPassword();
-        getLogger().debug( "Importing user: " + user.getUsername() );
+        getLogger().debug( Messages.getInstance().getString( "USER.importing", user.getUsername() ) );
 
         // map the user to the roles he/she is in
         for ( String role : user.getRoles() ) {
@@ -464,10 +465,12 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             }
           } catch ( Exception ex ) {
             // couldn't set the roles or password either
-            getLogger().debug( "Failed to set roles or password for existing user on import", ex );
+            getLogger().debug( Messages.getInstance()
+              .getString( "ERROR.OverridingExistingUser", user.getUsername() ), ex );
           }
         } catch ( Exception e ) {
-          getLogger().error( Messages.getInstance().getString( "ERROR.CreatingUser", user.getUsername() ) );
+          getLogger().error( Messages.getInstance()
+            .getString( "ERROR.OverridingExistingUser", user.getUsername() ), e );
         }
         importUserSettings( user );
       }
@@ -517,8 +520,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           }
         }
       } catch ( SecurityException e ) {
-        getLogger().error( Messages.getInstance().getString( "ERROR.ImportingUserSetting", user.getUsername() ) );
-        getLogger().debug( Messages.getInstance().getString( "ERROR.ImportingUserSetting", user.getUsername() ), e );
+        String errorMsg = Messages.getInstance().getString( "ERROR.ImportingUserSetting", user.getUsername() );
+        getLogger().error( errorMsg );
+        getLogger().debug( errorMsg, e );
       }
     }
   }
@@ -533,7 +537,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       Set<String> existingRoles = new HashSet<>();
 
       for ( RoleExport role : roles ) {
-        getLogger().debug( "Importing role: " + role.getRolename() );
+        getLogger().debug( Messages.getInstance().getString( "ROLE.importing", role.getRolename() ) );
         try {
           List<String> users = roleToUserMap.get( role.getRolename() );
           String[] userarray = users == null ? new String[] {} : users.toArray( new String[] {} );
@@ -554,7 +558,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             roleBindingDao.setRoleBindings( tenant, role.getRolename(), role.getPermissions() );
           }
         } catch ( Exception e ) {
-          getLogger().info( Messages.getInstance().getString( "ERROR.SettingRolePermissions", role.getRolename() ), e );
+          getLogger().info( Messages.getInstance()
+            .getString( "ERROR.SettingRolePermissions", role.getRolename() ), e );
         }
       }
     }
@@ -638,9 +643,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     }
 
     if ( isSchedulable ) {
-      getLogger().warn( "File [" + sourcePath + "] doesn't have schedulable permission ( isSchedulable = false) "
-              + "but there are some schedule(s) in import bundle which refers the file " );
-      getLogger().warn( "Assigning 'isSchedulable=true' permission for file [" + sourcePath + "] ... " );
+      getLogger().warn( Messages.getInstance()
+        .getString("ERROR.ScheduledWithoutPermission", sourcePath ) );
+      getLogger().warn( Messages.getInstance().getString( "SCHEDULE.AssigningPermission", sourcePath ) );
     }
 
     return isSchedulable;
@@ -685,7 +690,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       ZipEntry entry = zipInputStream.getNextEntry();
       while ( entry != null ) {
         final String entryName = RepositoryFilenameUtils.separatorsToRepository( entry.getName() );
-        getLogger().trace( "Processing [" + entryName + "]" );
+        getLogger().trace( Messages.getInstance().getString( "ZIPFILE.ProcessingEntry", entryName ) );
         final String decodedEntryName = ExportFileNameEncoder.decodeZipFileName( entryName );
         File tempFile = null;
         boolean isDir = entry.isDirectory();
@@ -731,12 +736,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         zipInputStream.closeEntry();
         entry = zipInputStream.getNextEntry();
       }
-    } catch ( IOException exception ) {
-      final String errorMessage = Messages.getInstance().getErrorString( "", exception.getLocalizedMessage() );
-      getLogger().trace( errorMessage );
-      return false;
-    } catch ( PlatformImportException exception ) {
-      getLogger().error( exception.getLocalizedMessage() );
+    } catch ( IOException | PlatformImportException e ) {
+      getLogger().error( Messages.getInstance()
+        .getErrorString( "ZIPFILE.ExceptionOccurred", e.getLocalizedMessage() ), e );
       return false;
     }
 

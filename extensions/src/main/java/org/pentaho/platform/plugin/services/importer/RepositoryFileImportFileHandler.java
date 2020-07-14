@@ -90,7 +90,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       bundle.setSchedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
     }
     String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
-    getLogger().trace( "Processing [" + repositoryFilePath + "]" );
+    getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.ProcessingFile", repositoryFilePath ) );
 
     // Check if the name is valid
     validateName( bundle );
@@ -99,8 +99,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     RepositoryFile file = repository.getFile( repositoryFilePath );
     if ( file != null ) {
       if ( file.isFolder() && getImportSession().getFoldersCreatedImplicitly().contains( repositoryFilePath ) ) {
-        getLogger().trace(
-            "Skipping entry for folder [" + repositoryFilePath + "]. It was already processed implicitly." );
+        getLogger().trace( messages.getString(
+          "RepositoryFileImportFileHandler.SkippingImplicitlyCreatedFolder", repositoryFilePath ) );
       } else {
         if ( bundle.overwriteInRepossitory() ) {
           // If file exists, overwrite is true and is not a folder then update it.
@@ -109,7 +109,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
             copyFileToRepository( bundle, repositoryFilePath, file );
           } else {
             // The folder exists. Possible ACL changes.
-            getLogger().trace( "Existing folder [" + repositoryFilePath + "]" );
+            getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.ExistingFolder", repositoryFilePath ) );
             file = finalAdjustFolder( bundle, file.getId() );
             repository.updateFolder( file, null );
             if ( bundle.getAcl() != null ) {
@@ -124,7 +124,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
             throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT",
                 repositoryFilePath ), PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR );
           } else {
-            getLogger().trace( "Not importing existing file [" + repositoryFilePath + "]" );
+            getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.SkippingExistingFile",
+              repositoryFilePath) );
             ImportSession importSession = ImportSession.getSession();
             importSession.getSkippedFiles().add( repositoryFilePath );
           }
@@ -133,7 +134,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     } else {
       if ( bundle.isFolder() ) {
         // The file doesn't exist and it is a folder. Create folder.
-        getLogger().trace( "Creating folder [" + repositoryFilePath + "]" );
+        getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.CreatingFolder", repositoryFilePath ) );
         final Serializable parentId = getParentId( repositoryFilePath );
 
         bundle.setFile( bundle.getFile() );
@@ -149,7 +150,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         }
       } else {
         // The file doesn't exist. Create file.
-        getLogger().trace( "Creating file [" + repositoryFilePath + "]" );
+        getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.CreatingFile", repositoryFilePath ) );
         copyFileToRepository( bundle, repositoryFilePath, null );
       }
     }
@@ -209,27 +210,27 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     final String name = bundle.getName();
     final String ext = RepositoryFilenameUtils.getExtension( name );
     if ( StringUtils.isEmpty( ext ) ) {
-      getLogger().debug( "Skipping file without extension: " + name );
+      getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.SkippingFileWithoutExtension", name ) );
       return false;
     }
 
     // Check the mime type
     final String mimeType = bundle.getMimeType();
     if ( mimeType == null ) {
-      getLogger().debug( "Skipping file without mime-type: " + name );
+      getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.SkippingFileWithoutMimeType", name ) );
       return false;
     }
 
     // Copy the file into the repository
     try {
-      getLogger().trace( "copying file to repository: " + name );
+      getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.CopyingFile", name ) );
 
       if ( getMimeTypeMap().get( mimeType ) == null ) {
-        getLogger().debug( "Skipping file - mime type of " + mimeType + " is not registered :" + name );
+        getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.SkippingFileWithUnknownMimeType", name, mimeType ) );
       }
       Converter converter = getMimeTypeMap().get( mimeType ).getConverter();
       if ( converter == null ) {
-        getLogger().debug( "Skipping file without converter: " + name );
+        getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.SkippingFileWithoutConverter", name ) );
         return false;
       }
 
@@ -300,7 +301,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    *          The <code>RepositoryFile</code> of the target file
    */
   private void updateAcl( boolean newFile, RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl ) {
-    getLogger().debug( "File " + ( newFile ? "is new" : "already exists" ) );
+    if ( newFile ) {
+      getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.FileIsNew" ) );
+    } else {
+      getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.FileExists" ) );
+    }
     if ( repositoryFileAcl != null
         && ( getImportSession().isApplyAclSettings() || !getImportSession().isRetainOwnership() ) ) {
       RepositoryFileAcl manifestAcl = repositoryFileAcl;
@@ -310,28 +315,28 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       RepositoryFileSid newOwner;
       if ( getImportSession().isRetainOwnership() ) {
         if ( newFile ) {
-          getLogger().debug( "Getting Owner from Session" );
+          getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.OwnerFromSession" ) );
           newOwner = getDefaultAcl( repositoryFile ).getOwner();
         } else {
-          getLogger().debug( "Getting Owner from existing file" );
+          getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.OwnerFromExistingFile" ) );
           newOwner = originalAcl.getOwner();
         }
       } else {
-        getLogger().debug( "Getting Owner from Manifest" );
+        getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.OwnerFromManifest" ) );
         newOwner = manifestAcl.getOwner();
       }
 
       // Determine the Aces we will use for this file
       RepositoryFileAcl useAclForPermissions; // The ACL we will use the permissions from
       if ( getImportSession().isApplyAclSettings() && ( getImportSession().isOverwriteAclSettings() || newFile ) ) {
-        getLogger().debug( "Getting permissions from Manifest" );
+        getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.PermissionsFromManifest" ) );
         useAclForPermissions = manifestAcl;
       } else {
         if ( newFile ) {
-          getLogger().debug( "Getting permissions from Default settings" );
+          getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.PermissionsFromSettings" ) );
           useAclForPermissions = getDefaultAcl( repositoryFile );
         } else {
-          getLogger().debug( "Getting permissions from existing file" );
+          getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.PermissionsFromExistingFile" ) );
           useAclForPermissions = originalAcl;
         }
       }
@@ -379,7 +384,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    */
   private void updateExtraMetaData( boolean newFile, RepositoryFile repositoryFile, RepositoryFileExtraMetaData repositoryFileExtraMetaData ) {
     if ( repositoryFileExtraMetaData != null && !repositoryFileExtraMetaData.getExtraMetaData().isEmpty() ) {
-      getLogger().debug( "Apply extra meta data to file that " + ( newFile ? "is new" : "already exists" ) );
+      if ( newFile ) {
+        getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.ExtraMetaDataToNewFile" ) );
+      } else {
+        getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.ExtraMetaDataToExistingFile" ) );
+      }
       RepositoryFileExtraMetaData manifestExtraMetaData = repositoryFileExtraMetaData;
       repository.setFileMetadata( repositoryFile.getId(), manifestExtraMetaData.getExtraMetaData() );
     }
@@ -408,9 +417,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         return repository.createFile( parentId, file, data, acl, bundle.getComment() );
       }
     } else {
-      getLogger().trace(
-          "The file [" + repositoryPath
-              + "] is not in the list of approved file extension that can be stored in the repository." );
+      getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.ExtensionNotApproved", repositoryPath ) );
       return null;
     }
   }
@@ -505,7 +512,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   public RepositoryFile createFolderJustInTime( String folderPath, String manifestKey ) throws PlatformImportException,
     DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
     // The file doesn't exist and it is a folder. Create folder.
-    getLogger().trace( "Creating implied folder [" + folderPath + "]" );
+    getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.CreatingImpliedFolder", folderPath ) );
     final Serializable parentId = getParentId( folderPath );
     Assert.notNull( parentId );
     boolean isHidden;
