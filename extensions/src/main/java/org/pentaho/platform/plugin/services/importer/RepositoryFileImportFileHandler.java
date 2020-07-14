@@ -165,7 +165,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
             name ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
         }
       } else {
-        if ( !fileService.isValidFolderName( name ) ) {
+        if ( !fileService.isValidFileName( name ) ) {
           throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME",
             name ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
         }
