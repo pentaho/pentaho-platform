@@ -644,7 +644,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
     if ( isSchedulable ) {
       getLogger().warn( Messages.getInstance()
-        .getString("ERROR.ScheduledWithoutPermission", sourcePath ) );
+        .getString( "ERROR.ScheduledWithoutPermission", sourcePath ) );
       getLogger().warn( Messages.getInstance().getString( "SCHEDULE.AssigningPermission", sourcePath ) );
     }
 

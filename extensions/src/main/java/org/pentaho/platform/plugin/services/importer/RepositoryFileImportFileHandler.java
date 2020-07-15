@@ -125,7 +125,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
                 repositoryFilePath ), PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR );
           } else {
             getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.SkippingExistingFile",
-              repositoryFilePath) );
+              repositoryFilePath ) );
             ImportSession importSession = ImportSession.getSession();
             importSession.getSkippedFiles().add( repositoryFilePath );
           }
