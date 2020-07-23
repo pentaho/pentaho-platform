@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -64,6 +65,8 @@ import mockit.Deencapsulation;
 import mockit.NonStrictExpectations;
 import mockit.integration.junit4.JMockit;
 
+import static org.junit.Assert.assertNotNull;
+
 @RunWith( JMockit.class )
 public class SolutionImportHandlerTest {
 
@@ -81,7 +84,10 @@ public class SolutionImportHandlerTest {
     roleAuthorizationPolicyRoleBindingDao = mockToPentahoSystem( IRoleAuthorizationPolicyRoleBindingDao.class );
 
     List<IMimeType> mimeTypes = new ArrayList<>();
-    importHandler = new SolutionImportHandler( mimeTypes );
+    importHandler = Mockito.spy( new SolutionImportHandler( mimeTypes ) );
+
+    Mockito.when( importHandler.getImportSession() ).thenReturn( Mockito.mock( ImportSession.class));
+    Mockito.when( importHandler.getLogger() ).thenReturn( Mockito.mock( Log.class));
 
     solutionHelper = Mockito.mock( SolutionFileImportHelper.class );
     Deencapsulation.setField( importHandler, "solutionHelper", solutionHelper );
@@ -357,18 +363,15 @@ public class SolutionImportHandlerTest {
 
   @Test
   public void testImportMetaStore() throws Exception {
-    ExportManifest manifest = Mockito.spy( new ExportManifest() );
     String path = "/path/to/file.zip";
     ExportManifestMetaStore manifestMetaStore = new ExportManifestMetaStore( path,
       "metastore",
       "description of the metastore" );
     importHandler.cachedImports = new HashMap<String, RepositoryFileImportBundle.Builder>();
 
-    Mockito.when( manifest.getMetaStore() ).thenReturn( manifestMetaStore );
-
-    importHandler.importMetaStore( manifest, true );
+    importHandler.importMetaStore( manifestMetaStore, true );
     Assert.assertEquals( 1, importHandler.cachedImports.size() );
-    Assert.assertTrue( importHandler.cachedImports.get( path ) != null );
+    Assert.assertNotNull( importHandler.cachedImports.get( path ) );
   }
 
   @Test
@@ -376,7 +379,7 @@ public class SolutionImportHandlerTest {
     ExportManifest manifest = Mockito.spy( new ExportManifest() );
 
     importHandler.cachedImports = new HashMap<String, RepositoryFileImportBundle.Builder>();
-    importHandler.importMetaStore( manifest, true );
+    importHandler.importMetaStore( manifest.getMetaStore(), true );
     Assert.assertEquals( 0, importHandler.cachedImports.size() );
   }
 
@@ -461,19 +464,18 @@ public class SolutionImportHandlerTest {
     JobScheduleRequest scheduleRequest = Mockito.spy( new JobScheduleRequest() );
     schedules.add( scheduleRequest );
 
-    SolutionImportHandler spyHandler = Mockito.spy( importHandler );
     Response response = Mockito.mock( Response.class );
     Mockito.when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
     Mockito.when( response.getEntity() ).thenReturn( "job id" );
 
-    Mockito.doReturn( response ).when( spyHandler )
+    Mockito.doReturn( response ).when( importHandler )
       .createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
 
     mockSchedulerPause();
 
-    spyHandler.importSchedules( schedules );
+    importHandler.importSchedules( schedules );
 
-    Mockito.verify( spyHandler )
+    Mockito.verify( importHandler )
       .createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
     Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
   }
@@ -502,14 +504,12 @@ public class SolutionImportHandlerTest {
     scheduleRequest.setOutputFile( "/home/admin/scheduledTransform*" );
     schedules.add( scheduleRequest );
 
-    SolutionImportHandler spyHandler = Mockito.spy( importHandler );
-
-    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( spyHandler ).createSchedulerJob(
+    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
       Mockito.any( SchedulerResource.class ), Mockito.eq( scheduleRequest ) );
 
     mockSchedulerPause();
 
-    spyHandler.importSchedules( schedules );
+    importHandler.importSchedules( schedules );
     Assert.assertEquals( 0, ImportSession.getSession().getImportedScheduleJobIds().size() );
   }
 
@@ -521,11 +521,9 @@ public class SolutionImportHandlerTest {
     scheduleRequest.setOutputFile( "/home/admin/scheduled Transform*" );
     schedules.add( scheduleRequest );
 
-    SolutionImportHandler spyHandler = Mockito.spy( importHandler );
-
     ScheduleRequestMatcher throwMatcher =
       new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
-    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( spyHandler ).createSchedulerJob(
+    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
       Mockito.any( SchedulerResource.class ), Mockito.argThat( throwMatcher ) );
 
     Response response = Mockito.mock( Response.class );
@@ -533,13 +531,13 @@ public class SolutionImportHandlerTest {
     Mockito.when( response.getEntity() ).thenReturn( "job id" );
     ScheduleRequestMatcher goodMatcher =
       new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
-    Mockito.doReturn( response ).when( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ),
+    Mockito.doReturn( response ).when( importHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ),
       Mockito.argThat( goodMatcher ) );
 
     mockSchedulerPause();
 
-    spyHandler.importSchedules( schedules );
-    Mockito.verify( spyHandler, Mockito.times( 2 ) ).createSchedulerJob(
+    importHandler.importSchedules( schedules );
+    Mockito.verify( importHandler, Mockito.times( 2 ) ).createSchedulerJob(
       Mockito.any( SchedulerResource.class ), Mockito.any( JobScheduleRequest.class ) );
     Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
   }
@@ -554,11 +552,9 @@ public class SolutionImportHandlerTest {
     scheduleRequest.setOutputFile( "/home/admin/scheduled Transform*" );
     schedules.add( scheduleRequest );
 
-    SolutionImportHandler spyHandler = Mockito.spy( importHandler );
-
     ScheduleRequestMatcher throwMatcher =
       new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
-    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( spyHandler ).createSchedulerJob(
+    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
       Mockito.any( SchedulerResource.class ), Mockito.argThat( throwMatcher ) );
 
     Response response = Mockito.mock( Response.class );
@@ -566,13 +562,13 @@ public class SolutionImportHandlerTest {
     Mockito.when( response.getEntity() ).thenReturn( "job id" );
     ScheduleRequestMatcher goodMatcher =
       new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
-    Mockito.doReturn( response ).when( spyHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ),
+    Mockito.doReturn( response ).when( importHandler ).createSchedulerJob( Mockito.any( SchedulerResource.class ),
       Mockito.argThat( goodMatcher ) );
 
     mockSchedulerPause();
 
-    spyHandler.importSchedules( schedules );
-    Mockito.verify( spyHandler, Mockito.times( 2 ) )
+    importHandler.importSchedules( schedules );
+    Mockito.verify( importHandler, Mockito.times( 2 ) )
       .createSchedulerJob( Mockito.any( SchedulerResource.class ), Mockito.any( JobScheduleRequest.class ) );
     Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
     System.setProperty( "file.separator", sep );
@@ -661,20 +657,19 @@ public class SolutionImportHandlerTest {
   @Test
   public void testFileIsScheduleInputSource() {
     ExportManifest manifest = Mockito.mock( ExportManifest.class );
-    SolutionImportHandler spyHandler = Mockito.spy( importHandler );
     List<JobScheduleRequest> scheduleRequests = new ArrayList<>();
     for ( int i = 0 ; i < 10; i++ ) {
       JobScheduleRequest jobScheduleRequest = new JobScheduleRequest();
       jobScheduleRequest.setInputFile( "/public/test/file" + i );
       scheduleRequests.add( jobScheduleRequest );
     }
-    Assert.assertFalse( spyHandler.fileIsScheduleInputSource( manifest, null ) );
+    Assert.assertFalse( importHandler.fileIsScheduleInputSource( manifest, null ) );
 
     Mockito.when( manifest.getScheduleList() ).thenReturn( scheduleRequests );
 
-    Assert.assertFalse( spyHandler.fileIsScheduleInputSource( manifest, "/public/file" ) );
-    Assert.assertTrue( spyHandler.fileIsScheduleInputSource( manifest, "/public/test/file3" ) );
-    Assert.assertTrue( spyHandler.fileIsScheduleInputSource( manifest, "public/test/file3" ) );
+    Assert.assertFalse( importHandler.fileIsScheduleInputSource( manifest, "/public/file" ) );
+    Assert.assertTrue( importHandler.fileIsScheduleInputSource( manifest, "/public/test/file3" ) );
+    Assert.assertTrue( importHandler.fileIsScheduleInputSource( manifest, "public/test/file3" ) );
   }
 
   private Boolean runIsSchedulable( RepositoryFile file, ManifestFile manifestFile ) {

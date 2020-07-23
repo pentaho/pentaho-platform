@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -42,9 +43,16 @@ import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.reporting.libraries.docbundle.DocumentMetaData;
 import org.pentaho.reporting.libraries.docbundle.ODFMetaAttributeNames;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( { DefaultUnifiedRepositoryWebService.class, FileService.class } )
 public class PRPTImportHandlerTest {
 
   private static final String SAMPLE_USER_PATH = "/home/user/";
@@ -66,7 +74,7 @@ public class PRPTImportHandlerTest {
   private static final IPlatformImporter importer = mock( IPlatformImporter.class );
 
   @Before
-  public void setUp() throws ObjectFactoryException, IOException {
+  public void setUp() throws Exception {
     final IPlatformMimeResolver resolver = mock( IPlatformMimeResolver.class );
 
     pentahoObjectFactory = mock( IPentahoObjectFactory.class );
@@ -101,10 +109,15 @@ public class PRPTImportHandlerTest {
     handler = spy( new PRPTImportHandler( mimeTypes ) );
     doReturn( session ).when( handler ).getImportSession();
     handler.setRepository( repository );
+
+    FileService fileService = spy( FileService.class );
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    PowerMockito.whenNew( DefaultUnifiedRepositoryWebService.class ).withNoArguments().thenReturn( repoWs );
+    PowerMockito.whenNew( FileService.class ).withNoArguments().thenReturn( fileService );
   }
 
   @Test
-  public void testImportFile_validPath() throws PlatformImportException, IOException {
+  public void testImportFile_validPath() throws Exception {
     when( bundle.getPath() ).thenReturn( SAMPLE_USER_PATH );
     DocumentMetaData metadata = mock( DocumentMetaData.class );
     doReturn( metadata ).when( handler ).extractMetaData( any( byte[].class ) );
@@ -112,7 +125,7 @@ public class PRPTImportHandlerTest {
   }
 
   @Test
-  public void testImportFile_slashPath() throws PlatformImportException, IOException {
+  public void testImportFile_slashPath() throws Exception {
     when( bundle.getPath() ).thenReturn( SAMPLE_SLASH_PATH );
     DocumentMetaData metadata = mock( DocumentMetaData.class );
     doReturn( metadata ).when( handler ).extractMetaData( any( byte[].class ) );
@@ -120,7 +133,7 @@ public class PRPTImportHandlerTest {
   }
 
   @Test
-  public void testImportFile_backSlashPath() throws PlatformImportException, IOException {
+  public void testImportFile_backSlashPath() throws Exception {
     when( bundle.getPath() ).thenReturn( SAMPLE_BACKSLASH_PATH );
     DocumentMetaData metadata = mock( DocumentMetaData.class );
     doReturn( metadata ).when( handler ).extractMetaData( any( byte[].class ) );
@@ -129,7 +142,7 @@ public class PRPTImportHandlerTest {
 
   //we should import file if we have description
   @Test
-  public void testImportFile_metadataReturnOnlyDescription() throws PlatformImportException, IOException {
+  public void testImportFile_metadataReturnOnlyDescription() throws Exception {
     when( bundle.getPath() ).thenReturn( SAMPLE_BACKSLASH_PATH );
     DocumentMetaData metadata = mock( DocumentMetaData.class );
     when( metadata.getBundleAttribute( anyString(), eq( ODFMetaAttributeNames.DublinCore.DESCRIPTION ) ) )
@@ -141,7 +154,7 @@ public class PRPTImportHandlerTest {
 
   //we should import file if we have title
   @Test
-  public void testImportFile_metadataReturnOnlyTitle() throws PlatformImportException, IOException {
+  public void testImportFile_metadataReturnOnlyTitle() throws Exception {
     when( bundle.getPath() ).thenReturn( SAMPLE_BACKSLASH_PATH );
     DocumentMetaData metadata = mock( DocumentMetaData.class );
     when( metadata.getBundleAttribute( anyString(), eq( ODFMetaAttributeNames.DublinCore.TITLE ) ) )
@@ -153,7 +166,7 @@ public class PRPTImportHandlerTest {
 
   //we should import file if we have description and title
   @Test
-  public void testImportFile_metadataIsCorrect() throws PlatformImportException, IOException {
+  public void testImportFile_metadataIsCorrect() throws Exception {
     when( bundle.getPath() ).thenReturn( SAMPLE_BACKSLASH_PATH );
     DocumentMetaData metadata = mock( DocumentMetaData.class );
     when( metadata.getBundleAttribute( anyString(), eq( ODFMetaAttributeNames.DublinCore.DESCRIPTION ) ) )
@@ -166,7 +179,7 @@ public class PRPTImportHandlerTest {
   }
 
   @Test( expected = PlatformImportException.class )
-  public void testImportFile_ErrorRecivingMetadata() throws PlatformImportException, IOException {
+  public void testImportFile_ErrorRecivingMetadata() throws Exception {
     when( bundle.getPath() ).thenReturn( SAMPLE_USER_PATH );
     handler.importFile( bundle );
   }

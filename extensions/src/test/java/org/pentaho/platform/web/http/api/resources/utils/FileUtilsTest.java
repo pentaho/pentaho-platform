@@ -204,8 +204,8 @@ public class FileUtilsTest {
   }
 
   @Test
-  public void foundControlCharacters() {
-    assertEquals( true, FileUtils.containsControlCharacters( "/home/Create Control Character \u0017 Folder" ) );
-    assertEquals( false, FileUtils.containsControlCharacters( "/home/Create normal Folder" ) );
+  public void testContainsControlCharacters() {
+    assertTrue( FileUtils.containsControlCharacters( "/home/Create Control Character \u0017 Folder" ) );
+    assertFalse( FileUtils.containsControlCharacters( "/home/Create normal Folder" ) );
   }
 }

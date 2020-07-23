@@ -26,7 +26,12 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStrea
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -39,6 +44,7 @@ public class FileServiceTest {
   private static final String PATH_CONTROL_CHARACTER = "Create Control Character \u0017 File.xml";
   private static final String PATH_SPECIAL_CHARACTERS = "éÉèÈçÇºªüÜ@£§";
   private static final String PATH_JAPANESE_CHARACTERS = "キャラクター";
+  public static final String UTF_8 = StandardCharsets.UTF_8.name();
 
   private FileService fileService;
 
@@ -49,35 +55,34 @@ public class FileServiceTest {
 
   @Test( expected = FileService.InvalidNameException.class )
   public void testCreateFile_Forbidden_ControlCharactersFound() throws Exception {
-    String charsetName = "charsetName";
     InputStream inputStream = mock( InputStream.class );
 
-    fileService.createFile( charsetName, PATH_CONTROL_CHARACTER, inputStream );
+    fileService.createFile( UTF_8, PATH_CONTROL_CHARACTER, inputStream );
     verify( fileService, times( 0 ) ).idToPath( PATH_CONTROL_CHARACTER );
   }
 
   @Test
   public void testCreateFile_Special_Characters() throws Exception {
-    String charsetName = "charsetName";
     InputStream inputStream = mock( InputStream.class );
     RepositoryFileOutputStream repositoryFileOutputStream = mock( RepositoryFileOutputStream.class );
 
     doReturn( repositoryFileOutputStream ).when( fileService ).getRepositoryFileOutputStream( anyString() );
     doReturn( 1 ).when( fileService ).copy( inputStream, repositoryFileOutputStream );
 
-    fileService.createFile( charsetName, PATH_SPECIAL_CHARACTERS, inputStream );
+    fileService.createFile( UTF_8, PATH_SPECIAL_CHARACTERS, inputStream );
+    verify( inputStream ).close();
   }
 
   @Test
   public void testCreateFile_Japanese_Characters() throws Exception {
-    String charsetName = "charsetName";
     InputStream inputStream = mock( InputStream.class );
     RepositoryFileOutputStream repositoryFileOutputStream = mock( RepositoryFileOutputStream.class );
 
     doReturn( repositoryFileOutputStream ).when( fileService ).getRepositoryFileOutputStream( anyString() );
     doReturn( 1 ).when( fileService ).copy( inputStream, repositoryFileOutputStream );
 
-    fileService.createFile( charsetName, PATH_JAPANESE_CHARACTERS, inputStream );
+    fileService.createFile( UTF_8, PATH_JAPANESE_CHARACTERS, inputStream );
+    verify( inputStream ).close();
   }
 
   @Test( expected = FileService.InvalidNameException.class )
@@ -94,7 +99,7 @@ public class FileServiceTest {
     doReturn( RepoWs ).when( fileService ).getRepoWs();
     doReturn( true ).when( fileService ).doCreateDirFor( anyString() );
 
-    fileService.doCreateDirSafe( PATH_SPECIAL_CHARACTERS );
+    assertTrue( fileService.doCreateDirSafe( PATH_SPECIAL_CHARACTERS ) );
   }
 
   @Test
@@ -103,9 +108,157 @@ public class FileServiceTest {
     doReturn( RepoWs ).when( fileService ).getRepoWs();
     doReturn( true ).when( fileService ).doCreateDirFor( anyString() );
 
-    fileService.doCreateDirSafe( PATH_JAPANESE_CHARACTERS );
+    assertTrue( fileService.doCreateDirSafe( PATH_JAPANESE_CHARACTERS ) );
   }
 
+  @Test
+  public void testIsValidFolderName_DecodedControl_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertFalse( fileService.isValidFolderName( PATH_CONTROL_CHARACTER ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_EncodedControl_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertFalse(
+      fileService.isValidFolderName( encode( PATH_CONTROL_CHARACTER ) ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_DecodedJapanese_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertTrue( fileService.isValidFolderName( PATH_JAPANESE_CHARACTERS ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_EncodedJapanese_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertTrue(
+      fileService.isValidFolderName( encode( PATH_JAPANESE_CHARACTERS ) ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_DecodedSpecial_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertTrue( fileService.isValidFolderName( PATH_SPECIAL_CHARACTERS ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_EncodedSpecial_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertTrue(
+      fileService.isValidFolderName( encode( PATH_SPECIAL_CHARACTERS ) ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_Decoded_InvalidCases() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+    String[] invalidNames = { ".", ".." };
+    for ( String invalidName : invalidNames ) {
+      assertFalse( fileService.isValidFolderName( invalidName ) );
+    }
+  }
+
+  @Test
+  public void testIsValidFolderName_Encoded_InvalidCases() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+    String[] invalidNames = { ".", ".." };
+    for ( String invalidName : invalidNames ) {
+      assertFalse(
+        fileService.isValidFolderName( encode( invalidName ) ) );
+    }
+  }
+
+  @Test
+  public void testIsValidFileName_DecodedControl_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertFalse( fileService.isValidFileName( PATH_CONTROL_CHARACTER ) );
+  }
+
+  @Test
+  public void testIsValidFileName_EncodedControl_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+    String pathControlCharacter = PATH_CONTROL_CHARACTER;
+
+    assertFalse(
+      fileService.isValidFileName( encode( pathControlCharacter ) ) );
+  }
+
+  @Test
+  public void testIsValidFileName_DecodedJapanese_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertTrue( fileService.isValidFileName( PATH_JAPANESE_CHARACTERS ) );
+  }
+
+  @Test
+  public void testIsValidFileName_EncodedJapanese_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertTrue(
+      fileService.isValidFileName( encode( PATH_JAPANESE_CHARACTERS ) ) );
+  }
+
+  @Test
+  public void testIsValidFileName_DecodedSpecial_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertTrue( fileService.isValidFileName( PATH_SPECIAL_CHARACTERS ) );
+  }
+
+  @Test
+  public void testIsValidFileName_EncodedSpecial_Characters() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+
+    assertTrue(
+      fileService.isValidFileName( encode( PATH_SPECIAL_CHARACTERS ) ) );
+  }
+
+  @Test
+  public void testIsValidFileName_Decoded_InvalidCases() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+    String[] invalidNames =
+      { null, "", " ", " x", "x ", " x ", "\tx", "x\t", "\tx\t", "\rx", "x\r", "\rx\r", "\nx", "x\n", "\nx\n" };
+    for ( String invalidName : invalidNames ) {
+      assertFalse( fileService.isValidFileName( invalidName ) );
+    }
+  }
+
+  @Test
+  public void testIsValidFileName_Encoded_InvalidCases() throws Exception {
+    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( RepoWs ).when( fileService ).getRepoWs();
+    String[] invalidNames =
+      { "", " x", "x ", " x ", "\tx", "x\t", "\tx\t", "\rx", "x\r", "\rx\r", "\nx", "x\n", "\nx\n" };
+    for ( String invalidName : invalidNames ) {
+      assertFalse(
+        fileService.isValidFileName( encode( invalidName ) ) );
+    }
+  }
+
+  private static String encode( String pathControlCharacter ) throws UnsupportedEncodingException {
+    return URLEncoder.encode( pathControlCharacter, UTF_8 );
+  }
 }
-
-

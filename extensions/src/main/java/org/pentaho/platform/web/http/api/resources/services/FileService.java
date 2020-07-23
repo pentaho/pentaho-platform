@@ -304,7 +304,6 @@ public class FileService {
   public void createFile( String charsetName, String pathId, InputStream fileContents )
     throws Exception {
     try {
-
       if ( FileUtils.containsControlCharacters( pathId ) ) {
         throw new InvalidNameException();
       }
@@ -1593,24 +1592,47 @@ public class FileService {
       // '\' is prohibited as well
       throw new InvalidNameException();
     }
-    if ( !isValidFolderName( path ) ) {
-      throw new InvalidNameException();
-    }
 
-    if ( FileUtils.containsControlCharacters( pathId ) ) {
+    if ( !isValidFolderName( path ) ) {
       throw new InvalidNameException();
     }
 
     return doCreateDirFor( path );
   }
 
-  private boolean isValidFolderName( String path ) {
-    if ( FileUtils.containsReservedCharacter( path, doGetReservedChars().toString().toCharArray() ) ) {
+  public boolean isValidFolderName( String path ) {
+    /*
+     * If a change is to be made on this method, please synchronize with the following method:
+     * [pentaho-commons-gwt-modules] org.pentaho.gwt.widgets.client.utils.NameUtils#isValidFolderName
+     */
+    if ( FileUtils.containsReservedCharacter( path, doGetReservedChars().toString().toCharArray() )
+      || FileUtils.containsControlCharacters( path ) ) {
       return false;
     }
 
     String folderName = decode( FilenameUtils.getName( path ) );
-    return !".".equals( folderName ) && !"..".equals( folderName );
+    return !".".equals( folderName ) && !"..".equals( folderName ) && !FileUtils.containsControlCharacters( folderName );
+  }
+
+  /**
+   * <p>Check if a given name can be used as a file name.</p>
+   *
+   * @param name the name to be tested
+   * @return {@code true} if the given name is valid for a file and {@code false} otherwise
+   */
+  public boolean isValidFileName( final String name ) {
+    /*
+     * If a change is to be made on this method, please synchronize with the following method:
+     * [pentaho-commons-gwt-modules] org.pentaho.gwt.widgets.client.utils.NameUtils#isValidFileName
+     */
+    if ( StringUtils.isEmpty( name ) || // not null, not empty and not all whitespace
+      !name.trim().equals( name ) || !decode( name ).trim().equals( decode( name ) ) || // no leading or trailing whitespace
+      FileUtils.containsReservedCharacter( name, doGetReservedChars().toString().toCharArray() ) || // no reserved characters
+      FileUtils.containsControlCharacters( name ) || FileUtils.containsControlCharacters( decode( name ) ) ) { // control characters
+      return false;
+    }
+
+    return true;
   }
 
   private String getParentPath( final String path ) {
