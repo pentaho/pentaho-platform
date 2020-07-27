@@ -313,7 +313,7 @@ public class FileService {
       rfos.setCharsetName( charsetName );
       rfos.setAutoCreateDirStructure( true );
       copy( fileContents, rfos );
-      rfos.close();
+      rfos.close( true );
       fileContents.close();
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e );

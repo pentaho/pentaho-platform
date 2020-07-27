@@ -150,6 +150,17 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     return repository.getFile( parentPath );
   }
 
+
+  public void close( boolean forceFlush ) throws IOException {
+    if ( !forceFlush && toByteArray().length == 0 ) {
+      flushed = true;
+      closed = true;
+      reset();
+      return;
+    }
+    close();
+  }
+
   @Override
   public void close() throws IOException {
     if ( !closed ) {
