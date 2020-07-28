@@ -157,6 +157,15 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
   }
 
   @Override
+  public void close() throws IOException {
+    if ( !closed ) {
+      flush();
+      closed = true;
+      reset();
+    }
+  }
+
+  @Override
   public void flush() throws IOException {
     if ( closed ) {
       return;

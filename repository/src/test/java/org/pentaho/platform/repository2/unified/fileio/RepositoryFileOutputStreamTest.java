@@ -26,11 +26,15 @@ import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.powermock.reflect.Whitebox;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.powermock.reflect.Whitebox.getInternalState;
 
 public class RepositoryFileOutputStreamTest {
 
@@ -51,5 +55,15 @@ public class RepositoryFileOutputStreamTest {
     RepositoryFileOutputStream repositoryFileOutputStream = new RepositoryFileOutputStream( "1.ktr" );
     repositoryFileOutputStream.flush();
     assertTrue( repositoryFileOutputStream.flushed );
+  }
+
+  @Test
+  public void testForceFlush() {
+    RepositoryFileOutputStream repositoryFileOutputStream = new RepositoryFileOutputStream( "" );
+    assertFalse( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
+    repositoryFileOutputStream.forceFlush( true );
+    assertTrue( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
+    repositoryFileOutputStream.forceFlush( false );
+    assertFalse( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
   }
 }
