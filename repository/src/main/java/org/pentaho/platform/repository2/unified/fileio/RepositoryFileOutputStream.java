@@ -55,6 +55,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
   protected boolean autoCreateDirStructure = false;
   protected boolean closed = false;
   protected boolean flushed = false;
+  protected boolean forceFlush = false;
   protected ArrayList<IStreamListener> listeners = new ArrayList<>();
 
   public RepositoryFileOutputStream( final String path, final boolean autoCreateUniqueFileName,
@@ -150,13 +151,9 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     return repository.getFile( parentPath );
   }
 
-  @Override
-  public void close() throws IOException {
-    if ( !closed ) {
-      flush();
-      closed = true;
-      reset();
-    }
+
+  public void forceFlush( boolean forceFlush ) {
+    this.forceFlush = forceFlush;
   }
 
   @Override
@@ -168,11 +165,11 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
 
     byte[] data = toByteArray();
 
-    if ( data.length == 0 ) {
+    if ( !forceFlush && data.length == 0 ) {
       flushed = true;
       return;
     }
-
+    forceFlush = false;
     ByteArrayInputStream bis = new ByteArrayInputStream( data );
 
     // make an effort to determine the correct mime type, default to application/octet-stream
