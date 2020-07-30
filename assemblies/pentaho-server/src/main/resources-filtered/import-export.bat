@@ -24,4 +24,4 @@ call "%~dp0set-pentaho-env.bat"
 
 SET DI_HOME="%~dp0pentaho-solutions\system\kettle"
 
-"%_PENTAHO_JAVA%" -Xmx2048m -XX:MaxPermSize=256m -Dfile.encoding=utf8 -DDI_HOME="%DI_HOME%" -classpath "%~dp0tomcat\webapps\pentaho\WEB-INF\lib\*" org.pentaho.platform.plugin.services.importexport.CommandLineProcessor %*
+"%_PENTAHO_JAVA%" -Xmx2048m -Dfile.encoding=utf8 -DDI_HOME="%DI_HOME%" -classpath "%~dp0tomcat\webapps\pentaho\WEB-INF\lib\*" org.pentaho.platform.plugin.services.importexport.CommandLineProcessor %*
