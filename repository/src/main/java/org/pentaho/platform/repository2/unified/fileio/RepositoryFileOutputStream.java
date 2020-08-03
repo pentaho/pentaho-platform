@@ -157,15 +157,6 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
   }
 
   @Override
-  public void close() throws IOException {
-    if ( !closed ) {
-      flush();
-      closed = true;
-      reset();
-    }
-  }
-
-  @Override
   public void flush() throws IOException {
     if ( closed ) {
       return;
@@ -176,9 +167,9 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
 
     if ( !forceFlush && data.length == 0 ) {
       flushed = true;
+      forceFlush = false;
       return;
     }
-    forceFlush = false;
     ByteArrayInputStream bis = new ByteArrayInputStream( data );
 
     // make an effort to determine the correct mime type, default to application/octet-stream
@@ -298,6 +289,16 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
       repository.updateFile( file, payload, "New File" ); //$NON-NLS-1$
     }
     flushed = true;
+    forceFlush = false;
+  }
+
+  @Override
+  public void close() throws IOException {
+    if ( !closed ) {
+      flush();
+      closed = true;
+      reset();
+    }
   }
 
   IRepositoryFileData convert( Converter converter, ByteArrayInputStream bis, String mimeType ) {
