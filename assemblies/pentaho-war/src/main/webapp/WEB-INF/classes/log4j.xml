@@ -165,7 +165,7 @@
       <appender-ref ref="PENTAHOFILE"/>
    </root>
 
-  <!--  optional logging info for the Mondrian OLAP Engine       -->
+  <!--  optional logging info for Analyzer and Mondrian OLAP Engine -->
    
    
    <!-- ========================================================= -->
@@ -230,6 +230,35 @@
    <category name="mondrian.sql">
       <priority value="DEBUG"/>
       <appender-ref ref="SQLLOG"/>
+   </category>
+   -->
+
+   <!-- ========================================================= -->
+   <!-- Special Log File specifically for Analyzer                -->
+   <!-- ========================================================= -->
+
+   <!--
+   <appender name="ANALYZER" class="org.apache.log4j.RollingFileAppender">
+     <param name="File" value="../logs/analyzer.log"/>
+     <param name="Append" value="false"/>
+     <param name="MaxFileSize" value="500KB"/>
+     <param name="MaxBackupIndex" value="1"/>
+     <layout class="org.apache.log4j.PatternLayout">
+       <param name="ConversionPattern" value="%d %-5p [%c{1}] %m%n"/>
+     </layout>
+   </appender>
+
+   <category name="com.pentaho.analyzer">
+      <priority value="DEBUG"/>
+      <appender-ref ref="ANALYZER"/>
+   </category>
+   <category name="org.pentaho.platform.plugin.services.connections.mondrian.MDXOlap4jConnection">
+      <priority value="DEBUG"/>
+      <appender-ref ref="ANALYZER"/>
+   </category>
+   <category name="mondrian.analyzer">
+      <priority value="DEBUG"/>
+      <appender-ref ref="ANALYZER"/>
    </category>
    -->
    
