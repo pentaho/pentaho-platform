@@ -24,19 +24,31 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
+import static org.powermock.reflect.Whitebox.getInternalState;
 
 public class RepositoryFileOutputStreamTest {
 
   @Test
   public void convertTest() throws Exception {
-    RepositoryFileOutputStream spy = Mockito.spy( new RepositoryFileOutputStream( "1.ktr", "UTF-8" ) );
+    RepositoryFileOutputStream spy = spy( new RepositoryFileOutputStream( "1.ktr", "UTF-8" ) );
     Converter converter = Mockito.mock( Converter.class );
     ByteArrayInputStream bis = Mockito.mock( ByteArrayInputStream.class );
     Mockito.doReturn( Mockito.mock( NodeRepositoryFileData.class ) ).when( converter ).convert( bis, "UTF-8", "" );
@@ -47,9 +59,47 @@ public class RepositoryFileOutputStreamTest {
   }
 
   @Test
-  public void testFlushWithEmptyData() throws IOException {
-    RepositoryFileOutputStream repositoryFileOutputStream = new RepositoryFileOutputStream( "1.ktr" );
-    repositoryFileOutputStream.flush();
+  public void testCloseWithEmptyDataWithoutForceFlush() throws IOException {
+    RepositoryFileOutputStream repositoryFileOutputStream = spy( new RepositoryFileOutputStream( "1.ktr" ) );
+    IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    setInternalState( repositoryFileOutputStream, "repository", repository );
+    repositoryFileOutputStream.forceFlush( false );
+    repositoryFileOutputStream.close();
     assertTrue( repositoryFileOutputStream.flushed );
+    assertFalse( repositoryFileOutputStream.forceFlush );
+    verify( repositoryFileOutputStream, times( 1 ) ).flush();
+    verify( repository, times( 0 ) ).createFile( any(), any(), any(), any() );
+  }
+
+  @Test
+  public void testCloseWithEmptyData() throws IOException {
+    IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+
+    RepositoryFileOutputStream repositoryFileOutputStream =
+      spy( new RepositoryFileOutputStream( "1.ktr", true, true ) );
+
+    setInternalState( repositoryFileOutputStream, "repository", repository );
+    when( repository.getFile( any() ) ).thenReturn( repositoryFile );
+    when(
+      repository.createFile( any( Serializable.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
+        any( String.class ) ) ).thenReturn( repositoryFile );
+    repositoryFileOutputStream.close();
+    assertTrue( repositoryFileOutputStream.flushed );
+    assertTrue( repositoryFileOutputStream.forceFlush );
+    verify( repositoryFileOutputStream, times( 1 ) ).flush();
+    verify( repository, times( 1 ) )
+      .createFile( any( Serializable.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
+        any( String.class ) );
+  }
+
+  @Test
+  public void testForceFlush() {
+    RepositoryFileOutputStream repositoryFileOutputStream = new RepositoryFileOutputStream( "" );
+    assertTrue( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
+    repositoryFileOutputStream.forceFlush( false );
+    assertFalse( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
+    repositoryFileOutputStream.forceFlush( true );
+    assertTrue( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
   }
 }
