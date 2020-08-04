@@ -47,7 +47,6 @@ public class FileServiceTest {
   private static final String PATH_CONTROL_CHARACTER = "Create Control Character \u0017 File.xml";
   private static final String PATH_SPECIAL_CHARACTERS = "éÉèÈçÇºªüÜ@£§";
   private static final String PATH_JAPANESE_CHARACTERS = "キャラクター";
-  private static final String PATH_OK_CHARACTERS = "file_test.xml";
   public static final String UTF_8 = StandardCharsets.UTF_8.name();
 
   private FileService fileService;
@@ -55,16 +54,6 @@ public class FileServiceTest {
   @Before
   public void setUp() throws Exception {
     fileService = spy( FileService.class );
-  }
-
-
-  @Test
-  public void testCheckIfForceFlushIsSetOnCreateFile() throws Exception {
-    InputStream inputStream = new ByteArrayInputStream( new byte[] {} );
-    RepositoryFileOutputStream fileOutputStream = mock( RepositoryFileOutputStream.class );
-    when( fileService.getRepositoryFileOutputStream( anyString() ) ).thenReturn( fileOutputStream );
-    fileService.createFile( UTF_8, PATH_OK_CHARACTERS, inputStream );
-    verify( fileOutputStream, times( 1 ) ).forceFlush( true );
   }
 
   @Test( expected = FileService.InvalidNameException.class )

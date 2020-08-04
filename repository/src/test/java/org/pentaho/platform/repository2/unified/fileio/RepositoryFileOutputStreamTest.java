@@ -22,7 +22,6 @@ package org.pentaho.platform.repository2.unified.fileio;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -60,10 +59,11 @@ public class RepositoryFileOutputStreamTest {
   }
 
   @Test
-  public void testCloseWithEmptyData() throws IOException {
+  public void testCloseWithEmptyDataWithoutForceFlush() throws IOException {
     RepositoryFileOutputStream repositoryFileOutputStream = spy( new RepositoryFileOutputStream( "1.ktr" ) );
     IUnifiedRepository repository = mock( IUnifiedRepository.class );
     setInternalState( repositoryFileOutputStream, "repository", repository );
+    repositoryFileOutputStream.forceFlush( false );
     repositoryFileOutputStream.close();
     assertTrue( repositoryFileOutputStream.flushed );
     assertFalse( repositoryFileOutputStream.forceFlush );
@@ -72,7 +72,7 @@ public class RepositoryFileOutputStreamTest {
   }
 
   @Test
-  public void testCloseWithEmptyDataWhitForceFlush() throws IOException {
+  public void testCloseWithEmptyData() throws IOException {
     IUnifiedRepository repository = mock( IUnifiedRepository.class );
     RepositoryFile repositoryFile = mock( RepositoryFile.class );
 
@@ -84,10 +84,9 @@ public class RepositoryFileOutputStreamTest {
     when(
       repository.createFile( any( Serializable.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
         any( String.class ) ) ).thenReturn( repositoryFile );
-    repositoryFileOutputStream.forceFlush( true );
     repositoryFileOutputStream.close();
     assertTrue( repositoryFileOutputStream.flushed );
-    assertFalse( repositoryFileOutputStream.forceFlush );
+    assertTrue( repositoryFileOutputStream.forceFlush );
     verify( repositoryFileOutputStream, times( 1 ) ).flush();
     verify( repository, times( 1 ) )
       .createFile( any( Serializable.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
@@ -97,10 +96,10 @@ public class RepositoryFileOutputStreamTest {
   @Test
   public void testForceFlush() {
     RepositoryFileOutputStream repositoryFileOutputStream = new RepositoryFileOutputStream( "" );
-    assertFalse( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
-    repositoryFileOutputStream.forceFlush( true );
     assertTrue( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
     repositoryFileOutputStream.forceFlush( false );
     assertFalse( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
+    repositoryFileOutputStream.forceFlush( true );
+    assertTrue( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
   }
 }

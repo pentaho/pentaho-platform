@@ -313,7 +313,6 @@ public class FileService {
       rfos.setCharsetName( charsetName );
       rfos.setAutoCreateDirStructure( true );
       copy( fileContents, rfos );
-      rfos.forceFlush( true );
       rfos.close();
       fileContents.close();
     } catch ( Exception e ) {

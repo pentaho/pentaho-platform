@@ -55,7 +55,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
   protected boolean autoCreateDirStructure = false;
   protected boolean closed = false;
   protected boolean flushed = false;
-  protected boolean forceFlush = false;
+  protected boolean forceFlush = true;
   protected ArrayList<IStreamListener> listeners = new ArrayList<>();
 
   public RepositoryFileOutputStream( final String path, final boolean autoCreateUniqueFileName,
@@ -167,7 +167,6 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
 
     if ( !forceFlush && data.length == 0 ) {
       flushed = true;
-      forceFlush = false;
       return;
     }
     ByteArrayInputStream bis = new ByteArrayInputStream( data );
@@ -289,7 +288,6 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
       repository.updateFile( file, payload, "New File" ); //$NON-NLS-1$
     }
     flushed = true;
-    forceFlush = false;
   }
 
   @Override
