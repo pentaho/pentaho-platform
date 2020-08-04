@@ -125,6 +125,7 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
     RepositoryFileOutputStream outputStream =
         new RepositoryFileOutputStream( tempOutputFilePath, autoCreateUniqueFilename, true );
     outputStream.addListener( this );
+    outputStream.forceFlush( false );
     return outputStream;
   }
 
