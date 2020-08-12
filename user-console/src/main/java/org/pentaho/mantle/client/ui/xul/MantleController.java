@@ -727,7 +727,7 @@ public class MantleController extends AbstractXulEventHandler {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", JSON_REQUEST_HEADER );
       String json =
-              "{\"userName\": \"" + encodeUri( userName ) + "\", \"newPassword\": \"" + encodeUri( newPassword ) + "\", \"oldPassword\": \"" + encodeUri( oldPassword ) + "\"}";
+              "{\"userName\": \"" + encodeUri( userName ) + "\", \"newPassword\": \"ENC:" + b64encode( newPassword ) + "\", \"oldPassword\": \"ENC:" + b64encode( oldPassword ) + "\"}";
       executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
           handleCallbackError( callback, false, "" );
@@ -770,6 +770,10 @@ public class MantleController extends AbstractXulEventHandler {
   private final native String encodeUri( String uri )
   /*-{
     return encodeURIComponent(uri);
+  }-*/;
+
+  private static native String b64encode( String a ) /*-{
+    return window.btoa(a);
   }-*/;
 
   @Bindable

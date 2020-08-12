@@ -240,7 +240,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
       String json =
-          "{\"userName\": \"" + encodeUri( userName ) + "\", \"password\": \"" + encodeUri( newPassword ) + "\", \"administratorPassword\": \"" + encodeUri( administratorPassword ) + "\"}";
+          "{\"userName\": \"" + encodeUri( userName ) + "\", \"password\": \"ENC:" + b64encode( newPassword ) + "\", \"administratorPassword\": \"ENC:" + b64encode( administratorPassword ) + "\"}";
       executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
           showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
@@ -803,6 +803,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   private final native String encodeUri( String URI )
   /*-{
     return encodeURIComponent(URI);
+  }-*/;
+
+  private static native String b64encode( String a ) /*-{
+    return window.btoa(a);
   }-*/;
 
   /**
