@@ -943,7 +943,7 @@ public class SchedulesPanel extends SimplePanel {
                 public void onResponseReceived( Request request, Response response ) {
                   if ( response.getStatusCode() == Response.SC_OK ) {
                     final boolean isEmailConfValid = Boolean.parseBoolean( response.getText() );
-                    final NewScheduleDialog scheduleDialog = new NewScheduleDialog( jsJob.getFullResourceName(),
+                    final NewScheduleDialog scheduleDialog = new NewScheduleDialog( jsJob,
                       scheduleDialogCallback, isEmailConfValid );
 
                     scheduleDialog.center();
