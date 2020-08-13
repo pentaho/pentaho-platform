@@ -20,10 +20,12 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
-import org.pentaho.di.core.Const;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -53,6 +55,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -68,6 +71,9 @@ public class UserRoleDaoService {
   private IAuthorizationPolicy policy;
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
   private static final String PASS_VALIDATION_ERROR_WRONG_PASS = "UserRoleDaoService.PassValidationError_WrongPass";
+  public static final String PUC_USER_PASSWORD_LENGTH = "PUC_USER_PASSWORD_LENGTH";
+  public static final String PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER = "PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER";
+  private ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
 
   public UserListWrapper getUsers() throws Exception {
     return new UserListWrapper( getRoleDao().getUsers() );
@@ -207,8 +213,21 @@ public class UserRoleDaoService {
 
   private ValidationFailedException validatePasswordFormat( String password ) {
 
-    int reqPassLength = Const.getPucUserPasswordLength();
-    boolean isSpecCharReq = Const.isPassSpecialCharRequired();
+    int reqPassLength = 0;
+    boolean isSpecCharReq = false;
+    IConfiguration securityConfig = this.systemConfig.getConfiguration( "security" );
+    try {
+      String reqPassLengthStr = securityConfig.getProperties().getProperty( PUC_USER_PASSWORD_LENGTH );
+      if ( !StringUtils.isEmpty( reqPassLengthStr ) ) {
+        reqPassLength = Integer.parseInt( reqPassLengthStr );
+      }
+      String isSpecCharReqStr = securityConfig.getProperties().getProperty( PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER );
+      if ( !StringUtils.isEmpty( isSpecCharReqStr ) ) {
+        isSpecCharReq = Boolean.parseBoolean( isSpecCharReqStr );
+      }
+    } catch ( IOException e ) {
+      return new ValidationFailedException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_ReadingSecProperties" ) );
+    }
     final String PASSWORD_SPEC_CHAR_PATTERN = "((?=.*[@#$%!]).{0,100})";
     String errorMsg = "New password must: ";
     ValidationFailedException exception;
@@ -405,6 +424,11 @@ public class UserRoleDaoService {
     }
 
     return roleDao;
+  }
+
+  @VisibleForTesting
+  protected void setSystemConfig( ISystemConfig systemConfig ) {
+    this.systemConfig = systemConfig;
   }
 
   public static class ValidationFailedException extends Exception {
