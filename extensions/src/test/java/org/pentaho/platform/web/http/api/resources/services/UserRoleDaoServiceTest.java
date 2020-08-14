@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,8 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -57,6 +59,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -88,8 +91,16 @@ public class UserRoleDaoServiceTest {
     PentahoSystem.init();
 
     SecurityHelper.setMockInstance( mock( ISecurityHelper.class ) );
+    Properties props = mock( Properties.class );
+    when( props.getProperty( UserRoleDaoService.PUC_USER_PASSWORD_LENGTH ) ).thenReturn( "0" );
+    when( props.getProperty( UserRoleDaoService.PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER ) ).thenReturn( "false" );
+    IConfiguration config = mock( IConfiguration.class );
+    when( config.getProperties() ).thenReturn( props );
+    ISystemConfig sysConfig = mock( ISystemConfig.class );
+    when( sysConfig.getConfiguration( "security" ) ).thenReturn( config );
 
     userRoleService = new UserRoleDaoService();
+    userRoleService.setSystemConfig( sysConfig );
   }
 
   @After
