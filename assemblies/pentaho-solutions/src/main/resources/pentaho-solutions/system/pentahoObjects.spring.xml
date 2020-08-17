@@ -187,7 +187,7 @@ not directly from the PentahoObjectFactory. -->
     </constructor-arg>
   </bean>
 
-  <bean id="ehCacheUserCache" class="org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache">
+  <bean id="ehCacheUserCache" class="org.pentaho.platform.plugin.services.security.userrole.PentahoEhCacheBasedUserCache">
     <property name="cache">
       <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
         <property name="cacheManager">
@@ -198,6 +198,7 @@ not directly from the PentahoObjectFactory. -->
         <property name="cacheName" value="userCache"/>
       </bean>
     </property>
+    <property name="caseSensitive" value="true"></property>
   </bean>
 
   <bean id="cachingUserDetailsService" class="org.pentaho.platform.plugin.services.security.userrole.PentahoCachingUserDetailsService">
