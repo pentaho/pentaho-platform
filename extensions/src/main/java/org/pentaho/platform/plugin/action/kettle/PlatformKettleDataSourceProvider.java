@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -47,13 +47,22 @@ public class PlatformKettleDataSourceProvider implements DataSourceProviderInter
     DataSourceProviderFactory.setDataSourceProviderInterface( instance );
   }
 
-  protected <T extends IDBDatasourceService> DataSource getNamedDataSourceFromService(
-    Class<T> dataSourceServiceInterface, String dataSourceName ) throws DataSourceNamingException {
+
+  private <T extends IDBDatasourceService> IDBDatasourceService getService( Class<T> dataSourceServiceInterface ) {
+
     T datasourceService = PentahoSystem.get( dataSourceServiceInterface, null );
 
-    IDBDatasourceService service =
-      ( datasourceService == null ) ? PentahoSystem.get( IDBDatasourceService.class, null ) : datasourceService;
+    IDBDatasourceService service = ( datasourceService == null )
+      ? PentahoSystem.get( IDBDatasourceService.class, null )
+      : datasourceService;
 
+    return service;
+  }
+
+  protected <T extends IDBDatasourceService> DataSource getNamedDataSourceFromService(
+    Class<T> dataSourceServiceInterface, String dataSourceName ) throws DataSourceNamingException {
+
+    IDBDatasourceService service = getService( dataSourceServiceInterface );
     if ( service != null ) {
       try {
         return service.getDataSource( dataSourceName );
@@ -81,5 +90,36 @@ public class PlatformKettleDataSourceProvider implements DataSourceProviderInter
     }
     throw new DataSourceNamingException(
       String.format( "Unknown data source type [%s] for named data source [%s]", type, dataSourceName ) );
+  }
+
+  @Override public DataSource invalidateNamedDataSource( String datasourceName, DatasourceType type )
+    throws DataSourceNamingException {
+
+    IDBDatasourceService service;
+
+    switch ( type ) {
+      case JNDI:
+        service = getService( IJndiDatasourceService.class );
+        break;
+      case POOLED:
+        service = getService( IPooledDatasourceService.class );
+        break;
+      default:
+        service = getService( IDBDatasourceService.class );
+    }
+
+    if ( service != null ) {
+      try {
+        DataSource dataSource = service.getDataSource( datasourceName );
+        if ( dataSource == null ) {
+          return null;
+        }
+        service.clearDataSource( datasourceName );
+        return dataSource;
+      } catch ( DBDatasourceServiceException ex ) {
+        throw new DataSourceNamingException( ex );
+      }
+    }
+    return null;
   }
 }
