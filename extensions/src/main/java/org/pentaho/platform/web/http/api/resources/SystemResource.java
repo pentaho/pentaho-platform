@@ -124,13 +124,9 @@ public class SystemResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   public Response getAuthenticationProvider() throws Exception {
     try {
-      if ( canAdminister() ) {
-        IConfiguration config = this.systemConfig.getConfiguration( "security" );
-        String provider = config.getProperties().getProperty( "provider" );
-        return Response.ok( new AuthenticationProvider( provider ) ).type( MediaType.APPLICATION_JSON ).build();
-      } else {
-        return Response.status( UNAUTHORIZED ).build();
-      }
+      IConfiguration config = this.systemConfig.getConfiguration( "security" );
+      String provider = config.getProperties().getProperty( "provider" );
+      return Response.ok( new AuthenticationProvider( provider ) ).type( MediaType.APPLICATION_JSON ).build();
     } catch ( Throwable t ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t ); //$NON-NLS-1$
       throw new Exception( t );
