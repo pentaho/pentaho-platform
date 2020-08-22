@@ -1151,11 +1151,11 @@ define([
               for(var i = 0; i < response.children.length; i++) {
                 var child = response.children[i].file;
                 toAppend += "<div id=\"" + child.id + "\" class=\"folder\" path=\"" + child.path +
-                    "\" desc=\"\" ext=\"" + child.title + "\" title=\"" + child.title + "\">" +
+                    "\" ext=\"" + child.name + "\" desc=\"" + child.name + "\">" +
                     "<div class=\"element\">" +
                     "<div class=\"expandCollapse\"></div>" +
                     "<div class=\"icon\"></div>" +
-                    "<div class=\"title\">" + child.name + "</div>" +
+                    "<div class=\"title\">" + ( child.title ? child.title : child.name ) + "</div>" +
                     "</div>" +
                     "<div class=\"folders\" style=\"\"></div>" +
                     "</div>"
