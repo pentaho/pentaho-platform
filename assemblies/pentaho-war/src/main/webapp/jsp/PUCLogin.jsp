@@ -204,8 +204,7 @@
         <div id="login-form-container" class="lang_<%=cleanedLang%>">
           <div id="animate-wrapper">
             <h1><%=Messages.getInstance().getString("UI.PUC.LOGIN.TITLE")%></h1>
-            <form name="login" id="login" action="j_spring_security_check" method="POST"
-                  onkeyup="if(window.event && window.event.keyCode && window.event.keyCode==13){var buttonToClick = document.getElementById('loginbtn'); if(buttonToClick){ buttonToClick.click();}}">
+            <form name="login" id="login" action="j_spring_security_check" method="POST">
               <div class="row-fluid nowrap">
                 <div class="space-10"></div>
                 <div class="input-container">
