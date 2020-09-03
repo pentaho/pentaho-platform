@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,22 +22,26 @@ package org.pentaho.platform.repository2.unified.fileio;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.powermock.reflect.Whitebox;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
+import static org.powermock.reflect.Whitebox.getInternalState;
 
 @SuppressWarnings( { "nls" } )
 public class RepositoryFileIoTest {
@@ -76,7 +80,7 @@ public class RepositoryFileIoTest {
     writer.close();
 
     verify( repo ).updateFile( argThat( isLikeFile( existingFile ) ), argThat( hasData( "test123", "UTF-8",
-        "text/plain" ) ), anyString() );
+      "text/plain" ) ), anyString() );
   }
 
   @Test
@@ -86,7 +90,7 @@ public class RepositoryFileIoTest {
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // simulate request for publicDir
     RepositoryFile publicDir =
-        new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build();
+      new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build();
     doReturn( publicDir ).when( repo ).getFile( publicDirPath );
     mp.defineInstance( IUnifiedRepository.class, repo );
 
@@ -95,7 +99,7 @@ public class RepositoryFileIoTest {
     writer.close();
 
     verify( repo ).createFile( eq( "123" ), argThat( isLikeFile( new RepositoryFile.Builder( fileName ).build() ) ),
-        argThat( hasData( "test123", "UTF-8", "text/plain" ) ), anyString() );
+      argThat( hasData( "test123", "UTF-8", "text/plain" ) ), anyString() );
   }
 
   @Test( expected = FileNotFoundException.class )
@@ -123,7 +127,7 @@ public class RepositoryFileIoTest {
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // simulate request for publicDir
     RepositoryFile publicDir =
-        new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build();
+      new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build();
     doReturn( publicDir ).when( repo ).getFile( publicDirPath );
     mp.defineInstance( IUnifiedRepository.class, repo );
 
@@ -133,7 +137,7 @@ public class RepositoryFileIoTest {
     rfos.close();
 
     verify( repo ).createFile( eq( "123" ), argThat( isLikeFile( new RepositoryFile.Builder( fileName ).build() ) ),
-        argThat( hasData( expectedPayload, "application/octet-stream" ) ), anyString() );
+      argThat( hasData( expectedPayload, "application/octet-stream" ) ), anyString() );
   }
 
   @Test( expected = FileNotFoundException.class )
@@ -161,12 +165,13 @@ public class RepositoryFileIoTest {
     reader.close();
   }
 
+
   @Test( expected = FileNotFoundException.class )
   public void testReadDirectoryPath() throws IOException {
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // simulate file exists but is a directory
     doReturn( new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build() )
-        .when( repo ).getFile( ClientRepositoryPaths.getPublicFolderPath() );
+      .when( repo ).getFile( ClientRepositoryPaths.getPublicFolderPath() );
     mp.defineInstance( IUnifiedRepository.class, repo );
 
     RepositoryFileReader reader = new RepositoryFileReader( ClientRepositoryPaths.getPublicFolderPath() );
@@ -178,11 +183,26 @@ public class RepositoryFileIoTest {
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
     // simulate file exists but is a directory
     doReturn( new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build() )
-        .when( repo ).getFile( ClientRepositoryPaths.getPublicFolderPath() );
+      .when( repo ).getFile( ClientRepositoryPaths.getPublicFolderPath() );
     mp.defineInstance( IUnifiedRepository.class, repo );
 
     RepositoryFileWriter writer = new RepositoryFileWriter( ClientRepositoryPaths.getPublicFolderPath(), "UTF-8" );
+    writer.write( "dummy data" );
     writer.close();
+  }
+
+  @Test
+  public void testWriteDirectoryWithEmptyData() throws IOException {
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    // simulate file exists but is a directory
+    doReturn( new RepositoryFile.Builder( "123", ClientRepositoryPaths.getPublicFolderName() ).folder( true ).build() )
+      .when( repo ).getFile( ClientRepositoryPaths.getPublicFolderPath() );
+    mp.defineInstance( IUnifiedRepository.class, repo );
+
+    RepositoryFileOutputStream writer =
+      new RepositoryFileOutputStream( ClientRepositoryPaths.getPublicFolderPath(), "UTF-8" );
+    writer.close();
+    assertTrue( getInternalState( writer, "flushed" ) );
   }
 
   protected static String getSolutionPath() {

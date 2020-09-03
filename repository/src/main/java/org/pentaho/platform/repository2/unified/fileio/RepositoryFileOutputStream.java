@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -166,7 +166,14 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     }
     super.flush();
 
-    ByteArrayInputStream bis = new ByteArrayInputStream( toByteArray() );
+    byte[] data = toByteArray();
+
+    if ( data.length == 0 ) {
+      flushed = true;
+      return;
+    }
+
+    ByteArrayInputStream bis = new ByteArrayInputStream( data );
 
     // make an effort to determine the correct mime type, default to application/octet-stream
     String extension = RepositoryFilenameUtils.getExtension( path );
