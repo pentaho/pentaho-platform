@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -125,6 +125,7 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
     RepositoryFileOutputStream outputStream =
         new RepositoryFileOutputStream( tempOutputFilePath, autoCreateUniqueFilename, true );
     outputStream.addListener( this );
+    outputStream.forceFlush( false );
     return outputStream;
   }
 

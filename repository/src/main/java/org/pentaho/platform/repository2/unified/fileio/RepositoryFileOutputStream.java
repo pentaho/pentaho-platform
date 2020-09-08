@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -55,6 +55,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
   protected boolean autoCreateDirStructure = false;
   protected boolean closed = false;
   protected boolean flushed = false;
+  protected boolean forceFlush = true;
   protected ArrayList<IStreamListener> listeners = new ArrayList<>();
 
   public RepositoryFileOutputStream( final String path, final boolean autoCreateUniqueFileName,
@@ -150,13 +151,9 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     return repository.getFile( parentPath );
   }
 
-  @Override
-  public void close() throws IOException {
-    if ( !closed ) {
-      flush();
-      closed = true;
-      reset();
-    }
+
+  public void forceFlush( boolean forceFlush ) {
+    this.forceFlush = forceFlush;
   }
 
   @Override
@@ -166,7 +163,13 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     }
     super.flush();
 
-    ByteArrayInputStream bis = new ByteArrayInputStream( toByteArray() );
+    byte[] data = toByteArray();
+
+    if ( !forceFlush && data.length == 0 ) {
+      flushed = true;
+      return;
+    }
+    ByteArrayInputStream bis = new ByteArrayInputStream( data );
 
     // make an effort to determine the correct mime type, default to application/octet-stream
     String extension = RepositoryFilenameUtils.getExtension( path );
@@ -285,6 +288,15 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
       repository.updateFile( file, payload, "New File" ); //$NON-NLS-1$
     }
     flushed = true;
+  }
+
+  @Override
+  public void close() throws IOException {
+    if ( !closed ) {
+      flush();
+      closed = true;
+      reset();
+    }
   }
 
   IRepositoryFileData convert( Converter converter, ByteArrayInputStream bis, String mimeType ) {
