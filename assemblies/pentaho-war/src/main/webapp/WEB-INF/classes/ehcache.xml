@@ -299,6 +299,26 @@
       timeToLiveSeconds="600"
       diskPersistent="false"/>
 
+  <!-- Caches for the PentahoCachingLdap* classes. Only enable if they are in use. -->
+  <!--
+  <cache
+      name="ldapPopulatorCache"
+      maxEntriesLocalHeap="2000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="600"
+      diskPersistent="false"/>
+  <cache
+      name="ldapAuthenticatorCache"
+      maxEntriesLocalHeap="2000"
+      eternal="false"
+      overflowToDisk="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="600"
+      diskPersistent="false"/>
+  -->
+
   <!-- Cache backing the CachingRepositoryFactory which creates PDI Repository instances in the platform -->
   <cache
       name="pdi-repository-cache"
