@@ -30,6 +30,7 @@ import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -38,6 +39,7 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.ConfigurationAdminNonOsgiProxy;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -96,6 +98,7 @@ public class PentahoWebContextFilter implements Filter {
   private static final String APPLICATION = "application"; //$NON-NLS-1$
   private static final String GLOBAL = "global"; //$NON-NLS-1$
   private static final String REQUIRE_JS = "requirejs"; //$NON-NLS-1$
+  private FileService fileService;
 
   private String ssoEnabled = null;
 
@@ -117,6 +120,7 @@ public class PentahoWebContextFilter implements Filter {
       }
     };
     this.setSsoEnabled( filterConfig.getInitParameter( PARAM_SSO_ENABLED ) );
+    fileService = new FileService();
   }
 
   @Override
@@ -191,6 +195,8 @@ public class PentahoWebContextFilter implements Filter {
         printLocaleModule( out, webContextVariables );
 
         printWebContextVar( out, webContextVariables, "HOME_FOLDER" );
+
+        printWebContextVar( out, webContextVariables, "DEFAULT_FOLDER" );
 
         printWebContextVar( out, webContextVariables, "RESERVED_CHARS" );
 
@@ -306,6 +312,7 @@ public class PentahoWebContextFilter implements Filter {
     map.put( "SESSION_LOCALE", getLocaleVar( request ) );                    // Global JS environment variable
     map.put( "SESSION_NAME", getSessionNameVar() );                          // Global JS environment variable
     map.put( "HOME_FOLDER", getHomeFolderVar() );                            // Global JS environment variable
+    map.put( "DEFAULT_FOLDER", getDefaultFolderVar() );                      // Global JS environment variable
 
     map.put( "RESERVED_CHARS", getReservedCharsVar() );                      // Global JS environment variable
     map.put( "RESERVED_CHARS_DISPLAY", getReservedCharsDisplayVar() );       // Global JS environment variable
@@ -340,6 +347,29 @@ public class PentahoWebContextFilter implements Filter {
 
     String sessionName = getSession().getName();
     return ClientRepositoryPaths.getUserHomeFolderPath( sessionName );
+  }
+
+  private String getDefaultFolderVar() {
+    IPentahoSession session = getSession();
+    if ( getSession() == null ) {
+      return null;
+    }
+    String sessionName = session.getName();
+    String anonymousUser = PentahoSystem.getSystemSetting( "anonymous-authentication/anonymous-user",
+        "anonymousUser" );
+    if ( session.isAuthenticated() && !anonymousUser.equals( sessionName ) ) {
+      String path = ClientRepositoryPaths.getUserHomeFolderPath( sessionName );
+      return fileService.doGetDefaultLocation( path );
+    } else {
+      String hidePropertyValue = PentahoSystem.get( ISystemConfig.class )
+          .getProperty( PentahoSystem.HIDE_USER_HOME_FOLDER_ON_CREATION_PROPERTY );
+      Boolean hideUserHomeFolder = hidePropertyValue != null && "true".equals( hidePropertyValue.toLowerCase() );
+      if ( hideUserHomeFolder ) {
+        return  ClientRepositoryPaths.getPublicFolderPath();
+      } else {
+        return ClientRepositoryPaths.getUserHomeFolderPath( sessionName );
+      }
+    }
   }
 
   private String getReservedCharsVar() {
@@ -529,7 +559,6 @@ public class PentahoWebContextFilter implements Filter {
     String locale = escapeEnvironmentVar( webContextVariables.get( "SESSION_LOCALE" ) );
     String userID = escapeEnvironmentVar( webContextVariables.get( "SESSION_NAME" ) );
     String userHome = escapeEnvironmentVar( webContextVariables.get( "HOME_FOLDER" ) );
-
     String reservedChars = escapeEnvironmentVar( webContextVariables.get( "RESERVED_CHARS" ) );
     String serverRoot = escapeEnvironmentVar( getServerRoot( webContextVariables ) );
     String serverPackages = escapeEnvironmentVar( getServerPackages( webContextVariables ) );
