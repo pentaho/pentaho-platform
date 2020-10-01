@@ -22,6 +22,7 @@ package org.pentaho.platform.web.http.api.resources.services;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 
@@ -30,8 +31,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -256,6 +256,50 @@ public class FileServiceTest {
       assertFalse(
         fileService.isValidFileName( encode( invalidName ) ) );
     }
+  }
+
+  @Test
+  public void testIsVisible() throws Exception {
+    RepositoryFileDto hiddenDto = new RepositoryFileDto();
+    hiddenDto.setFolder( true );
+    hiddenDto.setHidden( true );
+    hiddenDto.setId( "5345345345345345345" );
+    hiddenDto.setName( "suzy" );
+    RepositoryFileDto visibleDto = new RepositoryFileDto();
+    visibleDto.setFolder( true );
+    visibleDto.setHidden( false );
+    visibleDto.setId( "5345345345345345345" );
+    visibleDto.setName( "joe" );
+    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+
+    doReturn( repoWs ).when( fileService ).getRepoWs();
+    doReturn( hiddenDto ).when( repoWs ).getFile( "/home/suzy" );
+    doReturn( visibleDto ).when( repoWs ).getFile( "/home/joe" );
+
+    assertEquals( fileService.doGetIsVisible( "/home/suzy"), "false" );
+    assertEquals( fileService.doGetIsVisible( "/home/joe"), "true" );
+  }
+
+  @Test
+  public void testGetDefaultLocation() throws Exception {
+    RepositoryFileDto hiddenDto = new RepositoryFileDto();
+    hiddenDto.setFolder( true );
+    hiddenDto.setHidden( true );
+    hiddenDto.setId( "5345345345345345345" );
+    hiddenDto.setName( "suzy" );
+    RepositoryFileDto visibleDto = new RepositoryFileDto();
+    visibleDto.setFolder( true );
+    visibleDto.setHidden( false );
+    visibleDto.setId( "5345345345345345345" );
+    visibleDto.setName( "joe" );
+
+    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+
+    doReturn( repoWs ).when( fileService ).getRepoWs();
+    doReturn( hiddenDto ).when( repoWs ).getFile( "/home/suzy" );
+    doReturn( visibleDto ).when( repoWs ).getFile( "/home/joe" );
+    assertEquals( fileService.doGetDefaultLocation( "/home/suzy"), "/public" );
+    assertEquals( fileService.doGetDefaultLocation( "/home/joe"), "/home/joe" );
   }
 
   private static String encode( String pathControlCharacter ) throws UnsupportedEncodingException {

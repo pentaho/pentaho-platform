@@ -814,6 +814,30 @@ public class FileService {
     }
     getRepoWs().updateAcl( acl );
   }
+  /**
+   * Check whether the selected repository folder is visible to the current user
+   *
+   * @param pathId
+   * @return true or false
+   */
+  public String doGetIsVisible( String pathId ) {
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    return repositoryFileDto != null && repositoryFileDto.isHidden() ?  "false" : "true";
+  }
+
+  /**
+   *
+   * @param pathId
+   * @return default path to where user can save or open the artifact
+   */
+  public String doGetDefaultLocation( String pathId ) {
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    if ( repositoryFileDto != null && repositoryFileDto.isHidden() ) {
+      return  ClientRepositoryPaths.getPublicFolderPath();
+    } else {
+      return pathId;
+    }
+  }
 
   /**
    * Check whether the current user has specific permission on the selected repository file
