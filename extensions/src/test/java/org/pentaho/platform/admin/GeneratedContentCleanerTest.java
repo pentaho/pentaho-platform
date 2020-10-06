@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -60,7 +60,7 @@ public class GeneratedContentCleanerTest {
   public void setUp() throws Exception {
     PentahoSystem.registerObject( repo );
     generatedContentCleaner = new GeneratedContentCleaner();
-    generatedContentCleaner.setAge( 0 );
+    generatedContentCleaner.setAge( 1000 );
   }
 
   @Test
@@ -94,6 +94,6 @@ public class GeneratedContentCleanerTest {
 
     generatedContentCleaner.execute();
     verify( repo ).deleteFile( eq( FILE_ID ), eq( true ), anyString() );
-    assertEquals( 0, generatedContentCleaner.getAge() );
+    assertEquals( 1000, generatedContentCleaner.getAge() );
   }
 }

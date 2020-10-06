@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -78,10 +78,13 @@ public class GeneratedContentCleaner implements IAction {
     RepositoryFile parentFile = parent.getFile();
     if ( !parentFile.isFolder() ) {
       long createTime = parentFile.getCreatedDate().getTime();
-      if ( createTime <= ( System.currentTimeMillis() - ( age * 1000 ) ) ) {
+      logger.debug( "checking: " + parentFile.getPath() + "   " + createTime );
+      if ( createTime <= ( System.currentTimeMillis() - age ) ) {
+        logger.debug( "File passes age criteria" );
         // now check metadata for RESERVEDMAPKEY_LINEAGE_ID (all generated content has)
         Map<String, Serializable> metadata = repository.getFileMetadata( parentFile.getId() );
         if ( metadata.containsKey( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID ) ) {
+          logger.debug( "File is generated content - adding to delete list" );
           generatedContentList.add( parentFile );
         }
       }
