@@ -58,6 +58,17 @@
     </property>
   </bean>
 
+  <!-- Uncomment below and update ldapAuthenticationProvider to enable local caching of LDAP credentials; reduces LDAP
+       traffic when running numerous spoon/pan/kitchen jobs against a repository. -->
+  <!--
+  <bean id="cachingAuthenticator"
+        class="org.pentaho.platform.plugin.services.security.userrole.ldap.PentahoCachingLdapAuthenticator">
+    <constructor-arg ref="authenticator" />
+    <property name="cacheRegionName" value="ldapAuthenticatorCache" />
+    <property name="passwordHashMethod" value="SHA-256" />
+  </bean>
+  -->
+
   <bean id="contextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
     <constructor-arg value="${ldap.contextSource.providerUrl}"/>
     <property name="userDn" value="${ldap.contextSource.userDn}"/>
@@ -89,6 +100,15 @@
     <property name="searchSubtree" value="${ldap.populator.searchSubtree}" />
     <property name="defaultRole" ref="defaultRole" />
   </bean>
+
+  <!-- Uncomment below and update ldapAuthenticationProvider to enable local caching of LDAP credentials; reduces LDAP
+       traffic when running numerous spoon/pan/kitchen jobs against a repository. -->
+  <!--
+  <bean id="cachingPopulator" class="org.pentaho.platform.plugin.services.security.userrole.ldap.PentahoCachingLdapAuthoritiesPopulator">
+    <constructor-arg ref="populator" />
+    <property name="cacheRegionName" value="ldapPopulatorCache" />
+  </bean>
+  -->
 
   <bean id="ldapUserDetailsService0"
         class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserDetailsService">
