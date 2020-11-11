@@ -205,6 +205,9 @@ public class PentahoSystem {
   public static final String HIDE_USER_HOME_FOLDER_ON_CREATION_PROPERTY =
     "system.hideUserHomeFolderOnCreate";
 
+  public static final String DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY =
+      "system.defaultFolderWhenHomeFolderIsHidden";
+
   // TODO even if logging is not configured messages need to make it out to
   // the console
 
