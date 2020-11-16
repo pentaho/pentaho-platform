@@ -63,7 +63,7 @@ public class ActionRunner implements Callable<Boolean> {
   private String actionUser;
 
   private String outputFilePath = null;
-  private Boolean streamComplete = Boolean.FALSE;
+  private boolean streamComplete = false;
   private Object lock = new Object();
 
   public ActionRunner( final IAction actionBean, final String actionUser, final Map<String, Serializable> params, final
@@ -163,7 +163,7 @@ public class ActionRunner implements Callable<Boolean> {
           public void streamComplete() {
             synchronized ( lock ) {
               lock.notifyAll();
-              streamComplete = Boolean.TRUE;
+              streamComplete = true;
             }
           }
         } );
@@ -186,7 +186,7 @@ public class ActionRunner implements Callable<Boolean> {
         }
       }
       ActionUtil.sendEmail( actionParams, params, outputFilePath );
-      deleteEmptyFile();
+      deleteFileIfEmpty();
     }
     if ( actionBean instanceof IPostProcessingAction ) {
       closeContentOutputStreams( (IPostProcessingAction) actionBean );
@@ -198,15 +198,13 @@ public class ActionRunner implements Callable<Boolean> {
   }
 
   @VisibleForTesting
-  public void deleteEmptyFile() {
+  void deleteFileIfEmpty() {
     if ( outputFilePath == null ) {
       return;
     }
     IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
     RepositoryFile file = repo.getFile( outputFilePath );
-    Long emptyFileSize = 0L;
-    Long fileSize = file.getFileSize();
-    if ( fileSize.equals( emptyFileSize ) ) {
+    if ( file.getFileSize().equals( 0L ) ) {
       repo.deleteFile( file.getId(), true, null );
     }
   }

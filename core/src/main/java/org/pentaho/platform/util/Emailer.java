@@ -225,10 +225,6 @@ public class Emailer {
   }
 
   public boolean send() {
-    return send( true );
-  }
-
-  public boolean send( boolean withAttachment ) {
     String from = props.getProperty( "mail.from.default" );
     String fromName = props.getProperty( "mail.from.name" );
     String to = props.getProperty( "to" );
@@ -261,7 +257,7 @@ public class Emailer {
       if ( EMBEDDED_HTML.equals( attachmentMimeType ) ) {
 
         //Message is ready
-        msg = withAttachment ? new MimeMessage( session, attachment ) : new MimeMessage( session );
+        msg = attachment != null ? new MimeMessage( session, attachment ) : new MimeMessage( session );
 
         if ( body != null ) {
           //We need to add message to the top of the email body
@@ -294,18 +290,13 @@ public class Emailer {
         msg = new MimeMessage( session );
         Multipart multipart = new MimeMultipart();
 
-        if ( attachment == null && withAttachment ) {
-          logger.error( "Email.ERROR_0015_ATTACHMENT_FAILED" ); //$NON-NLS-1$
-          return false;
-        }
-
         if ( body != null ) {
           MimeBodyPart bodyMessagePart = new MimeBodyPart();
           bodyMessagePart.setText( body, LocaleHelper.getSystemEncoding() );
           multipart.addBodyPart( bodyMessagePart );
         }
 
-        if ( withAttachment ) {
+        if ( attachment != null ) {
           ByteArrayDataSource dataSource = new ByteArrayDataSource( attachment, attachmentMimeType );
           // attach the file to the message
           MimeBodyPart attachmentBodyPart = new MimeBodyPart();
