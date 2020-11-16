@@ -14,12 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.scheduler2.action;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,8 +43,8 @@ import org.pentaho.platform.scheduler2.quartz.SchedulerOutputPathResolver;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.beans.ActionHarness;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 import org.pentaho.platform.workitem.WorkItemLifecycleEventUtil;
+import org.pentaho.platform.workitem.WorkItemLifecyclePhase;
 
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -62,6 +63,7 @@ public class ActionRunner implements Callable<Boolean> {
   private String actionUser;
 
   private String outputFilePath = null;
+  private boolean streamComplete = false;
   private Object lock = new Object();
 
   public ActionRunner( final IAction actionBean, final String actionUser, final Map<String, Serializable> params, final
@@ -107,7 +109,7 @@ public class ActionRunner implements Callable<Boolean> {
     // sync job params to the action bean
     ActionHarness actionHarness = new ActionHarness( actionBean );
 
-    final Map<String, Object> actionParams = new HashMap<String, Object>();
+    final Map<String, Object> actionParams = new HashMap<>();
     actionParams.putAll( params );
     if ( streamProvider != null ) {
       actionParams.put( "inputStream", streamProvider.getInputStream() );
@@ -156,6 +158,14 @@ public class ActionRunner implements Callable<Boolean> {
               lock.notifyAll();
             }
           }
+
+          @Override
+          public void streamComplete() {
+            synchronized ( lock ) {
+              lock.notifyAll();
+              streamComplete = true;
+            }
+          }
         } );
         waitForFileCreated = true;
       }
@@ -171,12 +181,12 @@ public class ActionRunner implements Callable<Boolean> {
 
     if ( waitForFileCreated ) {
       synchronized ( lock ) {
-        if ( outputFilePath == null ) {
-          lock.wait();
+        while ( outputFilePath == null && !streamComplete ) {
+          lock.wait( 1000 );
         }
       }
       ActionUtil.sendEmail( actionParams, params, outputFilePath );
-      deleteEmptyFile();
+      deleteFileIfEmpty();
     }
     if ( actionBean instanceof IPostProcessingAction ) {
       closeContentOutputStreams( (IPostProcessingAction) actionBean );
@@ -184,16 +194,17 @@ public class ActionRunner implements Callable<Boolean> {
     }
 
     // Create the ExecutionResult to return the status and whether the update is required or not
-    ExecutionResult executionResult = new ExecutionResult( false, executionStatus );
-    return executionResult;
+    return new ExecutionResult( false, executionStatus );
   }
 
-  private void deleteEmptyFile() {
+  @VisibleForTesting
+  void deleteFileIfEmpty() {
+    if ( outputFilePath == null ) {
+      return;
+    }
     IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
     RepositoryFile file = repo.getFile( outputFilePath );
-    Long emptyFileSize = new Long( 0 );
-    Long fileSize = file.getFileSize();
-    if ( fileSize.equals( emptyFileSize ) ) {
+    if ( file.getFileSize().equals( 0L ) ) {
       repo.deleteFile( file.getId(), true, null );
     }
   }

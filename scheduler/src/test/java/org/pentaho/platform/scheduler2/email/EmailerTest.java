@@ -124,4 +124,26 @@ public class EmailerTest {
     assertTrue( bodyPartContent.contains( body ) );
   }
 
+  @Test
+  public void testEmbeddedHtmlBodyWithoutAttachment() throws IOException, MessagingException {
+    emailer.setTo( "tets@test.email.com" );
+    emailer.setFrom( "tets@test.email.com" );
+    emailer.setSubject( "Test" );
+    final String body = UUID.randomUUID().toString();
+    emailer.setBody( body );
+    emailer.send();
+
+    assertEquals( 1, MockMail.size() );
+    final Message message = MockMail.get( 0 );
+    assertNotNull( message );
+    final MimeMultipart content = (MimeMultipart) message.getContent();
+    assertNotNull( content );
+    assertEquals( 1, content.getCount() );
+    final BodyPart bodyPart = content.getBodyPart( 0 );
+    assertNotNull( bodyPart );
+    assertEquals( bodyPart.getContentType(), "text/plain; charset=UTF-8" );
+    final String bodyPartContent = (String) bodyPart.getContent();
+    assertEquals( body, bodyPartContent );
+  }
+
 }
