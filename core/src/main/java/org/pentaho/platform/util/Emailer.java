@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -44,7 +44,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.InputStream;
 import java.util.Date;
@@ -258,7 +257,7 @@ public class Emailer {
       if ( EMBEDDED_HTML.equals( attachmentMimeType ) ) {
 
         //Message is ready
-        msg = new MimeMessage( session, attachment );
+        msg = attachment != null ? new MimeMessage( session, attachment ) : new MimeMessage( session );
 
         if ( body != null ) {
           //We need to add message to the top of the email body
@@ -291,24 +290,20 @@ public class Emailer {
         msg = new MimeMessage( session );
         Multipart multipart = new MimeMultipart();
 
-        if ( attachment == null ) {
-          logger.error( "Email.ERROR_0015_ATTACHMENT_FAILED" ); //$NON-NLS-1$
-          return false;
-        }
-
-        ByteArrayDataSource dataSource = new ByteArrayDataSource( attachment, attachmentMimeType );
-
         if ( body != null ) {
           MimeBodyPart bodyMessagePart = new MimeBodyPart();
           bodyMessagePart.setText( body, LocaleHelper.getSystemEncoding() );
           multipart.addBodyPart( bodyMessagePart );
         }
 
-        // attach the file to the message
-        MimeBodyPart attachmentBodyPart = new MimeBodyPart();
-        attachmentBodyPart.setDataHandler( new DataHandler( dataSource ) );
-        attachmentBodyPart.setFileName( attachmentName );
-        multipart.addBodyPart( attachmentBodyPart );
+        if ( attachment != null ) {
+          ByteArrayDataSource dataSource = new ByteArrayDataSource( attachment, attachmentMimeType );
+          // attach the file to the message
+          MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+          attachmentBodyPart.setDataHandler( new DataHandler( dataSource ) );
+          attachmentBodyPart.setFileName( attachmentName );
+          multipart.addBodyPart( attachmentBodyPart );
+        }
 
         // add the Multipart to the message
         msg.setContent( multipart );
