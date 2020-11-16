@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -90,7 +90,7 @@ public class ActionUtil {
   private static final Map<String, String> KEY_MAP;
 
   static {
-    KEY_MAP = new HashMap<String, String>();
+    KEY_MAP = new HashMap<>();
     KEY_MAP.put( ActionUtil.QUARTZ_ACTIONCLASS, ActionUtil.INVOKER_ACTIONCLASS );
     KEY_MAP.put( ActionUtil.QUARTZ_ACTIONUSER, ActionUtil.INVOKER_ACTIONUSER );
     KEY_MAP.put( ActionUtil.QUARTZ_ACTIONID, ActionUtil.INVOKER_ACTIONID );
@@ -411,21 +411,17 @@ public class ActionUtil {
    */
   public static void sendEmail( Map<String, Object> actionParams, Map<String, Serializable> params, String filePath ) {
     try {
-      IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
-      RepositoryFile sourceFile = repo.getFile( filePath );
-      // add metadata
-      Map<String, Serializable> metadata = repo.getFileMetadata( sourceFile.getId() );
-      String lineageId = (String) params.get( ActionUtil.QUARTZ_LINEAGE_ID );
-      metadata.put( ActionUtil.QUARTZ_LINEAGE_ID, lineageId );
-      repo.setFileMetadata( sourceFile.getId(), metadata );
-      // send email
-      SimpleRepositoryFileData data = repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
       // if email is setup and we have tos, then do it
       Emailer emailer = new Emailer();
       if ( !emailer.setup() ) {
         // email not configured
         return;
       }
+
+      if ( filePath != null ) {
+        addAttachment( actionParams, params, filePath, emailer );
+      }
+
       String to = (String) actionParams.get( "_SCH_EMAIL_TO" );
       String cc = (String) actionParams.get( "_SCH_EMAIL_CC" );
       String bcc = (String) actionParams.get( "_SCH_EMAIL_BCC" );
@@ -437,49 +433,12 @@ public class ActionUtil {
       emailer.setTo( to );
       emailer.setCc( cc );
       emailer.setBcc( bcc );
-      emailer.setAttachment( data.getInputStream() );
-      emailer.setAttachmentName( "attachment" );
-      String attachmentName = (String) actionParams.get( "_SCH_EMAIL_ATTACHMENT_NAME" );
-      if ( attachmentName != null && !"".equals( attachmentName ) ) {
-        String path = filePath;
-        if ( path.endsWith( ".*" ) ) {
-          path = path.replace( ".*", "" );
-        }
-        String extension = MimeHelper.getExtension( data.getMimeType() );
-        if ( extension == null ) {
-          extension = ".bin";
-        }
-        if ( !attachmentName.endsWith( extension ) ) {
-          emailer.setAttachmentName( attachmentName + extension );
-        } else {
-          emailer.setAttachmentName( attachmentName );
-        }
-      } else if ( data != null ) {
-        String path = filePath;
-        if ( path.endsWith( ".*" ) ) {
-          path = path.replace( ".*", "" );
-        }
-        String extension = MimeHelper.getExtension( data.getMimeType() );
-        if ( extension == null ) {
-          extension = ".bin";
-        }
-        path = path.substring( path.lastIndexOf( "/" ) + 1, path.length() );
-        if ( !path.endsWith( extension ) ) {
-          emailer.setAttachmentName( path + extension );
-        } else {
-          emailer.setAttachmentName( path );
-        }
-      }
-      if ( data == null || data.getMimeType() == null || "".equals( data.getMimeType() ) ) {
-        emailer.setAttachmentMimeType( "binary/octet-stream" );
-      } else {
-        emailer.setAttachmentMimeType( data.getMimeType() );
-      }
+
       String subject = (String) actionParams.get( "_SCH_EMAIL_SUBJECT" );
       if ( subject != null && !"".equals( subject ) ) {
         emailer.setSubject( subject );
       } else {
-        emailer.setSubject( "Pentaho Scheduler: " + emailer.getAttachmentName() );
+        emailer.setSubject( "Pentaho Scheduler" + ( emailer.getAttachmentName() != null ? " : " + emailer.getAttachmentName() : "" ) );
       }
       String message = (String) actionParams.get( "_SCH_EMAIL_MESSAGE" );
       if ( subject != null && !"".equals( subject ) ) {
@@ -490,4 +449,38 @@ public class ActionUtil {
       logger.warn( e.getMessage(), e );
     }
   }
+
+  private static void addAttachment( Map<String, Object> actionParams, Map<String, Serializable> params,
+                                     String filePath, Emailer emailer ) {
+    IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
+    RepositoryFile sourceFile = repo.getFile( filePath );
+    // add metadata
+    Map<String, Serializable> metadata = repo.getFileMetadata( sourceFile.getId() );
+    String lineageId = (String) params.get( ActionUtil.QUARTZ_LINEAGE_ID );
+    metadata.put( ActionUtil.QUARTZ_LINEAGE_ID, lineageId );
+    repo.setFileMetadata( sourceFile.getId(), metadata );
+    // send email
+    SimpleRepositoryFileData data = repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
+    emailer.setAttachment( data.getInputStream() );
+    emailer.setAttachmentName( "attachment" );
+    String attachmentName = (String) actionParams.get( "_SCH_EMAIL_ATTACHMENT_NAME" );
+    if ( !StringUtils.isEmpty( attachmentName ) ) {
+      String extension = MimeHelper.getExtension( data.getMimeType(), ".bin" );
+      emailer.setAttachmentName( attachmentName.endsWith( extension ) ?  attachmentName : attachmentName + extension );
+    } else if ( data != null ) {
+      String path = filePath;
+      if ( path.endsWith( ".*" ) ) {
+        path = path.replace( ".*", "" );
+      }
+      String extension = MimeHelper.getExtension( data.getMimeType(), ".bin" );
+      path = path.substring( path.lastIndexOf( "/" ) + 1, path.length() );
+      emailer.setAttachmentName( attachmentName.endsWith( extension ) ?  path : path + extension );
+    }
+    if ( data == null || data.getMimeType() == null || "".equals( data.getMimeType() ) ) {
+      emailer.setAttachmentMimeType( "binary/octet-stream" );
+    } else {
+      emailer.setAttachmentMimeType( data.getMimeType() );
+    }
+  }
+
 }

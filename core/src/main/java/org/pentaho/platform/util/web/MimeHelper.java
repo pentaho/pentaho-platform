@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -88,9 +88,9 @@ public class MimeHelper {
   public static final String EMAIL_MSG_EXTENSION = ".eml";
 
   private static final String UTF_CHARACTER_ENCODING = "UTF-8";
-  private static final Map<String, String> mimes = new HashMap<String, String>();
-  private static final Map<String, String> extensions = new HashMap<String, String>();
-  private static final Map<String, String> defaultCharset = new HashMap<String, String>();
+  private static final Map<String, String> mimes = new HashMap<>();
+  private static final Map<String, String> extensions = new HashMap<>();
+  private static final Map<String, String> defaultCharset = new HashMap<>();
 
   static {
     MimeHelper.mimes.put( MIMETYPE_RTF, RTF_EXTENSION );
@@ -162,6 +162,11 @@ public class MimeHelper {
 
   public static String getExtension( final String mimeType ) {
     return MimeHelper.mimes.get( mimeType );
+  }
+
+  public static String getExtension( final String mimeType, String defaultExtension ) {
+    String extension = getExtension( mimeType );
+    return extension == null ? defaultExtension : extension;
   }
 
   public static String getMimeTypeFromExtension( final String extension ) {

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IStreamListener;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
@@ -36,6 +37,8 @@ import java.io.Serializable;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -101,5 +104,29 @@ public class RepositoryFileOutputStreamTest {
     assertFalse( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
     repositoryFileOutputStream.forceFlush( true );
     assertTrue( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
+  }
+
+  @Test
+  public void testStreamCompleteListenerCallback() throws IOException {
+    IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    IStreamListener streamListener = mock( IStreamListener.class );
+
+    RepositoryFileOutputStream repositoryFileOutputStream =
+      spy( new RepositoryFileOutputStream( "1.ktr", true, true ) );
+
+    repositoryFileOutputStream.forceFlush( false );
+
+    repositoryFileOutputStream.addListener( streamListener );
+
+    setInternalState( repositoryFileOutputStream, "repository", repository );
+    when( repository.getFile( any() ) ).thenReturn( repositoryFile );
+    when(
+      repository.createFile( any( Serializable.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
+        any( String.class ) ) ).thenReturn( repositoryFile );
+    repositoryFileOutputStream.close();
+
+    verify( streamListener, times( 1 ) ).streamComplete();
+    verify( streamListener, times( 0 ) ).fileCreated( anyObject() );
   }
 }
