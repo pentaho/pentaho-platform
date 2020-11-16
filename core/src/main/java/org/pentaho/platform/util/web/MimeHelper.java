@@ -164,12 +164,9 @@ public class MimeHelper {
     return MimeHelper.mimes.get( mimeType );
   }
 
-  public static String getExtension( final String mimeType, String defaultMimeType ) {
-    String mimeTypeInferred = getExtension( mimeType );
-    if ( mimeTypeInferred == null ) {
-      return defaultMimeType;
-    }
-    return mimeTypeInferred;
+  public static String getExtension( final String mimeType, String defaultExtension ) {
+    String extension = getExtension( mimeType );
+    return extension == null ? defaultExtension : extension;
   }
 
   public static String getMimeTypeFromExtension( final String extension ) {

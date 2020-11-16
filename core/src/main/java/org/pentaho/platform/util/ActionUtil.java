@@ -412,12 +412,15 @@ public class ActionUtil {
   public static void sendEmail( Map<String, Object> actionParams, Map<String, Serializable> params, String filePath ) {
     try {
       // if email is setup and we have tos, then do it
-      Emailer emailer = getEmailerSetUp();
-      if ( emailer == null ) {
+      Emailer emailer = new Emailer();
+      if ( !emailer.setup() ) {
+        // email not configured
         return;
       }
 
-      boolean withAttachment = configureAttachment( actionParams, params, filePath, emailer );
+      if ( filePath != null ) {
+        addAttachment( actionParams, params, filePath, emailer );
+      }
 
       String to = (String) actionParams.get( "_SCH_EMAIL_TO" );
       String cc = (String) actionParams.get( "_SCH_EMAIL_CC" );
@@ -441,29 +444,10 @@ public class ActionUtil {
       if ( subject != null && !"".equals( subject ) ) {
         emailer.setBody( message );
       }
-      emailer.send( withAttachment );
+      emailer.send();
     } catch ( Exception e ) {
       logger.warn( e.getMessage(), e );
     }
-  }
-
-  private static Emailer getEmailerSetUp() {
-    Emailer emailer = new Emailer();
-    if ( !emailer.setup() ) {
-      // email not configured
-      return null;
-    }
-    return emailer;
-  }
-
-  private static boolean configureAttachment( Map<String, Object> actionParams,
-                                              Map<String, Serializable> params, String filePath,
-                                              Emailer emailer ) {
-    if ( filePath != null ) {
-      addAttachment( actionParams, params, filePath, emailer );
-      return true;
-    }
-    return false;
   }
 
   private static void addAttachment( Map<String, Object> actionParams, Map<String, Serializable> params,

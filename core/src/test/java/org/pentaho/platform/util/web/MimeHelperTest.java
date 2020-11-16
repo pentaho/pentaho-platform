@@ -157,8 +157,8 @@ public class MimeHelperTest {
   @Test
   public void testGetExtensionReturningDefaultValue() {
     String falseMimeType = "false/mimeType";
-    String defaultMimeType = ".bin";
+    String defaultExtension = ".bin";
     assertNull( MimeHelper.getExtension( falseMimeType ) );
-    assertEquals(defaultMimeType, MimeHelper.getExtension( falseMimeType, defaultMimeType ) );
+    assertEquals( defaultExtension, MimeHelper.getExtension( falseMimeType, defaultExtension ) );
   }
 }
