@@ -166,6 +166,9 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
     byte[] data = toByteArray();
 
     if ( !forceFlush && data.length == 0 ) {
+      for ( IStreamListener listener : listeners ) {
+        listener.streamComplete();
+      }
       flushed = true;
       return;
     }
