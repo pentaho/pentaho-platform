@@ -131,7 +131,7 @@ public class EmailerTest {
     emailer.setSubject( "Test" );
     final String body = UUID.randomUUID().toString();
     emailer.setBody( body );
-    emailer.send( false );
+    emailer.send();
 
     assertEquals( 1, MockMail.size() );
     final Message message = MockMail.get( 0 );
