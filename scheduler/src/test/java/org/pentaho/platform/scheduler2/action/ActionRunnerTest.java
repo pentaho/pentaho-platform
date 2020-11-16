@@ -20,9 +20,9 @@
 
 package org.pentaho.platform.scheduler2.action;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.Assert;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -42,7 +42,6 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,7 +53,6 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -167,8 +165,7 @@ public class ActionRunnerTest {
   }
 
   @Test
-  public void testDeleteEmptyFile()
-  {
+  public void deleteFileIfEmpty() {
     PowerMockito.mockStatic( PentahoSystem.class );
     IUnifiedRepository mockRepository = Mockito.mock( IUnifiedRepository.class );
     when( PentahoSystem.get( isA( IUnifiedRepository.class.getClass() ), Mockito.any() ) )
@@ -178,9 +175,9 @@ public class ActionRunnerTest {
     IAction actionBeanSpy = Mockito.spy( new TestAction() );
     ActionRunner actionRunner = new ActionRunner( actionBeanSpy, "actionUser", paramsMap, null );
     setInternalState( actionRunner, "outputFilePath", null, ActionRunner.class );
-    actionRunner.deleteEmptyFile();
+    actionRunner.deleteFileIfEmpty();
 
-    verify( mockRepository, times( 0 )).getFile( anyObject() );
+    verify( mockRepository, times( 0 ) ).getFile( anyObject() );
   }
 
 }
