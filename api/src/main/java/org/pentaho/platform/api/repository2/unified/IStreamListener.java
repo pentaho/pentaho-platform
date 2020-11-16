@@ -14,12 +14,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.api.repository2.unified;
 
 public interface IStreamListener {
-  public void fileCreated( String filePath );
+  void fileCreated( String filePath );
+
+  default void streamComplete() { }
 }
