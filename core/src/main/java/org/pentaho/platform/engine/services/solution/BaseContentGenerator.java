@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,6 +26,7 @@ import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
+import org.pentaho.platform.engine.core.audit.MDCUtil;
 import org.pentaho.platform.engine.core.system.PentahoBase;
 
 import java.util.List;
@@ -83,6 +84,7 @@ public abstract class BaseContentGenerator extends PentahoBase implements IConte
 
   public void setInstanceId( String instanceId ) {
     this.instanceId = instanceId;
+    MDCUtil.setInstanceId( instanceId );
   }
 
   public void setParameterProviders( Map<String, IParameterProvider> parameterProviders ) {

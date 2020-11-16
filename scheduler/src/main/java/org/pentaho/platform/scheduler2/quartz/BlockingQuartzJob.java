@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
+import org.pentaho.platform.engine.core.audit.MDCUtil;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
@@ -41,11 +42,15 @@ import org.quartz.SchedulerException;
  */
 public class BlockingQuartzJob implements Job {
   public void execute( final JobExecutionContext jobExecutionContext ) throws JobExecutionException {
-    final boolean jobRestarted;
-    if ( jobExecutionContext != null && jobExecutionContext.getJobDetail() != null ) {
-      jobRestarted = jobExecutionContext.getJobDetail().getJobDataMap().getBooleanValue( QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG );
-    } else {
-      jobRestarted = false;
+    JobDataMap jobDataMap = null;
+    if ( jobExecutionContext.getJobDetail() != null && jobExecutionContext.getJobDetail().getJobDataMap() != null ) {
+      jobDataMap = jobExecutionContext.getJobDetail().getJobDataMap();
+    }
+    boolean jobRestarted = false;
+    if ( jobDataMap != null ) {
+      MDCUtil.setupSchedulerMDC( jobDataMap.get( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ), jobDataMap.get(
+          "lineage-id" ) );
+      jobRestarted = jobDataMap.getBooleanValue( QuartzScheduler.RESERVEDMAPKEY_RESTART_FLAG );
     }
     String messageType = jobRestarted ? MessageTypes.RECREATED_INSTANCE_START : MessageTypes.INSTANCE_START;
     long start = System.currentTimeMillis();
