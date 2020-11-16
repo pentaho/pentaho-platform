@@ -42,6 +42,7 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,8 +53,13 @@ import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.reflect.Whitebox.setInternalState;
 
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( PentahoSystem.class )
@@ -158,6 +164,23 @@ public class ActionRunnerTest {
     Map<String, Serializable> paramsMap = new HashMap<>();
     paramsMap.put( LocaleHelper.USER_LOCALE_PARAM, Locale.US );
     return paramsMap;
+  }
+
+  @Test
+  public void testDeleteEmptyFile()
+  {
+    PowerMockito.mockStatic( PentahoSystem.class );
+    IUnifiedRepository mockRepository = Mockito.mock( IUnifiedRepository.class );
+    when( PentahoSystem.get( isA( IUnifiedRepository.class.getClass() ), Mockito.any() ) )
+      .thenReturn( mockRepository );
+
+    Map<String, Serializable> paramsMap = createMapWithUserLocale();
+    IAction actionBeanSpy = Mockito.spy( new TestAction() );
+    ActionRunner actionRunner = new ActionRunner( actionBeanSpy, "actionUser", paramsMap, null );
+    setInternalState( actionRunner, "outputFilePath", null, ActionRunner.class );
+    actionRunner.deleteEmptyFile();
+
+    verify( mockRepository, times( 0 )).getFile( anyObject() );
   }
 
 }
