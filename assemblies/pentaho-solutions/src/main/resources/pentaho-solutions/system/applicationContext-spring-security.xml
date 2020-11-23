@@ -253,19 +253,31 @@
 
   <bean id="sas" class="org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy" />
 
+  <bean id="loginAttemptService" class="org.pentaho.platform.engine.security.LoginAttemptService" scope="singleton">
+    <constructor-arg name="maxAttempt" value="10"></constructor-arg>
+    <constructor-arg name="cacheMinutes" value="1440"></constructor-arg>
+  </bean>
+
+  <bean id="preventBruteForceAuthenticationFailureListener"
+        class="org.pentaho.platform.web.http.security.PreventBruteForceAuthenticationFailureListener" >
+    <constructor-arg ref="loginAttemptService"/>
+  </bean>
+
   <bean id="authenticationProcessingFilter"
-        class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+        class="org.pentaho.platform.web.http.security.PreventBruteForceUsernamePasswordAuthenticationFilter">
+    <constructor-arg ref="loginAttemptService"/>
     <property name="authenticationManager">
       <ref bean="authenticationManager" />
     </property>
     <property name="authenticationSuccessHandler">
-      <bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+      <bean class="org.pentaho.platform.web.http.security.PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler">
+        <constructor-arg ref="loginAttemptService"/>
         <property name="defaultTargetUrl" value="/Home" />
       </bean>
     </property>
     <property name="authenticationFailureHandler">
       <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-        <constructor-arg value="/Login?login_error=1" />
+        <constructor-arg type="java.lang.String" value="/Login?login_error=1" />
       </bean>
     </property>
     <property name="filterProcessesUrl" value="/j_spring_security_check" />

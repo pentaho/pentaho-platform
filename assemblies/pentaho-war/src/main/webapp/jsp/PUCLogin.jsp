@@ -12,13 +12,14 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2020 Hitachi Vantara..  All rights reserved.
 --%>
 
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
 <%@
     page language="java"
     import="org.springframework.security.web.savedrequest.SavedRequest,
+            org.pentaho.platform.web.http.security.PreventBruteForceException,
             org.pentaho.platform.engine.core.system.PentahoSystem,
             org.pentaho.platform.util.messages.LocaleHelper,
             org.pentaho.platform.api.engine.IPentahoSession,
@@ -30,6 +31,7 @@
             java.util.List,
             java.util.Map,
             java.util.StringTokenizer,
+            javax.servlet.http.HttpSession,
             org.pentaho.platform.engine.core.system.PentahoSessionHolder,
             org.owasp.encoder.Encode"%>
 <%!
@@ -38,6 +40,7 @@
   private List<String> send401RequestList;
 
   public final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST";
+  public final String SPRING_SECURITY_LAST_EXCEPTION_KEY = "SPRING_SECURITY_LAST_EXCEPTION";
 
   public void jspInit() {
     // super.jspInit();
@@ -83,6 +86,12 @@
 
   boolean showUsers = Boolean.parseBoolean(PentahoSystem.getSystemSetting("login-show-sample-users-hint", "true"));
 %>
+<%!
+  public boolean isUserBlocked(HttpSession session) {
+    Object springLastException = session.getAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY);
+    return springLastException != null && springLastException instanceof PreventBruteForceException;
+  }
+%>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" class="bootstrap">
 <head>
@@ -106,7 +115,7 @@
         for ( String id : pluginIds ) {
           String mobileRedirect = (String)pluginManager.getPluginSetting( id, "mobile-redirect", null );
           if ( mobileRedirect != null ) {
-            // we have a mobile redirect            
+            // we have a mobile redirect
             String queryString = request.getQueryString();
             if( queryString != null ) {
               final Map<String, String> queryPairs = new LinkedHashMap<String, String>();
@@ -190,6 +199,10 @@
           <div id="loginError" class="login-error-message">
             <div class="login-error-icon"></div>
             <div class="login-error-text"><%=Messages.getInstance().getString("UI.PUC.LOGIN.ERROR")%></div>
+          </div>
+          <div id="loginBlocked" class="login-error-message">
+            <div class="login-error-icon"></div>
+            <div class="login-error-text"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BLOCKED")%></div>
           </div>
         </div>
 
@@ -323,6 +336,13 @@
       return false;
     }
 
+    <% if (isUserBlocked(session)) { %>
+    var userState = 'j_spring_security_user_blocked';
+    <% }
+    else { %>
+    var userState = '';
+    <% } %>
+
     jQuery.ajax({
       type: "POST",
       url: "j_spring_security_check",
@@ -351,7 +371,12 @@
       success:function(data, textStatus, jqXHR){
         if (data.indexOf("j_spring_security_check") != -1) {
           // fail
-          showOneErrorMessage('loginError');
+          if( userState === 'j_spring_security_user_blocked' || data.match(/j_spring_security_user_blocked/g).length > 2 ){
+            showOneErrorMessage('loginBlocked');
+          }
+          else {
+            showOneErrorMessage('loginError');
+          }
           return false;
         } else {
           document.getElementById("j_password").value = "";
