@@ -42,6 +42,7 @@
                                    basicProcessingFilter,
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
+                                   mdcFilter,
                                    exceptionTranslationFilterForWS,
                                    filterInvocationInterceptorForWS" />
 
@@ -54,6 +55,7 @@
                                    requestParameterProcessingFilter,
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
+                                   mdcFilter,
                                    exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS,
                                    preFlightFilter" />
@@ -67,6 +69,7 @@
                                    requestParameterProcessingFilter,
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
+                                   mdcFilter,
                                    exceptionTranslationFilterForWS,
                                    filterInvocationInterceptorForWS" />
 
@@ -79,6 +82,7 @@
                                    requestParameterProcessingFilter,
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
+                                   mdcFilter,
                                    exceptionTranslationFilterForWS,
                                    filterInvocationInterceptorForWS,
                                    preFlightFilter" />
@@ -92,6 +96,7 @@
                                    requestParameterProcessingFilter,
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
+                                   mdcFilter,
                                    exceptionTranslationFilterForWS,
                                    filterInvocationInterceptorForWS" />
 
@@ -107,6 +112,7 @@
                                    requestParameterProcessingFilter,
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
+                                   mdcFilter,
                                    exceptionTranslationFilter,
                                    filterInvocationInterceptor" />
       </util:list>
@@ -427,4 +433,7 @@
     <constructor-arg ref="httpSessionSecurityContextRepository"/>
     <constructor-arg ref="sas"/>
   </bean>
+
+  <bean id="mdcFilter" class="org.pentaho.platform.web.http.filters.PentahoMDCFilter" />
+
 </beans>

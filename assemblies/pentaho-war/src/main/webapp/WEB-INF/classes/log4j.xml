@@ -232,5 +232,53 @@
       <appender-ref ref="SQLLOG"/>
    </category>
    -->
-   
+
+   <!-- ========================================================== -->
+   <!-- Special log file specifically for sensitive data access    -->
+   <!-- on a per user/session/IP level                             -->
+   <!-- Available MDC properties:                                  -->
+   <!-- sessionId, sessionName, instanceId, remoteAddr, remoteHost,-->
+   <!-- remotePort, serverName, serverPort,                        -->
+   <!-- localAddr, localName, localPort                            -->
+   <!-- ========================================================== -->
+
+   <!--
+   <appender name="SESSION_DATA_ACCESS_LOG" class="org.apache.log4j.DailyRollingFileAppender">
+      <param name="File" value="../logs/session_data_access.log"/>
+      <param name="Append" value="true"/>
+      <param name="DatePattern" value="'.'yyyy-MM-dd-HH"/>
+      <layout class="org.apache.log4j.PatternLayout">
+         <param name="ConversionPattern" value="%d %-5p [%c] sessionId:%X{sessionId} sessionName:%X{sessionName} instanceId:%X{instanceId} remoteAddr:%X{remoteAddr} %m%n"/>
+      </layout>
+   </appender>
+    <category name="mondrian.rolap.RolapUtil" additivity="false">
+      <priority value="DEBUG"/>
+      <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+    </category>
+    <category name="org.pentaho.metadata.query.impl.sql.SqlGenerator" additivity="false">
+      <priority value="TRACE"/>
+      <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+    </category>
+    <category name="org.pentaho.reporting.engine.classic.core.modules.misc.datafactory.sql" additivity="false">
+      <priority value="DEBUG"/>
+      <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+    </category>
+    <category name="org.pentaho.reporting.platform" additivity="false">
+      <priority value="INFO"/>
+      <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+    </category>
+    <category name="org.pentaho.reporting.engine.classic.core.parameters" additivity="false">
+      <priority value="DEBUG"/>
+      <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+    </category>
+    <category name="org.pentaho.reporting.platform.plugin.ExecuteReportContentHandler" additivity="false">
+      <priority value="DEBUG"/>
+      <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+    </category>
+    <category name="org.pentaho.platform.plugin.action.sql.SQLLookupRule" additivity="false">
+      <priority value="DEBUG"/>
+      <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+    </category>
+    -->
+
 </log4j:configuration>
