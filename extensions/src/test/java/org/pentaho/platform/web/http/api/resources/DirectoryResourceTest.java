@@ -134,20 +134,27 @@ public class DirectoryResourceTest {
   }
 
   @Test
-  public void testIsVisible() throws Exception {
+  public void testIsVisibleWhenFolderIsHidden() throws Exception {
     doReturn( "false" ).when( directoryResource.fileService ).doGetIsVisible( "/home/suzy" );
     Response testResponse = directoryResource.isDirVisible( "/home/suzy");
 
     assertEquals( Response.Status.OK.getStatusCode(), testResponse.getStatus() );
     assertEquals( "false", testResponse.getEntity() );
-    verify( directoryResource.fileService, times( 1 ) ).doGetIsVisible( "/home/suzy" );
+    verify( directoryResource.fileService, times( 1 ) ).doesExist( "/home/suzy" );
+  }
 
+  @Test
+  public void testIsVisibleWhenFolderIsVisible() throws Exception {
+    doReturn( true ).when( directoryResource.fileService ).doesExist( "/home/joe" );
+    doReturn( true ).when( directoryResource.fileService ).isFolder( "/home/joe" );
     doReturn( "true" ).when( directoryResource.fileService ).doGetIsVisible( "/home/joe" );
     Response response = directoryResource.isDirVisible( "/home/joe");
 
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
     assertEquals( "true", response.getEntity() );
     verify( directoryResource.fileService, times( 1 ) ).doGetIsVisible( "/home/joe" );
+    verify( directoryResource.fileService, times( 1 ) ).isFolder( "/home/joe" );
+    verify( directoryResource.fileService, times( 1 ) ).doesExist( "/home/joe" );
   }
 
   @Test
