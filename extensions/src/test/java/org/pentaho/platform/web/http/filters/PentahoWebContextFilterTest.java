@@ -21,17 +21,25 @@
 package org.pentaho.platform.web.http.filters;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.engine.IConfiguration;
+import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.api.engine.ISystemSettings;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -43,11 +51,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -73,6 +85,11 @@ public class PentahoWebContextFilterTest {
 
   private PentahoWebContextFilter pentahoWebContextFilter;
 
+  @After
+  public void cleanup() throws IOException, ServletException {
+    PentahoSystem.shutdown();
+  }
+
   @Before
   public void setup() throws IOException, ServletException {
     this.serverScheme = "https";
@@ -86,6 +103,28 @@ public class PentahoWebContextFilterTest {
     this.fullyQualifiedServerURL = this.serverAddress + this.contextRoot;
 
     this.mockRequest = mock( HttpServletRequest.class );
+
+    final ISystemSettings settingsService = mock( ISystemSettings.class );
+    when( settingsService.getSystemSetting( eq( "anonymous-authentication/anonymous-user" )  , eq("anonymousUser"))).thenReturn( "anonymousUser");
+    PentahoSystem.setSystemSettingsService( settingsService );
+    final ISystemConfig systemConfig = mock( ISystemConfig.class );
+
+    final IPentahoObjectFactory objectFactory = mock( IPentahoObjectFactory.class );
+    when( objectFactory.objectDefined( eq( ISystemConfig.class ) ) ).thenReturn( true );
+    final IPentahoObjectReference pentahoObjectReference = mock( IPentahoObjectReference.class );
+    when( pentahoObjectReference.getObject() ).thenReturn( systemConfig );
+    try {
+      when( objectFactory.getObjectReferences( eq( ISystemConfig.class ), any( IPentahoSession.class ),
+          any( Map.class ) ) ).thenReturn( new LinkedList() { {
+        add( pentahoObjectReference );
+      } } );
+    } catch ( ObjectFactoryException e ) {
+      e.printStackTrace();
+    }
+    when( settingsService.getSystemSetting( anyString(), anyString() ) ).thenReturn( "" );
+    PentahoSystem.registerObjectFactory( objectFactory );
+
+    PentahoSystem.init();
 
     ServletContext mockServletContext = mock( ServletContext.class );
     ServletRegistration mockServletRegistration = mock( ServletRegistration.class );
@@ -300,6 +339,30 @@ public class PentahoWebContextFilterTest {
 
     String homeFolder = "/home/" + this.sessionName;
     assertTrue( response.contains( getWebContextVarDefinition( "HOME_FOLDER", homeFolder ) ) );
+  }
+
+  @Test
+  public void testWebContextDefinesDefaultFolderWhenFolderIsHidden() throws ServletException, IOException {
+    FileService fileService = mock(FileService.class);
+    when( PentahoSystem.get( ISystemConfig.class ).getProperty( eq( PentahoSystem.HIDE_USER_HOME_FOLDER_ON_CREATION_PROPERTY ) ) ).thenReturn( "true" );
+    String homeFolder = "/home/" + this.sessionName;
+    when (fileService.doGetDefaultLocation( homeFolder  )).thenReturn( "/public" );
+    final String response = executeWebContextFilter();
+
+    String defaultFolder = "/public";
+    assertTrue( response.contains( getWebContextVarDefinition( "DEFAULT_FOLDER", defaultFolder ) ) );
+  }
+
+  @Test
+  public void testWebContextDefinesDefaultFolderWhenFolderIsVisible() throws ServletException, IOException {
+    FileService fileService = mock(FileService.class);
+    when( PentahoSystem.get( ISystemConfig.class ).getProperty( eq( PentahoSystem.HIDE_USER_HOME_FOLDER_ON_CREATION_PROPERTY ) ) ).thenReturn( "false" );
+    String homeFolder = "/home/" + this.sessionName;
+    when (fileService.doGetDefaultLocation( homeFolder  )).thenReturn( homeFolder );
+    final String response = executeWebContextFilter();
+
+    String defaultFolder = "/home/" + this.sessionName;
+    assertTrue( response.contains( getWebContextVarDefinition( "DEFAULT_FOLDER", defaultFolder ) ) );
   }
 
   @Test
