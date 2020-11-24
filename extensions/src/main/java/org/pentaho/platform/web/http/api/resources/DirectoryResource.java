@@ -123,7 +123,11 @@ public class DirectoryResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Successfully returns a boolean value, either true or false" ) } )
   public Response isDirVisible( @PathParam ( "pathId" ) String pathId ) {
     try {
-      return Response.ok( ( String.valueOf( fileService.doGetIsVisible( pathId ) ) ) ).build();
+      if ( fileService.doesExist( pathId ) && fileService.isFolder( pathId ) ) {
+        return Response.ok( ( String.valueOf( fileService.doGetIsVisible( pathId ) ) ) ).build();
+      } else {
+        return Response.ok( "false" ).build();
+      }
     } catch ( Exception e ) {
       return Response.ok( "false" ).build();
     }

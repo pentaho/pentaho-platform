@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -39,14 +39,17 @@ import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 public class DirectoryResourceTest {
   private static final String PATH = "/home/dirName";
+  private static final String PATH_CONTROL_CHARACTER = ":home:Create Control Character \u0017 Folder";
+  private static final String PATH_SPECIAL_CHARACTERS = ":home:éÉèÈçÇºªüÜ@£§ folder";
+  private static final String PATH_JAPANESE_CHARACTERS = ":home:キャラクター";
   private static final String ROOTLEVEL_PATH = "/dirName";
 
   private DirectoryResource directoryResource;
 
   @Before
   public void setUp() {
-    directoryResource = spy( new DirectoryResource() );
-    directoryResource.fileService = mock( FileService.class );
+    directoryResource = spy( DirectoryResource.class );
+    directoryResource.fileService = spy( FileService.class );
     directoryResource.httpServletRequest = mock( HttpServletRequest.class );
   }
 
@@ -104,20 +107,27 @@ public class DirectoryResourceTest {
   }
 
   @Test
-  public void testIsVisible() throws Exception {
+  public void testIsVisibleWhenFolderIsHidden() throws Exception {
     doReturn( "false" ).when( directoryResource.fileService ).doGetIsVisible( "/home/suzy" );
     Response testResponse = directoryResource.isDirVisible( "/home/suzy");
 
     assertEquals( Response.Status.OK.getStatusCode(), testResponse.getStatus() );
     assertEquals( "false", testResponse.getEntity() );
-    verify( directoryResource.fileService, times( 1 ) ).doGetIsVisible( "/home/suzy" );
+    verify( directoryResource.fileService, times( 1 ) ).doesExist( "/home/suzy" );
+  }
 
+  @Test
+  public void testIsVisibleWhenFolderIsVisible() throws Exception {
+    doReturn( true ).when( directoryResource.fileService ).doesExist( "/home/joe" );
+    doReturn( true ).when( directoryResource.fileService ).isFolder( "/home/joe" );
     doReturn( "true" ).when( directoryResource.fileService ).doGetIsVisible( "/home/joe" );
     Response response = directoryResource.isDirVisible( "/home/joe");
 
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
     assertEquals( "true", response.getEntity() );
     verify( directoryResource.fileService, times( 1 ) ).doGetIsVisible( "/home/joe" );
+    verify( directoryResource.fileService, times( 1 ) ).isFolder( "/home/joe" );
+    verify( directoryResource.fileService, times( 1 ) ).doesExist( "/home/joe" );
   }
 
   @Test
