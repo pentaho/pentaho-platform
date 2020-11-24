@@ -61,6 +61,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -813,6 +814,77 @@ public class FileService {
       }
     }
     getRepoWs().updateAcl( acl );
+  }
+  /**
+   * Check whether the selected repository folder is visible to the current user
+   *
+   * @param pathId
+   * @return true or false
+   */
+  public String doGetIsVisible( String pathId ) {
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    return repositoryFileDto != null && repositoryFileDto.isHidden() ?  "false" : "true";
+  }
+
+  /**
+   * Check whether the selected repository object is a folder or not
+   *
+   * @param pathId
+   * @return true or false
+   */
+  public boolean isFolder( String pathId ) {
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    return repositoryFileDto != null && repositoryFileDto.isFolder();
+  }
+
+  /**
+   * Check whether the selected repository file exist or not
+   *
+   * @param pathId
+   * @return true or false
+   */
+  public boolean doesExist( String pathId ) {
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    return repositoryFileDto != null && repositoryFileDto.getId() != null;
+  }
+
+  /**
+   *
+   * @param pathId
+   * @return default path to where user can save or open the artifact
+   */
+  public String doGetDefaultLocation( String pathId ) {
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    if ( repositoryFileDto == null ) {
+      return ClientRepositoryPaths.getRootFolderPath();
+    } else if ( repositoryFileDto != null && repositoryFileDto.isHidden() ) {
+      String defaultFolder = PentahoSystem.get( ISystemConfig.class )
+          .getProperty( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY );
+      if ( defaultFolder != null && defaultFolder.length() > 0 ) {
+        repositoryFileDto = getRepoWs().getFile(  defaultFolder );
+        if ( repositoryFileDto == null ) {
+          return ClientRepositoryPaths.getRootFolderPath();
+        } else if ( repositoryFileDto != null && repositoryFileDto.isHidden() ) {
+          repositoryFileDto = getRepoWs().getFile(  ClientRepositoryPaths.getPublicFolderPath() );
+          if ( repositoryFileDto != null && repositoryFileDto.isHidden() ) {
+            return ClientRepositoryPaths.getRootFolderPath();
+          } else {
+            return  ClientRepositoryPaths.getPublicFolderPath();
+          }
+        } else {
+          return defaultFolder;
+        }
+      } else {
+        repositoryFileDto = getRepoWs().getFile(  ClientRepositoryPaths.getPublicFolderPath() );
+        if ( repositoryFileDto != null && repositoryFileDto.isHidden() ) {
+          return ClientRepositoryPaths.getRootFolderPath();
+        } else {
+          return  ClientRepositoryPaths.getPublicFolderPath();
+        }
+      }
+    } else {
+      return pathId;
+    }
   }
 
   /**

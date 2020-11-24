@@ -27,9 +27,12 @@ import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.WILDCARD;
@@ -94,6 +97,68 @@ public class DirectoryResource extends AbstractJaxRSResource {
       return Response.status( Response.Status.FORBIDDEN ).entity( "containsIllegalCharacters" ).build();
     } catch ( Throwable t ) {
       return Response.serverError().entity( "" ).build();
+    }
+  }
+
+  /**
+   * Determines whether a current user has permission to see the folder or not
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/repo/dirs/home/isVisible
+   * </p>
+   *
+   * @param pathId The path from the root folder to the root node of the tree to return using colon characters in
+   *               place of / or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file.
+   *
+   * @return String "true" if the folder is visible to the current user, or "false" otherwise.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *      true
+   *    </pre>
+   */
+  @GET
+  @Path ( "{pathId : .+}/isVisible" )
+  @Consumes( { WILDCARD } )
+  @Produces( MediaType.TEXT_PLAIN )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Successfully returns a boolean value, either true or false" ) } )
+  public Response isDirVisible( @PathParam ( "pathId" ) String pathId ) {
+    try {
+      if ( fileService.doesExist( pathId ) && fileService.isFolder( pathId ) ) {
+        return Response.ok( ( String.valueOf( fileService.doGetIsVisible( pathId ) ) ) ).build();
+      } else {
+        return Response.ok( "false" ).build();
+      }
+    } catch ( Exception e ) {
+      return Response.ok( "false" ).build();
+    }
+  }
+
+  /**
+   * Checks to see if the current user is an administer of the platform and returns a boolean response.
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/repo/dirs/home/defaultSaveLocation
+   * </p>
+   *
+   * @return path for a default save location.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *      /public
+   *    </pre>
+   */
+  @GET
+  @Path ( "{pathId : .+}/defaultLocation" )
+  @Produces( MediaType.TEXT_PLAIN )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Successfully returns a default open/save location" ) } )
+  public Response getDefaultLocation( @PathParam ( "pathId" ) String pathId ) {
+    try {
+      return Response.ok( String.valueOf( fileService.doGetDefaultLocation( pathId ) ) ).build();
+    } catch ( Exception e ) {
+      return Response.ok( pathId ).build();
     }
   }
 }

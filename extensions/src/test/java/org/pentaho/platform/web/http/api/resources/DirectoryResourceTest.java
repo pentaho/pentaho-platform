@@ -133,4 +133,44 @@ public class DirectoryResourceTest {
     verify( directoryResource.fileService, times( 1 ) ).doCreateDirSafe( PATH_JAPANESE_CHARACTERS );
   }
 
+  @Test
+  public void testIsVisibleWhenFolderIsHidden() throws Exception {
+    doReturn( "false" ).when( directoryResource.fileService ).doGetIsVisible( "/home/suzy" );
+    Response testResponse = directoryResource.isDirVisible( "/home/suzy");
+
+    assertEquals( Response.Status.OK.getStatusCode(), testResponse.getStatus() );
+    assertEquals( "false", testResponse.getEntity() );
+    verify( directoryResource.fileService, times( 1 ) ).doesExist( "/home/suzy" );
+  }
+
+  @Test
+  public void testIsVisibleWhenFolderIsVisible() throws Exception {
+    doReturn( true ).when( directoryResource.fileService ).doesExist( "/home/joe" );
+    doReturn( true ).when( directoryResource.fileService ).isFolder( "/home/joe" );
+    doReturn( "true" ).when( directoryResource.fileService ).doGetIsVisible( "/home/joe" );
+    Response response = directoryResource.isDirVisible( "/home/joe");
+
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+    assertEquals( "true", response.getEntity() );
+    verify( directoryResource.fileService, times( 1 ) ).doGetIsVisible( "/home/joe" );
+    verify( directoryResource.fileService, times( 1 ) ).isFolder( "/home/joe" );
+    verify( directoryResource.fileService, times( 1 ) ).doesExist( "/home/joe" );
+  }
+
+  @Test
+  public void testGetDefaultLocation() throws Exception {
+    doReturn( "/public" ).when( directoryResource.fileService ).doGetDefaultLocation( "/home/suzy" );
+    Response testResponse = directoryResource.getDefaultLocation( "/home/suzy");
+
+    assertEquals( Response.Status.OK.getStatusCode(), testResponse.getStatus() );
+    assertEquals( "/public", testResponse.getEntity() );
+    verify( directoryResource.fileService, times( 1 ) ).doGetDefaultLocation( "/home/suzy" );
+
+    doReturn( "/home/joe" ).when( directoryResource.fileService ).doGetDefaultLocation( "/home/joe" );
+    Response response = directoryResource.getDefaultLocation( "/home/joe");
+
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+    assertEquals( "/home/joe", response.getEntity() );
+    verify( directoryResource.fileService, times( 1 ) ).doGetDefaultLocation( "/home/joe" );
+  }
 }
