@@ -7,8 +7,8 @@
     This is the engine that is used if neither the ChartModel nor the ActionSequence
     specify an engine to use.
    -->
-  <!-- <default-chart-engine>JFreeChart</default-chart-engine> -->
-  <default-chart-engine>OpenFlashChart</default-chart-engine>
+  <default-chart-engine>JFreeChart</default-chart-engine>
+  <!--<default-chart-engine>OpenFlashChart</default-chart-engine>-->
   <max-data-points-per-chart>100</max-data-points-per-chart>
   
   <!-- 
@@ -18,7 +18,7 @@
     plugin. 
    -->
 	<beanConfig>   
-		<bean id="FlashChartEngine" class="org.pentaho.chart.plugin.openflashchart.OpenFlashChartPlugin"/>  
+		<!--bean id="FlashChartEngine" class="org.pentaho.chart.plugin.openflashchart.OpenFlashChartPlugin"/-->
 		<bean id="JFreeChartEngine" class="org.pentaho.chart.plugin.jfreechart.JFreeChartPlugin"/>
 	</beanConfig> 
   
