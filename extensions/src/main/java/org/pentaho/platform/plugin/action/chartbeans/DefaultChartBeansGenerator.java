@@ -21,6 +21,7 @@
 package org.pentaho.platform.plugin.action.chartbeans;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.actionsequence.dom.ActionSequenceDocument;
 import org.pentaho.actionsequence.dom.IActionSequenceDocument;
 import org.pentaho.actionsequence.dom.IActionSequenceInput;
@@ -71,6 +72,7 @@ import java.util.Set;
 public class DefaultChartBeansGenerator implements IChartBeansGenerator {
 
   private Random random = new Random();
+  private static final String URL_PATH_SEP = "/";
   private static final String DEFAULT_HTML_TEMPLATE =
       "<html><head><title>Command: doChart</title>{0}</head><body style='margin:0;' scroll='no'>{1}</body></html>";
   //$NON-NLS-1$
@@ -521,7 +523,8 @@ public class DefaultChartBeansGenerator implements IChartBeansGenerator {
 
       IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
       String contextPath = requestContext.getContextPath();
-      String url = contextPath + "/"; //$NON-NLS-1$ //$NON-NLS-2$ 
+      String url = contextPath + (( !StringUtils.isEmpty( contextPath)
+          && contextPath.endsWith( URL_PATH_SEP )) ? "" : URL_PATH_SEP); //$NON-NLS-1$
       final String IMAGE_URL_TEMPLATE = "{0}getImage?image={1}"; //$NON-NLS-1$
       final String imageUrl =
           MessageFormat.format( IMAGE_URL_TEMPLATE, new String[] { url, chartFileOnServer.getName() } );
