@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -62,6 +62,7 @@ import java.util.Date;
 public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
   private static ContentCleanerPanel instance = new ContentCleanerPanel();
+  private static final long DAY_IN_MILLIS = 24L * 60L * 60L * 1000L;
 
   /**
    * Use get instance for use in Admin, otherwise use constructor
@@ -114,7 +115,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           final JsJob jsJob = tmpJsJob;
 
           if ( jsJob != null ) {
-            scheduleTextBox.setValue( "" + ( Long.parseLong( jsJob.getJobParamValue( "age" ) ) / 86400L ) );
+            scheduleTextBox.setValue( "" + ( Long.parseLong( jsJob.getJobParamValue( "age" ) ) / DAY_IN_MILLIS ) );
           } else {
             scheduleTextBox.setText( "180" );
           }
@@ -124,7 +125,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
                 JsArray<JsJobParam> params = jsJob.getJobParams();
                 for ( int i = 0; i < params.length(); i++ ) {
                   if ( params.get( i ).getName().equals( "age" ) ) {
-                    params.get( i ).setValue( "" + ( Long.parseLong( scheduleTextBox.getText() ) * 86400L ) );
+                    params.get( i ).setValue( "" + ( Long.parseLong( scheduleTextBox.getText() ) * DAY_IN_MILLIS ) );
                     break;
                   }
                 }
@@ -167,7 +168,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
               warning.setCallback( new IDialogCallback() {
                 @Override
                 public void okPressed() {
-                  deleteContentNow( Long.parseLong( nowTextBox.getValue() ) * 86400L );
+                  deleteContentNow( Long.parseLong( nowTextBox.getValue() ) * DAY_IN_MILLIS );
                 }
 
                 @Override
