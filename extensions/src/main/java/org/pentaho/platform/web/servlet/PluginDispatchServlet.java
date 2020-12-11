@@ -24,12 +24,16 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginManagerListener;
 import org.pentaho.platform.api.websocket.IWebsocketEndpointConfig;
+import org.pentaho.platform.engine.core.audit.MDCUtil;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -39,7 +43,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.websocket.DeploymentException;
+import javax.websocket.HandshakeResponse;
+import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
@@ -278,9 +285,10 @@ public class PluginDispatchServlet implements Servlet {
 
       //register the websocket endpoint
       try {
-        ServerEndpointConfig serverConfig = ServerEndpointConfig.Builder.create( pluginEndpointClass, context ).
-          configurator( getServerWebsocketEndpointConfigurator( servletContextPath, isOriginAllowedPredicate ) ).subprotocols( subProtocols )
-          .build();
+        ServerEndpointConfig serverConfig = ServerEndpointConfig.Builder.create( pluginEndpointClass, context )
+            .configurator( getServerWebsocketEndpointConfigurator( servletContextPath, isOriginAllowedPredicate ) )
+            .subprotocols( subProtocols )
+            .build();
 
         serverConfig.getUserProperties().put( websocketEndpointConfig.getServletContextPathPropertyName(), servletContextPath );
         serverConfig.getUserProperties().put( websocketEndpointConfig.getMaxMessagePropertyName(), websocketEndpointConfig.getMaxMessageBytesLength() );
@@ -313,12 +321,34 @@ public class PluginDispatchServlet implements Servlet {
                                                                                       Predicate<String> isOriginAllowedPredicate ) {
     return new ServerEndpointConfig.Configurator() {
 
+      @Override
+      public void modifyHandshake( ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response ) {
+
+        // These properties can be used by the actual endpoint to "run as" the current user.
+
+        // Based on HttpSessionPentahoSessionIntegrationFilter#readPentahoSessionFromHttpSession.
+        IPentahoSession pentahoSession = null;
+        Authentication authentication = null;
+        HttpSession httpSession = (HttpSession) request.getHttpSession();
+        if ( httpSession != null ) {
+          pentahoSession = (IPentahoSession) httpSession.getAttribute( PentahoSystem.PENTAHO_SESSION_KEY );
+          if ( pentahoSession != null ) {
+            authentication = SecurityContextHolder.getContext().getAuthentication();
+          }
+        }
+
+        sec.getUserProperties().put( PentahoSystem.PENTAHO_SESSION_KEY, pentahoSession );
+        sec.getUserProperties().put( PentahoSystem.PENTAHO_AUTH_KEY, authentication );
+        sec.getUserProperties().put( PentahoSystem.PENTAHO_MDC_KEY, new MDCUtil() );
+      }
+
       /**
        * Override the default checkOrigin to comply with CORS enforced in the plugins.
        * @param originHeaderValue the received origin from the request
        * @return true if the request should be honored.
        */
-      @Override public boolean checkOrigin( String originHeaderValue ) {
+      @Override
+      public boolean checkOrigin( String originHeaderValue ) {
         //we need to check regular request from the same origin as the server, and accept them
         String localServerOrigin = getServerUrl( servletContextPath );
         if ( localServerOrigin.equals( originHeaderValue ) ) {
