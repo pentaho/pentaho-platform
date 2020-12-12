@@ -130,6 +130,10 @@ public class PentahoSystem {
 
   public static final String PENTAHO_SESSION_KEY = "pentaho-session-context"; //$NON-NLS-1$
 
+  public static final String PENTAHO_AUTH_KEY = "pentaho-auth-context";
+
+  public static final String PENTAHO_MDC_KEY = "pentaho-mdc-context";
+
   public static final String WAIT_SECONDS = "waitSeconds";
 
   public static final String CORS_REQUESTS_ALLOWED = "cors-requests-allowed";

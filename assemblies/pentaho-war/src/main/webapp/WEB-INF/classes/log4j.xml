@@ -279,6 +279,10 @@
       <priority value="DEBUG"/>
       <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
     </category>
+    <category name="pt.webdetails.cda.dataaccess.SimpleDataAccess" additivity="false">
+      <priority value="DEBUG"/>
+      <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+    </category>
     -->
 
 </log4j:configuration>
