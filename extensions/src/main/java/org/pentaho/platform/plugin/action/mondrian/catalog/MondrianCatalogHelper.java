@@ -1380,7 +1380,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    * @return true if format it approprate for a definition string
    */
   private boolean isCatalogDefinitionString( String context ) {
-    return context.startsWith( "mondrian:" ) || context.startsWith( SOLUTION_PREFIX );
+    return context != null && ( context.startsWith( "mondrian:" ) || context.startsWith( SOLUTION_PREFIX ) );
   }
 
   private boolean isUsingRepository( ) {
