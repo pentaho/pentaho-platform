@@ -65,6 +65,7 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -406,6 +407,23 @@ public class DefaultDeleteHelperTest {
     when( nodeUser2.hasNode( anyString() ) ).thenReturn( true );
     when( nodeUser2.getNode( anyString() ) ).thenReturn( nodeTrashUser2 );
 
+
+    final String pathUserTest = "test";
+    final Calendar dateUserTest = Calendar.getInstance();
+    final Node deletedNodeUserTest = createDeletedNode( pathUserTest, dateUserTest );
+    final Node nodeTrashUserTest = mock( Node.class );
+
+    when( nodeTrashUserTest.getNodes() ).thenAnswer( invoc -> {
+      NodeIterator nodeIteratorUserTest = mock( NodeIterator.class );
+      when( nodeIteratorUserTest.hasNext() ).thenReturn( true, false );
+      when( nodeIteratorUserTest.nextNode() ).thenReturn( deletedNodeUserTest );
+      return nodeIteratorUserTest;
+    } );
+
+    final Node nodeUserTest = mock( Node.class );
+    when( nodeUserTest.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeUserTest.getNode( anyString() ) ).thenReturn( nodeTrashUserTest );
+
     defaultDeleteHelper = new DefaultDeleteHelper( lockHelper, pathConversionHelper ) {
       @Override
       protected boolean isAdmin() {
@@ -413,17 +431,21 @@ public class DefaultDeleteHelperTest {
       }
       @Override
       protected List<String> getUserList() {
-        return Arrays.asList( "user1", "userInvalidPath", "user2" );
+        List<String> userList = new ArrayList<>();
+        userList.add( "user1" );
+        userList.add( "userInvalidPath" );
+        userList.add( "user2" );
+        return userList;
       }
     };
     when( session.getItem( endsWith( "/userInvalidPath" ) ) ).thenThrow(  new PathNotFoundException() );
+    when( session.getItem( endsWith( "/test" ) ) ).thenReturn( nodeUserTest );
     when( session.getItem( endsWith( "/user2" ) ) ).thenReturn( nodeUser2 );
     when( session.getItem( endsWith( "/user1" ) ) ).thenReturn( nodeUser1 );
 
     final List<RepositoryFile> deletedFilesAdmin = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
     assertNotNull( deletedFilesAdmin );
-    assertEquals( 2, deletedFilesAdmin.size() );
-
+    assertEquals( 3, deletedFilesAdmin.size() );
   }
 
   @Test
