@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.gwt.user.server.Base64Utils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
@@ -222,6 +225,8 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     } )
   public Response changeUserPassword( ChangePasswordUser user ) {
     try {
+      user.setNewPassword( b64DecodePassword( user.getNewPassword() ) );
+      user.setOldPassword( b64DecodePassword( user.getOldPassword() ) );
       userRoleDaoService.changeUserPassword( user.getUserName(), user.getNewPassword(), user.getOldPassword() );
     } catch ( ValidationFailedException e ) {
       throw new WebApplicationException( Response.Status.BAD_REQUEST );
@@ -233,6 +238,14 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       throw new WebApplicationException( Response.Status.PRECONDITION_FAILED );
     }
     return Response.noContent().build();
+  }
+
+  private String b64DecodePassword( String encodedPassword ) {
+    if ( !StringUtils.isEmpty( encodedPassword ) && encodedPassword.startsWith( "ENC:" ) ) {
+      return new String( Base64Utils.fromBase64( encodedPassword.substring( 4 ) ), StandardCharsets.UTF_8 );
+    } else {
+      return encodedPassword;
+    }
   }
 
   /**
@@ -866,6 +879,8 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     } )
   public Response updatePassword( UserChangePasswordDTO user ) {
     try {
+      user.setPassword( b64DecodePassword( user.getPassword() ) );
+      user.setAdministratorPassword( b64DecodePassword( user.getAdministratorPassword() ) );
       userRoleDaoService.updatePassword( user, user.getAdministratorPassword() );
 
       return Response.noContent().build();
