@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -28,6 +28,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
@@ -43,6 +44,7 @@ import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsDialog;
+import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsHelper;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.ScheduleCreateStatusDialog;
@@ -385,6 +387,10 @@ public class RunInBackgroundCommand extends AbstractCommand {
                           new ScheduleEmailDialog( null, filePath, scheduleRequest, null, null );
                       scheduleEmailDialog.center();
                     } else {
+                      // Handle Schedule Parameters
+                      JSONArray scheduleParams = ScheduleParamsHelper.getScheduleParams( scheduleRequest );
+                      scheduleRequest.put( "jobParameters", scheduleParams );
+
                       // just run it
                       RequestBuilder scheduleFileRequestBuilder =
                           new RequestBuilder( RequestBuilder.POST, contextURL + "api/scheduler/job" ); //$NON-NLS-1$
