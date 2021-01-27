@@ -14,33 +14,16 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -52,6 +35,26 @@ import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRo
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UserRoleDaoResourceTest {
   private UserRoleDaoResource userRoleResource;
@@ -370,12 +373,12 @@ public class UserRoleDaoResourceTest {
   public void testGetRoleBindingStructSecurityException() {
     String locale = "en";
 
-    when( userRoleService.getRoleBindingStruct( anyString() ) ).thenThrow( new SecurityException() );
     try {
       userRoleResource.getRoleBindingStruct( locale );
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }
+    when( userRoleService.getRoleBindingStruct( anyString() ) ).thenThrow( new SecurityException() );
   }
 
   @Test
@@ -399,6 +402,22 @@ public class UserRoleDaoResourceTest {
   public void testCreateUser() throws Exception {
     Response response = userRoleResource.createUser( new User( "name", "password" ) );
     assertEquals( Response.Status.NO_CONTENT.getStatusCode(), response.getStatus() );
+  }
+
+  @Test
+  public void testCreateUserAndCheckDataSent() throws Exception {
+    ArgumentCaptor<User> argument = ArgumentCaptor.forClass( User.class );
+
+    UserRoleDaoService userRoleDaoService = mock( UserRoleDaoService.class );
+    Whitebox.setInternalState( userRoleResource, "userRoleDaoService", userRoleDaoService );
+    String username = "name";
+    String password = "password";
+    String b64Password = "ENC:" + Base64.getEncoder().encodeToString( password.getBytes() );
+    Response response = userRoleResource.createUser( new User( username, b64Password ) );
+    verify( userRoleDaoService, times( 1 ) ).createUser( argument.capture() );
+
+    assertEquals( username, argument.getValue().getUserName() );
+    assertEquals( password, argument.getValue().getPassword() );
   }
 
   @Test

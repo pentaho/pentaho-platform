@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -144,6 +144,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     } )
   public Response createUser( User user ) {
     try {
+      user.setPassword( b64DecodePassword( user.getPassword() ) );
       userRoleDaoService.createUser( user );
     } catch ( SecurityException e ) {
       throw new WebApplicationException( Response.Status.FORBIDDEN );
@@ -206,7 +207,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
    * </pre>
    * </p>
    *
-   * @param ChangePasswordUser Encapsulates the fields required for a user to update their password. The object requires the name of the user whose password is being changed, the old password, and the new password.
+   * @param user Encapsulates the fields required for a user to update their password. The object requires the name of the user whose password is being changed, the old password, and the new password.
    *                           A ChangePasswordUser object can be constructed as follows:
    * <<pre function="syntax.xml">>
    * <ChangePasswordUser>
