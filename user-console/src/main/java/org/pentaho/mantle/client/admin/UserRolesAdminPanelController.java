@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -89,7 +89,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     try {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
-      String json = "{\"userName\": \"" + encodeUri( name ) + "\", \"password\": \"" + encodeUri( password ) + "\"}";
+      String json = "{\"userName\": \"" + encodeUri( name ) + "\", \"password\": \"ENC:" + b64encode( password ) + "\"}";
       executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
           displayErrorInMessageBox( Messages.getString( "Error" ), exception.getLocalizedMessage() );
