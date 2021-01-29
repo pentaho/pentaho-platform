@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,17 +22,12 @@ package org.pentaho.platform.plugin.services.email;
 
 import junit.framework.TestCase;
 import org.dom4j.Document;
+import org.pentaho.di.core.KettleEnvironment;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 
 /**
  * Test class for the {@link }EmailConfigurationXml} class
@@ -64,7 +59,7 @@ public class EmailConfigurationXmlTest extends TestCase {
     }
 
     // Construction from String
-
+    KettleEnvironment.init();
     final String emailConfig = getSampleEmailConfigFileAsString( "testdata/email_config_1.xml" );
     EmailConfigurationXml emailConfiguration = new EmailConfigurationXml( emailConfig );
     assertEquals( "mailserver.sampleserver.com", emailConfiguration.getSmtpHost() );
@@ -99,6 +94,7 @@ public class EmailConfigurationXmlTest extends TestCase {
 
   public void testGetDocument() throws Exception {
 
+    KettleEnvironment.init();
     // Empty configuration
     final EmailConfiguration blankEmailConfig = new EmailConfiguration();
     final Document blankDocument = EmailConfigurationXml.getDocument( blankEmailConfig );
