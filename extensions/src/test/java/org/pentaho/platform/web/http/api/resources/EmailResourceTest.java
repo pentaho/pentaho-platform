@@ -14,13 +14,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
 import junit.framework.TestCase;
+import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
@@ -55,6 +56,7 @@ public class EmailResourceTest extends TestCase {
   }
 
   public void testEmailConfig() throws Exception {
+    KettleEnvironment.init();
 
     try {
       new EmailResource( null );
@@ -87,6 +89,7 @@ public class EmailResourceTest extends TestCase {
     final IEmailConfiguration emailConfigNew = emailResource.getEmailConfig();
     assertTrue( emailConfigOriginal.equals( emailConfigNew ) );
 
+    KettleEnvironment.shutdown();
   }
 
   public void testSendEmailTest() throws Exception {
