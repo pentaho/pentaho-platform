@@ -22,6 +22,7 @@
     <pentaho-hadoop-shims-hdp30.version>9.1.0.0-SNAPSHOT</pentaho-hadoop-shims-hdp30.version>
     <pentaho-hadoop-shims-emr521.version>9.1.0.0-SNAPSHOT</pentaho-hadoop-shims-emr521.version>
     <pentaho-hadoop-shims-dataproc1421.version>9.1.0.0-SNAPSHOT</pentaho-hadoop-shims-dataproc1421.version>
+    <pentaho-hadoop-shims-cdpdc71.version>9.1.0.0-SNAPSHOT</pentaho-hadoop-shims-cdpdc71.version>
   </properties>
   <dependencies>
     <!-- START Pentaho drivers kar file dependencies -->
@@ -53,6 +54,18 @@
       <groupId>org.pentaho.hadoop.shims</groupId>
       <artifactId>pentaho-hadoop-shims-emr521-kar</artifactId>
       <version>${pentaho-hadoop-shims-emr521.version}</version>
+      <type>kar</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.pentaho.hadoop.shims</groupId>
+      <artifactId>pentaho-hadoop-shims-cdpdc71-kar</artifactId>
+      <version>${pentaho-hadoop-shims-cdpdc71.version}</version>
       <type>kar</type>
       <exclusions>
         <exclusion>
