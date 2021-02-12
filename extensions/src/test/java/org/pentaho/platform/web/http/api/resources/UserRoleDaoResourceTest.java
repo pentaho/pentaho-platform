@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -245,6 +245,16 @@ public class UserRoleDaoResourceTest {
 
     Response response = userRoleResource.deleteUsers( users );
     assertEquals( Response.Status.NO_CONTENT.getStatusCode(), response.getStatus() );
+  }
+  @Test
+  public void testDeleteUserWithNonExistingUser() {
+    String users = "wrongUserName";
+
+    try {
+      Response response = userRoleResource.deleteUsers( users );
+    } catch ( WebApplicationException e ) {
+      assertEquals( Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus() );
+    }
   }
 
   @Test
