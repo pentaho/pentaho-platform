@@ -241,6 +241,11 @@ public class UserRoleDaoResourceTest {
 
   @Test
   public void testDeleteUser() {
+
+    UserRoleDaoService userRoleDaoService = mock( UserRoleDaoService.class );
+    Whitebox.setInternalState( userRoleResource, "userRoleDaoService", userRoleDaoService );
+    IPentahoUser user = mock( IPentahoUser.class );
+    when( userRoleDaoService.deleteUsers( anyString() ) ).thenReturn( user );
     String users = "user1\tuser2\tuser3\t";
 
     Response response = userRoleResource.deleteUsers( users );
