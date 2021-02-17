@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -293,12 +293,13 @@ public class UserRoleDaoService {
     }
   }
 
-  public void deleteUsers( String userNames )
+  public IPentahoUser deleteUsers( String userNames )
       throws NotFoundException, UncategorizedUserRoleDaoException, SecurityException {
+    IPentahoUser user = null;
     if ( canAdminister() ) {
       StringTokenizer tokenizer = new StringTokenizer( userNames, "\t" );
       while ( tokenizer.hasMoreTokens() ) {
-        IPentahoUser user = getRoleDao().getUser( null, tokenizer.nextToken() );
+        user = getRoleDao().getUser( null, tokenizer.nextToken() );
         if ( user != null ) {
           getRoleDao().deleteUser( user );
         }
@@ -306,6 +307,7 @@ public class UserRoleDaoService {
     } else {
       throw new SecurityException();
     }
+    return user;
   }
 
   public void deleteRoles( String roleNames ) throws SecurityException, UncategorizedUserRoleDaoException {
