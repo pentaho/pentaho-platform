@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>9.1.0.0-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
   <artifactId>pentaho-platform-scheduler</artifactId>
-  <version>9.1.0.0-SNAPSHOT</version>
+  <version>1.0.1</version>
   <properties>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>

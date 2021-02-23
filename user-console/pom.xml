@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>9.1.0.0-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
   <artifactId>pentaho-user-console</artifactId>
-  <version>9.1.0.0-SNAPSHOT</version>
+  <version>1.0.1</version>
   <properties>
     <validation-api.version>1.0.0.GA</validation-api.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
@@ -23,9 +23,9 @@
     <bsh.version>1.3.0</bsh.version>
     <mockito.version>1.8.5</mockito.version>
     <gwtx.version>1.5.2</gwtx.version>
-    <commons-xul.version>9.1.0.0-SNAPSHOT</commons-xul.version>
-    <common-ui.version>9.1.0.0-SNAPSHOT</common-ui.version>
-    <commons-gwt.version>9.1.0.0-SNAPSHOT</commons-gwt.version>
+    <commons-xul.version>1.0.1</commons-xul.version>
+    <common-ui.version>1.0.1</common-ui.version>
+    <commons-gwt.version>1.0.1</commons-gwt.version>
   </properties>
   <dependencies>
     <dependency>

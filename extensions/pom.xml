@@ -5,11 +5,11 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>9.1.0.0-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-extensions</artifactId>
-  <version>9.1.0.0-SNAPSHOT</version>
+  <version>1.0.1</version>
   <properties>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
@@ -18,16 +18,16 @@
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <hamcrest-library.version>1.3</hamcrest-library.version>
-    <commons-xul.version>9.1.0.0-SNAPSHOT</commons-xul.version>
-    <pdi.version>9.1.0.0-SNAPSHOT</pdi.version>
-    <pentaho-reporting.version>9.1.0.0-SNAPSHOT</pentaho-reporting.version>
-    <pdi-dataservice-client-plugin.version>9.1.0.0-SNAPSHOT</pdi-dataservice-client-plugin.version>
-    <pentaho-connections.version>9.1.0.0-SNAPSHOT</pentaho-connections.version>
-    <pentaho-versionchecker.version>9.1.0.0-SNAPSHOT</pentaho-versionchecker.version>
-    <pentaho-report-wizard-core.version>9.1.0.0-SNAPSHOT</pentaho-report-wizard-core.version>
-    <pentaho-actionsequence-dom.version>9.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
-    <pentaho-metadata.version>9.1.0.0-SNAPSHOT</pentaho-metadata.version>
-    <pentaho-chartbeans.version>9.1.0.0-SNAPSHOT</pentaho-chartbeans.version>
+    <commons-xul.version>1.0.1</commons-xul.version>
+    <pdi.version>1.0.1</pdi.version>
+    <pentaho-reporting.version>1.0.1</pentaho-reporting.version>
+    <pdi-dataservice-client-plugin.version>1.0.1</pdi-dataservice-client-plugin.version>
+    <pentaho-connections.version>1.0.1</pentaho-connections.version>
+    <pentaho-versionchecker.version>1.0.1</pentaho-versionchecker.version>
+    <pentaho-report-wizard-core.version>1.0.1</pentaho-report-wizard-core.version>
+    <pentaho-actionsequence-dom.version>1.0.1</pentaho-actionsequence-dom.version>
+    <pentaho-metadata.version>1.0.1</pentaho-metadata.version>
+    <pentaho-chartbeans.version>1.0.1</pentaho-chartbeans.version>
     <bcprov-jdk15on.version>1.65</bcprov-jdk15on.version>
   </properties>
   <dependencies>
