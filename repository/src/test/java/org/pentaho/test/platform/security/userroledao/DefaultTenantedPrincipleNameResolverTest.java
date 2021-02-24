@@ -14,21 +14,15 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.test.platform.security.userroledao;
 
 import org.junit.Test;
-import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.testng.Assert;
-
-import java.util.Locale;
-
-import static org.mockito.Mockito.mock;
-import static org.testng.Assert.assertEquals;
 
 public class DefaultTenantedPrincipleNameResolverTest {
 
@@ -36,19 +30,6 @@ public class DefaultTenantedPrincipleNameResolverTest {
   public void testIsValid() {
     DefaultTenantedPrincipleNameResolver resolver = new DefaultTenantedPrincipleNameResolver();
     resolver.setDelimeter( DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER );
-    assertEquals( resolver.isValid( "pentaho_user" ), false );
-  }
-
-  @Test
-  public void testGetPrincipleId() {
-    DefaultTenantedPrincipleNameResolver resolver = new DefaultTenantedPrincipleNameResolver();
-    ITenant tenant = mock( ITenant.class );
-    String principalName = "PRINCIPAL_NAME";
-    resolver.setDelimeter( DefaultTenantedPrincipleNameResolver.ALTERNATE_DELIMETER );
-
-    String principalId = resolver.getPrincipleId( tenant, principalName );
-    assertEquals( principalId, principalName.toLowerCase() );
-
-
+    Assert.assertEquals( resolver.isValid( "pentaho_user" ), false );
   }
 }
