@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -177,15 +177,11 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
-    @ResponseCode ( code = 404, condition = "If user does not exist." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
     } )
   public Response deleteUsers( @QueryParam( "userNames" ) String userNames ) {
     try {
-      IPentahoUser user = userRoleDaoService.deleteUsers( userNames );
-      if ( user == null ) {
-        throw new WebApplicationException( Response.Status.NOT_FOUND );
-      }
+      userRoleDaoService.deleteUsers( userNames );
       return Response.noContent().build();
     } catch ( org.pentaho.platform.api.engine.security.userroledao.NotFoundException e ) {
       throw new WebApplicationException( Response.Status.NOT_FOUND );

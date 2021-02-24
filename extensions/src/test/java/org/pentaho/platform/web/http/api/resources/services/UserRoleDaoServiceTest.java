@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -310,22 +310,6 @@ public class UserRoleDaoServiceTest {
 
     userRoleService.deleteUsers( users );
     verify( roleDao, times( 2 ) ).deleteUser( any( IPentahoUser.class ) );
-  }
-
-  @Test
-  public void testDeleteUsersWithNonExistingUser() {
-    String users = "wrongUserName";
-
-    setupMockSessionUser( SESSION_USER_NAME, true );
-
-    IPentahoUser user = null;
-    IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUser( any( ITenant.class ), anyString() ) ).thenReturn( user );
-    PentahoSystem.registerObject( roleDao );
-
-    IPentahoUser pentahoUser = userRoleService.deleteUsers( users );
-    verify( roleDao, times( 0 ) ).deleteUser( any( IPentahoUser.class ) );
-    assertEquals( user, pentahoUser );
   }
 
   @Test( expected = SecurityException.class )
