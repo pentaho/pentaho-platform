@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2021 Hitachi Vantara..  All rights reserved.
 --%>
 
 <!DOCTYPE html>
@@ -191,26 +191,26 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
                     <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}'>
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
-                          {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"/> {{/if}}
-                          {{#if xdash}} <i class="pull-left content-icon file-xdash"/> {{/if}}
-                          {{#if xcdf}} <i class="pull-left content-icon file-xcdf"/> {{/if}}
-                          {{#if prpti}} <i class="pull-left content-icon file-prpti"/> {{/if}}
-                          {{#if ktr}} <i class="pull-left content-icon file-ktr"/> {{/if}}
-                          {{#if prpt}} <i class="pull-left content-icon file-prpt"/> {{/if}}
-                          {{#if xaction}} <i class="pull-left content-icon file-xaction"/> {{/if}}
-                          {{#if url}} <i class="pull-left content-icon file-url"/> {{/if}}
-                          {{#if html}} <i class="pull-left content-icon file-html"/> {{/if}}
-                          {{#if cda}} <i class="pull-left content-icon file-cda"/> {{/if}}
-                          {{#if wcdf}} <i class="pull-left content-icon file-wcdf"/> {{/if}}
-                          {{#if unknownType}} <i class="pull-left content-icon file-unknown {{extensionCssClass}}"/> {{/if}}
+                          {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"></i> {{/if}}
+                          {{#if xdash}} <i class="pull-left content-icon file-xdash"></i> {{/if}}
+                          {{#if xcdf}} <i class="pull-left content-icon file-xcdf"></i> {{/if}}
+                          {{#if prpti}} <i class="pull-left content-icon file-prpti"></i> {{/if}}
+                          {{#if ktr}} <i class="pull-left content-icon file-ktr"></i> {{/if}}
+                          {{#if prpt}} <i class="pull-left content-icon file-prpt"></i> {{/if}}
+                          {{#if xaction}} <i class="pull-left content-icon file-xaction"></i> {{/if}}
+                          {{#if url}} <i class="pull-left content-icon file-url"></i> {{/if}}
+                          {{#if html}} <i class="pull-left content-icon file-html"></i> {{/if}}
+                          {{#if cda}} <i class="pull-left content-icon file-cda"></i> {{/if}}
+                          {{#if wcdf}} <i class="pull-left content-icon file-wcdf"></i> {{/if}}
+                          {{#if unknownType}} <i class="pull-left content-icon file-unknown {{extensionCssClass}}"></i> {{/if}}
                           <span class="pad-left">{{title}}</span>
                         </div>
                         <div class="span2">
                           {{#unless isEmpty}}
                           {{#if isFavorite}}
-                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{escapeQuotes fullPath}}'); return false;"/>
+                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{escapeQuotes fullPath}}'); return false;"></i>
                           {{else}}
-                          <i title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right favorite-off" onclick="controller.markRecentAsFavorite('{{escapeQuotes fullPath}}', '{{escapeQuotes title}}'); return false;"/>
+                          <i title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right favorite-off" onclick="controller.markRecentAsFavorite('{{escapeQuotes fullPath}}', '{{escapeQuotes title}}'); return false;"></i>
                           {{/if}}
                           {{/unless}}
                         </div>
@@ -255,21 +255,21 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
                     <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}'>
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
-                          {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"/> {{/if}}
-                          {{#if xdash}} <i class="pull-left content-icon file-xdash"/> {{/if}}
-                          {{#if xcdf}} <i class="pull-left content-icon file-xcdf"/> {{/if}}
-                          {{#if prpti}} <i class="pull-left content-icon file-prpti"/> {{/if}}
-                          {{#if prpt}} <i class="pull-left content-icon file-prpt"/> {{/if}}
-                          {{#if ktr}} <i class="pull-left content-icon file-ktr"/> {{/if}}
-                          {{#if xaction}} <i class="pull-left content-icon file-xaction"/> {{/if}}
-                          {{#if url}} <i class="pull-left content-icon file-url"/> {{/if}}
-                          {{#if html}} <i class="pull-left content-icon file-html"/> {{/if}}
-                          {{#if unknownType}} <i class="pull-left content-icon file-unknown {{extensionCssClass}}"/> {{/if}}
+                          {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"></i> {{/if}}
+                          {{#if xdash}} <i class="pull-left content-icon file-xdash"></i> {{/if}}
+                          {{#if xcdf}} <i class="pull-left content-icon file-xcdf"></i> {{/if}}
+                          {{#if prpti}} <i class="pull-left content-icon file-prpti"></i> {{/if}}
+                          {{#if prpt}} <i class="pull-left content-icon file-prpt"></i> {{/if}}
+                          {{#if ktr}} <i class="pull-left content-icon file-ktr"></i> {{/if}}
+                          {{#if xaction}} <i class="pull-left content-icon file-xaction"></i> {{/if}}
+                          {{#if url}} <i class="pull-left content-icon file-url"></i> {{/if}}
+                          {{#if html}} <i class="pull-left content-icon file-html"></i> {{/if}}
+                          {{#if unknownType}} <i class="pull-left content-icon file-unknown {{extensionCssClass}}"></i> {{/if}}
                           <span class="pad-left">{{title}}</span>
                         </div>
                         <div class="span2">
                           {{#unless isEmpty}}
-                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{escapeQuotes fullPath}}'); return false;"/>
+                          <i title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right favorite-on" onclick="controller.unmarkRecentAsFavorite('{{escapeQuotes fullPath}}'); return false;"></i>
                           {{/unless}}
                         </div>
                       </div>
