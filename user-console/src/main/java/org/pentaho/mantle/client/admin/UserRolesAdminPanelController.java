@@ -117,8 +117,18 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          initializeRoles( name, "api/userroledao/roles", rolesListBox );
-          initializeAvailableUsers( usersListBox.getValue( usersListBox.getSelectedIndex() ) );
+
+          if ( response.getStatusCode() != Response.SC_NO_CONTENT ) {
+            String errorMsg = Messages.getString( "newRoleErrorMessage" );
+            String errorValidationMessage = response.getHeader( PUC_VALIDATION_ERROR_MESSAGE );
+            if ( errorValidationMessage != null ) {
+              errorMsg = errorMsg + "\n" + errorValidationMessage;
+            }
+            showXulErrorMessage( Messages.getString( "newRole" ), errorMsg );
+          } else {
+            initializeRoles( name, "api/userroledao/roles", rolesListBox );
+            initializeAvailableUsers( usersListBox.getValue( usersListBox.getSelectedIndex() ) );
+          }
         }
       } );
     } catch ( RequestException e ) {
