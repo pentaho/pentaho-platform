@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,6 +23,8 @@ package org.pentaho.platform.web.http.filters;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISystemSettings;
@@ -30,6 +32,9 @@ import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.security.authentication.AuthenticationProvider;
 
+import javax.servlet.ServletContext;
+import javax.servlet.SessionCookieConfig;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -37,6 +42,8 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
 
   private HttpServletResponse servletResponse;
   private HttpSession httpSession;
+  private ServletContext servletContext;
+  private SessionCookieConfig sessionCookieConfig;
   private IPentahoSession pentahoSession;
 
   @Before
@@ -44,6 +51,10 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
     servletResponse = Mockito.mock( HttpServletResponse.class );
     httpSession = Mockito.mock( HttpSession.class );
     pentahoSession = Mockito.mock( IPentahoSession.class );
+    servletContext = Mockito.mock( ServletContext.class );
+    sessionCookieConfig = Mockito.mock( SessionCookieConfig.class );
+    Mockito.when( httpSession.getServletContext() ).thenReturn( servletContext );
+    Mockito.when( servletContext.getSessionCookieConfig() ).thenReturn( sessionCookieConfig );
     PentahoSystem.clearObjectFactory();
   }
 
@@ -113,7 +124,8 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
   public void testSessionCookieNoSettings() throws ObjectFactoryException {
     final AuthenticationProvider mockObj = Mockito.mock( AuthenticationProvider.class );
     PentahoSystem.registerObject( mockObj, AuthenticationProvider.class );
-
+    Mockito.when( sessionCookieConfig.isHttpOnly() ).thenReturn( false );
+    Mockito.when( sessionCookieConfig.isHttpOnly() ).thenReturn( false );
     new HttpSessionPentahoSessionIntegrationFilter()
       .setSessionExpirationCookies( httpSession, pentahoSession, servletResponse );
     Mockito.verify( servletResponse, Mockito.times( 2 ) ).addCookie( Mockito.any() );
@@ -126,6 +138,8 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
     try {
       final ISystemSettings mockSettings = Mockito.mock( ISystemSettings.class );
       Mockito.when( mockSettings.getSystemSetting( "session-expired-dialog", "true" ) ).thenReturn( "true" );
+      Mockito.when( sessionCookieConfig.isHttpOnly() ).thenReturn( false );
+      Mockito.when( sessionCookieConfig.isHttpOnly() ).thenReturn( false );
       PentahoSystem.setSystemSettingsService( mockSettings );
       final AuthenticationProvider mockObj = Mockito.mock( AuthenticationProvider.class );
       PentahoSystem.registerObject( mockObj, AuthenticationProvider.class );
@@ -136,6 +150,5 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
       PentahoSystem.setSystemSettingsService( systemSettings );
     }
   }
-
 
 }
