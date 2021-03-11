@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -32,6 +32,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -95,10 +96,13 @@ public class PentahoBasicProcessingFilter extends BasicAuthenticationFilter impl
             .commence( request, response, new BadCredentialsException( "Clearing Basic-Auth" ) );
         return;
       } else if ( expiredCookie != null ) {
+        SessionCookieConfig sessionCookieConfig = request.getServletContext().getSessionCookieConfig();
         // Session is expired but this request does not include basic-auth, drop a cookie to keep track of this event.
         Cookie c = new Cookie( "session-flushed", "true" );
         c.setPath( request.getContextPath() != null ? request.getContextPath() : "/" );
         c.setMaxAge( -1 );
+        c.setHttpOnly( sessionCookieConfig.isHttpOnly() );
+        c.setSecure( sessionCookieConfig.isSecure() );
         response.addCookie( c );
       }
     } else {
