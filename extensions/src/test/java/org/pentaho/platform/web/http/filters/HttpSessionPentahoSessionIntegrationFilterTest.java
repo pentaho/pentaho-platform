@@ -125,7 +125,7 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
     final AuthenticationProvider mockObj = Mockito.mock( AuthenticationProvider.class );
     PentahoSystem.registerObject( mockObj, AuthenticationProvider.class );
     Mockito.when( sessionCookieConfig.isHttpOnly() ).thenReturn( false );
-    Mockito.when( sessionCookieConfig.isHttpOnly() ).thenReturn( false );
+    Mockito.when( sessionCookieConfig.isSecure() ).thenReturn( false );
     new HttpSessionPentahoSessionIntegrationFilter()
       .setSessionExpirationCookies( httpSession, pentahoSession, servletResponse );
     Mockito.verify( servletResponse, Mockito.times( 2 ) ).addCookie( Mockito.any() );
@@ -139,7 +139,7 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
       final ISystemSettings mockSettings = Mockito.mock( ISystemSettings.class );
       Mockito.when( mockSettings.getSystemSetting( "session-expired-dialog", "true" ) ).thenReturn( "true" );
       Mockito.when( sessionCookieConfig.isHttpOnly() ).thenReturn( false );
-      Mockito.when( sessionCookieConfig.isHttpOnly() ).thenReturn( false );
+      Mockito.when( sessionCookieConfig.isSecure() ).thenReturn( false );
       PentahoSystem.setSystemSettingsService( mockSettings );
       final AuthenticationProvider mockObj = Mockito.mock( AuthenticationProvider.class );
       PentahoSystem.registerObject( mockObj, AuthenticationProvider.class );
