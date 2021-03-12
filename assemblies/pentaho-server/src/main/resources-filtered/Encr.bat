@@ -27,5 +27,5 @@ pushd %~dp0
 SET STARTTITLE="Encr"
 SET SPOON_CONSOLE=1
 set JAVA_TOOL_OPTIONS=
-java -cp tomcat/webapps/pentaho/WEB-INF/classes;tomcat/webapps/pentaho/WEB-INF/lib/pentaho-encryption-support-${encryption-support.version}.jar org.pentaho.support.encryption.Encr %*
+java -cp tomcat/webapps/pentaho/WEB-INF/classes;tomcat/webapps/pentaho/WEB-INF/lib/pentaho-encryption-support-${encryption-support.version}.jar;tomcat/webapps/pentaho/WEB-INF/lib/jetty-util-${jetty.version}.jar org.pentaho.support.encryption.Encr %*
 popd
