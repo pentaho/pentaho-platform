@@ -26,5 +26,5 @@ BASEDIR="`dirname $0`"
 cd "$BASEDIR"
 DIR="`pwd`"
 cd - > /dev/null
-java -cp "$DIR"/tomcat/webapps/pentaho/WEB-INF/lib/pentaho-encryption-support-${encryption-support.version}.jar:"$DIR"/tomcat/webapps/pentaho/WEB-INF/classes org.pentaho.support.encryption.Encr "$@"
+java -cp "$DIR"/tomcat/webapps/pentaho/WEB-INF/lib/pentaho-encryption-support-${encryption-support.version}.jar:"$DIR"/tomcat/webapps/pentaho/WEB-INF/lib/jetty-util-${jetty.version}.jar:"$DIR"/tomcat/webapps/pentaho/WEB-INF/classes org.pentaho.support.encryption.Encr "$@"
 
