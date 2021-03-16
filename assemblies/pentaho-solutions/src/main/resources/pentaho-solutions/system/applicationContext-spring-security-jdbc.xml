@@ -69,7 +69,7 @@
 	</bean>
 	
   <bean id="jdbcPasswordEncoder"
-    class="org.springframework.security.authentication.encoding.PlaintextPasswordEncoder" />
+    class="org.springframework.security.crypto.password.NoOpPasswordEncoder" />
  
 
 </beans>

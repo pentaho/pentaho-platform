@@ -48,6 +48,6 @@
 	  </property>
 	</bean>
 
-	<bean id="memoryPasswordEncoder" class="org.springframework.security.authentication.encoding.PlaintextPasswordEncoder" />
+	<bean id="memoryPasswordEncoder" class="org.springframework.security.crypto.password.NoOpPasswordEncoder" />
 
 </beans>
