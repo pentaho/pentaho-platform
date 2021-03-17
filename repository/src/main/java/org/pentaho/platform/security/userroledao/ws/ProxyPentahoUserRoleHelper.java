@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -29,7 +29,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.userroledao.PentahoRole;
 import org.pentaho.platform.security.userroledao.PentahoUser;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 
 /**
  * This class contains helper methods for converting from and to proxy user and roles
@@ -66,7 +66,7 @@ public class ProxyPentahoUserRoleHelper {
     if ( !StringUtils.isBlank( proxyUser.getPassword() ) ) {
       PasswordEncoder encoder =
           PentahoSystem.get( PasswordEncoder.class, "passwordEncoder", PentahoSessionHolder.getSession() ); //$NON-NLS-1$
-      syncedUser.setPassword( encoder.encode( proxyUser.getPassword() ) );
+      syncedUser.setPassword( encoder.encodePassword( proxyUser.getPassword(), null ) );
     }
     syncedUser.setEnabled( proxyUser.getEnabled() );
     return syncedUser;
