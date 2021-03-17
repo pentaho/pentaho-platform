@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -47,7 +47,7 @@ import org.pentaho.platform.security.userroledao.ws.UserRoleSecurityInfo;
 import org.pentaho.platform.security.userroledao.ws.UserRoleWebService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -411,13 +411,16 @@ public class UserRoleWebServiceBase {
 
   public static class PasswordEncoderMock implements PasswordEncoder {
 
-    @Override public String encode( CharSequence charSequence ) {
-      return charSequence.toString();
+    @Override
+    public String encodePassword( String rawPass, Object salt ) throws DataAccessException {
+      return rawPass;
     }
 
-    @Override public boolean matches( CharSequence charSequence, String s ) {
+    @Override
+    public boolean isPasswordValid( String encPass, String rawPass, Object salt ) throws DataAccessException {
       return true;
     }
+
   }
 
   protected void mockUserAsAdmin( boolean isAdminUser ) {

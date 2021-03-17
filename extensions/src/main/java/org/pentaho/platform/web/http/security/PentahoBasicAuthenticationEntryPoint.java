@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,6 +25,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,7 +39,7 @@ public class PentahoBasicAuthenticationEntryPoint extends BasicAuthenticationEnt
 
   @Override
   public void commence( HttpServletRequest request, HttpServletResponse response, AuthenticationException authException ) throws
-    IOException {
+    IOException, ServletException {
 
     // The BasicAuthenticationEntryPoint will send a WWW-Authenticate header and a 401 status code back to the browser,
     // forcing the user to autenticate. If there is a session end cookie present, this will trigger a second authentication.
