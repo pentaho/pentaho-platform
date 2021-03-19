@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2019-2021 Hitachi Vantara. All rights reserved.
  */
 package org.pentaho.platform.web.http.security;
 
@@ -37,6 +37,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -232,6 +233,7 @@ public class CsrfGateFilterTest {
     when( WebUtil.buildCsrfRequestMatcher( any() ) ).thenReturn( requestMatcher );
 
     HttpServletRequest mockRequest = Mockito.mock( HttpServletRequest.class );
+    when( mockRequest.getDispatcherType() ).thenReturn( DispatcherType.REQUEST );
     HttpServletResponse mockResponse = Mockito.mock( HttpServletResponse.class );
     FilterChain filterChain = new MockFilterChain();
 
@@ -274,6 +276,7 @@ public class CsrfGateFilterTest {
     when( WebUtil.buildCsrfRequestMatcher( any() ) ).thenReturn( requestMatcher );
 
     HttpServletRequest mockRequest = Mockito.mock( HttpServletRequest.class );
+    when( mockRequest.getDispatcherType() ).thenReturn( DispatcherType.REQUEST );
     HttpServletResponse mockResponse = Mockito.mock( HttpServletResponse.class );
     FilterChain filterChain = new MockFilterChain();
 

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,6 +22,7 @@ package org.pentaho.platform.web.http.request;
 
 import org.apache.commons.io.IOUtils;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -65,15 +66,56 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
   /* An inputstream which reads the cached request body */
   public class CachedServletInputStream extends ServletInputStream {
     private ByteArrayInputStream input;
+    private ReadListener readListener;
+    boolean isFinished;
 
     public CachedServletInputStream() {
       /* create a new input stream from the cached request body */
       input = new ByteArrayInputStream( cachedBytes.toByteArray() );
+      this.readListener = null;
+      this.isFinished = false;
+    }
+
+    @Override public boolean isFinished() {
+      return isFinished;
+    }
+
+    @Override public boolean isReady() {
+      return !isFinished();
+    }
+
+    @Override public void setReadListener( ReadListener readListener ) {
+      if ( null == readListener ) {
+        throw new NullPointerException();
+      }
+      this.readListener = readListener;
+      if ( !isFinished() ) {
+        try {
+          readListener.onDataAvailable();
+        } catch ( IOException e ) {
+          readListener.onError( e );
+        }
+      } else {
+        readListenerDone( readListener );
+      }
     }
 
     @Override
     public int read() throws IOException {
-      return input.read();
+      int val = input.read();
+      if ( val == -1 ) {
+        this.isFinished = true;
+        readListenerDone( readListener );
+      }
+      return val;
+    }
+
+    private void readListenerDone( ReadListener readListener ) {
+      try {
+        readListener.onAllDataRead();
+      } catch ( IOException e ) {
+        readListener.onError( e );
+      }
     }
   }
 }

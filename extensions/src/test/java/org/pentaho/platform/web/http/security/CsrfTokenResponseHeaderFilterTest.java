@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2019-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -34,6 +34,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockFilterConfig;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -73,6 +74,7 @@ public class CsrfTokenResponseHeaderFilterTest {
 
     this.mockRequest = mock( HttpServletRequest.class );
     this.mockResponse = mock( HttpServletResponse.class );
+    when( mockRequest.getDispatcherType() ).thenReturn( DispatcherType.REQUEST );
 
     this.filter = spy( new CsrfTokenResponseHeaderFilter() );
     this.filterChain = new MockFilterChain();
