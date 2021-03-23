@@ -37,7 +37,6 @@
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
     <pentaho-json.version>9.2.0.0-SNAPSHOT</pentaho-json.version>
     <poi.version>4.1.1</poi.version>
-    <commons-codec.version>1.13</commons-codec.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <curvesapi.version>1.06</curvesapi.version>
     <commons-compress.version>1.20</commons-compress.version>
