@@ -150,7 +150,7 @@
     <quartz-oracle.version>1.7.2</quartz-oracle.version>
     <edtftpj.version>2.1.0</edtftpj.version>
     <jzlib.version>1.0.7</jzlib.version>
-    <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
+    <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
     <junit.version>4.12</junit.version>
     <mockrunner.version>0.3.1</mockrunner.version>
     <jempbox.version>0.2.0</jempbox.version>

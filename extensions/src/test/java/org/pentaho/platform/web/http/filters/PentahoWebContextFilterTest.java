@@ -46,6 +46,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRegistration;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -145,6 +146,14 @@ public class PentahoWebContextFilterTest {
     this.mockResponse = mock( HttpServletResponse.class );
     this.mockResponseOutputStream = new java.io.ByteArrayOutputStream();
     when( this.mockResponse.getOutputStream() ).thenReturn( new ServletOutputStream() {
+      @Override public boolean isReady() {
+        return true;
+      }
+
+      @Override public void setWriteListener( WriteListener writeListener ) {
+
+      }
+
       @Override
       public void write( int b ) throws IOException {
         PentahoWebContextFilterTest.this.mockResponseOutputStream.write( b );

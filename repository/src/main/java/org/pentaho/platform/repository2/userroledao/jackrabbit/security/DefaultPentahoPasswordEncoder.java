@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,7 +25,7 @@ import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentia
 import org.pentaho.platform.engine.security.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.jcr.SimpleCredentials;
 
@@ -82,5 +82,13 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
     } catch ( Exception e ) {
       throw new RuntimeException( e );
     }
+  }
+
+  @Override public String encode( CharSequence charSequence ) {
+    return this.encodePassword( charSequence.toString(), null );
+  }
+
+  @Override public boolean matches( CharSequence charSequence, String s ) {
+    return isPasswordValid( s, charSequence.toString(), null );
   }
 }
