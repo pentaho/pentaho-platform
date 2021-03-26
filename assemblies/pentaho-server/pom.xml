@@ -204,7 +204,7 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>org.apache.tomcat</groupId>
-                  <artifactId>tomcat</artifactId>
+                  <artifactId>tomcat-windows-x64</artifactId>
                   <version>${tomcat.version}</version>
                   <type>zip</type>
                   <overWrite>true</overWrite>
