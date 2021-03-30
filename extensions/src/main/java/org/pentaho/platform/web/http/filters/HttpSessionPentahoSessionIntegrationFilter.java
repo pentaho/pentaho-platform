@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -40,6 +40,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -434,14 +435,19 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
         return;
       }
 
+      SessionCookieConfig sessionCookieConfig = httpSession.getServletContext().getSessionCookieConfig();
       final long serverTime = System.currentTimeMillis();
       final long expiryTime = serverTime + httpSession.getMaxInactiveInterval() * 1000;
 
       final Cookie sessionExpirationCookie = new Cookie( "session-expiry", String.valueOf( expiryTime ) );
       sessionExpirationCookie.setPath( "/" );
+      sessionExpirationCookie.setHttpOnly( sessionCookieConfig.isHttpOnly() );
+      sessionExpirationCookie.setSecure( sessionCookieConfig.isSecure() );
 
       final Cookie serverTimeCookie = new Cookie( "server-time", String.valueOf( serverTime ) );
       serverTimeCookie.setPath( "/" );
+      serverTimeCookie.setHttpOnly( sessionCookieConfig.isHttpOnly() );
+      serverTimeCookie.setSecure( sessionCookieConfig.isSecure() );
 
       httpServletResponse.addCookie( sessionExpirationCookie );
       httpServletResponse.addCookie( serverTimeCookie );
