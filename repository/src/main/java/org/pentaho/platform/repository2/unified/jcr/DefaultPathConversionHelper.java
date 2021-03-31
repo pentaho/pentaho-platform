@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -34,12 +34,14 @@ public class DefaultPathConversionHelper implements IPathConversionHelper {
   /**
    * Returns null if path is not at or under the tenant root.
    */
+  @Override
   public String absToRel( final String absPath ) {
     Assert.hasLength( absPath );
     Assert.isTrue( absPath.startsWith( RepositoryFile.SEPARATOR ) );
+    String convertedAbsPath = convertPathSlashes( absPath );
     if ( ( ServerRepositoryPaths.getTenantRootFolderPath() != null )
-        && absPath.startsWith( ServerRepositoryPaths.getTenantRootFolderPath() ) ) {
-      String tmpPath = absPath.substring( ServerRepositoryPaths.getTenantRootFolderPath().length() );
+        && convertedAbsPath.startsWith( ServerRepositoryPaths.getTenantRootFolderPath() ) ) {
+      String tmpPath = convertedAbsPath.substring( ServerRepositoryPaths.getTenantRootFolderPath().length() );
       if ( "".equals( tmpPath ) ) { //$NON-NLS-1$
         return RepositoryFile.SEPARATOR;
       } else {
@@ -54,11 +56,22 @@ public class DefaultPathConversionHelper implements IPathConversionHelper {
   /**
    * Unconditionally adds tenant root path to given path.
    */
+  @Override
   public String relToAbs( final String relPath ) {
     Assert.hasLength( relPath );
     Assert.isTrue( relPath.startsWith( RepositoryFile.SEPARATOR ) );
+    String convertedRelPath = convertPathSlashes( relPath );
     return ServerRepositoryPaths.getTenantRootFolderPath()
-        + ( RepositoryFile.SEPARATOR.equals( relPath ) ? "" : relPath ); //$NON-NLS-1$
+        + ( RepositoryFile.SEPARATOR.equals( convertedRelPath ) ? "" : convertedRelPath ); //$NON-NLS-1$
+  }
+
+  /**
+   * Converts a path string with backslashes into a path string with the repository separator
+   * @param path the path string
+   * @return a new path string with backslashes converted to repository separators
+   */
+  private String convertPathSlashes( final String path ) {
+    return path.replace( "\\", RepositoryFile.SEPARATOR );
   }
 
 }
