@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -186,7 +186,7 @@ public class UserRoleDaoService {
       if ( userValid( user ) ) {
 
         String userName = decode( user.getUserName() );
-        String password = decode( user.getPassword() );
+        String password = user.getPassword();
 
         ValidationFailedException exception = validatePasswordFormat( password );
         if ( exception != null ) {
@@ -377,7 +377,7 @@ public class UserRoleDaoService {
   public void updatePassword( User user ) throws ValidationFailedException {
     if ( canAdminister() ) {
       String userName = decode( user.getUserName() );
-      String password = decode( user.getPassword() );
+      String password = user.getPassword();
 
       ValidationFailedException exception = validatePasswordFormat( password );
       if ( exception != null ) {
