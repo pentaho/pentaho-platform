@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -176,7 +176,7 @@ public class UserRoleDaoService {
       if ( userValid( user ) ) {
         IUserRoleDao roleDao =
             PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
-        roleDao.createUser( null, decode( user.getUserName() ), decode( user.getPassword() ), "", new String[0] );
+        roleDao.createUser( null, decode( user.getUserName() ), user.getPassword(), "", new String[0] );
       } else {
         throw new ValidationFailedException();
       }
@@ -312,7 +312,7 @@ public class UserRoleDaoService {
   public void updatePassword( User user ) throws SecurityException {
     if ( canAdminister() ) {
       String userName = decode( user.getUserName() );
-      String password = decode( user.getPassword() );
+      String password = user.getPassword();
       IUserRoleDao roleDao =
           PentahoSystem.get( IUserRoleDao.class, "userRoleDaoProxy", PentahoSessionHolder.getSession() );
       IPentahoUser puser = roleDao.getUser( null, userName );
