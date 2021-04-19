@@ -17,20 +17,15 @@
 
 package org.pentaho.platform.web;
 
-import org.dom4j.Element;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.mockito.ArgumentCaptor;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.spy;
 
 @RunWith( PowerMockRunner.class )
@@ -160,8 +156,11 @@ public class WebUtilTest {
 
     spy( WebUtil.class );
 
-    when( WebUtil.getCorsRequestsAllowedSystemProperty() ).thenReturn( corsAllowed );
-    when( WebUtil.getCorsAllowedDomainsSystemProperty() ).thenReturn( corsAllowedDomains );
+    doReturn( corsAllowed ).when( WebUtil.class );
+    WebUtil.getCorsRequestsAllowedSystemProperty();
+
+    doReturn( corsAllowedDomains ).when( WebUtil.class );
+    WebUtil.getCorsAllowedOriginsSystemProperty();
 
     if ( corsHeadersConfiguration == null ) {
       WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );

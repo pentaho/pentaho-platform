@@ -2754,6 +2754,10 @@
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.hitachivantara.security.web</groupId>
+      <artifactId>csrf-token-service-client-java-jax-rs-v1</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

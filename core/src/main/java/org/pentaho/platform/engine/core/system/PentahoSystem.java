@@ -136,9 +136,9 @@ public class PentahoSystem {
 
   public static final String WAIT_SECONDS = "waitSeconds";
 
-  public static final String CORS_REQUESTS_ALLOWED = "cors-requests-allowed";
+  public static final String CORS_REQUESTS_ALLOWED = "system.cors-requests-allowed";
 
-  public static final String CORS_REQUESTS_ALLOWED_DOMAINS = "cors-requests-allowed-domains";
+  public static final String CORS_REQUESTS_ALLOWED_ORIGINS = "system.cors-requests-allowed-domains";
 
   private static Map globalAttributes;
 

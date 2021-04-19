@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web;
 
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.StringUtil;
 
@@ -26,18 +27,53 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class containing web related functionality.
+ */
 public class WebUtil {
+
+  private WebUtil() {
+  }
 
   // region CORS
   static final String ORIGIN_HEADER = "origin";
   static final String CORS_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
   static final String CORS_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
-  public static final String CORS_EXPOSE_HEADERS_HEADER = "Access-Control-Expose-Headers";
 
+  /**
+   * Sets the default CORS response headers if CORS is enabled and the request origin is allowed.
+   * <p>
+   * The default headers are the {@code Access-Control-Allow-Origin} header with the current allowed origin as a value
+   * and the {@code Access-Control-Allow-Credentials} with value {@code true}.
+   * <p>
+   * This method exists for when it is needed to set CORS headers programmatically. It's generally preferable to
+   * configure the system's CORS filter, by editing {@code applicationContext-spring-security-cors.xml} or by publishing
+   * an implementation of {@code com.hitachivantara.security.web.api.model.cors.CorsRequestSetConfiguration} with the
+   * Pentaho system.
+   *
+   * @param request  The HTTP request.
+   * @param response The HTTP response.
+   */
   public static void setCorsResponseHeaders( HttpServletRequest request, HttpServletResponse response ) {
     setCorsResponseHeaders( request, response, null );
   }
 
+  /**
+   * Sets the default CORS response headers and the additional provided headers if CORS is enabled and the request
+   * origin is allowed.
+   * <p>
+   * The default headers are the {@code Access-Control-Allow-Origin} header with the current allowed origin as a value
+   * and the {@code Access-Control-Allow-Credentials} with value {@code true}.
+   * <p>
+   * This method exists for when it is needed to set CORS headers programmatically. It's generally preferable to
+   * configure the system's CORS filter, by editing {@code applicationContext-spring-security-cors.xml} or by publishing
+   * an implementation of {@code com.hitachivantara.security.web.api.model.cors.CorsRequestSetConfiguration} with the
+   * Pentaho system.
+   *
+   * @param request                  The HTTP request.
+   * @param response                 The HTTP response.
+   * @param corsHeadersConfiguration Additional headers to conditionally define.
+   */
   public static void setCorsResponseHeaders( HttpServletRequest request, HttpServletResponse response,
                                              Map<String, List<String>> corsHeadersConfiguration ) {
     if ( !WebUtil.isCorsRequestsAllowed() ) {
@@ -59,30 +95,39 @@ public class WebUtil {
     }
   }
 
-  private static boolean isCorsRequestsAllowed() {
+  /**
+   * Gets a value that indicates if CORS is enabled, in principle.
+   * <p>
+   * Further restrictions apply to determine if a specific cross origin or CORS request is actualy enabled.
+   *
+   * @return {@code true} if enabled; {@code false}, otherwise.
+   */
+  public static boolean isCorsRequestsAllowed() {
     String isCorsAllowed = WebUtil.getCorsRequestsAllowedSystemProperty();
     return "true".equals( isCorsAllowed );
   }
 
-  private static List<String> getCorsRequestsAllowedDomains() {
-    String allowedDomains = WebUtil.getCorsAllowedDomainsSystemProperty();
+  private static List<String> getCorsRequestsAllowedOrigins() {
+    String allowedDomains = WebUtil.getCorsAllowedOriginsSystemProperty();
     boolean hasDomains = !StringUtil.isEmpty( allowedDomains );
 
     return hasDomains ? Arrays.asList( allowedDomains.split( "\\s*,\\s*" ) ) : null;
   }
 
-  private static boolean isCorsRequestOriginAllowed( String domain ) {
-    List<String> allowedDomains = WebUtil.getCorsRequestsAllowedDomains();
-    return allowedDomains != null && allowedDomains.contains( domain );
+  private static boolean isCorsRequestOriginAllowed( String origin ) {
+    List<String> allowedDomains = WebUtil.getCorsRequestsAllowedOrigins();
+    return allowedDomains != null && allowedDomains.contains( origin );
   }
 
   // region package-private methods for unit testing mock/spying
   static String getCorsRequestsAllowedSystemProperty() {
-    return PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED, "false" );
+    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    return systemConfig.getProperty( PentahoSystem.CORS_REQUESTS_ALLOWED, "false" );
   }
 
-  static String getCorsAllowedDomainsSystemProperty() {
-    return PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED_DOMAINS, null );
+  static String getCorsAllowedOriginsSystemProperty() {
+    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    return systemConfig.getProperty( PentahoSystem.CORS_REQUESTS_ALLOWED_ORIGINS );
   }
   // endregion
 

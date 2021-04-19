@@ -223,7 +223,60 @@
     <hsqldb.version>2.3.2</hsqldb.version>
     <websocket-api.version>1.0</websocket-api.version>
     <encryption-support.version>9.3.0.0-SNAPSHOT</encryption-support.version>
+    <hv-security-web.version>0.3.0</hv-security-web.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- region HV Web Security -->
+      <dependency>
+        <groupId>com.hitachivantara.security.web</groupId>
+        <artifactId>security-web-server-api</artifactId>
+        <version>${hv-security-web.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.hitachivantara.security.web</groupId>
+        <artifactId>security-web-server-model-impl</artifactId>
+        <version>${hv-security-web.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.hitachivantara.security.web</groupId>
+        <artifactId>security-web-server-service-impl</artifactId>
+        <version>${hv-security-web.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.hitachivantara.security.web</groupId>
+        <artifactId>csrf-token-service-client-java-jax-rs-v1</artifactId>
+        <version>${hv-security-web.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <!-- endregion HV Web Security -->
+    </dependencies>
+  </dependencyManagement>
+
   <build>
     <pluginManagement>
       <plugins>

@@ -22,9 +22,13 @@
   <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
     <constructor-arg>
       <util:list>
+        <sec:filter-chain pattern="/api/csrf/token"
+                          filters="csrfGateFilter,
+                                   corsFilter" />
 
         <sec:filter-chain pattern="/webservices/**"
-                          filters="csrfTokenSecurityFilter,
+                          filters="csrfGateFilter,
+                                   corsFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -36,7 +40,8 @@
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/api/repos/**"
-                          filters="csrfTokenSecurityFilter,
+                          filters="csrfGateFilter,
+                                   corsFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -50,7 +55,8 @@
                                    preFlightFilter" />
 
         <sec:filter-chain pattern="/api/**"
-                          filters="csrfTokenSecurityFilter,
+                          filters="csrfGateFilter,
+                                   corsFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -63,7 +69,8 @@
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/plugin/reporting/api/jobs/**"
-                          filters="csrfTokenSecurityFilter,
+                          filters="csrfGateFilter,
+                                   corsFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -77,7 +84,8 @@
                                    preFlightFilter" />
 
         <sec:filter-chain pattern="/plugin/**"
-                          filters="csrfTokenSecurityFilter,
+                          filters="csrfGateFilter,
+                                   corsFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -90,7 +98,8 @@
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/**"
-                          filters="csrfTokenSecurityFilter,
+                          filters="csrfGateFilter,
+                                   corsFilter,
                                    securityContextHolderAwareRequestFilter,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
