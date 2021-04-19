@@ -22,17 +22,6 @@
   <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
     <constructor-arg>
       <util:list>
-        <!--
-          Virtual endpoint that simply replies with the csrf token header and parameter names, as well as the token value,
-          in the response headers X-CSRF-HEADER, X-CSRF-PARAM and X-CSRF-TOKEN, respectively.
-          This endpoint must not require CSRF protection (not part of csrfTokenProtectedEndpoints).
-          This endpoint can be accessed anonymously.
-          For embedding scenarios, requires CORS GET, withAuthentication access
-          (configure cors-requests-allowed and cors-requests-allowed-domains in pentaho.xml).
-        -->
-        <sec:filter-chain pattern="/api/system/csrf"
-                          filters="csrfTokenSecurityFilter,
-                                   csrfTokenResponseHeaderFilter" />
 
         <sec:filter-chain pattern="/webservices/**"
                           filters="csrfTokenSecurityFilter,
@@ -118,16 +107,6 @@
       </util:list>
     </constructor-arg>
   </bean>
-
-  <!-- ======================== CSRF PROTECTION ======================== -->
-
-  <bean id="csrfTokenResponseHeaderFilter" class="org.pentaho.platform.web.http.security.CsrfTokenResponseHeaderFilter"/>
-
-  <bean id="csrfTokenSecurityFilter" class="org.pentaho.platform.web.http.security.CsrfGateFilter">
-    <constructor-arg ref="csrfTokenRepository"/>
-  </bean>
-
-  <bean id="csrfTokenRepository" class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository"/>
 
   <!-- ======================== AUTHENTICATION ======================= -->
 

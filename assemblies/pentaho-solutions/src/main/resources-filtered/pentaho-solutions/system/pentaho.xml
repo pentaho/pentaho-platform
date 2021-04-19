@@ -40,60 +40,6 @@
   <log-file>server.log</log-file>
   <log-level>DEBUG</log-level>
 
-  <!--
-    Enables CSRF (Cross-Site Request Forgery) protection for the server.
-
-    Default value: false (unsafe; backward-compatible).
-
-    *ATTENTION*:
-      Setting this option to false opens the server and all of its plugins to known security flaws,
-      which can allow an attacker to perform CSRF attacks.
-
-      Do NOT set this option to false, if at all possible. Instead, consider disabling CSRF protection selectively,
-      for certain platform plugins or for certain server endpoints.
-      This may be necessary if there still exists external code which depends on the unprotected and deprecated APIs.
-
-      To disable CSRF protection for a plugin, set its `csrf-protection-enabled` setting,
-      in the `settings.xml` file, to false.
-
-      To disable certain server endpoints, comment the corresponding `request-matcher` element within the
-      `csrf-protection` setting, below.
-  -->
-  <csrf-protection-enabled>false</csrf-protection-enabled>
-
-  <!-- ## CSRF protected system endpoints ## -->
-  <csrf-protection>
-    <!--
-      POST /api/user-settings/recent
-      POST /api/user-settings/favorites
-      POST /api/user-settings/MANTLE_SHOW_NAVIGATOR
-      POST /api/user-settings/MANTLE_SHOW_HIDDEN_FILES
-      POST /api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS
-      POST /api/user-settings/*
-    -->
-    <request-matcher type="regex" pattern="^/api/user-settings/.*" methods="POST" />
-
-    <!--
-      POST /api/mantle/locale
-      POST /api/mantle/session-variable
-    -->
-    <request-matcher type="regex" pattern="^/api/mantle/.*" methods="POST" />
-
-    <!--
-      POST /api/system/locale
-    -->
-    <request-matcher type="regex" pattern="^/api/system/locale\b.*" methods="POST" />
-
-    <!--
-      GET /api/system/refresh/mondrianSchemaCache
-    -->
-    <request-matcher type="regex" pattern="^/api/system/refresh/mondrianSchemaCache\b.*" methods="GET" />
-
-    <!--
-      POST /api/repo/files/import
-    -->
-    <request-matcher type="regex" pattern="^/api/repo/files/import\b.*" methods="POST" />
-  </csrf-protection>
 
 	<!--
 	    cors-requests-allowed:
