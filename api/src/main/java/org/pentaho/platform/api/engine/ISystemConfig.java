@@ -30,6 +30,20 @@ public interface ISystemConfig {
 
   String getProperty( String placeholder );
 
+  /**
+   * Gets the value of a property if it is defined, falling back to a given default value, otherwise.
+   *
+   * @param placeholder A property placeholder in the format {@code "configId.property"}.
+   * @param defaultValue The value returned when a property is not defined, i.e.,
+   *                     the value returned by {@link IConfiguration#getProperties()} and then by
+   *                     {@link java.util.Properties#getProperty(String)} is {@code null}.
+   * @return The value of the given property, when defined; {@code null} otherwise.
+   */
+  default String getProperty( String placeholder, String defaultValue ) {
+    String value = getProperty( placeholder );
+    return value != null ? value : defaultValue;
+  }
+
   void registerConfiguration( IConfiguration configuration ) throws IOException;
 
   IConfiguration[] listConfigurations();

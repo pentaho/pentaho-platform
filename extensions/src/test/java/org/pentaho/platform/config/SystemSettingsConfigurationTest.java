@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -45,13 +45,12 @@ import static org.mockito.Mockito.when;
 @RunWith( MockitoJUnitRunner.class )
 public class SystemSettingsConfigurationTest {
 
-  org.pentaho.platform.config.SystemSettingsConfiguration config;
+  SystemSettingsConfiguration config;
   @Mock ISystemSettings settings;
 
   @Before
   public void setUp() throws Exception {
     config = new SystemSettingsConfiguration( "id", settings );
-    assertNotNull( config );
 
     // id is hardcoded, the id passed is ignored
     assertEquals( "system", config.getId() );
@@ -68,11 +67,14 @@ public class SystemSettingsConfigurationTest {
   }
 
   @Test
-  public void testGetProperties() throws Exception {
+  public void testGetProperties() {
     SystemSettings settings = new SystemSettings();
+
     IApplicationContext appContext = mock( IApplicationContext.class );
+    when( appContext.getSolutionPath( anyString() ) )
+      .thenReturn( TestResourceLocation.TEST_RESOURCES + "/solution/system" );
+
     PentahoSystem.setApplicationContext( appContext );
-    when( appContext.getSolutionPath( anyString() ) ).thenReturn( TestResourceLocation.TEST_RESOURCES + "/solution/system/pentaho.xml" );
 
     config = new SystemSettingsConfiguration( "system", settings );
 
@@ -85,5 +87,4 @@ public class SystemSettingsConfigurationTest {
   public void testUpdate() throws Exception {
     config.update( new Properties() );
   }
-
 }

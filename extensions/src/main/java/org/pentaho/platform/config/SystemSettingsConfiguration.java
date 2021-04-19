@@ -20,13 +20,11 @@
 
 package org.pentaho.platform.config;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.ISystemSettings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,9 +34,9 @@ import java.util.Properties;
  * User: nbaker Date: 4/2/13
  */
 public class SystemSettingsConfiguration implements IConfiguration {
-  private String id;
-  private Logger logger = LoggerFactory.getLogger( getClass() );
-  private ISystemSettings settings;
+  private final String id;
+  private final ISystemSettings settings;
+  private Properties properties;
 
   public SystemSettingsConfiguration( String id, ISystemSettings settings ) {
     if ( id == null ) {
@@ -57,48 +55,55 @@ public class SystemSettingsConfiguration implements IConfiguration {
   }
 
   @Override
-  public Properties getProperties() throws IOException {
-    Properties props = new Properties();
-    List elements = settings.getSystemSettings( "pentaho-system" );
-    if ( elements == null ) {
-      return null;
-    }
-    elements = ( (Element) elements.get( 0 ) ).content();
-    addElementsToProperties( elements, props, "" );
+  public synchronized Properties getProperties() {
+    if ( properties == null ) {
+      Properties props = new Properties();
 
-    return props;
+      @SuppressWarnings( "rawtypes" )
+      List elements = settings.getSystemSettings( "pentaho-system" );
+      if ( elements == null ) {
+        return null;
+      }
+
+      List<Node> nodes = ( (Element) elements.get( 0 ) ).content();
+      addNodesToProperties( nodes, props, "" );
+
+      properties = props;
+    }
+
+    return properties;
   }
 
-  private void addElementsToProperties( List elements, Properties props, String parentPath ) {
+  private void addNodesToProperties( List<Node> nodes, Properties props, String parentPath ) {
 
-    for ( java.lang.Object o : elements ) {
-      Node ele = (Node) o;
-      if ( ele.getNodeType() != 1 ) { // text
+    for ( Node node : nodes ) {
+      if ( !( node instanceof Element ) ) {
+        // e.g. text
         continue;
       }
+
+      Element ele = (Element) node;
+
       String contents = ele.getText().trim();
 
       String newParentPath = "";
-
       if ( !StringUtils.isEmpty( parentPath ) ) {
         newParentPath = parentPath + ".";
       }
+
       newParentPath += ele.getName();
 
       if ( !StringUtils.isEmpty( contents ) ) {
         props.setProperty( newParentPath, contents );
       }
-      if ( ele instanceof Element ) {
-        List children = ( (Element) ele ).content();
 
-        addElementsToProperties( children, props, newParentPath );
-      }
-
+      List<Node> children = ele.content();
+      addNodesToProperties( children, props, newParentPath );
     }
   }
 
   @Override
-  public void update( Properties properties ) throws IOException {
+  public void update( Properties addProperties ) throws IOException {
     throw new UnsupportedOperationException( "SystemSettings does not support write-back" );
   }
 }
