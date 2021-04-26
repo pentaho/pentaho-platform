@@ -20,7 +20,7 @@
     <jettison.version>1.3.3</jettison.version>
     <datasource.resources.directory>${basedir}/src/main/resources/datasources</datasource.resources.directory>
     <hibernate-ehcache.version>3.6.9.Final</hibernate-ehcache.version>
-    <commons-io.version>2.2</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
     <xmlgraphics-commons.version>2.2</xmlgraphics-commons.version>
     <c3p0.version>0.9.1.2</c3p0.version>
