@@ -194,9 +194,16 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
       if ( iPentahoObjectRegistration != null ) {
         iPentahoObjectRegistration.remove();
       }
+
       for ( ServiceRegistration<?> registration : registrations ) {
-        registration.unregister();
+        try {
+          registration.unregister();
+        } catch ( IllegalStateException e ) {
+          // May already have been unregistered during the shutdown sequence.
+          logger.debug( "Error on Unregistering the service, it seems already be unregistered", e ); //$NON-NLS-1$
+        }
       }
+
     }
 
     public void setRegistrations( List<ServiceRegistration<?>> registrations ) {
