@@ -29,6 +29,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoObjectRegistration;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
 import org.pentaho.platform.engine.core.system.objfac.spring.SpringPentahoObjectReference;
 import org.slf4j.Logger;
@@ -194,9 +195,16 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
       if ( iPentahoObjectRegistration != null ) {
         iPentahoObjectRegistration.remove();
       }
+
       for ( ServiceRegistration<?> registration : registrations ) {
-        registration.unregister();
+        try {
+          registration.unregister();
+        } catch ( IllegalStateException e ) {
+          // May already have been unregistered during the shutdown sequence.
+          logger.debug( "Error on Unregistering the service, it seems already be unregistered", e ); //$NON-NLS-1$
+        }
       }
+
     }
 
     public void setRegistrations( List<ServiceRegistration<?>> registrations ) {
