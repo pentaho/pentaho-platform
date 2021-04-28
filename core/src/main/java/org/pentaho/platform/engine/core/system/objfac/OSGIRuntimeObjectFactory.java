@@ -200,7 +200,7 @@ public class OSGIRuntimeObjectFactory extends RuntimeObjectFactory {
           registration.unregister();
         } catch ( IllegalStateException e ) {
           // May already have been unregistered during the shutdown sequence.
-          logger.debug( "Error on Unregistering the service, it seems already be unregistered", e ); //$NON-NLS-1$
+          logger.debug( "Error on Unregistering the service, it seems already be unregistered", e );
         }
       }
 
