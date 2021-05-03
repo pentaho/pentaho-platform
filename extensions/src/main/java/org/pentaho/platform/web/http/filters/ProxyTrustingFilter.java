@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -29,6 +29,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.UserSession;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.core.context.SecurityContext;
@@ -54,7 +55,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * 
  * This servlet is used to filter Servlet requests coming from another server for processing and sets authentication for
  * the user passed in by the parameter <b>_TRUST_USER_</b>. It will conditionally look for the parameter in the HTTP
  * Header too. It then passes the request down the servlet chain to be serviced. Only requests coming from a trusted
@@ -75,8 +75,11 @@ import java.util.regex.PatternSyntaxException;
  * </pre>
  * 
  * In the above example, when a request coming from IP addresses 192.168.10.60 and 192.168.10.61 has the parameter
- * _TRUST_USER_=<i>name</i> set, tha user <i>name</i> will be authenticated.
- * 
+ * _TRUST_USER_=<i>name</i> set, that user <i>name</i> will be authenticated.
+ *
+ * An additional parameter, <b>_TRUST_LOCALE_OVERRIDE_</b>, and, optionally, header, can be specified
+ * containing a locale override that the user session should use.
+ *
  * <p>
  * NOTES:
  * <p>
@@ -90,8 +93,10 @@ import java.util.regex.PatternSyntaxException;
  * The sending server should be using the ProxyServlet enabled to generate the requests.
  * <p>
  * 
- * The parameter that this filter looks for can be configured in the init parameters, as well as whether to check the
- * request headers. The following shows the defaults used if these settings aren't provided.
+ * The user and locale parameters that this filter looks for can be configured in the init parameters,
+ * as well as whether to check the request headers.
+ *
+ * The following shows the defaults used if these settings aren't provided.
  * 
  * <pre>
  *   &lt;init-param&gt;
@@ -106,6 +111,15 @@ import java.util.regex.PatternSyntaxException;
  *     &lt;param-name&gt;HeaderName&lt;/param-name&gt;
  *     &lt;param-value&gt;_TRUST_USER_&lt;/param-value&gt;
  *   &lt;/init-param&gt;
+ *   &lt;init-param&gt;
+ *   &lt;init-param&gt;
+ *     &lt;param-name&gt;LocaleOverrideParameterName&lt;/param-name&gt;
+ *     &lt;param-value&gt;_TRUST_LOCALE_OVERRIDE_&lt;/param-value&gt;
+ *   &lt;/init-param&gt;
+ *   &lt;init-param&gt;
+ *     &lt;param-name&gt;LocaleOverrideHeaderName&lt;/param-name&gt;
+ *     &lt;param-value&gt;_TRUST_LOCALE_OVERRIDE_&lt;/param-value&gt;
+ *   &lt;/init-param&gt;
  * </pre>
  * 
  * 
@@ -116,13 +130,19 @@ import java.util.regex.PatternSyntaxException;
 
 public class ProxyTrustingFilter implements Filter {
   FilterConfig filterConfig;
-  private static final String DefaultParameterName = "_TRUST_USER_"; //$NON-NLS-1$
+  private static final String DEFAULT_PARAMETER_NAME = "_TRUST_USER_";
+  private static final String DEFAULT_LOCALE_OVERRIDE_PARAMETER_NAME = "_TRUST_LOCALE_OVERRIDE_";
 
   String[] trustedIpAddrs = null;
   private boolean checkHeader = true;
+
   private String requestParameterName;
   private String headerName;
-  private Map<String, Pattern> ipPatterns = new HashMap<String, Pattern>();
+
+  private String localeOverrideParameterName;
+  private String localeOverrideHeaderName;
+
+  private final Map<String, Pattern> ipPatterns = new HashMap<>();
 
   private static final Log logger = LogFactory.getLog( ProxyTrustingFilter.class );
 
@@ -149,24 +169,41 @@ public class ProxyTrustingFilter implements Filter {
       }
       if ( addrs.size() > 0 ) { // Guarantee that its null or has at least 1
         // element
-        trustedIpAddrs = (String[]) addrs.toArray( new String[0] );
+        trustedIpAddrs = addrs.toArray( new String[0] );
       }
     }
+
     String checkHeaderString = filterConfig.getInitParameter( "CheckHeader" ); //$NON-NLS-1$
     if ( !isEmpty( checkHeaderString ) ) {
       this.checkHeader = checkHeaderString.equalsIgnoreCase( "true" ); //$NON-NLS-1$
     }
+
+    // User
     String requestParameterSetting = filterConfig.getInitParameter( "RequestParameterName" ); //$NON-NLS-1$
     if ( !isEmpty( requestParameterSetting ) ) {
       this.requestParameterName = requestParameterSetting;
     } else {
-      this.requestParameterName = ProxyTrustingFilter.DefaultParameterName;
+      this.requestParameterName = ProxyTrustingFilter.DEFAULT_PARAMETER_NAME;
     }
     String headerNameSetting = filterConfig.getInitParameter( "HeaderName" ); //$NON-NLS-1$
     if ( !isEmpty( headerNameSetting ) ) {
       this.headerName = headerNameSetting;
     } else {
-      this.headerName = ProxyTrustingFilter.DefaultParameterName;
+      this.headerName = ProxyTrustingFilter.DEFAULT_PARAMETER_NAME;
+    }
+
+    // Locale Override
+    String localeOverrideParameterSetting = filterConfig.getInitParameter( "LocaleOverrideParameterName" );
+    if ( !isEmpty( localeOverrideParameterSetting ) ) {
+      this.localeOverrideParameterName = localeOverrideParameterSetting;
+    } else {
+      this.localeOverrideParameterName = DEFAULT_LOCALE_OVERRIDE_PARAMETER_NAME;
+    }
+    String localeOverrideHeaderNameSetting = filterConfig.getInitParameter( "LocaleOverrideHeaderName" );
+    if ( !isEmpty( localeOverrideHeaderNameSetting ) ) {
+      this.localeOverrideHeaderName = localeOverrideHeaderNameSetting;
+    } else {
+      this.localeOverrideHeaderName = DEFAULT_LOCALE_OVERRIDE_PARAMETER_NAME;
     }
   }
 
@@ -208,30 +245,40 @@ public class ProxyTrustingFilter implements Filter {
       if ( isTrusted( remoteHost ) ) {
         String name = getTrustUser( req );
         if ( !isEmpty( name ) ) {
-
           try {
             becomeUser( name );
+
+            setSystemLocaleOverrideCode( getTrustLocaleOverrideCode( req ) );
+
+            // ---
+            // Update HTTP Session Attributes
+
             HttpSession httpSession = req.getSession();
+            // 1. Pentaho Session
             httpSession.setAttribute( PentahoSystem.PENTAHO_SESSION_KEY, PentahoSessionHolder.getSession() );
 
-            /**
-            * definition of anonymous inner class
-            */
+            // 2. Locale Override
+            //
+            // As currently configured by default, this filter is followed by HttpSessionPentahoSessionIntegrationFilter,
+            // which calls LocaleHelper.setLocaleOverride with the locale corresponding to
+            // the httpSession's "locale_override" attribute. So, the attribute needs to be set, as well.
+            // `locale_override` uses Java's legacy Locale.toString format, which uses underscores.
+            Locale localeOverride = LocaleHelper.getLocaleOverride();
+            httpSession.setAttribute( "locale_override", localeOverride != null ? localeOverride.toString() : null );
+
+            // 3. Spring Security Context attribute.
             SecurityContext authWrapper = new SecurityContext() {
-            /**
-              * 
-              */
               private static final long serialVersionUID = 1L;
               private Authentication authentication;
 
               public Authentication getAuthentication() {
                 return authentication;
-              };
+              }
 
               public void setAuthentication( Authentication authentication ) {
                 this.authentication = authentication;
-              };
-            }; // end anonymous inner class
+              }
+            };
 
             authWrapper.setAuthentication( SecurityContextHolder.getContext().getAuthentication() );
             httpSession.setAttribute( HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, authWrapper );
@@ -277,7 +324,21 @@ public class ProxyTrustingFilter implements Filter {
   }
 
   /**
-   * @return true if the filter should consult the http header for the trusted user
+   * Gets the name of the request header that will contain the trusted locale override
+   */
+  protected String getLocaleOverrideHeaderName() {
+    return this.localeOverrideHeaderName;
+  }
+
+  /**
+   * Gets the name of the request parameter that will contain the trusted locale override.
+   */
+  protected String getLocaleOverrideParameterName() {
+    return this.localeOverrideParameterName;
+  }
+
+  /**
+   * @return true if the filter should consult the http header for the trusted user and trusted locale override
    */
   protected boolean checkHeader() {
     return checkHeader;
@@ -297,6 +358,22 @@ public class ProxyTrustingFilter implements Filter {
     }
 
     return name;
+  }
+
+  /**
+   * Gets the trusted locale code override from the request, and optionally from the HTTP header.
+   *
+   * @param request
+   *          The HttpServletRequest to examine for the trusted information
+   * @return The specified trusted locale code, if any; {@code null}, otherwise.
+   */
+  protected String getTrustLocaleOverrideCode( HttpServletRequest request ) {
+    String localeOverrideCode = request.getParameter( getLocaleOverrideParameterName() );
+    if ( checkHeader() && isEmpty( localeOverrideCode ) ) {
+      localeOverrideCode = request.getHeader( normalizeHeaderName( getLocaleOverrideHeaderName() ) );
+    }
+
+    return localeOverrideCode;
   }
 
   public boolean isEmpty( String str ) {
@@ -327,5 +404,14 @@ public class ProxyTrustingFilter implements Filter {
     Authentication auth = SecurityHelper.getInstance().createAuthentication( principalName );
     SecurityContextHolder.getContext().setAuthentication( auth );
     PentahoSystem.sessionStartup( PentahoSessionHolder.getSession(), null );
+  }
+
+  /**
+   * Sets the system's locale override.
+   *
+   * @param localeOverrideCode The locale override code.
+   */
+  protected void setSystemLocaleOverrideCode( String localeOverrideCode ) {
+    LocaleHelper.parseAndSetLocaleOverride( localeOverrideCode );
   }
 }

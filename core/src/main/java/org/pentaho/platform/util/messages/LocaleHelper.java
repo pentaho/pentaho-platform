@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.util.messages;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.util.logging.Logger;
 
 import java.io.UnsupportedEncodingException;
@@ -69,16 +70,16 @@ public class LocaleHelper {
 
   /**
    * BISERVER-9863 Check if override locale string contains language and country. If so, instantiate Locale with
-   * two parameters for language and country, instead of just language
-   * 
-   * @param localeOverride
+   * two parameters for language and country, instead of just language.
+   *
+   * @param localeOverride The new locale override, or {@code null} or an empty string, if none.
    */
   public static void parseAndSetLocaleOverride( final String localeOverride ) {
-    if ( localeOverride.contains( "_" ) ) {
+    if ( StringUtils.isEmpty( localeOverride ) ) {
+      setLocaleOverride( null );
+    } else if ( localeOverride.contains( "_" ) ) {
       String[] parts = localeOverride.split( "_" );
-      if ( parts.length >= 2 ) {
-        setLocaleOverride( new Locale( parts[0], parts[1] ) );
-      }
+      setLocaleOverride( new Locale( parts[0], parts[1] ) );
     } else {
       setLocaleOverride( new Locale( localeOverride ) );
     }
