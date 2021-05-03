@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -371,9 +371,14 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     }
     String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, role );
 
+    IPentahoRole pentahoRole = getRole( session, tenant, roleName );
+    if ( pentahoRole != null ) {
+      throw new AuthorizableExistsException( "Already exists a role for " + roleId );
+    }
+
     UserManager tenantUserMgr = getUserManager( tenant, session );
     // Intermediate path will always be an empty string. The path is already provided while creating a user manager
-    tenantUserMgr.createGroup( new PrincipalImpl( roleId ), "" ); //$NON-NLS-1$
+    tenantUserMgr.createGroup( new PrincipalImpl( roleId ), "" );
     setRoleMembers( session, tenant, role, memberUserNames );
     setRoleDescription( session, tenant, role, description );
     return getRole( session, theTenant, roleName );

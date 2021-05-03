@@ -51,6 +51,8 @@ import java.util.List;
 
 public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel,
     UpdatePasswordController {
+
+  private static final String PUC_VALIDATION_ERROR_MESSAGE = "PUC_VALIDATION_ERROR_MESSAGE";
   private String delimiter = "\t";
   private static UserRolesAdminPanelController instance = new UserRolesAdminPanelController();
   private boolean usingPentahoSecurity;
@@ -117,8 +119,18 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          initializeRoles( name, "api/userroledao/roles", rolesListBox );
-          initializeAvailableUsers( usersListBox.getValue( usersListBox.getSelectedIndex() ) );
+
+          if ( response.getStatusCode() != Response.SC_NO_CONTENT ) {
+            String errorMsg = Messages.getString( "newRoleErrorMessage" );
+            String errorValidationMessage = response.getHeader( PUC_VALIDATION_ERROR_MESSAGE );
+            if ( errorValidationMessage != null ) {
+              errorMsg = errorMsg + "\n" + errorValidationMessage;
+            }
+            showXulErrorMessage( Messages.getString( "newRole" ), errorMsg );
+          } else {
+            initializeRoles( name, "api/userroledao/roles", rolesListBox );
+            initializeAvailableUsers( usersListBox.getValue( usersListBox.getSelectedIndex() ) );
+          }
         }
       } );
     } catch ( RequestException e ) {
