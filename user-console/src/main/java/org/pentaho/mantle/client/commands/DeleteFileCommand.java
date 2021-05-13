@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,6 +23,7 @@ package org.pentaho.mantle.client.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -121,7 +122,7 @@ public class DeleteFileCommand extends AbstractCommand {
       if ( filesToDelete.size() > 1 ) {
         messageTextBox = new HTML( Messages.getString( "moveAllToTrashQuestionFile" ) );
       } else {
-        messageTextBox = new HTML( Messages.getString( "moveToTrashQuestionFile", names ) );
+        messageTextBox = new HTML( SafeHtmlUtils.fromString( Messages.getString( "moveToTrashQuestionFile", names ) ) );
       }
       final PromptDialogBox fileMoveToTrashWarningDialogBox =
           new PromptDialogBox( Messages.getString( "moveToTrash" ), Messages.getString( "yesMoveToTrash" ), Messages
