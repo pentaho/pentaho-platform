@@ -50,7 +50,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -72,8 +71,8 @@ import java.util.Map;
  *   &lt;/servlet&gt;
  * </pre>
  * <p>
- * In the above example, all requests to /ViewAction will be forwarded to the ViewAction Servlet running on the Hitachi Vantara
- * server atmy.remoteserver.com:8080
+ * In the above example, all requests to /ViewAction will be forwarded to the ViewAction Servlet running on the Hitachi
+ * Vantara server atmy.remoteserver.com:8080
  * <p>
  * <p>
  * NOTES:
@@ -155,68 +154,68 @@ public class ProxyServlet extends ServletBase {
   }
 
   protected void doProxy( final HttpServletRequest request, final HttpServletResponse response ) throws IOException {
-    if ( proxyURL == null ) { // Got nothing from web.xml
+    // Got nothing from web.xml.
+    if ( proxyURL == null ) {
       return;
     }
 
-    String servletPath = request.getServletPath();
     PentahoSystem.systemEntryPoint();
     try {
-      String theUrl = proxyURL + servletPath;
-      URIBuilder uriBuilder;
-      try {
-        uriBuilder = new URIBuilder( theUrl );
-        List<NameValuePair> queryParams = uriBuilder.isQueryEmpty() ? new ArrayList<>() : uriBuilder.getQueryParams();
-        for ( NameValuePair nameValuePair : queryParams ) {
-          // Just in case someone is trying to spoof the proxy
-          if ( nameValuePair.getName().equals( TRUST_USER_PARAM ) ) {
-            queryParams.remove( nameValuePair );
-          }
-        }
-        // Copy the parameters from the request to the proxy
-        Map paramMap = request.getParameterMap();
-        Map.Entry entry;
-        String[] array;
-        for ( Iterator it = paramMap.entrySet().iterator(); it.hasNext(); ) {
-          entry = (Map.Entry) it.next();
-          array = (String[]) entry.getValue();
-          for ( String element : array ) {
-            queryParams.add( new BasicNameValuePair( (String) entry.getKey(), element ) );
-          }
-        }
-
-        // Get the user from the session
-        IPentahoSession userSession = getPentahoSession( request );
-        String name = userSession.getName();
-
-        // Add the trusted user from the session
-        if ( StringUtils.isNotEmpty( name ) ) {
-          queryParams.add( new BasicNameValuePair( TRUST_USER_PARAM, name ) );
-
-          if ( isLocaleOverrideEnabled ) {
-            Locale localeOverride = getProxyLocaleOverride();
-            if ( localeOverride != null ) {
-              queryParams.add( new BasicNameValuePair( TRUST_LOCALE_OVERRIDE_PARAM, localeOverride.toString() ) );
-            }
-          }
-        } else if ( ( errorURL != null ) && ( errorURL.trim().length() > 0 ) ) {
-          response.sendRedirect( errorURL );
-          return;
-        }
-        uriBuilder.setParameters( queryParams );
-        debug( Messages.getInstance().getString(
-          "ProxyServlet.DEBUG_0001_OUTPUT_URL", uriBuilder.toString() ) ); //$NON-NLS-1$
-
-        doProxyCore( uriBuilder.build(), response );
-
-      } catch ( URISyntaxException e ) {
-        error( Messages.getInstance().getErrorString(
-          "ProxyServlet.ERROR_0006_URI_SYNTAX_EXCEPTION", theUrl ) ); //$NON-NLS-1$
-        e.printStackTrace();
+      // Get the user from the session
+      IPentahoSession userSession = getPentahoSession( request );
+      String userName = userSession != null ? userSession.getName() : null;
+      if ( StringUtils.isEmpty( userName ) && StringUtils.isNotBlank( errorURL ) ) {
+        response.sendRedirect( errorURL );
+        return;
       }
+
+      URI requestUri = buildProxiedUri( request, userName );
+
+      doProxyCore( requestUri, response );
+
+    } catch ( URISyntaxException e ) {
+      error( Messages.getInstance().getErrorString( "ProxyServlet.ERROR_0006_URI_SYNTAX_EXCEPTION", e.getMessage() ) );
+      e.printStackTrace();
     } finally {
       PentahoSystem.systemExitPoint();
     }
+  }
+
+  protected URI buildProxiedUri( final HttpServletRequest request, final String userName ) throws URISyntaxException {
+
+    String baseUri = proxyURL + request.getServletPath();
+    URIBuilder uriBuilder = new URIBuilder( baseUri );
+
+    List<NameValuePair> queryParams = uriBuilder.isQueryEmpty() ? new ArrayList<>() : uriBuilder.getQueryParams();
+
+    // Just in case someone is trying to spoof the proxy.
+    queryParams.removeIf( pair -> pair.getName().equals( TRUST_USER_PARAM ) );
+
+    // Copy the parameters from the request to the proxy.
+    Map<String, String[]> paramMap = request.getParameterMap();
+    for ( Map.Entry<String, String[]> entry : paramMap.entrySet() ) {
+      for ( String element : entry.getValue() ) {
+        queryParams.add( new BasicNameValuePair( entry.getKey(), element ) );
+      }
+    }
+
+    // Add the trusted user from the session
+    if ( StringUtils.isNotEmpty( userName ) ) {
+      queryParams.add( new BasicNameValuePair( TRUST_USER_PARAM, userName ) );
+
+      if ( isLocaleOverrideEnabled ) {
+        Locale localeOverride = getProxyLocaleOverride();
+        if ( localeOverride != null ) {
+          queryParams.add( new BasicNameValuePair( TRUST_LOCALE_OVERRIDE_PARAM, localeOverride.toString() ) );
+        }
+      }
+    }
+
+    uriBuilder.setParameters( queryParams );
+
+    debug( Messages.getInstance().getString( "ProxyServlet.DEBUG_0001_OUTPUT_URL", uriBuilder.toString() ) );
+
+    return uriBuilder.build();
   }
 
   protected void doProxyCore( final URI requestUri, final HttpServletResponse response ) {
@@ -267,7 +266,7 @@ public class ProxyServlet extends ServletBase {
 
   /**
    * Gets the locale override to send to the proxy url.
-   *
+   * <p>
    * Mostly, supports unit testing.
    *
    * @return The locale override, or {@code null}, if none.
@@ -294,5 +293,4 @@ public class ProxyServlet extends ServletBase {
     IOException {
     doProxy( request, response );
   }
-
 }
