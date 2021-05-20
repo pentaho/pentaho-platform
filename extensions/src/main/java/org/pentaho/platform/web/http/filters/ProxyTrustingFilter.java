@@ -164,9 +164,9 @@ public class ProxyTrustingFilter implements Filter {
 
   protected void initParameterTrustedIpAddresses() {
     trustedIpAddrs = null;
-    String hostStr = filterConfig.getInitParameter( "TrustedIpAddrs" ); 
+    String hostStr = filterConfig.getInitParameter( "TrustedIpAddrs" );
     if ( hostStr != null ) {
-      StringTokenizer st = new StringTokenizer( hostStr, "," ); 
+      StringTokenizer st = new StringTokenizer( hostStr, "," );
       List<String> addrs = new ArrayList<String>();
       while ( st.hasMoreTokens() ) {
         String tok = st.nextToken().trim();
@@ -185,21 +185,21 @@ public class ProxyTrustingFilter implements Filter {
   }
 
   protected void initParameterCheckHeader() {
-    String checkHeaderString = filterConfig.getInitParameter( "CheckHeader" ); 
+    String checkHeaderString = filterConfig.getInitParameter( "CheckHeader" );
     if ( !isEmpty( checkHeaderString ) ) {
-      this.checkHeader = checkHeaderString.equalsIgnoreCase( "true" ); 
+      this.checkHeader = checkHeaderString.equalsIgnoreCase( "true" );
     }
   }
 
   protected void initParameterUser() {
-    String requestParameterSetting = filterConfig.getInitParameter( "RequestParameterName" ); 
+    String requestParameterSetting = filterConfig.getInitParameter( "RequestParameterName" );
     if ( !isEmpty( requestParameterSetting ) ) {
       this.requestParameterName = requestParameterSetting;
     } else {
       this.requestParameterName = ProxyTrustingFilter.DEFAULT_PARAMETER_NAME;
     }
 
-    String headerNameSetting = filterConfig.getInitParameter( "HeaderName" ); 
+    String headerNameSetting = filterConfig.getInitParameter( "HeaderName" );
     if ( !isEmpty( headerNameSetting ) ) {
       this.headerName = headerNameSetting;
     } else {
@@ -266,12 +266,6 @@ public class ProxyTrustingFilter implements Filter {
       }
     }
     chain.doFilter( request, response );
-
-    // long stopTime = System.currentTimeMillis();
-
-    // getLogger().debug( Messages.getString(
-    // Messages.getString("ProxyTrustingFilter.DEBUG_0004_REQUEST_TIME"),
-    // String.valueOf( stopTime - startTime ) ) );
   }
 
   protected void doFilterCore( HttpServletRequest request, String name ) throws ServletException {
