@@ -172,9 +172,6 @@ public class ProxyTrustingFilter implements Filter {
         String tok = st.nextToken().trim();
         if ( tok.length() > 0 ) {
           addrs.add( tok );
-          // getLogger().info(
-          // Messages.getString("ProxyTrustingFilter.DEBUG_0001_TRUSTING",
-          // tok ) ); 
         }
       }
       if ( addrs.size() > 0 ) { // Guarantee that its null or has at least 1
@@ -251,8 +248,6 @@ public class ProxyTrustingFilter implements Filter {
 
   public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain chain )
     throws IOException, ServletException {
-
-    // long startTime = System.currentTimeMillis();
 
     if ( ( trustedIpAddrs != null ) && ( request instanceof HttpServletRequest ) ) {
       final HttpServletRequest req = (HttpServletRequest) request;
