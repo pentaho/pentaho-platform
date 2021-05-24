@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -508,9 +508,10 @@ public class DefaultChartBeansGenerator implements IChartBeansGenerator {
 
     if ( JFreeChartPlugin.PLUGIN_ID.equals( chartModel.getChartEngineId() ) ) {
       final String SOLUTION_TMP_DIR = "system/tmp/"; //$NON-NLS-1$
-      File chartFileOnServer =
-          new File( new File( PentahoSystem.getApplicationContext().getFileOutputPath( SOLUTION_TMP_DIR ) ),
-              java.util.UUID.randomUUID().toString() );
+      // create tmp dir if it doesn't exist yet
+      File tmpDir = new File( PentahoSystem.getApplicationContext().getFileOutputPath( SOLUTION_TMP_DIR ) );
+      tmpDir.mkdirs();
+      File chartFileOnServer = new File( tmpDir, java.util.UUID.randomUUID().toString() );
 
       BufferedOutputStream bos = null;
       try {
@@ -523,8 +524,8 @@ public class DefaultChartBeansGenerator implements IChartBeansGenerator {
 
       IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
       String contextPath = requestContext.getContextPath();
-      String url = contextPath + (( !StringUtils.isEmpty( contextPath)
-          && contextPath.endsWith( URL_PATH_SEP )) ? "" : URL_PATH_SEP); //$NON-NLS-1$
+      String url = contextPath + ( ( !StringUtils.isEmpty( contextPath )
+          && contextPath.endsWith( URL_PATH_SEP ) ) ? "" : URL_PATH_SEP ); //$NON-NLS-1$
       final String IMAGE_URL_TEMPLATE = "{0}getImage?image={1}"; //$NON-NLS-1$
       final String imageUrl =
           MessageFormat.format( IMAGE_URL_TEMPLATE, new String[] { url, chartFileOnServer.getName() } );
