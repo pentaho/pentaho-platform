@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -180,5 +180,13 @@ public abstract class BaseTestCase extends TestCase {
 
   public String getFullyQualifiedServerURL() {
     return "http://localhost:8080/pentaho/"; //$NON-NLS-1$
+  }
+
+  public IPentahoSession getPentahoSession() {
+    return session;
+  }
+
+  public void setPentahoSession( IPentahoSession session ) {
+    this.session = session;
   }
 }

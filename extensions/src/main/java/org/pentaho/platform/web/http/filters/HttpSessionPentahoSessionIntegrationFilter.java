@@ -199,15 +199,16 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
    * doing there in the first place. TODO mlowery move this somewhere else
    */
   protected void localeLeftovers( final HttpServletRequest httpRequest ) {
+
+    // Sync the thread static LocaleHelper's locale override with the value of the corresponding session attribute.
     HttpSession httpSession = httpRequest.getSession( false );
     if ( httpSession != null ) {
-      String localeOverride = (String) httpSession.getAttribute( "locale_override" ); //$NON-NLS-1$
-      if ( !StringUtils.isEmpty( localeOverride ) ) {
-        LocaleHelper.parseAndSetLocaleOverride( localeOverride );
-      } else {
-        LocaleHelper.setLocaleOverride( null );
-      }
+      String localeOverride = (String) httpSession.getAttribute( "locale_override" );
+      LocaleHelper.parseAndSetLocaleOverride( localeOverride );
     }
+
+    // Even if there is no session, or if it has no locale override,
+    // set the thread's fallback locale to that of the HTTP request.
     LocaleHelper.setLocale( httpRequest.getLocale() );
   }
 
