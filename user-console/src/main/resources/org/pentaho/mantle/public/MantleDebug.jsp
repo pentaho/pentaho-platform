@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
 --%>
 
 <!DOCTYPE html>
@@ -26,14 +26,11 @@
 
 <%
   Locale effectiveLocale = request.getLocale();
-  if ( !StringUtils.isEmpty( request.getParameter( "locale" ) ) ) {
-    effectiveLocale = new Locale( request.getParameter( "locale" ) );
-    request.getSession().setAttribute( "locale_override", request.getParameter( "locale" ) );
-    LocaleHelper.setLocaleOverride( effectiveLocale );
-  } else {
-    request.getSession().setAttribute( "locale_override", null );
-    LocaleHelper.setLocaleOverride( null );
-  }
+  // Handle the `locale` request parameter.
+  request.getSession().setAttribute(
+      "locale_override",
+      StringUtils.defaultIfEmpty( request.getParameter( "locale" ), null ) );
+  LocaleHelper.parseAndSetLocaleOverride( request.getParameter( "locale" ) );
 
   URLClassLoader loader = new URLClassLoader( new URL[] { application.getResource( "/mantle/messages/" ) } );
   ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", request.getLocale(), loader );

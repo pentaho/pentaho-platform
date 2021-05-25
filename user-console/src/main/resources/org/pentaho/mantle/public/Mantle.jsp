@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
 --%>
 
 <!DOCTYPE html>
@@ -25,7 +25,6 @@
             java.util.Locale,
             java.net.URL,
             java.net.URLClassLoader,
-            java.util.ArrayList,
             java.util.Iterator,
             java.util.LinkedHashMap,
             java.util.List,
@@ -38,13 +37,12 @@
   boolean hasDataAccessPlugin = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins().contains( "data-access" );
 
   Locale effectiveLocale = request.getLocale();
-  if ( !StringUtils.isEmpty( request.getParameter( "locale" ) ) ) {
-    request.getSession().setAttribute( "locale_override", request.getParameter( "locale" ) );
-    LocaleHelper.parseAndSetLocaleOverride( request.getParameter( "locale" ) );
-  } else {
-    request.getSession().setAttribute( "locale_override", null );
-    LocaleHelper.setLocaleOverride( null );
-  }
+
+  // Handle the `locale` request parameter.
+  request.getSession().setAttribute(
+      "locale_override",
+      StringUtils.defaultIfEmpty( request.getParameter( "locale" ), null ) );
+  LocaleHelper.parseAndSetLocaleOverride( request.getParameter( "locale" ) );
 
   URLClassLoader loader = new URLClassLoader( new URL[] { application.getResource( "/mantle/messages/" ) } );
   ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", request.getLocale(), loader );

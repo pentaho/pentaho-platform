@@ -27,19 +27,24 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class ProxyTrustingFilterTest {
@@ -57,12 +62,6 @@ public class ProxyTrustingFilterTest {
     SecurityHelper.setMockInstance( securityHelper );
 
     request = new MockHttpServletRequest();
-
-    MockFilterConfig cfg = new MockFilterConfig();
-    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
-
-    filter = new ProxyTrustingFilter();
-    filter.init( cfg );
   }
 
   @After
@@ -70,9 +69,14 @@ public class ProxyTrustingFilterTest {
     SecurityHelper.setMockInstance( null );
   }
 
-
   @Test
   public void doFilterForTrusted() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+
+    filter = new ProxyTrustingFilter();
+    filter.init( cfg );
+
     request.setRemoteHost( TRUSTED_IP );
     request.addParameter( filter.getParameterName(), "user" );
 
@@ -86,6 +90,12 @@ public class ProxyTrustingFilterTest {
 
   @Test
   public void doFilterForUntrusted() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+
+    filter = new ProxyTrustingFilter();
+    filter.init( cfg );
+
     request.setRemoteHost( UNTRUSTED_IP );
 
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
@@ -93,4 +103,141 @@ public class ProxyTrustingFilterTest {
     verify( securityHelper, never() ).runAsUser( anyString(), any( Callable.class ) );
   }
 
+  // region Locale Override
+  @Test
+  public void doFilterForTrustedWithoutLocaleThenUsesDefaultLocale() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+
+    filter = spy( new ProxyTrustingFilter() );
+    filter.init( cfg );
+
+    MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+
+    request.setRemoteHost( TRUSTED_IP );
+    request.addParameter( filter.getParameterName(), "user" );
+
+    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+
+    verify( filter ).setSystemLocaleOverrideCode( null );
+    assertNull( LocaleHelper.getLocaleOverride() );
+    assertNull( httpSession.getAttribute( "locale_override" ) );
+  }
+
+  @Test
+  public void doFilterForTrustedWithLocaleParameterThenSetsLocaleOverride() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+
+    filter = spy( new ProxyTrustingFilter() );
+    filter.init( cfg );
+
+    MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+
+    request.setRemoteHost( TRUSTED_IP );
+    request.addParameter( filter.getParameterName(), "user" );
+    request.addParameter( filter.getLocaleOverrideParameterName(), "pt_PT" );
+
+    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+
+    verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
+    Locale locale = LocaleHelper.getLocaleOverride();
+    assertEquals( new Locale( "pt", "PT" ), locale );
+    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+  }
+
+  @Test
+  public void doFilterForTrustedWithLocaleHeaderThenSetsLocaleOverride() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+    cfg.addInitParameter( "CheckHeader", "true" );
+
+    filter = spy( new ProxyTrustingFilter() );
+    filter.init( cfg );
+
+    MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+
+    request.setRemoteHost( TRUSTED_IP );
+    request.addParameter( filter.getParameterName(), "user" );
+    request.addHeader( filter.getLocaleOverrideHeaderName(), "pt_PT" );
+
+    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+
+    verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
+    Locale locale = LocaleHelper.getLocaleOverride();
+    assertEquals( new Locale( "pt", "PT" ), locale );
+    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+  }
+
+  @Test
+  public void doFilterForTrustedWithLocaleParameterAndHeaderThenParameterWins() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+    cfg.addInitParameter( "CheckHeader", "true" );
+
+    filter = spy( new ProxyTrustingFilter() );
+    filter.init( cfg );
+
+    MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+
+    request.setRemoteHost( TRUSTED_IP );
+    request.addParameter( filter.getParameterName(), "user" );
+    request.addParameter( filter.getLocaleOverrideParameterName(), "pt_PT" );
+    request.addHeader( filter.getLocaleOverrideHeaderName(), "pt-BR" );
+
+    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+
+    verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
+    Locale locale = LocaleHelper.getLocaleOverride();
+    assertEquals( new Locale( "pt", "PT" ), locale );
+    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+  }
+
+  @Test
+  public void doFilterForTrustedWithCustomLocaleParameter() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+    cfg.addInitParameter( "LocaleOverrideParameterName", "LOC_OVERRIDE" );
+
+    filter = spy( new ProxyTrustingFilter() );
+    filter.init( cfg );
+
+    MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+
+    request.setRemoteHost( TRUSTED_IP );
+    request.addParameter( filter.getParameterName(), "user" );
+    request.addParameter( "LOC_OVERRIDE", "pt_PT" );
+
+    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+
+    verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
+    Locale locale = LocaleHelper.getLocaleOverride();
+    assertEquals( new Locale( "pt", "PT" ), locale );
+    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+  }
+
+  @Test
+  public void doFilterForTrustedWithCustomLocaleHeader() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+    cfg.addInitParameter( "CheckHeader", "true" );
+    cfg.addInitParameter( "LocaleOverrideHeaderName", "LOC_OVERRIDE" );
+
+    filter = spy( new ProxyTrustingFilter() );
+    filter.init( cfg );
+
+    MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+
+    request.setRemoteHost( TRUSTED_IP );
+    request.addParameter( filter.getParameterName(), "user" );
+    request.addHeader( "LOC_OVERRIDE", "pt_PT" );
+
+    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+
+    verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
+    Locale locale = LocaleHelper.getLocaleOverride();
+    assertEquals( new Locale( "pt", "PT" ), locale );
+    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+  }
+  // endregion
 }
