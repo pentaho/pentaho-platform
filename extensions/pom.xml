@@ -1412,7 +1412,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>janino</groupId>
+      <groupId>org.codehaus.janino</groupId>
       <artifactId>janino</artifactId>
       <version>${janino.version}</version>
       <scope>compile</scope>
