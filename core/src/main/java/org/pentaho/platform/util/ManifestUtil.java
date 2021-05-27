@@ -14,13 +14,16 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.util;
 
+import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
@@ -32,6 +35,9 @@ import java.util.jar.Manifest;
  * @author dkincade
  */
 public class ManifestUtil {
+
+  private ManifestUtil() {
+  }
   /**
    * Retrieves the manifest information for the jar file which contains this utility class.
    * 
@@ -48,25 +54,31 @@ public class ManifestUtil {
    * @return The Manifest file for the jar file which contains the specified class, or <code>null</code> if the
    *         code is not in a jar file.
    */
-  public static Manifest getManifest( final Class clazz ) {
-    JarInputStream jin = null;
-    try {
-      final URL codeBase = clazz.getProtectionDomain().getCodeSource().getLocation();
-      if ( codeBase.getPath().endsWith( ".jar" ) ) { //$NON-NLS-1$
-        jin = new JarInputStream( codeBase.openStream() );
+  public static Manifest getManifest( final Class<?> clazz ) {
+    final URL codeBase = clazz.getProtectionDomain().getCodeSource().getLocation();
+    if ( codeBase.getPath().endsWith( ".jar" ) ) { //$NON-NLS-1$
+      try ( JarInputStream jin = new JarInputStream( codeBase.openStream() ) ) {
         Manifest manifest = jin.getManifest();
-        return manifest;
-      }
-    } catch ( Exception e ) {
-      // TODO handle this exception
-    } finally {
-      if ( jin != null ) {
-        try {
-          jin.close();
-        } catch ( Exception ex ) {
-          // TODO determine what to do if the close failed. Most likely nothing since we would have probably failed
-          // earlier!
+        if ( null != manifest ) {
+          return manifest;
         }
+      } catch ( Exception e ) {
+        // TODO handle this exception
+      }
+
+      try {
+        // couldn't get the manifest; might be on JBoss
+        Class<?> virtualFile = Class.forName( "org.jboss.vfs.VirtualFile" );
+        Method getChild = virtualFile.getMethod( "getChild", String.class );
+        Object manifestVFile = getChild.invoke( codeBase.getContent(), JarFile.MANIFEST_NAME );
+
+        Method openStream = virtualFile.getMethod( "openStream" );
+
+        try ( InputStream manifestStream = (InputStream) openStream.invoke( manifestVFile ) ) {
+          return new Manifest( manifestStream );
+        }
+      } catch ( Exception e ) {
+        // TODO handle this exception
       }
     }
     return null;
