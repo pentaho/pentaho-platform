@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 package org.pentaho.mantle.client.workspace;
@@ -399,7 +399,7 @@ public class SchedulesPanel extends SimplePanel {
           outputPath = new SafeHtmlBuilder().appendEscaped( outputPath ).toSafeHtml().asString();
 
           return MessageFormat.format(
-            "<span class=''workspace-resource-link'' title=''{0}''>{0}</span>", outputPath );
+            "<span class='workspace-resource-link' title='{0}'>{0}</span>", outputPath );
         } catch ( Throwable t ) {
           return BLANK_VALUE;
         }
