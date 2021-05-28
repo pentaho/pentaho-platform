@@ -22,7 +22,7 @@ define([
 ], function (ContextProvider, BootstrappedTabLoader, HandlebarsCompiler) {
 
   var brightCoveVideoTemplate =
-      '<iframe src="https://players.brightcove.net/3971130171001/gsLYDENnF_default/index.html?videoId={{videoId}}&autoplay=true"' +
+      '<iframe src="https://players.brightcove.net/4680021553001/default_default/index.html?videoId={{videoId}}&autoplay=true"' +
       ' width="{{width}}"' +
       ' height="{{height}}"' +
       ' allowfullscreen' +
