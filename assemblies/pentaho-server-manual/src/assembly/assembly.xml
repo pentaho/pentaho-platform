@@ -40,6 +40,7 @@
         <include>*:pentaho-hadoop-shims-hdp30-kar:*</include>
         <include>*:pentaho-hadoop-shims-emr521-kar:*</include>
         <include>*:pentaho-hadoop-shims-dataproc1421-kar:*</include>
+        <include>*:pentaho-hadoop-shims-hdi40-kar:*</include>
       </includes>
       <outputDirectory>./ADDITIONAL-FILES/drivers</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
