@@ -5,11 +5,11 @@
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>9.3.0.0-SNAPSHOT</version>
+    <version>9.3.0.0-57</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-ce-parent</artifactId>
-  <version>9.3.0.0-SNAPSHOT</version>
+  <version>9.3.0.0-57</version>
   <packaging>pom</packaging>
   <name>Pentaho BI Platform Community Edition</name>
   <description>Parent pom for pentaho-platform projects</description>
@@ -35,7 +35,7 @@
     <sassyreader.version>0.5</sassyreader.version>
     <activation.version>1.1</activation.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
-    <pentaho-json.version>9.3.0.0-SNAPSHOT</pentaho-json.version>
+    <pentaho-json.version>9.3.0.0-57</pentaho-json.version>
     <poi.version>4.1.1</poi.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <curvesapi.version>1.06</curvesapi.version>
@@ -167,7 +167,7 @@
     <snmp4j.version>1.9.3d</snmp4j.version>
     <batik.version>1.9.1</batik.version>
     <itext.version>2.1.7</itext.version>
-    <mondrian.version>9.3.0.0-SNAPSHOT</mondrian.version>
+    <mondrian.version>9.3.0.0-57</mondrian.version>
     <mockito-all.version>1.10.19</mockito-all.version>
     <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
     <rome.version>1.0</rome.version>
@@ -222,7 +222,7 @@
     <hibernate-jpa-2.0-api.version>1.0.1.Final</hibernate-jpa-2.0-api.version>
     <hsqldb.version>2.3.2</hsqldb.version>
     <websocket-api.version>1.0</websocket-api.version>
-    <encryption-support.version>9.3.0.0-SNAPSHOT</encryption-support.version>
+    <encryption-support.version>9.3.0.0-57</encryption-support.version>
   </properties>
   <build>
     <pluginManagement>
