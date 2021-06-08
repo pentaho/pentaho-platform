@@ -2757,6 +2757,7 @@
     <dependency>
       <groupId>com.hitachivantara.security.web</groupId>
       <artifactId>csrf-token-service-client-java-jax-rs-v1</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
