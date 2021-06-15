@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -131,7 +131,10 @@ public class DatabaseHelper {
       attrNode.setProperty( key, value );
     }
 
-    attrNode.setProperty( ATTRIBUTE_PORT_NUMBER, new Long( port ).longValue() );
+    if ( attributes.get( ATTRIBUTE_PORT_NUMBER ) == null ) {
+      //Only if not set, see PDI-19086.  If set the incoming value has precedence
+      attrNode.setProperty( ATTRIBUTE_PORT_NUMBER, new Long( port ).longValue() );
+    }
 
     // Now store the pooling parameters
     attrNode = rootNode.addNode( NODE_POOLING_PROPS );
