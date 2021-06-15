@@ -14,19 +14,21 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 
 package org.pentaho.platform.repository;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.DatabaseType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
+import org.pentaho.di.core.database.BaseDatabaseMeta;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 
 import java.util.HashMap;
@@ -110,6 +112,24 @@ public class DatabaseHelperTest {
     assertNotNull( extraOptionsNode );
     assertNotNull( extraOptionsNode.getProperties().iterator() );
     assertTrue( extraOptionsNode.getProperties().iterator().hasNext() );
+  }
+
+  @Test
+  public void testDatabaseConnectionToDataNodePortSettingsLegacy() {
+    DataNode dataNode = databaseHelper.databaseConnectionToDataNode( createDatabaseConnection() );
+    DataNode attributesNode = dataNode.getNode( NODE_ATTRIBUTES );
+    assertNotNull( attributesNode );
+    Assert.assertEquals( "8080", attributesNode.getProperty( BaseDatabaseMeta.ATTRIBUTE_PORT_NUMBER ).getString() );
+  }
+
+  @Test
+  public void testDatabaseConnectionToDataNodePortSettingsCurrent() {
+    DatabaseConnection dbconn = createDatabaseConnection();
+    dbconn.getAttributes().put( BaseDatabaseMeta.ATTRIBUTE_PORT_NUMBER, "${DBPORT}" );
+    DataNode dataNode = databaseHelper.databaseConnectionToDataNode( dbconn );
+    DataNode attributesNode = dataNode.getNode( NODE_ATTRIBUTES );
+    assertNotNull( attributesNode );
+    Assert.assertEquals( "${DBPORT}", attributesNode.getProperty( BaseDatabaseMeta.ATTRIBUTE_PORT_NUMBER ).getString() );
   }
 
   @Test
