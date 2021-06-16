@@ -122,11 +122,19 @@ public class WebUtil {
   // region package-private methods for unit testing mock/spying
   static String getCorsRequestsAllowedSystemProperty() {
     ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    if ( systemConfig == null ) {
+      return "false";
+    }
+
     return systemConfig.getProperty( PentahoSystem.CORS_REQUESTS_ALLOWED, "false" );
   }
 
   static String getCorsAllowedOriginsSystemProperty() {
     ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    if ( systemConfig == null ) {
+      return null;
+    }
+
     return systemConfig.getProperty( PentahoSystem.CORS_REQUESTS_ALLOWED_ORIGINS );
   }
   // endregion
