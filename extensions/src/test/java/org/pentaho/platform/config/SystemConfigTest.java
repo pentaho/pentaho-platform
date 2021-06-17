@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -96,17 +96,14 @@ public class SystemConfigTest {
     systemConfig.registerConfiguration( config1 );
     assertEquals( 1, systemConfig.listConfigurations().length );
 
-    // do it again, make sure it didn't add another, but it undated the existing one
+    // do it again, make sure it didn't add another, but it updates shared values
     when( config3.getId() ).thenReturn( "1" );
     when( config3.getProperties() ).thenReturn( props2 );
 
     systemConfig.registerConfiguration( config3 );
     assertEquals( 1, systemConfig.listConfigurations().length );
-    verify( config1 ).update( props2 );
-  }
 
-  @Test
-  public void testListConfigurations() throws Exception {
-
+    assertEquals( "un", systemConfig.getProperty( "1.one" ) );
+    assertEquals( "deux", systemConfig.getProperty( "1.two" ) );
   }
 }

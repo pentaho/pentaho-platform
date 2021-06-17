@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,12 +39,13 @@ import java.util.regex.Pattern;
  * User: nbaker Date: 4/2/13
  */
 public class SystemConfig implements ISystemConfig {
-  private final Map<String, IConfiguration> configs = new ConcurrentHashMap<String, IConfiguration>();
-  private static final Pattern pattern = Pattern.compile( "([^\\.]+)\\.(.+)" );
-  private Logger logger = LoggerFactory.getLogger( getClass() );
+
+  private static final Pattern pattern = Pattern.compile( "([^.]+)\\.(.+)" );
+  private static final Logger logger = LoggerFactory.getLogger( SystemConfig.class );
+
+  private final Map<String, IConfiguration> configs = new ConcurrentHashMap<>();
 
   public SystemConfig() {
-
   }
 
   public SystemConfig( List<IConfiguration> startingConfigs ) throws IOException {
@@ -88,22 +91,92 @@ public class SystemConfig implements ISystemConfig {
     if ( configId == null ) {
       throw new IllegalStateException( "Config id is null" );
     }
-    if ( configs.containsKey( configId ) ) {
-      // existing config, update current instance
-      try {
-        configs.get( configId ).update( configuration.getProperties() );
-      } catch ( UnsupportedOperationException e ) {
-        // ignored
-      }
-    } else {
-      configs.put( configId, configuration );
+
+    try {
+      configs.compute( configId, ( key, existingConfig ) -> {
+        if ( existingConfig == null ) {
+          // Creating the entry.
+          return configuration;
+        }
+
+        try {
+          // Private class, so that it is safe to modify its contents.
+          if ( existingConfig instanceof CompositeConfiguration ) {
+            ( (CompositeConfiguration) existingConfig ).addConfiguration( configuration );
+            return existingConfig;
+          }
+
+          CompositeConfiguration composite = new CompositeConfiguration( key );
+          composite.addConfiguration( existingConfig );
+          composite.addConfiguration( configuration );
+          return composite;
+        } catch ( IOException e ) {
+          // IOException is a checked exception, but the BiFunction of compute does not
+          // admit any checked exceptions.
+          // Wrap the IOException in an unchecked exception we control and
+          // unwrap it in the outer catch.
+          // Calling `addConfiguration` inside the compute function is important
+          // to avoid racing conditions.
+          throw new WrappedIOException( e );
+        }
+      } );
+    } catch ( WrappedIOException wrapped ) {
+      // Unwrap the original IOException and rethrow.
+      throw wrapped.getCause();
     }
   }
 
   @Override
   public IConfiguration[] listConfigurations() {
     Collection<IConfiguration> entries = configs.values();
-    return entries.toArray( new IConfiguration[entries.size()] );
+    return entries.toArray( new IConfiguration[ entries.size() ] );
   }
 
+  // region Helper classes
+  private static class WrappedIOException extends RuntimeException {
+    public WrappedIOException( IOException cause ) {
+      super( cause );
+    }
+
+    @Override
+    public synchronized IOException getCause() {
+      return (IOException) super.getCause();
+    }
+  }
+
+  private static class CompositeConfiguration implements IConfiguration {
+    private final String id;
+    private final Properties properties;
+
+    public CompositeConfiguration( String id ) {
+
+      Objects.requireNonNull( id );
+
+      this.id = id;
+      this.properties = new Properties();
+    }
+
+    @Override
+    public String getId() {
+      return id;
+    }
+
+    @Override
+    public Properties getProperties() {
+      return properties;
+    }
+
+    public void addConfiguration( IConfiguration configuration ) throws IOException {
+
+      Objects.requireNonNull( configuration );
+
+      this.properties.putAll( configuration.getProperties() );
+    }
+
+    @Override
+    public void update( Properties addProperties ) throws IOException {
+      throw new UnsupportedOperationException( "CompositeConfiguration does not support write-back" );
+    }
+  }
+  // endregion
 }

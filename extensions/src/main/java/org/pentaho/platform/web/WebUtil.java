@@ -12,44 +12,68 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2019-2021 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.web;
 
-import org.apache.commons.lang.StringUtils;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.pentaho.platform.api.engine.CsrfProtectionDefinition;
-import org.pentaho.platform.api.engine.RequestMatcherDefinition;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class containing web related functionality.
+ */
 public class WebUtil {
+
+  private WebUtil() {
+  }
 
   // region CORS
   static final String ORIGIN_HEADER = "origin";
   static final String CORS_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
   static final String CORS_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
-  public static final String CORS_EXPOSE_HEADERS_HEADER = "Access-Control-Expose-Headers";
 
+  /**
+   * Sets the default CORS response headers if CORS is enabled and the request origin is allowed.
+   * <p>
+   * The default headers are the {@code Access-Control-Allow-Origin} header with the current allowed origin as a value
+   * and the {@code Access-Control-Allow-Credentials} with value {@code true}.
+   * <p>
+   * This method exists for when it is needed to set CORS headers programmatically. It's generally preferable to
+   * configure the system's CORS filter, by editing {@code applicationContext-spring-security-cors.xml} or by publishing
+   * an implementation of {@code com.hitachivantara.security.web.api.model.cors.CorsRequestSetConfiguration} with the
+   * Pentaho system.
+   *
+   * @param request  The HTTP request.
+   * @param response The HTTP response.
+   */
   public static void setCorsResponseHeaders( HttpServletRequest request, HttpServletResponse response ) {
     setCorsResponseHeaders( request, response, null );
   }
 
+  /**
+   * Sets the default CORS response headers and the additional provided headers if CORS is enabled and the request
+   * origin is allowed.
+   * <p>
+   * The default headers are the {@code Access-Control-Allow-Origin} header with the current allowed origin as a value
+   * and the {@code Access-Control-Allow-Credentials} with value {@code true}.
+   * <p>
+   * This method exists for when it is needed to set CORS headers programmatically. It's generally preferable to
+   * configure the system's CORS filter, by editing {@code applicationContext-spring-security-cors.xml} or by publishing
+   * an implementation of {@code com.hitachivantara.security.web.api.model.cors.CorsRequestSetConfiguration} with the
+   * Pentaho system.
+   *
+   * @param request                  The HTTP request.
+   * @param response                 The HTTP response.
+   * @param corsHeadersConfiguration Additional headers to conditionally define.
+   */
   public static void setCorsResponseHeaders( HttpServletRequest request, HttpServletResponse response,
                                              Map<String, List<String>> corsHeadersConfiguration ) {
     if ( !WebUtil.isCorsRequestsAllowed() ) {
@@ -71,131 +95,49 @@ public class WebUtil {
     }
   }
 
-  private static boolean isCorsRequestsAllowed() {
+  /**
+   * Gets a value that indicates if CORS is enabled, in principle.
+   * <p>
+   * Further restrictions apply to determine if a specific cross origin or CORS request is actualy enabled.
+   *
+   * @return {@code true} if enabled; {@code false}, otherwise.
+   */
+  public static boolean isCorsRequestsAllowed() {
     String isCorsAllowed = WebUtil.getCorsRequestsAllowedSystemProperty();
     return "true".equals( isCorsAllowed );
   }
 
-  private static List<String> getCorsRequestsAllowedDomains() {
-    String allowedDomains = WebUtil.getCorsAllowedDomainsSystemProperty();
+  private static List<String> getCorsRequestsAllowedOrigins() {
+    String allowedDomains = WebUtil.getCorsAllowedOriginsSystemProperty();
     boolean hasDomains = !StringUtil.isEmpty( allowedDomains );
 
     return hasDomains ? Arrays.asList( allowedDomains.split( "\\s*,\\s*" ) ) : null;
   }
 
-  private static boolean isCorsRequestOriginAllowed( String domain ) {
-    List<String> allowedDomains = WebUtil.getCorsRequestsAllowedDomains();
-    return allowedDomains != null && allowedDomains.contains( domain );
+  private static boolean isCorsRequestOriginAllowed( String origin ) {
+    List<String> allowedDomains = WebUtil.getCorsRequestsAllowedOrigins();
+    return allowedDomains != null && allowedDomains.contains( origin );
   }
 
   // region package-private methods for unit testing mock/spying
   static String getCorsRequestsAllowedSystemProperty() {
-    return PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED, "false" );
-  }
-
-  static String getCorsAllowedDomainsSystemProperty() {
-    return PentahoSystem.getSystemSetting( PentahoSystem.CORS_REQUESTS_ALLOWED_DOMAINS, null );
-  }
-  // endregion
-  // endregion
-
-  // region WebUtil.parseXmlCsrfProtectionDefinition
-  public static CsrfProtectionDefinition parseXmlCsrfProtectionDefinition( Element csrfProtectionElem ) {
-    /* Example XML
-     * <csrf-protection>
-     *   <request-matcher type="regex" methods="GET,POST" pattern="" />
-     *   ...
-     * </csrf-protection>
-     */
-    List<RequestMatcherDefinition> requestMatchers = new ArrayList<>();
-
-    for ( Node csrfRequestMatcherNode : csrfProtectionElem.selectNodes( "request-matcher" ) ) {
-      requestMatchers.add( getCsrfRequestMatcher( (Element) csrfRequestMatcherNode ) );
+    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    if ( systemConfig == null ) {
+      return "false";
     }
 
-    if ( requestMatchers.size() == 0 ) {
+    return systemConfig.getProperty( PentahoSystem.CORS_REQUESTS_ALLOWED, "false" );
+  }
+
+  static String getCorsAllowedOriginsSystemProperty() {
+    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    if ( systemConfig == null ) {
       return null;
     }
 
-    CsrfProtectionDefinition protectionDefinition = new CsrfProtectionDefinition();
-    protectionDefinition.setProtectedRequestMatchers( requestMatchers );
-    return protectionDefinition;
-  }
-
-  private static RequestMatcherDefinition getCsrfRequestMatcher( Element csrfRequestMatcherElem ) {
-
-    String type = csrfRequestMatcherElem.attributeValue( "type", "regex" );
-    String pattern = csrfRequestMatcherElem.attributeValue( "pattern", "" );
-    String methods = csrfRequestMatcherElem.attributeValue( "methods", "GET,POST" );
-
-    if ( !"regex".equals( type ) ) {
-      throw new IllegalArgumentException(
-          Messages.getInstance().getString(
-              "CsrfProtection.REQUEST_MATCHER_INVALID_TYPE",
-              type ) );
-    }
-
-    if ( StringUtils.isEmpty( pattern ) ) {
-      throw new IllegalArgumentException(
-          Messages.getInstance().getString( "CsrfProtection.REQUEST_MATCHER_NO_PATTERN" ) );
-    }
-
-    List<String> methodsCol = new ArrayList<>(  );
-
-    for ( String method : methods.split( "\\s*,\\s*" ) ) {
-      try {
-        RequestMethod.valueOf( method );
-      } catch ( IllegalArgumentException invalidEnumError ) {
-        throw new IllegalArgumentException(
-            Messages.getInstance().getString(
-                "CsrfProtection.REQUEST_MATCHER_INVALID_METHOD",
-                method ) );
-      }
-
-      methodsCol.add( method );
-    }
-
-    if ( methodsCol.size() == 0 ) {
-      methodsCol.add( "POST" );
-      methodsCol.add( "GET" );
-    }
-
-    return new RequestMatcherDefinition( type, pattern, methodsCol );
+    return systemConfig.getProperty( PentahoSystem.CORS_REQUESTS_ALLOWED_ORIGINS );
   }
   // endregion
 
-  // region WebUtil.buildCsrfRequestMatcher
-  public static RequestMatcher buildCsrfRequestMatcher( Collection<CsrfProtectionDefinition> csrfProtectionDefinitions ) {
-
-    List<RequestMatcher> requestMatchers = new ArrayList<>();
-
-    for ( CsrfProtectionDefinition csrfProtectionDefinition : csrfProtectionDefinitions ) {
-      collectRequestMatchers( requestMatchers, csrfProtectionDefinition );
-    }
-
-    return requestMatchers.size() > 0 ? new OrRequestMatcher( requestMatchers ) : null;
-  }
-
-  private static void collectRequestMatchers( Collection<RequestMatcher> requestMatchers,
-                                              CsrfProtectionDefinition csrfProtectionDefinition ) {
-
-    Collection<RequestMatcherDefinition> requestMatcherDefinitions =
-        csrfProtectionDefinition.getProtectedRequestMatchers();
-    if ( requestMatcherDefinitions != null ) {
-      for ( RequestMatcherDefinition requestMatcherDefinition : requestMatcherDefinitions ) {
-
-        Collection<String> httpMethods = requestMatcherDefinition.getMethods();
-        if ( httpMethods == null ) {
-          requestMatchers.add(
-              new RegexRequestMatcher( requestMatcherDefinition.getPattern(), null, false ) );
-        } else {
-          for ( String httpMethod : requestMatcherDefinition.getMethods() ) {
-            requestMatchers.add(
-                new RegexRequestMatcher( requestMatcherDefinition.getPattern(), httpMethod, false ) );
-          }
-        }
-      }
-    }
-  }
   // endregion
 }
