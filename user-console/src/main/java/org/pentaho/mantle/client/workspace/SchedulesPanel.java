@@ -969,9 +969,14 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void triggerExecuteNow( final Set<JsJob> jobs ) {
-    final Map<String, JsJob> candidateJobs = new HashMap<String, JsJob>( jobs.size() );
+    final Map<String, List<JsJob>> candidateJobs = new HashMap<String, List<JsJob>>( jobs.size() );
     for ( JsJob job : jobs ) {
-      candidateJobs.put( job.getFullResourceName(), job );
+      List<JsJob> jobList = candidateJobs.get( job.getFullResourceName() );
+      if ( null == jobList ) {
+        jobList = new ArrayList<JsJob>();
+        candidateJobs.put( job.getFullResourceName(), jobList );
+      }
+      jobList.add( job );
     }
 
     canAccessJobListRequest( jobs, new RequestCallback() {
@@ -988,7 +993,7 @@ public class SchedulesPanel extends SimplePanel {
         }
 
         final Set<JsJob> removeList = new HashSet<JsJob>();
-        for ( JsJob job : candidateJobs.values() ) {
+        for ( JsJob job : jobs ) {
           if ( !executeList.contains( job ) ) {
             removeList.add( job );
           }
@@ -1013,14 +1018,14 @@ public class SchedulesPanel extends SimplePanel {
     controlJobs( jobs, "triggerNow", RequestBuilder.POST, true );
   }
 
-  private Set<JsJob> getExecutableJobs( Map<String, JsJob> candidateJobs, Response response ) {
+  private Set<JsJob> getExecutableJobs( Map<String, List<JsJob>> candidateJobs, Response response ) {
     final Set<JsJob> executeList = new HashSet<JsJob>();
 
     try {
       final List<String> readableFiles = parseJsonAccessList( response.getText() ).getReadableFiles();
 
       for ( String resourceName : readableFiles ) {
-        executeList.add( candidateJobs.get( resourceName ) );
+        executeList.addAll( candidateJobs.get( resourceName ) );
       }
     } catch ( Exception e ) {
       // noop
