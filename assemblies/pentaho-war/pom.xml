@@ -11,7 +11,7 @@
   <version>9.3.0.0-SNAPSHOT</version>
   <packaging>war</packaging>
   <properties>
-    <snakeyaml.version>1.13</snakeyaml.version>
+    <snakeyaml.version>1.26</snakeyaml.version>
     <rdbms>hsqldb</rdbms>
     <commons-database.version>9.3.0.0-SNAPSHOT</commons-database.version>
     <prepared.war.directory>${pentaho-server.directory}/tomcat/webapps/pentaho</prepared.war.directory>
