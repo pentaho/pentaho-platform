@@ -325,11 +325,7 @@ public class PentahoWebContextFilter implements Filter {
   }
 
   private String getLocaleVar( HttpServletRequest request ) {
-    String requestLocale = request.getParameter( "locale" );
-
-    boolean hasLocaleParam = StringUtils.isNotEmpty( requestLocale );
-
-    return hasLocaleParam ? requestLocale : LocaleHelper.getLocale().toString();
+    return LocaleHelper.getLocale().toString();
   }
 
   private String getSessionNameVar() {

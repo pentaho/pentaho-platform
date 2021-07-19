@@ -272,7 +272,7 @@ public class ProxyServlet extends ServletBase {
    * @return The locale override, or {@code null}, if none.
    */
   protected Locale getProxyLocaleOverride() {
-    return LocaleHelper.getLocaleOverride();
+    return LocaleHelper.getLocale();
   }
 
   @Override

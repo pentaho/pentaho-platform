@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -72,6 +72,13 @@ public class SwitchLocaleCommand extends AbstractCommand {
             }
 
             public void onResponseReceived( Request request, Response response ) {
+              String newLocalePath = "Home";
+              String baseUrl = GWT.getModuleBaseURL();
+              int index = baseUrl.indexOf( "/mantle/" );
+              if ( index >= 0 ) {
+                newLocalePath = baseUrl.substring( 0, index ) + "/Home";
+              }
+              Window.Location.replace( newLocalePath );
             }
           } );
         } catch ( RequestException e ) {
@@ -79,14 +86,6 @@ public class SwitchLocaleCommand extends AbstractCommand {
         }
       }
     } );
-
-    String newLocalePath = "Home?locale=" + locale;
-    String baseUrl = GWT.getModuleBaseURL();
-    int index = baseUrl.indexOf( "/mantle/" );
-    if ( index >= 0 ) {
-      newLocalePath = baseUrl.substring( 0, index ) + "/Home?locale=" + locale;
-    }
-    Window.Location.replace( newLocalePath );
   }
 
   public String getLocale() {
