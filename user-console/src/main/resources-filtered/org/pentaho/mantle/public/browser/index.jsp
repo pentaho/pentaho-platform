@@ -12,22 +12,24 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2021 Hitachi Vantara..  All rights reserved.
 --%>
 
 <!DOCTYPE html>
 <%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder" %>
-<%@ page import="java.util.Locale" %>
+<%@page import="org.pentaho.platform.util.messages.LocaleHelper"%>
+<%@page import="org.owasp.encoder.Encode" %>
+<%@page import="java.util.Locale" %>
 <%
   String userName = PentahoSessionHolder.getSession().getName();
-  Locale locale = request.getLocale();
+  Locale locale = LocaleHelper.getLocale();
 %>
 <html lang="en" class="bootstrap">
 <head>
 <meta charset="utf-8" class="bootstrap">
 <title>Browse Files</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="locale" content="<%=locale.toString()%>">
+<meta name="locale" content="<%=Encode.forHtmlAttribute(locale.toString())%>">
 
 <!-- Le styles -->
 <link href="css/browser.css" rel="stylesheet">

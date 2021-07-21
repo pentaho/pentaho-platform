@@ -179,12 +179,11 @@ public class SystemResource extends AbstractJaxRSResource {
   @Facet ( name = "Unsupported" )
   public Response setLocaleOverride( String locale ) {
     IPentahoSession session = PentahoSessionHolder.getSession();
-    Locale newLocale = null;
     if ( session != null ) {
       if ( !StringUtils.isEmpty( locale ) ) {
         String localeTmp = locale.replaceAll( "-|/", "_" ); // Clean up "en-US" and "en/GB"
         try {
-          newLocale = LocaleUtils.toLocale( localeTmp );
+          Locale newLocale = LocaleUtils.toLocale( localeTmp );
           session.setAttribute( "locale_override", localeTmp );
           LocaleHelper.setLocaleOverride( newLocale );
         } catch ( IllegalArgumentException ex ) {
@@ -197,6 +196,7 @@ public class SystemResource extends AbstractJaxRSResource {
     } else {
       LocaleHelper.setLocaleOverride( null );
     }
+
     return getLocale();
   }
 

@@ -23,9 +23,10 @@
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction" %>
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction" %>
 <%@page import="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction" %>
+<%@page import="org.pentaho.platform.util.messages.LocaleHelper"%>
+<%@page import="org.owasp.encoder.Encode" %>
 <%@page import="java.util.List" %>
 <%@page import="java.util.Locale"%>
-<%@page import="javax.servlet.http.HttpServletRequest"%>
 <%
   boolean canReadContent = PentahoSystem.get( IAuthorizationPolicy.class, PentahoSessionHolder.getSession() )
       .isAllowed( RepositoryReadAction.NAME );
@@ -35,14 +36,14 @@
       .isAllowed( AdministerSecurityAction.NAME );
   List<String> pluginIds =
       PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins();
-  Locale locale = request.getLocale();
+  Locale locale = LocaleHelper.getLocale();
 %>
 <html lang="en" class="bootstrap">
 <head>
   <meta charset="utf-8">
   <title>Home Page</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="locale" content="<%=locale.toString()%>">
+  <meta name="locale" content="<%=Encode.forHtmlAttribute(locale.toString())%>">
 
   <!-- Le styles -->
   <link href="css/home.css" rel="stylesheet">
