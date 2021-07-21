@@ -14,18 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.commands;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 
 public class SwitchLocaleCommand extends AbstractCommand {
@@ -44,32 +39,15 @@ public class SwitchLocaleCommand extends AbstractCommand {
   }
 
   protected void performOperation( boolean feedback ) {
-    // stuff the locale in the server's session so we can use it
-    // to override the browser setting, as needed
-
-    final String url = GWT.getHostPageBaseURL() + "api/mantle/locale"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
-    try {
-      builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-      builder.sendRequest( locale, new RequestCallback() {
-
-        public void onError( Request request, Throwable exception ) {
-          // showError(exception);
-        }
-
-        public void onResponseReceived( Request request, Response response ) {
-        }
-      } );
-    } catch ( RequestException e ) {
-      // showError(e);
-    }
-
     String newLocalePath = "Home?locale=" + locale;
+
     String baseUrl = GWT.getModuleBaseURL();
     int index = baseUrl.indexOf( "/mantle/" );
     if ( index >= 0 ) {
-      newLocalePath = baseUrl.substring( 0, index ) + "/Home?locale=" + locale;
+      String basePath = baseUrl.substring( 0, index );
+      newLocalePath = basePath + "/" + newLocalePath;
     }
+
     Window.Location.replace( newLocalePath );
   }
 
