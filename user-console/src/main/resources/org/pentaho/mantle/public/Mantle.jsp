@@ -19,10 +19,8 @@
 <%@page pageEncoding="UTF-8" %>
 <%@
     page language="java"
-    import="org.apache.commons.lang.StringUtils,
-            org.owasp.encoder.Encode,
+    import="org.owasp.encoder.Encode,
             org.pentaho.platform.util.messages.LocaleHelper,
-            java.util.Locale,
             java.net.URL,
             java.net.URLClassLoader,
             java.util.Iterator,
@@ -36,17 +34,8 @@
 <%
   boolean hasDataAccessPlugin = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins().contains( "data-access" );
 
-  Locale effectiveLocale = request.getLocale();
-
-  // Handle the `locale` request parameter.
-  request.getSession().setAttribute(
-      "locale_override",
-      StringUtils.defaultIfEmpty( request.getParameter( "locale" ), null ) );
-  LocaleHelper.parseAndSetLocaleOverride( request.getParameter( "locale" ) );
-
   URLClassLoader loader = new URLClassLoader( new URL[] { application.getResource( "/mantle/messages/" ) } );
-  ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", request.getLocale(), loader );
-
+  ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", LocaleHelper.getLocale(), loader );
 %>
 
 <html>
@@ -107,7 +96,7 @@
       }
     if (!haveMobileRedirect) {
   %>
-  <meta name="gwt:property" content="locale=<%=Encode.forHtmlAttribute(effectiveLocale.toString())%>">
+  <meta name="gwt:property" content="locale=<%= Encode.forHtmlAttribute(LocaleHelper.getLocale().toString()) %>">
   <link rel="icon" href="/pentaho-style/favicon.ico"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/pentaho-style/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/pentaho-style/favicon-32x32.png">
