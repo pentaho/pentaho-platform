@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
-import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
@@ -39,6 +38,7 @@ import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import javax.servlet.FilterConfig;
@@ -54,8 +54,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -321,25 +321,35 @@ public class PentahoWebContextFilterTest {
 
   @Test
   public void testWebContextDefinesSessionLocale() throws ServletException, IOException {
-    String sessionLocale = "fo_BA";
-    when( this.mockRequest.getParameter( "locale" ) ).thenReturn( sessionLocale );
-    final String response = executeWebContextFilter();
+    Locale previousLocaleOverride = LocaleHelper.getLocaleOverride();
+    LocaleHelper.setLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
+    try {
+      final String response = executeWebContextFilter();
 
-    assertTrue( response.contains( getWebContextVarDefinition( "SESSION_LOCALE", sessionLocale ) ) );
+      assertTrue( response.contains(
+        getWebContextVarDefinition( "SESSION_LOCALE", Locale.forLanguageTag( "pt-PT" ).toString() ) ) );
+
+    } finally {
+      LocaleHelper.setLocaleOverride( previousLocaleOverride );
+    }
   }
 
   @Test
   public void testWebContextDefinesLocaleModule() throws ServletException, IOException {
-    String sessionLocale = "fo_BA";
-    when( this.mockRequest.getParameter( "locale" ) ).thenReturn( sessionLocale );
-    final String response = executeWebContextFilter();
+    Locale previousLocaleOverride = LocaleHelper.getLocaleOverride();
+    LocaleHelper.setLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
+    try {
+      final String response = executeWebContextFilter();
 
-    String expected = "// If RequireJs is available, supply a module" +
-            "\nif (typeof(pen) !== 'undefined' && pen.define) {" +
-            "\n  pen.define('Locale', {locale: \"" + sessionLocale + "\" });" +
-            "\n}\n";
+      String expected = "// If RequireJs is available, supply a module" +
+              "\nif (typeof(pen) !== 'undefined' && pen.define) {" +
+              "\n  pen.define('Locale', {locale: \"" + Locale.forLanguageTag( "pt-PT" ).toString() + "\" });" +
+              "\n}\n";
 
-    assertTrue( response.contains( expected ) );
+      assertTrue( response.contains( expected ) );
+    } finally {
+      LocaleHelper.setLocaleOverride( previousLocaleOverride );
+    }
   }
 
   @Test
@@ -421,35 +431,39 @@ public class PentahoWebContextFilterTest {
     String serverServices = escapeEnvironmentVariable( mockServerServices );
     String userHome = escapeEnvironmentVariable( "/home/" + this.sessionName );
 
-    String sessionLocale = "fo_BA";
-    when( this.mockRequest.getParameter( "locale" ) ).thenReturn( sessionLocale );
+    Locale previousLocaleOverride = LocaleHelper.getLocaleOverride();
+    try {
+      LocaleHelper.setLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
 
-    String application = "pentaho-test";
-    when( this.mockRequest.getParameter( "application" ) ).thenReturn( application );
+      String application = "pentaho-test";
+      when( this.mockRequest.getParameter( "application" ) ).thenReturn( application );
 
-    StringBuilder value = new StringBuilder();
-    this.reservedChars.forEach(value::append);
-    String reservedChars = value.toString();
+      StringBuilder value = new StringBuilder();
+      this.reservedChars.forEach( value::append );
+      String reservedChars = value.toString();
 
-    final String response = executeWebContextFilter();
+      final String response = executeWebContextFilter();
 
-    String environmentModuleConfig = "requireCfg.config[\"pentaho/environment\"] = {" +
-            "\n  application: \"" + application + "\"," +
-            "\n  theme: \"" + this.activeTheme + "\"," +
-            "\n  locale: \"" + sessionLocale + "\"," +
-            "\n  user: {" +
-            "\n    id: \"" + this.sessionName + "\"," +
-            "\n    home: " + userHome +
-            "\n  }," +
-            "\n  reservedChars: \"" + reservedChars + "\"," +
-            "\n  server: {" +
-            "\n    root: " + serverRoot + "," +
-            "\n    packages: " + serverPackages + "," +
-            "\n    services: " + serverServices +
-            "\n  }" +
-            "\n};";
+      String environmentModuleConfig = "requireCfg.config[\"pentaho/environment\"] = {" +
+        "\n  application: \"" + application + "\"," +
+        "\n  theme: \"" + this.activeTheme + "\"," +
+        "\n  locale: \"" + Locale.forLanguageTag( "pt-PT" ).toString() + "\"," +
+        "\n  user: {" +
+        "\n    id: \"" + this.sessionName + "\"," +
+        "\n    home: " + userHome +
+        "\n  }," +
+        "\n  reservedChars: \"" + reservedChars + "\"," +
+        "\n  server: {" +
+        "\n    root: " + serverRoot + "," +
+        "\n    packages: " + serverPackages + "," +
+        "\n    services: " + serverServices +
+        "\n  }" +
+        "\n};";
 
-    assertTrue( response.contains( environmentModuleConfig ) );
+      assertTrue( response.contains( environmentModuleConfig ) );
+    } finally {
+      LocaleHelper.setLocaleOverride( previousLocaleOverride );
+    }
   }
 
   @Test
