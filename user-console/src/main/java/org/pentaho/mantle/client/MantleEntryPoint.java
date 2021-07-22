@@ -36,7 +36,11 @@ public class MantleEntryPoint implements EntryPoint, IResourceBundleLoadCallback
   public void onModuleLoad() {
     ResourceBundle messages = new ResourceBundle();
     Messages.setResourceBundle( messages );
-    messages.loadBundle( GWT.getModuleBaseURL() + "messages/", "mantleMessages", true, MantleEntryPoint.this );
+    messages.loadBundle(
+      GWT.getModuleBaseURL() + "messages/",
+      "mantleMessages",
+      true,
+      MantleEntryPoint.this );
   }
 
   public void bundleLoaded( String bundleName ) {
