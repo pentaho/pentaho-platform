@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -202,6 +202,35 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
     importMetaStore( manifest, bundle.overwriteInRepository() );
 
+    // Add DB Connections
+    List<org.pentaho.database.model.DatabaseConnection> datasourceList = manifest.getDatasourceList();
+    if ( datasourceList != null ) {
+      IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
+      for ( org.pentaho.database.model.DatabaseConnection databaseConnection : datasourceList ) {
+        if ( databaseConnection.getDatabaseType() == null ) {
+          // don't try to import the connection if there is no type it will cause an error
+          // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
+          log.warn(
+            "Can't import connection " + databaseConnection.getName() + " because it doesn't have a databaseType" );
+          continue;
+        }
+        try {
+          IDatabaseConnection existingDBConnection =
+            datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
+          if ( existingDBConnection != null && existingDBConnection.getName() != null ) {
+            if ( isOverwriteFile() ) {
+              databaseConnection.setId( existingDBConnection.getId() );
+              datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(), databaseConnection );
+            }
+          } else {
+            datasourceMgmtSvc.createDatasource( databaseConnection );
+          }
+        } catch ( Exception e ) {
+          e.printStackTrace();
+        }
+      }
+    }
+
     for ( IRepositoryFileBundle fileBundle : importSource.getFiles() ) {
       String fileName = fileBundle.getFile().getName();
       String actualFilePath = fileBundle.getPath();
@@ -302,35 +331,6 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     }
     if ( manifest != null ) {
       importSchedules( manifest.getScheduleList() );
-
-      // Add Hitachi Vantara Connections
-      List<org.pentaho.database.model.DatabaseConnection> datasourceList = manifest.getDatasourceList();
-      if ( datasourceList != null ) {
-        IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
-        for ( org.pentaho.database.model.DatabaseConnection databaseConnection : datasourceList ) {
-          if ( databaseConnection.getDatabaseType() == null ) {
-            // don't try to import the connection if there is no type it will cause an error
-            // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
-            log.warn(
-              "Can't import connection " + databaseConnection.getName() + " because it doesn't have a databaseType" );
-            continue;
-          }
-          try {
-            IDatabaseConnection existingDBConnection =
-              datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
-            if ( existingDBConnection != null && existingDBConnection.getName() != null ) {
-              if ( isOverwriteFile() ) {
-                databaseConnection.setId( existingDBConnection.getId() );
-                datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(), databaseConnection );
-              }
-            } else {
-              datasourceMgmtSvc.createDatasource( databaseConnection );
-            }
-          } catch ( Exception e ) {
-            e.printStackTrace();
-          }
-        }
-      }
     }
     // Process locale files.
     localeFilesProcessor.processLocaleFiles( importer );
