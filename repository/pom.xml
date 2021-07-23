@@ -9,7 +9,7 @@
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-repository</artifactId>
-  <version>8.3.0.8-718</version>
+  <version>8.3.0.8-C252</version>
   <properties>
     <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
@@ -703,22 +703,22 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-connections</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.8-718</version>
     </dependency>
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>pentaho-metadata</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.8-718</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.8-718</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.8-718</version>
     </dependency>
     <dependency>
       <groupId>org.javassist</groupId>
@@ -740,7 +740,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.8-718</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -903,7 +903,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>${project.artifactId}-${project.version}</finalName>
+    <finalName>${project.artifactId}-8.3.0.8-C252</finalName>
     <plugins>
       <plugin>
         <groupId>com.mycila</groupId>
