@@ -194,7 +194,11 @@ public class LocaleHelper {
    * @param newLocale The new thread locale override. Can be {@code null}.
    */
   public static void setThreadLocaleOverride( final Locale newLocale ) {
-    LocaleHelper.threadLocalesOverride.set( newLocale );
+    if ( newLocale == null ) {
+      LocaleHelper.threadLocalesOverride.remove();
+    } else {
+      LocaleHelper.threadLocalesOverride.set( newLocale );
+    }
   }
 
   /**
@@ -238,7 +242,11 @@ public class LocaleHelper {
    * @param newLocale The new base locale. Can be {@code null}.
    */
   public static void setThreadLocaleBase( final Locale newLocale ) {
-    LocaleHelper.threadLocalesBase.set( newLocale );
+    if ( newLocale == null ) {
+      LocaleHelper.threadLocalesBase.remove();
+    } else {
+      LocaleHelper.threadLocalesBase.set( newLocale );
+    }
   }
 
   /**

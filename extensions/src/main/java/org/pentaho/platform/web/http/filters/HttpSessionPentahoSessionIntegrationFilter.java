@@ -209,6 +209,11 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     LocaleHelper.setThreadLocaleBase( httpRequest.getLocale() );
   }
 
+  private void localeReset() {
+    LocaleHelper.setThreadLocaleOverride( null );
+    LocaleHelper.setThreadLocaleBase( null );
+  }
+
   public void doFilter( ServletRequest request, ServletResponse response, FilterChain chain ) throws IOException,
     ServletException {
 
@@ -288,6 +293,8 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
         storePentahoSessionInHttpSession( pentahoSessionAfterChainExecution, httpRequest,
           httpSessionExistedAtStartOfRequest );
       }
+
+      localeReset();
 
       if ( logger.isDebugEnabled() ) {
         logger.debug( "PentahoSessionHolder now cleared, as request processing completed" );
