@@ -20,6 +20,8 @@
 
 package org.pentaho.platform.api.engine;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -43,6 +45,14 @@ public interface IPentahoSession extends ILogger, IAuditable {
    * Roles that are authorized in current session.
    */
   public static final String SESSION_ROLES = "roles"; //$NON-NLS-1$
+
+  /**
+   * The name of the session attribute where the session locale override is stored.
+   *
+   * The format of the locale override attribute is Java's legacy {@link Locale#toString()} format,
+   * which uses underscores.
+   */
+  public static final String ATTRIBUTE_LOCALE_OVERRIDE = "locale_override";
 
   /**
    * Gets the name for this session, for example if this is an authenticated HTTP or Portlet session, the name will be
@@ -119,10 +129,48 @@ public interface IPentahoSession extends ILogger, IAuditable {
 
   /**
    * Gets the locale of the session.
+   *
+   * This is the <i>initial</i> session locale, defined at construction.
    * 
    * @return Returns the locale of the session.
    */
   public Locale getLocale();
+
+  /**
+   * Gets the locale override of the session.
+   *
+   * The format of the locale override attribute should be that returned by {@link Locale#toString()}.
+   *
+   * If the stored locale is empty, {@code null} is returned instead.
+   *
+   * The locale override string is stored in the session attribute named {@link #ATTRIBUTE_LOCALE_OVERRIDE}.
+   *
+   * @return The locale override, if any; {@code null}, otherwise.
+   *
+   * @see #getAttribute(String)
+   * @see #setAttribute
+   */
+  public default String getAttributeLocaleOverride() {
+    return StringUtils.defaultIfEmpty( (String) getAttribute( ATTRIBUTE_LOCALE_OVERRIDE ), null );
+  }
+
+  /**
+   * Sets the locale override of the session.
+   *
+   * If the given locale is empty, it is converted to {@code null}.
+   *
+   * The format of the locale override attribute should be that returned by {@link Locale#toString()}.
+   *
+   * The locale override string is stored in the session attribute named {@link #ATTRIBUTE_LOCALE_OVERRIDE}.
+   *
+   * @param locale The locale override.
+   *
+   * @see #getAttribute(String)
+   * @see #setAttribute
+   */
+  public default void setAttributeLocaleOverride( String locale ) {
+    setAttribute( ATTRIBUTE_LOCALE_OVERRIDE, StringUtils.defaultIfEmpty( locale, null ) );
+  }
 
   /**
    * Gets whether the session is known to be authenticated or not.

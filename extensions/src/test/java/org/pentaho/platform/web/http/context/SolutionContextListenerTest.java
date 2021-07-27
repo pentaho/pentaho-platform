@@ -44,6 +44,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
@@ -125,30 +126,37 @@ public class SolutionContextListenerTest {
 
   @Test
   public void testShowInitializationMessage() throws Exception {
-    PentahoSystem.registerObjectFactory( objectFactory );
-    IVersionHelper versionHelper = mock( IVersionHelper.class );
-    PentahoSystem.registerObject( versionHelper );
-    when( versionHelper.getVersionInformation( PentahoSystem.class ) ).thenReturn( "version info" );
+    LocaleHelper.setThreadLocaleOverride( Locale.ENGLISH );
+    try {
+      PentahoSystem.registerObjectFactory( objectFactory );
+      IVersionHelper versionHelper = mock( IVersionHelper.class );
+      PentahoSystem.registerObject( versionHelper );
 
-    when( objectFactory.objectDefined( IVersionHelper.class.getSimpleName() ) ).thenReturn( true );
+      when( versionHelper.getVersionInformation( PentahoSystem.class ) ).thenReturn( "version info" );
 
-    solutionContextListener.solutionPath = "solution-path";
-    // it just prints out to standard out, nothing to verify
+      when( objectFactory.objectDefined( IVersionHelper.class.getSimpleName() ) ).thenReturn( true );
 
-    ByteArrayOutputStream captureStdOut = new ByteArrayOutputStream();
-    ByteArrayOutputStream captureStdErr = new ByteArrayOutputStream();
+      solutionContextListener.solutionPath = "solution-path";
+      // it just prints out to standard out, nothing to verify
 
-    System.setOut( new PrintStream( captureStdOut ) );
-    System.setErr( new PrintStream( captureStdErr ) );
+      ByteArrayOutputStream captureStdOut = new ByteArrayOutputStream();
+      ByteArrayOutputStream captureStdErr = new ByteArrayOutputStream();
 
-    solutionContextListener.showInitializationMessage( true, "http://localhost:8080/pentaho" );
-    assertTrue( captureStdOut.toString().contains( "Pentaho BI Platform server is ready. (version info) Fully Qualified Server Url = "
-        + "http://localhost:8080/pentaho, Solution Path = solution-path" ) );
+      System.setOut( new PrintStream( captureStdOut ) );
+      System.setErr( new PrintStream( captureStdErr ) );
 
-    solutionContextListener.showInitializationMessage( false, "http://localhost:8080/pentaho" );
-    assertTrue( captureStdErr.toString().contains( "Pentaho BI Platform server failed to properly initialize. The system will not be available for requests. "
-        + "(version info) Fully Qualified Server Url = http://localhost:8080/pentaho, Solution Path = solution-path" ) );
+      solutionContextListener.showInitializationMessage( true, "http://localhost:8080/pentaho" );
+      assertTrue( captureStdOut.toString()
+        .contains( "Pentaho BI Platform server is ready. (version info) Fully Qualified Server Url = "
+          + "http://localhost:8080/pentaho, Solution Path = solution-path" ) );
 
+      solutionContextListener.showInitializationMessage( false, "http://localhost:8080/pentaho" );
+      assertTrue( captureStdErr.toString().contains(
+        "Pentaho BI Platform server failed to properly initialize. The system will not be available for requests. "
+          + "(version info) Fully Qualified Server Url = http://localhost:8080/pentaho, Solution Path = solution-path" ) );
+    } finally {
+      LocaleHelper.setThreadLocaleOverride( null );
+    }
   }
 
   @Test

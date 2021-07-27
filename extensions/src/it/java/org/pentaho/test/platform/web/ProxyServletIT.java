@@ -75,7 +75,7 @@ public class ProxyServletIT extends BaseTestCase {
   @Override
   protected void tearDown() throws Exception {
     PentahoSystem.shutdown();
-    LocaleHelper.setLocaleOverride( null );
+    LocaleHelper.setThreadLocaleOverride( null );
     PentahoSessionHolder.setSession( null );
   }
 
@@ -208,7 +208,7 @@ public class ProxyServletIT extends BaseTestCase {
     TestProxyServlet servlet = spy( new TestProxyServlet() );
     servlet.init( config );
 
-    LocaleHelper.setLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
+    LocaleHelper.setThreadLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
 
     servlet.service( request, response );
 
