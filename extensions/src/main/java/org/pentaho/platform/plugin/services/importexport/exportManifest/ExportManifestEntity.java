@@ -131,9 +131,7 @@ public class ExportManifestEntity {
 
   private void createEntityMetaData( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden,
       Boolean isSchedulable ) {
-    if ( LocaleHelper.getLocale() == null ) {
-      LocaleHelper.setLocale( Locale.getDefault() );
-    }
+
     entityMetaData = new EntityMetaData();
     entityMetaData.setCreatedBy( userId );
     entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar( new Date() ) );
@@ -150,9 +148,7 @@ public class ExportManifestEntity {
 
   private void createEntityMetaData( String rootFolder, RepositoryFile repositoryFile )
     throws ExportManifestFormatException {
-    if ( LocaleHelper.getLocale() == null ) {
-      LocaleHelper.setLocale( Locale.getDefault() );
-    }
+
     entityMetaData = new EntityMetaData();
     entityMetaData.setCreatedBy( repositoryFile.getCreatorId() );
     entityMetaData.setCreatedDate( XmlGregorianCalendarConverter.asXMLGregorianCalendar( repositoryFile

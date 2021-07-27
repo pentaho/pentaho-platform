@@ -140,12 +140,12 @@ public class LocalizationServletIT {
   public void getBundle_es() {
     LocalizationServlet ls = new LocalizationServlet();
     try {
-      LocaleHelper.setLocale( new Locale( "es" ) );
+      LocaleHelper.setThreadLocaleBase( new Locale( "es" ) );
       String json = ls.getJSONBundle( TestPluginProvider.TEST_PLUGIN, "messages/messages" );
       assertNotNull( json );
       assertTrue( json.contains( "\"2\":\"dos\"" ) );
     } finally {
-      LocaleHelper.setLocale( null );
+      LocaleHelper.setThreadLocaleBase( null );
     }
   }
 

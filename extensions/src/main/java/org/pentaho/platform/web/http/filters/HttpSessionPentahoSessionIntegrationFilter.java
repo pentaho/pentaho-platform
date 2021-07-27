@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,15 +12,12 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- *
  * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
- *
  */
 
 package org.pentaho.platform.web.http.filters;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -48,17 +44,18 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Populates the {@link PentahoSessionHolder} with information obtained from the <code>HttpSession</code>.
- * 
+ *
  * <p>
  * Originally this functionality existed in PentahoHttpRequestListener but has been moved here. Javadoc for that class:
  * </p>
- * 
+ *
  * <blockquote> In a J2EE environment, sets the Hitachi Vantara session statically per request so the session can be retrieved
  * by other consumers within the same request without having it passed to them explicitly. -- aphillips </blockquote>
- * 
+ *
  * <p>
  * There are two reasons that this is a {@link Filter} and not a {@code ServletRequestListener}:
  * </p>
@@ -66,11 +63,11 @@ import java.util.List;
  * <li>Filters are compatible with Servlet 2.3 web applications.</li>
  * <li>Filters can be ordered.</li>
  * </ul>
- * 
+ *
  * <p>
  * This implementation is based on {@code org.springframework.security.context.HttpSessionContextIntegrationFilter}.
  * </p>
- * 
+ *
  * <p>
  * The <code>HttpSession</code> will be queried to retrieve the <code>IPentahoSession</code> that should be stored
  * against the <code>PentahoSessiontHolder</code> for the duration of the web request. At the end of the web request,
@@ -154,7 +151,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
   /**
    * Does nothing. We use IoC container lifecycle services instead.
-   * 
+   *
    * @param filterConfig
    *          ignored
    * @throws ServletException
@@ -172,25 +169,29 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
   public void afterPropertiesSet() throws Exception {
     if ( forceEagerSessionCreation && !allowSessionCreation ) {
       throw new IllegalArgumentException(
-          "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true" );
+        "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true" );
     }
   }
 
   protected IPentahoSession generatePentahoSession( final HttpServletRequest httpRequest ) {
+    IPentahoSession pentahoSession;
+
     HttpSession httpSession = httpRequest.getSession( false );
-    IPentahoSession pentahoSession = null;
     if ( httpSession != null ) {
       pentahoSession = new PentahoHttpSession( null, httpSession, httpRequest.getLocale(), null );
     } else {
       pentahoSession = new NoDestroyStandaloneSession( null );
     }
+
     if ( callSetAuthenticatedForAnonymousUsers ) {
       pentahoSession.setAuthenticated( getAnonymousUser() );
     }
+
     ITempFileDeleter deleter = PentahoSystem.get( ITempFileDeleter.class, pentahoSession );
     if ( deleter != null ) {
       pentahoSession.setAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE, deleter );
     }
+
     return pentahoSession;
   }
 
@@ -200,16 +201,17 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
    */
   protected void localeLeftovers( final HttpServletRequest httpRequest ) {
 
-    // Sync the thread static LocaleHelper's locale override with the value of the corresponding session attribute.
-    HttpSession httpSession = httpRequest.getSession( false );
-    if ( httpSession != null ) {
-      String localeOverride = (String) httpSession.getAttribute( "locale_override" );
-      LocaleHelper.parseAndSetLocaleOverride( localeOverride );
-    }
+    // Sync the thread static LocaleHelper's locale override with that stored in the session, if any.
+    LocaleHelper.setThreadLocaleOverride( readLocaleOverrideFromHttpSession( httpRequest ) );
 
     // Even if there is no session, or if it has no locale override,
     // set the thread's fallback locale to that of the HTTP request.
-    LocaleHelper.setLocale( httpRequest.getLocale() );
+    LocaleHelper.setThreadLocaleBase( httpRequest.getLocale() );
+  }
+
+  private void localeReset() {
+    LocaleHelper.setThreadLocaleOverride( null );
+    LocaleHelper.setThreadLocaleBase( null );
   }
 
   public void doFilter( ServletRequest request, ServletResponse response, FilterChain chain ) throws IOException,
@@ -230,7 +232,6 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     if ( httpRequest.getAttribute( FILTER_APPLIED ) != null ) {
       // ensure that filter is only applied once per request
       chain.doFilter( httpRequest, httpResponse );
-
       return;
     }
 
@@ -257,7 +258,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     } else {
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Obtained a valid IPentahoSession from HTTP session to "
-            + "associate with PentahoSessionHolder: '" + pentahoSessionBeforeChainExecution + "'" );
+          + "associate with PentahoSessionHolder: '" + pentahoSessionBeforeChainExecution + "'" );
       }
     }
 
@@ -267,7 +268,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     // if anything in the chain does a sendError() or sendRedirect().
 
     OnRedirectUpdateSessionResponseWrapper responseWrapper =
-        new OnRedirectUpdateSessionResponseWrapper( httpResponse, httpRequest, httpSessionExistedAtStartOfRequest );
+      new OnRedirectUpdateSessionResponseWrapper( httpResponse, httpRequest, httpSessionExistedAtStartOfRequest );
 
     // Proceed with chain
 
@@ -285,13 +286,15 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
       httpRequest.removeAttribute( FILTER_APPLIED );
 
-      // storePentahoSessionInHttpSession() might already be called by the response wrapper
+      // storePentahoSessionInHttpSession() might already have been called by the response wrapper
       // if something in the chain called sendError() or sendRedirect(). This ensures we only call it
       // once per request.
       if ( !responseWrapper.isSessionUpdateDone() ) {
         storePentahoSessionInHttpSession( pentahoSessionAfterChainExecution, httpRequest,
-            httpSessionExistedAtStartOfRequest );
+          httpSessionExistedAtStartOfRequest );
       }
+
+      localeReset();
 
       if ( logger.isDebugEnabled() ) {
         logger.debug( "PentahoSessionHolder now cleared, as request processing completed" );
@@ -304,7 +307,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
    * <p/>
    * If the HTTP session is null or the Hitachi Vantara session is null it will return null.
    * <p/>
-   * 
+   *
    * @param httpSession
    *          the session obtained from the request.
    */
@@ -320,7 +323,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     // HTTP session exists, so try to obtain a Hitachi Vantara session from it.
 
     IPentahoSession pentahoSessionFromHttpSession =
-        (IPentahoSession) httpSession.getAttribute( PentahoSystem.PENTAHO_SESSION_KEY );
+      (IPentahoSession) httpSession.getAttribute( PentahoSystem.PENTAHO_SESSION_KEY );
 
     if ( pentahoSessionFromHttpSession == null ) {
       if ( logger.isDebugEnabled() ) {
@@ -335,7 +338,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
   /**
    * Stores the supplied Hitachi Vantara session in the HTTP session (if available).
-   * 
+   *
    * @param pentahoSession
    *          the Hitachi Vantara session obtained from the PentahoSessionHolder after the request has been processed by the
    *          filter chain. PentahoSessionHolder.getSession() cannot be used to obtain the Pentaho session as it has
@@ -345,18 +348,18 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
    * @param httpSessionExistedAtStartOfRequest
    *          indicates whether there was a session in place before the filter chain executed. If this is true, and the
    *          session is found to be null, this indicates that it was invalidated during the request and a new session
-   *          will now be created.
+   *                                           will now be created.
    * 
    */
   private void storePentahoSessionInHttpSession( IPentahoSession pentahoSession, HttpServletRequest request,
-      boolean httpSessionExistedAtStartOfRequest ) {
+                                                 boolean httpSessionExistedAtStartOfRequest ) {
     HttpSession httpSession = safeGetSession( request, false );
 
     if ( httpSession == null ) {
       if ( httpSessionExistedAtStartOfRequest ) {
         if ( logger.isDebugEnabled() ) {
           logger.debug( "HttpSession is now null, but was not null at start of request; "
-              + "session was invalidated, so do not create a new session" );
+            + "session was invalidated, so do not create a new session" );
         }
       } else {
         // Generate a HttpSession only if we need to
@@ -364,9 +367,9 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
         if ( !allowSessionCreation ) {
           if ( logger.isDebugEnabled() ) {
             logger.debug( "The HttpSession is currently null, and the " + this.getClass().getSimpleName()
-                + " is prohibited from creating an HttpSession "
-                + "(because the allowSessionCreation property is false) - Pentaho session thus not "
-                + "stored for next request" );
+              + " is prohibited from creating an HttpSession "
+              + "(because the allowSessionCreation property is false) - Pentaho session thus not "
+              + "stored for next request" );
           }
         } else if ( pentahoSession != null ) {
           if ( logger.isDebugEnabled() ) {
@@ -378,7 +381,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
         } else {
           if ( logger.isDebugEnabled() ) {
             logger.debug( "HttpSession is null, and Pentaho session is null; "
-                + "not creating HttpSession or storing SecurityContextHolder contents" );
+              + "not creating HttpSession or storing SecurityContextHolder contents" );
           }
         }
       }
@@ -456,6 +459,13 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     }
   }
 
+  private Locale readLocaleOverrideFromHttpSession( HttpServletRequest httpRequest ) {
+    HttpSession httpSession = httpRequest.getSession( false );
+    return httpSession != null
+      ? LocaleHelper.parseLocale( (String) httpSession.getAttribute( IPentahoSession.ATTRIBUTE_LOCALE_OVERRIDE ) )
+      : null;
+  }
+
   private HttpSession safeGetSession( HttpServletRequest request, boolean allowCreate ) {
     try {
       return request.getSession( allowCreate );
@@ -523,11 +533,11 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     /**
      * Takes the parameters required to call <code>storePentahoSessionInHttpSession()</code> in addition to the response
      * object we are wrapping.
-     * 
+     *
      * @see #storePentahoSessionInHttpSession(IPentahoSession, HttpServletRequest, boolean)
      */
     public OnRedirectUpdateSessionResponseWrapper( HttpServletResponse response, HttpServletRequest request,
-        boolean httpSessionExistedAtStartOfRequest ) {
+                                                   boolean httpSessionExistedAtStartOfRequest ) {
       super( response );
       this.request = request;
       this.httpSessionExistedAtStartOfRequest = httpSessionExistedAtStartOfRequest;
@@ -581,9 +591,9 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
   /**
    * An {@code StandaloneSession} that does nothing in its destroy implementation.
    * {@code InheritableThreadLocalPentahoSessionHolderStrategy} has the following code in {@code removeSession}:
-   * 
+   *
    * <pre>
-   * {@code 
+   * {@code
    * if (sess instanceof StandaloneSession)
    *   ((StandaloneSession) sess).destroy();
    * }
@@ -594,7 +604,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
    * and does not store the session.
    * 
    * Until now, Standalone sessions were only used for scheduled jobs. This is a new use for StandaloneSessions.
-   * 
+   *
    * @author mlowery
    */
   private static class NoDestroyStandaloneSession extends StandaloneSession {
