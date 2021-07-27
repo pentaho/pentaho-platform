@@ -31,10 +31,8 @@ import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -182,7 +180,7 @@ public class SystemResource extends AbstractJaxRSResource {
 
     if ( !StringUtils.isEmpty( locale ) ) {
       // Clean up "en-US" and "en/GB".
-      String localeNormalized = locale.replaceAll( "-|/", "_" );
+      String localeNormalized = locale.replaceAll( "[-/]", "_" );
       try {
         sessionLocale = LocaleUtils.toLocale( localeNormalized );
       } catch ( IllegalArgumentException ex ) {

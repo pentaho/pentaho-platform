@@ -422,12 +422,15 @@ public class LocaleHelperTest {
 
   // region Session Locale Override
 
-  @Test
+  // The Test.None.class ensures that SonarQube does not complain that there are no assertions in the test case.
+  @SuppressWarnings( "DefaultAnnotationParam" )
+  @Test( expected = Test.None.class )
   public void testSessionLocaleOverrideIsNoOpIfNoSession() {
     IPentahoSession initialSession = PentahoSessionHolder.getSession();
 
     Locale customLocale = Locale.forLanguageTag("de-POSIX-x-URP-lvariant-Abc-Def");
     try {
+      PentahoSessionHolder.setSession( null );
       LocaleHelper.setSessionLocaleOverride( customLocale );
     } finally {
       PentahoSessionHolder.setSession( initialSession );

@@ -153,6 +153,7 @@ public class LocaleHelper {
    *
    * @deprecated Use a combination of {@link #parseLocale(String)} and {@link #setThreadLocaleOverride(Locale)} instead.
    */
+  @Deprecated
   public static void parseAndSetLocaleOverride( final String localeOverride ) {
     setThreadLocaleOverride( parseLocale( localeOverride ) );
   }
@@ -163,6 +164,7 @@ public class LocaleHelper {
    * @param newLocale The new override locale. Can be {@code null}.
    * @deprecated Use {@link #setThreadLocaleOverride(Locale)} instead.
    */
+  @Deprecated
   public static void setLocaleOverride( final Locale newLocale ) {
     setThreadLocaleOverride( newLocale );
   }
@@ -173,6 +175,7 @@ public class LocaleHelper {
    * @return The locale override, if set; {@code null}, otherwise.
    * @deprecated Use {@link #getThreadLocaleOverride()} instead.
    */
+  @Deprecated
   public static Locale getLocaleOverride() {
     return getThreadLocaleOverride();
   }
@@ -213,6 +216,7 @@ public class LocaleHelper {
    *
    * @deprecated Use {@link #setThreadLocaleBase(Locale)} instead.
    */
+  @Deprecated
   public static void setLocale( final Locale newLocale ) {
     setThreadLocaleBase( newLocale );
   }

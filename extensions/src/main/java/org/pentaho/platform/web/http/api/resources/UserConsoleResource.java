@@ -29,9 +29,9 @@ import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.config.PropertiesFileConfiguration;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.StringTokenizer;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -58,9 +57,9 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 /**
- * The {@code UserConsoleResource} service provides both shared and user-specific state or settings related
- * with the use of the Pentaho User Console.
- *
+ * The {@code UserConsoleResource} service provides both shared and user-specific state or settings related with the use
+ * of the Pentaho User Console.
+ * <p>
  * The following operations provide access to User Console system settings (shared by all users):
  * <ul>
  *   <li>{@link UserConsoleResource#getAdminContent()}</li>
@@ -68,24 +67,24 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
  *   <li>{@link UserConsoleResource#getMondrianCatalogs()}</li>
  *   <li>{@link UserConsoleResource#registeredPlugins()}</li>
  * </ul>
- *
+ * <p>
  * The {@code UserConsoleResource} exposes operations to access and manage <i>user session variables</i>.
  * User session variables are unique per user session and reset to their default values at every user session creation.
  * Contrast session variables with <i>user settings</i>, accessed via {@link UserSettingsResource},
  * which are persisted across user sessions and shared by all active sessions of a user.
- *
+ * <p>
  * One last characteristic of session variables is that only those declared in the properties
  * {@code userConsoleResource.getSessionVarWhiteList} and {@code userConsoleResource.setSessionVarWhiteList}
  * of the system file {@code system/restConfig.properties}, can be read or modified via this class.
  * By default, these are {@code scheduler_folder} and {@code showOverrideDialog}.
- *
+ * <p>
  * Generic user session variables are accessed and managed via the operations:
  * <ul>
  *   <li>{@link UserConsoleResource#setSessionVariable(String, String)}</li>
  *   <li>{@link UserConsoleResource#getSessionVariable(String)}</li>
  *   <li>{@link UserConsoleResource#clearSessionVariable(String)}</li>
  * </ul>
- *
+ * <p>
  * The following operations expose specific (non-generic) user session information:
  * <ul>
  *   <li>{@link UserConsoleResource#isAuthenticated()}</li>
@@ -98,7 +97,7 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
  *     and {@link org.pentaho.platform.util.messages.LocaleHelper#setThreadLocaleOverride(Locale)}
  *   </li>
  * </ul>
- *
+ * <p>
  * The state changing operations of this service,
  * with the notable exception of {@link UserConsoleResource#setLocaleOverride(String)},
  * are protected against CSRF attacks, and thus require a CSRF token to be called.
