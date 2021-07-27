@@ -46,17 +46,6 @@ public class LocaleHelperTest {
     LocaleHelper helper = new LocaleHelper();
     assertNotNull( helper );
 
-    Locale myLocale = Locale.US;
-    Locale newLocale = Locale.FRANCE;
-
-    LocaleHelper.setDefaultLocale( myLocale );
-    Locale myDefaultLocale = LocaleHelper.getDefaultLocale();
-    Assert.assertEquals( myDefaultLocale, myLocale );
-
-    LocaleHelper.setThreadLocaleBase( newLocale );
-    Locale myNewLocale = LocaleHelper.getLocale();
-    Assert.assertEquals( myNewLocale, newLocale );
-
     LocaleHelper.setSystemEncoding( "UTF8" ); //$NON-NLS-1$
     String systemEncoding = LocaleHelper.getSystemEncoding();
     Assert.assertEquals( systemEncoding, "UTF8" ); //$NON-NLS-1$
