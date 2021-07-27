@@ -234,12 +234,7 @@ public class JcrRepositoryFileUtils {
 
     // Get default locale if null
     if ( pentahoLocale == null ) {
-      Locale currentLocale = LocaleHelper.getLocale();
-      if ( currentLocale != null ) {
-        pentahoLocale = new PentahoLocale( currentLocale );
-      } else {
-        pentahoLocale = new PentahoLocale();
-      }
+      pentahoLocale = new PentahoLocale( LocaleHelper.getLocale() );
     }
 
     // Not needed for content generators and the like
@@ -315,15 +310,12 @@ public class JcrRepositoryFileUtils {
     if ( session.getRootNode().isSame( node ) ) {
       return getRootFolder( session );
     }
+
     // Get default locale if null
     if ( pentahoLocale == null ) {
-      Locale currentLocale = LocaleHelper.getLocale();
-      if ( currentLocale != null ) {
-        pentahoLocale = new PentahoLocale( currentLocale );
-      } else {
-        pentahoLocale = new PentahoLocale();
-      }
+      pentahoLocale = new PentahoLocale( LocaleHelper.getLocale() );
     }
+
     return getRepositoryFileProxyFactory().getProxy( node, pentahoLocale );
   }
 

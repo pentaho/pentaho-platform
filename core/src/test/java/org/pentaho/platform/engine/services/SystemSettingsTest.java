@@ -86,7 +86,7 @@ public class SystemSettingsTest extends TestCase {
     File fileTest = new File( SOLUTION_PATH + PENTAHO_XML_PATH );
     if ( fileTest.exists() ) {
       System.out.println( "system test File exist returning " + SOLUTION_PATH );
-      LocaleHelper.setLocale( Locale.getDefault() );
+      LocaleHelper.setThreadLocaleBase( Locale.getDefault() );
       Assert.assertNotNull( SystemSettingsTest.SOLUTION_PATH );
       Assert.assertNotSame( "", SystemSettingsTest.SOLUTION_PATH ); //$NON-NLS-1$
 
@@ -101,7 +101,7 @@ public class SystemSettingsTest extends TestCase {
 
     } else {
       System.out.println( "system test File does not exist returning " + ALT_SOLUTION_PATH );
-      LocaleHelper.setLocale( Locale.getDefault() );
+      LocaleHelper.setThreadLocaleBase( Locale.getDefault() );
       Assert.assertNotNull( SystemSettingsTest.ALT_SOLUTION_PATH );
       Assert.assertNotSame( "", SystemSettingsTest.ALT_SOLUTION_PATH ); //$NON-NLS-1$
 

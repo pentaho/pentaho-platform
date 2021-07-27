@@ -113,6 +113,7 @@ public class ProxyTrustingFilterTest {
     filter.init( cfg );
 
     MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+    assert httpSession != null;
 
     request.setRemoteHost( TRUSTED_IP );
     request.addParameter( filter.getParameterName(), "user" );
@@ -120,8 +121,9 @@ public class ProxyTrustingFilterTest {
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
 
     verify( filter ).setSystemLocaleOverrideCode( null );
-    assertNull( LocaleHelper.getLocaleOverride() );
-    assertNull( httpSession.getAttribute( "locale_override" ) );
+
+    assertNull( httpSession.getAttribute( IPentahoSession.ATTRIBUTE_LOCALE_OVERRIDE ) );
+    assertNull( LocaleHelper.getThreadLocaleOverride() );
   }
 
   @Test
@@ -133,6 +135,7 @@ public class ProxyTrustingFilterTest {
     filter.init( cfg );
 
     MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+    assert httpSession != null;
 
     request.setRemoteHost( TRUSTED_IP );
     request.addParameter( filter.getParameterName(), "user" );
@@ -141,9 +144,9 @@ public class ProxyTrustingFilterTest {
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
 
     verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
-    Locale locale = LocaleHelper.getLocaleOverride();
+    Locale locale = LocaleHelper.getThreadLocaleOverride();
     assertEquals( new Locale( "pt", "PT" ), locale );
-    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+    assertEquals( locale.toString(), httpSession.getAttribute( IPentahoSession.ATTRIBUTE_LOCALE_OVERRIDE ) );
   }
 
   @Test
@@ -156,6 +159,7 @@ public class ProxyTrustingFilterTest {
     filter.init( cfg );
 
     MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+    assert httpSession != null;
 
     request.setRemoteHost( TRUSTED_IP );
     request.addParameter( filter.getParameterName(), "user" );
@@ -164,9 +168,9 @@ public class ProxyTrustingFilterTest {
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
 
     verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
-    Locale locale = LocaleHelper.getLocaleOverride();
+    Locale locale = LocaleHelper.getThreadLocaleOverride();
     assertEquals( new Locale( "pt", "PT" ), locale );
-    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+    assertEquals( locale.toString(), httpSession.getAttribute( IPentahoSession.ATTRIBUTE_LOCALE_OVERRIDE ) );
   }
 
   @Test
@@ -179,6 +183,7 @@ public class ProxyTrustingFilterTest {
     filter.init( cfg );
 
     MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+    assert httpSession != null;
 
     request.setRemoteHost( TRUSTED_IP );
     request.addParameter( filter.getParameterName(), "user" );
@@ -188,9 +193,9 @@ public class ProxyTrustingFilterTest {
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
 
     verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
-    Locale locale = LocaleHelper.getLocaleOverride();
+    Locale locale = LocaleHelper.getThreadLocaleOverride();
     assertEquals( new Locale( "pt", "PT" ), locale );
-    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+    assertEquals( locale.toString(), httpSession.getAttribute( IPentahoSession.ATTRIBUTE_LOCALE_OVERRIDE ) );
   }
 
   @Test
@@ -203,6 +208,7 @@ public class ProxyTrustingFilterTest {
     filter.init( cfg );
 
     MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+    assert httpSession != null;
 
     request.setRemoteHost( TRUSTED_IP );
     request.addParameter( filter.getParameterName(), "user" );
@@ -211,9 +217,9 @@ public class ProxyTrustingFilterTest {
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
 
     verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
-    Locale locale = LocaleHelper.getLocaleOverride();
+    Locale locale = LocaleHelper.getThreadLocaleOverride();
     assertEquals( new Locale( "pt", "PT" ), locale );
-    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+    assertEquals( locale.toString(), httpSession.getAttribute( IPentahoSession.ATTRIBUTE_LOCALE_OVERRIDE ) );
   }
 
   @Test
@@ -227,6 +233,7 @@ public class ProxyTrustingFilterTest {
     filter.init( cfg );
 
     MockHttpSession httpSession = (MockHttpSession) request.getSession( true );
+    assert httpSession != null;
 
     request.setRemoteHost( TRUSTED_IP );
     request.addParameter( filter.getParameterName(), "user" );
@@ -235,9 +242,9 @@ public class ProxyTrustingFilterTest {
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
 
     verify( filter ).setSystemLocaleOverrideCode( "pt_PT" );
-    Locale locale = LocaleHelper.getLocaleOverride();
+    Locale locale = LocaleHelper.getThreadLocaleOverride();
     assertEquals( new Locale( "pt", "PT" ), locale );
-    assertEquals( locale.toString(), httpSession.getAttribute( "locale_override" ) );
+    assertEquals( locale.toString(), httpSession.getAttribute( IPentahoSession.ATTRIBUTE_LOCALE_OVERRIDE ) );
   }
   // endregion
 }

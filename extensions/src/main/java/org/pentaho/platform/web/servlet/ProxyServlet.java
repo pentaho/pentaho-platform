@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -204,10 +204,7 @@ public class ProxyServlet extends ServletBase {
       queryParams.add( new BasicNameValuePair( TRUST_USER_PARAM, userName ) );
 
       if ( isLocaleOverrideEnabled ) {
-        Locale localeOverride = getProxyLocaleOverride();
-        if ( localeOverride != null ) {
-          queryParams.add( new BasicNameValuePair( TRUST_LOCALE_OVERRIDE_PARAM, localeOverride.toString() ) );
-        }
+        queryParams.add( new BasicNameValuePair( TRUST_LOCALE_OVERRIDE_PARAM, LocaleHelper.getLocale().toString() ) );
       }
     }
 
@@ -262,17 +259,6 @@ public class ProxyServlet extends ServletBase {
     if ( header != null ) {
       response.setHeader( headerStr, header.getValue() );
     }
-  }
-
-  /**
-   * Gets the locale override to send to the proxy url.
-   * <p>
-   * Mostly, supports unit testing.
-   *
-   * @return The locale override, or {@code null}, if none.
-   */
-  protected Locale getProxyLocaleOverride() {
-    return LocaleHelper.getLocale();
   }
 
   @Override

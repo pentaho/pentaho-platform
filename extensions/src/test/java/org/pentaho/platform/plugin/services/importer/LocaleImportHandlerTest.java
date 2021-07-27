@@ -177,7 +177,7 @@ public class LocaleImportHandlerTest {
   @Test
   public void testImportLocalizedPropertiesFiles_fr() throws Exception {
 
-    LocaleHelper.setLocale( new Locale( "fr" ) );
+    LocaleHelper.setThreadLocaleBase( new Locale( "fr" ) );
 
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
@@ -210,7 +210,7 @@ public class LocaleImportHandlerTest {
   @Test
   public void testImportLocalizedPropertiesFiles_en_us() throws Exception {
 
-    LocaleHelper.setLocale( new Locale( "en_US" ) );
+    LocaleHelper.setThreadLocaleBase( new Locale( "en_US" ) );
 
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
@@ -243,7 +243,7 @@ public class LocaleImportHandlerTest {
   @Test
   public void testImportLocalizedPropertiesFiles_en_gb() throws Exception {
 
-    LocaleHelper.setLocale( new Locale( "en_GB" ) );
+    LocaleHelper.setThreadLocaleBase( new Locale( "en_GB" ) );
 
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
@@ -369,7 +369,7 @@ public class LocaleImportHandlerTest {
   @Test
   public void testImportLocalizedWithFileExtensionPropertiesFiles_en_gb() throws Exception {
 
-    LocaleHelper.setLocale( new Locale( "en_GB" ) );
+    LocaleHelper.setThreadLocaleBase( new Locale( "en_GB" ) );
 
     IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );

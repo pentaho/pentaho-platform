@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -42,9 +42,16 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
 /**
- * This resource manages the user settings of the platform
- * 
+ * This resource manages the user settings of the platform.
  *
+ * User settings are persisted across user sessions and shared by all active sessions of a user.
+ * Contrast this with <i>user session variables</i>, accessed via {@link UserConsoleResource},
+ * which are reset at every new user session, and are local to each user session.
+ *
+ * The state changing operations of this service are protected against CSRF attacks,
+ * and thus require a CSRF token to be called.
+ *
+ * @see UserConsoleResource
  */
 @Path( "/user-settings" )
 @Facet( name = "Unsupported" )

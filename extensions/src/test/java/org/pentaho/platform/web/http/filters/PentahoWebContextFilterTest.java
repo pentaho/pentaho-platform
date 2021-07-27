@@ -321,8 +321,8 @@ public class PentahoWebContextFilterTest {
 
   @Test
   public void testWebContextDefinesSessionLocale() throws ServletException, IOException {
-    Locale previousLocaleOverride = LocaleHelper.getLocaleOverride();
-    LocaleHelper.setLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
+    Locale previousLocaleOverride = LocaleHelper.getThreadLocaleOverride();
+    LocaleHelper.setThreadLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
     try {
       final String response = executeWebContextFilter();
 
@@ -330,14 +330,14 @@ public class PentahoWebContextFilterTest {
         getWebContextVarDefinition( "SESSION_LOCALE", Locale.forLanguageTag( "pt-PT" ).toString() ) ) );
 
     } finally {
-      LocaleHelper.setLocaleOverride( previousLocaleOverride );
+      LocaleHelper.setThreadLocaleOverride( previousLocaleOverride );
     }
   }
 
   @Test
   public void testWebContextDefinesLocaleModule() throws ServletException, IOException {
-    Locale previousLocaleOverride = LocaleHelper.getLocaleOverride();
-    LocaleHelper.setLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
+    Locale previousLocaleOverride = LocaleHelper.getThreadLocaleOverride();
+    LocaleHelper.setThreadLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
     try {
       final String response = executeWebContextFilter();
 
@@ -348,7 +348,7 @@ public class PentahoWebContextFilterTest {
 
       assertTrue( response.contains( expected ) );
     } finally {
-      LocaleHelper.setLocaleOverride( previousLocaleOverride );
+      LocaleHelper.setThreadLocaleOverride( previousLocaleOverride );
     }
   }
 
@@ -431,9 +431,9 @@ public class PentahoWebContextFilterTest {
     String serverServices = escapeEnvironmentVariable( mockServerServices );
     String userHome = escapeEnvironmentVariable( "/home/" + this.sessionName );
 
-    Locale previousLocaleOverride = LocaleHelper.getLocaleOverride();
+    Locale previousLocaleOverride = LocaleHelper.getThreadLocaleOverride();
     try {
-      LocaleHelper.setLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
+      LocaleHelper.setThreadLocaleOverride( Locale.forLanguageTag( "pt-PT" ) );
 
       String application = "pentaho-test";
       when( this.mockRequest.getParameter( "application" ) ).thenReturn( application );
@@ -462,7 +462,7 @@ public class PentahoWebContextFilterTest {
 
       assertTrue( response.contains( environmentModuleConfig ) );
     } finally {
-      LocaleHelper.setLocaleOverride( previousLocaleOverride );
+      LocaleHelper.setThreadLocaleOverride( previousLocaleOverride );
     }
   }
 

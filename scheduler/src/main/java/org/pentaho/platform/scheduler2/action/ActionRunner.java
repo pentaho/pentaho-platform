@@ -102,9 +102,9 @@ public class ActionRunner implements Callable<Boolean> {
 
     final Object locale = params.get( LocaleHelper.USER_LOCALE_PARAM );
     if ( locale instanceof Locale ) {
-      LocaleHelper.setLocaleOverride( (Locale) locale );
+      LocaleHelper.setThreadLocaleOverride( (Locale) locale );
     } else {
-      LocaleHelper.setLocaleOverride( new Locale( (String) locale ) );
+      LocaleHelper.setThreadLocaleOverride( new Locale( (String) locale ) );
     }
     // sync job params to the action bean
     ActionHarness actionHarness = new ActionHarness( actionBean );

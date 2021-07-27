@@ -46,7 +46,7 @@ public class LocaleHelperTest {
     Locale myDefaultLocale = LocaleHelper.getDefaultLocale();
     Assert.assertEquals( myDefaultLocale, myLocale );
 
-    LocaleHelper.setLocale( newLocale );
+    LocaleHelper.setThreadLocaleBase( newLocale );
     Locale myNewLocale = LocaleHelper.getLocale();
     Assert.assertEquals( myNewLocale, newLocale );
 
@@ -158,7 +158,7 @@ public class LocaleHelperTest {
     assertTrue( LocaleHelper.getLocale().equals( new Locale( TEST_LOCALE_LANG, TEST_LOCALE_COUNTRY ) ) );
 
     // reset override to not break other tests
-    LocaleHelper.setLocaleOverride( null );
+    LocaleHelper.setThreadLocaleOverride( null );
   }
 
   @Test

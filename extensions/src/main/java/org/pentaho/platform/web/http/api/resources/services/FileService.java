@@ -105,6 +105,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
@@ -1797,7 +1798,7 @@ public class FileService {
   }
 
   protected Collator getCollatorInstance() {
-    return Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
+    return Collator.getInstance( LocaleHelper.getLocale() );
   }
 
   public class RepositoryFileToStreamWrapper {
@@ -1890,7 +1891,7 @@ public class FileService {
   }
 
   protected Collator getCollator( int strength ) {
-    Collator collator = Collator.getInstance( PentahoSessionHolder.getSession().getLocale() );
+    Collator collator = getCollatorInstance();
     collator.setStrength( strength ); // ignore case
     return collator;
   }

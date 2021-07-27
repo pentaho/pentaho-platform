@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -57,7 +58,55 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 /**
- * The UserConsoleResource service provides the ability to check whether the current user is authenticated and/or is an administrator.
+ * The {@code UserConsoleResource} service provides both shared and user-specific state or settings related
+ * with the use of the Pentaho User Console.
+ *
+ * The following operations provide access to User Console system settings (shared by all users):
+ * <ul>
+ *   <li>{@link UserConsoleResource#getAdminContent()}</li>
+ *   <li>{@link UserConsoleResource#getMantleSettings()}</li>
+ *   <li>{@link UserConsoleResource#getMondrianCatalogs()}</li>
+ *   <li>{@link UserConsoleResource#registeredPlugins()}</li>
+ * </ul>
+ *
+ * The {@code UserConsoleResource} exposes operations to access and manage <i>user session variables</i>.
+ * User session variables are unique per user session and reset to their default values at every user session creation.
+ * Contrast session variables with <i>user settings</i>, accessed via {@link UserSettingsResource},
+ * which are persisted across user sessions and shared by all active sessions of a user.
+ *
+ * One last characteristic of session variables is that only those declared in the properties
+ * {@code userConsoleResource.getSessionVarWhiteList} and {@code userConsoleResource.setSessionVarWhiteList}
+ * of the system file {@code system/restConfig.properties}, can be read or modified via this class.
+ * By default, these are {@code scheduler_folder} and {@code showOverrideDialog}.
+ *
+ * Generic user session variables are accessed and managed via the operations:
+ * <ul>
+ *   <li>{@link UserConsoleResource#setSessionVariable(String, String)}</li>
+ *   <li>{@link UserConsoleResource#getSessionVariable(String)}</li>
+ *   <li>{@link UserConsoleResource#clearSessionVariable(String)}</li>
+ * </ul>
+ *
+ * The following operations expose specific (non-generic) user session information:
+ * <ul>
+ *   <li>{@link UserConsoleResource#isAuthenticated()}</li>
+ *   <li>{@link UserConsoleResource#isAdministrator()}</li>
+ *   <li>{@link UserConsoleResource#getLocale()} - gets the effective locale of the user session</li>
+ *   <li>
+ *     {@link UserConsoleResource#setLocaleOverride(String)} -
+ *     sets the locale of the user session,
+ *     via {@link org.pentaho.platform.util.messages.LocaleHelper#setSessionLocaleOverride(Locale)}
+ *     and {@link org.pentaho.platform.util.messages.LocaleHelper#setThreadLocaleOverride(Locale)}
+ *   </li>
+ * </ul>
+ *
+ * The state changing operations of this service,
+ * with the notable exception of {@link UserConsoleResource#setLocaleOverride(String)},
+ * are protected against CSRF attacks, and thus require a CSRF token to be called.
+ * This resolves to:
+ * <ul>
+ *   <li>{@link UserConsoleResource#setSessionVariable(String, String)}</li>
+ *   <li>{@link UserConsoleResource#clearSessionVariable(String)}</li>
+ * </ul>
  */
 @Path ( "/mantle/" )
 public class UserConsoleResource extends AbstractJaxRSResource {

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -178,24 +178,20 @@ public class SystemResource extends AbstractJaxRSResource {
   @Path( "/locale" )
   @Facet ( name = "Unsupported" )
   public Response setLocaleOverride( String locale ) {
-    IPentahoSession session = PentahoSessionHolder.getSession();
-    if ( session != null ) {
-      if ( !StringUtils.isEmpty( locale ) ) {
-        String localeTmp = locale.replaceAll( "-|/", "_" ); // Clean up "en-US" and "en/GB"
-        try {
-          Locale newLocale = LocaleUtils.toLocale( localeTmp );
-          session.setAttribute( "locale_override", localeTmp );
-          LocaleHelper.setLocaleOverride( newLocale );
-        } catch ( IllegalArgumentException ex ) {
-          return Response.serverError().entity( ex.getMessage() ).build();
-        }
-      } else {
-        session.setAttribute( "locale_override", null ); // empty string or null passed in, unset locale_override variable.
-        LocaleHelper.setLocaleOverride( null );
+    Locale sessionLocale = null;
+
+    if ( !StringUtils.isEmpty( locale ) ) {
+      // Clean up "en-US" and "en/GB".
+      String localeNormalized = locale.replaceAll( "-|/", "_" );
+      try {
+        sessionLocale = LocaleUtils.toLocale( localeNormalized );
+      } catch ( IllegalArgumentException ex ) {
+        return Response.serverError().entity( ex.getMessage() ).build();
       }
-    } else {
-      LocaleHelper.setLocaleOverride( null );
     }
+
+    LocaleHelper.setSessionLocaleOverride( sessionLocale );
+    LocaleHelper.setThreadLocaleOverride( sessionLocale );
 
     return getLocale();
   }

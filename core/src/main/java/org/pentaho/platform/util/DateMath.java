@@ -151,10 +151,7 @@ public class DateMath {
 
     target = DateMath.calculateDate( date, expression );
 
-    myLocale = ( locale == null ) ? LocaleHelper.getLocale() : locale;
-    if ( myLocale == null ) {
-      myLocale = LocaleHelper.getDefaultLocale();
-    }
+    myLocale = locale == null ? LocaleHelper.getLocale() : locale;
 
     if ( pattern != null ) {
       format = new SimpleDateFormat( pattern, myLocale );
