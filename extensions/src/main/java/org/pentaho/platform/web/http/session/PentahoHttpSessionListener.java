@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -43,9 +43,12 @@ public class PentahoHttpSessionListener implements HttpSessionListener {
   private static final Map<String, String[]> sessionMap = new ConcurrentHashMap<String, String[]>();
 
   public void sessionCreated( final HttpSessionEvent event ) {
-    // we can't find out what the locale of the request is so we go with the
+    // We can't find out what the locale of the request is so we go with the
     // default for now...
-    LocaleHelper.setLocale( Locale.getDefault() );
+    // Proper handling is done "ahead" by
+    // HttpSessionPentahoSessionIntegrationFilter#localeLeftovers( HttpServletRequest )
+    LocaleHelper.setThreadLocaleOverride( Locale.getDefault() );
+
     String sessionId = event.getSession().getId();
     if ( PentahoHttpSessionListener.debug ) {
       Logger.debug( this, Messages.getInstance().getString( "HttpSessionListener.DEBUG_SESSION_CREATED", sessionId ) ); //$NON-NLS-1$
@@ -54,7 +57,6 @@ public class PentahoHttpSessionListener implements HttpSessionListener {
     // AuditHelper.audit( instanceId, String userId, String actionName,
     // String objectType, MessageTypes.PROCESS_ID_SESSION,
     // MessageTypes.SESSION_CREATE, "http session", "", 0, null );
-
   }
 
   public void sessionDestroyed( final HttpSessionEvent event ) {
