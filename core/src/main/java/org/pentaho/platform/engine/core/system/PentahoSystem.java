@@ -287,9 +287,6 @@ public class PentahoSystem {
       Logger.debug( PentahoSystem.class, "Setting property path" ); //$NON-NLS-1$
     }
     System.setProperty( "pentaho.solutionpath", "solution:" ); //$NON-NLS-1$
-    if ( LocaleHelper.getLocale() == null ) {
-      LocaleHelper.setLocale( Locale.getDefault() );
-    }
 
     if ( PentahoSystem.systemSettingsService != null ) {
       if ( debug ) {
@@ -1091,9 +1088,6 @@ public class PentahoSystem {
   public static void shutdown() {
     serverStatusProvider.setStatus( IServerStatusProvider.ServerStatus.STOPPING );
 
-    if ( LocaleHelper.getLocale() == null ) {
-      LocaleHelper.setLocale( Locale.getDefault() );
-    }
     if ( debug ) {
       Logger.debug( PentahoSystem.class, "Shutdown Listeners" ); //$NON-NLS-1$
     }

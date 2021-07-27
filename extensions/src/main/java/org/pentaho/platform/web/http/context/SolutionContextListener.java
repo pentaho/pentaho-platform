@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,9 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.web.http.context;
@@ -72,26 +69,24 @@ public class SolutionContextListener implements ServletContextListener {
       LocaleHelper.setTextDirection( textDirection );
     }
 
+    Locale defaultLocale = null;
     String localeLanguage = getServerParameter( "locale-language" ); //$NON-NLS-1$
     String localeCountry = getServerParameter( "locale-country" ); //$NON-NLS-1$
-    boolean localeSet = false;
     if ( !StringUtils.isEmpty( localeLanguage ) && !StringUtils.isEmpty( localeCountry ) ) {
       Locale[] locales = Locale.getAvailableLocales();
-      if ( locales != null ) {
-        for ( Locale element : locales ) {
-          if ( element.getLanguage().equals( localeLanguage ) && element.getCountry().equals( localeCountry ) ) {
-            LocaleHelper.setLocale( element );
-            localeSet = true;
-            break;
-          }
+      for ( Locale element : locales ) {
+        if ( element.getLanguage().equals( localeLanguage ) && element.getCountry().equals( localeCountry ) ) {
+          defaultLocale = element;
+          break;
         }
       }
     }
-    if ( !localeSet ) {
-      // do this thread in the default locale
-      LocaleHelper.setLocale( Locale.getDefault() );
-    }
-    LocaleHelper.setDefaultLocale( LocaleHelper.getLocale() );
+
+    LocaleHelper.setDefaultLocale( defaultLocale );
+
+    // do this thread in the default locale
+    LocaleHelper.setThreadLocaleBase( LocaleHelper.getDefaultLocale() );
+
     // log everything that goes on here
     logger.info( Messages.getInstance().getString( "SolutionContextListener.INFO_INITIALIZING" ) ); //$NON-NLS-1$
     logger.info( Messages.getInstance().getString( "SolutionContextListener.INFO_SERVLET_CONTEXT", context ) ); //$NON-NLS-1$
@@ -282,9 +277,7 @@ public class SolutionContextListener implements ServletContextListener {
   public void contextDestroyed( final ServletContextEvent event ) {
 
     PentahoSystem.shutdown();
-    if ( LocaleHelper.getLocale() == null ) {
-      LocaleHelper.setLocale( Locale.getDefault() );
-    }
+
     // log everything that goes on here
     logger.info( Messages.getInstance().getString(
       "SolutionContextListener.INFO_SYSTEM_EXITING" ) ); //$NON-NLS-1$

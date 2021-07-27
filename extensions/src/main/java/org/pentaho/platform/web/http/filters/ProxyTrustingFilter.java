@@ -158,7 +158,6 @@ public class ProxyTrustingFilter implements Filter {
 
     initParameterUser();
 
-    // LocaleOverride
     initParameterLocaleOverride();
   }
 
@@ -260,50 +259,61 @@ public class ProxyTrustingFilter implements Filter {
         }
       }
     }
+
     chain.doFilter( request, response );
   }
 
   protected void doFilterCore( HttpServletRequest request, String name ) throws ServletException {
     try {
+      // Create a Pentaho user session and make it current.
       becomeUser( name );
 
-      setSystemLocaleOverrideCode( getTrustLocaleOverrideCode( request ) );
-
-      // ---
-      // Update HTTP Session Attributes
-
       HttpSession httpSession = request.getSession();
-      // 1. Pentaho Session
+
+      // Associate the new Pentaho session with the HTTP session.
+      //
+      // Despite that we're already setting the session in PentahoSessionHolder,
+      // because HttpSessionPentahoSessionIntegrationFilter runs afterwards, as configured by default,
+      // and calls PentahoSessionHolder.setSession( session ) with the session in this attribute,
+      // we need to set the attribute any way.
       httpSession.setAttribute( PentahoSystem.PENTAHO_SESSION_KEY, PentahoSessionHolder.getSession() );
 
-      // 2. Locale Override
+      // Locale Override
       //
-      // As currently configured by default, this filter is followed by HttpSessionPentahoSessionIntegrationFilter,
-      // which calls LocaleHelper.setLocaleOverride with the locale corresponding to
-      // the httpSession's "locale_override" attribute. So, the attribute needs to be set, as well.
-      // `locale_override` uses Java's legacy Locale.toString format, which uses underscores.
-      Locale localeOverride = LocaleHelper.getLocaleOverride();
-      httpSession.setAttribute( "locale_override", localeOverride != null ? localeOverride.toString() : null );
+      // Despite that we're setting the thread locale override,
+      // because HttpSessionPentahoSessionIntegrationFilter runs afterwards, as configured by default,
+      // and calls LocaleHelper.setThreadLocaleOverride( locale ) with the locale in this attribute,
+      // we need to set the attribute any way.
+      String localeOverrideCode = getTrustLocaleOverrideCode( request );
+      httpSession.setAttribute( IPentahoSession.ATTRIBUTE_LOCALE_OVERRIDE, localeOverrideCode );
 
-      // 3. Spring Security Context attribute.
-      SecurityContext authWrapper = new SecurityContext() {
-        private static final long serialVersionUID = 1L;
-        private Authentication authentication;
+      setSystemLocaleOverrideCode( localeOverrideCode );
 
-        public Authentication getAuthentication() {
-          return authentication;
-        }
-
-        public void setAuthentication( Authentication authentication ) {
-          this.authentication = authentication;
-        }
-      };
-
-      authWrapper.setAuthentication( SecurityContextHolder.getContext().getAuthentication() );
+      // Create and associate a Spring Security Context with the HTTP session.
+      SecurityContext authWrapper = createSpringSecurityContext();
       httpSession.setAttribute( HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, authWrapper );
     } catch ( Exception e ) {
       throw new ServletException( e );
     }
+  }
+
+  private SecurityContext createSpringSecurityContext() {
+    SecurityContext authWrapper = new SecurityContext() {
+      private static final long serialVersionUID = 1L;
+      private Authentication authentication;
+
+      public Authentication getAuthentication() {
+        return authentication;
+      }
+
+      public void setAuthentication( Authentication authentication ) {
+        this.authentication = authentication;
+      }
+    };
+
+    authWrapper.setAuthentication( SecurityContextHolder.getContext().getAuthentication() );
+
+    return authWrapper;
   }
 
   public void destroy() {
@@ -393,7 +403,7 @@ public class ProxyTrustingFilter implements Filter {
 
   // cloned from SecurityHelper and adapted to add a default location to the session
   protected void becomeUser( final String principalName ) {
-    UserSession session = null;
+    UserSession session;
     Locale locale = Locale.getDefault();
     ITenantedPrincipleNameResolver tenantedUserNameUtils =
       PentahoSystem.get( ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null );
@@ -406,9 +416,12 @@ public class ProxyTrustingFilter implements Filter {
       session = new UserSession( principalName, locale, false, null );
       session.setAuthenticated( principalName );
     }
+
     PentahoSessionHolder.setSession( session );
+
     Authentication auth = SecurityHelper.getInstance().createAuthentication( principalName );
     SecurityContextHolder.getContext().setAuthentication( auth );
+
     PentahoSystem.sessionStartup( PentahoSessionHolder.getSession(), null );
   }
 
@@ -418,6 +431,6 @@ public class ProxyTrustingFilter implements Filter {
    * @param localeOverrideCode The locale override code.
    */
   protected void setSystemLocaleOverrideCode( String localeOverrideCode ) {
-    LocaleHelper.parseAndSetLocaleOverride( localeOverrideCode );
+    LocaleHelper.setThreadLocaleOverride( LocaleHelper.parseLocale( localeOverrideCode ) );
   }
 }

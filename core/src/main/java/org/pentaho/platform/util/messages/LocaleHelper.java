@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU General Public License, version 2 as published by the Free Software
  * Foundation.
@@ -13,14 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.util.messages;
 
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.util.logging.Logger;
 
 import java.io.UnsupportedEncodingException;
@@ -34,8 +33,13 @@ import java.util.Locale;
 
 public class LocaleHelper {
 
-  private static final ThreadLocal<Locale> threadLocales = new ThreadLocal<Locale>();
-  private static final ThreadLocal<Locale> threadLocaleOverride = new ThreadLocal<Locale>();
+  /**
+   * The default locale that is used when even the Java VM's {@link Locale#getDefault()} is {@code null}.
+   */
+  private static final Locale DEFAULT_LOCALE = Locale.US;
+
+  private static final ThreadLocal<Locale> threadLocalesBase = new ThreadLocal<>();
+  private static final ThreadLocal<Locale> threadLocalesOverride = new ThreadLocal<>();
 
   public static final int FORMAT_SHORT = DateFormat.SHORT;
 
@@ -59,58 +63,258 @@ public class LocaleHelper {
 
   public static final String USER_LOCALE_PARAM = "user_locale";
 
-  public static void setDefaultLocale( final Locale newLocale ) {
+  static {
+    setDefaultLocale( null );
+  }
+
+  // region Locale
+
+  /**
+   * Parses a locale string, taking into account if it is composed of several parts, separated by {@code _} characters.
+   * <p>
+   * If the given locale string is {@code null} or empty, then {@code null} is returned.
+   * <p>
+   * If the locale string has at least two parts, language and country, it creates and returns a locale using the first
+   * two parts as first and second arguments of the locale constructor {@link Locale(String, String)}, and ignoring the
+   * remaining parts.
+   * <p>
+   * Otherwise, it creates and returns a locale in which the whole string is passed to {@link Locale(String)}.
+   * <p>
+   * See BISERVER-9863 for more information.
+   *
+   * @param locale The locale string.
+   * @return The new locale or {@code null}.
+   */
+  public static Locale parseLocale( final String locale ) {
+    if ( StringUtils.isEmpty( locale ) ) {
+      return null;
+    }
+
+    if ( locale.contains( "_" ) ) {
+      String[] parts = locale.split( "_" );
+      return new Locale( parts[ 0 ], parts[ 1 ] );
+    }
+
+    return new Locale( locale );
+  }
+
+  // region 3 - Default Locale
+
+  /**
+   * Sets the default locale.
+   * <p>
+   * The default locale applies to any session or thread.
+   * <p>
+   * When {@code null}, the locale assumes the Java VM's current default locale,
+   * as given by {@link Locale#getDefault()}.
+   * In the rare cases that this may be {@code null}, it is initialized to {@link Locale#US}.
+   * <p>
+   * In the Pentaho server, the default locale is initialized by the
+   * {@code org.pentaho.platform.web.http.context.SolutionContextListener}.
+   * When the {@code web.xml} server parameters {@code locale-language} and {@code locale-country} are both specified
+   * and match an available locale, as given by {@link Locale#getAvailableLocales()}, it sets the default locale to
+   * that.
+   *
+   * @param newLocale The new default locale, possibly {@code null}.
+   */
+  public static void setDefaultLocale( Locale newLocale ) {
+    if ( newLocale == null ) {
+      newLocale = Locale.getDefault();
+    }
+
+    if ( newLocale == null ) {
+      newLocale = DEFAULT_LOCALE;
+    }
 
     LocaleHelper.defaultLocale = newLocale;
   }
 
+  /**
+   * Gets the default locale.
+   * <p>
+   * The default locale applies to any session or thread.
+   * <p>
+   * The default locale is always defined; it's never {@code null}.
+   *
+   * @return The default locale.
+   */
   public static Locale getDefaultLocale() {
     return LocaleHelper.defaultLocale;
   }
+  // endregion
+
+  // region 1 - Thread Locale Override
 
   /**
-   * BISERVER-9863 Check if override locale string contains language and country. If so, instantiate Locale with
-   * two parameters for language and country, instead of just language.
+   * BISERVER-9863 Check if override locale string contains language and country. If so, instantiate Locale with two
+   * parameters for language and country, instead of just language.
    *
    * @param localeOverride The new locale override, or {@code null} or an empty string, if none.
+   *
+   * @deprecated Use a combination of {@link #parseLocale(String)} and {@link #setThreadLocaleOverride(Locale)} instead.
    */
+  @Deprecated
   public static void parseAndSetLocaleOverride( final String localeOverride ) {
-    if ( StringUtils.isEmpty( localeOverride ) ) {
-      setLocaleOverride( null );
-    } else if ( localeOverride.contains( "_" ) ) {
-      String[] parts = localeOverride.split( "_" );
-      setLocaleOverride( new Locale( parts[0], parts[1] ) );
-    } else {
-      setLocaleOverride( new Locale( localeOverride ) );
-    }
+    setThreadLocaleOverride( parseLocale( localeOverride ) );
   }
 
-  public static void setLocaleOverride( final Locale localeOverride ) {
-    LocaleHelper.threadLocaleOverride.set( localeOverride );
+  /**
+   * Sets the locale <i>override</i> of the current thread.
+   *
+   * @param newLocale The new override locale. Can be {@code null}.
+   * @deprecated Use {@link #setThreadLocaleOverride(Locale)} instead.
+   */
+  @Deprecated
+  public static void setLocaleOverride( final Locale newLocale ) {
+    setThreadLocaleOverride( newLocale );
   }
 
+  /**
+   * Gets the locale <i>override</i> of the current thread.
+   *
+   * @return The locale override, if set; {@code null}, otherwise.
+   * @deprecated Use {@link #getThreadLocaleOverride()} instead.
+   */
+  @Deprecated
   public static Locale getLocaleOverride() {
-    return LocaleHelper.threadLocaleOverride.get();
+    return getThreadLocaleOverride();
   }
 
+  /**
+   * Sets the locale <i>override</i> of the current thread.
+   * <p>
+   * A thread's locale <i>override</i> is the most specific locale, as returned by {@link #getLocale()}.
+   * <p>
+   * The Pentaho server sets the thread locale override, of threads handling HTTP requests,
+   * to the locale override of the Pentaho session of the corresponding request,
+   * as given by {@link IPentahoSession#getAttributeLocaleOverride()}.
+   * This is done by the {@code org.pentaho.platform.web.http.filters.HttpSessionPentahoSessionIntegrationFilter}
+   * filter.
+   *
+   * @param newLocale The new thread locale override. Can be {@code null}.
+   */
+  public static void setThreadLocaleOverride( final Locale newLocale ) {
+    if ( newLocale == null ) {
+      LocaleHelper.threadLocalesOverride.remove();
+    } else {
+      LocaleHelper.threadLocalesOverride.set( newLocale );
+    }
+  }
+
+  /**
+   * Gets the locale <i>override</i> of the current thread.
+   *
+   * @return The locale override, if set; {@code null}, otherwise.
+   */
+  public static Locale getThreadLocaleOverride() {
+    return LocaleHelper.threadLocalesOverride.get();
+  }
+  // endregion
+
+  // region 2 - Thread Locale Base
+
+  /**
+   * Sets the <i>base</i> locale of the current thread.
+   *
+   * @param newLocale The new base locale. Can be {@code null}.
+   *
+   * @deprecated Use {@link #setThreadLocaleBase(Locale)} instead.
+   */
+  @Deprecated
   public static void setLocale( final Locale newLocale ) {
-    LocaleHelper.threadLocales.set( newLocale );
+    setThreadLocaleBase( newLocale );
   }
 
+  /**
+   * Sets the <i>base</i> locale of the current thread.
+   * <p>
+   * The Pentaho server sets the base locale of threads handling HTTP requests
+   * to the corresponding request's locale, as given by {@code javax.servlet.http.HttpServletRequest#getLocale()}.
+   * This is done by the
+   * {@code org.pentaho.platform.web.http.filters.HttpSessionPentahoSessionIntegrationFilter}
+   * filter.
+   * <p>
+   * In this manner, according to the rules of {@link #getLocale()},
+   * and unless a web user has explicitly set their Pentaho session's locale override
+   * (or the thread's override locale is set by some other means),
+   * the effective locale will be the web browser's preferred language.
+   *
+   * @param newLocale The new base locale. Can be {@code null}.
+   */
+  public static void setThreadLocaleBase( final Locale newLocale ) {
+    if ( newLocale == null ) {
+      LocaleHelper.threadLocalesBase.remove();
+    } else {
+      LocaleHelper.threadLocalesBase.set( newLocale );
+    }
+  }
+
+  /**
+   * Gets the <i>base</i> locale of the current thread.
+   *
+   * @return The base locale, if any; {@code null}, otherwise.
+   */
+  public static Locale getThreadLocaleBase() {
+    return LocaleHelper.threadLocalesBase.get();
+  }
+  // endregion
+
+  // region Effective Locale
+
+  /**
+   * Gets the <i>effective</i> locale of the current thread.
+   * <p>
+   * The effective locale is the value of the first non-{@code null}, among the following:
+   * <ol>
+   *   <li>
+   *     The current thread's locale override, {@link #getThreadLocaleOverride()}
+   *   </li>
+   *   <li>
+   *     The current thread's base locale, {@link #getThreadLocaleBase()}
+   *   </li>
+   *   <li>
+   *     The default locale, {@link #getDefaultLocale()}
+   *   </li>
+   * </ol>
+   * <p>
+   * The effective locale is never {@code null}.
+   *
+   * @return The effective locale.
+   */
   public static Locale getLocale() {
-    Locale override = LocaleHelper.threadLocaleOverride.get();
-    if ( override != null ) {
-      return override;
+    // 1
+    Locale locale = getThreadLocaleOverride();
+    if ( locale != null ) {
+      return locale;
     }
-    Locale rtn = LocaleHelper.threadLocales.get();
-    if ( rtn != null ) {
-      return rtn;
-    }
-    LocaleHelper.defaultLocale = Locale.getDefault();
-    LocaleHelper.setLocale( LocaleHelper.defaultLocale );
-    return LocaleHelper.defaultLocale;
-  }
 
+    // 2
+    locale = getThreadLocaleBase();
+    if ( locale != null ) {
+      return locale;
+    }
+
+    // 3
+    return getDefaultLocale();
+  }
+  // endregion
+
+  /**
+   * Sets the locale override of the current session, if any.
+   *
+   * @see PentahoSessionHolder#getSession()
+   * @see IPentahoSession#setAttributeLocaleOverride(String)
+   */
+  public static void setSessionLocaleOverride( Locale locale ) {
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    if ( session != null ) {
+      String localeCode = locale != null ? locale.toString() : null;
+      session.setAttributeLocaleOverride( localeCode );
+    }
+  }
+  // endregion
+
+  // region Encoding, Conversion, TextDirection
   public static void setSystemEncoding( final String encoding ) {
 
     Charset platformCharset = Charset.forName( encoding );
@@ -118,7 +322,7 @@ public class LocaleHelper {
 
     if ( platformCharset.compareTo( defaultCharset ) != 0 ) {
       Logger.warn( LocaleHelper.class.getName(), Messages.getInstance().getString(
-          "LocaleHelper.WARN_CHARSETS_DONT_MATCH", platformCharset.name(), defaultCharset.name() ) );
+        "LocaleHelper.WARN_CHARSETS_DONT_MATCH", platformCharset.name(), defaultCharset.name() ) );
     }
 
     LocaleHelper.encoding = encoding;
@@ -139,9 +343,9 @@ public class LocaleHelper {
   }
 
   /**
-   * This method is called to convert strings from ISO-8859-1 (post/get parameters for example) into the default
-   * system locale.
-   * 
+   * This method is called to convert strings from ISO-8859-1 (post/get parameters for example) into the default system
+   * locale.
+   *
    * @param isoString
    * @return Re-encoded string
    */
@@ -151,7 +355,7 @@ public class LocaleHelper {
 
   /**
    * This method converts strings from a known encoding into a string encoded by the system default encoding.
-   * 
+   *
    * @param fromEncoding
    * @param encodedStr
    * @return Re-encoded string
@@ -162,7 +366,7 @@ public class LocaleHelper {
 
   /**
    * This method converts an ISO-8859-1 encoded string to a UTF-8 encoded string.
-   * 
+   *
    * @param isoString
    * @return Re-encoded string
    */
@@ -172,7 +376,7 @@ public class LocaleHelper {
 
   /**
    * This method converts a UTF8-encoded string to ISO-8859-1
-   * 
+   *
    * @param utf8String
    * @return Re-encoded string
    */
@@ -182,7 +386,7 @@ public class LocaleHelper {
 
   /**
    * This method converts strings between various encodings.
-   * 
+   *
    * @param sourceString
    * @param sourceEncoding
    * @param targetEncoding
@@ -235,7 +439,9 @@ public class LocaleHelper {
     }
     return false;
   }
+  // endregion
 
+  // region Date and Number Formatting
   public static DateFormat getDateFormat( final int dateFormat, final int timeFormat ) {
 
     if ( ( dateFormat != LocaleHelper.FORMAT_IGNORE ) && ( timeFormat != LocaleHelper.FORMAT_IGNORE ) ) {
@@ -305,6 +511,7 @@ public class LocaleHelper {
   public static NumberFormat getCurrencyFormat() {
     return NumberFormat.getCurrencyInstance( LocaleHelper.getLocale() );
   }
+  // endregion
 
   public static String getClosestLocale( String locale, String[] locales ) {
     // see if this locale is supported
@@ -312,7 +519,7 @@ public class LocaleHelper {
       return locale;
     }
     if ( locale == null || locale.length() == 0 ) {
-      return locales[0];
+      return locales[ 0 ];
     }
     String localeLanguage = locale.substring( 0, 2 );
     String localeCountry = ( locale.length() > 4 ) ? locale.substring( 0, 5 ) : localeLanguage;
@@ -320,12 +527,12 @@ public class LocaleHelper {
     int closeMatch = -1;
     int exactMatch = -1;
     for ( int idx = 0; idx < locales.length; idx++ ) {
-      if ( locales[idx].equals( locale ) ) {
+      if ( locales[ idx ].equals( locale ) ) {
         exactMatch = idx;
         break;
-      } else if ( locales[idx].length() > 1 && locales[idx].substring( 0, 2 ).equals( localeLanguage ) ) {
+      } else if ( locales[ idx ].length() > 1 && locales[ idx ].substring( 0, 2 ).equals( localeLanguage ) ) {
         looseMatch = idx;
-      } else if ( locales[idx].length() > 4 && locales[idx].substring( 0, 5 ).equals( localeCountry ) ) {
+      } else if ( locales[ idx ].length() > 4 && locales[ idx ].substring( 0, 5 ).equals( localeCountry ) ) {
         closeMatch = idx;
       }
     }
@@ -333,12 +540,12 @@ public class LocaleHelper {
     if ( exactMatch != -1 ) {
       // do nothing we have an exact match
     } else if ( closeMatch != -1 ) {
-      locale = locales[closeMatch];
+      locale = locales[ closeMatch ];
     } else if ( looseMatch != -1 ) {
-      locale = locales[looseMatch];
+      locale = locales[ looseMatch ];
     } else {
       // no locale is close , just go with the first?
-      locale = locales[0];
+      locale = locales[ 0 ];
     }
     return locale;
   }

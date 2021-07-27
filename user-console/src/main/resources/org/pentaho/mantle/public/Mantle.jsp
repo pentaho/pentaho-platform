@@ -19,8 +19,7 @@
 <%@page pageEncoding="UTF-8" %>
 <%@
     page language="java"
-    import="org.apache.commons.lang.StringUtils,
-            org.owasp.encoder.Encode,
+    import="org.owasp.encoder.Encode,
             org.pentaho.platform.util.messages.LocaleHelper,
             java.util.Locale,
             java.net.URL,
@@ -37,12 +36,12 @@
   boolean hasDataAccessPlugin = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins().contains( "data-access" );
 
   // Handle the `locale` request parameter.
-  request.getSession().setAttribute(
-      "locale_override",
-      StringUtils.defaultIfEmpty( request.getParameter( "locale" ), null ) );
-  LocaleHelper.parseAndSetLocaleOverride( request.getParameter( "locale" ) );
+  Locale effectiveLocale = LocaleHelper.parseLocale( request.getParameter( "locale" ) );
+  LocaleHelper.setSessionLocaleOverride( effectiveLocale );
+  LocaleHelper.setThreadLocaleOverride( effectiveLocale );
 
-  Locale effectiveLocale = LocaleHelper.getLocale();
+  effectiveLocale = LocaleHelper.getLocale();
+
   URLClassLoader loader = new URLClassLoader( new URL[] { application.getResource( "/mantle/messages/" ) } );
   ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", effectiveLocale, loader );
 %>
