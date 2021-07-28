@@ -64,7 +64,7 @@
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <gdata-analytics-meta.version>2.1</gdata-analytics-meta.version>
     <syslog4j.version>0.9.46</syslog4j.version>
-    <janino.version>2.5.16</janino.version>
+    <janino.version>3.0.8</janino.version>
     <bean-matchers.version>0.9</bean-matchers.version>
     <json-simple.version>1.1</json-simple.version>
     <axis2.version>1.5</axis2.version>
