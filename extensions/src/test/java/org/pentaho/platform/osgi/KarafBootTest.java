@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002 - 2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002 - 2021 Hitachi Vantara. All rights reserved.
  *
  */
 package org.pentaho.platform.osgi;
@@ -287,7 +287,7 @@ public class KarafBootTest {
   @Test
   public void testBuildExtraKettleEtc() throws Exception {
     assertEquals( "/etc-carte", boot.translateToExtraKettleEtc( KettleClientEnvironment.ClientType.CARTE ) );
-    assertEquals( "/etc-default", boot.translateToExtraKettleEtc( KettleClientEnvironment.ClientType.DI_SERVER ) );
+    assertEquals( "/etc-default", boot.translateToExtraKettleEtc( KettleClientEnvironment.ClientType.PENTAHO_SERVER ) );
     assertEquals( "/etc-kitchen", boot.translateToExtraKettleEtc( KettleClientEnvironment.ClientType.KITCHEN ) );
     assertEquals( "/etc-pan", boot.translateToExtraKettleEtc( KettleClientEnvironment.ClientType.PAN ) );
     assertEquals( "/etc-spoon", boot.translateToExtraKettleEtc( KettleClientEnvironment.ClientType.SPOON ) );
