@@ -31,15 +31,9 @@
         <swm:regex-request-matcher pattern="^/api/user-settings/.*" methods="POST" />
 
         <!--
-          POST /api/mantle/locale
           POST /api/mantle/session-variable
         -->
-        <swm:regex-request-matcher pattern="^/api/mantle/.*" methods="POST" />
-
-        <!--
-          POST /api/system/locale
-        -->
-        <swm:regex-request-matcher pattern="^/api/system/locale\b.*" methods="POST" />
+        <swm:regex-request-matcher pattern="^/api/mantle/session-variable\b.*" methods="POST" />
 
         <!--
           GET /api/system/refresh/mondrianSchemaCache
