@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -196,7 +196,35 @@ public class SolutionImportHandler implements IPlatformImportHandler {
                       isOverwriteFile() ).mime( "text/xml" ).hidden( RepositoryFile.HIDDEN_BY_DEFAULT ).schedulable(
                           RepositoryFile.SCHEDULABLE_BY_DEFAULT ).withParam( "domain-id", catName );
           cachedImports.put( annotationsFile, annotationsBundle );
-
+        }
+      }
+      // Add DB Connections
+      List<org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection> datasourceList = manifest.getDatasourceList();
+      if ( datasourceList != null ) {
+        IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
+        for ( org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection databaseConnection : datasourceList ) {
+          if ( databaseConnection.getDatabaseType() == null ) {
+            // don't try to import the connection if there is no type it will cause an error
+            // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
+            log.warn( org.pentaho.platform.plugin.services.messages.Messages.getInstance()
+              .getString( "SolutionImportHandler.ConnectionWithoutDatabaseType", databaseConnection.getName() ) );
+            continue;
+          }
+          try {
+            IDatabaseConnection existingDBConnection =
+              datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
+            if ( existingDBConnection != null && existingDBConnection.getName() != null ) {
+              if ( isOverwriteFile() ) {
+                databaseConnection.setId( existingDBConnection.getId() );
+                datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(),
+                  DatabaseConnectionConverter.export2model( databaseConnection ) );
+              }
+            } else {
+              datasourceMgmtSvc.createDatasource( DatabaseConnectionConverter.export2model( databaseConnection ) );
+            }
+          } catch ( Exception e ) {
+            e.printStackTrace();
+          }
         }
       }
     }
@@ -304,36 +332,6 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     }
     if ( manifest != null ) {
       importSchedules( manifest.getScheduleList() );
-
-      // Add Hitachi Vantara Connections
-      List<org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection> datasourceList = manifest.getDatasourceList();
-      if ( datasourceList != null ) {
-        IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
-        for ( org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection databaseConnection : datasourceList ) {
-          if ( databaseConnection.getDatabaseType() == null ) {
-            // don't try to import the connection if there is no type it will cause an error
-            // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
-            log.warn(
-              "Can't import connection " + databaseConnection.getName() + " because it doesn't have a databaseType" );
-            continue;
-          }
-          try {
-            IDatabaseConnection existingDBConnection =
-              datasourceMgmtSvc.getDatasourceByName( databaseConnection.getName() );
-            if ( existingDBConnection != null && existingDBConnection.getName() != null ) {
-              if ( isOverwriteFile() ) {
-                databaseConnection.setId( existingDBConnection.getId() );
-                datasourceMgmtSvc.updateDatasourceByName( databaseConnection.getName(),
-                  DatabaseConnectionConverter.export2model( databaseConnection ) );
-              }
-            } else {
-              datasourceMgmtSvc.createDatasource( DatabaseConnectionConverter.export2model( databaseConnection ) );
-            }
-          } catch ( Exception e ) {
-            e.printStackTrace();
-          }
-        }
-      }
     }
     // Process locale files.
     localeFilesProcessor.processLocaleFiles( importer );
