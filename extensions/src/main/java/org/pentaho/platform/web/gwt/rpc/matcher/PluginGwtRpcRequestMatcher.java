@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  */
 
-package org.pentaho.platform.web.servlet;
+package org.pentaho.platform.web.gwt.rpc.matcher;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -24,22 +24,32 @@ import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.gwt.rpc.PluginGwtRpc;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 /**
- * This is the plugin variant of the GwtRpcProxyServlet. This servlet routes incoming GWT RPC requests to POJOs found in
- * a plugin lib.
+ * The <code>PluginGwtRpcRequestMatcher</code> class is a specialized GWT-RPC request matcher
+ * which can be used to match URLs of GWT-RPC services of Pentaho Platform plugins (e.g.
+ * <code>/gwtrpc/serviceName</code>).
+ *
+ * @see PluginGwtRpc
  */
-public class GwtRpcPluginProxyServlet extends AbstractGwtRpcProxyServlet {
-  public GwtRpcPluginProxyServlet() {
-    super();
+public class PluginGwtRpcRequestMatcher extends AbstractGwtRpcRequestMatcher {
+
+  public PluginGwtRpcRequestMatcher( @NonNull String pattern,
+                                     @NonNull Collection<String> rpcMethods,
+                                     @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
+    super( pattern, rpcMethods, serializationPolicyCache );
   }
 
-  public GwtRpcPluginProxyServlet( @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
-    super( serializationPolicyCache );
+  public PluginGwtRpcRequestMatcher( @NonNull String pattern,
+                                     boolean isCaseInsensitive,
+                                     @NonNull Collection<String> rpcMethods,
+                                     @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
+    super( pattern, isCaseInsensitive, rpcMethods, serializationPolicyCache );
   }
-  
+
   @NonNull @Override
-  protected AbstractGwtRpc getRpc( @NonNull HttpServletRequest httpRequest ) {
+  protected AbstractGwtRpc getGwtRpc( @NonNull HttpServletRequest httpRequest ) {
     return PluginGwtRpc.getInstance( httpRequest, getSerializationPolicyCache() );
   }
 }

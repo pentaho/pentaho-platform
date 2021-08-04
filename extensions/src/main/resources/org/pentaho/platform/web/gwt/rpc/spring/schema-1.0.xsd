@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:pen-gpc="http://www.pentaho.com/schema/pentaho-gwt-rpc-spring"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            targetNamespace="http://www.pentaho.com/schema/pentaho-gwt-rpc-spring"
+            elementFormDefault="qualified">
+
+  <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
+  <!-- region Request Matchers -->
+  <!--
+    Example:
+    <pen-gpc:system-gwt-rpc-request-matcher
+        pattern="^/ws/gwt/unifiedRepository\b.*"
+        methods="deleteFile deleteFileAtVersion lockFile" />
+  -->
+  <xsd:element name="system-gwt-rpc-request-matcher" type="pen-gpc:TGwtRpcRequestMatcher" id="system-gwt-rpc-request-matcher"/>
+
+  <!--
+    Example:
+    <pen-gpc:plugin-gwt-rpc-request-matcher
+        pattern="^/gwtrpc/DatasourceService\b.*"
+        methods="deleteLogicalModel" />
+  -->
+  <xsd:element name="plugin-gwt-rpc-request-matcher" type="pen-gpc:TGwtRpcRequestMatcher" id="plugin-gwt-rpc-request-matcher"/>
+
+  <xsd:complexType name="TAbstractRequestMatcher" abstract="true">
+    <xsd:complexContent>
+      <xsd:extension base="beans:identifiedType">
+        <!-- Copied from Spring beans schema -->
+        <xsd:attribute name="name" type="xsd:string">
+          <xsd:annotation>
+            <xsd:documentation><![CDATA[
+  Can be used to create one or more aliases illegal in an (XML) id.
+  Multiple aliases can be separated by any number of spaces, commas,
+  or semi-colons (or indeed any mixture of the three).
+        ]]></xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="TGwtRpcRequestMatcher">
+    <xsd:complexContent>
+      <xsd:extension base="pen-gpc:TAbstractRequestMatcher">
+        <xsd:attribute name="pattern" type="xsd:string" use="required"/>
+        <xsd:attribute name="methods" type="pen-gpc:TGwtRpcMethods" use="required"/>
+        <xsd:attribute name="insensitive" type="xsd:boolean"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <!--
+    Examples:
+    saveLocales
+  -->
+  <xsd:simpleType name="TGwtRpcMethod">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="\w+"/>
+      <xsd:whiteSpace value="replace"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="TGwtRpcMethods">
+    <xsd:restriction>
+      <xsd:simpleType>
+        <xsd:list itemType="pen-gpc:TGwtRpcMethod"/>
+      </xsd:simpleType>
+      <xsd:minLength value="1"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <!-- endregion Request Matchers -->
+
+</xsd:schema>
