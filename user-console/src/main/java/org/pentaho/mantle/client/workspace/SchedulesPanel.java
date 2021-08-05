@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,47 +12,9 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- *
  * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
- *
  */
 package org.pentaho.mantle.client.workspace;
-
-import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
-
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.apache.http.protocol.HTTP;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
-import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
-import org.pentaho.mantle.client.csrf.CsrfUtil;
-import org.pentaho.mantle.client.csrf.JsCsrfToken;
-import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
-import org.pentaho.mantle.client.dialogs.scheduling.OutputLocationUtils;
-import org.pentaho.mantle.client.events.EventBusUtil;
-import org.pentaho.mantle.client.events.GenericEvent;
-import org.pentaho.mantle.client.images.ImageUtil;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.ui.PerspectiveManager;
-import org.pentaho.mantle.client.ui.column.HtmlColumn;
-import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -70,6 +31,7 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -93,6 +55,39 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
+import org.apache.http.protocol.HTTP;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
+import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.EmptyRequestCallback;
+import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
+import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
+import org.pentaho.mantle.client.dialogs.scheduling.NewScheduleDialog;
+import org.pentaho.mantle.client.dialogs.scheduling.OutputLocationUtils;
+import org.pentaho.mantle.client.events.EventBusUtil;
+import org.pentaho.mantle.client.events.GenericEvent;
+import org.pentaho.mantle.client.images.ImageUtil;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.mantle.client.ui.column.HtmlColumn;
+import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
 public class SchedulesPanel extends SimplePanel {
 
@@ -126,8 +121,7 @@ public class SchedulesPanel extends SimplePanel {
 
   private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
 
-  private CellTable<JsJob> table = new CellTable<JsJob>( PAGE_SIZE, (CellTableResources) GWT
-      .create( CellTableResources.class ) );
+  private CellTable<JsJob> table = new CellTable<JsJob>( PAGE_SIZE, (CellTableResources) GWT.create( CellTableResources.class ) );
 
   private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
 
@@ -190,7 +184,7 @@ public class SchedulesPanel extends SimplePanel {
     }
   };
 
-  @SuppressWarnings ( "unchecked" )
+  @SuppressWarnings( "unchecked" )
   private Set<JsJob> getSelectedJobs() {
     return ( (MultiSelectionModel<JsJob>) table.getSelectionModel() ).getSelectedSet();
   }
@@ -381,7 +375,7 @@ public class SchedulesPanel extends SimplePanel {
     HtmlColumn<JsJob> resourceColumn = new HtmlColumn<JsJob>() {
       @Override
       public String getStringValue( JsJob job ) {
-        String name = job.getFullResourceName().split( "\\." )[0];
+        String name = job.getFullResourceName().split( "\\." )[ 0 ];
         return name.replaceAll( "/", "/<wbr/>" );
       }
     };
@@ -686,7 +680,7 @@ public class SchedulesPanel extends SimplePanel {
         Set<JsJob> selectedJobs = getSelectedJobs();
 
         if ( !selectedJobs.isEmpty() ) {
-          final JsJob job = selectedJobs.toArray( new JsJob[0] )[0];
+          final JsJob job = selectedJobs.toArray( new JsJob[ 0 ] )[ 0 ];
           updateJobScheduleButtonStyle( job.getState() );
 
           controlScheduleButton.setEnabled( isScheduler );
@@ -821,7 +815,7 @@ public class SchedulesPanel extends SimplePanel {
         Set<JsJob> selectedJobs = getSelectedJobs();
 
         if ( !selectedJobs.isEmpty() ) {
-          final JsJob job = selectedJobs.toArray( new JsJob[0] )[0];
+          final JsJob job = selectedJobs.toArray( new JsJob[ 0 ] )[ 0 ];
 
           boolean isRunning = JOB_STATE_NORMAL.equalsIgnoreCase( job.getState() );
 
@@ -841,7 +835,7 @@ public class SchedulesPanel extends SimplePanel {
         Set<JsJob> selectedJobs = getSelectedJobs();
 
         if ( !selectedJobs.isEmpty() ) {
-          final JsJob editJob = selectedJobs.toArray( new JsJob[0] )[0];
+          final JsJob editJob = selectedJobs.toArray( new JsJob[ 0 ] )[ 0 ];
 
           canAccessJobRequest( editJob, new RequestCallback() {
             public void onError( Request request, Throwable exception ) {
@@ -1117,32 +1111,13 @@ public class SchedulesPanel extends SimplePanel {
 
     PerspectiveManager.getInstance().setPerspective( PerspectiveManager.BROWSER_PERSPECTIVE );
 
-    final String url = GWT.getHostPageBaseURL() + "api/mantle/session-variable?key=scheduler_folder&value=" + outputLocation;
-
-    CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
-
-      public void onFailure( Throwable caught ) {
-      }
-
-      public void onSuccess( JsCsrfToken token ) {
-        RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.POST, url );
-        if ( token != null ) {
-          executableTypesRequestBuilder.setHeader( token.getHeader(), token.getToken() );
-        }
-
-        try {
-          executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
-            public void onError( Request request, Throwable exception ) {
-            }
-
-            public void onResponseReceived( Request request, Response response ) {
-            }
-          } );
-        } catch ( RequestException e ) {
-          //IGNORE
-        }
-      }
-    } );
+    String url = GWT.getHostPageBaseURL() + "api/mantle/session-variable?key=scheduler_folder&value=" + outputLocation;
+    RequestBuilder executableTypesRequestBuilder = new CsrfRequestBuilder( RequestBuilder.POST, url );
+    try {
+      executableTypesRequestBuilder.sendRequest( null, EmptyRequestCallback.getInstance() );
+    } catch ( RequestException e ) {
+      // IGNORE
+    }
 
     GenericEvent event = new GenericEvent();
     event.setEventSubType( "RefreshFolderEvent" );

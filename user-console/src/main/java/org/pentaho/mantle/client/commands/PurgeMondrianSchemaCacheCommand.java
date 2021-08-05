@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,9 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.mantle.client.commands;
@@ -27,10 +24,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.mantle.client.csrf.CsrfUtil;
-import org.pentaho.mantle.client.csrf.JsCsrfToken;
+import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
 import org.pentaho.mantle.client.messages.Messages;
 
 public class PurgeMondrianSchemaCacheCommand extends AbstractCommand {
@@ -39,46 +34,35 @@ public class PurgeMondrianSchemaCacheCommand extends AbstractCommand {
 
   protected void performOperation() {
 
-    final String url = GWT.getHostPageBaseURL() + "api/system/refresh/mondrianSchemaCache"; //$NON-NLS-1$
+    String url = GWT.getHostPageBaseURL() + "api/system/refresh/mondrianSchemaCache";
+    RequestBuilder requestBuilder = new CsrfRequestBuilder( RequestBuilder.GET, url );
+    requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+    requestBuilder.setHeader( "accept", "text/plain" );
+    try {
+      requestBuilder.sendRequest( null, new RequestCallback() {
 
-    CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
-
-      public void onFailure( Throwable caught ) {
-        Window.alert(caught.getMessage());
-      }
-
-      public void onSuccess( JsCsrfToken token ) {
-
-        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-        requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
-        requestBuilder.setHeader("accept", "text/plain");
-        if (token != null) {
-          requestBuilder.setHeader(token.getHeader(), token.getToken());
+        public void onError( Request request, Throwable exception ) {
+          // showError(exception);
         }
-        try {
-          requestBuilder.sendRequest(null, new RequestCallback() {
 
-            public void onError(Request request, Throwable exception) {
-              // showError(exception);
-            }
-
-            public void onResponseReceived(Request request, Response response) {
-              MessageDialogBox dialogBox =
-                  new MessageDialogBox(
-                      Messages.getString("info"), Messages.getString("mondrianSchemaCacheFlushedSuccessfully"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-              dialogBox.center();
-            }
-          });
-        } catch (RequestException e) {
-          Window.alert(e.getMessage());
-          // showError(e);
+        public void onResponseReceived( Request request, Response response ) {
+          MessageDialogBox dialogBox =
+            new MessageDialogBox(
+              Messages.getString( "info" ),
+              Messages.getString( "mondrianSchemaCacheFlushedSuccessfully" ),
+              false,
+              false,
+              true );
+          dialogBox.center();
         }
-      }
-    } );
+      } );
+    } catch ( RequestException e ) {
+      Window.alert( e.getMessage() );
+      // showError(e);
+    }
   }
 
   protected void performOperation( final boolean feedback ) {
     // do nothing
   }
-
 }
