@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -139,7 +139,8 @@ public class FileService {
 
   public DownloadFileWrapper systemBackup( String userAgent ) throws IOException, ExportException {
     if ( doCanAdminister() ) {
-      String originalFileName, encodedFileName;
+      String originalFileName;
+      String encodedFileName;
       originalFileName = "SystemBackup.zip";
       encodedFileName = makeEncodedFileName( originalFileName );
       StreamingOutput streamingOutput = getBackupStream();
@@ -266,7 +267,7 @@ public class FileService {
       Integer perm = Integer.valueOf( tokenizer.nextToken() );
       EnumSet<RepositoryFilePermission> permission = EnumSet.of( RepositoryFilePermission.values()[perm] );
       permMap.add( new Setting( perm.toString(), new Boolean( getRepository()
-          .hasAccess( idToPath( pathId ), permission ) ).toString() ) );
+        .hasAccess( idToPath( pathId ), permission ) ).toString() ) );
     }
     return permMap;
   }
@@ -275,9 +276,9 @@ public class FileService {
     List<Setting> pathsPermissonsSettings = new ArrayList<Setting>();
 
     String permissions =
-        RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
-            + RepositoryFilePermission.DELETE.ordinal() + "|" + RepositoryFilePermission.ACL_MANAGEMENT.ordinal() + "|"
-            + RepositoryFilePermission.ALL.ordinal();
+      RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
+        + RepositoryFilePermission.DELETE.ordinal() + "|" + RepositoryFilePermission.ACL_MANAGEMENT.ordinal() + "|"
+        + RepositoryFilePermission.ALL.ordinal();
 
     List<String> paths = pathsWrapper.getStrings();
     for ( String path : paths ) {
@@ -590,13 +591,13 @@ public class FileService {
       throw new FileNotFoundException( path );
     }
 
-   // send zip with manifest by default
+    // send zip with manifest by default
     boolean withManifest = "false".equals( strWithManifest ) ? false : true;
     boolean requiresZip = repositoryFile.isFolder() || withManifest;
     BaseExportProcessor exportProcessor = getDownloadExportProcessor( path, requiresZip, withManifest );
     originalFileName = requiresZip ? repositoryFile.getName() + ".zip" : repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
     encodedFileName = makeEncodedFileName( originalFileName );
-    
+
     // add export handlers for each expected file type
     exportProcessor.addExportHandler( getDownloadExportHandler() );
 
@@ -604,7 +605,7 @@ public class FileService {
     StreamingOutput streamingOutput = getDownloadStream( repositoryFile, exportProcessor );
 
     return new DownloadFileWrapper( streamingOutput, HttpMimeTypeListener.buildContentDispositionValue(
-        originalFileName, true ), encodedFileName );
+      originalFileName, true ), encodedFileName );
   }
 
   private String makeEncodedFileName( String originalFile ) throws UnsupportedEncodingException {
@@ -650,7 +651,7 @@ public class FileService {
 
     try {
       SimpleRepositoryFileData fileData =
-          getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class );
+        getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class );
       final InputStream is = fileData.getInputStream();
 
       // copy streaming output
@@ -663,7 +664,7 @@ public class FileService {
       return wrapper;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString(
-          "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e );
+        "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e );
       throw new InternalError();
     }
   }
@@ -778,7 +779,7 @@ public class FileService {
     return wrapper;
   }
 
-   /**
+  /**
    * Save the acls of the selected file to the repository
    *
    * This method is used to update and save the acls of the selected file to the repository
@@ -844,6 +845,22 @@ public class FileService {
     return repositoryFileDto != null && repositoryFileDto.getId() != null;
   }
 
+  private boolean isInsideOfAnyHiddenFolder( RepositoryFileDto repositoryFileDto ) {
+    if ( repositoryFileDto == null || repositoryFileDto.isHidden() ) {
+      return true;
+    }
+
+    int indexLastFolderSeparator = repositoryFileDto.getPath().lastIndexOf( '/' );
+    if ( indexLastFolderSeparator < 0 ) {
+      return false;
+    }
+
+    String parentPathId = repositoryFileDto.getPath().substring( 0, indexLastFolderSeparator ).replace( '/', ':' );
+    if ( StringUtils.isEmpty( parentPathId ) ) {
+      return false;
+    }
+    return isInsideOfAnyHiddenFolder( getRepoWs().getFile( idToPath( parentPathId ) ) );
+  }
   /**
    *
    * @param pathId
@@ -853,16 +870,16 @@ public class FileService {
     RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
     if ( repositoryFileDto == null ) {
       return ClientRepositoryPaths.getRootFolderPath();
-    } else if ( repositoryFileDto != null && repositoryFileDto.isHidden() ) {
+    } else if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
       String defaultFolder = PentahoSystem.get( ISystemConfig.class )
-          .getProperty( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY );
+        .getProperty( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY );
       if ( defaultFolder != null && defaultFolder.length() > 0 ) {
-        repositoryFileDto = getRepoWs().getFile(  defaultFolder );
+        repositoryFileDto = getRepoWs().getFile( defaultFolder );
         if ( repositoryFileDto == null ) {
           return ClientRepositoryPaths.getRootFolderPath();
-        } else if ( repositoryFileDto != null && repositoryFileDto.isHidden() ) {
+        } else if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
           repositoryFileDto = getRepoWs().getFile(  ClientRepositoryPaths.getPublicFolderPath() );
-          if ( repositoryFileDto != null && repositoryFileDto.isHidden() ) {
+          if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
             return ClientRepositoryPaths.getRootFolderPath();
           } else {
             return  ClientRepositoryPaths.getPublicFolderPath();
@@ -872,14 +889,14 @@ public class FileService {
         }
       } else {
         repositoryFileDto = getRepoWs().getFile(  ClientRepositoryPaths.getPublicFolderPath() );
-        if ( repositoryFileDto != null && repositoryFileDto.isHidden() ) {
+        if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
           return ClientRepositoryPaths.getRootFolderPath();
         } else {
           return  ClientRepositoryPaths.getPublicFolderPath();
         }
       }
     } else {
-      return pathId;
+      return repositoryFileDto.getPath();
     }
   }
 
@@ -1069,7 +1086,7 @@ public class FileService {
       getSession().getName().equals( fileAcl.getOwner() )
         || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
         && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
-          AdministerSecurityAction.NAME ) );
+        AdministerSecurityAction.NAME ) );
 
     if ( !canManage ) {
 
@@ -1119,10 +1136,10 @@ public class FileService {
         file.setHidden( isHidden );
         file.setNotSchedulable( !isSchedulable );
 
-          /*
-           * Since we cannot simply set the new value, use the RepositoryFileAdapter to create a new instance and then
-           * update the original.
-           */
+        /*
+         * Since we cannot simply set the new value, use the RepositoryFileAdapter to create a new instance and then
+         * update the original.
+         */
         RepositoryFile sourceFile = getRepository().getFileById( file.getId() );
         RepositoryFileDto destFileDto = toFileDto( sourceFile, null, false );
 
@@ -1504,7 +1521,7 @@ public class FileService {
    * @private
    */
   protected List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
-                                                          String metadataConstant )
+                                                            String metadataConstant )
     throws FileNotFoundException {
     List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
 
@@ -1563,7 +1580,7 @@ public class FileService {
     // If destination already exists throw
     if ( repository.getFile( buf.toString() ) != null ) {
       throw new IllegalArgumentException( org.pentaho.platform.repository2.messages.Messages.getInstance().getString(
-              "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) );
+        "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) );
     }
     repository.moveFile( fileToBeRenamed.getId(), buf.toString(), "Renaming the file" );
     RepositoryFile movedFile = repository.getFileById( fileToBeRenamed.getId() );
@@ -1824,7 +1841,7 @@ public class FileService {
         return false;
       }
     } else if ( repositoryRequest.getIncludeMemberSet() != null
-        && !repositoryRequest.getIncludeMemberSet().contains( "title" ) ) {
+      && !repositoryRequest.getIncludeMemberSet().contains( "title" ) ) {
       return false;
     }
     return true;
