@@ -124,6 +124,30 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!-- region HV Web Security -->
+    <dependency>
+      <groupId>com.hitachivantara.security.web</groupId>
+      <artifactId>security-web-server-api</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hitachivantara.security.web</groupId>
+      <artifactId>security-web-server-model-impl</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hitachivantara.security.web</groupId>
+      <artifactId>security-web-server-service-impl</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hitachivantara.security.web</groupId>
+      <artifactId>csrf-token-service-client-java-jax-rs-v1</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <!-- endregion HV Web Security -->
+
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>commons-database-model</artifactId>

@@ -175,7 +175,18 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
    * @return String containing the path
    */
   protected String getAbsolutePath( final String path ) {
-    return PentahoSystem.getApplicationContext().getSolutionPath( "system" + File.separator + path ); //$NON-NLS-1$
+    return getSolutionPath() + File.separator + path;
+  }
+
+  protected static String getSolutionPath() {
+    String solutionPath;
+    if ( PentahoSystem.getApplicationContext() != null ) {
+      solutionPath = PentahoSystem.getApplicationContext().getSolutionPath( "system" );
+    } else {
+      solutionPath = System.getProperty( "PentahoSystemPath" );
+    }
+
+    return solutionPath;
   }
 
   @Override

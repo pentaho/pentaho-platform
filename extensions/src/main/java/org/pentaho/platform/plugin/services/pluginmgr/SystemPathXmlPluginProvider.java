@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.pentaho.platform.api.engine.CsrfProtectionDefinition;
 import org.pentaho.platform.api.engine.IContentGeneratorInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
@@ -45,7 +44,6 @@ import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-import org.pentaho.platform.web.WebUtil;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
 
 import java.io.File;
@@ -152,7 +150,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     processWebservices( plugin, doc );
     processExternalResources( plugin, doc );
     processPerspectives( plugin, doc );
-    processCsrfProtection( plugin, doc );
 
     String listenerCount = ( StringUtils.isEmpty( plugin.getLifecycleListenerClassname() ) ) ? "0" : "1"; //$NON-NLS-1$//$NON-NLS-2$
 
@@ -448,26 +445,5 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     info.setClassname( className );
 
     return info;
-  }
-
-  protected void processCsrfProtection( PlatformPlugin plugin, Document doc ) {
-
-    Node csrfProtectionElem = doc.selectSingleNode( "*/csrf-protection" );
-    if ( csrfProtectionElem != null ) {
-      try {
-        CsrfProtectionDefinition protectionDefinition =
-            WebUtil.parseXmlCsrfProtectionDefinition( (Element) csrfProtectionElem );
-
-        if ( protectionDefinition != null ) {
-          plugin.setCsrfProtection( protectionDefinition );
-        }
-      } catch ( IllegalArgumentException parseError ) {
-        PluginMessageLogger.add(
-            Messages.getInstance().getString(
-                "PluginManager.WARN_CSRF_REQUEST_MATCHER_NOT_REGISTERED",
-                plugin.getId(),
-                parseError.getMessage() ) );
-      }
-    }
   }
 }

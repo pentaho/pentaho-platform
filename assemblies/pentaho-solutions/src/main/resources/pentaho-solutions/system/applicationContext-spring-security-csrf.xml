@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--+
+  | Application context containing CSRF related beans.
+  +-->
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xmlns:swm="http://www.hitachivantara.com/schema/security/web/model/spring"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+          http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd
+          http://www.hitachivantara.com/schema/security/web/model/spring http://www.hitachivantara.com/schema/security/web/model/spring/hv-swm-spring.xsd"
+       default-lazy-init="true">
+
+  <!-- region CSRF Configurations -->
+
+  <!-- CSRF protected system endpoints -->
+  <bean class="com.hitachivantara.security.web.impl.model.csrf.CsrfRequestSetConfigurationPojo">
+    <pen:publish as-type="INTERFACES" />
+
+    <constructor-arg>
+      <swm:or-request-matcher>
+        <!--
+          POST /api/user-settings/recent
+          POST /api/user-settings/favorites
+          POST /api/user-settings/MANTLE_SHOW_NAVIGATOR
+          POST /api/user-settings/MANTLE_SHOW_HIDDEN_FILES
+          POST /api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS
+          POST /api/user-settings/*
+        -->
+        <swm:regex-request-matcher pattern="^/api/user-settings/.*" methods="POST" />
+
+        <!--
+          POST /api/mantle/session-variable
+        -->
+        <swm:regex-request-matcher pattern="^/api/mantle/session-variable\b.*" methods="POST" />
+
+        <!--
+          GET /api/system/refresh/mondrianSchemaCache
+        -->
+        <swm:regex-request-matcher pattern="^/api/system/refresh/mondrianSchemaCache\b.*" methods="GET" />
+
+        <!--
+          POST /api/repo/files/import
+        -->
+        <swm:regex-request-matcher pattern="^/api/repo/files/import\b.*" methods="POST" />
+      </swm:or-request-matcher>
+    </constructor-arg>
+  </bean>
+
+  <!-- Aggregates all registered CSRF request set configurations, from the system and plugins -->
+  <bean id="aggregatedCsrfConfiguration"
+        class="com.hitachivantara.security.web.impl.model.csrf.AggregatedRequestSetCsrfConfiguration">
+
+    <!-- Needed by CsrfTokenService in another app context -->
+    <pen:publish as-type="INTERFACES" />
+
+    <!-- Read `csrf-protection-enabled` configuration from `system.properties` or `pentaho.xml` -->
+    <property name="enabled" value="${system.csrf-protection-enabled:false}" />
+
+    <property name="requestSetConfigurations">
+      <pen:list class="com.hitachivantara.security.web.model.csrf.CsrfRequestSetConfiguration" />
+    </property>
+  </bean>
+
+  <!-- endregion configurations -->
+
+  <!-- region CSRF Services -->
+
+  <!-- Servlet Filter that checks that requests to protected endpoints specify a CSRF token.
+       Should be the first filter. See `filterChainProxy` in `applicationContext-spring-security.xml`.
+    -->
+  <bean id="csrfGateFilter" class="com.hitachivantara.security.web.impl.service.csrf.servlet.CsrfGateFilter">
+    <constructor-arg ref="aggregatedCsrfConfiguration" />
+  </bean>
+
+  <!-- JAX-RS Resource for obtaining a CSRF token.
+
+    Has to be declared in the separate app context of `pentahoServices.spring.xml`,
+    so that it gets exposed under /api/csrf/token.
+    Depends on `csrfGateFilter` being applied to it.
+    Should not require authentication, so that a token can be obtained for login.
+
+    <bean class="com.hitachivantara.security.web.impl.service.csrf.jaxrs.CsrfTokenService" scope="request" />
+  -->
+
+  <!-- Publish the CORS configuration of the CSRF token service -->
+  <bean class="com.hitachivantara.security.web.impl.model.cors.CorsRequestSetConfigurationPojo">
+    <pen:publish as-type="INTERFACES" />
+    <property name="requestMatcher">
+      <!-- /api/csrf/token -->
+      <swm:regex-request-matcher pattern="^/api/csrf/token\b.*" />
+    </property>
+    <property name="allowedMethods" value="GET" />
+    <property name="exposedHeaders" value="X-CSRF-HEADER, X-CSRF-PARAM, X-CSRF-TOKEN" />
+    <property name="allowCredentials" value="true" />
+  </bean>
+
+  <!-- endregion CSRF Services -->
+</beans>

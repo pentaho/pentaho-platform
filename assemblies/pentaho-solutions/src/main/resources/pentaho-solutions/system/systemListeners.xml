@@ -44,7 +44,6 @@
         </bean>
 
         <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
-        <bean id="csrfProtectionSystemListener" class="org.pentaho.platform.web.http.security.CsrfProtectionSystemListener" />
         <!-- Insert system-listeners -->
       </list>
     </constructor-arg>

@@ -224,6 +224,7 @@
     <websocket-api.version>1.0</websocket-api.version>
     <encryption-support.version>9.3.0.0-SNAPSHOT</encryption-support.version>
   </properties>
+
   <build>
     <pluginManagement>
       <plugins>

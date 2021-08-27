@@ -178,14 +178,6 @@ public interface IPluginManager {
   public Object getPluginSetting( String pluginId, String key, String defaultValue );
 
   /**
-   * Gets a value that indicates if CSRF protection is enabled for the system and a given plugin.
-   *
-   * @param pluginId     the ID of the plugin.
-   * @return true if CSRF protection is enabled; false, otherwise.
-   */
-  public boolean isCsrfProtectionEnabled( String pluginId );
-
-  /**
    * Returns the plugin that can handle a request for the resource at "path". A plugin is determined to be able to serve
    * the request if it either a content generator or a static resource of the plugin is configured to handle the path.
    * In other words, if a plugin has a static resource of "/my-plugin/resources", then a request to
