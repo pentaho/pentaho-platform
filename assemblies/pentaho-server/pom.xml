@@ -16,7 +16,6 @@
     <wkhtmltox.version>0.10.0_rc2</wkhtmltox.version>
     <wkhtmltoimage.version>${wkhtmltox.version}-static</wkhtmltoimage.version>
     <resources.directory>${basedir}/src/main/resources</resources.directory>
-    <snowflake-jdbc.version>3.6.28</snowflake-jdbc.version>
     <!-- Pentaho drivers kar file dependencies versions -->
     <pentaho-hadoop-shims-cdh61.version>9.3.0.0-SNAPSHOT</pentaho-hadoop-shims-cdh61.version>
     <pentaho-hadoop-shims-hdp30.version>9.3.0.0-SNAPSHOT</pentaho-hadoop-shims-hdp30.version>
