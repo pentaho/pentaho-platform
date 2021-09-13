@@ -54,7 +54,9 @@ public class UploadFileUtilsTest {
     assertTrue( testUtils.checkExtension( "tar", false ) );
     assertFalse( testUtils.checkExtension( "tar.gz", false ) );
     assertTrue( testUtils.checkExtension( "tgz", false ) );
-    assertTrue( testUtils.checkExtension( "", false ) );
+    // As of PPP-4675, the default value of allowNoExtensions is false,
+    // so we will test the default (false), then the explicit value of false
+    assertFalse( testUtils.checkExtension( "", false ) );
     testUtils.setAllowsNoExtension( false );
     assertFalse( testUtils.checkExtension( "", false ) );
     testUtils.setAllowsNoExtension( true );

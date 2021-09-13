@@ -98,7 +98,7 @@ public class UploadFileUtils {
     this.setAllowedExtensionsString( tmpAllowedExtensions );
     // Are files without any extension allowed ? Notably found in .zip files and such.
     String allowsNoExtensionString =
-      PentahoSystem.getSystemSetting( "file-upload-defaults/allow-files-without-extension", "true" ); //$NON-NLS-1$
+      PentahoSystem.getSystemSetting( "file-upload-defaults/allow-files-without-extension", "false" ); //$NON-NLS-1$
     this.allowsNoExtension = Boolean.valueOf( allowsNoExtensionString );
     this.maxFileSize = Long.parseLong( maxFileLimit );
     this.maxFolderSize = Long.parseLong( maxFolderLimit );
