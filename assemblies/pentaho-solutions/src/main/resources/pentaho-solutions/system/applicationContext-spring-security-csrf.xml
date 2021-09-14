@@ -5,10 +5,12 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
        xmlns:swm="http://www.hitachivantara.com/schema/security/web/model/spring"
+       xmlns:pen-gpc="http://www.pentaho.com/schema/pentaho-gwt-rpc-spring"
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="
           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
           http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd
+          http://www.pentaho.com/schema/pentaho-gwt-rpc-spring http://www.pentaho.com/schema/pentaho-gwt-rpc-spring.xsd
           http://www.hitachivantara.com/schema/security/web/model/spring http://www.hitachivantara.com/schema/security/web/model/spring/hv-swm-spring.xsd"
        default-lazy-init="true">
 
@@ -20,6 +22,8 @@
 
     <constructor-arg>
       <swm:or-request-matcher>
+        <!-- REST /api/* -->
+
         <!--
           POST /api/user-settings/recent
           POST /api/user-settings/favorites
@@ -44,6 +48,33 @@
           POST /api/repo/files/import
         -->
         <swm:regex-request-matcher pattern="^/api/repo/files/import\b.*" methods="POST" />
+
+        <!-- GWT-RPC ws/gwt/* -->
+
+        <!-- POST /ws/gwt/unifiedRepository (and body contains `createBinaryFile`, ... method call) -->
+        <pen-gpc:system-gwt-rpc-request-matcher pattern="^/ws/gwt/unifiedRepository\b.*"
+                                                methods="createBinaryFile
+                                                         createBinaryFileWithAcl
+                                                         updateBinaryFile
+                                                         copyFile
+                                                         moveFile
+                                                         lockFile
+                                                         unlockFile
+                                                         createFile
+                                                         createFileWithAcl
+                                                         updateFile
+                                                         createFolder
+                                                         createFolderWithAcl
+                                                         updateFolder
+                                                         deleteFile
+                                                         deleteFileWithPermanentFlag
+                                                         deleteFileAtVersion
+                                                         undeleteFile
+                                                         updateAcl
+                                                         restoreFileAtVersion
+                                                         setFileMetadata
+                                                         setLocalePropertiesForFileByFileId
+                                                         deleteLocalePropertiesForFile" />
       </swm:or-request-matcher>
     </constructor-arg>
   </bean>
