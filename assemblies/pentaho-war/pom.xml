@@ -28,7 +28,6 @@
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
     <rxjava.version>2.2.3</rxjava.version>
-    <snowflake-jdbc.version>3.6.28</snowflake-jdbc.version>
     <big-data-plugin.version>9.3.0.0-SNAPSHOT</big-data-plugin.version>
   </properties>
   <dependencies>
