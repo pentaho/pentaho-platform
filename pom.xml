@@ -143,8 +143,7 @@
     <license.fail.if.missing>false</license.fail.if.missing>
     <webservices.version>2.3.1</webservices.version>
     <wadl-resourcedoc-doclet.version>1.19.1</wadl-resourcedoc-doclet.version>
-    <gwt-servlet.version>2.5.1</gwt-servlet.version>
-    <asm.version>3.1</asm.version>
+    <asm.version>7.1</asm.version>
     <quartz-oracle.version>1.7.2</quartz-oracle.version>
     <edtftpj.version>2.1.0</edtftpj.version>
     <jzlib.version>1.0.7</jzlib.version>

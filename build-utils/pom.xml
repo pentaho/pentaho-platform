@@ -52,13 +52,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>sun.jdk</groupId>
-      <artifactId>tools</artifactId>
-      <version>${source.jdk.version}</version>
-      <scope>system</scope>
-      <systemPath>${java.home}/../lib/tools.jar</systemPath>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>

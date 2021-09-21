@@ -365,7 +365,6 @@
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-servlet</artifactId>
-      <version>${gwt-servlet.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -407,7 +406,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>asm</groupId>
+      <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
       <version>${asm.version}</version>
       <exclusions>

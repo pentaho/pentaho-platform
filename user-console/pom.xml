@@ -13,16 +13,11 @@
     <validation-api.version>1.0.0.GA</validation-api.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
     <gwt.outputDirectory>${project.build.directory}/${project.artifactId}-gwt-${project.version}</gwt.outputDirectory>
-    <gwt-dnd.version>3.0.1</gwt-dnd.version>
     <org.json.version>3.1.1</org.json.version>
-    <gwt.version>2.5.1</gwt.version>
     <json-simple.version>1.1</json-simple.version>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
-    <gwt-incubator.version>2.1.0</gwt-incubator.version>
-    <gwt-fx.version>0.5.0</gwt-fx.version>
     <bsh.version>1.3.0</bsh.version>
     <mockito.version>1.8.5</mockito.version>
-    <gwtx.version>1.5.2</gwtx.version>
     <commons-xul.version>9.3.0.0-SNAPSHOT</commons-xul.version>
     <common-ui.version>9.3.0.0-SNAPSHOT</common-ui.version>
     <commons-gwt.version>9.3.0.0-SNAPSHOT</commons-gwt.version>
@@ -202,7 +197,6 @@
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-servlet</artifactId>
-      <version>${gwt.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -214,7 +208,6 @@
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-user</artifactId>
-      <version>${gwt.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -225,18 +218,10 @@
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-dev</artifactId>
-      <version>${gwt.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-codeserver</artifactId>
-      <version>${gwt.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -247,7 +232,6 @@
     <dependency>
       <groupId>GWT-FX</groupId>
       <artifactId>GWT-FX</artifactId>
-      <version>${gwt-fx.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -258,7 +242,6 @@
     <dependency>
       <groupId>com.google.code.gwtx</groupId>
       <artifactId>gwtx</artifactId>
-      <version>${gwtx.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -269,7 +252,6 @@
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-incubator</artifactId>
-      <version>${gwt-incubator.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -278,9 +260,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.allen_sauer</groupId>
+      <groupId>com.allen-sauer.gwt.dnd</groupId>
       <artifactId>gwt-dnd</artifactId>
-      <version>${gwt-dnd.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -298,6 +279,10 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.google.jsinterop</groupId>
+      <artifactId>jsinterop-annotations</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.validation</groupId>
@@ -352,6 +337,13 @@
       <groupId>org.webjars.npm</groupId>
       <artifactId>jquery</artifactId>
     </dependency>
+
+    <!-- Endorsed Standards Excluded from Java 11+ -->
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+    </dependency>
+
   </dependencies>
   <build>
     <plugins>
@@ -371,6 +363,7 @@
             <configuration>
               <module>org.pentaho.mantle.MantleApplication</module>
               <webappDirectory>${gwt.outputDirectory}</webappDirectory>
+              <extraJvmArgs>-Xms512m -Xmx1024m</extraJvmArgs>
               <!-- Uncomment for debugging GWT code.
               <style>PRETTY</style>
               -->
