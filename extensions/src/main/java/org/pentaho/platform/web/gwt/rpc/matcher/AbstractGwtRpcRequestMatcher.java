@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.HttpMethod;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 
 /**
  * The <code>AbstractGwtRpcRequestMatcher</code> class is the base class for GWT-RPC request matchers.
@@ -54,7 +53,7 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
    */
   private static final Collection<String> HTTP_METHODS_GWT_RPC = Collections.singletonList( HttpMethod.POST );
 
-  @NonNull
+  @Nullable
   private final Collection<String> rpcMethodNames;
 
   @Nullable
@@ -64,21 +63,20 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
    * Constructs a GWT-RPC request matcher given a path pattern, collection of RPC method names,
    * and a GWT-RPC serialization policy cache.
    * <p>
-   * The request matcher created with this constructor applies matches the request path with the given pattern
-   * in a case-sensitive manner.
+   * The request matcher created with this constructor applies matches the request <i>path</i> with the given pattern
+   * in a case-sensitive manner. Note that the RPC method name is always matched in a case-sensitive manner.
    *
    * @param pattern                  The request path pattern.
-   * @param rpcMethodNames           The collection of service method names
+   * @param rpcMethodNames           The collection of service method names. Can be <code>null</code>,
+   *                                 in which case all methods match.
    * @param serializationPolicyCache The serialization policy cache. Can be <code>null</code>,
    *                                 in which case no caching occurs.
    */
   public AbstractGwtRpcRequestMatcher( @NonNull String pattern,
-                                       @NonNull Collection<String> rpcMethodNames,
+                                       @Nullable Collection<String> rpcMethodNames,
                                        @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
 
     super( pattern, HTTP_METHODS_GWT_RPC );
-
-    Objects.requireNonNull( rpcMethodNames );
 
     this.rpcMethodNames = rpcMethodNames;
     this.serializationPolicyCache = serializationPolicyCache;
@@ -89,20 +87,20 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
    * and a GWT-RPC serialization policy cache.
    *
    * @param pattern                  The request path pattern.
-   * @param isCaseInsensitive        Indicates whether the request path pattern matches the given <code>pattern</code>
-   *                                 in a case-insensitive manner.
-   * @param rpcMethodNames           The collection of service method names
+   * @param isCaseInsensitive        Indicates whether the given <code>pattern</code> matches the request <i>path</i>
+   *                                 in a case-insensitive manner. Note that the RPC method name is always matched
+   *                                 in a case-sensitive manner.
+   * @param rpcMethodNames           The collection of service method names. Can be <code>null</code>,
+   *                                 in which case all methods match.
    * @param serializationPolicyCache The serialization policy cache. Can be <code>null</code>,
    *                                 in which case no caching occurs.
    */
   public AbstractGwtRpcRequestMatcher( @NonNull String pattern,
                                        boolean isCaseInsensitive,
-                                       @NonNull Collection<String> rpcMethodNames,
+                                       @Nullable Collection<String> rpcMethodNames,
                                        @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
 
     super( pattern, HTTP_METHODS_GWT_RPC, isCaseInsensitive );
-
-    Objects.requireNonNull( rpcMethodNames );
 
     this.rpcMethodNames = rpcMethodNames;
     this.serializationPolicyCache = serializationPolicyCache;
@@ -118,15 +116,17 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
 
   /**
    * Gets the collection of matching GWT-RPC service method names.
+   * When <code>null</code>, all methods match.
    */
-  @NonNull
+  @Nullable
   public Collection<String> getRpcMethodNames() {
     return rpcMethodNames;
   }
 
   @Override
   public boolean test( @NonNull HttpServletRequest httpRequest ) {
-    return super.test( httpRequest ) && rpcMethodNames.contains( getRpcMethodName( httpRequest ) );
+    return super.test( httpRequest )
+      && ( rpcMethodNames == null || rpcMethodNames.contains( getRpcMethodName( httpRequest ) ) );
   }
 
   /**
@@ -141,9 +141,10 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
   protected abstract AbstractGwtRpc getGwtRpc( @NonNull HttpServletRequest httpRequest );
 
   // Visible For Testing
+
   /**
    * Obtains the GWT-RPC service method name associated with the given HTTP request.
-   *
+   * <p>
    * If calling {@link #getGwtRpc(HttpServletRequest)} fails with a {@link GwtRpcProxyException},
    * then this method returns an empty string. This special method name cannot match any actual method.
    *

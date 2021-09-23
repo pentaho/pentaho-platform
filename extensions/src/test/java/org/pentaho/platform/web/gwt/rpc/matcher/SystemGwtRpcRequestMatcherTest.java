@@ -32,6 +32,7 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -109,6 +110,24 @@ public class SystemGwtRpcRequestMatcherTest {
 
     doReturn( TEST_RPC_METHOD_1 + "_SOMETHING" ).when( matcher ).getRpcMethodName( any() );
     assertFalse( matcher.test( request ) );
+  }
+
+  @Test
+  public void testRpcMethodsAllMatch() {
+    SystemGwtRpcRequestMatcher matcher = spy( new SystemGwtRpcRequestMatcher( TEST_PATTERN, null, null ) );
+    assertNull( matcher.getRpcMethodNames() );
+
+    HttpServletRequest request = createRequestMock( HttpMethod.POST, TEST_PATH );
+
+    // ---
+
+    doReturn( TEST_RPC_METHOD_1 ).when( matcher ).getRpcMethodName( any() );
+    assertTrue( matcher.test( request ) );
+
+    // ---
+
+    doReturn( TEST_RPC_METHOD_1 + "_SOMETHING" ).when( matcher ).getRpcMethodName( any() );
+    assertTrue( matcher.test( request ) );
   }
   // endregion
 

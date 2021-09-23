@@ -36,14 +36,14 @@ import java.util.Collection;
 public class PluginGwtRpcRequestMatcher extends AbstractGwtRpcRequestMatcher {
 
   public PluginGwtRpcRequestMatcher( @NonNull String pattern,
-                                     @NonNull Collection<String> rpcMethods,
+                                     @Nullable Collection<String> rpcMethods,
                                      @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
     super( pattern, rpcMethods, serializationPolicyCache );
   }
 
   public PluginGwtRpcRequestMatcher( @NonNull String pattern,
                                      boolean isCaseInsensitive,
-                                     @NonNull Collection<String> rpcMethods,
+                                     @Nullable Collection<String> rpcMethods,
                                      @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
     super( pattern, isCaseInsensitive, rpcMethods, serializationPolicyCache );
   }

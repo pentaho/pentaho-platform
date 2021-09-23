@@ -34,6 +34,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -57,14 +58,14 @@ public class AbstractGwtRpcRequestMatcherTest {
   static class TestRequestMatcher extends AbstractGwtRpcRequestMatcher {
 
     public TestRequestMatcher( @NonNull String pattern,
-                               @NonNull Collection<String> rpcMethods,
+                               @Nullable Collection<String> rpcMethods,
                                @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
       super( pattern, rpcMethods, serializationPolicyCache );
     }
 
     public TestRequestMatcher( @NonNull String pattern,
                                boolean isCaseInsensitive,
-                               @NonNull Collection<String> rpcMethods,
+                               @Nullable Collection<String> rpcMethods,
                                @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
       super( pattern, isCaseInsensitive, rpcMethods, serializationPolicyCache );
     }
@@ -152,6 +153,24 @@ public class AbstractGwtRpcRequestMatcherTest {
 
     doReturn( TEST_RPC_METHOD_1 + "_SOMETHING" ).when( matcher ).getRpcMethodName( any() );
     assertFalse( matcher.test( request ) );
+  }
+
+  @Test
+  public void testRpcMethodsAllMatch() {
+    AbstractGwtRpcRequestMatcher matcher = spy( new TestRequestMatcher( TEST_PATTERN, null, null ) );
+    assertNull( matcher.getRpcMethodNames() );
+
+    HttpServletRequest request = createRequestMock( HttpMethod.POST, TEST_PATH );
+
+    // ---
+
+    doReturn( TEST_RPC_METHOD_1 ).when( matcher ).getRpcMethodName( any() );
+    assertTrue( matcher.test( request ) );
+
+    // ---
+
+    doReturn( TEST_RPC_METHOD_1 + "_SOMETHING" ).when( matcher ).getRpcMethodName( any() );
+    assertTrue( matcher.test( request ) );
   }
   // endregion
 
