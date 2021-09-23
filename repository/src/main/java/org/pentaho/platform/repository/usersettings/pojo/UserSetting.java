@@ -20,11 +20,12 @@
 
 package org.pentaho.platform.repository.usersettings.pojo;
 
+import com.google.gwt.core.client.EntryPoint;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 
 import java.io.Serializable;
 
-public class UserSetting implements Serializable, IUserSetting {
+public class UserSetting implements EntryPoint, Serializable, IUserSetting {
 
   private static final long serialVersionUID = 823604019645900631L;
 

@@ -171,7 +171,7 @@ public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationCo
     }
 
     @Override
-    public Iterator<?> getPrefixes( String namespaceURI ) {
+    public Iterator<String> getPrefixes( String namespaceURI ) {
       return null;
     }
 

@@ -482,7 +482,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>asm</groupId>
+      <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
       <version>${asm.version}</version>
       <scope>compile</scope>
@@ -959,7 +959,6 @@
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-servlet</artifactId>
-      <version>${gwt-servlet.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
