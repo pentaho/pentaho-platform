@@ -30,6 +30,12 @@
     <pentaho-chartbeans.version>9.3.0.0-SNAPSHOT</pentaho-chartbeans.version>
   </properties>
   <dependencies>
+    <!-- @Null, @Nullable annotations -->
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
@@ -2093,6 +2099,18 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!-- region HV Web Security -->
+    <dependency>
+      <groupId>com.hitachivantara.security.web</groupId>
+      <artifactId>security-web-server-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hitachivantara.security.web</groupId>
+      <artifactId>security-web-server-model-impl</artifactId>
+    </dependency>
+    <!-- endregion HV Web Security -->
+
     <dependency>
       <groupId>annogen</groupId>
       <artifactId>annogen</artifactId>

@@ -222,7 +222,21 @@
     <hsqldb.version>2.3.2</hsqldb.version>
     <websocket-api.version>1.0</websocket-api.version>
     <encryption-support.version>9.3.0.0-SNAPSHOT</encryption-support.version>
+    <!-- @Null @Nullable annotations -->
+    <com.github.spotbugs.annotations.version>4.2.3</com.github.spotbugs.annotations.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- @Null, @Nullable annotations -->
+      <dependency>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-annotations</artifactId>
+        <version>${com.github.spotbugs.annotations.version}</version>
+        <optional>true</optional>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <pluginManagement>

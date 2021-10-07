@@ -15,7 +15,7 @@
  * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  */
 
-package org.pentaho.platform.web.servlet;
+package org.pentaho.platform.web.gwt.rpc.matcher;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -24,23 +24,32 @@ import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.gwt.rpc.SystemGwtRpc;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 /**
- * This servlet is the traffic cop for GWT services core to the BIServer. See pentahoServices.spring.xml for bean
- * definitions referenced by this servlet.
+ * The <code>SystemGwtRpcRequestMatcher</code> class is a specialized GWT-RPC request matcher
+ * which can be used to match URLs of GWT-RPC services of the Pentaho Platform itself (e.g.
+ * <code>/ws/gwt/serviceName</code>).
+ *
+ * @see SystemGwtRpc
  */
-public class GwtRpcProxyServlet extends AbstractGwtRpcProxyServlet {
+public class SystemGwtRpcRequestMatcher extends AbstractGwtRpcRequestMatcher {
 
-  public GwtRpcProxyServlet() {
-    super();
+  public SystemGwtRpcRequestMatcher( @NonNull String pattern,
+                                     @Nullable Collection<String> rpcMethods,
+                                     @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
+    super( pattern, rpcMethods, serializationPolicyCache );
   }
 
-  public GwtRpcProxyServlet( @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
-    super( serializationPolicyCache );
+  public SystemGwtRpcRequestMatcher( @NonNull String pattern,
+                                     boolean isCaseInsensitive,
+                                     @Nullable Collection<String> rpcMethods,
+                                     @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
+    super( pattern, isCaseInsensitive, rpcMethods, serializationPolicyCache );
   }
 
   @NonNull @Override
-  protected AbstractGwtRpc getRpc( @NonNull HttpServletRequest httpRequest ) {
+  protected AbstractGwtRpc getGwtRpc( @NonNull HttpServletRequest httpRequest ) {
     return SystemGwtRpc.getInstance( httpRequest, getSerializationPolicyCache() );
   }
 }

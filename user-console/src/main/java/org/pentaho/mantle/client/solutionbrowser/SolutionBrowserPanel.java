@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,18 +12,41 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.mantle.client.solutionbrowser;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.TreeListener;
+import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
@@ -33,8 +55,7 @@ import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
-import org.pentaho.mantle.client.csrf.CsrfUtil;
-import org.pentaho.mantle.client.csrf.JsCsrfToken;
+import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.ShowDescriptionsEvent;
@@ -60,36 +81,9 @@ import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
-import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.TreeListener;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @SuppressWarnings( "deprecation" )
 public class SolutionBrowserPanel extends HorizontalPanel {
@@ -128,28 +122,16 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     public void execute() {
       solutionTree.setShowLocalizedFileNames( !solutionTree.isShowLocalizedFileNames() );
 
-      final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_LOCALIZED_FILENAMES"; //$NON-NLS-1$
-
-      CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
-
-        public void onFailure( Throwable caught ) {
-        }
-
-        public void onSuccess( JsCsrfToken token ) {
+      String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_LOCALIZED_FILENAMES";
           // update setting
-          RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+      RequestBuilder builder = new CsrfRequestBuilder( RequestBuilder.POST, url );
           builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-          if ( token != null ) {
-            builder.setHeader( token.getHeader(), token.getToken() );
-          }
           try {
             builder.sendRequest( "" + solutionTree.isShowLocalizedFileNames(), EmptyRequestCallback.getInstance() );
           } catch ( RequestException e ) {
             // showError(e);
           }
         }
-      } );
-    }
   };
 
   public Command toggleShowHideFilesCommand = new Command() {
@@ -163,30 +145,19 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       event.setValue( solutionTree.isShowHiddenFiles() );
       EventBusUtil.EVENT_BUS.fireEvent( event );
 
-      final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES"; //$NON-NLS-1$
-
-      CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
-
-        public void onFailure( Throwable caught ) {
-        }
-
-        public void onSuccess( JsCsrfToken token ) {
+      String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES";
           // update setting
-          RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+      RequestBuilder builder = new CsrfRequestBuilder( RequestBuilder.POST, url );
           try {
             builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-            if ( token != null ) {
-              builder.setHeader( token.getHeader(), token.getToken() );
-            }
             builder.sendRequest( "" + solutionTree.isShowHiddenFiles(), EmptyRequestCallback.getInstance() );
+
             RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree( true, null, null,
                 solutionTree.isShowHiddenFiles() );
           } catch ( RequestException e ) {
             // showError(e);
           }
         }
-      } );
-    }
   };
 
   public Command toggleUseDescriptionCommand = new Command() {
@@ -199,29 +170,16 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       event.setValue( solutionTree.isUseDescriptionsForTooltip() );
       EventBusUtil.EVENT_BUS.fireEvent( event );
 
-      final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS"; //$NON-NLS-1$
-
-      CsrfUtil.getCsrfToken( url, new AsyncCallback<JsCsrfToken>() {
-
-        public void onFailure( Throwable caught ) {
-        }
-
-        public void onSuccess( JsCsrfToken token ) {
           // update setting
-
-          RequestBuilder builder = new RequestBuilder( RequestBuilder.POST, url );
+      String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS";
+      RequestBuilder builder = new CsrfRequestBuilder( RequestBuilder.POST, url );
           try {
             builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-            if ( token != null ) {
-              builder.setHeader( token.getHeader(), token.getToken() );
-            }
             builder.sendRequest( "" + solutionTree.isUseDescriptionsForTooltip(), EmptyRequestCallback.getInstance() );
           } catch ( RequestException e ) {
             // showError(e);
           }
         }
-      } );
-    }
   };
 
   private TreeListener treeListener = new TreeListener() {
