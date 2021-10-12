@@ -14,13 +14,15 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2020-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
@@ -41,10 +43,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class FileServiceTest {
 
@@ -55,11 +65,16 @@ public class FileServiceTest {
 
   private FileService fileService;
 
+  @BeforeClass
+  public static void init() {
+    PentahoSystem.init();
+  }
+
   @Before
   public void setUp() throws Exception {
     fileService = spy( FileService.class );
     final ISystemSettings settingsService = mock( ISystemSettings.class );
-    when( settingsService.getSystemSetting( eq( "anonymous-authentication/anonymous-user" )  , eq("anonymousUser"))).thenReturn( "anonymousUser");
+    when( settingsService.getSystemSetting( eq( "anonymous-authentication/anonymous-user" ), eq( "anonymousUser" ) ) ).thenReturn( "anonymousUser" );
     PentahoSystem.setSystemSettingsService( settingsService );
     final ISystemConfig systemConfig = mock( ISystemConfig.class );
 
@@ -70,15 +85,13 @@ public class FileServiceTest {
     try {
       when( objectFactory.getObjectReferences( eq( ISystemConfig.class ), any( IPentahoSession.class ),
           any( Map.class ) ) ).thenReturn( new LinkedList() { {
-        add( pentahoObjectReference );
-      } } );
+              add( pentahoObjectReference );
+            } } );
     } catch ( ObjectFactoryException e ) {
       e.printStackTrace();
     }
     when( settingsService.getSystemSetting( anyString(), anyString() ) ).thenReturn( "" );
     PentahoSystem.registerObjectFactory( objectFactory );
-
-    PentahoSystem.init();
   }
 
   @Test( expected = FileService.InvalidNameException.class )
@@ -291,29 +304,29 @@ public class FileServiceTest {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
-    hiddenDto.setId( "5345345345345345345" );
+    hiddenDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     hiddenDto.setName( "suzy" );
     RepositoryFileDto visibleDto = new RepositoryFileDto();
     visibleDto.setFolder( true );
     visibleDto.setHidden( false );
-    visibleDto.setId( "5345345345345345345" );
+    visibleDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     visibleDto.setName( "joe" );
-    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
 
     doReturn( repoWs ).when( fileService ).getRepoWs();
     doReturn( hiddenDto ).when( repoWs ).getFile( "/home/suzy" );
     doReturn( visibleDto ).when( repoWs ).getFile( "/home/joe" );
 
-    assertEquals( fileService.doGetIsVisible( "/home/suzy"), "false" );
-    assertEquals( fileService.doGetIsVisible( "/home/joe"), "true" );
+    assertEquals( "false", fileService.doGetIsVisible( ":home:suzy" ) );
+    assertEquals( "true", fileService.doGetIsVisible( ":home:joe" ) );
   }
 
   @Test
   public void testGetDefaultLocation_Scenario_ProvidedFolderIsNull() throws Exception {
-    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( repoWs ).when( fileService ).getRepoWs();
     doReturn( null ).when( repoWs ).getFile( "/home/joe" );
-    assertEquals( fileService.doGetDefaultLocation( "/home/joe"), ClientRepositoryPaths.getRootFolderPath() );
+    assertEquals( ClientRepositoryPaths.getRootFolderPath(), fileService.doGetDefaultLocation( ":home:joe" ) );
   }
 
   @Test
@@ -321,12 +334,22 @@ public class FileServiceTest {
     RepositoryFileDto visibleDto = new RepositoryFileDto();
     visibleDto.setFolder( true );
     visibleDto.setHidden( false );
-    visibleDto.setId( "5345345345345345345" );
+    visibleDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     visibleDto.setName( "joe" );
-    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+    visibleDto.setPath( "/home/joe" );
+
+    RepositoryFileDto homeFolderDto = new RepositoryFileDto();
+    homeFolderDto.setFolder( true );
+    homeFolderDto.setHidden( false );
+    homeFolderDto.setId( RandomStringUtils.randomNumeric( 20 ) );
+    homeFolderDto.setName( "home" );
+    homeFolderDto.setPath( "/home" );
+
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( repoWs ).when( fileService ).getRepoWs();
     doReturn( visibleDto ).when( repoWs ).getFile( "/home/joe" );
-    assertEquals( fileService.doGetDefaultLocation( "/home/joe"), "/home/joe" );
+    doReturn( homeFolderDto ).when( repoWs ).getFile( "/home" );
+    assertEquals( "/home/joe", fileService.doGetDefaultLocation( ":home:joe" ) );
   }
 
   @Test
@@ -334,19 +357,21 @@ public class FileServiceTest {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
-    hiddenDto.setId( "5345345345345345345" );
+    hiddenDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     hiddenDto.setName( "suzy" );
+    hiddenDto.setPath( "/home/suzy" );
     RepositoryFileDto publicDto = new RepositoryFileDto();
     publicDto.setFolder( true );
     publicDto.setHidden( false );
-    publicDto.setId( "5345345345345345345" );
-    publicDto.setName( "suzy" );
-    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+    publicDto.setId( RandomStringUtils.randomNumeric( 20 ) );
+    publicDto.setName( "public" );
+    publicDto.setPath( "/public" );
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( repoWs ).when( fileService ).getRepoWs();
     doReturn( hiddenDto ).when( repoWs ).getFile( "/home/suzy" );
     when( PentahoSystem.get( ISystemConfig.class ).getProperty( eq( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY ) ) ).thenReturn( null );
     doReturn( publicDto ).when( repoWs ).getFile( ClientRepositoryPaths.getPublicFolderPath() );
-    assertEquals( fileService.doGetDefaultLocation( "/home/suzy"), ClientRepositoryPaths.getPublicFolderPath() );
+    assertEquals( ClientRepositoryPaths.getPublicFolderPath(),  fileService.doGetDefaultLocation( ":home:suzy" ) );
   }
 
   @Test
@@ -354,19 +379,19 @@ public class FileServiceTest {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
-    hiddenDto.setId( "5345345345345345345" );
+    hiddenDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     hiddenDto.setName( "suzy" );
     RepositoryFileDto publicDto = new RepositoryFileDto();
     publicDto.setFolder( true );
     publicDto.setHidden( true );
-    publicDto.setId( "5345345345345345345" );
+    publicDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     publicDto.setName( "suzy" );
-    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( repoWs ).when( fileService ).getRepoWs();
     doReturn( hiddenDto ).when( repoWs ).getFile( "/home/suzy" );
     when( PentahoSystem.get( ISystemConfig.class ).getProperty( eq( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY ) ) ).thenReturn( null );
     doReturn( publicDto ).when( repoWs ).getFile( ClientRepositoryPaths.getPublicFolderPath() );
-    assertEquals( fileService.doGetDefaultLocation( "/home/suzy"), ClientRepositoryPaths.getRootFolderPath() );
+    assertEquals( ClientRepositoryPaths.getRootFolderPath(), fileService.doGetDefaultLocation( ":home:suzy" ) );
   }
 
   @Test
@@ -374,19 +399,22 @@ public class FileServiceTest {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
-    hiddenDto.setId( "5345345345345345345" );
+    hiddenDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     hiddenDto.setName( "suzy" );
+    hiddenDto.setPath( "/home/suzy" );
     RepositoryFileDto defaultDto = new RepositoryFileDto();
     defaultDto.setFolder( true );
     defaultDto.setHidden( false );
-    defaultDto.setId( "5345345345345345345" );
-    defaultDto.setName( "suzy" );
-    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+    defaultDto.setId( RandomStringUtils.randomNumeric( 20 ) );
+    defaultDto.setName( "default" );
+    defaultDto.setPath( "/default-folder" );
+
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( repoWs ).when( fileService ).getRepoWs();
     doReturn( hiddenDto ).when( repoWs ).getFile( "/home/suzy" );
     when( PentahoSystem.get( ISystemConfig.class ).getProperty( eq( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY ) ) ).thenReturn( "/default-folder" );
     doReturn( defaultDto ).when( repoWs ).getFile( "/default-folder" );
-    assertEquals( fileService.doGetDefaultLocation( "/home/suzy"), "/default-folder" );
+    assertEquals( "/default-folder",  fileService.doGetDefaultLocation( ":home:suzy" ) );
   }
 
   @Test
@@ -394,19 +422,31 @@ public class FileServiceTest {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
-    hiddenDto.setId( "5345345345345345345" );
+    hiddenDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     hiddenDto.setName( "suzy" );
+    hiddenDto.setPath( "/home/suzy" );
+
     RepositoryFileDto defaultDto = new RepositoryFileDto();
     defaultDto.setFolder( true );
     defaultDto.setHidden( true );
-    defaultDto.setId( "5345345345345345345" );
-    defaultDto.setName( "suzy" );
-    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+    defaultDto.setId( RandomStringUtils.randomNumeric( 20 ) );
+    defaultDto.setName( "default" );
+    defaultDto.setPath( "/default-folder" );
+
+    RepositoryFileDto publicFolderDto = new RepositoryFileDto();
+    publicFolderDto.setFolder( true );
+    publicFolderDto.setHidden( false );
+    publicFolderDto.setId( RandomStringUtils.randomNumeric( 20 ) );
+    publicFolderDto.setName( "public" );
+    publicFolderDto.setPath( "/public" );
+
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( repoWs ).when( fileService ).getRepoWs();
     doReturn( hiddenDto ).when( repoWs ).getFile( "/home/suzy" );
     when( PentahoSystem.get( ISystemConfig.class ).getProperty( eq( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY ) ) ).thenReturn( "/default-folder" );
     doReturn( defaultDto ).when( repoWs ).getFile( "/default-folder" );
-    assertEquals( fileService.doGetDefaultLocation( "/home/suzy"), ClientRepositoryPaths.getPublicFolderPath() );
+    doReturn( publicFolderDto ).when( repoWs ).getFile( "/public" );
+    assertEquals( ClientRepositoryPaths.getPublicFolderPath(), fileService.doGetDefaultLocation( ":home:suzy" ) );
   }
 
   @Test
@@ -414,14 +454,51 @@ public class FileServiceTest {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
-    hiddenDto.setId( "5345345345345345345" );
+    hiddenDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     hiddenDto.setName( "suzy" );
-    DefaultUnifiedRepositoryWebService repoWs = mock ( DefaultUnifiedRepositoryWebService.class );
+    hiddenDto.setPath( "/home/suzy" );
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( repoWs ).when( fileService ).getRepoWs();
     doReturn( hiddenDto ).when( repoWs ).getFile( "/home/suzy" );
     when( PentahoSystem.get( ISystemConfig.class ).getProperty( eq( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY ) ) ).thenReturn( "/default-folder" );
     doReturn( null ).when( repoWs ).getFile( "/default-folder" );
-    assertEquals( fileService.doGetDefaultLocation( "/home/suzy"), ClientRepositoryPaths.getRootFolderPath() );
+    assertEquals( ClientRepositoryPaths.getRootFolderPath(), fileService.doGetDefaultLocation( ":home:suzy" ) );
+  }
+
+  @Test
+  public void testGetDefaultLocationWhenHomeDirectoryIsHiddenAndNoDefaultFolderProvided() {
+    DefaultUnifiedRepositoryWebService repository = mock( DefaultUnifiedRepositoryWebService.class );
+
+    RepositoryFileDto userHomeFolderDto = new RepositoryFileDto();
+    userHomeFolderDto.setFolder( true );
+    userHomeFolderDto.setHidden( false );
+    userHomeFolderDto.setId( RandomStringUtils.randomNumeric( 20 ) );
+    userHomeFolderDto.setName( "suzy" );
+    userHomeFolderDto.setPath( "/home/suzy" );
+
+
+    RepositoryFileDto homeFolderDto = new RepositoryFileDto();
+    homeFolderDto.setFolder( true );
+    homeFolderDto.setHidden( true );
+    homeFolderDto.setId( RandomStringUtils.randomNumeric( 20 ) );
+    homeFolderDto.setName( "home" );
+    homeFolderDto.setPath( "/home" );
+
+    RepositoryFileDto publicFolderDto = new RepositoryFileDto();
+    publicFolderDto.setFolder( true );
+    publicFolderDto.setHidden( false );
+    publicFolderDto.setId( RandomStringUtils.randomNumeric( 20 ) );
+    publicFolderDto.setName( "public" );
+    publicFolderDto.setPath( "/public" );
+
+    when( PentahoSystem.get( ISystemConfig.class ).getProperty( eq( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY ) ) ).thenReturn( null );
+
+    doReturn( repository ).when( fileService ).getRepoWs();
+    doReturn( userHomeFolderDto ).when( repository ).getFile( "/home/suzy" );
+    doReturn( homeFolderDto ).when( repository ).getFile( "/home" );
+    doReturn( publicFolderDto ).when( repository ).getFile( "/public" );
+
+    assertEquals( ClientRepositoryPaths.getPublicFolderPath(), fileService.doGetDefaultLocation( ":home:suzy" ) );
   }
 
   private static String encode( String pathControlCharacter ) throws UnsupportedEncodingException {
