@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -355,7 +355,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     jsJob.jobParams.jobParams[0].value = "org.pentaho.platform.admin.GeneratedContentCleaner";
     jsJob.jobParams.jobParams[1] = new Object();
     jsJob.jobParams.jobParams[1].name = "age";
-    jsJob.jobParams.jobParams[1].value = "15552000";
+    jsJob.jobParams.jobParams[1].value = "15552000000";
     jsJob.jobTrigger = new Object();
     jsJob.jobTrigger['@type'] = "simpleJobTrigger";
     jsJob.jobTrigger.repeatCount = -1;
