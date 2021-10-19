@@ -22,6 +22,7 @@
   <inherits name='org.pentaho.platform.repository.usersettings.pojo.UserSettings'/>
   <inherits name='org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective'/>
   <inherits name='org.pentaho.gwt.widgets.Widgets'/>
+  <inherits name="org.pentaho.mantle.client.environment.Environment"/>
   <inherits name='org.pentaho.mantle.login.MantleLogin'/>
   <inherits name="org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService"/>
   <inherits name='org.pentaho.gwt.widgets.client.filechooser.FileChooser'/>

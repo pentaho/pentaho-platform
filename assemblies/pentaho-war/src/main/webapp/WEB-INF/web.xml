@@ -90,7 +90,7 @@
   </filter>
 
   <!--  Pentaho Web Context Filter checks to see if webcontext.js is being requested. It writes the content of webcontext.js
-        webcontext.js contains value for CONTEXT_PATH and FULLY_QUALIFIED_SERVER_URL
+        webcontext.js contains value for CONTEXT_PATH and FULL_QUALIFIED_URL
     -->
   <filter>
     <filter-name>Pentaho Web Context Filter</filter-name>
