@@ -75,6 +75,13 @@
                                                          setFileMetadata
                                                          setLocalePropertiesForFileByFileId
                                                          deleteLocalePropertiesForFile" />
+
+        <!-- Servlet -->
+
+        <!--
+          POST /UploadService
+        -->
+        <swm:regex-request-matcher pattern="^/UploadService\b.*" methods="POST" />
       </swm:or-request-matcher>
     </constructor-arg>
   </bean>
