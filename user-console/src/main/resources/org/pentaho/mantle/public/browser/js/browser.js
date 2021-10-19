@@ -392,12 +392,24 @@ define([
     updateFileClicked: function () {
       var clickedFile = this.get("fileListModel").get("clickedFile");
       this.set("clickedFile", clickedFile);
-      if (this.get("clickedFolder").obj.attr("path") == ".trash") {
+
+      var clickedFolder = this.get("clickedFolder");
+      var didClickTrash = (!!clickedFolder) && clickedFolder.obj.attr("path") == ".trash";
+      if (didClickTrash) {
         this.updateTrashItemLastClick();
-      } else {
+      }
+
+      if ( clickedFile == null ) {
+        fileButtons.updateFilePermissionButtons(false);
+        fileButtons.canDownload(false);
+        return;
+      }
+
+      if (!didClickTrash) {
         // BISERVER-9127 - Provide the selected path to the FileButtons object
         fileButtons.onFileSelect(clickedFile.obj.attr("path"));
       }
+
       fileButtons.canDownload(this.get("canDownload"));
       //TODO handle file button press
       var filePath = clickedFile.obj.attr("path");
