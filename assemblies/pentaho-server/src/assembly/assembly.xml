@@ -81,19 +81,6 @@
   </fileSets>
 
   <dependencySets>
-    <!-- default driver kar set -->
-    <dependencySet>
-      <includes>
-        <include>*:pentaho-hadoop-shims-cdh61-kar:*</include>
-        <include>*:pentaho-hadoop-shims-hdp30-kar:*</include>
-        <include>*:pentaho-hadoop-shims-emr521-kar:*</include>
-        <include>*:pentaho-hadoop-shims-dataproc1421-kar:*</include>
-        <include>*:pentaho-hadoop-shims-hdi40-kar:*</include>
-      </includes>
-      <outputDirectory>./pentaho-solutions/ADDITIONAL-FILES/drivers</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
     <!-- copy platform artifacts -->
     <dependencySet>
       <unpack>true</unpack>
