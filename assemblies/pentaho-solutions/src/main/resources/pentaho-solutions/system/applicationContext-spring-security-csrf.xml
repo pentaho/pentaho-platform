@@ -82,6 +82,11 @@
           POST /UploadService
         -->
         <swm:regex-request-matcher pattern="^/UploadService\b.*" methods="POST" />
+
+        <!--
+          POST /upload/<IUploadFileServletPlugin-bean-id>
+        -->
+        <swm:regex-request-matcher pattern="^/upload/.*" methods="POST" />
       </swm:or-request-matcher>
     </constructor-arg>
   </bean>
