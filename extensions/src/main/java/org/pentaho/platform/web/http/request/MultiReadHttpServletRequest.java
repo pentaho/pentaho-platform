@@ -112,7 +112,9 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
     private void readListenerDone( ReadListener readListener ) {
       try {
-        readListener.onAllDataRead();
+        if ( null != readListener ) {
+          readListener.onAllDataRead();
+        }
       } catch ( IOException e ) {
         readListener.onError( e );
       }
