@@ -9,7 +9,7 @@
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-extensions</artifactId>
-  <version>9.2.0.0-290</version>
+  <version>9.2.0.0-CUST-256</version>
   <properties>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
@@ -2016,13 +2016,13 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${project.version}</version>
+      <version>9.2.0.0-290</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.2.0.0-290</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -2034,19 +2034,19 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>${project.version}</version>
+      <version>9.2.0.0-290</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-scheduler</artifactId>
-      <version>${project.version}</version>
+      <version>9.2.0.0-290</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.2.0.0-290</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2059,7 +2059,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>${project.version}</version>
+      <version>9.2.0.0-290</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2072,7 +2072,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-scheduler</artifactId>
-      <version>${project.version}</version>
+      <version>9.2.0.0-290</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2750,7 +2750,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.2.0.0-290</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
