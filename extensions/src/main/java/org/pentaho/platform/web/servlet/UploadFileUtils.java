@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,15 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
 
 import com.ice.tar.TarEntry;
 import com.ice.tar.TarInputStream;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +29,7 @@ import org.pentaho.platform.api.util.ITempFileDeleter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
+import javax.servlet.http.Part;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -41,6 +40,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -64,7 +64,7 @@ public class UploadFileUtils {
   private boolean shouldUnzip;
   private boolean temporary;
   private Writer writer;
-  private FileItem uploadedItem;
+  private Part uploadedPart;
   private IPentahoSession session;
   private long maxFileSize;
   private long maxFolderSize;
@@ -79,27 +79,30 @@ public class UploadFileUtils {
 
   public UploadFileUtils( IPentahoSession sessionValue ) {
     this.session = sessionValue;
+
     relativePath =
-      PentahoSystem.getSystemSetting(
-        "file-upload-defaults/relative-path", String.valueOf( DEFAULT_RELATIVE_UPLOAD_FILE_PATH ) ); //$NON-NLS-1$
+      PentahoSystem.getSystemSetting( "file-upload-defaults/relative-path", DEFAULT_RELATIVE_UPLOAD_FILE_PATH );
+
     String maxFileLimit =
-      PentahoSystem
-        .getSystemSetting( "file-upload-defaults/max-file-limit", String.valueOf( MAX_FILE_SIZE ) ); //$NON-NLS-1$
+      PentahoSystem.getSystemSetting( "file-upload-defaults/max-file-limit", String.valueOf( MAX_FILE_SIZE ) );
+
     String maxFolderLimit =
-      PentahoSystem
-        .getSystemSetting( "file-upload-defaults/max-folder-limit", String.valueOf( MAX_FOLDER_SIZE ) ); //$NON-NLS-1$
+      PentahoSystem.getSystemSetting( "file-upload-defaults/max-folder-limit", String.valueOf( MAX_FOLDER_SIZE ) );
+
     // PPP-3629
     String maxTmpFolderLimit =
       PentahoSystem.getSystemSetting( "file-upload-defaults/max-tmp-folder-limit",
-        String.valueOf( MAX_TMP_FOLDER_SIZE ) ); //$NON-NLS-1$
+        String.valueOf( MAX_TMP_FOLDER_SIZE ) );
+
     // PPP-3630
     String tmpAllowedExtensions =
-      PentahoSystem.getSystemSetting( "file-upload-defaults/allowed-extensions", DEFAULT_EXTENSIONS ); //$NON-NLS-1$
+      PentahoSystem.getSystemSetting( "file-upload-defaults/allowed-extensions", DEFAULT_EXTENSIONS );
     this.setAllowedExtensionsString( tmpAllowedExtensions );
     // Are files without any extension allowed ? Notably found in .zip files and such.
     String allowsNoExtensionString =
-      PentahoSystem.getSystemSetting( "file-upload-defaults/allow-files-without-extension", "false" ); //$NON-NLS-1$
-    this.allowsNoExtension = Boolean.valueOf( allowsNoExtensionString );
+      PentahoSystem.getSystemSetting( "file-upload-defaults/allow-files-without-extension", "false" );
+
+    this.allowsNoExtension = Boolean.parseBoolean( allowsNoExtensionString );
     this.maxFileSize = Long.parseLong( maxFileLimit );
     this.maxFolderSize = Long.parseLong( maxFolderLimit );
     this.maxTmpFolderSize = Long.parseLong( maxTmpFolderLimit );
@@ -152,6 +155,7 @@ public class UploadFileUtils {
     if ( !pathDir.exists() ) {
       pathDir.mkdirs();
     }
+
     // Handle PPP-3630 - check size of tmp folder too...
     tmpPathDir = new File( PentahoSystem.getApplicationContext().getSolutionPath( "system/tmp" ) );
     // Create tmp path if it doesn't exist yet
@@ -159,7 +163,7 @@ public class UploadFileUtils {
       tmpPathDir.mkdirs();
     }
 
-    if ( !checkLimits( getUploadedFileItem().getSize() ) ) {
+    if ( !checkLimits( getUploadedPart().getSize() ) ) {
       return false;
     }
 
@@ -173,8 +177,8 @@ public class UploadFileUtils {
       return false;
     }
 
-    boolean res = process( getUploadedFileItem().getInputStream() );
-    getUploadedFileItem().delete(); // Forcibly deletes temp file - now WE track it.
+    boolean res = process( getUploadedPart().getInputStream() );
+    getUploadedPart().delete(); // Forcibly deletes temp file - now WE track it.
     return res;
   }
 
@@ -189,11 +193,13 @@ public class UploadFileUtils {
     if ( inputStream == null ) {
       return false;
     }
+
     File file = null;
     if ( isTemporary() ) {
       // Use the full filename because GZip relies on the extensions of the file to discover it's content
-      String extension =
-        ( getUploadedFileItem() != null ) ? DOT + removeFileName( getUploadedFileItem().getName() ) + DOT_TMP : DOT_TMP;
+      String extension = ( getUploadedPart() != null )
+        ? DOT + removeFileName( getUploadedPart().getSubmittedFileName() ) + DOT_TMP
+        : DOT_TMP;
       file =
         PentahoSystem.getApplicationContext()
           .createTempFile( session, StringUtil.EMPTY_STRING, extension, true );
@@ -222,7 +228,7 @@ public class UploadFileUtils {
       IOUtils.closeQuietly( inputStream );
     }
 
-    if ( shouldUnzip && getUploadedFileItem() != null ) {
+    if ( shouldUnzip && getUploadedPart() != null ) {
       return handleUnzip( file );
     } else {
       writer.write( file.getName() );
@@ -243,8 +249,9 @@ public class UploadFileUtils {
       }
     }
 
-    String extension = FilenameUtils.getExtension( getUploadedFileItem().getName().toLowerCase() );
-    String contentType = getUploadedFileItem().getContentType();
+    String fileNameLowerCase = getUploadedPart().getSubmittedFileName().toLowerCase();
+    String extension = FilenameUtils.getExtension( fileNameLowerCase );
+    String contentType = getUploadedPart().getContentType();
 
     if ( "zip".equals( extension ) || "application/zip".equals( contentType ) ) {
       // handle a zip
@@ -254,8 +261,10 @@ public class UploadFileUtils {
         file.delete(); // delete immediately (see requirements on BISERVER-4321)
         return false;
       }
-    } else if ( "tgz".equals( extension ) || getUploadedFileItem().getName().toLowerCase().endsWith( ".tar.gz" )
-            || "application/x-compressed".equals( contentType ) || "application/tgz".equals( contentType ) ) {
+    } else if ( "tgz".equals( extension )
+      || fileNameLowerCase.endsWith( ".tar.gz" )
+      || "application/x-compressed".equals( contentType )
+      || "application/tgz".equals( contentType ) ) {
       // handle a tgz
       long tarSize = getUncompressedGZipFileSize( file );
       if ( checkLimits( tarSize, true )
@@ -283,7 +292,7 @@ public class UploadFileUtils {
       // amount to double the size of the file. If isTemporary is checked, then
       // we don't need to worry about this since the .tar file will be deleted.
       // Marc
-      if ( isTemporary() || checkLimits( getUploadedFileItem().getSize(), true ) ) {
+      if ( isTemporary() || checkLimits( getUploadedPart().getSize(), true ) ) {
         fileNames = handleTar( file );
       } else {
         file.delete(); // delete immediately (see requirements on BISERVER-4321)
@@ -651,11 +660,19 @@ public class UploadFileUtils {
   }
 
   public void setUploadedFileItem( FileItem value ) {
-    this.uploadedItem = value;
+    this.uploadedPart = value != null ? new FileItemPart( value ) : null;
   }
 
   public FileItem getUploadedFileItem() {
-    return this.uploadedItem;
+    return this.uploadedPart instanceof FileItemPart ? ( (FileItemPart) uploadedPart ).getFileItem() : null;
+  }
+
+  public Part getUploadedPart() {
+    return uploadedPart;
+  }
+
+  public void setUploadedPart( Part uploadedPart ) {
+    this.uploadedPart = uploadedPart;
   }
 
   public String getPath() {
@@ -689,5 +706,70 @@ public class UploadFileUtils {
 
   String getAllowedExtensionsString() {
     return this.allowedExtensionsString;
+  }
+
+  private static class FileItemPart implements Part {
+    @NonNull
+    private final FileItem fileItem;
+
+    public FileItemPart( @NonNull FileItem fileItem ) {
+      this.fileItem = fileItem;
+    }
+
+    @NonNull
+    public FileItem getFileItem() {
+      return fileItem;
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
+      return fileItem.getInputStream();
+    }
+
+    @Override
+    public String getContentType() {
+      return fileItem.getContentType();
+    }
+
+    @Override
+    public String getName() {
+      return fileItem.getFieldName();
+    }
+
+    @Override
+    public String getSubmittedFileName() {
+      return fileItem.getName();
+    }
+
+    @Override
+    public long getSize() {
+      return fileItem.getSize();
+    }
+
+    @Override
+    public void delete() throws IOException {
+      fileItem.delete();
+    }
+
+
+    @Override
+    public void write( String s ) throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getHeader( String s ) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<String> getHeaders( String s ) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<String> getHeaderNames() {
+      throw new UnsupportedOperationException();
+    }
   }
 }

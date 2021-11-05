@@ -41,7 +41,6 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsHelper;
@@ -53,6 +52,8 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 
 import java.util.Date;
+
+import static org.pentaho.mantle.client.environment.EnvironmentHelper.getFullyQualifiedURL;
 
 /**
  * Run In Background Command
@@ -275,7 +276,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
   }
 
   protected  void checkSchedulePermissionAndDialog() {
-    final String url = ScheduleHelper.getFullyQualifiedURL() + "api/scheduler/isScheduleAllowed?id=" + repositoryFile.getRepositoryFile().getId(); //$NON-NLS-1$
+    final String url = getFullyQualifiedURL() + "api/scheduler/isScheduleAllowed?id=" + repositoryFile.getRepositoryFile().getId(); //$NON-NLS-1$
     RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     requestBuilder.setHeader( "accept", "text/plain" );
     requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );

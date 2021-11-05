@@ -14,5 +14,5 @@
 *
 * Copyright (c) 2002 - 2019 Hitachi Vantara..  All rights reserved.
 */
-document.write("<!-- webcontext.js is written by PentahoWebContextFilter. Content of this file contains values of CONTEXT_PATH and FULLY_QUALIFIED_SERVER_URL --> \n");
+document.write("<!-- webcontext.js is written by PentahoWebContextFilter. Content of this file contains values of CONTEXT_PATH and FULL_QUALIFIED_URL --> \n");
 document.write("<script type='text/javascript' src='webcontext.js'></script>");

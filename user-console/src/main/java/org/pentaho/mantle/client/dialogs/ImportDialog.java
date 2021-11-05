@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,9 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.mantle.client.dialogs;
@@ -25,9 +22,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -65,15 +60,40 @@ import org.pentaho.mantle.client.messages.Messages;
 @SuppressWarnings( "deprecation" )
 public class ImportDialog extends PromptDialogBox {
 
-  private static final String UPLOAD_ACCESS_DENIED_SNIPPET = "UnifiedRepositoryAccessDeniedException"; // $NON-NLS-1$
+  private static final String UPLOAD_ACCESS_DENIED_SNIPPET = "UnifiedRepositoryAccessDeniedException";
+  private static final String IMPORT_API_PATH = "api/repo/files/import";
 
-  private FormPanel form;
-  private String importUrl = "api/repo/files/import";
+  /**
+   * The name of the CSRF token field to use when CSRF protection is disabled.
+   *
+   * An arbitrary name, yet different from the name it can have when CSRF protection enabled.
+   * This avoids not having to dynamically adding and removing the field from the form depending
+   * on whether CSRF protection is enabled or not.
+   *
+   * When CSRF protection is enabled,
+   * the actual name of the field is set before each submit.
+   */
+  private static final String DISABLED_CSRF_TOKEN_PARAMETER = "csrf_token_disabled";
+
+  private final FormPanel form;
+
+  /**
+   * The CSRF token field/parameter.
+   * Its name and value are set to the expected values before each submit,
+   * to match the obtained {@link JsCsrfToken}.
+   *
+   * The Tomcat's context must have the `allowCasualMultipartParsing` attribute set
+   * so that the `CsrfGateFilter` is able to transparently read this parameter
+   * in a multi-part encoding form, as is the case of `form`.
+   */
+  private final Hidden csrfTokenParameter;
+
   private final CustomListBox retainOwnershipDropDown = new CustomListBox();
   final CheckBox applyAclPermissions = new CheckBox( Messages.getString( "applyAclPermissions" ), true );
 
   /**
    * @param repositoryFile
+   * @param allowAdvancedDialog
    */
   public ImportDialog( RepositoryFile repositoryFile, boolean allowAdvancedDialog ) {
     super( Messages.getString( "import" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -208,12 +228,15 @@ public class ImportDialog extends PromptDialogBox {
     final Hidden retainOwnership = new Hidden( "retainOwnership" );
     retainOwnership.setValue( "true" );
 
+    csrfTokenParameter = new Hidden( DISABLED_CSRF_TOKEN_PARAMETER );
+
     rootPanel.add( applyAclPermissions );
     rootPanel.add( overwriteAclPermissions );
     rootPanel.add( overwriteFile );
     rootPanel.add( logLevel );
     rootPanel.add( retainOwnership );
     rootPanel.add( fileNameOverride );
+    rootPanel.add( csrfTokenParameter );
 
     spacer = new VerticalPanel();
     spacer.setHeight( "4px" );
@@ -349,7 +372,7 @@ public class ImportDialog extends PromptDialogBox {
     form.setEncoding( FormPanel.ENCODING_MULTIPART );
     form.setMethod( FormPanel.METHOD_POST );
 
-    setFormAction( form, importUrl );
+    setupFormAction();
 
     form.add( rootPanel );
 
@@ -371,45 +394,31 @@ public class ImportDialog extends PromptDialogBox {
   }-*/;
 
   /**
-   * Adds action URL to a form panel having in account the GWT context URL
-   *
-   * @param panel
-   * @param url
-   * @return
+   * Setups the form panel action URL, having in account the GWT context URL.
    */
-  private String setFormAction( FormPanel panel, String url ) {
+  private void setupFormAction() {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
-    String fullURL = contextURL + url;
-
-    panel.setAction( fullURL );
-    return fullURL;
+    String fullURL = contextURL + IMPORT_API_PATH;
+    form.setAction( fullURL );
   }
 
   /**
-   * Adds action URL to a form panel with CSRF query param in case of this type of protection being enable
-   *
-   * @param mainPanel
-   * @param callback
+   * Obtains a CSRF token for the form's current URL and
+   * fills it in the form's token parameter hidden field.
    */
-  private void onOkPressedCSRFHandler( final FormPanel mainPanel, final IDialogCallback callback, String url ) {
-    final String baseUrl = setFormAction( mainPanel, url );
-
-    CsrfUtil.getCsrfToken( baseUrl, new AsyncCallback<JsCsrfToken>() {
-      public void onFailure( Throwable caught ) {
-      }
-
-      public void onSuccess( JsCsrfToken token ) {
-        if ( token != null ) {
-          mainPanel.setAction( baseUrl + "?" + token.getParameter() + "=" + URL.encode( token.getToken() ) );
-        }
-
-        callback.okPressed();
-      }
-    } );
+  private void setupCsrfToken() {
+    JsCsrfToken token = CsrfUtil.getCsrfTokenSync( form.getAction() );
+    if ( token != null ) {
+      csrfTokenParameter.setName( token.getParameter() );
+      csrfTokenParameter.setValue( token.getToken() );
+    } else {
+      // Reset the field.
+      csrfTokenParameter.setName( DISABLED_CSRF_TOKEN_PARAMETER );
+      csrfTokenParameter.setValue( "" );
+    }
   }
-
 
   public FormPanel getForm() {
     return form;
@@ -418,11 +427,13 @@ public class ImportDialog extends PromptDialogBox {
   protected void onOk() {
     IDialogCallback callback = this.getCallback();
     IDialogValidatorCallback validatorCallback = this.getValidatorCallback();
-    if ( validatorCallback == null || ( validatorCallback != null && validatorCallback.validate() ) ) {
+    if ( validatorCallback == null || validatorCallback.validate() ) {
       try {
         if ( callback != null ) {
-          // Handles the Ok event and adds a query parameter with a token in case of CSRF protection being enable
-          onOkPressedCSRFHandler( getForm(), callback, importUrl );
+          setupFormAction();
+          setupCsrfToken();
+
+          callback.okPressed();
         }
       } catch ( Throwable dontCare ) {
         // ignored

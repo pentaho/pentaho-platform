@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -28,8 +28,8 @@ import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
-import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
@@ -51,7 +51,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -66,7 +65,7 @@ import java.util.Map;
  */
 public class PentahoWebContextFilter implements Filter {
 
-  public static final String WEB_CONTEXT_JS = "webcontext.js"; //$NON-NLS-1$
+  public static final String WEB_CONTEXT_JS = "webcontext.js";
 
   public static final String PARAM_SSO_ENABLED = "ssoEnabled";
 
@@ -83,21 +82,18 @@ public class PentahoWebContextFilter implements Filter {
 
   static final String USE_FULL_URL_PARAM = "useFullyQualifiedUrl";
 
-  static final String FILTER_APPLIED = "__pentaho_web_context_filter_applied"; //$NON-NLS-1$
-  static final String initialComment =
-      "/** webcontext.js is created by a PentahoWebContextFilter. This filter searches for an " + //$NON-NLS-1$
-          "incoming URI having \"webcontext.js\" in it. If it finds that, "
-          + "it write CONTEXT_PATH and FULLY_QUALIFIED_SERVER_URL"
-          + //$NON-NLS-1$
-          " and it values from the servlet request to this js **/ \n\n\n"; //$NON-NLS-1$
+  static final String FILTER_APPLIED = "__pentaho_web_context_filter_applied";
+  static final String initialComment = "/** webcontext.js is created by a PentahoWebContextFilter. "
+    + "This filter searches for an incoming URI having \"webcontext.js\" in it. If it finds that, "
+    + "it write CONTEXT_PATH and FULL_QUALIFIED_URL and it values from the servlet request to this js **/ \n\n\n";
   static final byte[] initialCommentBytes = initialComment.getBytes();
 
-  private static final String JS = ".js"; //$NON-NLS-1$
-  private static final String CSS = ".css"; //$NON-NLS-1$
-  private static final String CONTEXT = "context"; //$NON-NLS-1$
-  private static final String APPLICATION = "application"; //$NON-NLS-1$
-  private static final String GLOBAL = "global"; //$NON-NLS-1$
-  private static final String REQUIRE_JS = "requirejs"; //$NON-NLS-1$
+  private static final String JS = ".js";
+  private static final String CSS = ".css";
+  private static final String CONTEXT = "context";
+  private static final String APPLICATION = "application";
+  private static final String GLOBAL = "global";
+  private static final String REQUIRE_JS = "requirejs";
   private FileService fileService;
 
   private String ssoEnabled = null;
@@ -491,7 +487,7 @@ public class PentahoWebContextFilter implements Filter {
 
     List<String> externalResources = pluginManager.getExternalResourcesForContext( contextName );
     out.write( ( "\n<!-- Injecting web resources defined in by plugins as external-resources for: "
-        + Encode.forHtml( contextName ) + "-->" ).getBytes() ); //$NON-NLS-1$ //$NON-NLS-2$
+      + Encode.forHtml( contextName ) + "-->" ).getBytes() );
 
     if ( externalResources != null ) {
       for ( String res : externalResources ) {
@@ -691,11 +687,11 @@ public class PentahoWebContextFilter implements Filter {
   private static String makeReservedCharPattern() {
     // escape all reserved characters as they may have special meaning to regex engine
     StringBuilder buf = new StringBuilder();
-    buf.append( ".*[" ); //$NON-NLS-1$
+    buf.append( ".*[" );
     for ( Character ch : JcrRepositoryFileUtils.getReservedChars() ) {
       buf.append( StringEscapeUtils.escapeJavaScript( ch.toString() ) );
     }
-    buf.append( "]+.*" ); //$NON-NLS-1$
+    buf.append( "]+.*" );
     return buf.toString();
   }
 
