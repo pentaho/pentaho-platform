@@ -27,16 +27,17 @@ import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.messages.Messages;
-import org.pentaho.platform.web.http.request.MultiReadHttpServletRequest;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.util.Assert;
+
+import com.hitachivantara.security.web.impl.service.util.MultiReadHttpServletRequestWrapper;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -70,7 +71,6 @@ import java.io.IOException;
  * <b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the
  * {@link org.springframework.security.util.FilterToBeanProxy}.
  * </p>
- *
  */
 public class RequestParameterAuthenticationFilter implements Filter, InitializingBean {
   // ~ Static fields/initializers =============================================
@@ -136,9 +136,7 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
             "RequestParameterAuthenticationFilter.ERROR_0006_HTTP_SERVLET_RESPONSE_REQUIRED" ) ); //$NON-NLS-1$
       }
 
-      HttpServletRequest httpRequest = (HttpServletRequest) request;
-
-      MultiReadHttpServletRequest wrapper = new MultiReadHttpServletRequest( httpRequest );
+      HttpServletRequest wrapper = MultiReadHttpServletRequestWrapper.wrap( (HttpServletRequest) request );
 
       String username = wrapper.getParameter( this.userNameParameter );
       String password = wrapper.getParameter( this.passwordParameter );
@@ -154,9 +152,11 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
 
         password = Encr.decryptPasswordOptionallyEncrypted( password );
 
-        if ( ( existingAuth == null ) || !existingAuth.getName().equals( username ) || !existingAuth.isAuthenticated() ) {
-          UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken( username, password );
-          authRequest.setDetails( new WebAuthenticationDetails( httpRequest ) );
+        if ( ( existingAuth == null ) || !existingAuth.getName().equals( username )
+          || !existingAuth.isAuthenticated() ) {
+          UsernamePasswordAuthenticationToken authRequest =
+            new UsernamePasswordAuthenticationToken( username, password );
+          authRequest.setDetails( new WebAuthenticationDetails( wrapper ) );
 
           Authentication authResult;
 

@@ -34,7 +34,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -50,8 +49,6 @@ import java.util.regex.Pattern;
  *
  * @author Aaron Phillips
  */
-// Activate request multi-part processing.
-@MultipartConfig
 public class JAXRSPluginServlet extends SpringServlet implements ApplicationContextAware {
 
   private static final long serialVersionUID = 457538570048660945L;

@@ -52,7 +52,6 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
@@ -82,8 +81,6 @@ import java.util.Map;
  *
  * @author Aaron Phillips
  */
-// Activate request multi-part processing.
-@MultipartConfig
 public class JAXRSServlet extends SpringServlet {
 
   private static final long serialVersionUID = 457538570048660945L;
