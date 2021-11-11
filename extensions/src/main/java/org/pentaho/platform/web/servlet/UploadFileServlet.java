@@ -26,15 +26,12 @@ import org.pentaho.reporting.libraries.base.util.StringUtils;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
 
-// Activate request multi-part processing.
-@MultipartConfig
 public class UploadFileServlet extends HttpServlet implements Servlet {
 
   private static final long serialVersionUID = 8305367618713715640L;
