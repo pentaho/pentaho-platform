@@ -24,6 +24,7 @@ import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
+import org.pentaho.di.core.encryption.Encr;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
@@ -55,7 +56,7 @@ public class DatabaseConnectionAdapter extends XmlAdapter<DatabaseConnectionDto,
       dbConnDto.setName( dbConn.getName() );
       dbConnDto.setPartitioned( dbConn.isPartitioned() );
       dbConnDto.setPartitioningInformation( dbConn.getPartitioningInformation() );
-      dbConnDto.setPassword( dbConn.getPassword() );
+      dbConnDto.setPassword( Encr.encryptPasswordIfNotUsingVariables( dbConn.getPassword() ) );
       dbConnDto.setQuoteAllFields( dbConn.isQuoteAllFields() );
       dbConnDto.setSQLServerInstance( dbConn.getSQLServerInstance() );
       dbConnDto.setStreamingResults( dbConn.isStreamingResults() );
