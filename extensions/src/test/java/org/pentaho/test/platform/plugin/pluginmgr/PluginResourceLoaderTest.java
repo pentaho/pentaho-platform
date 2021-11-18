@@ -14,18 +14,16 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.test.platform.plugin.pluginmgr;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
@@ -34,7 +32,6 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -42,14 +39,19 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings( "nls" )
-@RunWith( JMock.class )
+@RunWith( MockitoJUnitRunner.class )
 public class PluginResourceLoaderTest {
 
   public static final String TEST_RES = "src/test/resources/";
-  private Mockery mockery = new Mockery();
 
   private PluginResourceLoader resLoader;
 
@@ -61,7 +63,7 @@ public class PluginResourceLoaderTest {
   public void init() throws ClassNotFoundException {
     resLoader = new PluginResourceLoader();
     classLoader =
-        new PluginClassLoader( new File("./" + TEST_RES + "PluginResourceLoaderTest"), getClass().getClassLoader() );
+      new PluginClassLoader( new File( "./" + TEST_RES + "PluginResourceLoaderTest" ), getClass().getClassLoader() );
     pluginClass = classLoader.loadClass( "PluginResLoaderDummyClass" );
   }
 
@@ -120,7 +122,7 @@ public class PluginResourceLoaderTest {
   }
 
   @Test
-  public void ItestGetResource_fromClassLoader() throws ClassNotFoundException, IOException {
+  public void ItestGetResource_fromClassLoader() {
     // find a properties file included in a jar
     assertNotNull( "Could not find the properties file embededd in the jar", resLoader.getResourceAsStream(
         pluginClass, "pluginResourceTest-injar.properties" ) );
@@ -142,21 +144,14 @@ public class PluginResourceLoaderTest {
   @Test
   public void testGetPluginSettings() {
 
-    final ISystemSettings mockSettings = mockery.mock( ISystemSettings.class );
+    final ISystemSettings mockSettings = mock( ISystemSettings.class );
 
     final String fullPathToSettingsFile =
         resLoader.getSystemRelativePluginPath( pluginClass.getClassLoader() ) + "/settings.xml";
 
-    mockery.checking( new Expectations() {
-      {
-        oneOf( mockSettings ).getSystemSetting( fullPathToSettingsFile, "testsetting", null );
-        will( returnValue( "false" ) );
-        oneOf( mockSettings ).getSystemSetting( fullPathToSettingsFile, "bogussetting", null );
-        will( returnValue( null ) );
-        oneOf( mockSettings ).getSystemSetting( fullPathToSettingsFile, "bogussetting", "true" );
-        will( returnValue( "true" ) );
-      }
-    } );
+    when( mockSettings.getSystemSetting( fullPathToSettingsFile, "testsetting", null ) ).thenReturn( "false" );
+    when( mockSettings.getSystemSetting( fullPathToSettingsFile, "bogussetting", null ) ).thenReturn( null );
+    when( mockSettings.getSystemSetting( fullPathToSettingsFile, "bogussetting", "true" ) ).thenReturn( "true" );
 
     PentahoSystem.setSystemSettingsService( mockSettings );
 

@@ -22,18 +22,16 @@ package org.pentaho.platform.repository2.unified.jcr;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mockStatic;
 
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( ServerRepositoryPaths.class )
+@RunWith( MockitoJUnitRunner.class )
 public class DefaultPathConversionHelperTest {
   private DefaultPathConversionHelper converter;
 
@@ -61,33 +59,37 @@ public class DefaultPathConversionHelperTest {
 
   @Test
   public void absToRelNullTenantRootFolderTest() {
-    PowerMockito.mockStatic( ServerRepositoryPaths.class );
-    when( ServerRepositoryPaths.getTenantRootFolderPath() ).thenReturn( null );
-    assertNull( converter.absToRel( "/somepath/somefile" ) );
+    try ( MockedStatic<ServerRepositoryPaths> srp = mockStatic( ServerRepositoryPaths.class ) ) {
+      srp.when( ServerRepositoryPaths::getTenantRootFolderPath ).thenReturn( null );
+      assertNull( converter.absToRel( "/somepath/somefile" ) );
+    }
   }
 
   @Test
   public void absToRelWrongTenantRootFolderTest() {
-    PowerMockito.mockStatic( ServerRepositoryPaths.class );
-    when( ServerRepositoryPaths.getTenantRootFolderPath() ).thenReturn( "/somepath" );
-    assertNull( converter.absToRel( "/otherpath/somefile" ) );
+    try ( MockedStatic<ServerRepositoryPaths> srp = mockStatic( ServerRepositoryPaths.class ) ) {
+      srp.when( ServerRepositoryPaths::getTenantRootFolderPath ).thenReturn( "/somepath" );
+      assertNull( converter.absToRel( "/otherpath/somefile" ) );
+    }
   }
 
   @Test
   public void absToRelRootFolderTest() {
-    PowerMockito.mockStatic( ServerRepositoryPaths.class );
-    when( ServerRepositoryPaths.getTenantRootFolderPath() ).thenReturn( "/somepath" );
-    assertEquals( RepositoryFile.SEPARATOR, converter.absToRel( "/somepath" ) );
+    try ( MockedStatic<ServerRepositoryPaths> srp = mockStatic( ServerRepositoryPaths.class ) ) {
+      srp.when( ServerRepositoryPaths::getTenantRootFolderPath ).thenReturn( "/somepath" );
+      assertEquals( RepositoryFile.SEPARATOR, converter.absToRel( "/somepath" ) );
+    }
   }
 
   @Test
   public void absToRelTest() {
-    PowerMockito.mockStatic( ServerRepositoryPaths.class );
-    when( ServerRepositoryPaths.getTenantRootFolderPath() ).thenReturn( "/somepath" );
-    assertEquals( "/other/thefile", converter.absToRel( "/somepath/other\\thefile" ) );
-    assertEquals( "/other/filename", converter.absToRel( "/somepath/other\\filename" ) );
-    assertEquals( "/other/filename", converter.absToRel( "/somepath\\other\\filename" ) );
-    assertEquals( "/other/else/filename", converter.absToRel( "/somepath\\other\\else\\filename" ) );
+    try ( MockedStatic<ServerRepositoryPaths> srp = mockStatic( ServerRepositoryPaths.class ) ) {
+      srp.when( ServerRepositoryPaths::getTenantRootFolderPath ).thenReturn( "/somepath" );
+      assertEquals( "/other/thefile", converter.absToRel( "/somepath/other\\thefile" ) );
+      assertEquals( "/other/filename", converter.absToRel( "/somepath/other\\filename" ) );
+      assertEquals( "/other/filename", converter.absToRel( "/somepath\\other\\filename" ) );
+      assertEquals( "/other/else/filename", converter.absToRel( "/somepath\\other\\else\\filename" ) );
+    }
   }
 
   @Test( expected = IllegalArgumentException.class )
@@ -107,12 +109,13 @@ public class DefaultPathConversionHelperTest {
 
   @Test
   public void relToAbsTest() {
-    PowerMockito.mockStatic( ServerRepositoryPaths.class );
-    when( ServerRepositoryPaths.getTenantRootFolderPath() ).thenReturn( "/somepath" );
-    assertEquals( "/somepath/somefile", converter.relToAbs( "/somefile" ) );
-    assertEquals( "/somepath/somefolder/other/somefile/", converter.relToAbs( "/somefolder\\other/somefile/" ) );
-    assertEquals( "/somepath/somefolder/other/somefile/", converter.relToAbs( "/somefolder\\other\\somefile\\" ) );
-    assertEquals( "/somepath", converter.relToAbs( "/" ) );
+    try ( MockedStatic<ServerRepositoryPaths> srp = mockStatic( ServerRepositoryPaths.class ) ) {
+      srp.when( ServerRepositoryPaths::getTenantRootFolderPath ).thenReturn( "/somepath" );
+      assertEquals( "/somepath/somefile", converter.relToAbs( "/somefile" ) );
+      assertEquals( "/somepath/somefolder/other/somefile/", converter.relToAbs( "/somefolder\\other/somefile/" ) );
+      assertEquals( "/somepath/somefolder/other/somefile/", converter.relToAbs( "/somefolder\\other\\somefile\\" ) );
+      assertEquals( "/somepath", converter.relToAbs( "/" ) );
+    }
   }
 
 }

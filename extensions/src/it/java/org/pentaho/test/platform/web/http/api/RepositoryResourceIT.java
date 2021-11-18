@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -58,7 +58,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.engine.core.solution.ContentInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
@@ -91,8 +90,8 @@ import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
@@ -106,18 +105,18 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   public static final String MAIN_TENANT_1 = "maintenant1";
   public static final String SYSTEM_PROPERTY = "spring.security.strategy";
 
-  private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
+  private static final WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
       "org.pentaho.platform.web.http.api.resources" ).contextPath( "api" ).addFilter(
       PentahoRequestContextFilter.class, "pentahoRequestContextFilter" ).build();
 
-  private DefaultUnifiedRepositoryBase repositoryBase;
+  private final DefaultUnifiedRepositoryBase repositoryBase;
   private ITenant mainTenant_1;
   private String publicFolderPath;
 
-  public RepositoryResourceIT() throws Exception {
+  public RepositoryResourceIT() {
     IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
-    when( mockRepositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
-    when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
+    when( mockRepositoryVersionManager.isVersioningEnabled( nullable( String.class ) ) ).thenReturn( true );
+    when( mockRepositoryVersionManager.isVersionCommentEnabled( nullable( String.class ) ) ).thenReturn( false );
     JcrRepositoryFileUtils.setRepositoryVersionManager( mockRepositoryVersionManager );
 
     repositoryBase = new DefaultUnifiedRepositoryBase() {
@@ -190,7 +189,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   }
 
   @Test
-  public void testGetFileText() throws Exception {
+  public void testGetFileText() {
     createTestFile( publicFolderPath + ":" + "file.txt", "abcdefg" );
 
     WebResource webResource = resource();
@@ -290,7 +289,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   }
 
   @Test
-  public void a3_HappyPath_GET_withCommand() throws PlatformInitializationException {
+  public void a3_HappyPath_GET_withCommand() {
     createTestFile( publicFolderPath + ":" + "test.xjunit", "abcdefg" );
 
     WebResource webResource = resource();
@@ -303,7 +302,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   }
 
   @Test
-  public void a3_HappyPath_POST_withCommand() throws PlatformInitializationException {
+  public void a3_HappyPath_POST_withCommand() {
     createTestFile( publicFolderPath + ":" + "test.xjunit", "abcdefg" );
 
     WebResource webResource = resource();
@@ -344,7 +343,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   }
 
   @Test
-  public void b3_HappyPath_GET() throws PlatformInitializationException {
+  public void b3_HappyPath_GET() {
     createTestFile( publicFolderPath + ":" + "test.xjunit", "abcdefg" );
 
     WebResource webResource = resource();
@@ -356,7 +355,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   }
 
   @Test
-  public void b3_HappyPath_GET_withMimeType() throws PlatformInitializationException {
+  public void b3_HappyPath_GET_withMimeType() {
     createTestFile( publicFolderPath + ":" + "test.xjunit", "abcdefg" );
 
     WebResource webResource = resource();
@@ -377,7 +376,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   }
 
   @Test
-  public void c3_HappyPath_GET_withCommand() throws PlatformInitializationException {
+  public void c3_HappyPath_GET_withCommand() {
     WebResource webResource = resource();
 
     String expectedResponse = "hello this is service content generator servicing command dosomething";
@@ -416,7 +415,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
 
   public static class TestPlugin implements IPluginProvider {
     public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
-      List<IPlatformPlugin> plugins = new ArrayList<IPlatformPlugin>();
+      List<IPlatformPlugin> plugins = new ArrayList<>();
 
       PlatformPlugin p = new PlatformPlugin( new DefaultListableBeanFactory() );
       p.setId( "test-plugin" );
@@ -447,7 +446,6 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
     }
   }
 
-  @SuppressWarnings( "serial" )
   public static class JUnitContentGenerator extends BaseContentGenerator {
     @Override
     public void createContent() throws Exception {
@@ -474,7 +472,6 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
     }
   }
 
-  @SuppressWarnings( "serial" )
   public static class JUnitServiceContentGenerator extends BaseContentGenerator {
     @Override
     public void createContent() throws Exception {
@@ -507,7 +504,6 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
     }
   }
 
-  @SuppressWarnings( "serial" )
   public static class ReportContentGenerator extends FileResourceContentGenerator {
     static Log logger = LogFactory.getLog( ReportContentGenerator.class );
     OutputStream out = null;

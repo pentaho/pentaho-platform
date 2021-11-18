@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,18 +23,18 @@ package org.pentaho.platform.plugin.services.importer;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.metastore.api.IMetaStore;
-import org.pentaho.metastore.api.IMetaStoreElementType;
 import org.pentaho.metastore.stores.xml.XmlMetaStore;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MetaStoreImportHandlerTest {
 
@@ -69,6 +69,6 @@ public class MetaStoreImportHandlerTest {
     // not going to test all of the internals of the MetaStoreUtil.copy, just enough to make sure it was called.
     verify( metastore ).createNamespace( "pentaho" );
     verify( metastore ).createNamespace( "hitachi" );
-    verify( fromMetaStore ).setRootFolder( anyString() );
+    verify( fromMetaStore ).setRootFolder( nullable( String.class ) );
   }
 }

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,8 +22,8 @@ package org.pentaho.platform.plugin.services.connections.metadata.sql;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -66,7 +66,7 @@ public class SqlMetadataQueryExecTest {
     when( sysConfig.getConfiguration( SqlMetadataQueryExec.CONFIG_ID ) ).thenReturn( config );
     Properties props = mock( Properties.class );
     when( config.getProperties() ).thenReturn( props );
-    when( props.getProperty( eq( SqlMetadataQueryExec.FORCE_DB_META_CLASSES_PROP ), anyString() ) ).thenReturn(
+    when( props.getProperty( eq( SqlMetadataQueryExec.FORCE_DB_META_CLASSES_PROP ), nullable( String.class ) ) ).thenReturn(
         " " + className + " " );
     SqlMetadataQueryExec sqlMetadataQueryExec = new SqlMetadataQueryExec( sysConfig );
     assertEquals( 1, sqlMetadataQueryExec.driverClassesToForceMeta.size() );
@@ -82,7 +82,7 @@ public class SqlMetadataQueryExecTest {
     when( sysConfig.getConfiguration( SqlMetadataQueryExec.CONFIG_ID ) ).thenReturn( config );
     Properties props = mock( Properties.class );
     when( config.getProperties() ).thenReturn( props );
-    when( props.getProperty( eq( SqlMetadataQueryExec.FORCE_DB_META_CLASSES_PROP ), anyString() ) ).thenReturn(
+    when( props.getProperty( eq( SqlMetadataQueryExec.FORCE_DB_META_CLASSES_PROP ), nullable( String.class ) ) ).thenReturn(
         " , " + className + " , " + className2 + " ,,, " );
     SqlMetadataQueryExec sqlMetadataQueryExec = new SqlMetadataQueryExec( sysConfig );
     assertEquals( 2, sqlMetadataQueryExec.driverClassesToForceMeta.size() );

@@ -14,48 +14,57 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2018-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2018-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importexport;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.encryption.Encr;
-import org.pentaho.support.encryption.KettleTwoWayPasswordEncoder;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.util.EnvUtil;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.reflect.Whitebox.getInternalState;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * @author Luis Martins
  */
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( EnvUtil.class )
+@RunWith( MockitoJUnitRunner.class )
 public class CommandLineProcessorPasswordTest {
 
   private static final String INFO_OPTION_USERNAME_NAME = "username";
   private static final String INFO_OPTION_PASSWORD_NAME = "password";
+  private static MockedStatic<EnvUtil>  envUtilMock;
+
+  @BeforeClass
+  public static void beforeAll() {
+    envUtilMock = mockStatic( EnvUtil.class );
+    envUtilMock.when( () -> EnvUtil.getSystemProperty( Const.KETTLE_REDIRECT_STDOUT, "N" ) ).thenReturn( "N" );
+    envUtilMock.when( () -> EnvUtil.getSystemProperty( Const.KETTLE_REDIRECT_STDERR, "N" ) ).thenReturn( "N" );
+  }
+
+  @AfterClass
+  public static void afterAll() {
+    envUtilMock.close();
+  }
 
   @Before
   public void setup() {
-    spy( EnvUtil.class );
     KettleClientEnvironment.reset();
   }
 
@@ -73,14 +82,14 @@ public class CommandLineProcessorPasswordTest {
    */
   @Test
   public void testInitRestServiceWithKettlePassword() throws Exception {
-    when( EnvUtil.getSystemProperty( Const.KETTLE_PASSWORD_ENCODER_PLUGIN ) ).thenReturn( null );
+    envUtilMock.when( () -> EnvUtil.getSystemProperty( Const.KETTLE_PASSWORD_ENCODER_PLUGIN ) ).thenReturn( null );
 
     CommandLineProcessor cmd = mock( CommandLineProcessor.class );
     doCallRealMethod().when( cmd ).getPassword();
     doReturn( "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde" ).when( cmd ).getOptionValue( INFO_OPTION_PASSWORD_NAME, true, false );
 
     assertEquals( "password", cmd.getPassword() );
-    assertTrue( getInternalState( Encr.class, "encoder" ) instanceof KettleTwoWayPasswordEncoder );
+
   }
 
   /**
@@ -88,11 +97,11 @@ public class CommandLineProcessorPasswordTest {
    */
   @Test( expected = KettleException.class )
   public void testInitRestServiceWithAESPassword() throws Exception {
-    when( EnvUtil.getSystemProperty( Const.KETTLE_PASSWORD_ENCODER_PLUGIN ) ).thenReturn( "AES" );
+    envUtilMock.when( () -> EnvUtil.getSystemProperty( Const.KETTLE_PASSWORD_ENCODER_PLUGIN ) ).thenReturn( "AES" );
 
     CommandLineProcessor cmd = mock( CommandLineProcessor.class );
     doCallRealMethod().when( cmd ).getPassword();
-    doReturn( "AES PtdCGOdq6NMSvvjs5CCKIg==" ).when( cmd ).getOptionValue( INFO_OPTION_PASSWORD_NAME, true, false );
+    lenient().doReturn( "AES PtdCGOdq6NMSvvjs5CCKIg==" ).when( cmd ).getOptionValue( INFO_OPTION_PASSWORD_NAME, true, false );
 
     try {
       cmd.getPassword();

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -53,12 +53,19 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -70,14 +77,14 @@ import static org.mockito.Mockito.when;
 public class UserRoleDaoServiceTest {
   private UserRoleDaoService userRoleService;
 
-  private final static String SESSION_USER_NAME = "lucyInTheSky";
-  private final static String SESSION_USER_PASSWORD = "oldLucyPassword";
+  private static final  String SESSION_USER_NAME = "lucyInTheSky";
+  private static final String SESSION_USER_PASSWORD = "oldLucyPassword";
 
-  private final static String OTHER_USER_NAME = "motherMary";
-  private final static String OTHER_USER_PASSWORD = "oldMotherMaryPassword";
+  private static final String OTHER_USER_NAME = "motherMary";
+  private static final String OTHER_USER_PASSWORD = "oldMotherMaryPassword";
 
-  private final static String A_NEW_PASSWORD = "correct_horse_battery_staple";
-  private final static String A_WRONG_PASSWORD = "123456";
+  private static final String A_NEW_PASSWORD = "correct_horse_battery_staple";
+  private static final String A_WRONG_PASSWORD = "123456";
 
   @Before
   public void setUp() throws Exception {
@@ -116,10 +123,10 @@ public class UserRoleDaoServiceTest {
   }
 
   @Test
-  public void testGetRolesForUser() throws Exception {
+  public void testGetRolesForUser() {
     List<IPentahoRole> roleList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenReturn( roleList );
+    when( roleDao.getUserRoles( any( ITenant.class ), nullable( String.class ) ) ).thenReturn( roleList );
     PentahoSystem.registerObject( roleDao );
 
     RoleListWrapper wrapRoleList = new RoleListWrapper( roleList );
@@ -135,7 +142,7 @@ public class UserRoleDaoServiceTest {
   }
 
   @Test
-  public void testAssignRoleToUser() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRoleToUser() {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
@@ -154,16 +161,16 @@ public class UserRoleDaoServiceTest {
     roleList.add( ceoRole );
     roleList.add( ctoRole );
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenReturn( roleList );
+    when( roleDao.getUserRoles( any( ITenant.class ), nullable( String.class ) ) ).thenReturn( roleList );
     PentahoSystem.registerObject( roleDao );
 
     userRoleService.assignRolesToUser( userName, roleNames );
-    verify( roleDao ).setUserRoles( any( ITenant.class ), anyString(),
-      argThat( new UnorderedArrayMatcher( new String[] { "ceo", "cto", "Power User", "Business User" } ) ) );
+    verify( roleDao ).setUserRoles( any( ITenant.class ), nullable( String.class ),
+      argThat( new UnorderedArrayMatcher( new String[]{"ceo", "cto", "Power User", "Business User"} ) ) );
   }
 
   @Test( expected = SecurityException.class )
-  public void testAssignRoleToUserUnauthorizedException() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRoleToUserUnauthorizedException() {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
@@ -173,7 +180,7 @@ public class UserRoleDaoServiceTest {
   }
 
   @Test( expected = NotFoundException.class )
-  public void testAssignRoleToUserNotFoundException() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRoleToUserNotFoundException() {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
@@ -185,7 +192,7 @@ public class UserRoleDaoServiceTest {
     PentahoSessionHolder.setSession( session );
 
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenThrow(
+    when( roleDao.getUserRoles( any( ITenant.class ), nullable( String.class ) ) ).thenThrow(
       new NotFoundException( "expectedTestException" ) );
     PentahoSystem.registerObject( roleDao );
 
@@ -193,7 +200,7 @@ public class UserRoleDaoServiceTest {
   }
 
   @Test( expected = UncategorizedUserRoleDaoException.class )
-  public void testAssignRoleToUserUncategorizedUserRoleDaoException() throws UserRoleListService.UnauthorizedException {
+  public void testAssignRoleToUserUncategorizedUserRoleDaoException() {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
@@ -205,7 +212,7 @@ public class UserRoleDaoServiceTest {
     PentahoSessionHolder.setSession( session );
 
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenThrow(
+    when( roleDao.getUserRoles( any( ITenant.class ), nullable( String.class ) ) ).thenThrow(
       new UncategorizedUserRoleDaoException( "expectedTestException" ) );
     PentahoSystem.registerObject( roleDao );
 
@@ -238,12 +245,12 @@ public class UserRoleDaoServiceTest {
     roleList.add( powerUserRole );
     roleList.add( businessUserRole );
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenReturn( roleList );
+    when( roleDao.getUserRoles( any( ITenant.class ), nullable( String.class ) ) ).thenReturn( roleList );
     PentahoSystem.registerObject( roleDao );
 
     userRoleService.removeRolesFromUser( userName, roleNames );
-    verify( roleDao ).setUserRoles( any( ITenant.class ), anyString(),
-      argThat( new UnorderedArrayMatcher( new String[] { "ceo", "cto" } ) ) );
+    verify( roleDao ).setUserRoles( any( ITenant.class ), nullable( String.class ),
+      argThat( new UnorderedArrayMatcher( new String[]{"ceo", "cto"} ) ) );
   }
 
   @Test( expected = SecurityException.class )
@@ -269,7 +276,7 @@ public class UserRoleDaoServiceTest {
     PentahoSessionHolder.setSession( session );
 
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenThrow(
+    when( roleDao.getUserRoles( any( ITenant.class ), nullable( String.class ) ) ).thenThrow(
       new NotFoundException( "expectedTestException" ) );
     PentahoSystem.registerObject( roleDao );
 
@@ -277,8 +284,7 @@ public class UserRoleDaoServiceTest {
   }
 
   @Test( expected = UncategorizedUserRoleDaoException.class )
-  public void testRemoveRolesFromUserUncategorizedUserRoleDaoException()
-    throws UserRoleListService.UnauthorizedException {
+  public void testRemoveRolesFromUserUncategorizedUserRoleDaoException() {
     String userName = "testUser";
     String roleNames = "Power User\tBusiness User\t";
 
@@ -290,7 +296,7 @@ public class UserRoleDaoServiceTest {
     PentahoSessionHolder.setSession( session );
 
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUserRoles( any( ITenant.class ), anyString() ) ).thenThrow(
+    when( roleDao.getUserRoles( any( ITenant.class ), nullable( String.class ) ) ).thenThrow(
       new UncategorizedUserRoleDaoException( "expectedTestException" ) );
     PentahoSystem.registerObject( roleDao );
 
@@ -305,11 +311,11 @@ public class UserRoleDaoServiceTest {
 
     IPentahoUser user = mock( IPentahoUser.class );
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUser( any( ITenant.class ), anyString() ) ).thenReturn( user );
+    when( roleDao.getUser( nullable( ITenant.class ), nullable( String.class ) ) ).thenReturn( user );
     PentahoSystem.registerObject( roleDao );
 
     userRoleService.deleteUsers( users );
-    verify( roleDao, times( 2 ) ).deleteUser( any( IPentahoUser.class ) );
+    verify( roleDao, times( 2 ) ).deleteUser( nullable( IPentahoUser.class ) );
   }
 
   @Test( expected = SecurityException.class )
@@ -329,7 +335,7 @@ public class UserRoleDaoServiceTest {
 
     IPentahoUser user = mock( IPentahoUser.class );
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getUser( any( ITenant.class ), anyString() ) )
+    when( roleDao.getUser( nullable( ITenant.class ), nullable( String.class ) ) )
       .thenThrow( new UncategorizedUserRoleDaoException( "expectedTestException" ) );
     PentahoSystem.registerObject( roleDao );
 
@@ -357,7 +363,7 @@ public class UserRoleDaoServiceTest {
 
     List<IPentahoUser> userList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getRoleMembers( any( ITenant.class ), anyString() ) ).thenReturn( userList );
+    when( roleDao.getRoleMembers( any( ITenant.class ), nullable( String.class ) ) ).thenReturn( userList );
     PentahoSystem.registerObject( roleDao );
 
     IPentahoUser user = mock( IPentahoUser.class );
@@ -379,7 +385,7 @@ public class UserRoleDaoServiceTest {
 
     List<IPentahoUser> userList = new ArrayList<>();
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getRoleMembers( any( ITenant.class ), anyString() ) ).thenReturn( userList );
+    when( roleDao.getRoleMembers( any( ITenant.class ), nullable( String.class ) ) ).thenReturn( userList );
     PentahoSystem.registerObject( roleDao );
 
     IPentahoUser user = mock( IPentahoUser.class );
@@ -403,11 +409,11 @@ public class UserRoleDaoServiceTest {
 
     IPentahoRole role = mock( IPentahoRole.class );
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getRole( any( ITenant.class ), anyString() ) ).thenReturn( role );
+    when( roleDao.getRole( nullable( ITenant.class ), nullable( String.class ) ) ).thenReturn( role );
     PentahoSystem.registerObject( roleDao );
 
     userRoleService.deleteRoles( roles );
-    verify( roleDao, times( 2 ) ).deleteRole( any( IPentahoRole.class ) );
+    verify( roleDao, times( 2 ) ).deleteRole( nullable( IPentahoRole.class ) );
   }
 
   @Test( expected = SecurityException.class )
@@ -426,7 +432,7 @@ public class UserRoleDaoServiceTest {
     setupMockSessionUser( SESSION_USER_NAME, true );
 
     IUserRoleDao roleDao = mock( IUserRoleDao.class );
-    when( roleDao.getRole( any( ITenant.class ), anyString() ) ).thenThrow(
+    when( roleDao.getRole( nullable( ITenant.class ), nullable( String.class ) ) ).thenThrow(
       new UncategorizedUserRoleDaoException( "expectedTestException" ) );
     PentahoSystem.registerObject( roleDao );
 
@@ -474,7 +480,7 @@ public class UserRoleDaoServiceTest {
     localizedNameEntry.put( "testEntry", "testValue" );
 
     Map<String, List<String>> testBindingMap = new HashMap<>();
-    testBindingMap.put( "testBinding", new ArrayList<String>() );
+    testBindingMap.put( "testBinding", new ArrayList<>() );
 
     RoleBindingStruct roleBindingStruct = mock( RoleBindingStruct.class );
     roleBindingStruct.logicalRoleNameMap = localizedNameEntry;
@@ -482,7 +488,7 @@ public class UserRoleDaoServiceTest {
     roleBindingStruct.immutableRoles = new HashSet<>();
 
     IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
-    when( roleBindingDao.getRoleBindingStruct( anyString() ) ).thenReturn( roleBindingStruct );
+    when( roleBindingDao.getRoleBindingStruct( nullable( String.class ) ) ).thenReturn( roleBindingStruct );
     PentahoSystem.registerObject( roleBindingDao );
 
     SystemRolesMap validateMap = userRoleService.getRoleBindingStruct( "en" );
@@ -499,15 +505,15 @@ public class UserRoleDaoServiceTest {
     userRoleService.getRoleBindingStruct( "en" );
   }
 
-  private class UnorderedArrayMatcher extends ArgumentMatcher<String[]> {
-    private Set<String> correctValues;
+  private static class UnorderedArrayMatcher implements ArgumentMatcher<String[]> {
+    private final Set<String> correctValues;
 
     UnorderedArrayMatcher( String[] expected ) {
       correctValues = new HashSet<>( Arrays.asList( expected ) );
     }
 
-    @Override public boolean matches( Object argument ) {
-      String[] arguments = (String[]) argument;
+    @Override public boolean matches( String[] argument ) {
+      String[] arguments = argument;
       Set<String> returnedValues = new HashSet<>( Arrays.asList( arguments ) );
       return returnedValues.equals( correctValues );
     }
@@ -644,7 +650,7 @@ public class UserRoleDaoServiceTest {
 
     userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ), SESSION_USER_PASSWORD );
 
-    verify( roleDao, times( 1 ) ).setPassword( any( ITenant.class ), eq( OTHER_USER_NAME ), eq( A_NEW_PASSWORD ) );
+    verify( roleDao, times( 1 ) ).setPassword( nullable( ITenant.class ), eq( OTHER_USER_NAME ), eq( A_NEW_PASSWORD ) );
   }
 
   @Test
@@ -659,7 +665,7 @@ public class UserRoleDaoServiceTest {
 
     userRoleService.updatePassword( new User( SESSION_USER_NAME, A_NEW_PASSWORD ), SESSION_USER_PASSWORD );
 
-    verify( roleDao, times( 1 ) ).setPassword( any( ITenant.class ), eq( SESSION_USER_NAME ), eq( A_NEW_PASSWORD ) );
+    verify( roleDao, times( 1 ) ).setPassword( nullable( ITenant.class ), eq( SESSION_USER_NAME ), eq( A_NEW_PASSWORD ) );
   }
 
   @Test( expected = SecurityException.class )
@@ -711,7 +717,7 @@ public class UserRoleDaoServiceTest {
 
     userRoleService.updatePassword( new User( OTHER_USER_NAME, A_NEW_PASSWORD ) );
 
-    verify( roleDao, times( 1 ) ).setPassword( any( ITenant.class ), eq( OTHER_USER_NAME ), eq( A_NEW_PASSWORD ) );
+    verify( roleDao, times( 1 ) ).setPassword( nullable( ITenant.class ), eq( OTHER_USER_NAME ), eq( A_NEW_PASSWORD ) );
   }
 
   @Test
@@ -723,7 +729,7 @@ public class UserRoleDaoServiceTest {
 
     userRoleService.updatePassword( new User( SESSION_USER_NAME, A_NEW_PASSWORD ) );
 
-    verify( roleDao, times( 1 ) ).setPassword( any( ITenant.class ), eq( SESSION_USER_NAME ), eq( A_NEW_PASSWORD ) );
+    verify( roleDao, times( 1 ) ).setPassword( nullable( ITenant.class ), eq( SESSION_USER_NAME ), eq( A_NEW_PASSWORD ) );
   }
 
   @Test( expected = SecurityException.class )
@@ -772,7 +778,7 @@ public class UserRoleDaoServiceTest {
   private void addMockUserToUserRoleDao( IUserRoleDao roleDao, String username, String password ) {
     IPentahoUser pentahoUser = createMockPentahoUser( username, password );
 
-    doReturn( pentahoUser ).when( roleDao ).getUser( any( ITenant.class ), eq( username ) );
+    doReturn( pentahoUser ).when( roleDao ).getUser( nullable( ITenant.class ), eq( username ) );
   }
 
   private AuthenticationProvider registerMockAuthenticationProvider() {
@@ -805,7 +811,7 @@ public class UserRoleDaoServiceTest {
 
   private IAuthorizationPolicy registerMockAuthorizationPolicy( final boolean isAllowed ) {
     IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( isAllowed );
+    when( policy.isAllowed( nullable( String.class ) ) ).thenReturn( isAllowed );
 
     PentahoSystem.registerObject( policy );
 

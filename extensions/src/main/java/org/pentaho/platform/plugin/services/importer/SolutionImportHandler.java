@@ -651,7 +651,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     return isSchedulable;
   }
 
-  private boolean isFileHidden( RepositoryFile file, ManifestFile manifestFile, String sourcePath ) {
+  @VisibleForTesting
+  protected boolean isFileHidden( RepositoryFile file, ManifestFile manifestFile, String sourcePath ) {
     Boolean result = manifestFile.isFileHidden();
     if ( result != null ) {
       return result; // file absent or must receive a new setting and the setting is exist
@@ -665,7 +666,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     return RepositoryFile.HIDDEN_BY_DEFAULT; // default setting of type
   }
 
-  private boolean isSchedulable( RepositoryFile file, ManifestFile manifestFile ) {
+  @VisibleForTesting
+  protected boolean isSchedulable( RepositoryFile file, ManifestFile manifestFile ) {
     Boolean result = manifestFile.isFileSchedulable();
     if ( result != null ) {
       return result; // file absent or must receive a new setting and the setting is exist

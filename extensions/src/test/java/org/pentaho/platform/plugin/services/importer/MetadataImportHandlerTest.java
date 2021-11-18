@@ -14,17 +14,18 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importer;
 
 import org.apache.commons.io.IOUtils;
-import org.jmock.Mockery;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
@@ -36,9 +37,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * @author Andrei Abramov
  */
+@RunWith( MockitoJUnitRunner.class )
 public class MetadataImportHandlerTest {
 
   IPentahoMetadataDomainRepositoryImporter metadataImporter;
@@ -47,13 +51,10 @@ public class MetadataImportHandlerTest {
 
   PentahoPlatformImporter importer;
 
-  Mockery context;
-
   @Before
   public void setUp() throws Exception {
 
-    context = new Mockery();
-    metadataImporter = context.mock( IPentahoMetadataDomainRepositoryImporter.class );
+    metadataImporter = mock( IPentahoMetadataDomainRepositoryImporter.class );
 
     List<IMimeType> mimeList = new ArrayList<IMimeType>();
     mimeList.add( new MimeType( "text/xmi+xml", "xmi" ) );

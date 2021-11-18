@@ -17,9 +17,9 @@
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <hsqldb.version>1.8.0.7</hsqldb.version>
-    <hamcrest-library.version>1.1</hamcrest-library.version>
+    <hamcrest-library.version>2.2</hamcrest-library.version>
     <jettison.version>1.1</jettison.version>
-    <hamcrest-core.version>1.3</hamcrest-core.version>
+    <hamcrest-core.version>2.2</hamcrest-core.version>
     <xmlunit.version>1.3</xmlunit.version>
   </properties>
   <dependencies>
@@ -773,9 +773,15 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.jmockit</groupId>
-      <artifactId>jmockit</artifactId>
-      <version>${jmockit.version}</version>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <version>${hamcrest-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <version>${hamcrest-library.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -785,15 +791,15 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito-core.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock.version}</version>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>${mockito-core.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -844,12 +850,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-core</artifactId>
-      <version>${hamcrest-core.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
     </dependency>
@@ -881,30 +881,6 @@
       <groupId>org.quartz-scheduler</groupId>
       <artifactId>quartz</artifactId>
       <version>${quartz.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-library</artifactId>
-      <version>${hamcrest-library.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>${mockito-all.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jmock</groupId>
-      <artifactId>jmock-junit4</artifactId>
-      <version>${jmock.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jmock</groupId>
-      <artifactId>jmock-legacy</artifactId>
-      <version>${jmock.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey.jersey-test-framework</groupId>

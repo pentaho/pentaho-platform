@@ -2171,21 +2171,27 @@
       <artifactId>org.osgi.compendium</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.dumbster</groupId>
-      <artifactId>dumbster</artifactId>
-      <version>${dumbster.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jmockit</groupId>
-      <artifactId>jmockit</artifactId>
-      <version>${jmockit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>${mockito-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.dumbster</groupId>
+      <artifactId>dumbster</artifactId>
+      <version>${dumbster.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -2233,18 +2239,6 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>${mockito-all.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito-core.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>

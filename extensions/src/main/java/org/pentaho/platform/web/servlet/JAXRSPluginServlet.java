@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.web.servlet;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.spi.container.WebApplication;
 import com.sun.jersey.spi.container.servlet.WebConfig;
@@ -89,33 +90,33 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
     if ( WADL_PATTERN.matcher( request.getPathInfo() ).find() ) {
       final HttpServletRequest originalRequest = request;
       final String appWadlUrl = request.getPathInfo().substring(
-          request.getPathInfo().indexOf( APPLICATION_WADL ), request.getPathInfo().length() );
+        request.getPathInfo().indexOf( APPLICATION_WADL ), request.getPathInfo().length() );
       request =
-          (HttpServletRequest) Proxy.newProxyInstance( getClass().getClassLoader(),
-              new Class[]{HttpServletRequest.class}, new InvocationHandler() {
-                public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
-                  if ( method.getName().equals( "getPathInfo" ) ) {
-                    return appWadlUrl;
-                  } else if ( method.getName().equals( "getRequestURL" ) ) {
-                    String url = originalRequest.getRequestURL().toString();
-                    return new StringBuffer(
-                        url.substring( 0, url.indexOf( originalRequest.getPathInfo() ) ) + "/" + appWadlUrl );
-                  } else if ( method.getName().equals( "getRequestURI" ) ) {
-                    String uri = originalRequest.getRequestURI();
-                    return uri.substring( 0, uri.indexOf( originalRequest.getPathInfo() ) ) + "/" + appWadlUrl;
-                  }
-                  // We don't care about the Method, delegate out to real Request object.
-                  return method.invoke( originalRequest, args );
-                }
+        (HttpServletRequest) Proxy.newProxyInstance( getClass().getClassLoader(),
+          new Class[]{HttpServletRequest.class}, new InvocationHandler() {
+            public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
+              if ( method.getName().equals( "getPathInfo" ) ) {
+                return appWadlUrl;
+              } else if ( method.getName().equals( "getRequestURL" ) ) {
+                String url = originalRequest.getRequestURL().toString();
+                return new StringBuffer(
+                  url.substring( 0, url.indexOf( originalRequest.getPathInfo() ) ) + "/" + appWadlUrl );
+              } else if ( method.getName().equals( "getRequestURI" ) ) {
+                String uri = originalRequest.getRequestURI();
+                return uri.substring( 0, uri.indexOf( originalRequest.getPathInfo() ) ) + "/" + appWadlUrl;
               }
-          );
+              // We don't care about the Method, delegate out to real Request object.
+              return method.invoke( originalRequest, args );
+            }
+          }
+        );
       if ( originalRequest.getRequestURL() != null ) {
         requestThread.set( originalRequest.getRequestURL().toString() );
       } else if ( originalRequest.getRequestURI() != null ) {
         requestThread.set( originalRequest.getRequestURI().toString() );
       }
     }
-    super.service( request, response );
+    callParentServiceMethod( request, response );
 
     // JAX-RS Response return objects do not trigger the "error state" in the HttpServletResponse
     // Forcing all HTTP Error Status into "sendError" enables the configuration of custom error
@@ -123,6 +124,13 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
     if ( !response.isCommitted() && response.getStatus() > UNDER_KNOWN_ERROR_RANGE && response.getStatus() < OVER_KNOWN_ERROR_RANGE ) {
       response.sendError( response.getStatus() );
     }
+  }
+
+  // wrapped in its own method for easier stubbing
+  @VisibleForTesting
+  protected void callParentServiceMethod( HttpServletRequest request, HttpServletResponse response )
+    throws ServletException, IOException {
+    super.service( request, response );
   }
 
   @Override

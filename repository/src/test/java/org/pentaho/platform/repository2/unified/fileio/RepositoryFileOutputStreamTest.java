@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -36,16 +36,14 @@ import java.io.Serializable;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
-import static org.powermock.reflect.Whitebox.getInternalState;
 
 public class RepositoryFileOutputStreamTest {
 
@@ -65,7 +63,8 @@ public class RepositoryFileOutputStreamTest {
   public void testCloseWithEmptyDataWithoutForceFlush() throws IOException {
     RepositoryFileOutputStream repositoryFileOutputStream = spy( new RepositoryFileOutputStream( "1.ktr" ) );
     IUnifiedRepository repository = mock( IUnifiedRepository.class );
-    setInternalState( repositoryFileOutputStream, "repository", repository );
+    doCallRealMethod().when( repositoryFileOutputStream ).setRepository( any( IUnifiedRepository.class ) );
+    repositoryFileOutputStream.setRepository( repository );
     repositoryFileOutputStream.forceFlush( false );
     repositoryFileOutputStream.close();
     assertTrue( repositoryFileOutputStream.flushed );
@@ -82,29 +81,21 @@ public class RepositoryFileOutputStreamTest {
     RepositoryFileOutputStream repositoryFileOutputStream =
       spy( new RepositoryFileOutputStream( "1.ktr", true, true ) );
 
-    setInternalState( repositoryFileOutputStream, "repository", repository );
+    doCallRealMethod().when( repositoryFileOutputStream ).setRepository( any( IUnifiedRepository.class ) );
+    repositoryFileOutputStream.setRepository( repository );
     when( repository.getFile( any() ) ).thenReturn( repositoryFile );
     when(
-      repository.createFile( any( Serializable.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-        any( String.class ) ) ).thenReturn( repositoryFile );
+      repository.createFile( nullable( Serializable.class ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ),
+        nullable( String.class ) ) ).thenReturn( repositoryFile );
     repositoryFileOutputStream.close();
     assertTrue( repositoryFileOutputStream.flushed );
     assertTrue( repositoryFileOutputStream.forceFlush );
     verify( repositoryFileOutputStream, times( 1 ) ).flush();
     verify( repository, times( 1 ) )
-      .createFile( any( Serializable.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-        any( String.class ) );
+      .createFile( nullable( Serializable.class ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ),
+        nullable( String.class ) );
   }
 
-  @Test
-  public void testForceFlush() {
-    RepositoryFileOutputStream repositoryFileOutputStream = new RepositoryFileOutputStream( "" );
-    assertTrue( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
-    repositoryFileOutputStream.forceFlush( false );
-    assertFalse( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
-    repositoryFileOutputStream.forceFlush( true );
-    assertTrue( getInternalState( repositoryFileOutputStream, "forceFlush" ) );
-  }
 
   @Test
   public void testStreamCompleteListenerCallback() throws IOException {
@@ -119,7 +110,8 @@ public class RepositoryFileOutputStreamTest {
 
     repositoryFileOutputStream.addListener( streamListener );
 
-    setInternalState( repositoryFileOutputStream, "repository", repository );
+    doCallRealMethod().when( repositoryFileOutputStream ).setRepository( any( IUnifiedRepository.class ) );
+    repositoryFileOutputStream.setRepository( repository );
     when( repository.getFile( any() ) ).thenReturn( repositoryFile );
     when(
       repository.createFile( any( Serializable.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
@@ -127,6 +119,6 @@ public class RepositoryFileOutputStreamTest {
     repositoryFileOutputStream.close();
 
     verify( streamListener, times( 1 ) ).streamComplete();
-    verify( streamListener, times( 0 ) ).fileCreated( anyObject() );
+    verify( streamListener, times( 0 ) ).fileCreated( any() );
   }
 }

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.olap4j.OlapConnection;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -58,18 +58,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
@@ -140,7 +138,7 @@ public class OlapServiceImplTest {
 
     doReturn( aggManager ).when( server ).getAggregationManager();
     doReturn( cacheControl ).when( aggManager ).getCacheControl(
-      any( RolapConnection .class ), any( PrintWriter.class ) );
+      nullable( RolapConnection .class ), nullable( PrintWriter.class ) );
 
     // Create the olap service. Make sure to override hasAccess with the
     // mock version.
@@ -237,11 +235,11 @@ public class OlapServiceImplTest {
         argThat( isLikeFile( makeFileObject( metadataPath ) ) ), argThat(
             hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + "test-server" ),
                 pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ),
-        anyString() );
+        nullable( String.class ) );
 
     verify( repository ).createFile( eq( makeIdObject( testFolderPath ) ),
         argThat( isLikeFile( makeFileObject( testFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
-        any( IRepositoryFileData.class ), anyString() );
+        nullable( IRepositoryFileData.class ), nullable( String.class ) );
   }
 
   /**
@@ -266,7 +264,7 @@ public class OlapServiceImplTest {
       argThat( hasData( pathPropertyPair( "/server/name", "test-server-2" ),
               pathPropertyPair( "/server/className", "class-name" ), pathPropertyPair( "/server/URL", "url" ),
               pathPropertyPair( "/server/user", "user" ), pathPropertyPair( "/server/password", "password" ) ) ),
-      anyString() );
+      nullable( String.class ) );
   }
 
   /**
@@ -418,7 +416,7 @@ public class OlapServiceImplTest {
     // Check if the repo was modified.
     verify( repository ).deleteFile(
       eq( makeIdObject( testServerPath ) ), eq( true ),
-      anyString( ) );
+      nullable( String.class ) );
 
     // Now check for non-existent catalogs
     try {
@@ -644,7 +642,7 @@ public class OlapServiceImplTest {
     }
 
     // Make sure we didn't invoke the delete method.
-    verify( repository, never() ).deleteFile( (RepositoryFile) anyObject(), anyString() );
+    verify( repository, never() ).deleteFile( any(), nullable( String.class ) );
   }
 
   /**
@@ -694,14 +692,14 @@ public class OlapServiceImplTest {
 
     // Make sure we didn't invoke the update or write methods.
     verify( repository, never() ).updateFile(
-      (RepositoryFile) anyObject(),
-      (IRepositoryFileData) anyObject(),
-      anyString() );
+      any(),
+      any(),
+      nullable( String.class ) );
     verify( repository, never() ).createFile(
-      (RepositoryFile) anyObject(),
-      (RepositoryFile) anyObject(),
-      (IRepositoryFileData) anyObject(),
-      anyString() );
+      any(),
+      any(),
+      any(),
+      nullable( String.class ) );
 
     // Now do it again.
     olapService.addHostedCatalog(
@@ -716,11 +714,11 @@ public class OlapServiceImplTest {
       argThat( hasData(
         pathPropertyPair( "/catalog/definition", "mondrian:/" + "myHostedServer" ),
         pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" )
-      ) ), anyString() );
+      ) ), nullable( String.class ) );
 
     verify( repository ).updateFile(
         argThat( isLikeFile( makeFileObject( testFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
-        any( IRepositoryFileData.class ), anyString() );
+        nullable( IRepositoryFileData.class ), nullable( String.class ) );
   }
 
   /**
@@ -771,11 +769,10 @@ public class OlapServiceImplTest {
 
     // Make sure we didn't invoke the update or write methods.
     verify( repository, never() ).updateFile(
-      (RepositoryFile) anyObject(),
-      (IRepositoryFileData) anyObject(),
-      anyString() );
-    verify( repository, never() ).createFile( (RepositoryFile) anyObject(), (RepositoryFile) anyObject(),
-        (IRepositoryFileData) anyObject(), anyString() );
+      any(),
+      any(),
+      nullable( String.class ) );
+    verify( repository, never() ).createFile( any(), any(), any(), nullable( String.class ) );
 
     // Now do it again.
     olapService.addOlap4jCatalog( "myServer", "class-name", "url", "user", "password", new Properties(), true, session );
@@ -786,7 +783,7 @@ public class OlapServiceImplTest {
       argThat( hasData( pathPropertyPair( "/server/name", "myServer" ),
               pathPropertyPair( "/server/className", "class-name" ), pathPropertyPair( "/server/URL", "url" ),
               pathPropertyPair( "/server/user", "user" ), pathPropertyPair( "/server/password", "password" ) ) ),
-      anyString() );
+      nullable( String.class ) );
   }
 
   @Test
@@ -796,7 +793,7 @@ public class OlapServiceImplTest {
 
     RolapConnection rc = mock( RolapConnection.class );
     doReturn( rc ).when( connection ).unwrap( RolapConnection.class );
-    doReturn( cacheControl ).when( rc ).getCacheControl( any( PrintWriter.class ) );
+    doReturn( cacheControl ).when( rc ).getCacheControl( nullable( PrintWriter.class ) );
 
     RolapSchema schema = mock( RolapSchema.class );
     doReturn( schema ).when( rc ).getSchema();
@@ -811,13 +808,13 @@ public class OlapServiceImplTest {
       olapService.flush( session, "schemaX" );
       fail();
     } catch ( IOlapServiceException e ) {
-      verify( cacheControl, times( 0 ) ).flushSchema( any( RolapSchema.class ) );
+      verify( cacheControl, times( 0 ) ).flushSchema( nullable( RolapSchema.class ) );
       assertEquals( "MondrianCatalogHelper.ERROR_0019 - Failed to flush schema schemaX", e.getMessage() );
     }
   }
 
   @Test
-  public void flushAllFlushesSchemaCache() throws Exception {
+  public void flushAllFlushesSchemaCache() {
     stubHostedServers( "myHostedServer", "myHostedServer2" );
     olapService.flushAll( session );
     verify( cacheControl, times( 1 ) ).flushSchemaCache();
@@ -830,13 +827,6 @@ public class OlapServiceImplTest {
     properties.put(
       RolapConnectionProperties.Locale.name(),
       getLocale().toString() );
-    OlapConnection conn = mock( OlapConnection.class );
-    when( server.getConnection( "Pentaho", "myHostedServer", null, properties ) ).thenReturn( conn );
-    when( conn.isWrapperFor( any( Class.class ) ) ).thenReturn( true );
-    final RolapConnection rolapConn = mock( RolapConnection.class );
-    when( conn.unwrap( any( Class.class ) ) ).thenReturn( rolapConn );
-    when( rolapConn.getCacheControl( any( PrintWriter.class ) ) ).thenThrow(
-      new RuntimeException( "something happend" ) );
     try {
       olapService.flushAll( session );
     } catch ( IOlapServiceException e ) {

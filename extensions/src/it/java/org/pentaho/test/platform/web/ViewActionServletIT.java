@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -48,7 +48,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -61,7 +61,7 @@ public class ViewActionServletIT {
   private HttpServletRequest request;
   private HttpServletResponse response;
   private ViewAction servlet;
-  private MicroPlatform mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/web-servlet-solution" );
+  private final MicroPlatform mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/web-servlet-solution" );
 
   @Before
   public void setUp() throws PlatformInitializationException {
@@ -128,7 +128,7 @@ public class ViewActionServletIT {
 
     verify( backgroundExecution ).backgroundExecuteAction( eq( PentahoSessionHolder.getSession() ),
       any( IParameterProvider.class ) );
-    verify( printWriter, atLeast( 1 ) ).print( anyString() );
+    verify( printWriter, atLeast( 1 ) ).print( nullable( String.class ) );
     verify( response ).setHeader( eq( "background_execution" ), eq( "true" ) );
   }
 

@@ -14,46 +14,41 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( FileResource.class )
+@RunWith( MockitoJUnitRunner.class )
 public class RepositoryResourceTest {
 
-  private IUnifiedRepository repository = mock( IUnifiedRepository.class );
-
-  @Before
-  public void setup() {
-    mockStatic( FileResource.class );
-    when( FileResource.idToPath( anyString() ) ).thenCallRealMethod();
-    when( FileResource.getRepository() ).thenReturn( repository );
-  }
+  private final IUnifiedRepository repository = mock( IUnifiedRepository.class );
 
   @Test
   public void doExecuteDefaultNotFound() throws Exception {
-    doReturn( null ).when( repository ).getFile( "/home/admin/comments.wcdf" );
-    Response response = new RepositoryResource().doExecuteDefault( ":home:admin:comments.wcdf" );
+    try ( MockedStatic<FileResource> fileResource = Mockito.mockStatic( FileResource.class ) ) {
+      fileResource.when( () -> FileResource.idToPath( nullable( String.class ) ) ).thenCallRealMethod();
+      fileResource.when( FileResource::getRepository ).thenReturn( repository );
 
-    assertEquals( Response.Status.NOT_FOUND.getStatusCode(), response.getStatus() );
+      doReturn( null ).when( repository ).getFile( "/home/admin/comments.wcdf" );
+      Response response = new RepositoryResource().doExecuteDefault( ":home:admin:comments.wcdf" );
+
+      assertEquals( Response.Status.NOT_FOUND.getStatusCode(), response.getStatus() );
+    }
   }
 }

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -37,10 +37,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rfellows on 10/30/15.
@@ -64,7 +68,7 @@ public class NestedLdapAuthoritiesPopulatorTest {
     NestedLdapAuthoritiesPopulator authPop = spy( authoritiesPopulator );
     when( contextSource.getReadOnlyContext() ).thenReturn( dirContext );
     NamingEnumeration<SearchResult> namingEnumeration = mock( NamingEnumeration.class );
-    when( dirContext.search( anyString(), anyString(), any( SearchControls.class ) ) ).thenReturn( namingEnumeration );
+    when( dirContext.search( nullable( String.class ), nullable( String.class ), any( SearchControls.class ) ) ).thenReturn( namingEnumeration );
 
     Set roles = authoritiesPopulator.getGroupMembershipRoles( "uid=suzy,ou=users,dc=pentaho,dc=org", "suzy" );
     assertNotNull( roles );

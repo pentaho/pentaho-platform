@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,7 +23,6 @@ package org.pentaho.platform.plugin.action.kettle;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.plugins.PluginRegistry;
@@ -44,11 +43,11 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyListOf;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -123,7 +122,7 @@ public class DIServerConfigTest {
     assertEquals( repo, diConfig.getRepository() );
 
     verify( purRepository, never() ).init( any( RepositoryMeta.class ) );
-    verify( purRepository, never() ).connect( anyString(), anyString() );
+    verify( purRepository, never() ).connect( nullable( String.class ), nullable( String.class ) );
   }
 
   @Test
@@ -148,15 +147,15 @@ public class DIServerConfigTest {
 
     verifyNoMoreInteractions( delegatingMetaStore );
     verify( purRepository, never() ).init( any( RepositoryMeta.class ) );
-    verify( purRepository, never() ).connect( anyString(), anyString() );
+    verify( purRepository, never() ).connect( nullable( String.class ), nullable( String.class ) );
   }
 
   private void verifyConnection() throws KettleException {
     InOrder connectionProcess = inOrder( purRepositoryMeta, purRepository );
 
-    connectionProcess.verify( purRepositoryMeta ).loadXML( any( Node.class ), anyListOf( DatabaseMeta.class ) );
+    connectionProcess.verify( purRepositoryMeta ).loadXML( any( Node.class ), any( List.class ) );
     connectionProcess.verify( purRepository ).init( purRepositoryMeta );
-    connectionProcess.verify( purRepository ).connect( eq( MOCK_USER ), anyString() );
+    connectionProcess.verify( purRepository ).connect( eq( MOCK_USER ), nullable( String.class ) );
   }
 
 }

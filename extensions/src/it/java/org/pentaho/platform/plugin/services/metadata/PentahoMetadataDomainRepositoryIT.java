@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -75,9 +75,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * Class Description
@@ -293,6 +293,7 @@ public class PentahoMetadataDomainRepositoryIT {
     assertEquals( 2, repository.getChildren( folder.getId() ).size() );
   }
 
+  @Test
   public void testGetDomain() throws Exception {
     try {
       domainRepositorySpy.getDomain( null );
@@ -567,7 +568,7 @@ public class PentahoMetadataDomainRepositoryIT {
     domainRepositorySpy.storeDomain( loadDomain( STEEL_WHEELS, "./steel-wheels.xmi" ), true );
     doReturn( true ).when( aclNodeHelper ).canAccess( any( RepositoryFile.class ),
         eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
-    doNothing().when( domainRepositorySpy ).loadLocaleStrings( anyString(), any( Domain.class ) );
+    doNothing().when( domainRepositorySpy ).loadLocaleStrings( nullable( String.class ), any( Domain.class ) );
     final Domain steelWheels = domainRepositorySpy.getDomain( STEEL_WHEELS );
     assertNotNull( steelWheels );
 
@@ -604,27 +605,27 @@ public class PentahoMetadataDomainRepositoryIT {
   }
 
   @Test
-  public void testReloadDomains() throws Exception {
+  public void testReloadDomains() {
     domainRepositorySpy.reloadDomains();
   }
 
   @Test
-  public void testFlushDomains() throws Exception {
+  public void testFlushDomains() {
     domainRepositorySpy.flushDomains();
   }
 
   @Test
-  public void testGenerateRowLevelSecurityConstraint() throws Exception {
+  public void testGenerateRowLevelSecurityConstraint() {
     domainRepositorySpy.generateRowLevelSecurityConstraint( null );
   }
 
   @Test
-  public void testHasAccess() throws Exception {
+  public void testHasAccess() {
     domainRepositorySpy.hasAccess( 0, null );
   }
 
   @Test
-  public void testToString() throws Exception {
+  public void testToString() {
     // Neither case should throw an exception
     domainRepositorySpy.toString( null );
     domainRepositorySpy.toString( new RepositoryFile.Builder( "" ).build() );
@@ -657,13 +658,13 @@ public class PentahoMetadataDomainRepositoryIT {
   }
 
   @Test
-  public void testSetXmiParser() throws Exception {
+  public void testSetXmiParser() {
     domainRepositorySpy.setXmiParser( null );
     domainRepositorySpy.setXmiParser( new XmiParser() );
   }
 
   @Test
-  public void testStoreAnnotationsXmlSkipped() throws Exception {
+  public void testStoreAnnotationsXmlSkipped() {
 
     String domainId = "test.xmi";
     String annotationsXml = "<annotations/>";
@@ -683,29 +684,29 @@ public class PentahoMetadataDomainRepositoryIT {
   }
 
   @Test
-  public void testStoreAnnotationsXml() throws Exception {
+  public void testStoreAnnotationsXml() {
 
     String domainId = "test.xmi";
     String annotationsXml = "<annotations/>";
 
     domainRepositorySpy.storeAnnotationsXml( null, null );
-    verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( anyString() );
+    verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( nullable( String.class ) );
 
     domainRepositorySpy.storeAnnotationsXml( domainId, null );
-    verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( anyString() );
+    verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( nullable( String.class ) );
 
     domainRepositorySpy.storeAnnotationsXml( null, annotationsXml );
-    verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( anyString() );
+    verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( nullable( String.class ) );
 
     domainRepositorySpy.storeAnnotationsXml( domainId, annotationsXml );
-    verify( domainRepositorySpy, times( 1 ) ).getMetadataRepositoryFile( anyString() );
+    verify( domainRepositorySpy, times( 1 ) ).getMetadataRepositoryFile( nullable( String.class ) );
     verify( domainRepositorySpy, times( 1 ) ).getAnnotationsXmlFile( any( RepositoryFile.class ) );
     verify( domainRepositorySpy, times( 1 ) )
-        .createOrUpdateAnnotationsXml( any( RepositoryFile.class ), any( RepositoryFile.class ), anyString() );
+        .createOrUpdateAnnotationsXml( any( RepositoryFile.class ), any( RepositoryFile.class ), nullable( String.class ) );
   }
 
   @Test
-  public void testCreateOrUpdateAnnotationsXml() throws Exception {
+  public void testCreateOrUpdateAnnotationsXml() {
 
     String metadataDirId = "00000000";
     String annotationsXml = "<annotations/>";
@@ -743,7 +744,7 @@ public class PentahoMetadataDomainRepositoryIT {
   }
 
   @Test
-  public void testGetAnnotationsXmlFile() throws Exception {
+  public void testGetAnnotationsXmlFile() {
 
     String domainFileId = "00000000";
 
@@ -776,7 +777,7 @@ public class PentahoMetadataDomainRepositoryIT {
   }
 
   @Test
-  public void testLoadAnnotationsXml() throws Exception {
+  public void testLoadAnnotationsXml() {
 
     String domainId = "test.xmi";
     String domainFileId = "00000000";
@@ -926,10 +927,10 @@ public class PentahoMetadataDomainRepositoryIT {
   /**
    * Mock Domain object used for testing
    */
-  private class MockDomain extends Domain {
-    private String id;
-    private List<LogicalModel> logicalModels;
-    private List<LocaleType> locals;
+  private static class MockDomain extends Domain {
+    private final String id;
+    private final List<LogicalModel> logicalModels;
+    private final List<LocaleType> locals;
 
     MockDomain( final String id ) {
       this.id = id;

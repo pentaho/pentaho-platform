@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -33,7 +33,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Ivan Nikolaichuk
@@ -75,8 +84,8 @@ public class CopyFilesOperation_DeepFolderCopyTest {
     to = mockFolder();
 
     doReturn( mockFolder() ).when( repo )
-      .createFolder( any( Serializable.class ), any( RepositoryFile.class ), any(
-        RepositoryFileAcl.class ), anyString() );
+      .createFolder( any( Serializable.class ), any( RepositoryFile.class ), nullable( RepositoryFileAcl.class ),
+        nullable( String.class ) );
 
     doCallRealMethod().when( operation ).performFolderDeepCopy( any( RepositoryFile.class ),
       any( RepositoryFile.class ), anyInt() );
@@ -165,11 +174,11 @@ public class CopyFilesOperation_DeepFolderCopyTest {
       .performFolderDeepCopy( any( RepositoryFile.class ), any( RepositoryFile.class ), anyInt() );
 
     verify( repo, times( newFolders ) )
-      .createFolder( any( Serializable.class ), any( RepositoryFile.class ), any( RepositoryFileAcl.class ),
-        anyString() );
+      .createFolder( any( Serializable.class ), any( RepositoryFile.class ), nullable( RepositoryFileAcl.class ),
+        nullable( String.class ) );
 
-    verify( repo, times( newFiles ) ).createFile( any( RepositoryFile.class ), any( RepositoryFile.class ), any(
-      IRepositoryFileData.class ), anyString() );
+    verify( repo, times( newFiles ) ).createFile( anyString(), any( RepositoryFile.class ), nullable(
+      IRepositoryFileData.class ), nullable( String.class ) );
   }
 
   /**

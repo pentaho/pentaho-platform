@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -63,7 +63,7 @@ public class RepositoryPublishServiceTest {
     InputStream stubInputStream = IOUtils.toInputStream( "some test data for my input stream" );
     Boolean overwriteFile = true;
 
-    doReturn( true ).when( repositoryPublishService.policy ).isAllowed( anyString() );
+    doReturn( true ).when( repositoryPublishService.policy ).isAllowed( nullable( String.class ) );
     doReturn( repositoryPublishService.policy ).when( repositoryPublishService ).getPolicy();
 
     doReturn( mockRepositoryFileImportBundle ).when( repositoryPublishService ).buildBundle( pathId, stubInputStream, overwriteFile );
@@ -84,7 +84,7 @@ public class RepositoryPublishServiceTest {
     /*
      * Test 1
      */
-    doReturn( false ).when( repositoryPublishService.policy ).isAllowed( anyString() );
+    doReturn( false ).when( repositoryPublishService.policy ).isAllowed( nullable( String.class ) );
     doReturn( repositoryPublishService.policy ).when( repositoryPublishService ).getPolicy();
 
     try {
@@ -99,7 +99,7 @@ public class RepositoryPublishServiceTest {
     /*
      * Test 2
      */
-    doReturn( true ).when( repositoryPublishService.policy ).isAllowed( anyString() );
+    doReturn( true ).when( repositoryPublishService.policy ).isAllowed( nullable( String.class ) );
     doThrow( new PlatformImportException( "" ) ).when( repositoryPublishService.platformImporter ).importFile( mockRepositoryFileImportBundle );
     try {
       repositoryPublishService.writeFile( pathId, stubInputStream, overwriteFile );
@@ -113,7 +113,7 @@ public class RepositoryPublishServiceTest {
     /*
      * Test 3
      */
-    doReturn( true ).when( repositoryPublishService.policy ).isAllowed( anyString() );
+    doReturn( true ).when( repositoryPublishService.policy ).isAllowed( nullable( String.class ) );
     doThrow( new InternalError() ).when( repositoryPublishService.platformImporter ).
         importFile( mockRepositoryFileImportBundle );
     try {

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,8 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -46,8 +45,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -78,7 +79,7 @@ public class SolutionContextListenerTest {
 
   @Test( expected = RuntimeException.class )
   public void testContextInitialized_invalidSolutionPath() throws Exception {
-    when( systemConfig.getProperty( anyString() ) ).thenReturn( null );
+    when( systemConfig.getProperty( nullable( String.class ) ) ).thenReturn( null );
 
     File tempFile = File.createTempFile( "SolutionContextListenerTest", ".tmp" );
     tempFile.deleteOnExit();

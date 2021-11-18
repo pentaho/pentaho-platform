@@ -17,6 +17,7 @@
 
 package org.pentaho.platform.web;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.StringUtil;
@@ -107,14 +108,16 @@ public class WebUtil {
     return "true".equals( isCorsAllowed );
   }
 
-  private static List<String> getCorsRequestsAllowedOrigins() {
+  @VisibleForTesting
+  static List<String> getCorsRequestsAllowedOrigins() {
     String allowedDomains = WebUtil.getCorsAllowedOriginsSystemProperty();
     boolean hasDomains = !StringUtil.isEmpty( allowedDomains );
 
     return hasDomains ? Arrays.asList( allowedDomains.split( "\\s*,\\s*" ) ) : null;
   }
 
-  private static boolean isCorsRequestOriginAllowed( String origin ) {
+  @VisibleForTesting
+  static boolean isCorsRequestOriginAllowed( String origin ) {
     List<String> allowedDomains = WebUtil.getCorsRequestsAllowedOrigins();
     return allowedDomains != null && allowedDomains.contains( origin );
   }

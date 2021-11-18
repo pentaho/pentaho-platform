@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 
 
 public class NonPooledOrJndiDatasourceServiceTest {
@@ -84,7 +84,7 @@ public class NonPooledOrJndiDatasourceServiceTest {
     when( mgmtService.getDatasourceByName( testName ) ).thenReturn( connection );
     when( connection.getAccessType() ).thenReturn( DatabaseAccessType.JNDI );
     service.retrieve( testName );
-    verify( service, times( 2 ) ).getJndiDataSource( anyString() );
+    verify( service, times( 2 ) ).getJndiDataSource( nullable( String.class ) );
     verify( cacheManager, never() ).putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, testName, jndiDataSource );
   }
 
@@ -95,7 +95,7 @@ public class NonPooledOrJndiDatasourceServiceTest {
     when( service.getJndiDataSource( testName ) ).thenThrow( DBDatasourceServiceException.class ).thenCallRealMethod();
     when( connection.getAccessType() ).thenReturn( DatabaseAccessType.JNDI );
     service.retrieve( testName );
-    verify( service, times( 2 ) ).getJndiDataSource( anyString() );
+    verify( service, times( 2 ) ).getJndiDataSource( nullable( String.class ) );
     verify( cacheManager, never() ).putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, testName, jndiDataSource );
   }
 

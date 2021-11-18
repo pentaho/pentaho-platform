@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2021 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.web;
@@ -20,8 +20,10 @@ package org.pentaho.platform.web;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,96 +33,94 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.spy;
 
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( WebUtil.class )
+@RunWith( MockitoJUnitRunner.class )
 public class WebUtilTest {
+
+  @Mock
   private HttpServletRequest mockRequest;
+  @Mock
   private HttpServletResponse mockResponse;
 
   // region WebUtil.setCorsResponseHeaders( request, response )
   @Test
   public void testSetCorsHeadersNormalRequest() {
+    try ( MockedStatic<WebUtil> webUtils = Mockito.mockStatic( WebUtil.class ) ) {
+      setupCorsTest( webUtils, null, null );
 
-    this.setupCorsTest();
-    this.doCorsTest();
+      WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
 
-    verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), anyString() );
-    verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), anyString() );
+      verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), nullable( String.class ) );
+      verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), nullable( String.class ) );
+    }
   }
 
   @Test
   public void testSetCorsHeadersRequestsNotAllowed() {
+    try ( MockedStatic<WebUtil> webUtils = Mockito.mockStatic( WebUtil.class ) ) {
+      setupCorsTest( webUtils, "false", null );
 
-    this.setupCorsTest();
+      WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
 
-    when( this.mockRequest.getHeader( WebUtil.ORIGIN_HEADER ) ).thenReturn( "foobar.com" );
-
-    this.doCorsTest( "false", null );
-
-    verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), anyString() );
-    verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), anyString() );
+      verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), nullable( String.class ) );
+      verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), nullable( String.class ) );
+    }
   }
 
   @Test
   public void testSetCorsHeadersDomainNotAllowed() {
-
-    this.setupCorsTest();
-
     when( this.mockRequest.getHeader( WebUtil.ORIGIN_HEADER ) ).thenReturn( "foobar.com" );
 
-    this.doCorsTest( "true", null );
+    try ( MockedStatic<WebUtil> webUtils = Mockito.mockStatic( WebUtil.class ) ) {
+      setupCorsTest( webUtils, "true", null );
 
-    verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), anyString() );
-    verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), anyString() );
+      WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
+
+      verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), nullable( String.class ) );
+      verify( this.mockResponse, never() ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), nullable( String.class ) );
+    }
   }
 
   @Test
   public void testSetCorsHeadersRequestAndDomainAllowed() {
-
-    this.setupCorsTest();
-
     String domain = "foobar.com";
     when( this.mockRequest.getHeader( WebUtil.ORIGIN_HEADER ) ).thenReturn( domain );
 
-    this.doCorsTest( "true", domain );
+    try ( MockedStatic<WebUtil> webUtils = Mockito.mockStatic( WebUtil.class ) ) {
+      setupCorsTest( webUtils, "true", domain );
 
-    verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), eq( domain ) );
-    verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), eq( "true" ) );
+      WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
+
+      verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), eq( domain ) );
+      verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), eq( "true" ) );
+    }
   }
 
   @Test
   public void testSetCorsHeadersRequestAndDomainAllowedMultiple() {
 
-    this.setupCorsTest();
-
     String domain = "localhost:1337";
     String allowedDomains = "foobar.com, " + domain;
     when( this.mockRequest.getHeader( WebUtil.ORIGIN_HEADER ) ).thenReturn( domain );
 
-    this.doCorsTest( "true", allowedDomains );
+    try ( MockedStatic<WebUtil> webUtils = Mockito.mockStatic( WebUtil.class ) ) {
+      setupCorsTest( webUtils, "true", allowedDomains );
 
-    verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), eq( domain ) );
-    verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), eq( "true" ) );
+      WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
+
+      verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), eq( domain ) );
+      verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), eq( "true" ) );
+    }
   }
 
   @Test
   public void testSetCorsHeadersRequestAndDomainAllowedWithConfiguration() {
-
-    this.setupCorsTest();
-
     String domain = "foobar.com";
     when( this.mockRequest.getHeader( WebUtil.ORIGIN_HEADER ) ).thenReturn( domain );
 
@@ -130,43 +130,28 @@ public class WebUtilTest {
     final String extraHeaderValue = "foo-value";
     corsHeadersConfiguration.put( extraHeaderName, Collections.singletonList( extraHeaderValue ) );
 
-    this.doCorsTest( "true", domain, corsHeadersConfiguration );
-
-    verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), eq( domain ) );
-    verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), eq( "true" ) );
-
-    verify( this.mockResponse ).setHeader( eq( extraHeaderName ), eq( extraHeaderValue ) );
-  }
-
-  private void setupCorsTest() {
-    this.mockRequest = mock( HttpServletRequest.class );
-    this.mockResponse = mock( HttpServletResponse.class );
-  }
-
-  private void doCorsTest() {
-    this.doCorsTest( null, null, null );
-  }
-
-  private void doCorsTest( String corsAllowed, String corsAllowedDomains ) {
-    this.doCorsTest( corsAllowed, corsAllowedDomains, null );
-  }
-
-  private void doCorsTest( String corsAllowed, String corsAllowedDomains,
-                           Map<String, List<String>> corsHeadersConfiguration ) {
-
-    spy( WebUtil.class );
-
-    doReturn( corsAllowed ).when( WebUtil.class );
-    WebUtil.getCorsRequestsAllowedSystemProperty();
-
-    doReturn( corsAllowedDomains ).when( WebUtil.class );
-    WebUtil.getCorsAllowedOriginsSystemProperty();
-
-    if ( corsHeadersConfiguration == null ) {
-      WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse );
-    } else {
+    try ( MockedStatic<WebUtil> webUtils = Mockito.mockStatic( WebUtil.class ) ) {
+      setupCorsTest( webUtils, "true", domain );
       WebUtil.setCorsResponseHeaders( this.mockRequest, this.mockResponse, corsHeadersConfiguration );
+
+      verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_ORIGIN_HEADER ), eq( domain ) );
+      verify( this.mockResponse ).setHeader( eq( WebUtil.CORS_ALLOW_CREDENTIALS_HEADER ), eq( "true" ) );
+      verify( this.mockResponse ).setHeader( eq( extraHeaderName ), eq( extraHeaderValue ) );
     }
+  }
+
+  private static void setupCorsTest( MockedStatic<WebUtil> webUtilStatic, String corsAllowed, String corsAllowedDomains ) {
+    spyStaticMethods( webUtilStatic );
+    webUtilStatic.when( WebUtil::getCorsRequestsAllowedSystemProperty ).thenReturn( corsAllowed );
+    webUtilStatic.when( WebUtil::getCorsAllowedOriginsSystemProperty ).thenReturn( corsAllowedDomains );
+  }
+
+  private static void spyStaticMethods( MockedStatic<WebUtil> webUtilStatic ) {
+    webUtilStatic.when( WebUtil::isCorsRequestsAllowed ).thenCallRealMethod();
+    webUtilStatic.when( () -> WebUtil.isCorsRequestOriginAllowed( nullable( String.class ) ) ).thenCallRealMethod();
+    webUtilStatic.when( WebUtil::getCorsRequestsAllowedOrigins ).thenCallRealMethod();
+    webUtilStatic.when( () -> WebUtil.setCorsResponseHeaders( any(), any() ) ).thenCallRealMethod();
+    webUtilStatic.when( () -> WebUtil.setCorsResponseHeaders( any(), any(), any() ) ).thenCallRealMethod();
   }
   // endregion
 }

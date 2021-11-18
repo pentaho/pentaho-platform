@@ -14,15 +14,21 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -66,24 +71,21 @@ public class RepositoryImportResourceIT {
     ITenant tenat = mock( ITenant.class );
 
     resolver = mock( ITenantedPrincipleNameResolver.class );
-    doReturn( tenat ).when( resolver ).getTenant( anyString() );
-    doReturn( REAL_USER ).when( resolver ).getPrincipleName( anyString() );
+    doReturn( tenat ).when( resolver ).getTenant( nullable( String.class ) );
+    doReturn( REAL_USER ).when( resolver ).getPrincipleName( nullable( String.class ) );
     policy = mock( IAuthorizationPolicy.class );
     pentahoObjectFactory = mock( IPentahoObjectFactory.class );
-    when( pentahoObjectFactory.objectDefined( anyString() ) ).thenReturn( true );
-    when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer(
-        new Answer<Object>() {
-          @Override
-          public Object answer( InvocationOnMock invocation ) throws Throwable {
-            if ( invocation.getArguments()[0].equals( IAuthorizationPolicy.class ) ) {
-              return policy;
-            }
-            if ( invocation.getArguments()[0].equals( ITenantedPrincipleNameResolver.class ) ) {
-              return resolver;
-            }
-            return null;
-          }
-        } );
+    when( pentahoObjectFactory.objectDefined( nullable( String.class ) ) ).thenReturn( true );
+    when( pentahoObjectFactory.get( this.anyClass(), nullable( String.class ), any( IPentahoSession.class ) ) ).thenAnswer(
+      invocation -> {
+        if ( invocation.getArguments()[0].equals( IAuthorizationPolicy.class ) ) {
+          return policy;
+        }
+        if ( invocation.getArguments()[0].equals( ITenantedPrincipleNameResolver.class ) ) {
+          return resolver;
+        }
+        return null;
+      } );
     PentahoSystem.registerObjectFactory( pentahoObjectFactory );
     IPentahoSession session = mock( IPentahoSession.class );
     doReturn( "sampleSession" ).when( session ).getName();
@@ -111,24 +113,18 @@ public class RepositoryImportResourceIT {
   }
 
   @Test
-  public void testValidateAccess_NonAdminValid() throws PentahoAccessControlException, NoSuchFieldException,
-    SecurityException, IllegalArgumentException, IllegalAccessException {
+  public void testValidateAccess_NonAdminValid() throws PentahoAccessControlException,
+    SecurityException, IllegalArgumentException {
     final List<String> perms = Arrays.asList( RepositoryReadAction.NAME, RepositoryCreateAction.NAME );
     testValidateAccess( perms );
   }
 
   private void testValidateAccess( final List<String> perms ) throws PentahoAccessControlException {
-    when( policy.isAllowed( anyString() ) ).thenAnswer( new Answer<Boolean>() {
-
-      @Override
-      public Boolean answer( InvocationOnMock invocation ) throws Throwable {
-        if ( perms.contains( invocation.getArguments()[0] ) ) {
-          return true;
-        }
-        ;
-        return false;
+    when( policy.isAllowed( nullable( String.class ) ) ).thenAnswer( (Answer<Boolean>) invocation -> {
+      if ( perms.contains( invocation.getArguments()[0] ) ) {
+        return true;
       }
-
+      return false;
     } );
 
     RepositoryImportResource resource = new RepositoryImportResource();
@@ -143,9 +139,9 @@ public class RepositoryImportResourceIT {
     return argThat( new AnyClassMatcher() );
   }
 
-  private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
+  private static class AnyClassMatcher implements ArgumentMatcher<Class<?>> {
     @Override
-    public boolean matches( final Object arg ) {
+    public boolean matches( final Class<?> arg ) {
       return true;
     }
   }

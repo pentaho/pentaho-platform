@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -40,8 +40,8 @@ import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -100,7 +100,7 @@ public class ProxyTrustingFilterTest {
 
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
 
-    verify( securityHelper, never() ).runAsUser( anyString(), any( Callable.class ) );
+    verify( securityHelper, never() ).runAsUser( nullable( String.class ), any( Callable.class ) );
   }
 
   // region Locale Override

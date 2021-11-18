@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -32,10 +32,12 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 

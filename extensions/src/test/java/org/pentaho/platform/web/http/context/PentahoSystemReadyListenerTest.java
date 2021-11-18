@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.IPlatformReadyListener;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 
 /**
@@ -77,7 +77,7 @@ public class PentahoSystemReadyListenerTest {
 
   @Test
   public void testContextInitialized() throws Exception {
-    when( pluginProvider.getPlugins( any( IPentahoSession.class ) ) ).thenReturn( pluginList );
+    when( pluginProvider.getPlugins( nullable( IPentahoSession.class ) ) ).thenReturn( pluginList );
 
     when( pluginA.getLifecycleListenerClassname() ).thenReturn( TestReadyListener.class.getName() );
     when( pluginA.getId() ).thenReturn( "PluginA" );

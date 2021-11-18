@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
@@ -43,10 +43,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rfellows on 11/5/15.
@@ -122,8 +133,8 @@ public class HttpWebServiceTest {
       eq( "solutionName/actionName" ),
       eq( "/actionName" ),
       any( IParameterProvider.class ),
-      any( OutputStream.class ),
-      any( IPentahoSession.class ) );
+      nullable( OutputStream.class ),
+      nullable( IPentahoSession.class ) );
 
     service.doGetFixMe( request, response );
     verify( service ).doDial(
@@ -131,8 +142,8 @@ public class HttpWebServiceTest {
       eq( "solutionName/actionName" ),
       eq( "/actionName" ),
       any( IParameterProvider.class ),
-      any( OutputStream.class ),
-      any( IPentahoSession.class ) );
+      nullable( OutputStream.class ),
+      nullable( IPentahoSession.class ) );
   }
 
   @Test
@@ -148,15 +159,15 @@ public class HttpWebServiceTest {
     doNothing().when( service ).doChart(
       eq( "folder" ),
       any( IParameterProvider.class ),
-      any( OutputStream.class ),
-      any( IPentahoSession.class ) );
+      nullable( OutputStream.class ),
+      nullable( IPentahoSession.class ) );
 
     service.doGetFixMe( request, response );
     verify( service ).doChart(
       eq( "folder" ),
       any( IParameterProvider.class ),
-      any( OutputStream.class ),
-      any( IPentahoSession.class ) );
+      nullable( OutputStream.class ),
+      nullable( IPentahoSession.class ) );
   }
 
   @Test
@@ -196,7 +207,6 @@ public class HttpWebServiceTest {
     reader = new BufferedReader( new StringReader( payload ) );
 
     when( request.getReader() ).thenReturn( reader );
-    doNothing().when( service ).doGetFixMe( request, response );
     doReturn( true ).when( service ).isSecurityDetailsRequest( request );
     when( response.getOutputStream() ).thenReturn( responseOutputStream );
 
@@ -215,7 +225,6 @@ public class HttpWebServiceTest {
     reader = new BufferedReader( new StringReader( payload ) );
 
     when( request.getReader() ).thenReturn( reader );
-    doNothing().when( service ).doGetFixMe( request, response );
     doReturn( true ).when( service ).isSecurityDetailsRequest( request );
     when( response.getOutputStream() ).thenReturn( responseOutputStream );
 
@@ -234,7 +243,6 @@ public class HttpWebServiceTest {
     reader = new BufferedReader( new StringReader( payload ) );
 
     when( request.getReader() ).thenReturn( reader );
-    doNothing().when( service ).doGetFixMe( request, response );
     doReturn( true ).when( service ).isSecurityDetailsRequest( request );
     when( response.getOutputStream() ).thenReturn( responseOutputStream );
 
@@ -248,7 +256,6 @@ public class HttpWebServiceTest {
   @Test
   public void testDoGet() throws Exception {
     HttpWebService service = spy( httpWebService );
-    doNothing().when( service ).doGetFixMe( request, response );
     doReturn( true ).when( service ).isSecurityDetailsRequest( request );
     when( response.getOutputStream() ).thenReturn( responseOutputStream );
 

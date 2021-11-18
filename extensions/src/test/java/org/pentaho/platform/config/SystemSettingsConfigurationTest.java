@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -35,7 +35,7 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -71,7 +71,7 @@ public class SystemSettingsConfigurationTest {
     SystemSettings settings = new SystemSettings();
 
     IApplicationContext appContext = mock( IApplicationContext.class );
-    when( appContext.getSolutionPath( anyString() ) )
+    when( appContext.getSolutionPath( nullable( String.class ) ) )
       .thenReturn( TestResourceLocation.TEST_RESOURCES + "/solution/system" );
 
     PentahoSystem.setApplicationContext( appContext );

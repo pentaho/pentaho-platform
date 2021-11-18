@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.actionsequence.dom.ActionInputConstant;
 import org.pentaho.actionsequence.dom.IActionInput;
 import org.pentaho.actionsequence.dom.IActionOutput;
@@ -63,10 +63,25 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rfellows on 11/2/15.
@@ -117,30 +132,30 @@ public class MDXBaseComponentTest {
     mdxBaseComponent = spy( baseMdxBaseComponent );
 
     mdxBaseComponent.setActionName( "action name" );
-    doNothing().when( mdxBaseComponent ).error( anyString(), any( Throwable.class ) );
-    doNothing().when( mdxBaseComponent ).error( anyString() );
-    doReturn( false ).when( mdxBaseComponent ).fileExistsInRepository( anyString() );
+    doNothing().when( mdxBaseComponent ).error( nullable( String.class ), nullable( Throwable.class ) );
+    doNothing().when( mdxBaseComponent ).error( nullable( String.class ) );
+    doReturn( false ).when( mdxBaseComponent ).fileExistsInRepository( nullable( String.class ) );
   }
 
   @Test
-  public void testValidateAction_noActionDefinition() throws Exception {
+  public void testValidateAction_noActionDefinition() {
     boolean action = mdxBaseComponent.validateAction();
     assertTrue( action );
   }
 
   @Test
-  public void testValidateAction_queryAction_nullInput() throws Exception {
+  public void testValidateAction_queryAction_nullInput() {
     mdxBaseComponent.setActionDefinition( queryAction );
 
     when( queryAction.getQuery() ).thenReturn( ActionInputConstant.NULL_INPUT );
 
     boolean action = mdxBaseComponent.validateAction();
     assertFalse( action );
-    verify( mdxBaseComponent ).error( anyString() );
+    verify( mdxBaseComponent ).error( nullable( String.class ) );
   }
 
   @Test
-  public void testValidateAction_queryAction_nullResult() throws Exception {
+  public void testValidateAction_queryAction_nullResult() {
     mdxBaseComponent.setActionDefinition( queryAction );
 
     when( queryAction.getOutputResultSet() ).thenReturn( null );
@@ -148,28 +163,27 @@ public class MDXBaseComponentTest {
 
     boolean action = mdxBaseComponent.validateAction();
     assertFalse( action );
-    verify( mdxBaseComponent ).error( anyString() );
+    verify( mdxBaseComponent ).error( nullable( String.class ) );
   }
 
   @Test
-  public void testValidateAction_queryAction() throws Exception {
+  public void testValidateAction_queryAction() {
     mdxBaseComponent.setActionDefinition( queryAction );
 
     when( queryAction.getOutputResultSet() ).thenReturn( outputResultSet );
-    when( queryAction.getOutputPreparedStatement() ).thenReturn( null );
 
     boolean action = mdxBaseComponent.validateAction();
     assertTrue( action );
-    verify( mdxBaseComponent, never() ).error( anyString(), any( Throwable.class ) );
+    verify( mdxBaseComponent, never() ).error( nullable( String.class ), any( Throwable.class ) );
   }
 
   @Test
-  public void testValidateAction_connectionAction_noConnection() throws Exception {
+  public void testValidateAction_connectionAction_noConnection() {
     mdxBaseComponent.setActionDefinition( connAction );
 
     boolean action = mdxBaseComponent.validateAction();
     assertFalse( action );
-    verify( mdxBaseComponent ).error( anyString() );
+    verify( mdxBaseComponent ).error( nullable( String.class ) );
   }
 
   @Test
@@ -179,7 +193,7 @@ public class MDXBaseComponentTest {
 
     boolean action = mdxBaseComponent.validateAction();
     assertTrue( action );
-    verify( mdxBaseComponent, never() ).error( anyString(), any( Throwable.class ) );
+    verify( mdxBaseComponent, never() ).error( nullable( String.class ), any( Throwable.class ) );
   }
 
   @Test
@@ -202,7 +216,7 @@ public class MDXBaseComponentTest {
   }
 
   @Test
-  public void testExecuteAction_queryAction() throws Exception {
+  public void testExecuteAction_queryAction() {
     mdxBaseComponent.setActionDefinition( queryAction );
 
     when( queryAction.getMdxConnection() ).thenReturn( actionInput );
@@ -214,29 +228,30 @@ public class MDXBaseComponentTest {
     when( queryActionInput.getStringValue() ).thenReturn( "select * from table" );
     when( queryAction.getOutputPreparedStatement() ).thenReturn( outputResultSet );
 
-    doReturn( true ).when( mdxBaseComponent ).prepareQuery( anyString() );
-    doNothing().when( mdxBaseComponent ).setOutputValue( anyString(), anyString() );
+    doReturn( true ).when( mdxBaseComponent ).prepareQuery( nullable( String.class ) );
+    doNothing().when( mdxBaseComponent ).setOutputValue( nullable( String.class ), any( MDXBaseComponent.class ) );
 
     assertTrue( mdxBaseComponent.executeAction() );
     verify( mdxBaseComponent ).prepareQuery( "select * from table" );
-    verify( mdxBaseComponent ).setOutputValue( anyString(), anyString() );
+    verify( mdxBaseComponent ).setOutputValue( nullable( String.class ), any( MDXBaseComponent.class ) );
 
   }
 
   @Test
-  public void testExecuteAction_mdxConnectionAction() throws Exception {
+  public void testExecuteAction_mdxConnectionAction() {
     mdxBaseComponent.setActionDefinition( connAction );
     doReturn( conn ).when( mdxBaseComponent ).getDatasourceConnection();
-    doNothing().when( mdxBaseComponent ).setOutputValue( anyString(), anyString() );
+    doNothing().when( mdxBaseComponent ).setOutputValue( nullable( String.class ), any( MDXBaseComponent.class ) );
 
-    assertTrue( mdxBaseComponent.executeAction() );
+    boolean b = mdxBaseComponent.executeAction();
+    assertTrue( b );
   }
 
   @Test
   public void testPrepareQuery() throws Exception {
     mdxBaseComponent.setConnection( conn );
     when( conn.initialized() ).thenReturn( true );
-    doReturn( "yes" ).when( mdxBaseComponent ).applyInputsToFormat( anyString() );
+    doReturn( "yes" ).when( mdxBaseComponent ).applyInputsToFormat( nullable( String.class ) );
     assertTrue( mdxBaseComponent.prepareQuery( "select * from table" ) );
   }
 
@@ -281,7 +296,7 @@ public class MDXBaseComponentTest {
     mdxBaseComponent.setConnection( conn );
     mdxBaseComponent.preparedQuery = "select * from table where x = ?";
 
-    when( conn.executeQuery( anyString() ) ).thenReturn( resultSet );
+    when( conn.executeQuery( nullable( String.class ) ) ).thenReturn( resultSet );
     doReturn( runtimeContext ).when( mdxBaseComponent ).getRuntimeContext();
     Set inputs = new HashSet();
     when( runtimeContext.getInputNames() ).thenReturn( inputs );
@@ -393,9 +408,7 @@ public class MDXBaseComponentTest {
     PentahoSystem.registerPrimaryObjectFactory( objFactory );
     PentahoSessionHolder.setSession( session );
 
-    when( objFactory.get( any( Class.class ), eq( "connection-MDX" ), any( IPentahoSession.class ) ) ).thenReturn( mdxConnection );
-
-    when( mondrianCatalogService.getCatalog( anyString(), any( IPentahoSession.class ) ) ).thenReturn( mondrianCatalog );
+    when( mondrianCatalogService.getCatalog( nullable( String.class ), any( IPentahoSession.class ) ) ).thenReturn( mondrianCatalog );
 
     when( mondrianCatalog.getDataSourceInfo() ).thenReturn( "connection info" );
     when( mondrianCatalog.getDefinition() ).thenReturn( "<catalog></catalog>" );
@@ -447,8 +460,6 @@ public class MDXBaseComponentTest {
     PentahoSystem.registerPrimaryObjectFactory( objFactory );
     PentahoSessionHolder.setSession( session );
 
-    when( objFactory.get( any( Class.class ), anyString(), any( IPentahoSession.class ) ) ).thenReturn( mdxConnection );
-
     mdxBaseComponent.setRuntimeContext( runtimeContext );
     when( runtimeContext.getResourceDefintion( "catalog name" ) ).thenReturn( catalogActionSeqRes );
 
@@ -496,8 +507,6 @@ public class MDXBaseComponentTest {
     PentahoSystem.registerObject( mdxConnection );
     PentahoSystem.registerPrimaryObjectFactory( objFactory );
     PentahoSessionHolder.setSession( session );
-
-    when( objFactory.get( any( Class.class ), anyString(), any( IPentahoSession.class ) ) ).thenReturn( mdxConnection );
 
     mdxBaseComponent.setRuntimeContext( runtimeContext );
     when( runtimeContext.getResourceDefintion( "catalog name" ) ).thenReturn( catalogActionSeqRes );
@@ -547,8 +556,6 @@ public class MDXBaseComponentTest {
     PentahoSystem.registerPrimaryObjectFactory( objFactory );
     PentahoSessionHolder.setSession( session );
 
-    when( objFactory.get( any( Class.class ), anyString(), any( IPentahoSession.class ) ) ).thenReturn( mdxConnection );
-
     mdxBaseComponent.setRuntimeContext( runtimeContext );
     when( runtimeContext.getResourceDefintion( "catalog name" ) ).thenReturn( catalogActionSeqRes );
 
@@ -597,8 +604,6 @@ public class MDXBaseComponentTest {
     PentahoSystem.registerPrimaryObjectFactory( objFactory );
     PentahoSessionHolder.setSession( session );
 
-    when( objFactory.get( any( Class.class ), anyString(), any( IPentahoSession.class ) ) ).thenReturn( mdxConnection );
-
     mdxBaseComponent.setRuntimeContext( runtimeContext );
     when( runtimeContext.getResourceDefintion( "catalog name" ) ).thenReturn( catalogActionSeqRes );
 
@@ -635,13 +640,12 @@ public class MDXBaseComponentTest {
     PentahoSystem.registerPrimaryObjectFactory( objFactory );
     PentahoSessionHolder.setSession( session );
 
-    when( objFactory.get( any( Class.class ), anyString(), any( IPentahoSession.class ) ) ).thenReturn( mdxConnection );
     IDBDatasourceService datasourceService = mock( IDBDatasourceService.class );
     when( objFactory.objectDefined( "IDBDatasourceService" ) ).thenReturn( true );
-    when( objFactory.get( any( Class.class ), eq( "IDBDatasourceService" ), any( IPentahoSession.class ) ) )
+    when( objFactory.get( any( Class.class ), eq( "IDBDatasourceService" ), nullable( IPentahoSession.class ) ) )
       .thenReturn( datasourceService );
     DataSource dataSource = mock( DataSource.class );
-    when( datasourceService.getDataSource( anyString() ) ).thenReturn( dataSource );
+    when( datasourceService.getDataSource( nullable( String.class ) ) ).thenReturn( dataSource );
 
     mdxBaseComponent.setRuntimeContext( runtimeContext );
     when( runtimeContext.getResourceDefintion( "catalog name" ) ).thenReturn( catalogActionSeqRes );
@@ -649,7 +653,7 @@ public class MDXBaseComponentTest {
     when( catalogActionSeqRes.getSourceType() ).thenReturn( IActionSequenceResource.URL_RESOURCE );
 
     MondrianCatalog mc = mock( MondrianCatalog.class );
-    doReturn( mc ).when( mdxBaseComponent ).getMondrianCatalog( anyString() );
+    doReturn( mc ).when( mdxBaseComponent ).getMondrianCatalog( nullable( String.class ) );
 
     // using the same prepared environment for several checks...
 
@@ -658,7 +662,7 @@ public class MDXBaseComponentTest {
     doReturn( true ).when( mdxBaseComponent ).fileExistsInRepository( "fileName" );
     mdxBaseComponent.getConnectionOrig();
     verify( mdxBaseComponent ).getMondrianCatalog( "solution:fileName" );
-    verify( mdxBaseComponent, times( 1 ) ).fileExistsInRepository( anyString() );
+    verify( mdxBaseComponent, times( 1 ) ).fileExistsInRepository( nullable( String.class ) );
 
     // if file exists in repository, then the "solution:" prefix should NOT be added,
     // and the file therefore should be read from file system further
@@ -666,18 +670,18 @@ public class MDXBaseComponentTest {
     doReturn( false ).when( mdxBaseComponent ).fileExistsInRepository( "fileName" );
     mdxBaseComponent.getConnectionOrig();
     verify( mdxBaseComponent ).getMondrianCatalog( "fileName" );
-    verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( anyString() );
+    verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( nullable( String.class ) );
 
     // if filename already starts from "solution:" prefix,
     // then no need to check file existence in repository
     when( catalogActionSeqRes.getAddress() ).thenReturn( "solution:fileName" );
     mdxBaseComponent.getConnectionOrig();
-    verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( anyString() );
+    verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( nullable( String.class ) );
 
     // same here: if the resource is http link, then no need to check it in repository
     when( catalogActionSeqRes.getAddress() ).thenReturn( "http:fileName" );
     mdxBaseComponent.getConnectionOrig();
-    verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( anyString() );
+    verify( mdxBaseComponent, times( 2 ) ).fileExistsInRepository( nullable( String.class ) );
   }
 
   @Test
@@ -690,7 +694,7 @@ public class MDXBaseComponentTest {
     when( objFactory.objectDefined( "IUnifiedRepository" ) ).thenReturn( true );
     when( objFactory.get( any( Class.class ), eq( "IUnifiedRepository" ), any( IPentahoSession.class ) ) )
       .thenReturn( repository );
-    doCallRealMethod().when( mdxBaseComponent ).fileExistsInRepository( anyString() );
+    doCallRealMethod().when( mdxBaseComponent ).fileExistsInRepository( nullable( String.class ) );
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( file ).when( repository ).getFile( "fileNameExisting" );
     doReturn( null ).when( repository ).getFile( "fileNameNonExisting" );

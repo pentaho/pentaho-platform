@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -38,7 +38,7 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class PentahoVersionCheckReflectHelperTest {
@@ -67,7 +67,7 @@ public class PentahoVersionCheckReflectHelperTest {
     List<String> results = new ArrayList<>();
     results.add( XML_TEXT );
     PentahoVersionCheckReflectHelper.logVersionCheck( results, mockLog );
-    verify( mockLog, times( 2 ) ).info( anyObject() );
+    verify( mockLog, times( 2 ) ).info( any() );
   }
 
   private void validateResult( String result ) {

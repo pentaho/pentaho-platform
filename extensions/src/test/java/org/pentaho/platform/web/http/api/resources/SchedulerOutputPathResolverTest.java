@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -28,9 +28,13 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rfellows on 9/23/15.
@@ -79,7 +83,7 @@ public class SchedulerOutputPathResolverTest {
     scheduleRequest.setOutputFile( outputFolder );
 
     RepositoryFile repoFile = mock( RepositoryFile.class );
-    when( repo.getFile( anyString() ) ).thenReturn( repoFile );
+    when( repo.getFile( nullable( String.class ) ) ).thenReturn( repoFile );
     when( repoFile.isFolder() ).thenReturn( true );
 
     schedulerOutputPathResolver = new SchedulerOutputPathResolver( scheduleRequest );
@@ -98,7 +102,7 @@ public class SchedulerOutputPathResolverTest {
     scheduleRequest.setOutputFile( outputFolder );
 
     RepositoryFile repoFile = mock( RepositoryFile.class );
-    when( repo.getFile( anyString() ) ).thenReturn( repoFile );
+    when( repo.getFile( nullable( String.class ) ) ).thenReturn( repoFile );
     when( repoFile.isFolder() ).thenReturn( false );
 
     schedulerOutputPathResolver = spy( new SchedulerOutputPathResolver( scheduleRequest ) );
@@ -120,7 +124,7 @@ public class SchedulerOutputPathResolverTest {
     scheduleRequest.setOutputFile( outputFolder );
 
     RepositoryFile repoFile = mock( RepositoryFile.class );
-    when( repo.getFile( anyString() ) ).thenReturn( repoFile );
+    when( repo.getFile( nullable( String.class ) ) ).thenReturn( repoFile );
     when( repoFile.isFolder() ).thenReturn( false );
 
     schedulerOutputPathResolver = spy( new SchedulerOutputPathResolver( scheduleRequest ) );

@@ -14,19 +14,11 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importer;
-
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +35,24 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogServi
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MondrianImportHandlerTest {
 
@@ -100,8 +110,8 @@ public class MondrianImportHandlerTest {
     MondrianImportHandler handler = new MondrianImportHandler( mimeTypes, aclImporter );
     handler.importFile( bundle );
     ArgumentCaptor<RepositoryFileAcl> captor = ArgumentCaptor.forClass( RepositoryFileAcl.class );
-    verify( aclImporter ).addCatalog( any( InputStream.class ), any( MondrianCatalog.class ), anyBoolean(), captor.capture(),
-        any( IPentahoSession.class ) );
+    verify( aclImporter ).addCatalog( or( any( InputStream.class ), eq( null) ), any( MondrianCatalog.class ), anyBoolean(), captor.capture(),
+        or( any( IPentahoSession.class ), eq( null) ) );
     assertNull( captor.getValue() );
   }
 
@@ -115,8 +125,8 @@ public class MondrianImportHandlerTest {
     MondrianImportHandler handler = new MondrianImportHandler( mimeTypes, aclImporter );
     handler.importFile( bundle );
     ArgumentCaptor<RepositoryFileAcl> captor = ArgumentCaptor.forClass( RepositoryFileAcl.class );
-    verify( aclImporter ).addCatalog( any( InputStream.class ), any( MondrianCatalog.class ), anyBoolean(), captor.capture(),
-        any( IPentahoSession.class ) );
+    verify( aclImporter ).addCatalog( or( any( InputStream.class ), eq( null) ), any( MondrianCatalog.class ), anyBoolean(), captor.capture(),
+      or( any( IPentahoSession.class ), eq( null) ) );
     assertEquals( acl, captor.getValue() );
   }
 
@@ -173,7 +183,7 @@ public class MondrianImportHandlerTest {
     MondrianImportHandler handler = new MondrianImportHandler( mimeTypes, mondrianImporter );
     handler.importFile( bundle );
     ArgumentCaptor<MondrianCatalog> mondrianCatalog = ArgumentCaptor.forClass( MondrianCatalog.class );
-    verify( mondrianImporter ).addCatalog( any( InputStream.class ), mondrianCatalog.capture(), anyBoolean(), any( IPentahoSession.class ) );
+    verify( mondrianImporter ).addCatalog( or( any( InputStream.class ), eq( null) ), mondrianCatalog.capture(), anyBoolean(), or( any( IPentahoSession.class ), eq( null) ) );
     assertTrue( mondrianCatalog.getValue().getDataSourceInfo().contains( OTHER_PARAMETR ) );
   }
 

@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IConfiguration;
 
 import java.util.ArrayList;
@@ -63,7 +63,6 @@ public class SystemConfigTest {
     when( config1.getId() ).thenReturn( "1" );
     when( config1.getProperties() ).thenReturn( props1 );
     when( config2.getId() ).thenReturn( "2" );
-    when( config2.getProperties() ).thenReturn( props2 );
 
     configs.add( config1 );
     configs.add( config2 );

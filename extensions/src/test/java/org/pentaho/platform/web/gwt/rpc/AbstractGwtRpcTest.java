@@ -29,17 +29,15 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.pentaho.platform.web.gwt.rpc.impl.GwtRpcUtil;
 import org.pentaho.platform.web.gwt.rpc.util.ThrowingSupplier;
 import org.pentaho.platform.web.servlet.GwtRpcProxyException;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -47,6 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.util.function.Function;
 
@@ -54,34 +53,28 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( {
-  RPCServletUtils.class,
-  RPC.class,
-  LogFactory.class,
-  AbstractGwtRpc.class,
-  GwtRpcUtil.class,
-  SerializationPolicyLoader.class } )
+@RunWith( MockitoJUnitRunner.class )
 public class AbstractGwtRpcTest {
 
   private final String HTTP_GWT_RPC_ATTRIBUTE = AbstractGwtRpc.HTTP_GWT_RPC_ATTRIBUTE;
 
   private static Log loggerMock;
+  private static MockedStatic<LogFactory> logFactoryMock;
 
   // region Helpers
   static class TestGwtRpc extends AbstractGwtRpc {
@@ -105,12 +98,15 @@ public class AbstractGwtRpcTest {
 
   @BeforeClass
   public static void beforeAll() {
-
-    mockStatic( LogFactory.class );
-
+    logFactoryMock = Mockito.mockStatic( LogFactory.class );
     loggerMock = mock( Log.class );
 
-    when( LogFactory.getLog( AbstractGwtRpc.class ) ).thenReturn( loggerMock );
+    logFactoryMock.when( () -> LogFactory.getLog( eq( AbstractGwtRpc.class ) ) ).thenAnswer( invocationOnMock -> loggerMock );
+  }
+
+  @AfterClass
+  public static void afterAll() {
+    logFactoryMock.close();
   }
 
   @After
@@ -193,17 +189,18 @@ public class AbstractGwtRpcTest {
 
   // region Request Payload
   @Test
-  public void testGetRequestPayloadFirstTime() throws ServletException, IOException {
+  public void testGetRequestPayloadFirstTime() {
     String requestPayload = "REQUEST_PAYLOAD";
     HttpServletRequest httpRequestMock = mock( HttpServletRequest.class );
     TestGwtRpc gwtRpc = new TestGwtRpc( httpRequestMock );
 
-    mockStatic( RPCServletUtils.class );
-    when( RPCServletUtils.readContentAsGwtRpc( any() ) ).thenReturn( requestPayload );
+    try ( MockedStatic<RPCServletUtils> rpcServletUtils = Mockito.mockStatic( RPCServletUtils.class ) ) {
+      rpcServletUtils.when( () -> RPCServletUtils.readContentAsGwtRpc( any() ) ).thenReturn( requestPayload );
 
-    String result = gwtRpc.getRequestPayload();
+      String result = gwtRpc.getRequestPayload();
 
-    assertEquals( requestPayload, result );
+      assertEquals( requestPayload, result );
+    }
   }
 
   @Test
@@ -212,57 +209,58 @@ public class AbstractGwtRpcTest {
     HttpServletRequest httpRequestMock = mock( HttpServletRequest.class );
     TestGwtRpc gwtRpc = new TestGwtRpc( httpRequestMock );
 
-    mockStatic( RPCServletUtils.class );
-    when( RPCServletUtils.readContentAsGwtRpc( any() ) ).thenReturn( requestPayload );
+    try ( MockedStatic<RPCServletUtils> rpcServletUtils = Mockito.mockStatic( RPCServletUtils.class ) ) {
+      rpcServletUtils.when( () -> RPCServletUtils.readContentAsGwtRpc( any() ) ).thenReturn( requestPayload );
 
-    gwtRpc.getRequestPayload();
+      gwtRpc.getRequestPayload();
 
-    String result = gwtRpc.getRequestPayload();
+      String result = gwtRpc.getRequestPayload();
 
-    assertEquals( requestPayload, result );
-
-    verifyStatic( times( 1 ) );
-    RPCServletUtils.readContentAsGwtRpc( any() );
+      assertEquals( requestPayload, result );
+      rpcServletUtils.verify( () -> RPCServletUtils.readContentAsGwtRpc( any() ) );
+      RPCServletUtils.readContentAsGwtRpc( any() );
+    }
   }
 
   @Test
-  public void testGetRequestPayloadLogsAndWrapsThrownIOException() throws ServletException, IOException {
+  public void testGetRequestPayloadLogsAndWrapsThrownIOException() {
     IOException error = mock( IOException.class );
     HttpServletRequest httpRequestMock = mock( HttpServletRequest.class );
     TestGwtRpc gwtRpc = new TestGwtRpc( httpRequestMock );
 
-    mockStatic( RPCServletUtils.class );
-    when( RPCServletUtils.readContentAsGwtRpc( any() ) ).thenThrow( error );
+    try ( MockedStatic<RPCServletUtils> rpcServletUtils = Mockito.mockStatic( RPCServletUtils.class ) ) {
+      rpcServletUtils.when( () -> RPCServletUtils.readContentAsGwtRpc( any() ) ).thenThrow( error );
 
-    try {
-      gwtRpc.getRequestPayload();
-
-      fail();
-    } catch ( GwtRpcProxyException ex ) {
-      assertEquals( error, ex.getCause() );
-      verify( loggerMock, times( 1 ) ).error( anyString(), eq( error ) );
+      try {
+        gwtRpc.getRequestPayload();
+        fail();
+      } catch ( GwtRpcProxyException ex ) {
+        assertEquals( error, ex.getCause() );
+        verify( loggerMock ).error( nullable( String.class ), eq( error ) );
+      }
     }
   }
 
   @Test
-  public void testGetRequestPayloadLogsAndWrapsThrownServletException() throws ServletException, IOException {
+  public void testGetRequestPayloadLogsAndWrapsThrownServletException() {
     ServletException error = mock( ServletException.class );
     HttpServletRequest httpRequestMock = mock( HttpServletRequest.class );
     TestGwtRpc gwtRpc = new TestGwtRpc( httpRequestMock );
 
-    mockStatic( RPCServletUtils.class );
-    when( RPCServletUtils.readContentAsGwtRpc( any() ) ).thenThrow( error );
+    try ( MockedStatic<RPCServletUtils> rpcServletUtils = Mockito.mockStatic( RPCServletUtils.class ) ) {
+      rpcServletUtils.when( () -> RPCServletUtils.readContentAsGwtRpc( any() ) ).thenThrow( error );
 
-    try {
-      gwtRpc.getRequestPayload();
+      try {
+        gwtRpc.getRequestPayload();
 
-      fail();
-    } catch ( GwtRpcProxyException ex ) {
-      assertEquals( error, ex.getCause() );
-      verify( loggerMock, times( 1 ) ).error( anyString(), eq( error ) );
+        fail();
+      } catch ( GwtRpcProxyException ex ) {
+        assertEquals( error, ex.getCause() );
+        verify( loggerMock ).error( nullable( String.class ), eq( error ) );
+      }
     }
   }
-  // endregion
+   //endregion
 
   // region Target
   @Test
@@ -294,7 +292,7 @@ public class AbstractGwtRpcTest {
 
     assertEquals( target, result );
 
-    verify( gwtRpcSpy, times( 1 ) ).resolveTarget();
+    verify( gwtRpcSpy ).resolveTarget();
   }
 
   @Test
@@ -314,7 +312,7 @@ public class AbstractGwtRpcTest {
       fail();
     } catch ( GwtRpcProxyException ex ) {
       assertEquals( error, ex );
-      verify( loggerMock, times( 1 ) ).error( anyString(), eq( ex ) );
+      verify( loggerMock ).error( nullable( String.class ), eq( ex ) );
     }
   }
 
@@ -349,12 +347,11 @@ public class AbstractGwtRpcTest {
     doReturn( requestPayload ).when( gwtRpcSpy ).getRequestPayload();
     doReturn( target ).when( gwtRpcSpy ).resolveTarget();
 
-    mockStatic( RPC.class );
-    when( RPC.decodeRequest( eq( requestPayload ), eq( null ), any() ) ).thenReturn( rpcRequest );
-
-    RPCRequest result = gwtRpcSpy.getRequest();
-
-    assertEquals( rpcRequest, result );
+    try ( MockedStatic<RPC> rpc = Mockito.mockStatic( RPC.class ) ) {
+      rpc.when( () -> RPC.decodeRequest( eq( requestPayload ), eq( null ), any() ) ).thenReturn( rpcRequest );
+      RPCRequest result = gwtRpcSpy.getRequest();
+      assertEquals( rpcRequest, result );
+    }
   }
 
   @Test
@@ -370,18 +367,19 @@ public class AbstractGwtRpcTest {
     doReturn( requestPayload ).when( gwtRpcSpy ).getRequestPayload();
     doReturn( target ).when( gwtRpcSpy ).resolveTarget();
 
-    mockStatic( RPC.class );
-    when( RPC.decodeRequest( eq( requestPayload ), eq( null ), any() ) ).thenReturn( rpcRequest );
+    try ( MockedStatic<RPC> rpc = Mockito.mockStatic( RPC.class ) ) {
+      rpc.when( () -> RPC.decodeRequest( eq( requestPayload ), eq( null ), any() ) ).thenReturn( rpcRequest );
 
-    gwtRpcSpy.getRequest();
+      gwtRpcSpy.getRequest();
 
-    verify( gwtRpcSpy, times( 1 ) ).getRequestPayload();
+      verify( gwtRpcSpy ).getRequestPayload();
 
-    RPCRequest result = gwtRpcSpy.getRequest();
+      RPCRequest result = gwtRpcSpy.getRequest();
 
-    verify( gwtRpcSpy, times( 1 ) ).getRequestPayload();
+      verify( gwtRpcSpy ).getRequestPayload();
 
-    assertEquals( rpcRequest, result );
+      assertEquals( rpcRequest, result );
+    }
   }
 
   @Test
@@ -406,7 +404,7 @@ public class AbstractGwtRpcTest {
 
     gwtRpcSpy.getRequest();
 
-    verify( gwtRpcSpy, times( 1 ) ).getRequestCore( requestPayload );
+    verify( gwtRpcSpy ).getRequestCore( requestPayload );
   }
 
   @Test
@@ -421,15 +419,16 @@ public class AbstractGwtRpcTest {
     doReturn( requestPayload ).when( gwtRpcSpy ).getRequestPayload();
     doReturn( target ).when( gwtRpcSpy ).resolveTarget();
 
-    mockStatic( RPC.class );
-    when( RPC.decodeRequest( eq( requestPayload ), eq( null ), any() ) ).thenThrow( error );
+    try ( MockedStatic<RPC> rpc = Mockito.mockStatic( RPC.class ) ) {
+      rpc.when( () -> RPC.decodeRequest( eq( requestPayload ), eq( null ), any() ) ).thenThrow( error );
 
-    try {
-      gwtRpcSpy.getRequest();
-      fail();
-    } catch ( GwtRpcProxyException ex ) {
-      assertEquals( error, ex.getCause() );
-      verify( loggerMock, times( 1 ) ).error( anyString(), eq( error ) );
+      try {
+        gwtRpcSpy.getRequest();
+        fail();
+      } catch ( GwtRpcProxyException ex ) {
+        assertEquals( error, ex.getCause() );
+        verify( loggerMock ).error( nullable( String.class ), eq( error ) );
+      }
     }
   }
 
@@ -445,15 +444,17 @@ public class AbstractGwtRpcTest {
     doReturn( requestPayload ).when( gwtRpcSpy ).getRequestPayload();
     doReturn( target ).when( gwtRpcSpy ).resolveTarget();
 
-    mockStatic( RPC.class );
-    when( RPC.decodeRequest( eq( requestPayload ), eq( null ), any() ) ).thenThrow( error );
+    try ( MockedStatic<RPC> rpc = Mockito.mockStatic( RPC.class ) ) {
+      rpc.when( () -> RPC.decodeRequest( eq( requestPayload ), eq( null ), any() ) ).thenThrow( error );
 
-    try {
-      gwtRpcSpy.getRequest();
-      fail();
-    } catch ( GwtRpcProxyException ex ) {
-      assertEquals( error, ex.getCause() );
-      verify( loggerMock, times( 1 ) ).error( anyString(), eq( error ) );
+
+      try {
+        gwtRpcSpy.getRequest();
+        fail();
+      } catch ( GwtRpcProxyException ex ) {
+        assertEquals( error, ex.getCause() );
+        verify( loggerMock ).error( nullable( String.class ), eq( error ) );
+      }
     }
   }
   // endregion
@@ -490,16 +491,17 @@ public class AbstractGwtRpcTest {
 
     SerializationPolicy defaultPolicyMock = mock( SerializationPolicy.class );
 
-    mockStatic( AbstractGwtRpc.class );
-    when( AbstractGwtRpc.getDefaultSerializationPolicy() ).thenReturn( defaultPolicyMock );
+    try ( MockedStatic<AbstractGwtRpc> rpc = Mockito.mockStatic( AbstractGwtRpc.class ) ) {
+      rpc.when( AbstractGwtRpc::getDefaultSerializationPolicy ).thenReturn( defaultPolicyMock );
 
-    TestGwtRpc gwtRpc = new TestGwtRpc( httpRequestMock );
+      TestGwtRpc gwtRpc = new TestGwtRpc( httpRequestMock );
 
-    SerializationPolicy result = gwtRpc.getSerializationPolicy( moduleBaseURL, strongName );
+      SerializationPolicy result = gwtRpc.getSerializationPolicy( moduleBaseURL, strongName );
 
-    assertEquals( defaultPolicyMock, result );
+      assertEquals( defaultPolicyMock, result );
 
-    verify( loggerMock, times( 1 ) ).error( anyString() );
+      verify( loggerMock ).error( anyString() );
+    }
   }
 
   @Test
@@ -512,16 +514,17 @@ public class AbstractGwtRpcTest {
 
     SerializationPolicy defaultPolicyMock = mock( SerializationPolicy.class );
 
-    mockStatic( AbstractGwtRpc.class );
-    when( AbstractGwtRpc.getDefaultSerializationPolicy() ).thenReturn( defaultPolicyMock );
+    try ( MockedStatic<AbstractGwtRpc> rpc = Mockito.mockStatic( AbstractGwtRpc.class ) ) {
+      rpc.when( AbstractGwtRpc::getDefaultSerializationPolicy ).thenReturn( defaultPolicyMock );
 
-    TestGwtRpc gwtRpc = new TestGwtRpc( httpRequestMock );
+      TestGwtRpc gwtRpc = new TestGwtRpc( httpRequestMock );
 
-    SerializationPolicy result = gwtRpc.getSerializationPolicy( moduleBaseURL, strongName );
+      SerializationPolicy result = gwtRpc.getSerializationPolicy( moduleBaseURL, strongName );
 
-    assertEquals( defaultPolicyMock, result );
+      assertEquals( defaultPolicyMock, result );
 
-    verify( loggerMock, times( 1 ) ).error( anyString(), any() );
+      verify( loggerMock ).error( nullable( String.class ), any( MalformedURLException.class ) );
+    }
   }
 
   @Test
@@ -542,13 +545,14 @@ public class AbstractGwtRpcTest {
     doReturn( appContextPath ).when( gwtRpcSpy ).getAppContextPath();
     doReturn( policyMock ).when( gwtRpcSpy ).loadSerializationPolicy( moduleContextPath, strongName );
 
-    mockStatic( GwtRpcUtil.class );
-    when( GwtRpcUtil.scrubWebAppRoot( modulePath, appContextPath ) ).thenReturn( modulePathScrubbed );
+    try ( MockedStatic<GwtRpcUtil> gwtRpcUtil = Mockito.mockStatic( GwtRpcUtil.class ) ) {
+      gwtRpcUtil.when( () -> GwtRpcUtil.scrubWebAppRoot( modulePath, appContextPath ) ).thenReturn( modulePathScrubbed );
 
-    gwtRpcSpy.getSerializationPolicy( moduleBaseURL, strongName );
+      gwtRpcSpy.getSerializationPolicy( moduleBaseURL, strongName );
 
-    verifyStatic( times( 1 ) );
-    GwtRpcUtil.scrubWebAppRoot( modulePath, appContextPath );
+      gwtRpcUtil.verify( () -> GwtRpcUtil.scrubWebAppRoot( modulePath, appContextPath ) );
+      GwtRpcUtil.scrubWebAppRoot( modulePath, appContextPath );
+    }
   }
 
   @Test
@@ -562,17 +566,18 @@ public class AbstractGwtRpcTest {
 
     SerializationPolicy defaultPolicyMock = mock( SerializationPolicy.class );
 
-    mockStatic( AbstractGwtRpc.class );
-    when( AbstractGwtRpc.getDefaultSerializationPolicy() ).thenReturn( defaultPolicyMock );
+    try ( MockedStatic<AbstractGwtRpc> rpc = Mockito.mockStatic( AbstractGwtRpc.class ) ) {
+      rpc.when( AbstractGwtRpc::getDefaultSerializationPolicy ).thenReturn( defaultPolicyMock );
 
-    TestGwtRpc gwtRpcSpy = spy( new TestGwtRpc( httpRequestMock ) );
-    doReturn( appContextPath ).when( gwtRpcSpy ).getAppContextPath();
+      TestGwtRpc gwtRpcSpy = spy( new TestGwtRpc( httpRequestMock ) );
+      doReturn( appContextPath ).when( gwtRpcSpy ).getAppContextPath();
 
-    SerializationPolicy result = gwtRpcSpy.getSerializationPolicy( moduleBaseURL, strongName );
+      SerializationPolicy result = gwtRpcSpy.getSerializationPolicy( moduleBaseURL, strongName );
 
-    assertEquals( defaultPolicyMock, result );
+      assertEquals( defaultPolicyMock, result );
 
-    verify( loggerMock, times( 1 ) ).error( anyString() );
+      verify( loggerMock ).error( anyString() );
+    }
   }
 
   @Test
@@ -608,16 +613,16 @@ public class AbstractGwtRpcTest {
 
     SerializationPolicy defaultPolicyMock = mock( SerializationPolicy.class );
 
-    mockStatic( AbstractGwtRpc.class );
-    when( AbstractGwtRpc.getDefaultSerializationPolicy() ).thenReturn( defaultPolicyMock );
+    try ( MockedStatic<AbstractGwtRpc> rpc = Mockito.mockStatic( AbstractGwtRpc.class ) ) {
+      rpc.when( AbstractGwtRpc::getDefaultSerializationPolicy ).thenReturn( defaultPolicyMock );
+      TestGwtRpc gwtRpcSpy = spy( new TestGwtRpc( httpRequestMock ) );
+      doReturn( appContextPath ).when( gwtRpcSpy ).getAppContextPath();
+      doReturn( null ).when( gwtRpcSpy ).loadSerializationPolicy( moduleContextPath, strongName );
 
-    TestGwtRpc gwtRpcSpy = spy( new TestGwtRpc( httpRequestMock ) );
-    doReturn( appContextPath ).when( gwtRpcSpy ).getAppContextPath();
-    doReturn( null ).when( gwtRpcSpy ).loadSerializationPolicy( moduleContextPath, strongName );
+      SerializationPolicy result = gwtRpcSpy.getSerializationPolicy( moduleBaseURL, strongName );
 
-    SerializationPolicy result = gwtRpcSpy.getSerializationPolicy( moduleBaseURL, strongName );
-
-    assertEquals( defaultPolicyMock, result );
+      assertEquals( defaultPolicyMock, result );
+    }
   }
   // endregion
 
@@ -627,30 +632,32 @@ public class AbstractGwtRpcTest {
 
     SerializationPolicy defaultPolicyMock = mock( SerializationPolicy.class );
 
-    mockStatic( RPC.class );
-    when( RPC.getDefaultSerializationPolicy() ).thenReturn( defaultPolicyMock );
+    try ( MockedStatic<RPC> rpc = Mockito.mockStatic( RPC.class ) ) {
+      rpc.when( RPC::getDefaultSerializationPolicy ).thenReturn( defaultPolicyMock );
 
-    SerializationPolicy result = AbstractGwtRpc.getDefaultSerializationPolicy();
+      SerializationPolicy result = AbstractGwtRpc.getDefaultSerializationPolicy();
 
-    assertEquals( defaultPolicyMock, result );
+      assertEquals( defaultPolicyMock, result );
+    }
   }
   // endregion
 
   // region static loadSerializationPolicyFromInputStream
   @Test
-  public void testLoadSerializationPolicyFromInputStreamSuccessfully() throws IOException, ParseException {
+  public void testLoadSerializationPolicyFromInputStreamSuccessfully() {
     String serializationPolicyFileName = "ABCDF12345.gwt.rpc";
     InputStream inputStreamMock = mock( InputStream.class );
     ThrowingSupplier<InputStream, IOException> inputStreamSupplier = () -> inputStreamMock;
     SerializationPolicy policyMock = mock( SerializationPolicy.class );
 
-    mockStatic( SerializationPolicyLoader.class );
-    when( SerializationPolicyLoader.loadFromStream( inputStreamMock, null ) ).thenReturn( policyMock );
+    try ( MockedStatic<SerializationPolicyLoader> serializationPolicyLoader = Mockito.mockStatic( SerializationPolicyLoader.class ) ) {
+      serializationPolicyLoader.when( () -> SerializationPolicyLoader.loadFromStream( inputStreamMock, null ) ).thenReturn( policyMock );
 
-    SerializationPolicy result =
-      AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
+      SerializationPolicy result =
+        AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
 
-    assertEquals( policyMock, result );
+      assertEquals( policyMock, result );
+    }
   }
 
   @Test
@@ -662,7 +669,7 @@ public class AbstractGwtRpcTest {
       AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
 
     assertNull( result );
-    verify( loggerMock, times( 1 ) ).error( anyString() );
+    verify( loggerMock ).error( nullable( String.class ) );
   }
 
   @Test
@@ -677,68 +684,68 @@ public class AbstractGwtRpcTest {
       AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
 
     assertNull( result );
-    verify( loggerMock, times( 1 ) ).error( anyString(), eq( error ) );
+    verify( loggerMock ).error( nullable( String.class ), eq( error ) );
   }
 
   @Test
   public void testLoadSerializationPolicyFromInputStreamLogsAndReturnsNullAndClosesStreamIfLoadThrowsIOException()
-    throws IOException, ParseException {
+    throws IOException {
 
     String serializationPolicyFileName = "ABCDF12345.gwt.rpc";
     InputStream inputStreamMock = mock( InputStream.class );
     ThrowingSupplier<InputStream, IOException> inputStreamSupplier = () -> inputStreamMock;
     IOException error = new IOException();
 
-    mockStatic( SerializationPolicyLoader.class );
-    when( SerializationPolicyLoader.loadFromStream( inputStreamMock, null ) ).thenThrow( error );
+    try ( MockedStatic<SerializationPolicyLoader> serializationPolicyLoader = Mockito.mockStatic( SerializationPolicyLoader.class ) ) {
+      serializationPolicyLoader.when( () -> SerializationPolicyLoader.loadFromStream( inputStreamMock, null ) ).thenThrow( error );
 
-    SerializationPolicy result =
-      AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
+      SerializationPolicy result =
+        AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
 
-    assertNull( result );
-    verify( loggerMock, times( 1 ) ).error( anyString(), eq( error ) );
-    verify( inputStreamMock, times( 1 ) ).close();
+      assertNull( result );
+      verify( loggerMock ).error( nullable( String.class ), eq( error ) );
+      verify( inputStreamMock ).close();
+    }
   }
 
   @Test
   public void testLoadSerializationPolicyFromInputStreamLogsAndReturnsNullAndClosesStreamIfLoadThrowsParseException()
-    throws IOException, ParseException {
+    throws IOException {
 
     String serializationPolicyFileName = "ABCDF12345.gwt.rpc";
     InputStream inputStreamMock = mock( InputStream.class );
     ThrowingSupplier<InputStream, IOException> inputStreamSupplier = () -> inputStreamMock;
     ParseException error = new ParseException( "ABC", 0 );
 
-    mockStatic( SerializationPolicyLoader.class );
-    when( SerializationPolicyLoader.loadFromStream( inputStreamMock, null ) ).thenThrow( error );
+    try ( MockedStatic<SerializationPolicyLoader> serializationPolicyLoader = Mockito.mockStatic( SerializationPolicyLoader.class ) ) {
+      serializationPolicyLoader.when( () -> SerializationPolicyLoader.loadFromStream( inputStreamMock, null ) ).thenThrow( error );
 
-    SerializationPolicy result =
-      AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
+      SerializationPolicy result =
+        AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
 
-    assertNull( result );
-    verify( loggerMock, times( 1 ) ).error( anyString(), eq( error ) );
-    verify( inputStreamMock, times( 1 ) ).close();
+      assertNull( result );
+      verify( loggerMock ).error( nullable( String.class ), eq( error ) );
+      verify( inputStreamMock ).close();
+    }
   }
 
   @Test
-  public void testLoadSerializationPolicyFromInputStreamDoesNotLogErrorAndClosesStreamWhenSuccessful()
-    throws IOException, ParseException {
-
+  public void testLoadSerializationPolicyFromInputStreamDoesNotLogErrorAndClosesStreamWhenSuccessful() throws IOException {
     String serializationPolicyFileName = "ABCDF12345.gwt.rpc";
     InputStream inputStreamMock = mock( InputStream.class );
     ThrowingSupplier<InputStream, IOException> inputStreamSupplier = () -> inputStreamMock;
     SerializationPolicy policy = mock( SerializationPolicy.class );
 
-    mockStatic( SerializationPolicyLoader.class );
-    when( SerializationPolicyLoader.loadFromStream( inputStreamMock, null ) ).thenReturn( policy );
+    try ( MockedStatic<SerializationPolicyLoader> serializationPolicyLoader = Mockito.mockStatic( SerializationPolicyLoader.class ) ) {
+      serializationPolicyLoader.when( () -> SerializationPolicyLoader.loadFromStream( inputStreamMock, null ) ).thenReturn( policy );
 
-    AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
+      AbstractGwtRpc.loadSerializationPolicyFromInputStream( inputStreamSupplier, serializationPolicyFileName );
 
+      verify( loggerMock, never() ).error( nullable( String.class ), any() );
+      verify( loggerMock, never() ).error( nullable( String.class ) );
 
-    verify( loggerMock, times( 0 ) ).error( anyString(), any() );
-    verify( loggerMock, times( 0 ) ).error( anyString() );
-
-    verify( inputStreamMock, times( 1 ) ).close();
+      verify( inputStreamMock ).close();
+    }
   }
   // endregion
 
@@ -760,7 +767,7 @@ public class AbstractGwtRpcTest {
   }
 
   @Test
-  public void testInvokeSuccessfully() throws NoSuchMethodException, SerializationException {
+  public void testInvokeSuccessfully() throws NoSuchMethodException {
     ServiceClassWhichDoesNotImplementInterface target = new ServiceClassWhichDoesNotImplementInterface();
     Method targetMethod = target.getClass().getMethod( "method", String.class );
     ClassLoader targetClassLoader = mock( ClassLoader.class );
@@ -779,16 +786,15 @@ public class AbstractGwtRpcTest {
     doReturn( targetMethod ).when( gwtRpcSpy ).getTargetMethod( target.getClass(), rpcRequest );
     doReturn( targetClassLoader ).when( gwtRpcSpy ).getTargetClassLoader();
     doReturn( rpcRequest ).when( gwtRpcSpy ).getRequest();
+    try ( MockedStatic<RPC> rpc = Mockito.mockStatic( RPC.class ) ) {
+      rpc.when( () -> RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy ) ).thenReturn( response );
 
-    mockStatic( RPC.class );
-    when( RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy ) ).thenReturn( response );
+      String result = gwtRpcSpy.invoke();
 
-    String result = gwtRpcSpy.invoke();
+      assertEquals( response, result );
 
-    assertEquals( response, result );
-
-    verifyStatic( times( 1 ) );
-    RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy );
+      rpc.verify( () -> RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy ) );
+    }
   }
 
   @Test
@@ -813,15 +819,16 @@ public class AbstractGwtRpcTest {
     doReturn( rpcRequest ).when( gwtRpcSpy ).getRequest();
 
     // Proven if the correct targetMethod is received at this call.
-    mockStatic( RPC.class );
-    when( RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy ) ).thenReturn( response );
+    try ( MockedStatic<RPC> rpc = Mockito.mockStatic( RPC.class ) ) {
+      rpc.when( () -> RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy ) ).thenReturn( response );
 
-    String result = gwtRpcSpy.invoke();
+      String result = gwtRpcSpy.invoke();
 
-    assertEquals( response, result );
+      assertEquals( response, result );
 
-    verifyStatic( times( 1 ) );
-    RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy );
+      rpc.verify( () -> RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy ) );
+      RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy );
+    }
   }
 
   @Test
@@ -838,7 +845,6 @@ public class AbstractGwtRpcTest {
 
     TestGwtRpc gwtRpcSpy = spy( new TestGwtRpc( httpRequestMock ) );
     doReturn( target ).when( gwtRpcSpy ).getTarget();
-    doReturn( targetClassLoader ).when( gwtRpcSpy ).getTargetClassLoader();
     doReturn( rpcRequest ).when( gwtRpcSpy ).getRequest();
 
     try {
@@ -846,13 +852,13 @@ public class AbstractGwtRpcTest {
       fail();
     } catch ( GwtRpcProxyException ex ) {
       assertTrue( ex.getCause() instanceof NoSuchMethodException );
-      verify( loggerMock, times( 1 ) ).error( anyString(), eq( ex.getCause() ) );
+      verify( loggerMock ).error( nullable( String.class ), eq( ex.getCause() ) );
     }
   }
 
   @Test
   public void testInvokeServiceClassLogsAndThrowsIfRPCThrowsSerializationException()
-    throws NoSuchMethodException, SerializationException {
+    throws NoSuchMethodException {
     ServiceClassWhichDoesNotImplementInterface target = new ServiceClassWhichDoesNotImplementInterface();
     Method targetMethod = target.getClass().getMethod( "method", String.class );
     ClassLoader targetClassLoader = mock( ClassLoader.class );
@@ -870,15 +876,17 @@ public class AbstractGwtRpcTest {
     doReturn( rpcRequest ).when( gwtRpcSpy ).getRequest();
 
     SerializationException error = new SerializationException();
-    mockStatic( RPC.class );
-    when( RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy ) ).thenThrow( error );
 
-    try {
-      gwtRpcSpy.invoke();
-      fail();
-    } catch ( GwtRpcProxyException ex ) {
-      assertEquals( error, ex.getCause() );
-      verify( loggerMock, times( 1 ) ).error( anyString(), eq( error ) );
+    try ( MockedStatic<RPC> rpc = Mockito.mockStatic( RPC.class ) ) {
+      rpc.when( () -> RPC.invokeAndEncodeResponse( target, targetMethod, rpcParameters, policy ) ).thenThrow( error );
+
+      try {
+        gwtRpcSpy.invoke();
+        fail();
+      } catch ( GwtRpcProxyException ex ) {
+        assertEquals( error, ex.getCause() );
+        verify( loggerMock ).error( nullable( String.class ), eq( error ) );
+      }
     }
   }
 
@@ -914,7 +922,7 @@ public class AbstractGwtRpcTest {
 
     gwtRpcSpy.invoke();
 
-    verify( gwtRpcSpy, times( 1 ) ).invokeCore( target, targetMethod, rpcRequest );
+    verify( gwtRpcSpy ).invokeCore( target, targetMethod, rpcRequest );
   }
 
   // endregion
@@ -935,10 +943,10 @@ public class AbstractGwtRpcTest {
 
     assertEquals( gwtRpcMock1, result1 );
 
-    verify( gwtRpcMock1, times( 1 ) ).setSerializationPolicyCache( cache );
+    verify( gwtRpcMock1 ).setSerializationPolicyCache( cache );
 
-    verify( httpRequestMock, Mockito.times( 1 ) ).getAttribute( HTTP_GWT_RPC_ATTRIBUTE );
-    verify( httpRequestMock, Mockito.times( 1 ) ).setAttribute( HTTP_GWT_RPC_ATTRIBUTE, gwtRpcMock1 );
+    verify( httpRequestMock ).getAttribute( HTTP_GWT_RPC_ATTRIBUTE );
+    verify( httpRequestMock ).setAttribute( HTTP_GWT_RPC_ATTRIBUTE, gwtRpcMock1 );
   }
 
   @Test
@@ -960,7 +968,7 @@ public class AbstractGwtRpcTest {
     assertEquals( gwtRpcMock1, result2 );
 
     verify( gwtRpcMock1, times( 0 ) ).setSerializationPolicyCache( cache );
-    verify( httpRequestMock, Mockito.times( 1 ) ).getAttribute( HTTP_GWT_RPC_ATTRIBUTE );
+    verify( httpRequestMock ).getAttribute( HTTP_GWT_RPC_ATTRIBUTE );
     verify( httpRequestMock, Mockito.times( 0 ) ).setAttribute( HTTP_GWT_RPC_ATTRIBUTE, gwtRpcMock1 );
   }
   // endregion

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -40,9 +40,8 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 import org.mockito.ArgumentMatcher;
 
@@ -54,10 +53,10 @@ public class SQLConnectionTest {
 
   @Before
   public void setUp() throws  ObjectFactoryException, DBDatasourceServiceException, SQLException {
-    doReturn( dataSource ).when( datasourceService ).getDataSource( anyString() );
+    doReturn( dataSource ).when( datasourceService ).getDataSource( nullable( String.class ) );
     doReturn( nativeConnection ).when( dataSource ).getConnection();
-    when( pentahoObjectFactory.objectDefined( anyString() ) ).thenReturn( true );
-    when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer(
+    when( pentahoObjectFactory.objectDefined( nullable( String.class ) ) ).thenReturn( true );
+    when( pentahoObjectFactory.get( this.anyClass(), nullable( String.class ), nullable( IPentahoSession.class ) ) ).thenAnswer(
         new Answer<Object>() {
           @Override
           public Object answer( InvocationOnMock invocation ) throws Throwable {
@@ -80,16 +79,16 @@ public class SQLConnectionTest {
     return argThat( new AnyClassMatcher() );
   }
 
-  private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
+  private class AnyClassMatcher implements ArgumentMatcher<Class<?>> {
 
     @Override
-    public boolean matches( final Object arg ) {
+    public boolean matches( final Class<?> arg ) {
       return true;
     }
   }
 
   @Test
-  public void testConnect() throws Exception {
+  public void testConnect() {
     SQLConnection sqlc = spy( new SQLConnection() );
     Properties props = new Properties();
 
@@ -99,10 +98,10 @@ public class SQLConnectionTest {
 
     props = new Properties();
     doNothing().when( sqlc ).close();
-    doNothing().when( sqlc ).init( anyString(), anyString(), anyString(), anyString() );
+    doNothing().when( sqlc ).init( nullable( String.class ), nullable( String.class ), nullable( String.class ), nullable( String.class ) );
     assertTrue( "NonPool Test", sqlc.connect( props ) );
 
-    doNothing().when( sqlc ).initDataSource( any( IDatabaseConnection.class ) );
+    doNothing().when( sqlc ).initDataSource( nullable( IDatabaseConnection.class ) );
 
     props.put( IPentahoConnection.CONNECTION_NAME, "test" );
     assertTrue( "Pool Test", sqlc.connect( props ) );

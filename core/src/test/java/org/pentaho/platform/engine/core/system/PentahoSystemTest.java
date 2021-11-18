@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,8 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -41,15 +39,16 @@ import org.pentaho.platform.util.logging.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertEquals;
@@ -95,12 +94,7 @@ public class PentahoSystemTest {
     final ISolutionEngine engine = mock( ISolutionEngine.class );
     pentahoObjectFactory = mock( IPentahoObjectFactory.class );
     when( pentahoObjectFactory.objectDefined( anyString() ) ).thenReturn( true );
-    when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer( new Answer<Object>() {
-      @Override
-      public ISolutionEngine answer( InvocationOnMock invocation ) throws Throwable {
-        return engine;
-      }
-    } );
+    when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer( invocation -> engine );
     PentahoSystem.registerObjectFactory( pentahoObjectFactory );
 
     ISessionStartupAction action = mock( ISessionStartupAction.class );
@@ -109,7 +103,7 @@ public class PentahoSystemTest {
 
     when( session.isAuthenticated() ).thenReturn( true );
 
-    PentahoSystem.setSessionStartupActions( Arrays.asList( action ) );
+    PentahoSystem.setSessionStartupActions( Collections.singletonList( action ) );
     PentahoSystem.sessionStartup( session, null );
 
     System.out.flush();
@@ -148,11 +142,12 @@ public class PentahoSystemTest {
       final Node testNodeImplementation = mock( Node.class );
       when( testNodeImplementation.getText() ).thenReturn( testXMLValue );
       when( testNode.selectSingleNode( eq( "@implementation" ) ) ).thenReturn( testNodeImplementation );
-      when( settingsService.getSystemSettings( eq( "xml-factories/factory-impl" ) ) ).thenReturn( new LinkedList() { {
+      when( settingsService.getSystemSettings( "xml-factories/factory-impl" ) ).thenReturn( new LinkedList<Node>() {
+        {
           add( testNode );
         } } );
     } else {
-      when( settingsService.getSystemSettings( eq( "xml-factories/factory-impl" ) ) ).thenReturn( new LinkedList() );
+      when( settingsService.getSystemSettings(  "xml-factories/factory-impl" ) ).thenReturn( new LinkedList<Node>() );
     }
     when( settingsService.getSystemSetting( anyString(), anyString() ) ).thenReturn( "" );
 
@@ -171,7 +166,7 @@ public class PentahoSystemTest {
     final IPentahoObjectReference pentahoObjectReference = mock( IPentahoObjectReference.class );
     when( pentahoObjectReference.getObject() ).thenReturn( systemConfig );
     when( objectFactory.getObjectReferences( eq( ISystemConfig.class ), any( IPentahoSession.class ),
-        any( Map.class ) ) ).thenReturn( new LinkedList() { {
+        nullable( Map.class ) ) ).thenReturn( new LinkedList() { {
             add( pentahoObjectReference );
           } } );
 
@@ -184,9 +179,9 @@ public class PentahoSystemTest {
     return argThat( new AnyClassMatcher() );
   }
 
-  private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
+  private static class AnyClassMatcher implements ArgumentMatcher<Class<?>> {
     @Override
-    public boolean matches( final Object arg ) {
+    public boolean matches( Class<?> arg ) {
       // We return true, because we want to acknowledge all class types
       return true;
     }

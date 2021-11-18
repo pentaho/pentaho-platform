@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.olap4j.OlapConnection;
 import org.pentaho.database.model.DatabaseConnection;
@@ -69,7 +68,6 @@ import org.pentaho.test.platform.utils.TestResourceLocation;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -78,12 +76,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings( "nls" )
 public class MondrianCatalogHelperIT {
@@ -134,13 +148,7 @@ public class MondrianCatalogHelperIT {
     booter.defineInstance( IOlapService.class, olapService );
     booter.defineInstance(
         "inlineModeling",
-        new MondrianSchemaAnnotator() {
-          @Override
-          public InputStream getInputStream(
-              final InputStream schemaInputStream, final InputStream annotationsInputStream ) {
-            return schemaInputStream;
-          }
-      } );
+      (MondrianSchemaAnnotator) ( schemaInputStream, annotationsInputStream ) -> schemaInputStream );
     booter.setSettingsProvider( new SystemSettings() );
     booter.start();
 
@@ -149,7 +157,7 @@ public class MondrianCatalogHelperIT {
   }
 
   @AfterClass
-  public static void tearDownClass() throws Exception {
+  public static void tearDownClass() {
   }
 
   @After
@@ -160,7 +168,7 @@ public class MondrianCatalogHelperIT {
   }
 
   private void initMondrianCatalogsCache() {
-    initMondrianCatalogsCache( new HashMap<String, MondrianCatalog>(  ) );
+    initMondrianCatalogsCache( new HashMap<>() );
   }
 
   private void initMondrianCatalogsCache( Map<String, MondrianCatalog> map ) {
@@ -176,7 +184,7 @@ public class MondrianCatalogHelperIT {
   }
 
   @Test( expected = MondrianCatalogServiceException.class )
-  public void addCatalog_WhenAlreadyExists() throws Exception {
+  public void addCatalog_WhenAlreadyExists() {
     MondrianCatalog cat = createTestCatalog();
     initMondrianCatalogsCache( Collections.singletonMap( CATALOG_NAME, cat ) );
 
@@ -204,7 +212,7 @@ public class MondrianCatalogHelperIT {
       helperSpy.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, true, null, session );
     } catch ( MondrianException e ) {
       // verifying the repository rolled back and the cache reinitialized
-      verify( repositoryHelper, times( 1 ) ).deleteHostedCatalog( anyString() );
+      verify( repositoryHelper, times( 1 ) ).deleteHostedCatalog( nullable( String.class ) );
       verify( helperSpy, times( 2 ) ).reInit( any( IPentahoSession.class ) );
     }
     helperSpy.addCatalog( new ByteArrayInputStream( new byte[0] ), cat, true, null, session );
@@ -244,12 +252,12 @@ public class MondrianCatalogHelperIT {
         eq( UnifiedRepositoryTestUtils.makeIdObject( steelWheelsFolderPath ) ),
         argThat( UnifiedRepositoryTestUtils.isLikeFile( UnifiedRepositoryTestUtils.makeFileObject( metadataPath ) ) ),
         argThat( UnifiedRepositoryTestUtils.hasData( UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/definition", "mondrian:/" + cat.getName() ), UnifiedRepositoryTestUtils.pathPropertyPair(
-            "/catalog/datasourceInfo", cat.getDataSourceInfo() ) ) ), anyString()
+            "/catalog/datasourceInfo", cat.getDataSourceInfo() ) ) ), nullable( String.class )
     );
 
     verify( repo ).createFile( eq( UnifiedRepositoryTestUtils.makeIdObject( steelWheelsFolderPath ) ),
         argThat( UnifiedRepositoryTestUtils.isLikeFile( UnifiedRepositoryTestUtils.makeFileObject( steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
-        any( IRepositoryFileData.class ), anyString() );
+        any( IRepositoryFileData.class ), nullable( String.class ) );
 
 
     // cache should be cleared for this schema only
@@ -258,7 +266,7 @@ public class MondrianCatalogHelperIT {
   }
 
   @Test
-  public void addCatalog_WithAcl() throws Exception {
+  public void addCatalog_WithAcl() {
     initMondrianCatalogsCache();
 
     MondrianCatalogHelper helperSpy = spy( helper );
@@ -267,7 +275,7 @@ public class MondrianCatalogHelperIT {
     doNothing().when( helperSpy ).init( session );
 
     doReturn( Collections.<MondrianCatalog>emptyList() ).when( helperSpy ).getCatalogs( session );
-    doReturn( null ).when( helperSpy ).makeSchema( anyString() );
+    doReturn( null ).when( helperSpy ).makeSchema( nullable( String.class ) );
 
     MondrianCatalog cat = createTestCatalog();
     RepositoryFileAcl acl = mock( RepositoryFileAcl.class );
@@ -290,7 +298,7 @@ public class MondrianCatalogHelperIT {
   }
 
   @Test
-  public void testImportSchemaWithSpaceDoesFlush() throws Exception {
+  public void testImportSchemaWithSpaceDoesFlush() {
     String TMP_FILE_PATH = File.separatorChar + "test" + File.separatorChar + "analysis" + File.separatorChar;
     String uploadDir = PentahoSystem.getApplicationContext().getSolutionPath( TMP_FILE_PATH );
     File mondrianFile = new File( uploadDir + File.separatorChar + "SuperBacon.mondrian.xml" );
@@ -319,7 +327,7 @@ public class MondrianCatalogHelperIT {
   }
 
   @Test
-  public void testImportSchema() throws Exception {
+  public void testImportSchema() {
     String TMP_FILE_PATH = File.separatorChar + "test" + File.separatorChar + "analysis" + File.separatorChar;
     String uploadDir = PentahoSystem.getApplicationContext().getSolutionPath( TMP_FILE_PATH );
     File mondrianFile = new File( uploadDir + File.separatorChar + "SampleData.mondrian.xml" );
@@ -346,10 +354,10 @@ public class MondrianCatalogHelperIT {
         argThat( UnifiedRepositoryTestUtils.isLikeFile( UnifiedRepositoryTestUtils.makeFileObject( metadataPath ) ) ), argThat(
                     UnifiedRepositoryTestUtils.hasData( UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/definition", "mondrian:/" + "SampleData" ),
                             UnifiedRepositoryTestUtils.pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ),
-        anyString() );
+        nullable( String.class ) );
     verify( repo ).createFile( eq( UnifiedRepositoryTestUtils.makeIdObject( sampleDataFolderPath ) ),
         argThat( UnifiedRepositoryTestUtils.isLikeFile( UnifiedRepositoryTestUtils.makeFileObject( sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml" ) ) ),
-        any( IRepositoryFileData.class ), anyString() );
+        any( IRepositoryFileData.class ), nullable( String.class ) );
 
     // cache should be cleared for this schema only
     verify( olapService, times( 1 ) ).getConnection( "SampleData",  null );
@@ -406,16 +414,14 @@ public class MondrianCatalogHelperIT {
     doReturn( true ).when( testCatalogs[ 0 ] ).isJndi();
     doReturn( false ).when( testCatalogs[ 1 ] ).isJndi();
     doReturn( Arrays.asList( testCatalogs ) ).when( helper ).getCatalogs( session );
-    Answer<String> answer = new Answer<String>() {
-      @Override public String answer( final InvocationOnMock invocation ) throws Throwable {
-        try {
-          return (String) invocation.callRealMethod();
-        } catch ( Exception throwable ) {
-          if ( throwable.getCause() instanceof ClassCastException ) {
-            fail( "should not get ClassCastException here " );
-          }
-          throw throwable;
+    Answer<String> answer = invocation -> {
+      try {
+        return (String) invocation.callRealMethod();
+      } catch ( Exception throwable ) {
+        if ( throwable.getCause() instanceof ClassCastException ) {
+          fail( "should not get ClassCastException here " );
         }
+        throw throwable;
       }
     };
     doAnswer( answer ).when( helper ).docAtUrlToString( any( String.class ), any( IPentahoSession.class ) );
@@ -459,7 +465,7 @@ public class MondrianCatalogHelperIT {
 
     helper.removeCatalog( "mondrian:/SteelWheels", session );
 
-    verify( repo ).deleteFile( eq( UnifiedRepositoryTestUtils.makeIdObject( steelWheelsFolderPath ) ), eq( true ), anyString() );
+    verify( repo ).deleteFile( eq( UnifiedRepositoryTestUtils.makeIdObject( steelWheelsFolderPath ) ), eq( true ), nullable( String.class ) );
 
     // cache should be cleared for this schema only
     verify( olapService, times( 1 ) ).getConnection( CATALOG_NAME, session );
@@ -467,7 +473,7 @@ public class MondrianCatalogHelperIT {
   }
 
   @Test
-  public void removeCatalog_WithAcl() throws Exception {
+  public void removeCatalog_WithAcl() {
     IPentahoSession session = mock( IPentahoSession.class );
 
     helper = spy( helper );
@@ -491,7 +497,7 @@ public class MondrianCatalogHelperIT {
   }
 
   @Test( expected = MondrianCatalogServiceException.class )
-  public void removeCatalog_WhenProhibited() throws Exception {
+  public void removeCatalog_WhenProhibited() {
     IPentahoSession session = mock( IPentahoSession.class );
 
     helper = spy( helper );
@@ -521,7 +527,7 @@ public class MondrianCatalogHelperIT {
     String schema = helperSpy.applyDSP( session, DATA_SOURCE_INFO_WITH_DSP, SCHEMA_MOCK );
     assertNotNull( schema );
     assertTrue( schema.contains( "REPLACE_TOKEN" ) );
-    verify( helperSpy, never() ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
+    verify( helperSpy, never() ).docAtUrlToString( nullable( String.class ), any( IPentahoSession.class ) );
 
   }
 
@@ -532,18 +538,18 @@ public class MondrianCatalogHelperIT {
     final String SCHEMA_MOCK = "Test Schema Mock " + replaceTemplate;
 
     MondrianCatalogHelper helperSpy = spy( helper );
-    doReturn( SCHEMA_MOCK ).when( helperSpy ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
+    doReturn( SCHEMA_MOCK ).when( helperSpy ).docAtUrlToString( nullable( String.class ), any( IPentahoSession.class ) );
 
     IPentahoSession session = new StandaloneSession( "admin" );
     String schema = helperSpy.applyDSP( session, DATA_SOURCE_INFO_WITHOUT_DSP, SCHEMA_MOCK );
     assertNotNull( schema );
-    verify( helperSpy ).docAtUrlToString( anyString(), any( IPentahoSession.class ) );
+    verify( helperSpy ).docAtUrlToString( nullable( String.class ), any( IPentahoSession.class ) );
     assertFalse( schema.contains( "REPLACE_TOKEN" ) );
 
   }
 
   @Test
-  public void testGetCatalog() throws Exception {
+  public void testGetCatalog() {
     String catalogName = "SteelWheels";
 
     MondrianCatalog cat = mock( MondrianCatalog.class );
@@ -553,7 +559,7 @@ public class MondrianCatalogHelperIT {
     MondrianCatalogHelper helperSpy = spy( helper );
     doReturn( true ).when( helperSpy ).hasAccess( eq( cat ), any( RepositoryFilePermission.class ) );
     doNothing().when( helperSpy ).init( session );
-    doReturn( cat ).when( helperSpy ).getCatalogFromCache( anyString(), eq( session ) );
+    doReturn( cat ).when( helperSpy ).getCatalogFromCache( nullable( String.class ), eq( session ) );
 
     assertEquals( helperSpy.getCatalog( catalogName, session ).getName(), catalogName );
     verify( helperSpy ).hasAccess( eq( cat ), any( RepositoryFilePermission.class ) );
@@ -565,14 +571,14 @@ public class MondrianCatalogHelperIT {
   public static class DynamicDSPTest implements DynamicSchemaProcessor {
 
     @Override
-    public String processSchema( String s, PropertyList propertylist ) throws Exception {
+    public String processSchema( String s, PropertyList propertylist ) {
       return s.replaceAll( "REPLACE_TEMPLATE", "REPLACE_TOKEN" );
     }
 
   }
 
   @Test
-  public void testGenerateInMemoryDatasourcesXml_NullEtcMondrianFolder() throws Exception {
+  public void testGenerateInMemoryDatasourcesXml_NullEtcMondrianFolder() {
     MondrianCatalogHelper helperMock = mock( MondrianCatalogHelper.class );
     IUnifiedRepository unifiedRepositoryMock = mock( IUnifiedRepository.class );
 

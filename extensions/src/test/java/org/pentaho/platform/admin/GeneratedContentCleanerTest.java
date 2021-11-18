@@ -14,17 +14,19 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.admin;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
@@ -38,9 +40,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rfellows on 10/19/15.
@@ -63,16 +70,21 @@ public class GeneratedContentCleanerTest {
     generatedContentCleaner.setAge( 1000 );
   }
 
+  @After
+  public void cleanup() {
+    Mockito.validateMockitoUsage();
+  }
+
   @Test
   public void testExecute_noFilesToDelete() throws Exception {
     final Date fixedDate = new SimpleDateFormat( "d/m/yyyy" ).parse( "1/1/2015" );
     RepositoryFile file =
       new RepositoryFile.Builder( DEFAULT_STRING, FILE_ID ).folder( false ).createdDate( fixedDate ).build();
     RepositoryFileTree tree = new RepositoryFileTree( file, null );
-    when( repo.getTree( anyString(), eq( -1 ), anyString(), eq( true ) ) ).thenReturn( tree );
+    lenient().when( repo.getTree( nullable( String.class ), eq( -1 ), nullable( String.class ), eq( true ) ) ).thenReturn( tree );
 
     generatedContentCleaner.execute();
-    verify( repo, never() ).deleteFile( any( Serializable.class ), eq( true ), anyString() );
+    verify( repo, never() ).deleteFile( any( Serializable.class ), eq( true ), nullable( String.class ) );
   }
 
   @Test
@@ -86,14 +98,14 @@ public class GeneratedContentCleanerTest {
     RepositoryFileTree childRepoFileTree = new RepositoryFileTree( file, null );
     RepositoryFileTree rootRepoFileTree =
       new RepositoryFileTree( folder, Collections.singletonList( childRepoFileTree ) );
-    when( repo.getTree( anyString(), eq( -1 ), anyString(), eq( true ) ) ).thenReturn( rootRepoFileTree );
+    when( repo.getTree( nullable( String.class ), eq( -1 ), nullable( String.class ), eq( true ) ) ).thenReturn( rootRepoFileTree );
 
-    Map<String, Serializable> values = new HashMap<String, Serializable>();
+    Map<String, Serializable> values = new HashMap<>();
     values.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, "lineageIdGoesHere" );
     when( repo.getFileMetadata( FILE_ID ) ).thenReturn( values );
 
     generatedContentCleaner.execute();
-    verify( repo ).deleteFile( eq( FILE_ID ), eq( true ), anyString() );
+    verify( repo ).deleteFile( eq( FILE_ID ), eq( true ), nullable( String.class ) );
     assertEquals( 1000, generatedContentCleaner.getAge() );
   }
 }

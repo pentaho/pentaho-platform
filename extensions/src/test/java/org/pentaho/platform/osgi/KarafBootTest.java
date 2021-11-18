@@ -27,7 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.osgi.framework.Constants;
 import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.platform.api.engine.IApplicationContext;
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -119,7 +119,7 @@ public class KarafBootTest {
 
   @Test
   public void testStartup_noKarafPortsYaml() throws Exception {
-    doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( anyString() );
+    doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( nullable( String.class ) );
     assertFalse( boot.startup( session ) );
   }
 
@@ -129,7 +129,7 @@ public class KarafBootTest {
     try {
       System.getProperties().remove( "karaf.home" );
 
-      doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( anyString() );
+      doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( nullable( String.class ) );
       boolean startup = boot.startup( session );
 
       // can't see if it started since we aren't actually starting up karaf, return value will be false
@@ -156,7 +156,7 @@ public class KarafBootTest {
             .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
       }
 
-      doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( anyString() );
+      doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( nullable( String.class ) );
       boolean startup = boot.startup( session );
 
       // can't see if it started since we aren't actually starting up karaf, return value will be false
@@ -193,7 +193,7 @@ public class KarafBootTest {
             .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
       }
 
-      doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( anyString() );
+      doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( nullable( String.class ) );
       boolean startup = boot.startup( session );
 
       // can't see if it started since we aren't actually starting up karaf, return value will be false
@@ -244,7 +244,7 @@ public class KarafBootTest {
             .write( "org.osgi.framework.system.packages.extra=prop".getBytes( Charset.forName( "UTF-8" ) ) );
       }
 
-      doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( anyString() );
+      doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( nullable( String.class ) );
       boolean startup = boot.startup( session );
 
       // can't see if it started since we aren't actually starting up karaf, return value will be false
@@ -273,7 +273,7 @@ public class KarafBootTest {
   @Test
   public void testStartup_withOsxAppRootDir() throws Exception {
     when( appContext.getSolutionRootPath() ).thenReturn( null );
-    doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( anyString() );
+    doReturn( karafInstance ).when( boot ).createAndProcessKarafInstance( nullable( String.class ) );
 
     System.setProperty( "osx.app.root.dir", tmpDir.getPath() );
     doReturn( KettleClientEnvironment.ClientType.KITCHEN ).when( boot ).getClientType();

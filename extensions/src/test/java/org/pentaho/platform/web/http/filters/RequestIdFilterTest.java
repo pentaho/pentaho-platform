@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -32,7 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +57,7 @@ public class RequestIdFilterTest {
     RequestIdFilter requestIdFilter = new RequestIdFilter( );
     requestIdFilter.doFilter( request, response, chain );
 
-    verify( response ).setHeader( eq(  RequestIdUtil.X_REQUEST_ID ), anyString() );
+    verify( response ).setHeader( eq(  RequestIdUtil.X_REQUEST_ID ), nullable( String.class ) );
   }
 
   @Test

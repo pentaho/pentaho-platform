@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -44,7 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.database.DatabaseDialectException;
 import org.pentaho.database.IDatabaseDialect;
 import org.pentaho.database.IDriverLocator;
@@ -91,7 +91,6 @@ public class PooledDatasourceHelperTest {
     when( driverLocatorDialect.getNativeDriver() ).thenReturn( nativeDriverName );
     when( driverLocatorDialect.getURLWithExtraOptions( connection ) ).thenReturn( jdbcUrl );
     when( plainDialect.getNativeDriver() ).thenReturn( nativeDriverName );
-    when( plainDialect.getURLWithExtraOptions( connection ) ).thenReturn( jdbcUrl );
   }
 
   @Test
@@ -107,7 +106,7 @@ public class PooledDatasourceHelperTest {
   }
 
   @Test
-  public void testCreatePoolNoDialectService() throws Exception {
+  public void testCreatePoolNoDialectService() {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
     final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );
     final DatabaseConnection con = new DatabaseConnection();
@@ -186,7 +185,7 @@ public class PooledDatasourceHelperTest {
   }
 
   @Test
-  public void testCreateDatasourceNoDialect() throws Exception {
+  public void testCreateDatasourceNoDialect() {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
 
     final DatabaseConnection con = new DatabaseConnection();
@@ -208,7 +207,7 @@ public class PooledDatasourceHelperTest {
   }
 
   @Test
-  public void testCreateDatasourceNoClassName() throws Exception {
+  public void testCreateDatasourceNoClassName() {
     DatabaseDialectService dialectService = new DatabaseDialectService( false );
     final DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper( dialectService.getDatabaseTypes() );
 
@@ -234,7 +233,7 @@ public class PooledDatasourceHelperTest {
   }
 
   @Test
-  public void testThatFailedDriverInitThrowsInConvert() throws DBDatasourceServiceException {
+  public void testThatFailedDriverInitThrowsInConvert() {
     when( ( (IDriverLocator) driverLocatorDialect ).initialize( nativeDriverName ) ).thenReturn( false );
     try {
       PooledDatasourceHelper.convert( connection, () -> dialectService );
@@ -268,7 +267,7 @@ public class PooledDatasourceHelperTest {
   }
 
   @Test
-  public void testDialectWithoutLocatorAndDriverNotPresent() throws DBDatasourceServiceException {
+  public void testDialectWithoutLocatorAndDriverNotPresent() {
     when( dialectService.getDialect( connection ) ).thenReturn( plainDialect );
     try {
       PooledDatasourceHelper.convert( connection, () -> dialectService );
@@ -280,7 +279,7 @@ public class PooledDatasourceHelperTest {
   }
 
   @Test
-  public void testDialectWithNoDriverSpecified() throws DBDatasourceServiceException {
+  public void testDialectWithNoDriverSpecified() {
     when( dialectService.getDialect( connection ) ).thenReturn( driverLocatorDialect );
     when( driverLocatorDialect.getNativeDriver() ).thenReturn( "" );
     try {
@@ -292,7 +291,7 @@ public class PooledDatasourceHelperTest {
   }
 
   @Test
-  public void testNoDialectService() throws DBDatasourceServiceException {
+  public void testNoDialectService() {
     try {
       PooledDatasourceHelper.convert( connection, () -> null );
       fail( "Expected an exception.  No dialect service." );

@@ -21,10 +21,12 @@ import com.google.gwt.user.server.rpc.SerializationPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.stubbing.Answer;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.IServiceConfig;
 import org.pentaho.platform.api.engine.IServiceManager;
@@ -34,8 +36,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginUtil;
 import org.pentaho.platform.web.gwt.rpc.util.ThrowingSupplier;
 import org.pentaho.platform.web.servlet.GwtRpcProxyException;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -49,31 +49,63 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
-import static org.powermock.api.mockito.PowerMockito.doAnswer;
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.eq;
 
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( {
-  PentahoSystem.class,
-  PluginUtil.class,
-  PentahoSessionHolder.class,
-  LogFactory.class,
-  AbstractGwtRpc.class
-} )
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
+
+@RunWith( MockitoJUnitRunner.class )
 public class PluginGwtRpcTest {
 
   private static Log loggerMock;
+  private static Log sessionLogger;
+  private static MockedStatic<LogFactory> logFactoryMock;
+  private static MockedStatic<PentahoSessionHolder> pentahoSessionHolderMock;
+
+  private MockedStatic<PentahoSystem> pentahoSystemMock;
+
+  @BeforeClass
+  public static void beforeAll() {
+    logFactoryMock = mockStatic( LogFactory.class );
+
+    loggerMock = mock( Log.class );
+    sessionLogger = mock( Log.class );
+
+    // Must use this lazy form of mocking `LogFactory.log` because the literal reference to
+    // PentahoSessionHolder.class would trigger that class's initialization, which would request for the logger.
+
+    logFactoryMock.when( () -> LogFactory.getLog( eq( PluginGwtRpc.class ) ) ).thenAnswer( invocationOnMock -> loggerMock );
+    logFactoryMock.when( () -> LogFactory.getLog( eq( PentahoSessionHolder.class ) ) ).thenAnswer( invocationOnMock -> sessionLogger );
+
+    // Static initialization of class requires LogFactory already configured, above.
+    pentahoSessionHolderMock = mockStatic( PentahoSessionHolder.class );
+    pentahoSessionHolderMock.when( PentahoSessionHolder::getSession ).thenReturn( null );
+  }
+
+  @After
+  public void afterEach() {
+    reset( loggerMock );
+    if ( pentahoSystemMock != null && !pentahoSystemMock.isClosed() ) {
+      pentahoSystemMock.close();
+    }
+  }
+
+  @AfterClass
+  public static void afterAll() {
+    logFactoryMock.close();
+    if ( pentahoSessionHolderMock != null && !pentahoSessionHolderMock.isClosed() ) {
+      pentahoSessionHolderMock.close();
+    }
+  }
 
   private IServiceManager setupServiceManagerMock( String serviceKey, Object serviceBean ) {
     IServiceManager serviceManagerMock = mock( IServiceManager.class );
@@ -81,8 +113,8 @@ public class PluginGwtRpcTest {
     IServiceConfig serviceConfigMock = mock( IServiceConfig.class );
     when( serviceManagerMock.getServiceConfig( "gwt", serviceKey ) ).thenReturn( serviceConfigMock );
 
-    mockStatic( PentahoSystem.class );
-    when( PentahoSystem.get( eq( IServiceManager.class ), any() ) ).thenReturn( serviceManagerMock );
+    pentahoSystemMock = mockStatic( PentahoSystem.class );
+    pentahoSystemMock.when( () -> PentahoSystem.get( eq( IServiceManager.class ), any() ) ).thenReturn( serviceManagerMock );
 
     try {
       when( serviceManagerMock.getServiceBean( "gwt", serviceKey ) ).thenReturn( serviceBean );
@@ -93,51 +125,6 @@ public class PluginGwtRpcTest {
     return serviceManagerMock;
   }
 
-  private HttpServletRequest setupHttpRequest( String pathInfo ) {
-    HttpServletRequest httpRequestMock = mock( HttpServletRequest.class );
-    when( httpRequestMock.getPathInfo() ).thenReturn( pathInfo );
-
-    return httpRequestMock;
-  }
-
-  @BeforeClass
-  public static void beforeAll() {
-
-    mockStatic( LogFactory.class );
-
-    // Must use this lazy form of mocking `LogFactory.log` because the literal reference to
-    // PentahoSessionHolder.class would trigger that class's initialization, which would request for the logger.
-
-    loggerMock = mock( Log.class );
-    Log sessionLogger = mock( Log.class );
-
-    doAnswer( (Answer<Log>) invocationOnMock -> {
-
-      Class<?> logClass = invocationOnMock.getArgumentAt( 0, Class.class );
-
-      if ( logClass.equals( PluginGwtRpc.class ) ) {
-        return loggerMock;
-      }
-
-      if ( logClass.equals( PentahoSessionHolder.class ) ) {
-        return sessionLogger;
-      }
-
-      return mock( Log.class );
-    } ).when( LogFactory.class );
-    LogFactory.getLog( any( Class.class ) );
-
-    // ---
-
-    // Static initialization of class requires LogFactory already configured, above.
-    mockStatic( PentahoSessionHolder.class );
-    when( PentahoSessionHolder.getSession() ).thenReturn( null );
-  }
-
-  @After
-  public void afterEach() {
-    reset( loggerMock );
-  }
 
   // region HttpRequest
   @Test
@@ -238,37 +225,32 @@ public class PluginGwtRpcTest {
     String strongName = "ABC";
 
     // ---
+    try ( MockedStatic<PluginUtil> pluginUtilMock = mockStatic( PluginUtil.class ) ) {
+      pluginUtilMock.when( () -> PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
 
-    mockStatic( PluginUtil.class );
-    when( PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
+      // ---
+      SerializationPolicy pluginPolicyMock = mock( SerializationPolicy.class );
 
-    // ---
+      pentahoSystemMock = mockStatic( PentahoSystem.class );
+      pentahoSystemMock.when( () -> PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMap() ) ).thenAnswer( invocationOnMock -> {
+        Map<String, String> props = (Map<String, String>) invocationOnMock.getArguments()[2];
+        if ( pluginId.equals( props.get( "plugin" ) ) ) {
+          return pluginPolicyMock;
+        }
+        fail();
+        return mock( SerializationPolicy.class );
+      } );
+      // ---
 
-    SerializationPolicy pluginPolicyMock = mock( SerializationPolicy.class );
+      HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
+      PluginGwtRpc gwtRpc = new PluginGwtRpc( httpRequestMock );
 
-    mockStatic( PentahoSystem.class );
-    doAnswer( invocationOnMock -> {
-      @SuppressWarnings( "unchecked" )
-      Map<String, String> props = (Map<String, String>) invocationOnMock.getArguments()[ 2 ];
-      if ( pluginId.equals( props.get( "plugin" ) ) ) {
-        return pluginPolicyMock;
-      }
+      SerializationPolicy result = gwtRpc.loadSerializationPolicy( moduleContextPath, strongName );
 
-      fail();
-      return mock( SerializationPolicy.class );
-    } ).when( PentahoSystem.class );
-    PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMapOf( String.class, String.class ) );
+      assertEquals( pluginPolicyMock, result );
+    }
 
-    // ---
-
-    HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
-    PluginGwtRpc gwtRpc = new PluginGwtRpc( httpRequestMock );
-
-    SerializationPolicy result = gwtRpc.loadSerializationPolicy( moduleContextPath, strongName );
-
-    assertEquals( pluginPolicyMock, result );
   }
-
   @Test
   public void testLoadSerializationPolicyLogsErrorAndReturnsNullIfNoPluginClassLoader() {
     String pathInfo = "/serviceName";
@@ -278,30 +260,29 @@ public class PluginGwtRpcTest {
 
     // ---
 
-    mockStatic( PluginUtil.class );
-    when( PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
+    try ( MockedStatic<PluginUtil> pluginUtilMock = mockStatic( PluginUtil.class ) ) {
+      pluginUtilMock.when( () -> PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
 
-    // ----
+      // ----
 
-    // There is no configured SP bean.
-    mockStatic( PentahoSystem.class );
-    when( PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMapOf( String.class, String.class ) ) )
-      .thenReturn( null );
+      // There is no configured SP bean.
+      pentahoSystemMock = mockStatic( PentahoSystem.class );
+      pentahoSystemMock.when( () -> PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMap() ) ) .thenReturn( null );
+      // ---
 
-    // ---
+      when( PluginUtil.getClassLoaderForService( moduleContextPath ) ).thenReturn( null );
 
-    when( PluginUtil.getClassLoaderForService( moduleContextPath ) ).thenReturn( null );
+      // ---
 
-    // ---
+      HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
+      PluginGwtRpc gwtRpc = new PluginGwtRpc( httpRequestMock );
 
-    HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
-    PluginGwtRpc gwtRpc = new PluginGwtRpc( httpRequestMock );
+      SerializationPolicy result = gwtRpc.loadSerializationPolicy( moduleContextPath, strongName );
 
-    SerializationPolicy result = gwtRpc.loadSerializationPolicy( moduleContextPath, strongName );
+      assertNull( result );
 
-    assertNull( result );
-
-    verify( loggerMock, times( 1 ) ).error( anyString() );
+      verify( loggerMock, times( 1 ) ).error( nullable( String.class ) );
+    }
   }
 
   @Test
@@ -314,40 +295,40 @@ public class PluginGwtRpcTest {
 
     // ---
 
-    mockStatic( PluginUtil.class );
-    when( PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
+    try ( MockedStatic<PluginUtil> pluginUtilMock = mockStatic( PluginUtil.class ) ) {
+      pluginUtilMock.when( () -> PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
 
-    // ----
+      // ----
 
-    // There is no configured SP bean.
-    mockStatic( PentahoSystem.class );
-    when( PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMapOf( String.class, String.class ) ) )
-      .thenReturn( null );
+      // There is no configured SP bean.
+      pentahoSystemMock = mockStatic( PentahoSystem.class );
+      pentahoSystemMock.when( () -> PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMap() ) ) .thenReturn( null );
 
-    // ---
+      // ---
 
-    ClassLoader pluginClassLoader = mock( ClassLoader.class );
-    when( PluginUtil.getClassLoaderForService( moduleContextPath ) ).thenReturn( pluginClassLoader );
+      ClassLoader pluginClassLoader = mock( ClassLoader.class );
+      when( PluginUtil.getClassLoaderForService( moduleContextPath ) ).thenReturn( pluginClassLoader );
 
-    // ---
+      // ---
 
-    // No serialization policy resource found.
-    IPluginResourceLoader resLoaderMock = mock( IPluginResourceLoader.class );
-    when( resLoaderMock.findResources( pluginClassLoader, serializationPolicyFilename ) )
-      .thenReturn( Collections.emptyList() );
+      // No serialization policy resource found.
+      IPluginResourceLoader resLoaderMock = mock( IPluginResourceLoader.class );
+      when( resLoaderMock.findResources( pluginClassLoader, serializationPolicyFilename ) )
+        .thenReturn( Collections.emptyList() );
 
-    when( PentahoSystem.get( eq( IPluginResourceLoader.class ), eq( null ) ) ).thenReturn( resLoaderMock );
+      when( PentahoSystem.get( eq( IPluginResourceLoader.class ), eq( null ) ) ).thenReturn( resLoaderMock );
 
-    // ---
+      // ---
 
-    HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
-    PluginGwtRpc gwtRpc = new PluginGwtRpc( httpRequestMock );
+      HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
+      PluginGwtRpc gwtRpc = new PluginGwtRpc( httpRequestMock );
 
-    SerializationPolicy result = gwtRpc.loadSerializationPolicy( moduleContextPath, strongName );
+      SerializationPolicy result = gwtRpc.loadSerializationPolicy( moduleContextPath, strongName );
 
-    assertNull( result );
+      assertNull( result );
 
-    verify( loggerMock, times( 1 ) ).error( anyString() );
+      verify( loggerMock, times( 1 ) ).error( nullable( String.class ) );
+    }
   }
 
   @Test
@@ -363,66 +344,69 @@ public class PluginGwtRpcTest {
 
     // ---
 
-    mockStatic( PluginUtil.class );
-    when( PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
+    try ( MockedStatic<PluginUtil> pluginUtilMock = mockStatic( PluginUtil.class ) ) {
+      pluginUtilMock.when( () -> PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
 
-    // ----
+      // ----
 
-    // There is no configured SP bean.
-    mockStatic( PentahoSystem.class );
-    when( PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMapOf( String.class, String.class ) ) )
-      .thenReturn( null );
+      // There is no configured SP bean.
+      pentahoSystemMock = mockStatic( PentahoSystem.class );
+      pentahoSystemMock.when( () -> PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMap() ) )
+         .thenReturn( null );
 
-    // ---
+      // ---
 
-    ClassLoader pluginClassLoader = mock( ClassLoader.class );
-    when( PluginUtil.getClassLoaderForService( moduleContextPath ) ).thenReturn( pluginClassLoader );
+      ClassLoader pluginClassLoader = mock( ClassLoader.class );
+      when( PluginUtil.getClassLoaderForService( moduleContextPath ) ).thenReturn( pluginClassLoader );
 
-    // ---
+      // ---
 
-    // More than one serialization policy resource found.
-    IPluginResourceLoader resLoaderMock = mock( IPluginResourceLoader.class );
-    when( resLoaderMock.findResources( pluginClassLoader, policyFilename ) )
-      .thenReturn( Arrays.asList( policy1Url, policy2Url ) );
+      // More than one serialization policy resource found.
+      IPluginResourceLoader resLoaderMock = mock( IPluginResourceLoader.class );
+      when( resLoaderMock.findResources( pluginClassLoader, policyFilename ) )
+        .thenReturn( Arrays.asList( policy1Url, policy2Url ) );
 
-    when( PentahoSystem.get( eq( IPluginResourceLoader.class ), eq( null ) ) ).thenReturn( resLoaderMock );
+      when( PentahoSystem.get( eq( IPluginResourceLoader.class ), eq( null ) ) ).thenReturn( resLoaderMock );
 
-    // ---
+      // ---
 
-    InputStream pluginPolicyInputStreamMock = mock( InputStream.class );
+      InputStream pluginPolicyInputStreamMock = mock( InputStream.class );
 
-    // Spying requires a non-final class. Lambda expression is not suitable.
-    @SuppressWarnings( "Convert2Lambda" )
-    ThrowingSupplier<InputStream, IOException> pluginPolicyInputStreamSupplierSpy =
-      spy( new ThrowingSupplier<InputStream, IOException>() {
-        @Override public InputStream get() {
-          return pluginPolicyInputStreamMock;
-        }
-      } );
+      // Spying requires a non-final class. Lambda expression is not suitable.
+      @SuppressWarnings( "Convert2Lambda" )
+      ThrowingSupplier<InputStream, IOException> pluginPolicyInputStreamSupplierSpy =
+        spy( new ThrowingSupplier<InputStream, IOException>() {
+          @Override
+          public InputStream get() {
+            return pluginPolicyInputStreamMock;
+          }
+        } );
 
-    // ---
+      // ---
 
-    SerializationPolicy pluginPolicyMock = mock( SerializationPolicy.class );
-    mockStatic( AbstractGwtRpc.class );
-    when( AbstractGwtRpc.loadSerializationPolicyFromInputStream( pluginPolicyInputStreamSupplierSpy, policyFilename ) )
-      .thenReturn( pluginPolicyMock );
+      SerializationPolicy pluginPolicyMock = mock( SerializationPolicy.class );
+      try ( MockedStatic<AbstractGwtRpc> abstractGwtRpcMock = mockStatic( AbstractGwtRpc.class ) ) {
+        abstractGwtRpcMock.when( () -> AbstractGwtRpc.loadSerializationPolicyFromInputStream( pluginPolicyInputStreamSupplierSpy, policyFilename ) )
+          .thenReturn( pluginPolicyMock );
 
-    // ---
+        // ---
 
-    HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
-    PluginGwtRpc gwtRpcSpy = spy( new PluginGwtRpc( httpRequestMock ) );
+        HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
+        PluginGwtRpc gwtRpcSpy = spy( new PluginGwtRpc( httpRequestMock ) );
 
-    doReturn( pluginPolicyInputStreamSupplierSpy ).when( gwtRpcSpy ).getInputStreamSupplier( policy1Url );
+        doReturn( pluginPolicyInputStreamSupplierSpy ).when( gwtRpcSpy ).getInputStreamSupplier( policy1Url );
 
-    // ---
+        // ---
 
-    SerializationPolicy result = gwtRpcSpy.loadSerializationPolicy( moduleContextPath, strongName );
+        SerializationPolicy result = gwtRpcSpy.loadSerializationPolicy( moduleContextPath, strongName );
 
-    // ---
+        // ---
 
-    assertEquals( pluginPolicyMock, result );
+        assertEquals( pluginPolicyMock, result );
 
-    verify( loggerMock, times( 1 ) ).warn( anyString() );
+        verify( loggerMock, times( 1 ) ).warn( nullable( String.class ) );
+      }
+    }
   }
 
   @Test
@@ -436,68 +420,77 @@ public class PluginGwtRpcTest {
 
     // ---
 
-    mockStatic( PluginUtil.class );
-    when( PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
+    try ( MockedStatic<PluginUtil> pluginUtilMock = mockStatic( PluginUtil.class ) ) {
+      pluginUtilMock.when( () -> PluginUtil.getPluginIdFromPath( moduleContextPath ) ).thenReturn( pluginId );
 
-    // ----
+      // ----
 
-    // There is no configured SP bean.
-    mockStatic( PentahoSystem.class );
-    when( PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMapOf( String.class, String.class ) ) )
-      .thenReturn( null );
+      // There is no configured SP bean.
+      pentahoSystemMock = mockStatic( PentahoSystem.class );
+      pentahoSystemMock.when( () -> PentahoSystem.get( eq( SerializationPolicy.class ), eq( null ), anyMap() ) )
+        .thenReturn( null );
 
-    // ---
+      // ---
 
-    ClassLoader pluginClassLoader = mock( ClassLoader.class );
-    when( PluginUtil.getClassLoaderForService( moduleContextPath ) ).thenReturn( pluginClassLoader );
+      ClassLoader pluginClassLoader = mock( ClassLoader.class );
+      when( PluginUtil.getClassLoaderForService( moduleContextPath ) ).thenReturn( pluginClassLoader );
 
-    // ---
+      // ---
 
-    // More than one serialization policy resource found.
-    IPluginResourceLoader resLoaderMock = mock( IPluginResourceLoader.class );
-    when( resLoaderMock.findResources( pluginClassLoader, policyFilename ) )
-      .thenReturn( Collections.singletonList( policy1Url ) );
+      // More than one serialization policy resource found.
+      IPluginResourceLoader resLoaderMock = mock( IPluginResourceLoader.class );
+      when( resLoaderMock.findResources( pluginClassLoader, policyFilename ) )
+        .thenReturn( Collections.singletonList( policy1Url ) );
 
-    when( PentahoSystem.get( eq( IPluginResourceLoader.class ), eq( null ) ) ).thenReturn( resLoaderMock );
+      when( PentahoSystem.get( eq( IPluginResourceLoader.class ), eq( null ) ) ).thenReturn( resLoaderMock );
 
-    // ---
+      // ---
 
-    InputStream pluginPolicyInputStreamMock = mock( InputStream.class );
+      InputStream pluginPolicyInputStreamMock = mock( InputStream.class );
 
-    // Spying requires a non-final class. Lambda expression is not suitable.
-    @SuppressWarnings( "Convert2Lambda" )
-    ThrowingSupplier<InputStream, IOException> pluginPolicyInputStreamSupplierSpy =
-      spy( new ThrowingSupplier<InputStream, IOException>() {
-        @Override public InputStream get() {
-          return pluginPolicyInputStreamMock;
-        }
-      } );
+      // Spying requires a non-final class. Lambda expression is not suitable.
+      @SuppressWarnings( "Convert2Lambda" )
+      ThrowingSupplier<InputStream, IOException> pluginPolicyInputStreamSupplierSpy =
+        spy( new ThrowingSupplier<InputStream, IOException>() {
+          @Override
+          public InputStream get() {
+            return pluginPolicyInputStreamMock;
+          }
+        } );
 
-    // ---
+      // ---
 
-    SerializationPolicy pluginPolicyMock = mock( SerializationPolicy.class );
-    mockStatic( AbstractGwtRpc.class );
-    when( AbstractGwtRpc.loadSerializationPolicyFromInputStream( pluginPolicyInputStreamSupplierSpy, policyFilename ) )
-      .thenReturn( pluginPolicyMock );
+      SerializationPolicy pluginPolicyMock = mock( SerializationPolicy.class );
+      try ( MockedStatic<AbstractGwtRpc> abstractGwtRpcMock = mockStatic( AbstractGwtRpc.class ) ) {
+        abstractGwtRpcMock.when( () -> AbstractGwtRpc.loadSerializationPolicyFromInputStream( pluginPolicyInputStreamSupplierSpy, policyFilename ) )
+          .thenReturn( pluginPolicyMock );
+        // ---
 
-    // ---
+        HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
+        PluginGwtRpc gwtRpcSpy = spy( new PluginGwtRpc( httpRequestMock ) );
 
-    HttpServletRequest httpRequestMock = setupHttpRequest( pathInfo );
-    PluginGwtRpc gwtRpcSpy = spy( new PluginGwtRpc( httpRequestMock ) );
+        doReturn( pluginPolicyInputStreamSupplierSpy ).when( gwtRpcSpy ).getInputStreamSupplier( policy1Url );
 
-    doReturn( pluginPolicyInputStreamSupplierSpy ).when( gwtRpcSpy ).getInputStreamSupplier( policy1Url );
+        // ---
 
-    // ---
+        SerializationPolicy result = gwtRpcSpy.loadSerializationPolicy( moduleContextPath, strongName );
 
-    SerializationPolicy result = gwtRpcSpy.loadSerializationPolicy( moduleContextPath, strongName );
+        // ---
 
-    // ---
+        assertEquals( pluginPolicyMock, result );
 
-    assertEquals( pluginPolicyMock, result );
-
-    verify( loggerMock, times( 0 ) ).error( anyString() );
-    verify( loggerMock, times( 0 ) ).warn( anyString() );
+        verify( loggerMock, times( 0 ) ).error( nullable( String.class ) );
+        verify( loggerMock, times( 0 ) ).warn( nullable( String.class ) );
+      }
+    }
   }
 
   // endregion
+
+  private HttpServletRequest setupHttpRequest( String pathInfo ) {
+    HttpServletRequest httpRequestMock = mock( HttpServletRequest.class );
+    when( httpRequestMock.getPathInfo() ).thenReturn( pathInfo );
+
+    return httpRequestMock;
+  }
 }

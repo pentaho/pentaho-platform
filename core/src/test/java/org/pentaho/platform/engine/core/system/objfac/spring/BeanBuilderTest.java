@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -34,30 +34,34 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.when;
 
 public class BeanBuilderTest {
   @Test
   public void testGetObjectWithoutDampeningTimeout() throws Exception {
     IPentahoObjectFactory pentahoObjectFactory = mock( IPentahoObjectFactory.class );
     ISystemConfig systemConfig = mock( ISystemConfig.class );
-    doReturn( systemConfig ).when( pentahoObjectFactory ).get( eq( ISystemConfig.class ), any( IPentahoSession.class ) );
+    doReturn( systemConfig ).when( pentahoObjectFactory ).get( eq( ISystemConfig.class ), nullable( IPentahoSession.class ) );
     PentahoSystem.registerObjectFactory( pentahoObjectFactory );
 
     final IPentahoObjectReference objectReference = mock( IPentahoObjectReference.class );
     when( pentahoObjectFactory.objectDefined( eq( BeanTestInterface.class ) ) ).thenReturn( true );
-    when( pentahoObjectFactory.getObjectReferences( eq( BeanTestInterface.class ), any( IPentahoSession.class ), any( Map.class ) ) )
-        .thenReturn( null, new ArrayList<IPentahoObjectReference>() { { add( objectReference ); } } );
+    when( pentahoObjectFactory.getObjectReferences( eq( BeanTestInterface.class ), nullable( IPentahoSession.class ), nullable( Map.class ) ) )
+      .thenReturn( null, new ArrayList<IPentahoObjectReference>() {
+        {
+          add( objectReference );
+        }
+      } );
     final int testValue = 5;
-    doReturn( new BeanTestInterface() {
-      @Override public int testMethod() {
-        return testValue;
-      }
-    } ).when( objectReference ).getObject();
+    doReturn( (BeanTestInterface) () -> testValue ).when( objectReference ).getObject();
 
     BeanBuilder beanBuilder = new BeanBuilder();
     beanBuilder.setType( BeanTestInterface.class.getName() );
-    beanBuilder.setAttributes( new HashMap<String, String>() );
+    beanBuilder.setAttributes( new HashMap<>() );
 
     Object object = beanBuilder.getObject();
 

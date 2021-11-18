@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,14 +23,15 @@ package org.pentaho.platform.plugin.services.security.userrole.ldap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.LdapUserSearch;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rfellows on 10/30/15.
@@ -43,9 +44,9 @@ public class DefaultLdapUserDetailsServiceTest {
   @Mock ITenantedPrincipleNameResolver usernameUtils;
 
   @Test
-  public void testLoadUserByUsername() throws Exception {
+  public void testLoadUserByUsername() {
     DefaultLdapUserDetailsService service = spy( new DefaultLdapUserDetailsService( userSearch, authPop, usernameUtils ) );
-    when( usernameUtils.getPrincipleName( anyString() ) ).thenReturn( "admin" );
+    when( usernameUtils.getPrincipleName( nullable( String.class ) ) ).thenReturn( "admin" );
     try {
       service.loadUserByUsername( "JOE" );
     } catch ( NullPointerException npe ) {

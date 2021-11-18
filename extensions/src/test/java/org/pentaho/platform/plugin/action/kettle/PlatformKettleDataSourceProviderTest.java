@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2020 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2021 Hitachi Vantara..  All rights reserved.
  */
 
 
@@ -20,39 +20,40 @@ package org.pentaho.platform.plugin.action.kettle;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.di.core.database.DataSourceProviderInterface;
 import org.pentaho.platform.api.data.IPooledDatasourceService;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.sql.DataSource;
 import java.util.UUID;
 
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( PlatformKettleDataSourceProvider.class )
+@RunWith( MockitoJUnitRunner.class )
 public class PlatformKettleDataSourceProviderTest {
 
   @Test
   public void testInvalidateNamedDataSource() throws Exception {
-    DataSourceProviderInterface dsp = mock( PlatformKettleDataSourceProvider.class );
-
-    String namedDataSource = UUID.randomUUID().toString();
-
-    // Mock objects
     IPooledDatasourceService service = mock( IPooledDatasourceService.class );
     DataSource dataSource = mock( DataSource.class );
-    doReturn( service ).when( dsp, "getService", IPooledDatasourceService.class );
+    String namedDataSource = UUID.randomUUID().toString();
     when( service.getDataSource( namedDataSource ) ).thenReturn( dataSource );
-    when( dsp.invalidateNamedDataSource( namedDataSource, DataSourceProviderInterface.DatasourceType.POOLED ) )
-      .thenCallRealMethod();
 
-    dsp.invalidateNamedDataSource( namedDataSource, DataSourceProviderInterface.DatasourceType.POOLED );
-    Mockito.verify( service, Mockito.times( 1 ) ).clearDataSource( namedDataSource );
+    try ( MockedStatic<PentahoSystem> pentahoSystem = Mockito.mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.get( eq( IPooledDatasourceService.class ), nullable( IPentahoSession.class) ) ).thenReturn( service );
+      DataSourceProviderInterface dsp = mock( PlatformKettleDataSourceProvider.class );
+      when( dsp.invalidateNamedDataSource( namedDataSource, DataSourceProviderInterface.DatasourceType.POOLED ) )
+        .thenCallRealMethod();
+      dsp.invalidateNamedDataSource( namedDataSource, DataSourceProviderInterface.DatasourceType.POOLED );
+      Mockito.verify( service, Mockito.times( 1 ) ).clearDataSource( namedDataSource );
+    }
   }
 }

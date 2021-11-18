@@ -14,13 +14,13 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.repository2.unified.webservices;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,14 +56,14 @@ public class RepositoryFileTreeAdapterTest extends TestCase {
 
     IUnifiedRepository unifiedRepository = mock( IUnifiedRepository.class );
     PentahoSystem.registerObject( unifiedRepository );
-    RepositoryFileAcl acl = new RepositoryFileAcl.Builder("admin").build();
-    when( unifiedRepository.getAcl( anyString() )).thenReturn( acl );
-    
+    RepositoryFileAcl acl = new RepositoryFileAcl.Builder( "admin" ).build();
+    when( unifiedRepository.getAcl( anyString() ) ).thenReturn( acl );
+
     IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
     when( mockRepositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
     when( mockRepositoryVersionManager.isVersionCommentEnabled( anyString() ) ).thenReturn( false );
     JcrRepositoryFileUtils.setRepositoryVersionManager( mockRepositoryVersionManager );
-    
+
     // file tree with empty children
     RepositoryFile empty = new RepositoryFile.Builder( "empty" ).build();
     RepositoryFileTree emptyDir = new RepositoryFileTree( empty, Collections.<RepositoryFileTree>emptyList() );

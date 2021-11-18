@@ -59,9 +59,8 @@ import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.anyObject;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -115,14 +114,14 @@ public class PentahoWebContextFilterTest {
     final IPentahoObjectReference pentahoObjectReference = mock( IPentahoObjectReference.class );
     when( pentahoObjectReference.getObject() ).thenReturn( systemConfig );
     try {
-      when( objectFactory.getObjectReferences( eq( ISystemConfig.class ), any( IPentahoSession.class ),
-          any( Map.class ) ) ).thenReturn( new LinkedList() { {
+      when( objectFactory.getObjectReferences( eq( ISystemConfig.class ), nullable( IPentahoSession.class ),
+          nullable( Map.class ) ) ).thenReturn( new LinkedList() { {
         add( pentahoObjectReference );
       } } );
     } catch ( ObjectFactoryException e ) {
       e.printStackTrace();
     }
-    when( settingsService.getSystemSetting( anyString(), anyString() ) ).thenReturn( "" );
+    when( settingsService.getSystemSetting( nullable( String.class ), nullable( String.class ) ) ).thenReturn( "" );
     PentahoSystem.registerObjectFactory( objectFactory );
 
     PentahoSystem.init();
@@ -212,7 +211,7 @@ public class PentahoWebContextFilterTest {
     filter.getRequireWaitTime();
 
     verify( cacheManager, times( 2 ) ).getFromGlobalCache( eq( PentahoSystem.WAIT_SECONDS ) );
-    verify( cacheManager, times( 1 ) ).putInGlobalCache( eq( PentahoSystem.WAIT_SECONDS ), anyObject() );
+    verify( cacheManager, times( 1 ) ).putInGlobalCache( eq( PentahoSystem.WAIT_SECONDS ), any() );
   }
 
   @Test

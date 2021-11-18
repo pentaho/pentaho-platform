@@ -14,12 +14,11 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources.operations;
-
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,10 +34,20 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class CopyFilesOperation_CopyTest {
   private IUnifiedRepository repo;
@@ -86,11 +95,11 @@ public class CopyFilesOperation_CopyTest {
     Serializable destFolderId = destFolder.getId();
 
     doReturn( mockFile( generateID(), DEFAULT, DEFAULT ) ).when( repo )
-      .createFile( eq( destFolderId ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-        any( RepositoryFileAcl.class ), anyString() );
+      .createFile( eq( destFolderId ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
 
     doReturn( mockFolder( generateID(), DEFAULT, DEFAULT ) ).when( repo )
-      .createFolder( eq( destFolderId ), any( RepositoryFile.class ), any( RepositoryFileAcl.class ), anyString() );
+      .createFolder( eq( destFolderId ), nullable( RepositoryFile.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
 
     folder1 = mockFolder( generateID(), NAME_DIR_1, PATH_DIR_1 );
     folder2 = mockFolder( generateID(), NAME_DIR_2, PATH_DIR_2 );
@@ -107,7 +116,6 @@ public class CopyFilesOperation_CopyTest {
   }
 
   @Test( expected = IllegalArgumentException.class )
-  @SuppressWarnings( "unchecked" )
   public void copyFails_whenNoFilesGiven() {
     new CopyFilesOperation( repo, webService, Collections.emptyList(), PATH_DEST_DIR, 2 );
   }
@@ -125,14 +133,14 @@ public class CopyFilesOperation_CopyTest {
 
     RepositoryFileDto fileDto = mock( RepositoryFileDto.class );
     doReturn( conflictFile ).when( operation ).toFile( fileDto );
-    doReturn( fileDto ).when( operation ).toFileDto( eq( conflictFile ), anySet(), anyBoolean() );
+    doReturn( fileDto ).when( operation ).toFileDto( eq( conflictFile ), nullable( Set.class ), nullable( Boolean.class ) );
 
     doReturn( conflictFile ).when( repo )
-      .updateFile( eq( conflictFile ), any( IRepositoryFileData.class ), anyString() );
+      .updateFile( eq( conflictFile ), nullable( IRepositoryFileData.class ), nullable( String.class ) );
 
     operation.execute();
 
-    verify( repo ).updateFile( eq( conflictFile ), any( IRepositoryFileData.class ), anyString() );
+    verify( repo ).updateFile( eq( conflictFile ), nullable( IRepositoryFileData.class ), nullable( String.class ) );
   }
 
   @Test
@@ -150,11 +158,11 @@ public class CopyFilesOperation_CopyTest {
 
     // one file should be created, as there was 2 files, and 1 conflict
     verify( repo, times( 1 ) )
-      .createFile( eq( destFolderId ), any( RepositoryFile.class ), any( IRepositoryFileData.class ), any(
-        RepositoryFileAcl.class ), anyString() );
+      .createFile( eq( destFolderId ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ), nullable(
+        RepositoryFileAcl.class ), nullable( String.class ) );
     verify( repo, never() )
-      .createFolder( any( Serializable.class ), any( RepositoryFile.class ), any( RepositoryFileAcl.class ),
-        anyString() );
+      .createFolder( nullable( Serializable.class ), nullable( RepositoryFile.class ), nullable( RepositoryFileAcl.class ),
+        nullable( String.class ) );
   }
 
   @Test
@@ -168,21 +176,21 @@ public class CopyFilesOperation_CopyTest {
 
     operation = spy( operation );
     doNothing().when( operation )
-      .performFolderDeepCopy( any( RepositoryFile.class ), any( RepositoryFile.class ), anyInt() );
+      .performFolderDeepCopy( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), anyInt() );
 
     operation.execute();
 
     Serializable destFolderId = destFolder.getId();
 
-    verify( repo, times( 1 ) ).createFolder( eq( destFolderId ), any( RepositoryFile.class ),
-      any( RepositoryFileAcl.class ), anyString() );
+    verify( repo, times( 1 ) ).createFolder( eq( destFolderId ), nullable( RepositoryFile.class ),
+      nullable( RepositoryFileAcl.class ), nullable( String.class ) );
 
     verify( operation, times( 1 ) )
-      .performFolderDeepCopy( any( RepositoryFile.class ), any( RepositoryFile.class ), anyInt() );
+      .performFolderDeepCopy( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), anyInt() );
 
     verify( repo, never() )
-      .createFile( any( RepositoryFile.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ), any(
-        RepositoryFileAcl.class ), anyString() );
+      .createFile( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ), any(
+        RepositoryFileAcl.class ), nullable( String.class ) );
   }
 
   @Test
@@ -201,12 +209,12 @@ public class CopyFilesOperation_CopyTest {
     operation.execute();
 
     verify( repo, times( 2 ) )
-      .createFile( eq( destFolder.getId() ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-        any( RepositoryFileAcl.class ), anyString() );
+      .createFile( eq( destFolder.getId() ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
 
     verify( repo, never() )
-      .createFolder( any( RepositoryFile.class ), any( RepositoryFile.class ), any( RepositoryFileAcl.class ),
-        anyString() );
+      .createFolder( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), nullable( RepositoryFileAcl.class ),
+        nullable( String.class ) );
   }
 
   @Test
@@ -227,15 +235,15 @@ public class CopyFilesOperation_CopyTest {
     operation.execute();
 
     verify( repo, times( 2 ) )
-      .createFolder( eq( destFolder.getId() ), any( RepositoryFile.class ), any( RepositoryFileAcl.class ),
-        anyString() );
+      .createFolder( eq( destFolder.getId() ), nullable( RepositoryFile.class ), nullable( RepositoryFileAcl.class ),
+        nullable( String.class ) );
 
     verify( operation, times( 2 ) )
-      .performFolderDeepCopy( any( RepositoryFile.class ), any( RepositoryFile.class ), anyInt() );
+      .performFolderDeepCopy( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), anyInt() );
 
     verify( repo, never() )
-      .createFile( any( Serializable.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-        any( RepositoryFileAcl.class ), anyString() );
+      .createFile( nullable( Serializable.class ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
   }
 
   private List<String> getIdList( final RepositoryFile... files ) {

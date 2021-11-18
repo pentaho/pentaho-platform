@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -45,7 +45,11 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class JcrRepositoryFileDaoTest {
 
@@ -69,12 +73,12 @@ public class JcrRepositoryFileDaoTest {
     when( workspace.getVersionManager() ).thenReturn( versionManager );
     Session session = mock( Session.class );
     when( session.getWorkspace() ).thenReturn( workspace );
-    when( session.getNodeByIdentifier( anyString() ) ).thenReturn( node );
-    when( session.getItem( anyString() ) ).thenReturn( node );
+    when( session.getNodeByIdentifier( nullable( String.class) ) ).thenReturn( node );
+    when( session.getItem( nullable( String.class) ) ).thenReturn( node );
     pentahoSession = mock( IPentahoSession.class );
     PentahoSessionHolder.setSession( pentahoSession );
     IRepositoryVersionManager repositoryVersionManager = mock( IRepositoryVersionManager.class );
-    when( repositoryVersionManager.isVersioningEnabled( anyString() ) ).thenReturn( true );
+    when( repositoryVersionManager.isVersioningEnabled( nullable( String.class) ) ).thenReturn( true );
     PentahoSystem.registerObject( repositoryVersionManager );
     JcrTemplate jcrTemplate = new JcrTemplate() {
       @Override

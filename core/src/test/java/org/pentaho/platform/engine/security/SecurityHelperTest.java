@@ -14,16 +14,21 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.engine.security;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -41,7 +46,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.AdditionalMatchers;
-import org.mockito.Matchers;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISystemSettings;
@@ -144,7 +148,7 @@ public class SecurityHelperTest {
     IPentahoObjectFactory pentahoObjectFactory = mock( IPentahoObjectFactory.class, PENTAHO_OBJECT_FACTORY_MOCK_NAME );
     when( pentahoObjectFactory.objectDefined( eq( SINGLE_TENANT_ADMIN_USER_NAME ) ) ).thenReturn( true );
     when( pentahoObjectFactory.get( eq( String.class ), eq( SINGLE_TENANT_ADMIN_USER_NAME ),
-        Matchers.<IPentahoSession>any() ) ).thenReturn( ADMIN_USER_NAME );
+      nullable( IPentahoSession.class ) ) ).thenReturn( ADMIN_USER_NAME );
     when( pentahoObjectFactory.getName() ).thenReturn( PENTAHO_OBJECT_FACTORY_MOCK_NAME );
     boot.setFactory( pentahoObjectFactory );
 
@@ -189,13 +193,13 @@ public class SecurityHelperTest {
 
     IUserRoleListService userRoleListService = getUserRoleListServiceMock( "admin", new String[]{"authenticated"} );
 
-    when( userRoleListService.getRolesForUser( Matchers.<ITenant>any(), eq( "suzy" ) ) )
+    when( userRoleListService.getRolesForUser( any(), eq( "suzy" ) ) )
       .thenReturn( Collections.singletonList( "authenticated" ) );
 
     PentahoSystem.registerObject( userRoleListService );
     PentahoSystem.registerReference(
-        new SingletonPentahoObjectReference.Builder<String>( String.class ).object( "admin" )
-            .attributes( Collections.<String, Object>singletonMap( "id", "singleTenantAdminUserName" ) ).build() );
+      new SingletonPentahoObjectReference.Builder<>( String.class ).object( "admin" )
+            .attributes( Collections.singletonMap( "id", "singleTenantAdminUserName" ) ).build() );
 
     SecurityContextHolder.setStrategyName( PentahoSecurityContextHolderStrategy.class.getName() );
     UsernamePasswordAuthenticationToken token =
@@ -209,43 +213,35 @@ public class SecurityHelperTest {
     final CountDownLatch startSignal = new CountDownLatch( 1 );
     final CountDownLatch doneSignal = new CountDownLatch( 1 );
 
-    final Thread t2 = new Thread( new Runnable() {
-      @Override public void run() {
-        try {
-          SecurityContextHolder.setContext( context );
-          SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
-            @Override public Void call() throws Exception {
-              System.out.println( "Starting Thread 2" );
-              startSignal.await();
-              // waiting for t1 to finish
-              doneSignal.await();
-              System.out.println( "Finishing Thread 2" );
-              return null;
-            }
-          } );
-        } catch ( Exception e ) {
-          e.printStackTrace();
-          fail( e.getMessage() );
-        }
+    final Thread t2 = new Thread( () -> {
+      try {
+        SecurityContextHolder.setContext( context );
+        SecurityHelper.getInstance().runAsSystem( (Callable<Void>) () -> {
+          System.out.println( "Starting Thread 2" );
+          startSignal.await();
+          // waiting for t1 to finish
+          doneSignal.await();
+          System.out.println( "Finishing Thread 2" );
+          return null;
+        } );
+      } catch ( Exception e ) {
+        e.printStackTrace();
+        fail( e.getMessage() );
       }
     } );
 
-    final Thread t1 = new Thread( new Runnable() {
-      @Override public void run() {
-        try {
-          SecurityContextHolder.setContext( context );
-          SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
-            @Override public Void call() throws Exception {
-              System.out.println( "Starting Thread 1" );
-              startSignal.await();
-              System.out.println( "Finishing Thread 1" );
-              return null;
-            }
-          } );
-        } catch ( Exception e ) {
-          e.printStackTrace();
-          fail( e.getMessage() );
-        }
+    final Thread t1 = new Thread( () -> {
+      try {
+        SecurityContextHolder.setContext( context );
+        SecurityHelper.getInstance().runAsSystem( (Callable<Void>) () -> {
+          System.out.println( "Starting Thread 1" );
+          startSignal.await();
+          System.out.println( "Finishing Thread 1" );
+          return null;
+        } );
+      } catch ( Exception e ) {
+        e.printStackTrace();
+        fail( e.getMessage() );
       }
     } );
 
@@ -269,37 +265,33 @@ public class SecurityHelperTest {
 
     IUserRoleListService userRoleListService = getUserRoleListServiceMock( "admin", new String[]{"authenticated"} );
 
-    when( userRoleListService.getRolesForUser( Matchers.<ITenant>any(), eq( "suzy" ) ) ).thenReturn( Collections.singletonList( "authenticated" ) );
+    when( userRoleListService.getRolesForUser( any(), eq( "suzy" ) ) ).thenReturn( Collections.singletonList( "authenticated" ) );
 
     PentahoSystem.registerObject( userRoleListService );
     PentahoSystem.registerReference(
-        new SingletonPentahoObjectReference.Builder<String>( String.class ).object( "admin" )
-            .attributes( Collections.<String, Object>singletonMap( "id", "singleTenantAdminUserName" ) ).build() );
+      new SingletonPentahoObjectReference.Builder<>( String.class ).object( "admin" )
+            .attributes( Collections.singletonMap( "id", "singleTenantAdminUserName" ) ).build() );
 
     SecurityContextHolder.setStrategyName( PentahoSecurityContextHolderStrategy.class.getName() );
     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken( "suzy", "password" );
     SecurityContextHolder.getContext().setAuthentication( token );
-    SecurityHelper.getInstance().runAsSystem( new Callable<Void>() {
-      @Override public Void call() throws Exception {
+    SecurityHelper.getInstance().runAsSystem( (Callable<Void>) () -> {
 
-        try {
-          SecurityHelper.getInstance().runAsUser( "suzy", new Callable<Void>() {
-            @Override public Void call() throws Exception {
+      try {
+        SecurityHelper.getInstance().runAsUser( "suzy", (Callable<Void>) () -> {
 
-              assertEquals(
-                  ( (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal() ).getUsername(),
-                  "suzy" );
-              throw new NullPointerException();
-            }
-          } );
-        } catch ( Exception e ) {
-          /* No-op */
-        }
-
-        assertEquals( ( (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal() ).getUsername(),
-            "admin" );
-        return null;
+          assertEquals(
+              ( (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal() ).getUsername(),
+              "suzy" );
+          throw new NullPointerException();
+        } );
+      } catch ( Exception e ) {
+        /* No-op */
       }
+
+      assertEquals( ( (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal() ).getUsername(),
+          "admin" );
+      return null;
     } );
     assertSame( SecurityContextHolder.getContext().getAuthentication(), token );
   }
@@ -344,11 +336,11 @@ public class SecurityHelperTest {
 
   private IUserRoleListService getUserRoleListServiceMock( String userName, String[] roles ) {
     IUserRoleListService mockUserRoleListService = mock( IUserRoleListService.class );
-    List<String> noRoles = new ArrayList<String>();
-    List<String> allRoles = new ArrayList<String>( Arrays.asList( roles ) );
+    List<String> noRoles = new ArrayList<>();
+    List<String> allRoles = new ArrayList<>( Arrays.asList( roles ) );
 
-    when( mockUserRoleListService.getRolesForUser( Matchers.<ITenant>any(), eq( userName ) ) ).thenReturn( allRoles );
-    when( mockUserRoleListService.getRolesForUser( Matchers.<ITenant>any(), AdditionalMatchers.not( eq( userName ) ) ) )
+    when( mockUserRoleListService.getRolesForUser( any(), eq( userName ) ) ).thenReturn( allRoles );
+    when( mockUserRoleListService.getRolesForUser( any( ITenant.class ), AdditionalMatchers.not( eq( userName ) ) ) )
         .thenReturn( noRoles );
 
     return mockUserRoleListService;

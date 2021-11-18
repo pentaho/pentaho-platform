@@ -14,25 +14,28 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.io.*;
-import java.text.ParseException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
@@ -58,8 +61,6 @@ import org.pentaho.platform.plugin.services.importer.SolutionImportHandler;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 
-
-
 public class RepositoryImportResourceTest {
   private static final String REAL_USER = "testUser";
   private static final String IMPORT_DIR = "/home/" + REAL_USER;
@@ -82,8 +83,8 @@ public class RepositoryImportResourceTest {
     policy = mock( IAuthorizationPolicy.class );
     ITenant tenat = mock( ITenant.class );
     resolver = mock( ITenantedPrincipleNameResolver.class );
-    doReturn( tenat ).when( resolver ).getTenant( anyString() );
-    doReturn( REAL_USER ).when( resolver ).getPrincipleName( anyString() );
+    doReturn( tenat ).when( resolver ).getTenant( nullable( String.class ) );
+    doReturn( REAL_USER ).when( resolver ).getPrincipleName( nullable( String.class ) );
     policy = mock( IAuthorizationPolicy.class );
     pentahoObjectFactory = mock( IPentahoObjectFactory.class );
     iPlatformMimeResolver = mock( NameBaseMimeResolver.class );
@@ -93,50 +94,38 @@ public class RepositoryImportResourceTest {
     doReturn( iRepositoryImportLogger ).when( importer ).getRepositoryImportLogger();
     //for calling importFile in RepositoryImportResource
     doAnswer(
-        new Answer<Void>() {
-          @Override
-          public Void answer( InvocationOnMock invocation ) throws Throwable {
-            handler.importFile( any( IPlatformImportBundle.class ) );
-            return null;
-          }
-        } ).when( importer ).importFile( any( IPlatformImportBundle.class ) );
+      (Answer<Void>) invocation -> {
+        handler.importFile( any( IPlatformImportBundle.class ) );
+        return null;
+      } ).when( importer ).importFile( any( IPlatformImportBundle.class ) );
     //for calling importFile in PentahoPlatformImporter
     doAnswer(
-        new Answer<Void>() {
-          @Override
-          public Void answer( InvocationOnMock invocation ) throws Throwable {
-            handler.getImportSession();
-            return null;
-          }
-        } ).when( handler ).importFile( any( IPlatformImportBundle.class ) );
+      (Answer<Void>) invocation -> {
+        handler.getImportSession();
+        return null;
+      } ).when( handler ).importFile( any( IPlatformImportBundle.class ) );
     //for calling getImportSession in SolutionImportHandler
     doAnswer(
-        new Answer<Void>() {
-          @Override
-          public Void answer( InvocationOnMock invocation ) throws Throwable {
-            ImportSession importsession = ImportSession.getSession();
-            importsession.setManifest( mock( ExportManifest.class ) );
-            return null;
-          }
-        } ).when( handler ).getImportSession();
+      (Answer<Void>) invocation -> {
+        ImportSession importsession = ImportSession.getSession();
+        importsession.setManifest( mock( ExportManifest.class ) );
+        return null;
+      } ).when( handler ).getImportSession();
 
-    when( pentahoObjectFactory.objectDefined( anyString() ) ).thenReturn( true );
-    when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer(
-        new Answer<Object>() {
-          @Override
-          public Object answer( InvocationOnMock invocation ) throws Throwable {
-            if ( invocation.getArguments()[0].equals( IAuthorizationPolicy.class ) ) {
-              return policy;
-            }
-            if ( invocation.getArguments()[0].equals( ITenantedPrincipleNameResolver.class ) ) {
-              return resolver;
-            }
-            if ( invocation.getArguments()[0].equals( IMondrianCatalogService.class ) ) {
-              return catalogService;
-            }
-            return null;
-          }
-        } );
+    when( pentahoObjectFactory.objectDefined( nullable( String.class ) ) ).thenReturn( true );
+    when( pentahoObjectFactory.get( this.anyClass(), nullable( String.class ), any( IPentahoSession.class ) ) ).thenAnswer(
+      invocation -> {
+        if ( invocation.getArguments()[0].equals( IAuthorizationPolicy.class ) ) {
+          return policy;
+        }
+        if ( invocation.getArguments()[0].equals( ITenantedPrincipleNameResolver.class ) ) {
+          return resolver;
+        }
+        if ( invocation.getArguments()[0].equals( IMondrianCatalogService.class ) ) {
+          return catalogService;
+        }
+        return null;
+      } );
 
     PentahoSystem.registerObjectFactory( pentahoObjectFactory );
     PentahoSystem.registerObject( iPlatformMimeResolver );
@@ -153,25 +142,20 @@ public class RepositoryImportResourceTest {
   }
 
   @Test
-  public void doPostImport() throws ParseException, PlatformImportException {
+  public void doPostImport() {
     RepositoryImportResource importResource = new RepositoryImportResource();
     InputStream mockInputStream = mock( InputStream.class );
     FormDataContentDisposition formDataContentDisposition =  mock( FormDataContentDisposition.class );
-    when( policy.isAllowed( anyString() ) ).thenAnswer( new Answer<Boolean>() {
-      @Override
-      public Boolean answer( InvocationOnMock invocation ) throws Throwable {
-        return true;
-      }
-    } );
+    when( policy.isAllowed( nullable( String.class ) ) ).thenAnswer( (Answer<Boolean>) invocation -> true );
     importResource.doPostImport( IMPORT_DIR, mockInputStream, "true", "true", "true", "true", "UTF-8", "WARN", formDataContentDisposition, "" );
     Assert.assertNull( ImportSession.getSession().getManifest()  );
   }
   private Class<?> anyClass() {
     return argThat( new AnyClassMatcher() );
   }
-  private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
+  private static class AnyClassMatcher implements ArgumentMatcher<Class<?>> {
     @Override
-    public boolean matches( final Object arg ) {
+    public boolean matches( final Class<?> arg ) {
       return true;
     }
   }

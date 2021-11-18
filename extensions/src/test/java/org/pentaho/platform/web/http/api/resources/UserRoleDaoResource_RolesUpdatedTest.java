@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
 
@@ -80,7 +80,7 @@ public class UserRoleDaoResource_RolesUpdatedTest {
     doReturn( session ).when( resource ).getSession();
     userRoleDao = mock( IUserRoleDao.class );
     doReturn( new ArrayList<IPentahoRole>() ).when( userRoleDao ).getRoles( any( ITenant.class ) );
-    doReturn( mock( ITenant.class ) ).when( resource ).getTenant( anyString() );
+    doReturn( mock( ITenant.class ) ).when( resource ).getTenant( nullable( String.class ) );
     doReturn( userRoleDao ).when( resource ).getUserRoleDao();
     doReturn( true ).when( resource ).canAdminister();
   }
