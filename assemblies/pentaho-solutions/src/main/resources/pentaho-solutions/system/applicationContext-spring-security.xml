@@ -306,10 +306,7 @@
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/(.+/)*.+\.js.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/kettle/executeJob.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/kettle/executeTrans.*\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/.*require-cfg.js.*\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/.*require-js-cfg.js.*\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/content/common-ui/resources/web/require.js.*\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/content/common-ui/resources/web/require-cfg.js.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/[^\?]*(require)(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/data-access/resources/gwt/.*css\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webcontext.js.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/cache/cache-service.js.*\Z" access="Anonymous,Authenticated" />
@@ -393,8 +390,7 @@
         <sec:intercept-url pattern="\A/plugin/reporting/api/jobs/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
         <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="OPTIONS" />
         <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
-        <sec:intercept-url pattern="\A/api/.*require-cfg.js.*\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/api/.*require-js-cfg.js.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/api/[^\?]*(require)(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/api/.*\Z" access="Authenticated" />
         <sec:intercept-url pattern="\A/plugin/.*\Z" access="Authenticated" />
       </sec:filter-security-metadata-source>

@@ -9,7 +9,7 @@
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-repository</artifactId>
-  <version>9.0.0.7-758</version>
+  <version>9.0.0.7-CUST-259</version>
   <properties>
     <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>

@@ -9,7 +9,7 @@
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-extensions</artifactId>
-  <version>9.0.0.7-758</version>
+  <version>9.0.0.7-CUST-259</version>
   <properties>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
@@ -2039,7 +2039,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>${project.version}</version>
+      <version>9.0.0.7-CUST-259</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -2064,7 +2064,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>${project.version}</version>
+      <version>9.0.0.7-CUST-259</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
